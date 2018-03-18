@@ -1,0 +1,26 @@
+{
+  "name": "phasercraft",
+  "version": "1.0.0",
+  "description": "A Phaser based RPG game",
+  "main": "app.js",
+  "scripts": {
+    "start": "http-server -o -s",
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/chriskinch/phasercraft.git"
+  },
+  "author": "Chris Kinch",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/chriskinch/phasercraft/issues"
+  },
+  "homepage": "https://github.com/chriskinch/phasercraft#readme",
+  "devDependencies": {
+    "browser-sync": "^2.23.6",
+    "browserify": "^16.1.1",
+    "gulp": "^3.9.1",
+    "gulp-uglify": "^3.0.0"
+  }
+}
