@@ -4,7 +4,8 @@
   "description": "A Phaser based RPG game",
   "main": "app.js",
   "scripts": {
-    "start": "http-server -o -s",
+    "start": "webpack-dev-server --open",
+    "build": "webpack",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "repository": {
@@ -18,9 +19,29 @@
   },
   "homepage": "https://github.com/chriskinch/phasercraft#readme",
   "devDependencies": {
+    "babel-core": "^6.26.0",
+    "babel-preset-env": "^1.6.1",
     "browser-sync": "^2.23.6",
     "browserify": "^16.1.1",
+    "clean-webpack-plugin": "^0.1.19",
+    "file-loader": "^1.1.11",
     "gulp": "^3.9.1",
-    "gulp-uglify": "^3.0.0"
+    "gulp-babel": "^7.0.1",
+    "gulp-browserify": "^0.5.1",
+    "gulp-uglify": "^3.0.0",
+    "html-webpack-plugin": "^3.1.0",
+    "json-loader": "^0.5.7",
+    "raw-loader": "^0.5.1",
+    "webpack": "^4.2.0",
+    "webpack-cli": "^2.0.13",
+    "webpack-dev-server": "^3.1.1",
+    "webpack-livereload-plugin": "^2.1.1"
+  },
+  "dependencies": {
+    "array-flatten": "^2.1.1",
+    "array.prototype.flatmap": "^1.2.1",
+    "array.prototype.flatten": "^1.2.1",
+    "flat-map-polyfill": "^0.3.8",
+    "phaser": "^3.3.0"
   }
 }

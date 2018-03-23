@@ -1,10 +1,19 @@
-var gulp        = require('gulp');
-var browserSync = require('browser-sync').create();
+const gulp        = require('gulp');
+const browserSync = require('browser-sync').create();
+const babel = require('gulp-babel');
+const browserify = require('gulp-browserify');
 
 // process JS files and return the stream.
 gulp.task('js', function () {
     return gulp.src('*js')
-        .pipe(gulp.dest('dist/js'));
+        .pipe(babel({
+            presets: ['env']
+        }))
+        .pipe(browserify({
+            insertGlobals : true,
+            debug : !gulp.env.production
+        }))
+        .pipe(gulp.dest('dist/js'))
 });
 
 // create a task that ensures the `js` task is complete before
