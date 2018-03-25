@@ -1,16 +1,18 @@
 import { getSpellSchools, getAssendedClass } from '../Config/ClassConfig'
 
-export default class Hero {
-	
-	constructor(options) {
-		const { name, primary_class, secondary_class } = options;
+class Hero extends Phaser.GameObjects.Sprite {
 
-		this.name = name;
-		this.type = this.setClass([primary_class, secondary_class]);
+	constructor(config) {
+		super(config.scene, config.x, config.y, config.key);
+
+		this.name = config.name;
+		this.type = this.setClass([config.primary_class, config.secondary_class]);
 		this.spell_schools = this.setSpellSchools();
 		this.assended = false;
 
 		this.assendClass = this.assendClass.bind(this);
+
+		config.scene.add.existing(this);
 	}
 
     setClass(types){
@@ -29,11 +31,27 @@ export default class Hero {
 	    }
     }
 
-    preload(){
-        
-    }
+    update(keys, time, delta) {
+		let input = {
+			up: keys.up.isDown,
+			left: keys.left.isDown,
+			right: keys.right.isDown,
+			down: keys.down.isDown,
+		}
 
-    create(){
+		if(input.right) {
+			if(!this.moving) {
+				this.anims.play('right');
+				this.moving = true;
+			}
+    	}else{
+    		if(this.moving) {
+    			this.anims.stop('right');
+    			this.moving = false;
+    		}
+    	}
 
     }
 }
+
+export default Hero;
