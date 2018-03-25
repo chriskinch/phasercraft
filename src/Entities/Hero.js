@@ -44,6 +44,7 @@ class Hero extends Phaser.GameObjects.Sprite {
 				this.anims.play('right');
 				this.moving = true;
 			}
+			this.x += 2;
     	}else{
     		if(this.moving) {
     			this.anims.stop('right');
