@@ -31,27 +31,61 @@ class Hero extends Phaser.GameObjects.Sprite {
 	    }
     }
 
-    update(keys, time, delta) {
-		let input = {
-			up: keys.up.isDown,
-			left: keys.left.isDown,
-			right: keys.right.isDown,
-			down: keys.down.isDown,
+  //   update(keys, time, delta) {
+  //   	let input = {
+		// 	up: keys.up.isDown,
+		// 	left: keys.left.isDown,
+		// 	right: keys.right.isDown,
+		// 	down: keys.down.isDown,
+		// }
+
+  //   	for(let key in input) {
+  //   		this.move(key, input[key])
+  //   	}
+		
+  //   }
+
+  //   move(direction, isDown) {
+  //   	if(isDown) {
+		// 	if(!this.moving) {
+		// 		this.anims.play('blank-hero-right');
+		// 		this.moving = true;
+		// 	}
+		// 	this.x += 2;
+  //   	}else{
+  //   		if(this.moving) {
+  //   			this.anims.stop('blank-hero-' + direction);
+  //   			this.moving = false;
+  //   		}
+  //   	}
+  //   }
+
+     update(mouse, time, delta) {
+		//console.log(mouse)
+
+
+		if(mouse.left) {
+			if(!this.moving){
+				this.anims.play('blank-hero-right');
+			}
+			this.moving = true;
+			this.x += 2;
+		}else{
+			this.moving = false;
 		}
 
-		if(input.right) {
-			if(!this.moving) {
-				this.anims.play('right');
-				this.moving = true;
-			}
-			this.x += 2;
-    	}else{
-    		if(this.moving) {
-    			this.anims.stop('right');
-    			this.moving = false;
-    		}
-    	}
-
+		// if(input.right) {
+		// 	if(!this.moving) {
+		// 		this.anims.play('blank-hero-right');
+		// 		this.moving = true;
+		// 	}
+		// 	this.x += 2;
+  //   	}else{
+  //   		if(this.moving) {
+  //   			this.anims.stop('blank-hero-right');
+  //   			this.moving = false;
+  //   		}
+  //   	}
     }
 }
 

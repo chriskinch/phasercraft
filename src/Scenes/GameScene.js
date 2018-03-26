@@ -1,4 +1,5 @@
-import LinkIdle from '../Graphics/blank_hero_idle.png';
+import HeroIdle from '../Graphics/blank_hero_idle.png';
+import HeroSprite from '../Graphics/blank.png';
 import LinkRight from '../Graphics/blank_hero_right.png';
 import Hero from '../Entities/Hero';
 
@@ -11,18 +12,27 @@ class GameScene extends Phaser.Scene {
     }
 
     preload (){
-        this.load.image('blank-hero-idle', LinkIdle);
-        this.load.spritesheet('blank-hero-right', LinkRight, { frameWidth: 64, frameHeight: 64, endFrame: 9 });
+        this.load.image('blank-hero-idle', HeroIdle);
+        this.load.spritesheet('blank-hero', HeroSprite, { frameWidth: 64, frameHeight: 64, endFrame: 36 });
     }
 
     create (){
-        this.anims.create({
-            key: 'right',
-            frames: this.anims.generateFrameNumbers('blank-hero-right', { start: 0, end: 8 }),
-            frameRate: 12,
-            repeat: -1
-        });
+        let animations = [
+            {key: "blank-hero-right", frames: { start: 0, end: 8 }},
+            {key: "blank-hero-left", frames: { start: 9, end: 17 }},
+            {key: "blank-hero-up", frames: { start: 18, end: 26 }},
+            {key: "blank-hero-down", frames: { start: 28, end: 36 }}
+        ]
 
+        animations.forEach(animation => {
+            this.anims.create({
+                key: animation.key,
+                frames: this.anims.generateFrameNumbers('blank-hero', animation.frames),
+                frameRate: 12,
+                repeat: -1
+            });
+        });
+        
         this.hero = new Hero({
             scene: this,
             key: 'blank-hero-idle',
@@ -33,6 +43,8 @@ class GameScene extends Phaser.Scene {
         });
         console.log(this.hero)
 
+        this.input.mouse.capture = true;
+        
         this.keys = {
           up: this.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.W),
           left: this.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.A),
@@ -42,7 +54,18 @@ class GameScene extends Phaser.Scene {
     }
 
     update(time, delta) {
-        this.hero.update(this.keys, time, delta);
+        this.mouse = {
+            left: (this.input.activePointer.buttons === 1 && this.input.activePointer.isDown),
+            middle: (this.input.activePointer.buttons === 4 && this.input.activePointer.isDown),
+            right: (this.input.activePointer.buttons === 2 && this.input.activePointer.isDown),
+        }
+        this.hero.update(this.mouse, time, delta);
+    }
+
+    render() {
+        game.debug.text("Left Button: " + game.input.activePointer.leftButton.isDown, 300, 132);
+        game.debug.text("Middle Button: " + game.input.activePointer.middleButton.isDown, 300, 196);
+        game.debug.text("Right Button: " + game.input.activePointer.rightButton.isDown, 300, 260);
     }
 }
 
