@@ -6,7 +6,6 @@ class Hero extends Phaser.GameObjects.Sprite {
 		super(config.scene, config.x, config.y, config.key);
 		config.scene.physics.world.enable(this);
 		config.scene.add.existing(this);
-		console.log(config)
 
 		this.name = config.name;
 		this.type = this.setClass([config.primary_class, config.secondary_class]);
@@ -19,7 +18,7 @@ class Hero extends Phaser.GameObjects.Sprite {
 		}
 		this.assendClass = this.assendClass.bind(this);
 
-		console.log()
+		console.log(this);
 	}
 
     setClass(types){
@@ -93,15 +92,17 @@ class Hero extends Phaser.GameObjects.Sprite {
   //   	}
   //   }
 
-     update(mouse, time, delta) {
+     update(mouse, keys, time, delta) {
      	let isClose = this.isClose(this, this.pointer_down);
+
+		//console.log(keys.space.isDown)
 
 		if(isClose) {
 			this.body.setVelocity(0)
 			this.anims.stop();
 		}
 
-		if(mouse.left) {
+		if(mouse.left.isDown) {
 			let hero = this;
 			this.pointer_down = {
 				x: mouse.pointer.x,
@@ -112,6 +113,10 @@ class Hero extends Phaser.GameObjects.Sprite {
 				var dir = this.mouseDirection(mouse.pointer);
 				this.anims.play('blank-hero-' + dir, true);
 			}
+		}
+
+		if(keys.space.isDown) {
+			this.anims.play('blank-hero-swing-right', 1);
 		}
     }
 }

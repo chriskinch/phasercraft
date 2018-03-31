@@ -13,15 +13,16 @@ class GameScene extends Phaser.Scene {
 
     preload (){
         this.load.image('blank-hero-idle', HeroIdle);
-        this.load.spritesheet('blank-hero', HeroSprite, { frameWidth: 64, frameHeight: 64, endFrame: 36 });
+        this.load.spritesheet('blank-hero', HeroSprite, { frameWidth: 64, frameHeight: 64, endFrame: 41 });
     }
 
     create (){
         let animations = [
-            {key: "blank-hero-right", frames: { start: 0, end: 8 }},
-            {key: "blank-hero-left", frames: { start: 9, end: 17 }},
-            {key: "blank-hero-up", frames: { start: 19, end: 26 }},
-            {key: "blank-hero-down", frames: { start: 28, end: 35 }}
+            {key: "blank-hero-right", frames: { start: 0, end: 8 }, repeat:-1},
+            {key: "blank-hero-left", frames: { start: 9, end: 17 }, repeat:-1},
+            {key: "blank-hero-up", frames: { start: 19, end: 26 }, repeat:-1},
+            {key: "blank-hero-down", frames: { start: 28, end: 35 }, repeat:-1},
+            {key: "blank-hero-swing-right", frames: { start: 36, end: 41 }, repeat:1}
         ]
 
         animations.forEach(animation => {
@@ -29,7 +30,7 @@ class GameScene extends Phaser.Scene {
                 key: animation.key,
                 frames: this.anims.generateFrameNumbers('blank-hero', animation.frames),
                 frameRate: 12,
-                repeat: -1
+                repeat: animation.repeat
             });
         });
         
@@ -39,7 +40,8 @@ class GameScene extends Phaser.Scene {
             x: 16 * 6, // 3500, 
             y: this.sys.game.config.height - 48 - 48,
             name: "Chris",
-            primary_class: "cleric"
+            primary_class: "cleric",
+            secondary_class: "warrior"
         });
 
         //this.cameras.main.startFollow(player);
@@ -47,21 +49,19 @@ class GameScene extends Phaser.Scene {
         this.input.mouse.capture = true;
         
         this.keys = {
-          up: this.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.W),
-          left: this.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.A),
-          right: this.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.D),
-          down: this.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.S),
+          space: this.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.SPACE),
         };
     }
 
     update(time, delta) {
-        this.mouse = {
+        let mouse = {
             pointer: this.input.activePointer,
-            left: (this.input.activePointer.buttons === 1 && this.input.activePointer.isDown),
-            middle: (this.input.activePointer.buttons === 4 && this.input.activePointer.isDown),
-            right: (this.input.activePointer.buttons === 2 && this.input.activePointer.isDown),
+            left: { isDown: (this.input.activePointer.buttons === 1 && this.input.activePointer.isDown) },
+            middle: { isDown: (this.input.activePointer.buttons === 4 && this.input.activePointer.isDown) },
+            right: { isDown: (this.input.activePointer.buttons === 2 && this.input.activePointer.isDown) },
         }
-        this.hero.update(this.mouse, time, delta);
+
+        this.hero.update(mouse, this.keys, time, delta);
     }
 
     render() {
