@@ -20,8 +20,8 @@ class GameScene extends Phaser.Scene {
         let animations = [
             {key: "blank-hero-right", frames: { start: 0, end: 8 }},
             {key: "blank-hero-left", frames: { start: 9, end: 17 }},
-            {key: "blank-hero-up", frames: { start: 18, end: 26 }},
-            {key: "blank-hero-down", frames: { start: 28, end: 36 }}
+            {key: "blank-hero-up", frames: { start: 19, end: 26 }},
+            {key: "blank-hero-down", frames: { start: 28, end: 35 }}
         ]
 
         animations.forEach(animation => {
@@ -41,7 +41,8 @@ class GameScene extends Phaser.Scene {
             name: "Chris",
             primary_class: "cleric"
         });
-        console.log(this.hero)
+
+        //this.cameras.main.startFollow(player);
 
         this.input.mouse.capture = true;
         
@@ -55,6 +56,7 @@ class GameScene extends Phaser.Scene {
 
     update(time, delta) {
         this.mouse = {
+            pointer: this.input.activePointer,
             left: (this.input.activePointer.buttons === 1 && this.input.activePointer.isDown),
             middle: (this.input.activePointer.buttons === 4 && this.input.activePointer.isDown),
             right: (this.input.activePointer.buttons === 2 && this.input.activePointer.isDown),
