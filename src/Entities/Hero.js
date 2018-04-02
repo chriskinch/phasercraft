@@ -11,7 +11,7 @@ class Hero extends Phaser.GameObjects.Sprite {
 		this.type = this.setClass([config.primary_class, config.secondary_class]);
 		this.spell_schools = this.setSpellSchools();
 		this.assended = false;
-		this.moving = false;
+		this.alive = true;
 
 		this.destination = {
 			x: null,
@@ -19,14 +19,15 @@ class Hero extends Phaser.GameObjects.Sprite {
 		}
 		this.assendClass = this.assendClass.bind(this);
 
-		this.playerIdle();
+		this.idle();
+		console.log(this)
 	}
 
 	update(mouse, keys, time, delta) {
 		let arrived = this.atDestination(this, this.destination);
 
 		if(arrived && this.body.speed > 0) {
-			this.playerIdle();
+			this.idle();
 		}
 
 		if(mouse.left.isDown) {
@@ -44,9 +45,14 @@ class Hero extends Phaser.GameObjects.Sprite {
 		}
 	}
 
-	playerIdle(){
+	idle(){
 		this.body.setVelocity(0);
 		this.anims.play('player-idle', true);
+	}
+
+	death(){
+		this.alive = false;
+		this.anims.play('player-death');
 	}
 
 	setClass(types){
