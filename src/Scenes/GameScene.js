@@ -1,5 +1,4 @@
-import HeroIdle from '../Graphics/blank_hero_idle.png';
-import HeroSprite from '../Graphics/blank.png';
+import PlayerSprite from '../Graphics/player.png';
 import LinkRight from '../Graphics/blank_hero_right.png';
 import Hero from '../Entities/Hero';
 
@@ -12,31 +11,28 @@ class GameScene extends Phaser.Scene {
     }
 
     preload (){
-        this.load.image('blank-hero-idle', HeroIdle);
-        this.load.spritesheet('blank-hero', HeroSprite, { frameWidth: 64, frameHeight: 64, endFrame: 41 });
+        this.load.spritesheet('player', PlayerSprite, { frameWidth: 24, frameHeight: 32 });
     }
 
     create (){
         let animations = [
-            {key: "blank-hero-right", frames: { start: 0, end: 8 }, repeat:-1},
-            {key: "blank-hero-left", frames: { start: 9, end: 17 }, repeat:-1},
-            {key: "blank-hero-up", frames: { start: 19, end: 26 }, repeat:-1},
-            {key: "blank-hero-down", frames: { start: 28, end: 35 }, repeat:-1},
-            {key: "blank-hero-swing-right", frames: { start: 36, end: 41 }, repeat:1}
+            {key: "player-idle", frames: { start: 12, end: 17 }},
+            {key: "player-right-up", frames: { start: 0, end: 5 }},
+            {key: "player-left-down", frames: { start: 6, end: 11 }}
         ]
 
         animations.forEach(animation => {
             this.anims.create({
                 key: animation.key,
-                frames: this.anims.generateFrameNumbers('blank-hero', animation.frames),
+                frames: this.anims.generateFrameNumbers('player', animation.frames),
                 frameRate: 12,
-                repeat: animation.repeat
+                repeat: -1
             });
         });
         
         this.hero = new Hero({
             scene: this,
-            key: 'blank-hero-idle',
+            key: 'player',
             x: 16 * 6, // 3500, 
             y: this.sys.game.config.height - 48 - 48,
             name: "Chris",
@@ -44,13 +40,10 @@ class GameScene extends Phaser.Scene {
             secondary_class: "warrior"
         });
 
-        //this.cameras.main.startFollow(player);
+        //this.cameras.main.startFollow(this.hero);
 
         this.input.mouse.capture = true;
-        
-        this.keys = {
-          space: this.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.SPACE),
-        };
+        this.cursors = this.input.keyboard.createCursorKeys();
     }
 
     update(time, delta) {
@@ -61,7 +54,7 @@ class GameScene extends Phaser.Scene {
             right: { isDown: (this.input.activePointer.buttons === 2 && this.input.activePointer.isDown) },
         }
 
-        this.hero.update(mouse, this.keys, time, delta);
+        this.hero.update(mouse, this.cursors, time, delta);
     }
 
     render() {
