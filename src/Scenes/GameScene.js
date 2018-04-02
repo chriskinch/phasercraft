@@ -19,9 +19,10 @@ class GameScene extends Phaser.Scene {
 
 		create (){
 			let player_animations = [
-				{key: "player-idle", frames: { start: 12, end: 17 }},
-				{key: "player-right-up", frames: { start: 0, end: 5 }},
-				{key: "player-left-down", frames: { start: 6, end: 11 }}
+				{key: "player-idle", frames: { start: 12, end: 17 }, repeat: -1},
+				{key: "player-right-up", frames: { start: 0, end: 5 }, repeat: -1},
+				{key: "player-left-down", frames: { start: 6, end: 11 }, repeat: -1},
+				{key: "player-death", frames: { start: 18, end: 23 }, repeat: 0}
 			]
 
 			player_animations.forEach(animation => {
@@ -29,7 +30,7 @@ class GameScene extends Phaser.Scene {
 					key: animation.key,
 					frames: this.anims.generateFrameNumbers('player', animation.frames),
 					frameRate: 12,
-					repeat: -1
+					repeat: animation.repeat
 				});
 			});
 
@@ -81,6 +82,9 @@ class GameScene extends Phaser.Scene {
 
 			this.input.mouse.capture = true;
 			this.cursors = this.input.keyboard.createCursorKeys();
+
+
+			this.physics.add.collider(this.hero, this.enemy, this.gameOver, null, this);
 		}
 
 		update(time, delta) {
@@ -91,14 +95,13 @@ class GameScene extends Phaser.Scene {
 				right: { isDown: (this.input.activePointer.buttons === 2 && this.input.activePointer.isDown) },
 			}
 
-			this.hero.update(mouse, this.cursors, time, delta);
+			if(this.hero.alive) this.hero.update(mouse, this.cursors, time, delta);
 			this.enemy.update(time, delta);
 		}
 
-		render() {
-			game.debug.text("Left Button: " + game.input.activePointer.leftButton.isDown, 300, 132);
-			game.debug.text("Middle Button: " + game.input.activePointer.middleButton.isDown, 300, 196);
-			game.debug.text("Right Button: " + game.input.activePointer.rightButton.isDown, 300, 260);
+		gameOver() {
+			this.physics.pause();
+			this.hero.death();
 		}
 }
 
