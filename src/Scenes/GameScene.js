@@ -63,7 +63,8 @@ class GameScene extends Phaser.Scene {
 				x: 600,
 				y: 100,
 				name: "Bob",
-				type: "zombie"
+				type: "zombie",
+				damage: 5
 			});
 
 			//this.cameras.main.startFollow(this.player hero);
@@ -71,7 +72,7 @@ class GameScene extends Phaser.Scene {
 			this.input.mouse.capture = true;
 			this.cursors = this.input.keyboard.createCursorKeys();
 
-			this.physics.add.collider(this.player.hero, this.enemy, this.gameOver, null, this);
+			this.physics.add.collider(this.player.hero, this.enemy, this.player.takeDamage, null, this.player);
 		}
 
 		update(time, delta) {
@@ -83,15 +84,6 @@ class GameScene extends Phaser.Scene {
 			}
 			if(this.player.hero.alive) this.player.update(mouse, this.cursors, time, delta);
 			this.enemy.update(time, delta);
-		}
-
-		gameOver() {
-			this.player.setResource('health', -10);
-			console.log(this.player.getResource('health'))
-			if(this.player.getResource('health') <= 0) {
-				this.physics.pause();
-				this.player.hero.death();
-			}
 		}
 }
 

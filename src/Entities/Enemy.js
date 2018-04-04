@@ -7,7 +7,8 @@ class Enemy extends Phaser.GameObjects.Sprite {
 
 		this.name = config.name;
 		this.type = config.type;
-
+		this.damage = config.damage;
+		
 		//console.log(config.scene)
 		this.hero = config.scene.player.hero;
 	}

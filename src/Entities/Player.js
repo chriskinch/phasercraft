@@ -28,7 +28,7 @@ class Player extends Phaser.GameObjects.Group {
 			scene: config.scene,
 			key: 'resource-frame',
 			x: config.x - 14, 
-			y: config.y - 30,
+			y: config.y - 35,
 			type: 'health',
 			max: 500,
 			value: 500
@@ -40,7 +40,7 @@ class Player extends Phaser.GameObjects.Group {
 			scene: config.scene,
 			key: 'resource-frame',
 			x: config.x - 14, 
-			y: config.y - 25,
+			y: config.y - 30,
 			type: 'rage',
 			max: 100,
 			value: 100
@@ -59,13 +59,12 @@ class Player extends Phaser.GameObjects.Group {
 		})
 	}
 
-	setResource(type, value) {
-		this[type].set(value);
-	}
-
-	getResource(type) {
-		console.log(type)
-		return this[type].get();
+	takeDamage(player, enemy){
+		this.health.set(this.health.value - enemy.damage);
+		if(this.health.get() <= 0) {
+			this.scene.physics.pause();
+			this.hero.death();
+		}
 	}
 
 }
