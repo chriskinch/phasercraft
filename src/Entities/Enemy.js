@@ -1,5 +1,3 @@
-import { getSpellSchools, getAssendedClass } from '../Config/ClassConfig'
-
 class Enemy extends Phaser.GameObjects.Sprite {
 
 	constructor(config) {
@@ -10,12 +8,13 @@ class Enemy extends Phaser.GameObjects.Sprite {
 		this.name = config.name;
 		this.type = config.type;
 
-		this.hero = this.scene.hero;
+		//console.log(config.scene)
+		this.hero = config.scene.player.hero;
 	}
 
 	update(time, delta) {
 		if(this.hero.alive) {
-			this.scene.physics.moveTo(this, this.hero.x, this.hero.y, 50);
+			this.scene.physics.moveTo(this, this.hero.x, this.hero.y, 100);
 			let walk_animation = (this.x - this.hero.x > 0) ? "enemy-left-down" : "enemy-right-up";;
 			this.anims.play(walk_animation, true);
 		}else{
