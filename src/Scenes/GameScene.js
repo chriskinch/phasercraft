@@ -1,7 +1,9 @@
 import PlayerSprite from '../Graphics/player.png';
 import EnemySprite from '../Graphics/enemy.png';
+import ResourceFrame from '../Graphics/resource-frame.png';
 //import SwordSwing from '../Graphics/sword-swing-plain.png';
 import Hero from '../Entities/Hero';
+import Player from '../Entities/Player';
 import Enemy from '../Entities/Enemy';
 
 class GameScene extends Phaser.Scene {
@@ -14,6 +16,7 @@ class GameScene extends Phaser.Scene {
 		preload (){
 			this.load.spritesheet('player', PlayerSprite, { frameWidth: 24, frameHeight: 32 });
 			this.load.spritesheet('enemy', EnemySprite, { frameWidth: 24, frameHeight: 26 });
+			this.load.image('resource-frame', ResourceFrame);
 			//this.load.spritesheet('sword-fx', SwordSwing, { frameWidth: 96, frameHeight: 96 });
 		}
 
@@ -48,25 +51,10 @@ class GameScene extends Phaser.Scene {
 				});
 			});
 
-			// this.anims.create({
-			// 	key: 'sword-swing-plain',
-			// 	frames: this.anims.generateFrameNumbers('sword-fx', { start: 0, end: 5}),
-			// 	frameRate: 12,
-			// 	repeat: -1
-			// });
-
-			// let sword = this.add.sprite(400, 300, 'sword-fx');
-			// sword.anims.play('sword-swing-plain');
-			// sword.depth = 10;
-			
-			this.hero = new Hero({
-				scene: this,
-				key: 'player',
-				x: 16 * 6, // 3500, 
-				y: this.sys.game.config.height - 48 - 48,
-				name: "Chris",
-				primary_class: "cleric",
-				secondary_class: "warrior"
+			this.player = new Player({
+				scene:this,
+				x: 400,
+				y: 400
 			});
 
 			this.enemy = new Enemy({
@@ -75,16 +63,16 @@ class GameScene extends Phaser.Scene {
 				x: 600,
 				y: 100,
 				name: "Bob",
-				type: "zombie"
+				type: "zombie",
+				damage: 5
 			});
 
-			//this.cameras.main.startFollow(this.hero);
+			//this.cameras.main.startFollow(this.player hero);
 
 			this.input.mouse.capture = true;
 			this.cursors = this.input.keyboard.createCursorKeys();
 
-
-			this.physics.add.collider(this.hero, this.enemy, this.gameOver, null, this);
+			this.physics.add.collider(this.player.hero, this.enemy, this.player.takeDamage, null, this.player);
 		}
 
 		update(time, delta) {
@@ -94,14 +82,8 @@ class GameScene extends Phaser.Scene {
 				middle: { isDown: (this.input.activePointer.buttons === 4 && this.input.activePointer.isDown) },
 				right: { isDown: (this.input.activePointer.buttons === 2 && this.input.activePointer.isDown) },
 			}
-
-			if(this.hero.alive) this.hero.update(mouse, this.cursors, time, delta);
+			if(this.player.hero.alive) this.player.update(mouse, this.cursors, time, delta);
 			this.enemy.update(time, delta);
-		}
-
-		gameOver() {
-			this.physics.pause();
-			this.hero.death();
 		}
 }
 
