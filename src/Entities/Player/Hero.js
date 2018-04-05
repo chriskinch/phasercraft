@@ -6,6 +6,9 @@ class Hero extends Phaser.GameObjects.Sprite {
 		super(config.scene, config.x, config.y, config.key);
 		config.scene.physics.world.enable(this);
 		config.scene.add.existing(this);
+		this.body.collideWorldBounds = true;
+		this.body.immovable = true;
+		this.body.setFriction(0,0);
 
 		this.group = config.group;
 		this.name = config.name;
@@ -21,6 +24,7 @@ class Hero extends Phaser.GameObjects.Sprite {
 		this.assendClass = this.assendClass.bind(this);
 
 		this.idle();
+		console.log(this)
 	}
 
 	update(mouse, keys) {

@@ -4,7 +4,7 @@ import Resource from './Resource';
 class Player extends Phaser.GameObjects.Group {
 	constructor(config) {
 		super(config.scene, config.x, config.y);
-
+		
 		this.x = config.x;
 		this.y = config.y;
 

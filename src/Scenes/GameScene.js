@@ -58,22 +58,33 @@ class GameScene extends Phaser.Scene {
 				y: 400
 			});
 
-			this.enemy = new Enemy({
-				scene: this,
-				key: 'enemy',
-				x: 600,
-				y: 100,
-				name: "Bob",
-				type: "zombie",
-				damage: 5
-			});
+			let enemies = 5;
+			this.group = this.add.group();
+
+			for(let i = 0; i < enemies; i++){
+				this.group.add(new Enemy({
+					scene: this,
+					key: 'enemy',
+					x: Math.random() * 800,
+					y: Math.random() * 100,
+					name: "Bob",
+					type: "zombie",
+					damage: 5,
+					speed: Math.random()*50 + 50
+				}));
+			}
+
+			console.log(this.group)
 
 			//this.cameras.main.startFollow(this.player hero);
 
 			this.input.mouse.capture = true;
 			this.cursors = this.input.keyboard.createCursorKeys();
 
-			this.physics.add.collider(this.player.hero, this.enemy, this.player.takeDamage, null, this.player);
+			this.physics.add.collider(this.player.hero, this);
+
+			this.physics.add.collider(this.player.hero, this.group, this.player.takeDamage, null, this.player);
+			this.physics.add.collider(this.group, this.group);
 		}
 
 		update(time, delta) {
@@ -84,7 +95,11 @@ class GameScene extends Phaser.Scene {
 				right: { isDown: (this.input.activePointer.buttons === 2 && this.input.activePointer.isDown) },
 			}
 			if(this.player.hero.alive) this.player.update(mouse, this.cursors, time, delta);
-			this.enemy.update(time, delta);
+
+			this.group.children.entries.forEach(entry =>{
+				entry.update(time, delta);
+			})
+			// this.enemy.update(time, delta);
 		}
 }
 
