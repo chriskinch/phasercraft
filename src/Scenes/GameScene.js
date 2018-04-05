@@ -1,9 +1,8 @@
 import PlayerSprite from '../Graphics/player.png';
 import EnemySprite from '../Graphics/enemy.png';
 import ResourceFrame from '../Graphics/resource-frame.png';
-//import SwordSwing from '../Graphics/sword-swing-plain.png';
-import Hero from '../Entities/Hero';
-import Player from '../Entities/Player';
+
+import Player from '../Entities/Player/Player';
 import Enemy from '../Entities/Enemy';
 
 class GameScene extends Phaser.Scene {
@@ -11,6 +10,8 @@ class GameScene extends Phaser.Scene {
 			super({
 				key: 'GameScene'
 			});
+
+			this.global_tick = 500;
 		}
 
 		preload (){

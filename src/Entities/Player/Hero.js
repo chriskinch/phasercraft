@@ -1,4 +1,4 @@
-import { getSpellSchools, getAssendedClass } from '../Config/ClassConfig'
+import { getSpellSchools, getAssendedClass } from '../../Config/ClassConfig'
 
 class Hero extends Phaser.GameObjects.Sprite {
 

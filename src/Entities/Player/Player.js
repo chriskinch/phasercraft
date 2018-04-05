@@ -23,28 +23,17 @@ class Player extends Phaser.GameObjects.Group {
 			secondary_class: "warrior"
 		});
 
-		this.health = new Resource({
+		let resource_options = {
 			group: this,
 			scene: config.scene,
 			key: 'resource-frame',
-			x: config.x - 14, 
-			y: config.y - 35,
-			type: 'health',
-			max: 500,
-			value: 500
-		});
+			x: config.x - 14
+		}
+
+		this.health = new Resource(Object.assign({}, resource_options, {type: 'health', y: config.y - 35}));
 		this.add(this.health);
 
-		this.resource = new Resource({
-			group: this,
-			scene: config.scene,
-			key: 'resource-frame',
-			x: config.x - 14, 
-			y: config.y - 30,
-			type: 'rage',
-			max: 100,
-			value: 100
-		});
+		this.resource = new Resource(Object.assign({}, resource_options, {type: 'rage', y: config.y - 30}));
 		this.add(this.resource);
 	}
 
@@ -60,11 +49,13 @@ class Player extends Phaser.GameObjects.Group {
 	}
 
 	takeDamage(player, enemy){
-		this.health.set(this.health.value - enemy.damage);
-		if(this.health.get() <= 0) {
+		this.health.setValue(this.health.value - enemy.damage);
+		if(this.health.getValue() <= 0) {
 			this.scene.physics.pause();
 			this.hero.death();
 		}
+
+		//this.resource.adjustValue(0.1);
 	}
 
 }
