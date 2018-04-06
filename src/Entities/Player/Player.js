@@ -1,10 +1,10 @@
 import Hero from './Hero';
-import Resource from './Resource';
+import Resource from '../Resource';
 
 class Player extends Phaser.GameObjects.Group {
 	constructor(config) {
 		super(config.scene, config.x, config.y);
-		
+
 		this.x = config.x;
 		this.y = config.y;
 
@@ -20,7 +20,9 @@ class Player extends Phaser.GameObjects.Group {
 			y: config.y,
 			name: "Chris",
 			primary_class: "cleric",
-			secondary_class: "warrior"
+			secondary_class: "warrior",
+			range: 40, 
+			damage: 35
 		});
 
 		let resource_options = {
@@ -45,17 +47,26 @@ class Player extends Phaser.GameObjects.Group {
 
 		this.children.entries.forEach((entry) => {
 			entry.update();
-		})
+		});
+
+		if(this.scene.selected) this.goToRange();
 	}
 
-	takeDamage(player, enemy){
-		this.health.setValue(this.health.value - enemy.damage);
+	enemyInRange(player, enemy){
+		enemy.attack();
 		if(this.health.getValue() <= 0) {
 			this.scene.physics.pause();
 			this.hero.death();
 		}
-
 		//this.resource.adjustValue(0.1);
+	}
+
+	goToRange(){
+		let target = this.scene.selected;
+		let distance = Phaser.Math.Distance.Between(target.x,target.y, this.hero.x, this.hero.y);
+		if(distance <= this.hero.range) {
+			this.hero.attack(target);
+		}
 	}
 
 }

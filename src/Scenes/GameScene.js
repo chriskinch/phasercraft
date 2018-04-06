@@ -11,7 +11,8 @@ class GameScene extends Phaser.Scene {
 				key: 'GameScene'
 			});
 
-			this.global_tick = 500;
+			this.global_tick = 0.2;
+			this.global_swing_speed = 1;
 		}
 
 		preload (){
@@ -69,12 +70,11 @@ class GameScene extends Phaser.Scene {
 					y: Math.random() * 100,
 					name: "Bob",
 					type: "zombie",
-					damage: 5,
-					speed: Math.random()*50 + 50
+					damage: 50,
+					speed: Math.random()*50 + 50,
+					swing_speed: 2
 				}));
 			}
-
-			console.log(this.group)
 
 			//this.cameras.main.startFollow(this.player hero);
 
@@ -83,8 +83,10 @@ class GameScene extends Phaser.Scene {
 
 			this.physics.add.collider(this.player.hero, this);
 
-			this.physics.add.collider(this.player.hero, this.group, this.player.takeDamage, null, this.player);
+			this.physics.add.collider(this.player.hero, this.group, this.player.enemyInRange, null, this.player);
 			this.physics.add.collider(this.group, this.group);
+
+			this.input.on('pointerdown', this.deselect, this);
 		}
 
 		update(time, delta) {
@@ -98,8 +100,11 @@ class GameScene extends Phaser.Scene {
 
 			this.group.children.entries.forEach(entry =>{
 				entry.update(time, delta);
-			})
-			// this.enemy.update(time, delta);
+			});
+		}
+
+		deselect(){			
+			if(this.selected) this.selected.deselect();
 		}
 }
 

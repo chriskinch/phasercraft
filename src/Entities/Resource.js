@@ -5,21 +5,21 @@ class Resource extends Phaser.GameObjects.Sprite {
 		config.scene.add.existing(this);
 
 		let defaults = this.setDefaults(config.type);
-		for(let param in defaults){
-			this[param] = defaults[param];
-		};
+		let options = Object.assign({}, defaults, config);
 
-		this.group = config.group;
+		this.group = options.group;
+		this.type = options.type;
+
+		this.colour = options.colour;
+		this.max = options.max;
+		this.value = options.value;
+		this.regen_rate = options.regen_rate;
+		this.regen_value = options.regen_value;
+
 		this.offsetX = this.x - this.group.x;
 		this.offsetY = this.y - this.group.y;	
-		this.type = config.type;
 
-		this.max = config.max || this.max;
-		this.value = config.value || this.value;
-		this.regen_rate = config.regen_rate || this.regen_rate;
-		this.regen_value = config.regen_value || this.regen_value;
-
-		this.setOrigin(0,0).setDepth(10);
+		this.setOrigin(0,0).setDepth(1000);
 
 		this.graphics = {};
 		this.graphics.current = this.drawBar({ 
@@ -27,16 +27,17 @@ class Resource extends Phaser.GameObjects.Sprite {
 			colour: this.colour,
 			width: this.width,
 			height: this.height,
-			depth: 9
+			depth: 999
 		});
 		this.graphics.background = this.drawBar({ 
 			type: 'background',
 			colour: 0x111111,
 			width: this.width,
 			height: this.height,
-			depth: 8
+			depth: 998
 		});
 
+		this.graphics.current.scaleX = this.healthPercent();
 		this.tick = this.setRegeneration();
 	}
 
@@ -44,8 +45,6 @@ class Resource extends Phaser.GameObjects.Sprite {
 		this.x = this.group.x + this.offsetX;
 		this.y = this.group.y + this.offsetY;
 		this.lockGraphicsXY();
-		
-		this.graphics.current.scaleX = this.healthPercent();
 	}
 
 	setDefaults(type){
@@ -57,7 +56,7 @@ class Resource extends Phaser.GameObjects.Sprite {
 				return {colour: 0xb93f3c, max: 100, value: 0, regen_rate: 1, regen_value: 1};
 				break;
 			case 'mana':
-				return {colour: 0x3a86ec, max: 500, value: 100, regen_rate: 0.2, regen_value: 2};
+				return {colour: 0x3a86ec, max: 500, value: 500, regen_rate: 0.2, regen_value: 2};
 				break;
 			case 'energy':
 				return {colour: 0xdcd743, max: 100, value: 100, regen_rate: 3, regen_value: 20};
@@ -75,10 +74,11 @@ class Resource extends Phaser.GameObjects.Sprite {
 		}else{
 			this.value = new_value;
 		}
+
+		this.graphics.current.scaleX = this.healthPercent();
 	}
 
 	adjustValue(adj) {
-		//console.log(this.type, this.value)
 		this.setValue(this.value + adj);
 	}
 
@@ -87,7 +87,7 @@ class Resource extends Phaser.GameObjects.Sprite {
 	}
 
 	healthPercent(){
-		return this.value / this.max;
+		return (this.value > 0) ? this.value / this.max : 0;
 	}
 
 	drawBar(opt) {
