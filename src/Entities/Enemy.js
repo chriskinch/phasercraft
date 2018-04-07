@@ -39,7 +39,7 @@ class Enemy extends Phaser.GameObjects.Sprite {
 	update(time, delta) {
 		this.health.update();
 
-		if(this.player.hero.alive) {
+		if(this.player.alive) {
 			this.scene.physics.moveTo(this, this.player.x, this.player.y, this.speed);
 			let walk_animation = (this.x - this.player.x > 0) ? "enemy-left-down" : "enemy-right-up";;
 			this.anims.play(walk_animation, true);

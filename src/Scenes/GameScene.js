@@ -1,7 +1,7 @@
 import PlayerSprite from '../Graphics/player.png';
 import EnemySprite from '../Graphics/enemy.png';
 import ResourceFrame from '../Graphics/resource-frame.png';
-
+import createAnimations from '../Config/animations';
 import Player from '../Entities/Player/Player';
 import Enemy from '../Entities/Enemy';
 
@@ -23,35 +23,7 @@ class GameScene extends Phaser.Scene {
 		}
 
 		create (){
-			let player_animations = [
-				{key: "player-idle", frames: { start: 12, end: 17 }, repeat: -1},
-				{key: "player-right-up", frames: { start: 0, end: 5 }, repeat: -1},
-				{key: "player-left-down", frames: { start: 6, end: 11 }, repeat: -1},
-				{key: "player-death", frames: { start: 18, end: 23 }, repeat: 0}
-			]
-
-			player_animations.forEach(animation => {
-				this.anims.create({
-					key: animation.key,
-					frames: this.anims.generateFrameNumbers('player', animation.frames),
-					frameRate: 12,
-					repeat: animation.repeat
-				});
-			});
-
-			let enemy_animations = [
-				{key: "enemy-right-up", frames: { start: 0, end: 5 }},
-				{key: "enemy-left-down", frames: { start: 6, end: 11 }}
-			]
-
-			enemy_animations.forEach(animation => {
-				this.anims.create({
-					key: animation.key,
-					frames: this.anims.generateFrameNumbers('enemy', animation.frames),
-					frameRate: 12,
-					repeat: -1
-				});
-			});
+			createAnimations(this);
 
 			this.player = new Player({
 				scene:this,
@@ -96,14 +68,14 @@ class GameScene extends Phaser.Scene {
 				middle: { isDown: (this.input.activePointer.buttons === 4 && this.input.activePointer.isDown) },
 				right: { isDown: (this.input.activePointer.buttons === 2 && this.input.activePointer.isDown) },
 			}
-			if(this.player.hero.alive) this.player.update(mouse, this.cursors, time, delta);
+			if(this.player.alive) this.player.update(mouse, this.cursors, time, delta);
 
 			this.group.children.entries.forEach(entry =>{
 				entry.update(time, delta);
 			});
 		}
 
-		deselect(){			
+		deselect(){
 			if(this.selected) this.selected.deselect();
 		}
 }

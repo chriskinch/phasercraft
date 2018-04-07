@@ -1,4 +1,4 @@
-import { getSpellSchools, getAssendedClass } from '../../Config/ClassConfig'
+import { getSpellSchools, getAssendedClass } from '../../Config/classes';
 
 class Hero extends Phaser.GameObjects.Sprite {
 
@@ -17,7 +17,6 @@ class Hero extends Phaser.GameObjects.Sprite {
 		this.spell_schools = this.setSpellSchools();
 		this.assended = false;
 		this.damage = config.damage;
-		this.alive = true;
 		this.range = config.range || 40;
 		this.swing_speed = config.swing_speed || this.scene.global_swing_speed;
 		this.attack_ready = true;
@@ -63,7 +62,6 @@ class Hero extends Phaser.GameObjects.Sprite {
 	}
 
 	death(){
-		this.alive = false;
 		this.anims.play('player-death');
 	}
 

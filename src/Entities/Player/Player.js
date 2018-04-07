@@ -7,6 +7,7 @@ class Player extends Phaser.GameObjects.Group {
 
 		this.x = config.x;
 		this.y = config.y;
+		this.alive = true;
 
 		this.destination = {
 			x: null,
@@ -16,12 +17,12 @@ class Player extends Phaser.GameObjects.Group {
 		this.hero = new Hero({
 			scene: config.scene,
 			key: 'player',
-			x: config.x, 
+			x: config.x,
 			y: config.y,
 			name: "Chris",
 			primary_class: "cleric",
 			secondary_class: "warrior",
-			range: 40, 
+			range: 40,
 			damage: 35
 		});
 
@@ -52,11 +53,27 @@ class Player extends Phaser.GameObjects.Group {
 		if(this.scene.selected) this.goToRange();
 	}
 
+	death(){
+		if(this.alive) {
+			console.log("DEAD!")
+			this.scene.physics.pause();
+			this.hero.death();
+			for(let graphic in this.health.graphics){
+				this.health.graphics[graphic].clear();
+			}
+			for(let graphic in this.resource.graphics){
+				this.resource.graphics[graphic].clear();
+			}
+			this.health.destroy();
+			this.resource.destroy();
+			this.alive = false;
+		}
+	}
+
 	enemyInRange(player, enemy){
 		enemy.attack();
 		if(this.health.getValue() <= 0) {
-			this.scene.physics.pause();
-			this.hero.death();
+			this.death();
 		}
 		//this.resource.adjustValue(0.1);
 	}
