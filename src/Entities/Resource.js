@@ -76,6 +76,8 @@ class Resource extends Phaser.GameObjects.Sprite {
 		}
 
 		this.graphics.current.scaleX = this.healthPercent();
+
+		this.emit('change', this);
 	}
 
 	adjustValue(adj) {
@@ -123,6 +125,13 @@ class Resource extends Phaser.GameObjects.Sprite {
 
 	doTick() {
 		this.regenerate();
+	}
+
+	remove(){
+		for(let graphic in this.graphics){
+			this.graphics[graphic].clear();
+		}
+		this.destroy();
 	}
 
 }

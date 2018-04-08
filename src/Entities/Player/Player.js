@@ -40,6 +40,10 @@ class Player extends Phaser.GameObjects.Group {
 
 		this.weapon = new Weapon({scene:this.scene, x:0, y:0, key:'weapon-swooch'});
 		this.add(this.weapon);
+
+		this.scene.events.once('player-dead', this.death, this);
+		this.scene.events.on('enemy-attack', this.hit, this);
+		this.health.on('change', this.healthChanged);
 	}
 
 	update(mouse, keys, time, delta){
@@ -57,28 +61,19 @@ class Player extends Phaser.GameObjects.Group {
 		if(this.scene.selected) this.goToRange();
 	}
 
-	death(){
-		if(this.alive) {
-			this.scene.physics.pause();
-			this.hero.death();
-			for(let graphic in this.health.graphics){
-				this.health.graphics[graphic].clear();
-			}
-			for(let graphic in this.resource.graphics){
-				this.resource.graphics[graphic].clear();
-			}
-			this.health.destroy();
-			this.resource.destroy();
-			this.alive = false;
-		}
+	healthChanged(e) {
+		if(e.getValue() <= 0) this.scene.events.emit('player-dead');
 	}
 
-	enemyInRange(player, enemy){
-		enemy.attack();
-		if(this.health.getValue() <= 0) {
-			this.death();
-		}
-		//this.resource.adjustValue(0.1);
+	death(){
+		this.health.remove();
+		this.resource.remove();
+		this.hero.anims.play('player-death');
+		this.alive = false;
+	}
+
+	hit(damage){
+		this.health.adjustValue(-damage);
 	}
 
 	goToRange(){
@@ -90,8 +85,8 @@ class Player extends Phaser.GameObjects.Group {
 		let distance = Phaser.Math.Distance.Between(target.x,target.y, this.hero.x, this.hero.y);
 		if(distance <= this.range) {
 			this.hero.idle();
-			this.attack(target);
 			this.attack_delay = null;
+			if(this.attack_ready) this.attack(target);
 		}else{
 			if(!this.attack_delay) {
 				this.attack_delay = this.scene.time.delayedCall(this.scene.global_attack_delay, this.hero.walk, [], this.hero);
@@ -100,14 +95,12 @@ class Player extends Phaser.GameObjects.Group {
 	}
 
 	attack(target){
-		if(this.attack_ready) {
-			this.weapon.swoosh();
-			target.hit(this.damage);
-			this.enemyVector(target);
-			target.body.setVelocityX(100);
-			this.attack_ready = false;
-			this.swing = this.scene.time.addEvent({ delay: this.swing_speed*1000, callback: this.attackReady, callbackScope: this, loop: true });
-		}
+		console.log("ATTACK!");
+		this.weapon.swoosh();
+		this.positionWeapon(target);
+		target.hit(this.damage);
+		this.attack_ready = false;
+		this.swing = this.scene.time.addEvent({ delay: this.swing_speed*1000, callback: this.attackReady, callbackScope: this, loop: true });
 	}
 
 	attackReady(){
@@ -115,10 +108,11 @@ class Player extends Phaser.GameObjects.Group {
 		this.swing.remove(false);
 	}
 
-	enemyVector(target){
+	positionWeapon(target){
 		let hero_position = this.hero.body.position;
 		let target_position = target.body.position;
 		let angle = Math.atan2(target_position.y - hero_position.y, target_position.x - hero_position.x) * 180 / Math.PI;
+		target.body.setVelocityX(100);
 		this.weapon.x = target.x;
 		this.weapon.y = target.y;
 		this.weapon.setAngle(angle);

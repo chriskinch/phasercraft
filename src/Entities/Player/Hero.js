@@ -56,10 +56,6 @@ class Hero extends Phaser.GameObjects.Sprite {
 		this.anims.play('player-idle', true);
 	}
 
-	death(){
-		this.anims.play('player-death');
-	}
-
 	setClass(types){
 		return (types[1]) ? getAssendedClass(types) : types[0];
 	}

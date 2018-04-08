@@ -17,7 +17,6 @@ class Enemy extends Phaser.GameObjects.Sprite {
 		this.range = config.range || 40;
 		this.swing_speed = config.swing_speed || this.scene.global_swing_speed;
 		this.attack_ready = true;
-		this.player = config.scene.player;
 		this.isHit = false;
 
 		this.graphics = {};
@@ -41,15 +40,11 @@ class Enemy extends Phaser.GameObjects.Sprite {
 	update(time, delta) {
 		this.health.update(this);
 
-		if(this.player.alive) {
-			if(!this.isHit) {
-				this.scene.physics.moveTo(this, this.player.x, this.player.y, this.speed);
-			}
-			let walk_animation = (this.x - this.player.x > 0) ? "enemy-left-down" : "enemy-right-up";;
-			this.anims.play(walk_animation, true);
-		}else{
-			this.anims.stop();
+		if(!this.isHit) {
+			this.scene.physics.moveTo(this, this.scene.player.x, this.scene.player.y, this.speed);
 		}
+		let walk_animation = (this.x - this.scene.player.x > 0) ? "enemy-left-down" : "enemy-right-up";;
+		this.anims.play(walk_animation, true);
 
 		this.lockGraphicsXY();
 
@@ -103,7 +98,7 @@ class Enemy extends Phaser.GameObjects.Sprite {
 
 	attack(){
 		if(this.attack_ready) {
-			this.player.health.adjustValue(-this.damage);
+			this.scene.events.emit('enemy-attack', this.damage);
 			this.attack_ready = false;
 			this.swing = this.scene.time.addEvent({ delay: this.swing_speed*1000, callback: this.attackReady, callbackScope: this, loop: true });
 		}

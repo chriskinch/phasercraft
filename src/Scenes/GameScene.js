@@ -62,10 +62,12 @@ class GameScene extends Phaser.Scene {
 
 			this.physics.add.collider(this.player.hero, this);
 
-			this.physics.add.collider(this.player.hero, this.group, this.player.enemyInRange, null, this.player);
+			this.physics.add.collider(this.player.hero, this.group, (hero, group) => group.attack() ,null, this.group);
 			this.physics.add.collider(this.group, this.group);
 
 			this.input.on('pointerdown', this.deselect, this);
+
+			this.events.once('player-dead', this.gameOver, this);
 		}
 
 		update(time, delta) {
@@ -84,6 +86,10 @@ class GameScene extends Phaser.Scene {
 
 		deselect(){
 			if(this.selected) this.selected.deselect();
+		}
+
+		gameOver(){
+			this.physics.pause();
 		}
 }
 
