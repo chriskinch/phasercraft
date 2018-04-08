@@ -24,8 +24,8 @@ class Enemy extends Phaser.GameObjects.Sprite {
 			group: this,
 			scene: config.scene,
 			key: 'resource-frame',
-			x: config.x - 14,
-			y: config.y - 30,
+			x: -14,
+			y: -30,
 			type: 'health',
 			value: 100,
 			max: 100,
@@ -37,7 +37,7 @@ class Enemy extends Phaser.GameObjects.Sprite {
 	}
 
 	update(time, delta) {
-		this.health.update();
+		this.health.update(this);
 
 		if(this.player.alive) {
 			this.scene.physics.moveTo(this, this.player.x, this.player.y, this.speed);

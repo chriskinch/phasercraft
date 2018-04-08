@@ -7,29 +7,26 @@ class Resource extends Phaser.GameObjects.Sprite {
 		let defaults = this.setDefaults(config.type);
 		let options = Object.assign({}, defaults, config);
 
-		this.group = options.group;
 		this.type = options.type;
-
+		this.offsetX = this.x;
+		this.offsetY = this.y;
 		this.colour = options.colour;
 		this.max = options.max;
 		this.value = options.value;
 		this.regen_rate = options.regen_rate;
 		this.regen_value = options.regen_value;
 
-		this.offsetX = this.x - this.group.x;
-		this.offsetY = this.y - this.group.y;	
-
 		this.setOrigin(0,0).setDepth(1000);
 
 		this.graphics = {};
-		this.graphics.current = this.drawBar({ 
+		this.graphics.current = this.drawBar({
 			type: 'current',
 			colour: this.colour,
 			width: this.width,
 			height: this.height,
 			depth: 999
 		});
-		this.graphics.background = this.drawBar({ 
+		this.graphics.background = this.drawBar({
 			type: 'background',
 			colour: 0x111111,
 			width: this.width,
@@ -39,11 +36,14 @@ class Resource extends Phaser.GameObjects.Sprite {
 
 		this.graphics.current.scaleX = this.healthPercent();
 		this.tick = this.setRegeneration();
+		this.lockGraphicsXY();
 	}
 
-	update(){
-		this.x = this.group.x + this.offsetX;
-		this.y = this.group.y + this.offsetY;
+	update(group){
+		if(group) {
+			this.x = group.x + this.offsetX;
+			this.y = group.y + this.offsetY;
+		}
 		this.lockGraphicsXY();
 	}
 

@@ -1,6 +1,9 @@
-import PlayerSprite from '../Graphics/player.png';
-import EnemySprite from '../Graphics/enemy.png';
-import ResourceFrame from '../Graphics/resource-frame.png';
+import PlayerSprite from '../Graphics/spritesheets/player.png';
+import EnemySprite from '../Graphics/spritesheets/enemy.png';
+import ResourceFrame from '../Graphics/images/resource-frame.png';
+import DungeonAtlas from '../Graphics/atlas/atlas-dungeon.png';
+import DungeonJSON from '../Graphics/atlas/atlas-dungeon.json';
+
 import createAnimations from '../Config/animations';
 import Player from '../Entities/Player/Player';
 import Enemy from '../Entities/Enemy';
@@ -19,7 +22,7 @@ class GameScene extends Phaser.Scene {
 			this.load.spritesheet('player', PlayerSprite, { frameWidth: 24, frameHeight: 32 });
 			this.load.spritesheet('enemy', EnemySprite, { frameWidth: 24, frameHeight: 26 });
 			this.load.image('resource-frame', ResourceFrame);
-			//this.load.spritesheet('sword-fx', SwordSwing, { frameWidth: 96, frameHeight: 96 });
+			this.load.atlas('dungeon', DungeonAtlas, DungeonJSON);
 		}
 
 		create (){

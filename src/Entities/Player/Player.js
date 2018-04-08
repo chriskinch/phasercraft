@@ -1,5 +1,6 @@
 import Hero from './Hero';
 import Resource from '../Resource';
+import Weapon from '../Weapon';
 
 class Player extends Phaser.GameObjects.Group {
 	constructor(config) {
@@ -15,7 +16,7 @@ class Player extends Phaser.GameObjects.Group {
 		}
 
 		this.hero = new Hero({
-			scene: config.scene,
+			scene: this.scene,
 			key: 'player',
 			x: config.x,
 			y: config.y,
@@ -28,16 +29,19 @@ class Player extends Phaser.GameObjects.Group {
 
 		let resource_options = {
 			group: this,
-			scene: config.scene,
+			scene: this.scene,
 			key: 'resource-frame',
-			x: config.x - 14
+			x: -14
 		}
 
-		this.health = new Resource(Object.assign({}, resource_options, {type: 'health', y: config.y - 35}));
+		this.health = new Resource(Object.assign({}, resource_options, {type: 'health', y: -35}));
 		this.add(this.health);
 
-		this.resource = new Resource(Object.assign({}, resource_options, {type: 'rage', y: config.y - 30}));
+		this.resource = new Resource(Object.assign({}, resource_options, {type: 'rage', y: -30}));
 		this.add(this.resource);
+
+		this.weapon = new Weapon({scene:this.scene, x:15, y:0, key:'dungeon', frame:'sword_wood'});
+		this.add(this.weapon);
 	}
 
 	update(mouse, keys, time, delta){
@@ -47,7 +51,9 @@ class Player extends Phaser.GameObjects.Group {
 		this.hero.update(mouse, keys);
 
 		this.children.entries.forEach((entry) => {
-			entry.update();
+			if(entry.shouldUpdate !== false) {
+				entry.update(this);
+			}
 		});
 
 		if(this.scene.selected) this.goToRange();
@@ -55,7 +61,6 @@ class Player extends Phaser.GameObjects.Group {
 
 	death(){
 		if(this.alive) {
-			console.log("DEAD!")
 			this.scene.physics.pause();
 			this.hero.death();
 			for(let graphic in this.health.graphics){
