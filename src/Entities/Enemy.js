@@ -7,6 +7,7 @@ class Enemy extends Phaser.GameObjects.Sprite {
 		config.scene.physics.world.enable(this);
 		config.scene.add.existing(this);
 		this.body.setFriction(0,0);
+		this.body.setDrag(300);
 		this.setDepth(110);
 
 		this.name = config.name;
@@ -17,6 +18,7 @@ class Enemy extends Phaser.GameObjects.Sprite {
 		this.swing_speed = config.swing_speed || this.scene.global_swing_speed;
 		this.attack_ready = true;
 		this.player = config.scene.player;
+		this.isHit = false;
 
 		this.graphics = {};
 
@@ -40,7 +42,9 @@ class Enemy extends Phaser.GameObjects.Sprite {
 		this.health.update(this);
 
 		if(this.player.alive) {
-			this.scene.physics.moveTo(this, this.player.x, this.player.y, this.speed);
+			if(!this.isHit) {
+				this.scene.physics.moveTo(this, this.player.x, this.player.y, this.speed);
+			}
 			let walk_animation = (this.x - this.player.x > 0) ? "enemy-left-down" : "enemy-right-up";;
 			this.anims.play(walk_animation, true);
 		}else{
@@ -80,6 +84,12 @@ class Enemy extends Phaser.GameObjects.Sprite {
 		if(this.selected) this.graphics.selected.visible = false;
 		this.selected = false;
 		this.scene.selected = null;
+	}
+
+	hit(damage) {
+		this.isHit = true;
+		this.hit_delay = this.scene.time.delayedCall(this.scene.global_attack_delay, () => this.isHit = false, [], this);
+		this.health.adjustValue(-damage);
 	}
 
 	death(){

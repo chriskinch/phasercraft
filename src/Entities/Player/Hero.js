@@ -11,15 +11,10 @@ class Hero extends Phaser.GameObjects.Sprite {
 		this.body.setFriction(0,0);
 		this.setDepth(100);
 
-		this.group = config.group;
 		this.name = config.name;
 		this.type = this.setClass([config.primary_class, config.secondary_class]);
 		this.spell_schools = this.setSpellSchools();
 		this.assended = false;
-		this.damage = config.damage;
-		this.range = config.range || 40;
-		this.swing_speed = config.swing_speed || this.scene.global_swing_speed;
-		this.attack_ready = true;
 
 		this.destination = {
 			x: null,
@@ -30,7 +25,7 @@ class Hero extends Phaser.GameObjects.Sprite {
 		this.idle();
 	}
 
-	update(mouse, keys) {
+	update(group, mouse, keys) {
 		let arrived = this.atDestination(this, this.destination);
 
 		if(arrived && this.body.speed > 0) {
@@ -46,7 +41,7 @@ class Hero extends Phaser.GameObjects.Sprite {
 		}
 
 		if(keys.space.isDown) {
-			console.log("SWING!");
+			//group.weapon.anims.play('attack', true);
 		}
 	}
 
@@ -63,20 +58,6 @@ class Hero extends Phaser.GameObjects.Sprite {
 
 	death(){
 		this.anims.play('player-death');
-	}
-
-	attack(target){
-		this.idle();
-		if(this.attack_ready) {
-			target.health.adjustValue(-this.damage);
-			this.attack_ready = false;
-			this.swing = this.scene.time.addEvent({ delay: this.swing_speed*1000, callback: this.attackReady, callbackScope: this, loop: true });
-		}
-	}
-
-	attackReady(){
-		this.attack_ready = true;
-		this.swing.remove(false);
 	}
 
 	setClass(types){

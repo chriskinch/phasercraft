@@ -9,11 +9,11 @@ class Player extends Phaser.GameObjects.Group {
 		this.x = config.x;
 		this.y = config.y;
 		this.alive = true;
-
-		this.destination = {
-			x: null,
-			y: null
-		}
+		this.attack_ready = true;
+		this.swing_speed = config.swing_speed || this.scene.global_swing_speed;
+		this.range = config.range || 40;
+		this.damage = config.damage || 35;
+		this.delay = 0;
 
 		this.hero = new Hero({
 			scene: this.scene,
@@ -22,9 +22,7 @@ class Player extends Phaser.GameObjects.Group {
 			y: config.y,
 			name: "Chris",
 			primary_class: "cleric",
-			secondary_class: "warrior",
-			range: 40,
-			damage: 35
+			secondary_class: "warrior"
 		});
 
 		let resource_options = {
@@ -40,7 +38,7 @@ class Player extends Phaser.GameObjects.Group {
 		this.resource = new Resource(Object.assign({}, resource_options, {type: 'rage', y: -30}));
 		this.add(this.resource);
 
-		this.weapon = new Weapon({scene:this.scene, x:15, y:0, key:'dungeon', frame:'sword_wood'});
+		this.weapon = new Weapon({scene:this.scene, x:0, y:0, key:'weapon-swooch'});
 		this.add(this.weapon);
 	}
 
@@ -48,7 +46,7 @@ class Player extends Phaser.GameObjects.Group {
 		this.x = this.hero.x;
 		this.y = this.hero.y;
 
-		this.hero.update(mouse, keys);
+		this.hero.update(this, mouse, keys);
 
 		this.children.entries.forEach((entry) => {
 			if(entry.shouldUpdate !== false) {
@@ -85,10 +83,45 @@ class Player extends Phaser.GameObjects.Group {
 
 	goToRange(){
 		let target = this.scene.selected;
-		let distance = Phaser.Math.Distance.Between(target.x,target.y, this.hero.x, this.hero.y);
-		if(distance <= this.hero.range) {
-			this.hero.attack(target);
+		this.hero.destination = {
+			x: target.x,
+			y: target.y
 		}
+		let distance = Phaser.Math.Distance.Between(target.x,target.y, this.hero.x, this.hero.y);
+		if(distance <= this.range) {
+			this.hero.idle();
+			this.attack(target);
+			this.attack_delay = null;
+		}else{
+			if(!this.attack_delay) {
+				this.attack_delay = this.scene.time.delayedCall(this.scene.global_attack_delay, this.hero.walk, [], this.hero);
+			}
+		}
+	}
+
+	attack(target){
+		if(this.attack_ready) {
+			this.weapon.swoosh();
+			target.hit(this.damage);
+			this.enemyVector(target);
+			target.body.setVelocityX(100);
+			this.attack_ready = false;
+			this.swing = this.scene.time.addEvent({ delay: this.swing_speed*1000, callback: this.attackReady, callbackScope: this, loop: true });
+		}
+	}
+
+	attackReady(){
+		this.attack_ready = true;
+		this.swing.remove(false);
+	}
+
+	enemyVector(target){
+		let hero_position = this.hero.body.position;
+		let target_position = target.body.position;
+		let angle = Math.atan2(target_position.y - hero_position.y, target_position.x - hero_position.x) * 180 / Math.PI;
+		this.weapon.x = target.x;
+		this.weapon.y = target.y;
+		this.weapon.setAngle(angle);
 	}
 
 }

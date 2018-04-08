@@ -28,4 +28,13 @@ export default function createAnimations(scene){
 			repeat: -1
 		});
 	});
+
+	scene.anims.create({
+			key: 'attack',
+			frames: scene.anims.generateFrameNumbers('attack-swoosh', { start: 0, end: 3 }),
+			frameRate: 12,
+			repeat: 0,
+			showOnStart: true,
+			hideOnComplete: true
+		});
 }

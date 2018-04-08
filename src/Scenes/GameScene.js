@@ -1,8 +1,10 @@
 import PlayerSprite from '../Graphics/spritesheets/player.png';
 import EnemySprite from '../Graphics/spritesheets/enemy.png';
 import ResourceFrame from '../Graphics/images/resource-frame.png';
+import AttackSwoosh from '../Graphics/spritesheets/swoosh.png';
 import DungeonAtlas from '../Graphics/atlas/atlas-dungeon.png';
 import DungeonJSON from '../Graphics/atlas/atlas-dungeon.json';
+
 
 import createAnimations from '../Config/animations';
 import Player from '../Entities/Player/Player';
@@ -16,12 +18,14 @@ class GameScene extends Phaser.Scene {
 
 			this.global_tick = 0.2;
 			this.global_swing_speed = 1;
+			this.global_attack_delay = 250;
 		}
 
 		preload (){
 			this.load.spritesheet('player', PlayerSprite, { frameWidth: 24, frameHeight: 32 });
 			this.load.spritesheet('enemy', EnemySprite, { frameWidth: 24, frameHeight: 26 });
 			this.load.image('resource-frame', ResourceFrame);
+			this.load.spritesheet('attack-swoosh', AttackSwoosh, { frameWidth: 32, frameHeight: 32 });
 			this.load.atlas('dungeon', DungeonAtlas, DungeonJSON);
 		}
 
