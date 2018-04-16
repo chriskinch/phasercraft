@@ -95,7 +95,6 @@ class Player extends Phaser.GameObjects.Group {
 	}
 
 	attack(target){
-		console.log("ATTACK!");
 		this.weapon.swoosh();
 		this.positionWeapon(target);
 		target.hit(this.damage);

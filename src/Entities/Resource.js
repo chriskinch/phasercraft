@@ -74,9 +74,7 @@ class Resource extends Phaser.GameObjects.Sprite {
 		}else{
 			this.value = new_value;
 		}
-
 		this.graphics.current.scaleX = this.healthPercent();
-
 		this.emit('change', this);
 	}
 
