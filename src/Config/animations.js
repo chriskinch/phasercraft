@@ -1,10 +1,24 @@
 export default function createAnimations(scene){
+
+
+	// Player
+   //  var config1 = {
+   //      key: 'imp-right-up',
+   //      frames: scene.anims.generateFrameNumbers('imp', { start: 0, end: 5 }),
+   //      frameRate: 12,
+   //      repeat: -1
+   //  };
+
+			// scene.anims.create(config1);
+
+			// scene.add.sprite(300, 200).play('imp-right-up');
+
 	let player_animations = [
 		{key: "player-idle", frames: { start: 12, end: 17 }, repeat: -1},
 		{key: "player-right-up", frames: { start: 0, end: 5 }, repeat: -1},
 		{key: "player-left-down", frames: { start: 6, end: 11 }, repeat: -1},
 		{key: "player-death", frames: { start: 18, end: 23 }, repeat: 0}
-	]
+	];
 
 	player_animations.forEach(animation => {
 		scene.anims.create({
@@ -15,26 +29,114 @@ export default function createAnimations(scene){
 		});
 	});
 
-	let enemy_animations = [
-		{key: "enemy-right-up", frames: { start: 0, end: 5 }},
-		{key: "enemy-left-down", frames: { start: 6, end: 11 }}
-	]
-
-	enemy_animations.forEach(animation => {
-		scene.anims.create({
-			key: animation.key,
-			frames: scene.anims.generateFrameNumbers('enemy', animation.frames),
-			frameRate: 12,
-			repeat: -1
-		});
+	scene.anims.create({
+		key: 'attack',
+		frames: scene.anims.generateFrameNumbers('attack-swoosh', { start: 0, end: 3 }),
+		frameRate: 12,
+		repeat: 0,
+		showOnStart: true,
+		hideOnComplete: true
 	});
 
-	scene.anims.create({
-			key: 'attack',
-			frames: scene.anims.generateFrameNumbers('attack-swoosh', { start: 0, end: 3 }),
-			frameRate: 12,
-			repeat: 0,
-			showOnStart: true,
-			hideOnComplete: true
+	// Enemies
+	let enemies = {
+		atlas: 'enemy',
+		types:[{
+			frame: 'baby-ghoul',
+			frameWidth: 24,
+			frameHeight: 26,
+			animations:[{
+				key: 'baby-ghoul-right-up',
+			 	frames: { start: 0, end: 5 },
+			 	repeat: -1
+			},{
+				key: 'baby-ghoul-left-down',
+			 	frames: { start: 6, end: 11 },
+			 	repeat: -1
+			}]
+		},{
+			frame: 'imp',
+			frameWidth: 24,
+			frameHeight: 30,
+			animations:[{
+				key: 'imp-right-up',
+			 	frames: { start: 0, end: 5 },
+			 	repeat: -1
+			},{
+				key: 'imp-left-down',
+			 	frames: { start: 6, end: 11 },
+			 	repeat: -1
+			}]
+		},{
+			frame: 'ghoul',
+			frameWidth: 24,
+			frameHeight: 32,
+			animations:[{
+				key: 'ghoul-right-up',
+			 	frames: { start: 0, end: 5 },
+			 	repeat: -1
+			},{
+				key: 'ghoul-left-down',
+			 	frames: { start: 6, end: 11 },
+			 	repeat: -1
+			}]
+		},{
+			frame: 'satyr',
+			frameWidth: 24,
+			frameHeight: 32,
+			animations:[{
+				key: 'satyr-right-up',
+			 	frames: { start: 0, end: 5 },
+			 	repeat: -1
+			},{
+				key: 'satyr-left-down',
+			 	frames: { start: 6, end: 11 },
+			 	repeat: -1
+			}]
+		},{
+			frame: 'egbert',
+			frameWidth: 24,
+			frameHeight: 30,
+			animations:[{
+				key: 'egbert-right-up',
+			 	frames: { start: 0, end: 5 },
+			 	repeat: -1
+			},{
+				key: 'egbert-left-down',
+			 	frames: { start: 6, end: 11 },
+			 	repeat: -1
+			}]
+		},{
+			frame: 'slime',
+			frameWidth: 30,
+			frameHeight: 32,
+			animations:[{
+				key: 'slime-right-up',
+			 	frames: { start: 0, end: 3 },
+			 	repeat: -1
+			},{
+				key: 'slime-left-down',
+			 	frames: { start: 4, end: 7 },
+			 	repeat: -1
+			}]
+		}]
+	};
+
+	enemies.types.forEach(enemy => {
+		scene.textures.addSpriteSheetFromAtlas(enemy.frame, {
+			atlas: enemies.atlas,
+			frame: enemy.frame,
+			frameWidth: enemy.frameWidth,
+			frameHeight: enemy.frameHeight
 		});
+
+		enemy.animations.forEach(animation => {
+			scene.anims.create({
+				key: animation.key,
+				frames: scene.anims.generateFrameNumbers(enemy.frame, animation.frames),
+				frameRate: 12,
+				repeat: animation.repeat
+			});
+		});
+	});
 }

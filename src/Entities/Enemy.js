@@ -11,7 +11,7 @@ class Enemy extends Phaser.GameObjects.Sprite {
 		this.setDepth(110);
 
 		this.name = config.name;
-		this.type = config.type;
+		this.type = config.key;
 		this.damage = config.damage;
 		this.speed = config.speed || 50;
 		this.range = config.range || 40;
@@ -43,7 +43,7 @@ class Enemy extends Phaser.GameObjects.Sprite {
 		if(!this.isHit) {
 			this.scene.physics.moveTo(this, this.scene.player.x, this.scene.player.y, this.speed);
 		}
-		let walk_animation = (this.x - this.scene.player.x > 0) ? "enemy-left-down" : "enemy-right-up";;
+		let walk_animation = (this.x - this.scene.player.x > 0) ? this.type + "-left-down" : this.type + "-right-up";
 		this.anims.play(walk_animation, true);
 
 		this.lockGraphicsXY();

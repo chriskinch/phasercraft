@@ -1,10 +1,10 @@
 import PlayerSprite from '../Graphics/spritesheets/player.png';
-import EnemySprite from '../Graphics/spritesheets/enemy.png';
 import ResourceFrame from '../Graphics/images/resource-frame.png';
 import AttackSwoosh from '../Graphics/spritesheets/swoosh.png';
 import DungeonAtlas from '../Graphics/atlas/atlas-dungeon.png';
 import DungeonJSON from '../Graphics/atlas/atlas-dungeon.json';
-
+import EnemyAtlas from '../Graphics/atlas/atlas-enemy.png';
+import EnemyJSON from '../Graphics/atlas/atlas-enemy.json';
 
 import createAnimations from '../Config/animations';
 import Player from '../Entities/Player/Player';
@@ -23,10 +23,10 @@ class GameScene extends Phaser.Scene {
 
 		preload (){
 			this.load.spritesheet('player', PlayerSprite, { frameWidth: 24, frameHeight: 32 });
-			this.load.spritesheet('enemy', EnemySprite, { frameWidth: 24, frameHeight: 26 });
 			this.load.image('resource-frame', ResourceFrame);
 			this.load.spritesheet('attack-swoosh', AttackSwoosh, { frameWidth: 32, frameHeight: 32 });
 			this.load.atlas('dungeon', DungeonAtlas, DungeonJSON);
+			this.load.atlas('enemy', EnemyAtlas, EnemyJSON);
 		}
 
 		create (){
@@ -41,14 +41,23 @@ class GameScene extends Phaser.Scene {
 			let enemies = 5;
 			this.group = this.add.group();
 
+			let enemy_types = [
+				'baby-ghoul',
+				'imp',
+				'ghoul',
+				'satyr',
+				'egbert',
+				'slime'
+			];
+
 			for(let i = 0; i < enemies; i++){
+				let rand = Math.round(Math.random() * 5);
 				this.group.add(new Enemy({
 					scene: this,
-					key: 'enemy',
+					key: enemy_types[rand],
 					x: Math.random() * 800,
-					y: Math.random() * 100,
+					y: Math.random() * 800,
 					name: "Bob",
-					type: "zombie",
 					damage: 50,
 					speed: Math.random()*50 + 50,
 					swing_speed: 2
