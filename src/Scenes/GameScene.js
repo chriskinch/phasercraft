@@ -57,10 +57,6 @@ class GameScene extends Phaser.Scene {
 					key: enemy_types[rand],
 					x: Math.random() * 800,
 					y: Math.random() * 800,
-					name: "Bob",
-					damage: 50,
-					speed: Math.random()*50 + 50,
-					swing_speed: 2
 				}));
 			}
 

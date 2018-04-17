@@ -1,0 +1,50 @@
+{
+	"baby-ghoul": {
+		"damage": 30,
+		"speed": 80,
+		"range": 40,
+		"swing_speed": 1,
+		"health": 50,
+		"regen_rate": 0
+	},
+	"egbert": {
+		"damage": 75,
+		"speed": 50,
+		"range": 50,
+		"swing_speed": 1,
+		"health": 200,
+		"regen_rate": 3
+	},
+	"ghoul": {
+		"damage": 50,
+		"speed": 60,
+		"range": 40,
+		"swing_speed": 2,
+		"health": 100,
+		"regen_rate": 0
+	},
+	"imp": {
+		"damage": 60,
+		"speed": 70,
+		"range": 100,
+		"swing_speed": 2,
+		"health": 80,
+		"regen_rate": 0
+	},
+	"satyr": {
+		"damage": 120,
+		"speed": 60,
+		"range": 40,
+		"swing_speed": 1,
+		"health": 150,
+		"regen_rate": 0
+	},
+	"slime": {
+		"damage": 250,
+		"speed": 20,
+		"range": 30,
+		"swing_speed": 0.5,
+		"health": 200,
+		"regen_rate": 0
+	}
+}

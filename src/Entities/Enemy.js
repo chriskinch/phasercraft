@@ -1,4 +1,5 @@
 import Resource from './Resource';
+import enemyConfig from '../Config/enemies.json';
 
 class Enemy extends Phaser.GameObjects.Sprite {
 
@@ -10,12 +11,11 @@ class Enemy extends Phaser.GameObjects.Sprite {
 		this.body.setDrag(300);
 		this.setDepth(110);
 
-		this.name = config.name;
 		this.type = config.key;
-		this.damage = config.damage;
-		this.speed = config.speed || 50;
-		this.range = config.range || 40;
-		this.swing_speed = config.swing_speed || this.scene.global_swing_speed;
+		this.damage = config.damage || enemyConfig[this.type].damage;
+		this.speed = config.speed || enemyConfig[this.type].speed;
+		this.range = config.range || enemyConfig[this.type].range;
+		this.swing_speed = config.swing_speed || enemyConfig[this.type].swing_speed;
 		this.attack_ready = true;
 		this.isHit = false;
 
@@ -28,9 +28,9 @@ class Enemy extends Phaser.GameObjects.Sprite {
 			x: -14,
 			y: -30,
 			type: 'health',
-			value: 100,
-			max: 100,
-			regen_rate: 0
+			value: config.health || enemyConfig[this.type].health,
+			max: config.health || enemyConfig[this.type].health,
+			regen_rate: config.regen_rate || enemyConfig[this.type].regen_rate
 		});
 
 		this.setInteractive();
