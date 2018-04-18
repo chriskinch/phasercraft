@@ -1,4 +1,5 @@
 import 'phaser';
+import BootScene from './Scenes/BootScene';
 import GameScene from './Scenes/GameScene'
 
 document.body.setAttribute("style", "margin:0;");
@@ -15,6 +16,7 @@ let config = {
         }
     },
     scene: [
+        BootScene,
     	GameScene
     ],
     pixelArt: true,
