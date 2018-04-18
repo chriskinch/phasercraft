@@ -11,13 +11,24 @@ class BootScene extends Phaser.Scene {
 		super({
 			key: 'BootScene'
 		});
-
-		this.global_tick = 0.2;
-		this.global_swing_speed = 1;
-		this.global_attack_delay = 250;
 	}
 
 	preload(){
+		let p = { h:4, w:100 };
+		let progress = this.add.graphics();
+
+		this.load.on('progress', function (value) {
+			progress.clear();
+			progress.fillStyle(0x3e6c18, 1);
+			progress.fillRect((window.innerWidth/2) - (p.w/2), (window.innerHeight/2) - (p.h/2), p.w, p.h);
+			progress.fillStyle(0x6efc48, 1);
+			progress.fillRect((window.innerWidth/2) - (p.w/2), (window.innerHeight/2) - (p.h/2), p.w * value, p.h);
+		});
+
+		this.load.on('complete', function () {
+			progress.destroy();
+		});
+
 		this.load.spritesheet('player', PlayerSprite, { frameWidth: 24, frameHeight: 32 });
 		this.load.image('resource-frame', ResourceFrame);
 		this.load.spritesheet('attack-swoosh', AttackSwoosh, { frameWidth: 32, frameHeight: 32 });
