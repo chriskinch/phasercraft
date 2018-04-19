@@ -70,6 +70,8 @@ class Player extends Phaser.GameObjects.Group {
 		this.resource.remove();
 		this.hero.anims.play('player-death');
 		this.alive = false;
+
+		this.scene.time.delayedCall(1500, () => this.scene.scene.start('GameOverScene'), [], this);
 	}
 
 	hit(damage){
@@ -111,7 +113,8 @@ class Player extends Phaser.GameObjects.Group {
 		let hero_position = this.hero.body.position;
 		let target_position = target.body.position;
 		let angle = Math.atan2(target_position.y - hero_position.y, target_position.x - hero_position.x) * 180 / Math.PI;
-		target.body.setVelocityX(100);
+		let velocity = target_position.clone().subtract(hero_position);
+		target.body.setVelocity(velocity.x*2, velocity.y*2);
 		this.weapon.x = target.x;
 		this.weapon.y = target.y;
 		this.weapon.setAngle(angle);

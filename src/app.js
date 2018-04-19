@@ -1,6 +1,8 @@
 import 'phaser';
 import BootScene from './Scenes/BootScene';
+import LoadScene from './Scenes/LoadScene';
 import GameScene from './Scenes/GameScene';
+import GameOverScene from './Scenes/GameOverScene';
 
 document.body.setAttribute("style", "margin:0;");
 
@@ -17,7 +19,9 @@ let config = {
     },
     scene: [
         BootScene,
-    	GameScene
+        LoadScene,
+    	GameScene,
+        GameOverScene
     ],
     pixelArt: true,
     antialias: false
