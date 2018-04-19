@@ -1,6 +1,7 @@
 import createAnimations from '../Config/animations';
 import Player from '../Entities/Player/Player';
 import Enemy from '../Entities/Enemy';
+import waveConfig from '../Config/waves.json';
 
 class GameScene extends Phaser.Scene {
 	constructor() {
@@ -11,6 +12,9 @@ class GameScene extends Phaser.Scene {
 		this.global_tick = 0.2;
 		this.global_swing_speed = 1;
 		this.global_attack_delay = 250;
+		this.global_spawn_time = 500;
+
+		this.wave = 0;
 	}
 
 	create (){
@@ -22,27 +26,11 @@ class GameScene extends Phaser.Scene {
 			y: 400
 		});
 
-		let enemies = 5;
-		this.group = this.add.group();
-
-		let enemy_types = [
-			'baby-ghoul',
-			'imp',
-			'ghoul',
-			'satyr',
-			'egbert',
-			'slime'
-		];
-
-		for(let i = 0; i < enemies; i++){
-			let rand = Math.round(Math.random() * 5);
-			this.group.add(new Enemy({
-				scene: this,
-				key: enemy_types[rand],
-				x: Math.random() * 800,
-				y: Math.random() * 800,
-			}));
-		}
+		this.enemies = this.add.group();
+		let enemy_array = waveConfig[this.wave];
+		enemy_array.forEach((enemy, i) => {
+			this.time.delayedCall(this.global_spawn_time*i, () => this.spawnEnemy(enemy), [], this);
+		});
 
 		//this.cameras.main.startFollow(this.player hero);
 
@@ -51,8 +39,8 @@ class GameScene extends Phaser.Scene {
 
 		this.physics.add.collider(this.player.hero, this);
 
-		this.physics.add.collider(this.player.hero, this.group, (hero, group) => group.attack() ,null, this.group);
-		this.physics.add.collider(this.group, this.group);
+		this.physics.add.collider(this.player.hero, this.enemies, (hero, enemies) => enemies.attack() ,null, this.enemies);
+		this.physics.add.collider(this.enemies, this.enemies);
 
 		this.input.on('pointerdown', this.deselect, this);
 
@@ -68,7 +56,7 @@ class GameScene extends Phaser.Scene {
 		}
 		if(this.player.alive) this.player.update(mouse, this.cursors, time, delta);
 
-		this.group.children.entries.forEach(entry =>{
+		this.enemies.children.entries.forEach(entry =>{
 			entry.update(time, delta);
 		});
 	}
@@ -79,6 +67,17 @@ class GameScene extends Phaser.Scene {
 
 	gameOver(){
 		this.physics.pause();
+	}
+
+	spawnEnemy(enemy){
+		console.log(enemy);
+		let rand = Math.round(Math.random() * 5);
+		this.enemies.add(new Enemy({
+			scene: this,
+			key: enemy,
+			x: Math.random() * 800,
+			y: Math.random() * 800,
+		}));
 	}
 }
 

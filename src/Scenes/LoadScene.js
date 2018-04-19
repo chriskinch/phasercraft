@@ -49,7 +49,6 @@ class LoadScene extends Phaser.Scene {
 		this.load.atlas('dungeon', DungeonAtlas, DungeonJSON);
 		this.load.atlas('enemy', EnemyAtlas, EnemyJSON);
 
-
 		//this.loadExtender();
 	}
 
