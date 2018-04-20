@@ -6,25 +6,45 @@ import GameOverScene from './Scenes/GameOverScene';
 
 document.body.setAttribute("style", "margin:0;");
 
-let config = {
-    type: Phaser.AUTO,
-    width: window.innerWidth,
-    height: window.innerHeight,
-    backgroundColor: '#6e9c48',
-    physics: {
-        default: 'arcade',
-        arcade: {
-            gravity: { y: 0 }
-        }
-    },
-    scene: [
-        BootScene,
-        LoadScene,
-    	GameScene,
-        GameOverScene
-    ],
-    pixelArt: true,
-    antialias: false
-};
+class Game extends Phaser.Game {
+	constructor() {
+		super({
+			type: Phaser.AUTO,
+			width: window.innerWidth,
+			height: window.innerHeight,
+			backgroundColor: '#6e9c48',
+			physics: {
+				default: 'arcade',
+				arcade: {
+					debug: false,
+					gravity: { y: 0 }
+				}
+			},
+			scene: [
+				BootScene,
+				LoadScene,
+				GameScene,
+				GameOverScene
+			],
+			pixelArt: true,
+			antialias: false
+		});
 
-let game = new Phaser.Game(config);
+		window.addEventListener('resize', this.resizeGame.bind(this));
+	}
+
+  resizeGame() {
+    var width = window.innerWidth;
+    var height = window.innerHeight;
+    //Resize game
+    this.resize(width, height);
+    //Let all scenes know of our new size
+    for(let sceneKey in this.scene.keys) {
+      if(this.scene.keys[sceneKey].resize) {
+        this.scene.keys[sceneKey].resize(width, height);
+      }
+    }
+  }
+}
+
+new Game();

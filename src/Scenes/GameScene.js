@@ -1,4 +1,3 @@
-import createAnimations from '../Config/animations';
 import Player from '../Entities/Player/Player';
 import Enemy from '../Entities/Enemy';
 import waveConfig from '../Config/waves.json';
@@ -18,8 +17,6 @@ class GameScene extends Phaser.Scene {
 	}
 
 	create (){
-		createAnimations(this);
-
 		this.player = new Player({
 			scene:this,
 			x: 400,
@@ -45,6 +42,8 @@ class GameScene extends Phaser.Scene {
 		this.input.on('pointerdown', this.deselect, this);
 
 		this.events.once('player-dead', this.gameOver, this);
+
+		console.log(this)
 	}
 
 	update(time, delta) {

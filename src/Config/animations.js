@@ -1,17 +1,7 @@
 export default function createAnimations(scene){
-
-
-	// Player
-   //  var config1 = {
-   //      key: 'imp-right-up',
-   //      frames: scene.anims.generateFrameNumbers('imp', { start: 0, end: 5 }),
-   //      frameRate: 12,
-   //      repeat: -1
-   //  };
-
-			// scene.anims.create(config1);
-
-			// scene.add.sprite(300, 200).play('imp-right-up');
+	console.log(scene)
+	if(scene.sys.game.init) return;
+	scene.sys.game.init = true;
 
 	let player_animations = [
 		{key: "player-idle", frames: { start: 12, end: 17 }, repeat: -1},
