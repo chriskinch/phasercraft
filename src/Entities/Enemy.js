@@ -4,11 +4,12 @@ import enemyConfig from '../Config/enemies.json';
 class Enemy extends Phaser.GameObjects.Sprite {
 
 	constructor(config) {
-		super(config.scene, config.x, config.y, config.key);
+		super(config.scene, config.x, 100, config.key);
 		config.scene.physics.world.enable(this);
 		config.scene.add.existing(this);
 		this.body.setFriction(0,0);
-		this.body.setDrag(300);
+		this.body.setDrag(0);
+		this.body.setGravityY(200);
 		this.setDepth(110);
 
 		this.type = config.key;
@@ -33,8 +34,13 @@ class Enemy extends Phaser.GameObjects.Sprite {
 			regen_rate: config.regen_rate || enemyConfig[this.type].regen_rate
 		});
 
+		let spawn_stop = this.scene.make.sprite({key:'blank-gif', x:this.x, y:this.y + 600}).setScale(13, 3).setInteractive();
+		this.scene.physics.add.collider(spawn_stop, this);
+
 		this.setInteractive();
 		this.on('pointerdown', this.select);
+
+		console.log(this);
 	}
 
 	update(time, delta) {

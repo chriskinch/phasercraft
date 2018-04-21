@@ -43,7 +43,8 @@ class GameScene extends Phaser.Scene {
 
 		this.events.once('player-dead', this.gameOver, this);
 
-		console.log(this)
+		// Resume physics if we load the scene post game over.
+		this.physics.resume();
 	}
 
 	update(time, delta) {
@@ -53,10 +54,11 @@ class GameScene extends Phaser.Scene {
 			middle: { isDown: (this.input.activePointer.buttons === 4 && this.input.activePointer.isDown) },
 			right: { isDown: (this.input.activePointer.buttons === 2 && this.input.activePointer.isDown) },
 		}
+
 		if(this.player.alive) this.player.update(mouse, this.cursors, time, delta);
 
 		this.enemies.children.entries.forEach(entry =>{
-			entry.update(time, delta);
+			//entry.update(time, delta);
 		});
 	}
 
@@ -69,7 +71,6 @@ class GameScene extends Phaser.Scene {
 	}
 
 	spawnEnemy(enemy){
-		console.log(enemy);
 		let rand = Math.round(Math.random() * 5);
 		this.enemies.add(new Enemy({
 			scene: this,

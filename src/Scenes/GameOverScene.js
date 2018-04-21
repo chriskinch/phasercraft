@@ -7,7 +7,7 @@ class GameOverScene extends Phaser.Scene {
 
 	create(){
 		this.cache.bitmapFont.add('wayne-3d', Phaser.GameObjects.BitmapText.ParseRetroFont(this, this.sys.game.font_config));
-		
+
 		let loading_text = this.add.bitmapText(window.innerWidth/2, window.innerHeight/2, 'wayne-3d', 'GAME OVER');
 		loading_text.setOrigin(0.5, 0.5);
 		loading_text.setScale(2);
@@ -23,7 +23,6 @@ class GameOverScene extends Phaser.Scene {
 	}
 
 	restartGame(){
-		this.physics.resume();
 		this.scene.start('GameScene');
 	}
 }
