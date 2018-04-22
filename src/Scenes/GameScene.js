@@ -73,8 +73,8 @@ class GameScene extends Phaser.Scene {
 		this.enemies.add(new Enemy({
 			scene: this,
 			key: enemy,
-			x: Math.random() * 800,
-			y: Math.random() * 800,
+			x: Math.random() * this.sys.game.config.width,
+			y: Math.random() * this.sys.game.config.height,
 			target: this.player
 		}));
 	}
