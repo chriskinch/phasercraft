@@ -35,8 +35,6 @@ class GameScene extends Phaser.Scene {
 		this.cursors = this.input.keyboard.createCursorKeys();
 
 		this.physics.add.collider(this.player.hero, this);
-
-		this.physics.add.collider(this.player.hero, this.enemies, (hero, enemies) => enemies.attack() ,null, this.enemies);
 		this.physics.add.collider(this.enemies, this.enemies);
 
 		this.input.on('pointerdown', this.deselect, this);
@@ -58,7 +56,7 @@ class GameScene extends Phaser.Scene {
 		if(this.player.alive) this.player.update(mouse, this.cursors, time, delta);
 
 		this.enemies.children.entries.forEach(entry =>{
-			//entry.update(time, delta);
+			entry.update(time, delta);
 		});
 	}
 
@@ -77,6 +75,7 @@ class GameScene extends Phaser.Scene {
 			key: enemy,
 			x: Math.random() * 800,
 			y: Math.random() * 800,
+			target: this.player
 		}));
 	}
 }

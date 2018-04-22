@@ -49,7 +49,6 @@ class Hero extends Phaser.GameObjects.Sprite {
 		this.scene.physics.moveTo(this, this.destination.x, this.destination.y, 150);
 		let walk_animation = (this.x - this.destination.x > 0) ? "player-left-down" : "player-right-up";
 		this.anims.play(walk_animation, true);
-		console.log(this.scene.physics.moveTo);
 	}
 
 	idle(){

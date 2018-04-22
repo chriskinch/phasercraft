@@ -1,5 +1,4 @@
 export default function createAnimations(scene){
-	console.log(scene)
 	if(scene.sys.game.init) return;
 	scene.sys.game.init = true;
 
