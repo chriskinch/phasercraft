@@ -11,7 +11,7 @@ class GameScene extends Phaser.Scene {
 		this.global_tick = 0.2;
 		this.global_swing_speed = 1;
 		this.global_attack_delay = 250;
-		this.global_spawn_time = 500;
+		this.global_spawn_time = 200;
 
 		this.wave = 0;
 	}
@@ -24,9 +24,11 @@ class GameScene extends Phaser.Scene {
 		});
 
 		this.enemies = this.add.group();
+		this.enemies.runChildUpdate = true;
 		let enemy_array = waveConfig[this.wave];
 		enemy_array.forEach((enemy, i) => {
-			this.time.delayedCall(this.global_spawn_time*i, () => this.spawnEnemy(enemy), [], this);
+			//this.spawnEnemy(enemy);
+			this.time.delayedCall(this.global_spawn_time * i, () => this.spawnEnemy(enemy), [], this);
 		});
 
 		//this.cameras.main.startFollow(this.player hero);
@@ -55,9 +57,9 @@ class GameScene extends Phaser.Scene {
 
 		if(this.player.alive) this.player.update(mouse, this.cursors, time, delta);
 
-		this.enemies.children.entries.forEach(entry =>{
-			entry.update(time, delta);
-		});
+		// this.enemies.children.entries.forEach(entry =>{
+		// 	entry.update(time, delta);
+		// });
 	}
 
 	deselect(){
@@ -66,6 +68,8 @@ class GameScene extends Phaser.Scene {
 
 	gameOver(){
 		this.physics.pause();
+		this.enemies.runChildUpdate = false;
+		this.time.delayedCall(1500, () => this.scene.start('GameOverScene'), [], this);
 	}
 
 	spawnEnemy(enemy){

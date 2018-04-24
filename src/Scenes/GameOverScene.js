@@ -16,10 +16,8 @@ class GameOverScene extends Phaser.Scene {
 		restart_text.setOrigin(0.5, 0.5);
 		restart_text.setScale(0.5);
 
-		console.log(this);
-
 		let restart_button = this.make.image({key:'blank-gif', x:restart_text.x, y:restart_text.y}).setScale(13, 3).setInteractive();
-		restart_button.on('pointerdown', () => this.restartGame());
+		restart_button.on('pointerup', () => this.restartGame());
 	}
 
 	restartGame(){

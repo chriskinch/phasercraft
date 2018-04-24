@@ -53,9 +53,7 @@ class Player extends Phaser.GameObjects.Group {
 		this.hero.update(this, mouse, keys);
 
 		this.children.entries.forEach((entry) => {
-			if(entry.shouldUpdate !== false) {
-				entry.update(this);
-			}
+			entry.update(this);
 		});
 
 		if(this.scene.selected) this.goToRange();
@@ -70,8 +68,6 @@ class Player extends Phaser.GameObjects.Group {
 		this.resource.remove();
 		this.hero.anims.play('player-death');
 		this.alive = false;
-
-		this.scene.time.delayedCall(1500, () => this.scene.scene.start('GameOverScene'), [], this);
 	}
 
 	hit(damage){

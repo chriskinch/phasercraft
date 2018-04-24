@@ -4,7 +4,7 @@ import enemyConfig from '../Config/enemies.json';
 class Enemy extends Phaser.GameObjects.Sprite {
 
 	constructor(config) {
-		super(config.scene, config.x, -100, config.key);
+		super(config.scene, config.x, config.y - 300, config.key);
 		config.scene.physics.world.enable(this);
 		config.scene.add.existing(this);
 		this.body.setFriction(0,0).setDrag(0).setGravityY(200).setBounce(0.2);
@@ -38,6 +38,10 @@ class Enemy extends Phaser.GameObjects.Sprite {
 
 		this.scene.physics.add.collider(this.target.hero, this, () => this.attack(), null, this);
 
+		this.setAlpha(0);
+		this.scene.tweens.add({ targets: this, alpha: 1, ease: 'Power1', duration: 500});
+
+
 		this.setInteractive();
 		this.on('pointerdown', this.select);
 	}
@@ -65,7 +69,6 @@ class Enemy extends Phaser.GameObjects.Sprite {
 	// }
 
 	enemySpawned(){
-		console.log("hey")
 		this.body.setGravityY(0).setDrag(300);
 		this.spawn_stop.destroy();
 		this.spawned = true;
@@ -128,7 +131,7 @@ class Enemy extends Phaser.GameObjects.Sprite {
 	}
 
 	attack(){
-		if(this.attack_ready) {
+		if(this.attack_ready && this.spawned) {
 			this.scene.events.emit('enemy-attack', this.damage);
 			this.attack_ready = false;
 			this.swing = this.scene.time.addEvent({ delay: this.swing_speed*1000, callback: this.attackReady, callbackScope: this, loop: true });
