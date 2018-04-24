@@ -41,6 +41,7 @@ class Enemy extends Phaser.GameObjects.Sprite {
 		this.setAlpha(0);
 		this.scene.tweens.add({ targets: this, alpha: 1, ease: 'Power1', duration: 500});
 
+		this.graphics.area = this.drawGraphics('area');
 
 		this.setInteractive();
 		this.on('pointerdown', this.select);
@@ -85,15 +86,28 @@ class Enemy extends Phaser.GameObjects.Sprite {
 		}
 	}
 
-	drawSelected(){
-		let over_size = 5;
-		let graphics = this.scene.add.graphics();
-			graphics.scaleY = 0.5;
-			graphics.lineStyle(4, 0xb93f3c, 0.9);
-			graphics.strokeCircle(0, this.height/2 + over_size, this.width/2 + over_size);
-			graphics.setDepth(10);
-
-		return graphics;
+	drawGraphics(type){
+		let size;
+		let graphics = this.scene.make.graphics({x: 100, y: 100, add: false});
+		switch(type){
+			case 'selected':
+				size = 5;
+				graphics.scaleY = 0.5;
+				graphics.lineStyle(4, 0xffffff, 0.5);
+				graphics.strokeCircle(0, this.height/2 + size, this.width/2 + size);
+				break;
+			case 'area':
+				size = 40;
+				graphics.fillStyle(0xb93f3c, 0.5);
+				graphics.fillCircle(size, size, size, size);
+				break;
+			default:
+				return null;
+		}	
+		graphics.setDepth(10);
+		graphics.generateTexture(type, size*2, size*2);
+		let image = this.scene.add.sprite(0, 0, type);
+		return image;
 	}
 
 	lockGraphicsXY(){
@@ -105,7 +119,7 @@ class Enemy extends Phaser.GameObjects.Sprite {
 
 	select(){
 		this.selected = true;
-		this.graphics.selected = this.drawSelected();
+		this.graphics.selected = this.drawGraphics('selected');
 		this.scene.selected = this;
 	}
 

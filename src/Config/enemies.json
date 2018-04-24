@@ -43,7 +43,7 @@
 		"damage": 250,
 		"speed": 20,
 		"range": 30,
-		"swing_speed": 0.5,
+		"swing_speed": 3,
 		"health": 200,
 		"regen_rate": 0
 	}
