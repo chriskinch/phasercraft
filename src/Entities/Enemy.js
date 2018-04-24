@@ -4,14 +4,14 @@ import enemyConfig from '../Config/enemies.json';
 class Enemy extends Phaser.GameObjects.Sprite {
 
 	constructor(config) {
-		super(config.scene, config.x, config.y, config.key);
+		super(config.scene, config.x, config.y - 300, config.key);
 		config.scene.physics.world.enable(this);
 		config.scene.add.existing(this);
-		this.body.setFriction(0,0);
-		this.body.setDrag(300);
+		this.body.setFriction(0,0).setDrag(0).setGravityY(200).setBounce(0.2);
 		this.setDepth(110);
 
 		this.type = config.key;
+		this.target = config.target;
 		this.damage = config.damage || enemyConfig[this.type].damage;
 		this.speed = config.speed || enemyConfig[this.type].speed;
 		this.range = config.range || enemyConfig[this.type].range;
@@ -33,22 +33,56 @@ class Enemy extends Phaser.GameObjects.Sprite {
 			regen_rate: config.regen_rate || enemyConfig[this.type].regen_rate
 		});
 
+		this.spawn_stop = this.scene.physics.add.staticImage(this.x, config.y, 'blank-gif');
+		this.scene.physics.add.collider(this.spawn_stop, this);
+
+		this.scene.physics.add.collider(this.target.hero, this, () => this.attack(), null, this);
+
+		this.setAlpha(0);
+		this.scene.tweens.add({ targets: this, alpha: 1, ease: 'Power1', duration: 500});
+
+
 		this.setInteractive();
 		this.on('pointerdown', this.select);
 	}
 
 	update(time, delta) {
-		this.health.update(this);
+		if(this.spawned){
+			this.health.update(this);
 
-		if(!this.isHit) {
-			this.scene.physics.moveTo(this, this.scene.player.x, this.scene.player.y, this.speed);
+			if(!this.isHit) {
+				this.scene.physics.moveTo(this, this.scene.player.x, this.scene.player.y, this.speed);
+			}
+			let walk_animation = (this.x - this.scene.player.x > 0) ? this.type + "-left-down" : this.type + "-right-up";
+			this.anims.play(walk_animation, true);
+
+			this.lockGraphicsXY();
+
+			if(this.health.value <= 0) this.death();
+		}else{
+			this.spawningEnemy();
 		}
-		let walk_animation = (this.x - this.scene.player.x > 0) ? this.type + "-left-down" : this.type + "-right-up";
-		this.anims.play(walk_animation, true);
+	}
 
-		this.lockGraphicsXY();
+	// spawned(){
+	// 	console.log("touching");
+	// }
 
-		if(this.health.value <= 0) this.death();
+	enemySpawned(){
+		this.body.setGravityY(0).setDrag(300);
+		this.spawn_stop.destroy();
+		this.spawned = true;
+	}
+
+	spawningEnemy(){
+		if(this.body.touching.down) {
+			if(!this.spawning) this.spawning = this.scene.time.delayedCall(100, this.enemySpawned, [], this);
+		}else{
+			if(this.spawning) {
+				this.spawning.remove(false);
+				delete this.spawning;
+			}
+		}
 	}
 
 	drawSelected(){
@@ -97,7 +131,7 @@ class Enemy extends Phaser.GameObjects.Sprite {
 	}
 
 	attack(){
-		if(this.attack_ready) {
+		if(this.attack_ready && this.spawned) {
 			this.scene.events.emit('enemy-attack', this.damage);
 			this.attack_ready = false;
 			this.swing = this.scene.time.addEvent({ delay: this.swing_speed*1000, callback: this.attackReady, callbackScope: this, loop: true });
