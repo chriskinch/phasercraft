@@ -100,7 +100,7 @@ class Enemy extends Phaser.GameObjects.Sprite {
 			case 'area':
 				size = 40;
 				graphics = this.scene.make.graphics({x: 100, y: 100, add: false});
-				graphics.fillStyle(0xff00ff, 0.1);
+				graphics.fillStyle(0xff00ff, 0);
 				graphics.fillCircle(size, size, size, size);
 				graphics.generateTexture(type, size*2, size*2);
 				let image = this.scene.add.sprite(0, 0, type);
