@@ -90,6 +90,7 @@ class Enemy extends Phaser.GameObjects.Sprite {
 		switch(type){
 			case 'selected':
 				size = 5;
+				console.log(this)
 				graphics = this.scene.add.graphics();
 				graphics.scaleY = 0.5;
 				graphics.lineStyle(4, 0xb93f3c, 0.9);
@@ -100,7 +101,7 @@ class Enemy extends Phaser.GameObjects.Sprite {
 			case 'area':
 				size = 40;
 				graphics = this.scene.make.graphics({x: 100, y: 100, add: false});
-				graphics.fillStyle(0xff00ff, 0);
+				graphics.fillStyle(0xff00ff, 0.1);
 				graphics.fillCircle(size, size, size, size);
 				graphics.generateTexture(type, size*2, size*2);
 				let image = this.scene.add.sprite(0, 0, type);
@@ -119,7 +120,6 @@ class Enemy extends Phaser.GameObjects.Sprite {
 	}
 
 	select(){
-		console.log(this);
 		this.selected = true;
 		this.graphics.selected = this.drawGraphics('selected');
 		this.scene.selected = this;
@@ -139,10 +139,8 @@ class Enemy extends Phaser.GameObjects.Sprite {
 
 	death(){
 		this.deselect();
-		for(let graphic in this.health.graphics){
-			this.health.graphics[graphic].clear();
-		}
-		this.health.destroy();
+		this.graphics.area.destroy();
+		this.health.remove();
 		this.destroy();
 	}
 
