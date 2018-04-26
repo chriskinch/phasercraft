@@ -1,7 +1,7 @@
 import Hero from './Hero';
 import Resource from '../Resource';
 import Weapon from '../Weapon';
-import Heal from '../Spells/Heal';	
+import AssignSpell from '../Spells/AssignSpell';	
 
 class Player extends Phaser.GameObjects.Group {
 	constructor(config) {
@@ -45,10 +45,11 @@ class Player extends Phaser.GameObjects.Group {
 		this.scene.events.on('enemy-attack', this.hit, this);
 		this.health.on('change', this.healthChanged);
 
-		this.spell = new Heal({scene: this.scene, x: this.x, y: this.y, key: 'spell-heal'})
-		this.scene.events.once('heal', () => {
-			this.spell.cast(this.health);
-		});
+		this.spell = new AssignSpell('Heal', {scene: this.scene, x: this.x, y: this.y, key: 'spell-heal'});
+	}
+
+	assignSpell(name, opts){
+		return new name(opts);
 	}
 
 	update(mouse, keys, time, delta){
@@ -64,7 +65,7 @@ class Player extends Phaser.GameObjects.Group {
 		if(this.scene.selected) this.goToRange();
 
 		if(keys.space.isDown) {
-			this.scene.events.emit('heal');
+			this.scene.events.emit('heal', this);
 		}
 	}
 
