@@ -30,7 +30,6 @@ class GameScene extends Phaser.Scene {
 			//this.spawnEnemy(enemy);
 			this.time.delayedCall(this.global_spawn_time * i, () => {
 				this.spawnEnemy(enemy);
-				console.log(this.enemies)
 			}, [], this);
 		});
 

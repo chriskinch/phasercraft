@@ -16,8 +16,6 @@ class Heal extends Phaser.GameObjects.Sprite {
 			hideOnComplete: true,
 			onUpdate: this.animUpdateCallback.bind(this)
 		});
-
-		console.log(this);
 	}
 
 	cast(target){
