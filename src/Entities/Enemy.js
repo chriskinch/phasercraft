@@ -62,7 +62,10 @@ class Enemy extends Phaser.GameObjects.Sprite {
 		this.body.setGravityY(0).setDrag(300);
 		this.spawn_stop.destroy();
 		this.spawned = true;
+
 		this.scene.physics.add.collider(this.target.hero, this, () => this.attack(), null, this);
+		this.scene.physics.add.collider(this.scene.enemies, this.scene.enemies);
+		
 		this.graphics.area = this.drawGraphics('area').setInteractive();
 		this.graphics.area.on('pointerdown', this.select, this);
 	}
