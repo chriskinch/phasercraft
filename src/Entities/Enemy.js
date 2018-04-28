@@ -20,7 +20,6 @@ class Enemy extends Phaser.GameObjects.Container {
 		config.scene.physics.world.enable(this);
 		config.scene.add.existing(this);
 		this.body.setFriction(0,0).setDrag(0).setGravityY(200).setBounce(0.2);
-		this.setDepth(110);
 
 		this.type = config.key;
 		this.target = config.target;
@@ -30,12 +29,10 @@ class Enemy extends Phaser.GameObjects.Container {
 		this.swing_speed = config.swing_speed || enemyConfig[this.type].swing_speed;
 		this.attack_ready = true;
 		this.isHit = false;
+		this.hitRadius = 25;
 
 		this.graphics = {};
-		this.graphics.area = this.drawGraphics('area').setInteractive();
-		this.graphics.selected = this.drawGraphics('selected');
-
-		this.add(this.graphics.area);
+		this.graphics.selected = this.drawSelected('selected');
 		this.add(this.graphics.selected);
 
 		this.health = new Resource({
@@ -57,9 +54,19 @@ class Enemy extends Phaser.GameObjects.Container {
 		this.setAlpha(0);
 		this.scene.tweens.add({ targets: this, alpha: 1, ease: 'Power1', duration: 500});
 
+		// Odd bug where the hit box is offset by 114px. not sure why but compensating here
+		this.setInteractive(new Phaser.Geom.Circle(14, 14, this.hitRadius), Phaser.Geom.Circle.Contains);
+
+		this.bringToTop(this.monster);
+
+		if(this.scene.sys.game.config.physics.arcade.debug){
+			this.showHitbox();
+		}
 	}
 
 	update(time, delta) {
+		this.setDepth(this.y);
+
 		if(this.spawned){
 			this.health.update(this);
 
@@ -83,7 +90,7 @@ class Enemy extends Phaser.GameObjects.Container {
 		this.scene.physics.add.collider(this.target.hero, this, () => this.attack(), null, this);
 		this.scene.physics.add.collider(this.scene.enemies, this.scene.enemies);
 
-		this.graphics.area.on('pointerdown', this.select, this);
+		this.on('pointerdown', this.select, this);
 	}
 
 	spawningEnemy(){
@@ -97,32 +104,15 @@ class Enemy extends Phaser.GameObjects.Container {
 		}
 	}
 
-	drawGraphics(type){
-		let size;
-		let graphics;
-		switch(type){
-			case 'selected':
-				size = 5;
-				graphics = this.scene.add.graphics();
+	drawSelected(){
+		let size = 5;
+		let graphics = this.scene.add.graphics();
 				graphics.scaleY = 0.5;
 				graphics.lineStyle(4, 0xb93f3c, 0.9);
 				graphics.strokeCircle(0, this.height/2 + size, this.width/2 + size);
 				graphics.setDepth(10);
 				graphics.visible = false;
-				return graphics;
-				break;
-			case 'area':
-				size = 20;
-				graphics = this.scene.make.graphics({x: 100, y: 100, add: false});
-				graphics.fillStyle(0xff00ff, 0);
-				graphics.fillCircle(size, size, size, size);
-				graphics.generateTexture(type, size*2, size*2);
-				let image = this.scene.add.sprite(0, 0, type);
-				return image;
-				break;
-			default:
-				return null;
-		}
+		return graphics;
 	}
 
 	select(){
@@ -145,7 +135,6 @@ class Enemy extends Phaser.GameObjects.Container {
 
 	death(){
 		this.deselect();
-		this.graphics.area.destroy();
 		this.health.remove();
 		this.destroy();
 	}
@@ -161,6 +150,14 @@ class Enemy extends Phaser.GameObjects.Container {
 	attackReady(){
 		this.attack_ready = true;
 		this.swing.remove(false);
+	}
+
+	showHitbox(){
+		//Just to display the hit area, not actually needed to work. Also doesn't have the same bug about being offset.
+		this.hitboxDebug = this.scene.add.graphics();
+		this.hitboxDebug.lineStyle(1, 0x00ffff, 1);
+		this.hitboxDebug.strokeCircleShape(new Phaser.Geom.Circle(0, 0, 25));
+		this.add(this.hitboxDebug);
 	}
 
 }

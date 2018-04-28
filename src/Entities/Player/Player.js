@@ -19,6 +19,7 @@ class Player extends Phaser.GameObjects.Container {
 		config.scene.physics.world.enable(this);
 		config.scene.add.existing(this);
 
+		this.body.collideWorldBounds = true;
 		this.body.immovable = true;
 		this.body.setFriction(0,0);
 
@@ -78,6 +79,8 @@ class Player extends Phaser.GameObjects.Container {
 	}
 
 	update(mouse, keys, time, delta){
+		this.setDepth(this.y);
+
 		let arrived = this.atDestination(this, this.destination);
 
 		if(arrived && this.body.speed > 0) {

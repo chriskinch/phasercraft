@@ -33,13 +33,11 @@ class Heal extends Phaser.GameObjects.Sprite {
 	}
 
 	animate(){
-		//this.scene.add.sprite(target.x, target.y, 'heal-sprite').setDepth(1000);
 		this.scene.add.existing(this).setDepth(1000);
 		this.anims.play('heal-animation');
 	}
 
 	animUpdateCallback(){
-		console.log(this);
 		this.x = this.target.x;
 		this.y = this.target.y;
 	}
