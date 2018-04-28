@@ -7,9 +7,8 @@ class Resource extends Phaser.GameObjects.Sprite {
 		let defaults = this.setDefaults(config.type);
 		let options = Object.assign({}, defaults, config);
 
+		this.container = options.container;
 		this.type = options.type;
-		this.offsetX = this.x;
-		this.offsetY = this.y;
 		this.colour = options.colour;
 		this.max = options.max;
 		this.value = options.value;
@@ -19,13 +18,7 @@ class Resource extends Phaser.GameObjects.Sprite {
 		this.setOrigin(0,0).setDepth(1000);
 
 		this.graphics = {};
-		this.graphics.current = this.drawBar({
-			type: 'current',
-			colour: this.colour,
-			width: this.width,
-			height: this.height,
-			depth: 999
-		});
+
 		this.graphics.background = this.drawBar({
 			type: 'background',
 			colour: 0x111111,
@@ -33,18 +26,19 @@ class Resource extends Phaser.GameObjects.Sprite {
 			height: this.height,
 			depth: 998
 		});
+		this.container.add(this.graphics.background);
+
+		this.graphics.current = this.drawBar({
+			type: 'current',
+			colour: this.colour,
+			width: this.width,
+			height: this.height,
+			depth: 999
+		});
+		this.container.add(this.graphics.current);
 
 		this.graphics.current.scaleX = this.healthPercent();
 		this.tick = this.setRegeneration();
-		this.lockGraphicsXY();
-	}
-
-	update(group){
-		if(group) {
-			this.x = group.x + this.offsetX;
-			this.y = group.y + this.offsetY;
-		}
-		this.lockGraphicsXY();
 	}
 
 	setDefaults(type){
@@ -95,14 +89,16 @@ class Resource extends Phaser.GameObjects.Sprite {
 			graphics.fillStyle(opt.colour, 1);
 			graphics.fillRect(0,0,opt.width,opt.height);
 			graphics.setDepth(opt.depth);
+			graphics.x = this.x;
+			graphics.y = this.y;
 
 		return graphics;
 	}
 
 	lockGraphicsXY(){
 		for(let graphic in this.graphics) {
-			this.graphics[graphic].x = this.x;
-			this.graphics[graphic].y = this.y;
+			this.graphics[graphic].x = this.container.x + this.x;
+			this.graphics[graphic].y = this.container.y + this.y;
 		}
 	}
 

@@ -1,10 +1,22 @@
 import Resource from './Resource';
+import Monster from './Monster';
 import enemyConfig from '../Config/enemies.json';
 
-class Enemy extends Phaser.GameObjects.Sprite {
+class Enemy extends Phaser.GameObjects.Container {
 
 	constructor(config) {
-		super(config.scene, config.x, config.y - 300, config.key);
+		super(config.scene, config.x, config.y - 300);
+
+		this.monster = new Monster({
+			scene: this.scene,
+			key: config.key,
+			x: Math.random() * 800,
+			y: Math.random() * 600,
+			target: config.target
+		});
+		this.add(this.monster);
+
+		this.setSize(this.monster.getBounds().width, this.monster.getBounds().height, true);
 		config.scene.physics.world.enable(this);
 		config.scene.add.existing(this);
 		this.body.setFriction(0,0).setDrag(0).setGravityY(200).setBounce(0.2);
@@ -20,9 +32,14 @@ class Enemy extends Phaser.GameObjects.Sprite {
 		this.isHit = false;
 
 		this.graphics = {};
+		this.graphics.area = this.drawGraphics('area').setInteractive();
+		this.graphics.selected = this.drawGraphics('selected');
+
+		this.add(this.graphics.area);
+		this.add(this.graphics.selected);
 
 		this.health = new Resource({
-			group: this,
+			container: this,
 			scene: config.scene,
 			key: 'resource-frame',
 			x: -14,
@@ -32,12 +49,14 @@ class Enemy extends Phaser.GameObjects.Sprite {
 			max: config.health || enemyConfig[this.type].health,
 			regen_rate: config.regen_rate || enemyConfig[this.type].regen_rate
 		});
+		this.add(this.health);
 
 		this.spawn_stop = this.scene.physics.add.staticImage(this.x, config.y, 'blank-gif');
 		this.scene.physics.add.collider(this.spawn_stop, this);
 
 		this.setAlpha(0);
 		this.scene.tweens.add({ targets: this, alpha: 1, ease: 'Power1', duration: 500});
+
 	}
 
 	update(time, delta) {
@@ -48,9 +67,7 @@ class Enemy extends Phaser.GameObjects.Sprite {
 				this.scene.physics.moveTo(this, this.scene.player.x, this.scene.player.y, this.speed);
 			}
 			let walk_animation = (this.x - this.scene.player.x > 0) ? this.type + "-left-down" : this.type + "-right-up";
-			this.anims.play(walk_animation, true);
-
-			this.lockGraphicsXY();
+			this.monster.walk(walk_animation);
 
 			if(this.health.value <= 0) this.death();
 		}else{
@@ -65,8 +82,7 @@ class Enemy extends Phaser.GameObjects.Sprite {
 
 		this.scene.physics.add.collider(this.target.hero, this, () => this.attack(), null, this);
 		this.scene.physics.add.collider(this.scene.enemies, this.scene.enemies);
-		
-		this.graphics.area = this.drawGraphics('area').setInteractive();
+
 		this.graphics.area.on('pointerdown', this.select, this);
 	}
 
@@ -91,8 +107,9 @@ class Enemy extends Phaser.GameObjects.Sprite {
 				graphics.scaleY = 0.5;
 				graphics.lineStyle(4, 0xb93f3c, 0.9);
 				graphics.strokeCircle(0, this.height/2 + size, this.width/2 + size);
-				graphics.setDepth(10);	
-				return graphics;	
+				graphics.setDepth(10);
+				graphics.visible = false;
+				return graphics;
 				break;
 			case 'area':
 				size = 20;
@@ -105,19 +122,12 @@ class Enemy extends Phaser.GameObjects.Sprite {
 				break;
 			default:
 				return null;
-		}	
-	}
-
-	lockGraphicsXY(){
-		for(let graphic in this.graphics) {
-			this.graphics[graphic].x = this.x;
-			this.graphics[graphic].y = this.y;
 		}
 	}
 
 	select(){
+		this.graphics.selected.visible = true;
 		this.selected = true;
-		this.graphics.selected = this.drawGraphics('selected');
 		this.scene.selected = this;
 	}
 

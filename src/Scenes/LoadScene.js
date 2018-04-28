@@ -17,19 +17,19 @@ class LoadScene extends Phaser.Scene {
 	}
 
 	preload(){
-		this.sys.game.font_config = {
-			image: 'wayne-3d',
-			width: 31,
-			height: 32,
-			chars: Phaser.GameObjects.BitmapText.ParseRetroFont.TEXT_SET2,
-			charsPerRow: 10,
-			spacing: { x: 1, y: 0 }
-		};
+		// this.sys.game.font_config = {
+		// 	image: 'wayne-3d',
+		// 	width: 31,
+		// 	height: 32,
+		// 	chars: Phaser.GameObjects.BitmapText.ParseRetroFont.TEXT_SET1,
+		// 	charsPerRow: 10,
+		// 	spacing: { x: 1, y: 0 }
+		// };
 
-		this.cache.bitmapFont.add('wayne-3d', Phaser.GameObjects.BitmapText.ParseRetroFont(this, this.sys.game.font_config));
-		let loading_text = this.add.bitmapText(window.innerWidth/2, window.innerHeight/2 - 20, 'wayne-3d', 'LOADING');
-		loading_text.setOrigin(0.5, 0.5);
-		loading_text.setScale(0.5);
+		// this.cache.bitmapFont.add('wayne-3d', Phaser.GameObjects.BitmapText.ParseRetroFont(this, this.sys.game.font_config));
+		// let loading_text = this.add.bitmapText(window.innerWidth/2, window.innerHeight/2 - 20, 'wayne-3d', 'LOADING');
+		// loading_text.setOrigin(0.5, 0.5);
+		// loading_text.setScale(0.5);
 
 		let p = { h:4, w:100 };
 		let progress = this.add.graphics();
