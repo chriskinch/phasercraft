@@ -25,7 +25,7 @@ class Hero extends Phaser.GameObjects.Sprite {
 		this.idle();
 	}
 
-	update(group, mouse, keys) {
+	update(group, mouse) {
 		let arrived = this.atDestination(this, this.destination);
 
 		if(arrived && this.body.speed > 0) {
@@ -38,10 +38,6 @@ class Hero extends Phaser.GameObjects.Sprite {
 				y: mouse.pointer.y
 			}
 			this.walk();
-		}
-
-		if(keys.space.isDown) {
-			//group.weapon.anims.play('attack', true);
 		}
 	}
 

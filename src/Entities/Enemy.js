@@ -36,13 +36,8 @@ class Enemy extends Phaser.GameObjects.Sprite {
 		this.spawn_stop = this.scene.physics.add.staticImage(this.x, config.y, 'blank-gif');
 		this.scene.physics.add.collider(this.spawn_stop, this);
 
-		this.scene.physics.add.collider(this.target.hero, this, () => this.attack(), null, this);
-
 		this.setAlpha(0);
 		this.scene.tweens.add({ targets: this, alpha: 1, ease: 'Power1', duration: 500});
-
-		this.graphics.area = this.drawGraphics('area').setInteractive();
-		this.graphics.area.on('pointerdown', this.select, this);
 	}
 
 	update(time, delta) {
@@ -63,14 +58,16 @@ class Enemy extends Phaser.GameObjects.Sprite {
 		}
 	}
 
-	// spawned(){
-	// 	console.log("touching");
-	// }
-
 	enemySpawned(){
 		this.body.setGravityY(0).setDrag(300);
 		this.spawn_stop.destroy();
 		this.spawned = true;
+
+		this.scene.physics.add.collider(this.target.hero, this, () => this.attack(), null, this);
+		this.scene.physics.add.collider(this.scene.enemies, this.scene.enemies);
+		
+		this.graphics.area = this.drawGraphics('area').setInteractive();
+		this.graphics.area.on('pointerdown', this.select, this);
 	}
 
 	spawningEnemy(){
@@ -98,9 +95,9 @@ class Enemy extends Phaser.GameObjects.Sprite {
 				return graphics;	
 				break;
 			case 'area':
-				size = 40;
+				size = 20;
 				graphics = this.scene.make.graphics({x: 100, y: 100, add: false});
-				graphics.fillStyle(0xff00ff, 0.1);
+				graphics.fillStyle(0xff00ff, 0);
 				graphics.fillCircle(size, size, size, size);
 				graphics.generateTexture(type, size*2, size*2);
 				let image = this.scene.add.sprite(0, 0, type);

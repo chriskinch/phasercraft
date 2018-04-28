@@ -26,9 +26,11 @@ class GameScene extends Phaser.Scene {
 		this.enemies = this.add.group();
 		this.enemies.runChildUpdate = true;
 		let enemy_array = waveConfig[this.wave];
-		enemy_array.forEach((enemy, i) => {
+		enemy_array.forEach((enemy, i, arr) => {
 			//this.spawnEnemy(enemy);
-			this.time.delayedCall(this.global_spawn_time * i, () => this.spawnEnemy(enemy), [], this);
+			this.time.delayedCall(this.global_spawn_time * i, () => {
+				this.spawnEnemy(enemy);
+			}, [], this);
 		});
 
 		//this.cameras.main.startFollow(this.player hero);
@@ -37,7 +39,6 @@ class GameScene extends Phaser.Scene {
 		this.cursors = this.input.keyboard.createCursorKeys();
 
 		this.physics.add.collider(this.player.hero, this);
-		this.physics.add.collider(this.enemies, this.enemies);
 
 		this.input.on('pointerdown', this.deselect, this);
 
