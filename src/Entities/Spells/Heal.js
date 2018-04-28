@@ -13,11 +13,10 @@ class Heal extends Phaser.GameObjects.Sprite {
 			frameRate: 24,
 			repeat: 0,
 			showOnStart: true,
-			hideOnComplete: true,
-			onUpdate: () => { console.log("hello") }
+			hideOnComplete: true
 		});
 
-		console.log(this.scene.anims)
+		this.on('animationupdate', this.animUpdateCallback)
 	}
 
 	cast(target){
@@ -39,10 +38,10 @@ class Heal extends Phaser.GameObjects.Sprite {
 		this.anims.play('heal-animation');
 	}
 
-	animUpdateCallback(sprite, animation){
-		console.log(sprite, animation);
-		// this.x = this.target.x;
-		// this.y = this.target.y;
+	animUpdateCallback(){
+		console.log(this);
+		this.x = this.target.x;
+		this.y = this.target.y;
 	}
 }
 
