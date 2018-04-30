@@ -12,11 +12,20 @@ class GameScene extends Phaser.Scene {
 		this.global_swing_speed = 1;
 		this.global_attack_delay = 250;
 		this.global_spawn_time = 200;
-
 		this.wave = 0;
+
+		this.depth_group = {
+			BASE: 10,
+			UI: 10000,
+		}
 	}
 
 	create (){
+		this.global_game_width = this.sys.game.config.width;
+		this.global_game_height = this.sys.game.config.height;
+
+		this.gamepointer = this.add.sprite(this.x, this.y, 'blank-gif').setInteractive().setDepth(this.depth_group.BASE);
+
 		this.player = new Player({
 			scene:this,
 			x: 400,
@@ -42,7 +51,6 @@ class GameScene extends Phaser.Scene {
 		this.physics.add.collider(this.player.hero, this);
 
 		this.input.on('pointerdown', this.deselect, this);
-
 		this.events.once('player-dead', this.gameOver, this);
 
 		// Resume physics if we load the scene post game over.
@@ -56,6 +64,9 @@ class GameScene extends Phaser.Scene {
 			middle: { isDown: (this.input.activePointer.buttons === 4 && this.input.activePointer.isDown) },
 			right: { isDown: (this.input.activePointer.buttons === 2 && this.input.activePointer.isDown) },
 		}
+
+		this.gamepointer.x = mouse.pointer.x;
+		this.gamepointer.y = mouse.pointer.y;
 
 		if(this.player.alive) this.player.update(mouse, this.cursors, time, delta);
 	}
@@ -75,8 +86,8 @@ class GameScene extends Phaser.Scene {
 		this.enemies.add(new Enemy({
 			scene: this,
 			key: enemy,
-			x: Math.random() * this.sys.game.config.width,
-			y: Math.random() * this.sys.game.config.height,
+			x: Math.random() * this.global_game_width,
+			y: Math.random() * this.global_game_height,
 			target: this.player
 		}));
 	}

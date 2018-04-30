@@ -16,12 +16,25 @@ class Heal extends Phaser.GameObjects.Sprite {
 			hideOnComplete: true
 		});
 
-		this.on('animationupdate', this.animationUpdate)
+		this.on('animationupdate', this.animationUpdate);
+
+		this.icon();
+	}
+
+	icon(){
+		//this.button = this.scene.add.sprite(100, 100, 'blank-gif').setInteractive().setScale(4);
+		this.button = this.scene.add.tileSprite(20, 20, 40, 40, 'dungeon', 'floor_patch').setInteractive().setDepth(this.scene.depth_group.UI);
+		this.button.on('pointerdown', () => { this.cast(this.scene.player); });
+	}
+
+	prime(){
+		console.log("heal primed");
 	}
 
 	cast(target){
+		console.log("Heal", this);
 		this.target = target;
-		this.target.health.adjustValue(this.value);
+		//this.target.health.adjustValue(this.value);
 		this.animate();
 		this.scene.time.delayedCall(this.cooldown, this.ready, [], this);
 	}

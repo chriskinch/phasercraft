@@ -2,6 +2,7 @@ import Hero from './Hero';
 import Resource from '../Resource';
 import Weapon from '../Weapon';
 import AssignSpell from '../Spells/AssignSpell';
+//import CustomPointer from '../CustomPointer';
 
 import { getSpellSchools, getAssendedClass } from '../../Config/classes';
 
@@ -63,6 +64,11 @@ class Player extends Phaser.GameObjects.Container {
 		this.spell = new AssignSpell('Heal', {scene: this.scene, x: this.x, y: this.y, key: 'spell-heal'});
 
 		this.idle();
+
+		//this.pointerdown = new CustomPointer();
+		this.scene.gamepointer.on('pointerdown', this.pointerDownHandler, this);
+		this.scene.input.on('pointermove', this.pointerMoveHandler, this);
+		this.scene.gamepointer.on('pointerup', this.pointerUpHandler, this);
 	}
 
 	drawBar(opt) {
@@ -79,31 +85,45 @@ class Player extends Phaser.GameObjects.Container {
 	}
 
 	update(mouse, keys, time, delta){
+		this.mouse = mouse;
+
 		this.setDepth(this.y);
 
 		let arrived = this.atDestination(this, this.destination);
-
 		if(arrived && this.body.speed > 0) {
 			this.idle();
-		}
-
-		if(mouse.left.isDown) {
-			this.destination = {
-				x: mouse.pointer.x,
-				y: mouse.pointer.y
-			}
-			this.walk();
 		}
 
 		if(this.scene.selected) this.goToRange();
 
 		if(keys.space.isDown) {
-			this.scene.events.emit('heal', this);
+			//this.scene.events.emit('heal', this);
 		}
 	}
 
-	walk(){
+	pointerDownHandler(){
+		this.dragging = true;
+		this.moveTo();
+	}
+
+	pointerMoveHandler(){
+		if(this.dragging) this.moveTo();
+	}
+
+	pointerUpHandler(){
+		this.dragging = false;
+	}
+
+	moveTo(target = this.mouse.pointer){
+		this.destination = {
+			x: target.x,
+			y: target.y
+		}
 		this.scene.physics.moveTo(this, this.destination.x, this.destination.y, 150);
+		this.walk();
+	}
+
+	walk(){
 		let walk_animation = (this.x - this.destination.x > 0) ? "player-left-down" : "player-right-up";
 		this.hero.walk(walk_animation);
 	}
@@ -136,10 +156,7 @@ class Player extends Phaser.GameObjects.Container {
 
 	goToRange(){
 		let target = this.scene.selected;
-		this.destination = {
-			x: target.x,
-			y: target.y
-		}
+		this.moveTo(target);
 		let distance = Phaser.Math.Distance.Between(target.x,target.y, this.x, this.y);
 		if(distance <= this.range) {
 			this.idle();
