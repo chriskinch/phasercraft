@@ -91,6 +91,8 @@ class Enemy extends Phaser.GameObjects.Container {
 		this.scene.physics.add.collider(this.scene.enemies, this.scene.enemies);
 
 		this.on('pointerdown', this.select, this);
+		this.scene.events.on('pointerdown:game', this.deselect, this);
+		this.scene.events.on('pointerdown:enemy', this.deselect, this);
 	}
 
 	spawningEnemy(){
@@ -116,15 +118,14 @@ class Enemy extends Phaser.GameObjects.Container {
 	}
 
 	select(){
+		this.scene.events.emit('pointerdown:enemy', this);
 		this.graphics.selected.visible = true;
 		this.selected = true;
-		this.scene.selected = this;
 	}
 
 	deselect(){
 		if(this.selected) this.graphics.selected.visible = false;
 		this.selected = false;
-		this.scene.selected = null;
 	}
 
 	hit(damage) {
@@ -135,6 +136,7 @@ class Enemy extends Phaser.GameObjects.Container {
 
 	death(){
 		this.deselect();
+		this.scene.deselect();
 		this.health.remove();
 		this.destroy();
 	}

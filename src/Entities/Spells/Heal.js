@@ -3,9 +3,8 @@ class Heal extends Phaser.GameObjects.Sprite {
 	constructor(config) {
 		super(config.scene, config.x, config.y, config.key);
 
-		this.cooldown = 1000;
+		this.cooldown = 7000;
 		this.value = 200;
-		this.ready();
 
 		this.scene.anims.create({
 			key: 'heal-animation',
@@ -17,32 +16,66 @@ class Heal extends Phaser.GameObjects.Sprite {
 		});
 
 		this.on('animationupdate', this.animationUpdate);
-
-		this.icon();
+		this.on('animationcomplete', this.animationComplete);
+		this.setIcon();
+		this.setReady();
 	}
 
-	icon(){
-		//this.button = this.scene.add.sprite(100, 100, 'blank-gif').setInteractive().setScale(4);
-		this.button = this.scene.add.tileSprite(20, 20, 40, 40, 'dungeon', 'floor_patch').setInteractive().setDepth(this.scene.depth_group.UI);
-		this.button.on('pointerdown', () => { this.cast(this.scene.player); });
+	setIcon(){
+		let p = 30;
+		this.button = this.scene.add.sprite(p, this.scene.global_game_height - p, 'icon', 'icon_0015_heal');
+		this.button.setOrigin(0, 1).setInteractive().setDepth(this.scene.depth_group.UI).setScale(2);
 	}
 
 	prime(){
-		console.log("heal primed");
+		this.primed = true;
+		this.setTargetEvents('on');
+		this.button.setTint(0xff9955);
 	}
 
-	cast(target){
-		console.log("Heal", this);
-		this.target = target;
-		//this.target.health.adjustValue(this.value);
+	setTargetEvents(type){
+		// Elegible targets for this spell
+		this.scene.events[type]('pointerdown:player', this.focused, this);
+		// Event that clears the primed spell. Emitted by invalid targets.
+		this.scene.events[type]('pointerdown:game', this.clear, this);
+		this.scene.events[type]('keypress:esc', this.clear, this);
+		this.scene.events[type]('pointerdown:enemy', this.clear, this);
+	}
+
+	setIconEvents(type){
+		this.button[type]('pointerover', this.over, this);
+		this.button[type]('pointerout', this.out, this);
+		this.button[type]('pointerdown', this.prime, this);
+	}
+
+	focused(target){
+		if(this.ready) {
+			this.target = target;
+			this.emit('cast', this);
+		}
+	}
+
+	cast(){
+		if(this.target.health) this.target.health.adjustValue(this.value);
+		this.scene.events.off('pointerdown:player', this.focused);
 		this.animate();
-		this.scene.time.delayedCall(this.cooldown, this.ready, [], this);
+		this.clear();
+		this.cooling();
 	}
 
-	ready() {
-		this.scene.events.once('heal', (target) => {
-			this.cast(target);
-		});
+	cooling(){
+		this.ready = false;
+		this.button.setAlpha(0.5);
+		this.setIconEvents('off');
+		this.scene.time.delayedCall(this.cooldown, this.setReady, [], this);
+	}
+
+	setReady() {
+		this.ready = true;
+		this.button.setAlpha(1);
+		this.out();
+		this.setIconEvents('on');
+		this.once('cast', this.cast, this);
 	}
 
 	animate(){
@@ -53,6 +86,24 @@ class Heal extends Phaser.GameObjects.Sprite {
 	animationUpdate(){
 		this.x = this.target.x;
 		this.y = this.target.y;
+	}
+
+	animationComplete(){
+		this.target = null;
+	}
+
+	over(){
+		if(!this.primed) this.button.setTint(0x55ff55);
+	}
+
+	out() {
+		if(!this.primed) this.button.setTint(0xffffff);
+	}
+
+	clear(){
+		this.primed = false;
+		this.setTargetEvents('off');
+		this.out();
 	}
 }
 

@@ -65,10 +65,11 @@ class Player extends Phaser.GameObjects.Container {
 
 		this.idle();
 
-		//this.pointerdown = new CustomPointer();
-		this.scene.gamepointer.on('pointerdown', this.pointerDownHandler, this);
-		this.scene.input.on('pointermove', this.pointerMoveHandler, this);
-		this.scene.gamepointer.on('pointerup', this.pointerUpHandler, this);
+		this.setInteractive();
+		this.scene.gamepointer.on('pointerdown', this.gamePointerDownHandler, this);
+		this.scene.input.on('pointermove', this.inputMoveHandler, this);
+		this.scene.gamepointer.on('pointerup', this.gamePointerUpHandler, this);
+		this.on('pointerdown', () => this.scene.events.emit('pointerdown:player', this));
 	}
 
 	drawBar(opt) {
@@ -96,22 +97,31 @@ class Player extends Phaser.GameObjects.Container {
 
 		if(this.scene.selected) this.goToRange();
 
+		// Self cast key
 		if(keys.space.isDown) {
-			//this.scene.events.emit('heal', this);
+			this.scene.events.emit('pointerdown:player', this);
+		}
+
+		if(keys.esc.isDown) {
+			this.scene.events.emit('keypress:esc');
 		}
 	}
 
-	pointerDownHandler(){
+	gamePointerDownHandler(){
 		this.dragging = true;
 		this.moveTo();
 	}
 
-	pointerMoveHandler(){
+	inputMoveHandler(){
 		if(this.dragging) this.moveTo();
 	}
 
-	pointerUpHandler(){
+	gamePointerUpHandler(){
 		this.dragging = false;
+	}
+
+	playerPointerDownHandler(){
+		console.log(this);
 	}
 
 	moveTo(target = this.mouse.pointer){

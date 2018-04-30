@@ -24,7 +24,8 @@ class GameScene extends Phaser.Scene {
 		this.global_game_width = this.sys.game.config.width;
 		this.global_game_height = this.sys.game.config.height;
 
-		this.gamepointer = this.add.sprite(this.x, this.y, 'blank-gif').setInteractive().setDepth(this.depth_group.BASE);
+		this.gamepointer = this.add.sprite(this.x, this.y, 'blank-gif').setScale(3).setInteractive().setDepth(this.depth_group.BASE);
+		this.gamepointer.on('pointerdown', () => this.events.emit('pointerdown:game', this));
 
 		this.player = new Player({
 			scene:this,
@@ -47,10 +48,12 @@ class GameScene extends Phaser.Scene {
 
 		this.input.mouse.capture = true;
 		this.cursors = this.input.keyboard.createCursorKeys();
+		this.cursors.esc = this.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.ESC);
 
 		this.physics.add.collider(this.player.hero, this);
 
-		this.input.on('pointerdown', this.deselect, this);
+		this.events.on('pointerdown:enemy', this.select, this);
+		this.events.on('pointerdown:game', this.deselect, this);
 		this.events.once('player-dead', this.gameOver, this);
 
 		// Resume physics if we load the scene post game over.
@@ -71,8 +74,12 @@ class GameScene extends Phaser.Scene {
 		if(this.player.alive) this.player.update(mouse, this.cursors, time, delta);
 	}
 
+	select(enemy){
+		this.selected = enemy;
+	}
+
 	deselect(){
-		if(this.selected) this.selected.deselect();
+		this.selected = null;
 	}
 
 	gameOver(){
