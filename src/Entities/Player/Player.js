@@ -1,32 +1,47 @@
 import Hero from './Hero';
 import Resource from '../Resource';
 import Weapon from '../Weapon';
-import AssignSpell from '../Spells/AssignSpell';	
+import AssignSpell from '../Spells/AssignSpell';
 
-class Player extends Phaser.GameObjects.Group {
+import { getSpellSchools, getAssendedClass } from '../../Config/classes';
+
+class Player extends Phaser.GameObjects.Container {
 	constructor(config) {
 		super(config.scene, config.x, config.y);
 
-		this.x = config.x;
-		this.y = config.y;
+		this.hero = new Hero({
+			scene: this.scene,
+			key: 'player',
+		});
+		this.add(this.hero);
+
+		this.setSize(this.hero.getBounds().width, this.hero.getBounds().height, true);
+		config.scene.physics.world.enable(this);
+		config.scene.add.existing(this);
+
+		this.body.collideWorldBounds = true;
+		this.body.immovable = true;
+		this.body.setFriction(0,0);
+
 		this.alive = true;
 		this.attack_ready = true;
 		this.swing_speed = config.swing_speed || this.scene.global_swing_speed;
 		this.range = config.range || 40;
 		this.damage = config.damage || 35;
 		this.delay = 0;
+		this.destination = {
+			x: null,
+			y: null
+		}
 
-		this.hero = new Hero({
-			scene: this.scene,
-			key: 'player',
-			x: config.x,
-			y: config.y,
-			name: "Chris",
-			primary_class: "cleric"
-		});
+		this.type = this.setClass([config.primary_class, config.secondary_class]);
+		this.spell_schools = this.setSpellSchools();
+		this.assended = false;
+
+		this.assendClass = this.assendClass.bind(this);
 
 		let resource_options = {
-			group: this,
+			container: this,
 			scene: this.scene,
 			key: 'resource-frame',
 			x: -14
@@ -38,7 +53,7 @@ class Player extends Phaser.GameObjects.Group {
 		this.resource = new Resource(Object.assign({}, resource_options, {type: 'rage', y: -30}));
 		this.add(this.resource);
 
-		this.weapon = new Weapon({scene:this.scene, x:0, y:0, key:'weapon-swooch'});
+		this.weapon = new Weapon({scene:this.scene, key:'weapon-swooch'});
 		this.add(this.weapon);
 
 		this.scene.events.once('player-dead', this.death, this);
@@ -46,6 +61,17 @@ class Player extends Phaser.GameObjects.Group {
 		this.health.on('change', this.healthChanged);
 
 		this.spell = new AssignSpell('Heal', {scene: this.scene, x: this.x, y: this.y, key: 'spell-heal'});
+
+		this.idle();
+	}
+
+	drawBar(opt) {
+		let graphics = this.scene.add.graphics();
+			graphics.fillStyle(opt.colour, 1);
+			graphics.fillRect(0,0,opt.width,opt.height);
+			graphics.setDepth(opt.depth);
+
+		return graphics;
 	}
 
 	assignSpell(name, opts){
@@ -53,19 +79,38 @@ class Player extends Phaser.GameObjects.Group {
 	}
 
 	update(mouse, keys, time, delta){
-		this.x = this.hero.x;
-		this.y = this.hero.y;
+		this.setDepth(this.y);
 
-		this.hero.update(this, mouse, keys);
+		let arrived = this.atDestination(this, this.destination);
 
-		this.children.entries.forEach((entry) => {
-			entry.update(this);
-		});
+		if(arrived && this.body.speed > 0) {
+			this.idle();
+		}
+
+		if(mouse.left.isDown) {
+			this.destination = {
+				x: mouse.pointer.x,
+				y: mouse.pointer.y
+			}
+			this.walk();
+		}
 
 		if(this.scene.selected) this.goToRange();
 
 		if(keys.space.isDown) {
 			this.scene.events.emit('heal', this);
+		}
+	}
+
+	walk(){
+		this.scene.physics.moveTo(this, this.destination.x, this.destination.y, 150);
+		let walk_animation = (this.x - this.destination.x > 0) ? "player-left-down" : "player-right-up";
+		this.hero.walk(walk_animation);
+	}
+
+	atDestination(obj, target, radius=10){
+		if((obj.x > target.x - radius && obj.x < target.x + radius) && (obj.y > target.y - radius && obj.y < target.y + radius)){
+			return true;
 		}
 	}
 
@@ -76,7 +121,7 @@ class Player extends Phaser.GameObjects.Group {
 	death(){
 		this.health.remove();
 		this.resource.remove();
-		this.hero.anims.play('player-death');
+		this.hero.death();
 		this.alive = false;
 	}
 
@@ -84,20 +129,25 @@ class Player extends Phaser.GameObjects.Group {
 		this.health.adjustValue(-damage);
 	}
 
+	idle(){
+		this.body.setVelocity(0);
+		this.hero.idle();
+	}
+
 	goToRange(){
 		let target = this.scene.selected;
-		this.hero.destination = {
+		this.destination = {
 			x: target.x,
 			y: target.y
 		}
-		let distance = Phaser.Math.Distance.Between(target.x,target.y, this.hero.x, this.hero.y);
+		let distance = Phaser.Math.Distance.Between(target.x,target.y, this.x, this.y);
 		if(distance <= this.range) {
-			this.hero.idle();
+			this.idle();
 			this.attack_delay = null;
 			if(this.attack_ready) this.attack(target);
 		}else{
 			if(!this.attack_delay) {
-				this.attack_delay = this.scene.time.delayedCall(this.scene.global_attack_delay, this.hero.walk, [], this.hero);
+				this.attack_delay = this.scene.time.delayedCall(this.scene.global_attack_delay, this.walk, [], this);
 			}
 		}
 	}
@@ -116,14 +166,28 @@ class Player extends Phaser.GameObjects.Group {
 	}
 
 	positionWeapon(target){
-		let hero_position = this.hero.body.position;
+		let player_position = this.body.position;
 		let target_position = target.body.position;
-		let angle = Math.atan2(target_position.y - hero_position.y, target_position.x - hero_position.x) * 180 / Math.PI;
-		let velocity = target_position.clone().subtract(hero_position);
+		let angle = Math.atan2(target_position.y - player_position.y, target_position.x - player_position.x) * 180 / Math.PI;
+		let velocity = target_position.clone().subtract(player_position);
 		target.body.setVelocity(velocity.x*2, velocity.y*2);
-		this.weapon.x = target.x;
-		this.weapon.y = target.y;
 		this.weapon.setAngle(angle);
+	}
+
+	setClass(types){
+		return (types[1]) ? getAssendedClass(types) : types[0];
+	}
+
+	setSpellSchools(){
+		return getSpellSchools(this.type);
+	}
+
+	assendClass(type){
+		if(!this.assended) {
+			this.type = this.setClass([this.type, type]);
+			this.spell_schools = this.setSpellSchools();
+			this.assended = true;
+		}
 	}
 
 }

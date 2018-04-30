@@ -20,7 +20,8 @@ class GameScene extends Phaser.Scene {
 		this.player = new Player({
 			scene:this,
 			x: 400,
-			y: 400
+			y: 400,
+			primary_class: "cleric"
 		});
 
 		this.enemies = this.add.group();
@@ -57,10 +58,6 @@ class GameScene extends Phaser.Scene {
 		}
 
 		if(this.player.alive) this.player.update(mouse, this.cursors, time, delta);
-
-		// this.enemies.children.entries.forEach(entry =>{
-		// 	entry.update(time, delta);
-		// });
 	}
 
 	deselect(){

@@ -10,7 +10,7 @@
 	"egbert": {
 		"damage": 75,
 		"speed": 50,
-		"range": 50,
+		"range": 40,
 		"swing_speed": 1,
 		"health": 200,
 		"regen_rate": 3
@@ -25,8 +25,8 @@
 	},
 	"imp": {
 		"damage": 60,
-		"speed": 70,
-		"range": 100,
+		"speed": 100,
+		"range": 40,
 		"swing_speed": 2,
 		"health": 80,
 		"regen_rate": 0
@@ -42,7 +42,7 @@
 	"slime": {
 		"damage": 250,
 		"speed": 20,
-		"range": 30,
+		"range": 40,
 		"swing_speed": 3,
 		"health": 200,
 		"regen_rate": 0
