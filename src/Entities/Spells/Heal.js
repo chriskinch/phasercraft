@@ -25,6 +25,9 @@ class Heal extends Phaser.GameObjects.Sprite {
 		let p = 30;
 		this.button = this.scene.add.sprite(p, this.scene.global_game_height - p, 'icon', 'icon_0015_heal');
 		this.button.setOrigin(0, 1).setInteractive().setDepth(this.scene.depth_group.UI).setScale(2);
+		this.text = this.scene.add.text(32, 32);
+		// Phaser.Display.Align.In.Center(pic, this.add.zone(400, 300, 800, 600));
+		Phaser.Display.Align.In.Center(this.text, this.button);
 	}
 
 	prime(){
@@ -66,8 +69,22 @@ class Heal extends Phaser.GameObjects.Sprite {
 	cooling(){
 		this.ready = false;
 		this.button.setAlpha(0.5);
+		this.setTimerText();
 		this.setIconEvents('off');
 		this.scene.time.delayedCall(this.cooldown, this.setReady, [], this);
+	}
+
+	setText(){
+		this.text.setText(output);
+	}
+
+	setTimer(){
+		this.timer = this.scene.time.addEvent({ delay: this.cooldown });
+	}
+
+	getTimerProgress(){
+		let output = this.timer.getProgress().toString().substr(0, 4)
+		return output;
 	}
 
 	setReady() {
