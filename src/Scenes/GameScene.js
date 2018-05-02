@@ -25,8 +25,9 @@ class GameScene extends Phaser.Scene {
 		this.global_game_height = this.sys.game.config.height;
 		this.zone = this.add.zone(0, 0, this.sys.game.config.width, this.sys.game.config.height).setOrigin(0);
 
-		this.gamepointer = this.add.sprite(this.x, this.y, 'blank-gif').setScale(3).setInteractive().setDepth(this.depth_group.BASE);
-		this.gamepointer.on('pointerdown', () => this.events.emit('pointerdown:game', this));
+		this.input.on('pointerdown', () => { if(!this.events.paused) this.events.emit('pointerdown:game', this) } );
+		this.input.on('pointermove', () => { if(!this.events.paused) this.events.emit('pointermove:game', this) } );
+		this.input.on('pointerup', () => { if(!this.events.paused) this.events.emit('pointerup:game', this) } );
 
 		this.player = new Player({
 			scene:this,
@@ -68,9 +69,6 @@ class GameScene extends Phaser.Scene {
 			middle: { isDown: (this.input.activePointer.buttons === 4 && this.input.activePointer.isDown) },
 			right: { isDown: (this.input.activePointer.buttons === 2 && this.input.activePointer.isDown) },
 		}
-
-		this.gamepointer.x = mouse.pointer.x;
-		this.gamepointer.y = mouse.pointer.y;
 
 		if(this.player.alive) this.player.update(mouse, this.cursors, time, delta);
 	}

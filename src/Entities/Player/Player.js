@@ -66,10 +66,12 @@ class Player extends Phaser.GameObjects.Container {
 		this.idle();
 
 		this.setInteractive();
-		this.scene.gamepointer.on('pointerdown', this.gamePointerDownHandler, this);
-		this.scene.input.on('pointermove', this.inputMoveHandler, this);
-		this.scene.gamepointer.on('pointerup', this.gamePointerUpHandler, this);
+		this.scene.events.on('pointerdown:game', this.gameDownHandler, this);
+		this.scene.events.on('pointermove:game', this.gameMoveHandler, this);
+		this.scene.events.on('pointerup:game', this.gameUpHandler, this);
 		this.on('pointerdown', () => this.scene.events.emit('pointerdown:player', this));
+		this.on('pointerover', () => this.scene.events.paused = true);
+		this.on('pointerout', () => this.scene.events.paused = false);
 	}
 
 	drawBar(opt) {
@@ -107,21 +109,17 @@ class Player extends Phaser.GameObjects.Container {
 		}
 	}
 
-	gamePointerDownHandler(){
+	gameDownHandler(){
 		this.dragging = true;
 		this.moveTo();
 	}
 
-	inputMoveHandler(){
+	gameMoveHandler(){
 		if(this.dragging) this.moveTo();
 	}
 
-	gamePointerUpHandler(){
+	gameUpHandler(){
 		this.dragging = false;
-	}
-
-	playerPointerDownHandler(){
-		console.log(this);
 	}
 
 	moveTo(target = this.mouse.pointer){

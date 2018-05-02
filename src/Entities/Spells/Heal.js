@@ -33,12 +33,18 @@ class Heal extends Phaser.GameObjects.Sprite {
 		};
 		this.text = this.scene.add.text(0, 0, this.cooldown, styles).setOrigin(0.5).setDepth(this.scene.depth_group.UI);
 		Phaser.Display.Align.In.Center(this.text, this.button, -2, -2);
+
+		this.button.on('pointerover', this.over, this);
+		this.button.on('pointerout', this.out, this);
+		this.button.on('pointerdown', this.prime, this);
 	}
 
 	prime(){
-		this.primed = true;
-		this.setTargetEvents('on');
-		this.button.setTint(0xff9955);
+		if(this.ready) {
+			this.primed = true;
+			this.setTargetEvents('on');
+			this.button.setTint(0xff9955);
+		}
 	}
 
 	setTargetEvents(type){
@@ -51,9 +57,7 @@ class Heal extends Phaser.GameObjects.Sprite {
 	}
 
 	setIconEvents(type){
-		this.button[type]('pointerover', this.over, this);
-		this.button[type]('pointerout', this.out, this);
-		this.button[type]('pointerdown', this.prime, this);
+
 	}
 
 	focused(target){
@@ -65,7 +69,6 @@ class Heal extends Phaser.GameObjects.Sprite {
 
 	cast(){
 		if(this.target.health) this.target.health.adjustValue(this.value);
-		this.scene.events.off('pointerdown:player', this.focused);
 		this.animate();
 		this.clear();
 		this.startCooldown();
@@ -75,7 +78,6 @@ class Heal extends Phaser.GameObjects.Sprite {
 		this.ready = false;
 		this.button.setAlpha(0.5);
 		this.text.setVisible(true);
-		this.setIconEvents('off');
 
 		this.timer = this.scene.tweens.addCounter({
         from: 0,
@@ -95,7 +97,6 @@ class Heal extends Phaser.GameObjects.Sprite {
 		this.ready = true;
 		this.button.setAlpha(1);
 		this.text.setVisible(false);
-		this.setIconEvents('on');
 		this.once('cast', this.cast, this);
 	}
 
@@ -114,17 +115,19 @@ class Heal extends Phaser.GameObjects.Sprite {
 	}
 
 	over(){
-		if(!this.primed) this.button.setTint(0x55ff55);
+		this.scene.events.paused = true;
+		if(this.ready && !this.primed) this.button.setTint(0x55ff55);
 	}
 
 	out() {
+		this.scene.events.paused = false;
 		if(!this.primed) this.button.setTint(0xffffff);
 	}
 
 	clear(){
 		this.primed = false;
 		this.setTargetEvents('off');
-		this.out();
+		this.button.setTint(0xffffff);
 	}
 }
 
