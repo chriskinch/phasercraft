@@ -3,7 +3,7 @@ class Heal extends Phaser.GameObjects.Sprite {
 	constructor(config) {
 		super(config.scene, config.x, config.y, config.key);
 
-		this.cooldown = 7000;
+		this.cooldown = 10;
 		this.value = 200;
 
 		this.scene.anims.create({
@@ -23,11 +23,16 @@ class Heal extends Phaser.GameObjects.Sprite {
 
 	setIcon(){
 		let p = 30;
-		this.button = this.scene.add.sprite(p, this.scene.global_game_height - p, 'icon', 'icon_0015_heal');
-		this.button.setOrigin(0, 1).setInteractive().setDepth(this.scene.depth_group.UI).setScale(2);
-		this.text = this.scene.add.text(32, 32);
-		// Phaser.Display.Align.In.Center(pic, this.add.zone(400, 300, 800, 600));
-		Phaser.Display.Align.In.Center(this.text, this.button);
+		this.button = this.scene.add.sprite(0, 0, 'icon', 'icon_0015_heal').setInteractive().setDepth(this.scene.depth_group.UI).setScale(2);
+		Phaser.Display.Align.In.BottomLeft(this.button, this.scene.zone, -p, -p);
+
+		let styles = {
+			font: '21px monospace',
+			fill: '#ffffff',
+			align: 'center'
+		};
+		this.text = this.scene.add.text(0, 0, this.cooldown, styles).setOrigin(0.5).setDepth(this.scene.depth_group.UI);
+		Phaser.Display.Align.In.Center(this.text, this.button, -2, -2);
 	}
 
 	prime(){
@@ -63,34 +68,33 @@ class Heal extends Phaser.GameObjects.Sprite {
 		this.scene.events.off('pointerdown:player', this.focused);
 		this.animate();
 		this.clear();
-		this.cooling();
+		this.startCooldown();
 	}
 
-	cooling(){
+	startCooldown(){
 		this.ready = false;
 		this.button.setAlpha(0.5);
-		this.setTimerText();
+		this.text.setVisible(true);
 		this.setIconEvents('off');
-		this.scene.time.delayedCall(this.cooldown, this.setReady, [], this);
+
+		this.timer = this.scene.tweens.addCounter({
+        from: 0,
+        to: this.cooldown,
+        duration: this.cooldown * 1000,
+        onUpdate: this.updateText.bind(this),
+        onComplete: this.setReady.bind(this)
+    });
 	}
 
-	setText(){
-		this.text.setText(output);
-	}
-
-	setTimer(){
-		this.timer = this.scene.time.addEvent({ delay: this.cooldown });
-	}
-
-	getTimerProgress(){
-		let output = this.timer.getProgress().toString().substr(0, 4)
-		return output;
+	updateText(){
+		let remaining = this.cooldown - Math.floor(this.timer.getValue());
+		this.text.setText(remaining);
 	}
 
 	setReady() {
 		this.ready = true;
 		this.button.setAlpha(1);
-		this.out();
+		this.text.setVisible(false);
 		this.setIconEvents('on');
 		this.once('cast', this.cast, this);
 	}

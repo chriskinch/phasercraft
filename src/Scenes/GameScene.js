@@ -23,6 +23,7 @@ class GameScene extends Phaser.Scene {
 	create (){
 		this.global_game_width = this.sys.game.config.width;
 		this.global_game_height = this.sys.game.config.height;
+		this.zone = this.add.zone(0, 0, this.sys.game.config.width, this.sys.game.config.height).setOrigin(0);
 
 		this.gamepointer = this.add.sprite(this.x, this.y, 'blank-gif').setScale(3).setInteractive().setDepth(this.depth_group.BASE);
 		this.gamepointer.on('pointerdown', () => this.events.emit('pointerdown:game', this));
