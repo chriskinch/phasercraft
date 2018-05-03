@@ -1,5 +1,6 @@
 import Player from '../Entities/Player/Player';
 import Enemy from '../Entities/Enemy';
+import UI from '../Entities/UI';
 import waveConfig from '../Config/waves.json';
 
 class GameScene extends Phaser.Scene {
@@ -21,9 +22,12 @@ class GameScene extends Phaser.Scene {
 	}
 
 	create (){
+		let scene_padding = 30;
 		this.global_game_width = this.sys.game.config.width;
 		this.global_game_height = this.sys.game.config.height;
-		this.zone = this.add.zone(0, 0, this.sys.game.config.width, this.sys.game.config.height).setOrigin(0);
+		this.zone = this.add.zone(scene_padding, scene_padding, this.global_game_width - (scene_padding*2), this.global_game_height - (scene_padding*2)).setOrigin(0);
+
+		this.UI = new UI(this);
 
 		this.input.on('pointerdown', (pointer, gameObject) => {
 			// Only trigger this if there are no other game objects in the way.
