@@ -6,6 +6,8 @@ import DungeonAtlas from '../Graphics/atlas/atlas-dungeon.png';
 import DungeonJSON from '../Graphics/atlas/atlas-dungeon.json';
 import EnemyAtlas from '../Graphics/atlas/atlas-enemy.png';
 import EnemyJSON from '../Graphics/atlas/atlas-enemy.json';
+import IconAtlas from '../Graphics/atlas/atlas-icons.png';
+import IconJSON from '../Graphics/atlas/atlas-icons.json';
 import HealEffect from '../Graphics/spritesheets/spells/heal.png';
 import createAnimations from '../Config/animations';
 
@@ -52,6 +54,7 @@ class LoadScene extends Phaser.Scene {
 		this.load.spritesheet('attack-swoosh', AttackSwoosh, { frameWidth: 32, frameHeight: 32 });
 		this.load.atlas('dungeon', DungeonAtlas, DungeonJSON);
 		this.load.atlas('enemy', EnemyAtlas, EnemyJSON);
+		this.load.atlas('icon', IconAtlas, IconJSON);
 		this.load.spritesheet('heal-effect', HealEffect, { frameWidth: 192, frameHeight: 192 });
 
 

@@ -56,8 +56,10 @@ class Enemy extends Phaser.GameObjects.Container {
 
 		// Odd bug where the hit box is offset by 114px. not sure why but compensating here
 		this.setInteractive(new Phaser.Geom.Circle(14, 14, this.hitRadius), Phaser.Geom.Circle.Contains);
-
 		this.bringToTop(this.monster);
+
+		this.on('pointerover', () => this.scene.events.paused = true);
+		this.on('pointerout', () => this.scene.events.paused = false);
 
 		if(this.scene.sys.game.config.physics.arcade.debug){
 			this.showHitbox();
@@ -116,15 +118,14 @@ class Enemy extends Phaser.GameObjects.Container {
 	}
 
 	select(){
+		this.scene.events.emit('pointerdown:enemy', this);
 		this.graphics.selected.visible = true;
 		this.selected = true;
-		this.scene.selected = this;
 	}
 
 	deselect(){
 		if(this.selected) this.graphics.selected.visible = false;
 		this.selected = false;
-		this.scene.selected = null;
 	}
 
 	hit(damage) {
@@ -135,6 +136,7 @@ class Enemy extends Phaser.GameObjects.Container {
 
 	death(){
 		this.deselect();
+		this.scene.deselect();
 		this.health.remove();
 		this.destroy();
 	}

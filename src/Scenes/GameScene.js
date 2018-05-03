@@ -12,11 +12,32 @@ class GameScene extends Phaser.Scene {
 		this.global_swing_speed = 1;
 		this.global_attack_delay = 250;
 		this.global_spawn_time = 200;
-
 		this.wave = 0;
+
+		this.depth_group = {
+			BASE: 10,
+			UI: 10000,
+		}
 	}
 
 	create (){
+		this.global_game_width = this.sys.game.config.width;
+		this.global_game_height = this.sys.game.config.height;
+		this.zone = this.add.zone(0, 0, this.sys.game.config.width, this.sys.game.config.height).setOrigin(0);
+
+		this.input.on('pointerdown', (pointer, gameObject) => {
+			// Only trigger this if there are no other game objects in the way.
+			if(gameObject.length === 0) {
+				this.events.emit('pointerdown:game', this)
+			}
+		});
+		this.input.on('pointermove', () => {
+			this.events.emit('pointermove:game', this)
+		});
+		this.input.on('pointerup', () => {
+			this.events.emit('pointerup:game', this)
+		});
+
 		this.player = new Player({
 			scene:this,
 			x: 400,
@@ -38,11 +59,12 @@ class GameScene extends Phaser.Scene {
 
 		this.input.mouse.capture = true;
 		this.cursors = this.input.keyboard.createCursorKeys();
+		this.cursors.esc = this.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.ESC);
 
 		this.physics.add.collider(this.player.hero, this);
 
-		this.input.on('pointerdown', this.deselect, this);
-
+		this.events.on('pointerdown:enemy', this.select, this);
+		this.events.on('pointerdown:game', this.deselect, this);
 		this.events.once('player-dead', this.gameOver, this);
 
 		// Resume physics if we load the scene post game over.
@@ -60,8 +82,12 @@ class GameScene extends Phaser.Scene {
 		if(this.player.alive) this.player.update(mouse, this.cursors, time, delta);
 	}
 
+	select(enemy){
+		this.selected = enemy;
+	}
+
 	deselect(){
-		if(this.selected) this.selected.deselect();
+		this.selected = null;
 	}
 
 	gameOver(){
@@ -75,8 +101,8 @@ class GameScene extends Phaser.Scene {
 		this.enemies.add(new Enemy({
 			scene: this,
 			key: enemy,
-			x: Math.random() * this.sys.game.config.width,
-			y: Math.random() * this.sys.game.config.height,
+			x: Math.random() * this.global_game_width,
+			y: Math.random() * this.global_game_height,
 			target: this.player
 		}));
 	}
