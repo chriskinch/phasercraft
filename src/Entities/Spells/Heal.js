@@ -24,6 +24,7 @@ class Heal extends Phaser.GameObjects.Sprite {
 	setIcon(){
 		let p = 30;
 		this.button = this.scene.add.sprite(0, 0, 'icon', 'icon_0015_heal').setInteractive().setDepth(this.scene.depth_group.UI).setScale(2);
+		this.button.block_events = true;
 		Phaser.Display.Align.In.BottomLeft(this.button, this.scene.zone, -p, -p);
 
 		let styles = {
@@ -115,12 +116,10 @@ class Heal extends Phaser.GameObjects.Sprite {
 	}
 
 	over(){
-		this.scene.events.paused = true;
 		if(this.ready && !this.primed) this.button.setTint(0x55ff55);
 	}
 
 	out() {
-		this.scene.events.paused = false;
 		if(!this.primed) this.button.setTint(0xffffff);
 	}
 

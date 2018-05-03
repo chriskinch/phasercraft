@@ -70,8 +70,6 @@ class Player extends Phaser.GameObjects.Container {
 		this.scene.events.on('pointermove:game', this.gameMoveHandler, this);
 		this.scene.events.on('pointerup:game', this.gameUpHandler, this);
 		this.on('pointerdown', () => this.scene.events.emit('pointerdown:player', this));
-		this.on('pointerover', () => this.scene.events.paused = true);
-		this.on('pointerout', () => this.scene.events.paused = false);
 	}
 
 	drawBar(opt) {
@@ -109,7 +107,7 @@ class Player extends Phaser.GameObjects.Container {
 		}
 	}
 
-	gameDownHandler(){
+	gameDownHandler(pointer, gameObject){
 		this.dragging = true;
 		this.moveTo();
 	}

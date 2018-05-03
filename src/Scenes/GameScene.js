@@ -25,9 +25,18 @@ class GameScene extends Phaser.Scene {
 		this.global_game_height = this.sys.game.config.height;
 		this.zone = this.add.zone(0, 0, this.sys.game.config.width, this.sys.game.config.height).setOrigin(0);
 
-		this.input.on('pointerdown', () => { if(!this.events.paused) this.events.emit('pointerdown:game', this) } );
-		this.input.on('pointermove', () => { if(!this.events.paused) this.events.emit('pointermove:game', this) } );
-		this.input.on('pointerup', () => { if(!this.events.paused) this.events.emit('pointerup:game', this) } );
+		this.input.on('pointerdown', (pointer, gameObject) => {
+			// Only trigger this if there are no other game objects in the way.
+			if(gameObject.length === 0) {
+				this.events.emit('pointerdown:game', this)
+			}
+		});
+		this.input.on('pointermove', () => {
+			this.events.emit('pointermove:game', this)
+		});
+		this.input.on('pointerup', () => {
+			this.events.emit('pointerup:game', this)
+		});
 
 		this.player = new Player({
 			scene:this,

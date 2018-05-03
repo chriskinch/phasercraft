@@ -93,8 +93,6 @@ class Enemy extends Phaser.GameObjects.Container {
 		this.scene.physics.add.collider(this.scene.enemies, this.scene.enemies);
 
 		this.on('pointerdown', this.select, this);
-		this.scene.events.on('pointerdown:game', this.deselect, this);
-		this.scene.events.on('pointerdown:enemy', this.deselect, this);
 	}
 
 	spawningEnemy(){
