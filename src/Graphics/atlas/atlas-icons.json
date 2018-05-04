@@ -242,14 +242,23 @@
 	"spriteSourceSize": {"x":0,"y":0,"w":32,"h":32},
 	"sourceSize": {"w":32,"h":32},
 	"pivot": {"x":0.5,"y":0.5}
+},
+{
+	"filename": "icon_blank",
+	"frame": {"x":852,"y":0,"w":32,"h":32},
+	"rotated": false,
+	"trimmed": false,
+	"spriteSourceSize": {"x":0,"y":0,"w":32,"h":32},
+	"sourceSize": {"w":32,"h":32},
+	"pivot": {"x":0.5,"y":0.5}
 }],
 "meta": {
 	"app": "https://www.codeandweb.com/texturepacker",
 	"version": "1.0",
 	"image": "atlas-icons.png",
 	"format": "RGBA8888",
-	"size": {"w":852,"h":32},
+	"size": {"w":884,"h":32},
 	"scale": "1",
-	"smartupdate": "$TexturePacker:SmartUpdate:4fbb5d07a5b473816edfa67b32bb94d7:fc2379faf34ce1b3b1a0b6f988aa7935:d857f462efb1a389268361056da812ff$"
+	"smartupdate": "$TexturePacker:SmartUpdate:b9c089b8967f758c9eac5e92839370aa:c42ba37f7102d35a63848bfafeef0da6:d857f462efb1a389268361056da812ff$"
 }
 }
