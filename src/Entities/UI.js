@@ -15,7 +15,7 @@ class UI extends Phaser.GameObjects.Container {
 		let x = Phaser.Display.Bounds.GetLeft(this.scene.zone);
 		let y = Phaser.Display.Bounds.GetBottom(this.scene.zone);
 		for(let i=0; i<this.spells; i++) {
-			let frame = this.scene.add.sprite(x + (this.spacing*i), y, 'icon', 'icon_blank').setOrigin(0.25,0.75).setDepth(this.scene.depth_group.BASE).setScale(1.8).setAlpha(0.3);
+			let frame = this.scene.add.sprite(x + (this.spacing*i), y, 'icon', 'icon_blank').setDepth(this.scene.depth_group.BASE).setScale(1.8).setAlpha(0.3);
 			this.add(frame);
 			this.frames.push(frame);
 		}
