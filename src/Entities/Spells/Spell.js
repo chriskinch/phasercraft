@@ -50,7 +50,6 @@ class Spell extends Phaser.GameObjects.Sprite {
 
 	prime(){
 		if(this.ready) {
-			console.log("primed")
 			this.primed = true;
 			this.scene.events.emit('spell:primed', this);
 			this.scene.spell = this; // Let the scene know what spell is primed for various effects.

@@ -64,7 +64,6 @@ class Enemy extends Phaser.GameObjects.Container {
 
 		this.scene.events.on('pointerdown:game', this.deselect, this);
 		this.scene.events.on('pointerdown:enemy', this.deselect, this);
-		console.log(this.scene.events)
 	}
 
 	update(time, delta) {
@@ -94,11 +93,8 @@ class Enemy extends Phaser.GameObjects.Container {
 		this.scene.physics.add.collider(this.scene.enemies, this.scene.enemies);
 
 		this.on('pointerdown', () => {
-			//if(this.scene.selected) this.scene.selected.deselect();
 			let spell = this.scene.spell;
-			console.log("enemy down: ", this.scene.selected)
 			this.scene.events.emit('pointerdown:enemy', this);
-
 			if(!spell || (spell && !this.scene.selected)){
 				this.select();
 			}
@@ -131,14 +127,12 @@ class Enemy extends Phaser.GameObjects.Container {
 	}
 
 	select(){
-		console.log("select")
 		this.graphics.selected.visible = true;
 		this.selected = true;
 		this.scene.selected = this;
 	}
 
 	deselect(){
-		console.log("deselect")
 		if(this.selected){
 			this.graphics.selected.visible = false;
 			this.selected = false;
