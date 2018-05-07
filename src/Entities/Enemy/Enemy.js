@@ -1,6 +1,6 @@
-import Resource from './Resource';
+import Resource from '../Resource';
 import Monster from './Monster';
-import enemyConfig from '../Config/enemies.json';
+import enemyConfig from '../../Config/enemies.json';
 
 class Enemy extends Phaser.GameObjects.Container {
 

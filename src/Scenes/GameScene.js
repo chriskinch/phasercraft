@@ -1,5 +1,5 @@
 import Player from '../Entities/Player/Player';
-import Enemy from '../Entities/Enemy';
+import Enemy from '../Entities/Enemy/Enemy';
 import UI from '../Entities/UI';
 import waveConfig from '../Config/waves.json';
 
