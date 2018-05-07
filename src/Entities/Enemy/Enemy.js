@@ -1,4 +1,4 @@
-import Resource from '../Resource';
+import AssignResource from '../Resources/AssignResource';
 import Monster from './Monster';
 import enemyConfig from '../../Config/enemies.json';
 
@@ -35,13 +35,11 @@ class Enemy extends Phaser.GameObjects.Container {
 		this.graphics.selected = this.drawSelected('selected');
 		this.add(this.graphics.selected);
 
-		this.health = new Resource({
+		this.health = new AssignResource('Health', {
 			container: this,
 			scene: config.scene,
-			key: 'resource-frame',
 			x: -14,
 			y: -30,
-			type: 'health',
 			value: config.health || enemyConfig[this.type].health,
 			max: config.health || enemyConfig[this.type].health,
 			regen_rate: config.regen_rate || enemyConfig[this.type].regen_rate

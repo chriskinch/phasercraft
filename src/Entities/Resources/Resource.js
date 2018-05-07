@@ -1,19 +1,16 @@
 class Resource extends Phaser.GameObjects.Sprite {
 
 	constructor(config) {
-		super(config.scene, config.x, config.y, config.key);
+		super(config.scene, config.x, config.y, 'resource-frame');
 		config.scene.add.existing(this);
 
-		let defaults = this.setDefaults(config.type);
-		let options = Object.assign({}, defaults, config);
-
-		this.container = options.container;
-		this.type = options.type;
-		this.colour = options.colour;
-		this.max = options.max;
-		this.value = options.value;
-		this.regen_rate = options.regen_rate;
-		this.regen_value = options.regen_value;
+		this.container = config.container;
+		this.type = this.constructor.name.toLowerCase();
+		this.colour = config.colour;
+		this.max = config.max;
+		this.value = config.value;
+		this.regen_rate = config.regen_rate;
+		this.regen_value = config.regen_value;
 
 		this.setOrigin(0,0).setDepth(1000);
 
@@ -37,27 +34,8 @@ class Resource extends Phaser.GameObjects.Sprite {
 		});
 		this.container.add(this.graphics.current);
 
-		this.graphics.current.scaleX = this.healthPercent();
+		this.graphics.current.scaleX = this.resourcePercent();
 		this.tick = this.setRegeneration();
-	}
-
-	setDefaults(type){
-		switch(type) {
-			case 'health':
-				return {colour: 0x72ce6f, max: 1000, value: 1000, regen_rate: 1, regen_value: 5};
-				break;
-			case 'rage':
-				return {colour: 0xb93f3c, max: 100, value: 0, regen_rate: 1, regen_value: 1};
-				break;
-			case 'mana':
-				return {colour: 0x3a86ec, max: 500, value: 500, regen_rate: 0.2, regen_value: 2};
-				break;
-			case 'energy':
-				return {colour: 0xdcd743, max: 100, value: 100, regen_rate: 3, regen_value: 20};
-				break;
-			default:
-				return {colour: 0xeeeeee, max: 100, value: 100, regen_rate: 1, regen_value: 10};
-		}
 	}
 
 	setValue(new_value) {
@@ -68,7 +46,7 @@ class Resource extends Phaser.GameObjects.Sprite {
 		}else{
 			this.value = new_value;
 		}
-		this.graphics.current.scaleX = this.healthPercent();
+		this.graphics.current.scaleX = this.resourcePercent();
 		this.emit('change', this);
 	}
 
@@ -80,7 +58,7 @@ class Resource extends Phaser.GameObjects.Sprite {
 		return this.value;
 	}
 
-	healthPercent(){
+	resourcePercent(){
 		return (this.value > 0) ? this.value / this.max : 0;
 	}
 

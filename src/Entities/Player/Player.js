@@ -1,9 +1,7 @@
 import Hero from './Hero';
-import Resource from '../Resource';
 import Weapon from '../Weapon';
 import AssignSpell from '../Spells/AssignSpell';
-//import CustomPointer from '../CustomPointer';
-
+import AssignResource from '../Resources/AssignResource';
 import { getSpellSchools, getAssendedClass } from '../../Config/classes';
 
 class Player extends Phaser.GameObjects.Container {
@@ -41,17 +39,10 @@ class Player extends Phaser.GameObjects.Container {
 
 		this.assendClass = this.assendClass.bind(this);
 
-		let resource_options = {
-			container: this,
-			scene: this.scene,
-			key: 'resource-frame',
-			x: -14
-		}
-
-		this.health = new Resource(Object.assign({}, resource_options, {type: 'health', y: -35}));
+		this.health = new AssignResource('Health', {container: this, scene: this.scene, x: -14, y: -35, regen_value: 5});
 		this.add(this.health);
 
-		this.resource = new Resource(Object.assign({}, resource_options, {type: 'rage', y: -30}));
+		this.resource = new AssignResource('Rage', {container: this, scene: this.scene, x: -14, y: -30});
 		this.add(this.resource);
 
 		this.weapon = new Weapon({scene:this.scene, key:'weapon-swooch'});
@@ -64,7 +55,6 @@ class Player extends Phaser.GameObjects.Container {
 		this.spells = [];
 		this.spells.push(new AssignSpell('Heal', {scene: this.scene, x: this.x, y: this.y, key: 'spell-heal'}));
 		this.spells.push(new AssignSpell('Fireball', {scene: this.scene, x: this.x, y: this.y, key: 'spell-fireball'}));
-
 
 		this.idle();
 
@@ -156,6 +146,7 @@ class Player extends Phaser.GameObjects.Container {
 	}
 
 	hit(damage){
+		this.scene.events.emit('player:attacked', this, damage);
 		this.health.adjustValue(-damage);
 	}
 
