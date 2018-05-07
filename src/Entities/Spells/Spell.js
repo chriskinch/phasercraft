@@ -50,14 +50,13 @@ class Spell extends Phaser.GameObjects.Sprite {
 
 	prime(){
 		if(this.ready) {
+			console.log("primed")
 			this.primed = true;
+			this.scene.events.emit('spell:primed', this);
+			this.scene.spell = this; // Let the scene know what spell is primed for various effects.
 			this.setTargetEvents('on');
 			this.button.setTint(0xff9955);
 		}
-	}
-
-	setIconEvents(type){
-
 	}
 
 	focused(target){
@@ -68,6 +67,7 @@ class Spell extends Phaser.GameObjects.Sprite {
 	}
 
 	cast(){
+		this.scene.events.emit('spell:cast', this);
 		this.effect();
 		this.animate();
 		this.clear();
@@ -119,6 +119,7 @@ class Spell extends Phaser.GameObjects.Sprite {
 
 	clear(){
 		this.primed = false;
+		this.scene.spell = null;
 		this.setTargetEvents('off');
 		this.button.setTint(0xffffff);
 	}

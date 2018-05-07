@@ -57,11 +57,14 @@ class Player extends Phaser.GameObjects.Container {
 		this.weapon = new Weapon({scene:this.scene, key:'weapon-swooch'});
 		this.add(this.weapon);
 
-		this.scene.events.once('player-dead', this.death, this);
-		this.scene.events.on('enemy-attack', this.hit, this);
+		this.scene.events.once('player:dead', this.death, this);
+		this.scene.events.on('enemy:attack', this.hit, this);
 		this.health.on('change', this.healthChanged);
 
-		this.spell = new AssignSpell('Heal', {scene: this.scene, x: this.x, y: this.y, key: 'spell-heal'});
+		this.spells = [];
+		this.spells.push(new AssignSpell('Heal', {scene: this.scene, x: this.x, y: this.y, key: 'spell-heal'}));
+		this.spells.push(new AssignSpell('Fireball', {scene: this.scene, x: this.x, y: this.y, key: 'spell-fireball'}));
+
 
 		this.idle();
 
@@ -69,6 +72,7 @@ class Player extends Phaser.GameObjects.Container {
 		this.scene.events.on('pointerdown:game', this.gameDownHandler, this);
 		this.scene.events.on('pointermove:game', this.gameMoveHandler, this);
 		this.scene.events.on('pointerup:game', this.gameUpHandler, this);
+		this.scene.events.on('enemy:dead', this.targetDead, this);
 		this.on('pointerdown', () => this.scene.events.emit('pointerdown:player', this));
 	}
 
@@ -141,7 +145,7 @@ class Player extends Phaser.GameObjects.Container {
 	}
 
 	healthChanged(e) {
-		if(e.getValue() <= 0) this.scene.events.emit('player-dead');
+		if(e.getValue() <= 0) this.scene.events.emit('player:dead');
 	}
 
 	death(){
@@ -195,6 +199,10 @@ class Player extends Phaser.GameObjects.Container {
 		let velocity = target_position.clone().subtract(player_position);
 		target.body.setVelocity(velocity.x*2, velocity.y*2);
 		this.weapon.setAngle(angle);
+	}
+
+	targetDead(){
+		if(!this.scene.selected) this.idle();
 	}
 
 	setClass(types){

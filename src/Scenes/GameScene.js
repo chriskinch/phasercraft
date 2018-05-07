@@ -42,6 +42,10 @@ class GameScene extends Phaser.Scene {
 			this.events.emit('pointerup:game', this)
 		});
 
+		//this.input.on('gameobjectdown', function (pointer, gameObject){
+		//	gameObject.emit('gameobjectdown:game', pointer, gameObject);
+		//}, this);
+
 		this.player = new Player({
 			scene:this,
 			x: 400,
@@ -67,9 +71,7 @@ class GameScene extends Phaser.Scene {
 
 		this.physics.add.collider(this.player.hero, this);
 
-		this.events.on('pointerdown:enemy', this.select, this);
-		this.events.on('pointerdown:game', this.deselect, this);
-		this.events.once('player-dead', this.gameOver, this);
+		this.events.once('player:dead', this.gameOver, this);
 
 		// Resume physics if we load the scene post game over.
 		this.physics.resume();
@@ -84,14 +86,6 @@ class GameScene extends Phaser.Scene {
 		}
 
 		if(this.player.alive) this.player.update(mouse, this.cursors, time, delta);
-	}
-
-	select(enemy){
-		this.selected = enemy;
-	}
-
-	deselect(){
-		this.selected = null;
 	}
 
 	gameOver(){

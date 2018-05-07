@@ -58,12 +58,13 @@ class Enemy extends Phaser.GameObjects.Container {
 		this.setInteractive(new Phaser.Geom.Circle(14, 14, this.hitRadius), Phaser.Geom.Circle.Contains);
 		this.bringToTop(this.monster);
 
-		this.on('pointerover', () => this.scene.events.paused = true);
-		this.on('pointerout', () => this.scene.events.paused = false);
-
 		if(this.scene.sys.game.config.physics.arcade.debug){
 			this.showHitbox();
 		}
+
+		this.scene.events.on('pointerdown:game', this.deselect, this);
+		this.scene.events.on('pointerdown:enemy', this.deselect, this);
+		console.log(this.scene.events)
 	}
 
 	update(time, delta) {
@@ -92,7 +93,19 @@ class Enemy extends Phaser.GameObjects.Container {
 		this.scene.physics.add.collider(this.target.hero, this, () => this.attack(), null, this);
 		this.scene.physics.add.collider(this.scene.enemies, this.scene.enemies);
 
-		this.on('pointerdown', this.select, this);
+		this.on('pointerdown', () => {
+			//if(this.scene.selected) this.scene.selected.deselect();
+			let spell = this.scene.spell;
+			console.log("enemy down: ", this.scene.selected)
+			this.scene.events.emit('pointerdown:enemy', this);
+
+			if(!spell || (spell && !this.scene.selected)){
+				this.select();
+			}
+		});
+
+		this.scene.events.on('spell:primed', this.primed, this);
+		this.scene.events.on('spell:cast', this.cast, this);
 	}
 
 	spawningEnemy(){
@@ -118,17 +131,30 @@ class Enemy extends Phaser.GameObjects.Container {
 	}
 
 	select(){
-		this.scene.events.emit('pointerdown:enemy', this);
+		console.log("select")
 		this.graphics.selected.visible = true;
 		this.selected = true;
+		this.scene.selected = this;
 	}
 
 	deselect(){
-		if(this.selected) this.graphics.selected.visible = false;
-		this.selected = false;
+		console.log("deselect")
+		if(this.selected){
+			this.graphics.selected.visible = false;
+			this.selected = false;
+			this.scene.selected = null;
+		}
 	}
 
-	hit(damage) {
+	primed(){
+		this.scene.events.off('pointerdown:enemy', this.deselect, this);
+	}
+
+	cast() {
+		this.scene.events.on('pointerdown:enemy', this.deselect, this);
+	}
+
+	hit(damage){
 		this.isHit = true;
 		this.hit_delay = this.scene.time.delayedCall(this.scene.global_attack_delay, () => this.isHit = false, [], this);
 		this.health.adjustValue(-damage);
@@ -136,14 +162,18 @@ class Enemy extends Phaser.GameObjects.Container {
 
 	death(){
 		this.deselect();
-		this.scene.deselect();
 		this.health.remove();
+		this.scene.events.off('pointerdown:enemy', this.deselect, this);
+		this.scene.events.off('pointerdown:game', this.deselect, this);
+		this.scene.events.off('spell:primed', this.primed, this);
+		this.scene.events.off('spell:cast', this.cast, this);
+		this.scene.events.emit('enemy:dead', this);
 		this.destroy();
 	}
 
 	attack(){
 		if(this.attack_ready && this.spawned) {
-			this.scene.events.emit('enemy-attack', this.damage);
+			this.scene.events.emit('enemy:attack', this.damage);
 			this.attack_ready = false;
 			this.swing = this.scene.time.addEvent({ delay: this.swing_speed*1000, callback: this.attackReady, callbackScope: this, loop: true });
 		}

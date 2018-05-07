@@ -1,7 +1,9 @@
-import Heal from './Heal';	
+import Heal from './Heal';
+import Fireball from './Fireball';
 
 const classes = {
-    Heal
+  Fireball,
+  Heal
 };
 
 class AssignSpell {
