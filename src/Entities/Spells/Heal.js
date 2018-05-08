@@ -5,9 +5,10 @@ class Heal extends Spell {
 		config.icon_name = config.icon_name || 'icon_0015_heal';
 		config.cooldown = config.cooldown || 10;
 		config.value = config.value || 200;
+		config.cost = config.cost || 20;
 
 		super(config);
-
+		
 		// Assign button position then text position.
 		Phaser.Display.Align.In.BottomLeft(this.button, this.scene.UI.frames[0]);
 		Phaser.Display.Align.In.Center(this.text, this.button, -2, -2);
@@ -23,7 +24,9 @@ class Heal extends Spell {
 	}
 
 	effect(){
-		if(this.target.health) this.target.health.adjustValue(this.value);
+		console.log(this.target, this.player);
+		this.target.health.adjustValue(this.value);
+		this.player.resource.adjustValue(-this.cost);
 	}
 
 	animationUpdate(){

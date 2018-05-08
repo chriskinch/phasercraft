@@ -3,10 +3,12 @@ class Spell extends Phaser.GameObjects.Sprite {
 	constructor(config) {
 		super(config.scene, config.x, config.y, config.key);
 
+		this.player = config.player;
 		this.name = this.constructor.name.toLowerCase();
 		this.icon_name = config.icon_name;
 		this.cooldown = config.cooldown;
 		this.value = config.value;
+		this.cost = config.cost;
 
 		this.scene.anims.create({
 			key: this.name + '-animation',
@@ -21,6 +23,17 @@ class Spell extends Phaser.GameObjects.Sprite {
 		this.on('animationcomplete', this.animationComplete);
 		this.setIcon();
 		this.setReady();
+		this.resourceUpdate();
+		this.player.resource.on('change', this.resourceUpdate, this);
+		console.log(this)
+	}
+
+	resourceUpdate(){
+		if(this.cost > this.player.resource.value) {
+			this.disable();
+		}else{
+			this.enable();
+		}
 	}
 
 	setAttribute(prop, value) {
@@ -74,17 +87,17 @@ class Spell extends Phaser.GameObjects.Sprite {
 	}
 
 	startCooldown(){
+		this.disable();
 		this.ready = false;
-		this.button.setAlpha(0.5);
 		this.text.setVisible(true);
 
 		this.timer = this.scene.tweens.addCounter({
-        from: 0,
-        to: this.cooldown,
-        duration: this.cooldown * 1000,
-        onUpdate: this.updateText.bind(this),
-        onComplete: this.setReady.bind(this)
-    });
+			from: 0,
+			to: this.cooldown,
+			duration: this.cooldown * 1000,
+			onUpdate: this.updateText.bind(this),
+			onComplete: this.setReady.bind(this)
+		});
 	}
 
 	updateText(){
@@ -93,8 +106,8 @@ class Spell extends Phaser.GameObjects.Sprite {
 	}
 
 	setReady() {
+		this.enable();
 		this.ready = true;
-		this.button.setAlpha(1);
 		this.text.setVisible(false);
 		this.once('cast', this.cast, this);
 	}
@@ -106,6 +119,16 @@ class Spell extends Phaser.GameObjects.Sprite {
 
 	animationComplete(){
 		this.target = null;
+	}
+
+	disable(){
+		this.disable = true;
+		this.button.setAlpha(0.5);
+	}
+
+	enable(){
+		this.disable = false;
+		this.button.setAlpha(1);
 	}
 
 	over(){

@@ -5,6 +5,7 @@ class Fireball extends Spell {
 		config.icon_name = config.icon_name || 'icon_0017_fire-ball';
 		config.cooldown = config.cooldown || 7;
 		config.value = config.value || 100;
+		config.cost = config.cost || 30;
 
 		super(config);
 
