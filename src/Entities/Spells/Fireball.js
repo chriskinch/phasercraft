@@ -24,7 +24,8 @@ class Fireball extends Spell {
 	}
 
 	effect(){
-		if(this.target.health) this.target.health.adjustValue(-this.value);
+		this.target.health.adjustValue(-this.value);
+		this.player.resource.adjustValue(-this.cost);
 	}
 
 	animationUpdate(){
