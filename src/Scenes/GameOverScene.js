@@ -6,18 +6,20 @@ class GameOverScene extends Phaser.Scene {
 	}
 
 	create(){
+		let scene_padding = 60;
+		this.global_game_width = this.sys.game.config.width;
+		this.global_game_height = this.sys.game.config.height;
+		this.zone = this.add.zone(scene_padding, scene_padding, this.global_game_width - (scene_padding*2), this.global_game_height - (scene_padding*2)).setOrigin(0);
+
+		this.game_over = this.add.container(0, 0);
+		Phaser.Display.Align.In.Center(this.game_over, this.zone);
+
 		this.cache.bitmapFont.add('wayne-3d', Phaser.GameObjects.RetroFont.Parse(this, this.sys.game.font_config));
-
-		let loading_text = this.add.bitmapText(window.innerWidth/2, window.innerHeight/2, 'wayne-3d', 'GAME OVER');
-		loading_text.setOrigin(0.5, 0.5);
-		loading_text.setScale(2);
-
-		let restart_text = this.add.bitmapText(window.innerWidth/2, window.innerHeight/2 + 60, 'wayne-3d', 'RESTART');
-		restart_text.setOrigin(0.5, 0.5);
-		restart_text.setScale(0.5);
-
-		let restart_button = this.make.image({key:'blank-gif', x:restart_text.x, y:restart_text.y}).setScale(13, 3).setInteractive();
-		restart_button.on('pointerup', () => this.restartGame());
+		this.game_over.add(this.add.bitmapText(0, 0, 'wayne-3d', 'GAME OVER').setOrigin(0.5).setScale(2));
+		this.game_over.add(this.add.bitmapText(0, 60, 'wayne-3d', 'RESTART').setOrigin(0.5));
+		this.game_over.button = this.make.image({key:'blank-gif', x:0, y:60}).setScale(23, 4).setInteractive();
+		this.game_over.button.on('pointerup', this.restartGame, this);
+		this.game_over.add(this.game_over.button);
 	}
 
 	restartGame(){

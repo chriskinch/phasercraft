@@ -18,6 +18,7 @@ class GameScene extends Phaser.Scene {
 		this.depth_group = {
 			BASE: 10,
 			UI: 10000,
+			TOP: 99999
 		}
 	}
 
@@ -42,10 +43,6 @@ class GameScene extends Phaser.Scene {
 			this.events.emit('pointerup:game', this)
 		});
 
-		//this.input.on('gameobjectdown', function (pointer, gameObject){
-		//	gameObject.emit('gameobjectdown:game', pointer, gameObject);
-		//}, this);
-
 		this.player = new Player({
 			scene:this,
 			x: 400,
@@ -55,13 +52,9 @@ class GameScene extends Phaser.Scene {
 
 		this.enemies = this.add.group();
 		this.enemies.runChildUpdate = true;
-		let enemy_array = waveConfig[this.wave];
-		enemy_array.forEach((enemy, i, arr) => {
-			//this.spawnEnemy(enemy);
-			this.time.delayedCall(this.global_spawn_time * i, () => {
-				this.spawnEnemy(enemy);
-			}, [], this);
-		});
+		this.startLevel();
+
+		this.setLevelCompleteUI();
 
 		//this.cameras.main.startFollow(this.player hero);
 
@@ -85,13 +78,51 @@ class GameScene extends Phaser.Scene {
 			right: { isDown: (this.input.activePointer.buttons === 2 && this.input.activePointer.isDown) },
 		}
 
+		if(this.enemies.children.entries.length === 0) this.events.emit('enemies:dead');
+
 		if(this.player.alive) this.player.update(mouse, this.cursors, time, delta);
+	}
+
+	increaseLevel(){
+		this.wave++;
+		this.level_complete.setVisible(false);
+		this.level_complete.button.off('pointerup', this.increaseLevel, this);
+		this.startLevel();
+	}
+
+	startLevel(){
+		this.time.paused = false;
+		let enemy_array = waveConfig[this.wave];
+		enemy_array.forEach((enemy, i, arr) => {
+			this.time.delayedCall(this.global_spawn_time * i, () => {
+				this.spawnEnemy(enemy);
+				// Set the level complete event once all enemies have spawned.
+				if(i === this.wave) this.events.once('enemies:dead', this.levelComplete, this);
+			}, [], this);
+		});
 	}
 
 	gameOver(){
 		this.physics.pause();
 		this.enemies.runChildUpdate = false;
 		this.time.delayedCall(1500, () => this.scene.start('GameOverScene'), [], this);
+	}
+
+	setLevelCompleteUI(){
+		this.level_complete = this.add.container(300, 300).setDepth(this.depth_group.TOP).setVisible(false);
+		Phaser.Display.Align.In.Center(this.level_complete, this.zone);
+
+		this.cache.bitmapFont.add('wayne-3d', Phaser.GameObjects.RetroFont.Parse(this, this.sys.game.font_config));
+		this.level_complete.add(this.add.bitmapText(0, 0, 'wayne-3d', 'LEVEL COMPLETE').setOrigin(0.5).setScale(2));
+		this.level_complete.add(this.add.bitmapText(0, 60, 'wayne-3d', 'NEXT').setOrigin(0.5));
+		this.level_complete.button = this.make.image({key:'blank-gif', x:0, y:60}).setScale(13, 4).setInteractive();
+		this.level_complete.add(this.level_complete.button);
+	}
+
+	levelComplete(){
+		this.time.paused = true;
+		this.level_complete.setVisible(true);
+		this.level_complete.button.on('pointerup', this.increaseLevel, this);
 	}
 
 	spawnEnemy(enemy){
