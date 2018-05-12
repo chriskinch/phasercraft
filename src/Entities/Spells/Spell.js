@@ -20,8 +20,8 @@ class Spell extends Phaser.GameObjects.Sprite {
 		});
 
 		this.on('animationupdate', this.animationUpdate);
-		// this.on('animationcomplete', this.animationComplete);
-		
+		this.on('animationcomplete', this.animationComplete);
+
 		this.setIcon();
 		this.checkReady();
 		this.player.resource.on('change', this.checkReady, this);
@@ -40,15 +40,12 @@ class Spell extends Phaser.GameObjects.Sprite {
 	}
 
 	checkReady(){
-		let ready = (this.checkResource() && this.checkCooldown()) ? true : false; 
+		let ready = (this.checkResource() && this.checkCooldown()) ? true : false;
 		if(ready){
-			this.enable();
+			if(!this.enabled) this.enable();
 		}else{
 			this.disable();
 		}
-		console.log(this.name, ready);
-
-		return ready;
 	}
 
 	checkResource(){
@@ -60,12 +57,16 @@ class Spell extends Phaser.GameObjects.Sprite {
 	}
 
 	enable(){
+		this.enabled = true;
 		this.setIconEvents('on');
+		this.once('cast', this.cast, this);
 		this.button.setAlpha(1);
 	}
 
 	disable(){
+		this.enabled = false;
 		this.setIconEvents('off');
+		this.off('cast', this.cast, this);
 		this.button.setAlpha(0.5);
 	}
 
@@ -83,18 +84,21 @@ class Spell extends Phaser.GameObjects.Sprite {
 		this.button.setTint(0xffffff);
 	}
 
+	clear() {
+		this.setIconEvents('on');
+		this.setTargetEvents('off');
+		this.out();
+	}
+
 	prime(){
 		this.scene.spell = this; // Let the scene know what spell is primed for various effects.
 		this.scene.events.emit('spell:primed', this);
 		this.setIconEvents('off');
 		this.setTargetEvents('on');
-		this.once('cast', this.cast, this);
 		this.button.setTint(0xff9955);
 	}
 
-	cast(target){
-		console.log("Cast: ", target);
-		this.target = target;
+	cast(){
 		this.scene.events.emit('spell:cast', this);
 		this.effect();
 
@@ -104,7 +108,9 @@ class Spell extends Phaser.GameObjects.Sprite {
 
 		// Disable the button, show and start spell cooldown
 		this.disable();
+		this.clear();
 		this.text.setVisible(true);
+		this.enabled = false;
 		this.timer = this.scene.tweens.addCounter({
 			from: 0,
 			to: this.cooldown,
@@ -113,22 +119,26 @@ class Spell extends Phaser.GameObjects.Sprite {
 			onComplete: this.timerComplete.bind(this)
 		});
 	}
+
 	focused(target){
-		if(this.ready) {
-			this.target = target;
-			this.emit('cast', this);
-		}
+		this.target = target;
+		this.emit('cast', this);
 	}
 
 	timerUpdate(){
-		let remaining = this.cooldown - Math.floor(this.timer.getValue());
+		let remaining = (this.timer) ? this.cooldown - Math.floor(this.timer.getValue()) : 0;
 		this.text.setText(remaining);
 	}
 
 	timerComplete(){
-		console.log(this.timer.getProgress())
+		this.timer = null;
 		this.text.setVisible(false);
+		this.out();
 		this.checkReady();
+	}
+
+	animationComplete(){
+		this.target = null;
 	}
 
 	setAttribute(prop, value) {
@@ -138,23 +148,6 @@ class Spell extends Phaser.GameObjects.Sprite {
 	getAttribute(prop) {
 		return this[prop];
 	}
-
-	// setReady() {
-	// 	this.enable();
-	// 	this.text.setVisible(false);
-	// 	this.once('cast', this.cast, this);
-	// }
-
-	// animationComplete(){
-	// 	this.target = null;
-	// }
-
-	// clear(){
-	// 	this.primed = false;
-	// 	this.scene.spell = null;
-	// 	this.setTargetEvents('off');
-	// 	this.out();
-	// }
 }
 
 export default Spell;
