@@ -139,6 +139,9 @@ class Player extends Phaser.GameObjects.Container {
 	}
 
 	death(){
+		this.scene.events.off('pointerdown:game', this.gameDownHandler, this);
+		this.scene.events.off('pointermove:game', this.gameMoveHandler, this);
+		this.scene.events.off('pointerup:game', this.gameUpHandler, this);
 		this.health.remove();
 		this.resource.remove();
 		this.hero.death();

@@ -78,7 +78,7 @@ class GameScene extends Phaser.Scene {
 			right: { isDown: (this.input.activePointer.buttons === 2 && this.input.activePointer.isDown) },
 		}
 
-		if(this.enemies.children.entries.length === 0) this.events.emit('enemies:dead');
+		if(this.enemies.children.entries.length === 0 && !this.game_over) this.events.emit('enemies:dead');
 
 		if(this.player.alive) this.player.update(mouse, this.cursors, time, delta);
 	}
@@ -86,7 +86,7 @@ class GameScene extends Phaser.Scene {
 	increaseLevel(){
 		this.wave++;
 		this.level_complete.setVisible(false);
-		this.level_complete.button.off('pointerup', this.increaseLevel, this);
+		this.level_complete.button.input.enabled = false;
 		this.startLevel();
 	}
 
@@ -103,6 +103,7 @@ class GameScene extends Phaser.Scene {
 	}
 
 	gameOver(){
+		this.game_over = true;
 		this.physics.pause();
 		this.enemies.runChildUpdate = false;
 		this.time.delayedCall(1500, () => this.scene.start('GameOverScene'), [], this);
@@ -122,7 +123,8 @@ class GameScene extends Phaser.Scene {
 	levelComplete(){
 		this.time.paused = true;
 		this.level_complete.setVisible(true);
-		this.level_complete.button.on('pointerup', this.increaseLevel, this);
+		this.level_complete.button.input.enabled = true;
+		this.level_complete.button.once('pointerup', this.increaseLevel, this);
 	}
 
 	spawnEnemy(enemy){

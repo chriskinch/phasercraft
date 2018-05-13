@@ -62,6 +62,7 @@ class Enemy extends Phaser.GameObjects.Container {
 
 		this.scene.events.on('pointerdown:game', this.deselect, this);
 		this.scene.events.on('pointerdown:enemy', this.deselect, this);
+		this.once('enemy:dead', this.death, this);
 	}
 
 	update(time, delta) {
@@ -76,7 +77,7 @@ class Enemy extends Phaser.GameObjects.Container {
 			let walk_animation = (this.x - this.scene.player.x > 0) ? this.type + "-left-down" : this.type + "-right-up";
 			this.monster.walk(walk_animation);
 
-			if(this.health.value <= 0) this.death();
+			if(this.health.value <= 0) this.emit('enemy:dead', this);
 		}else{
 			this.spawningEnemy();
 		}
@@ -160,6 +161,25 @@ class Enemy extends Phaser.GameObjects.Container {
 		this.scene.events.off('spell:primed', this.primed, this);
 		this.scene.events.off('spell:cast', this.cast, this);
 		this.scene.events.emit('enemy:dead', this);
+		this.monster.death();
+		this.active = false;
+		this.input.enabled = false;
+		this.scene.physics.world.disable(this);
+		this.scene.enemies.remove(this);
+		this.decompose();
+	}
+
+	decompose(){
+		this.scene.tweens.add({
+			targets: this,
+			alpha: 0,
+			ease: 'Power1',
+			duration: 10000,
+			onComplete: this.cleanup.bind(this)
+		});
+	}
+
+	cleanup(){
 		this.destroy();
 	}
 

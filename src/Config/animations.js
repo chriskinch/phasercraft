@@ -42,6 +42,10 @@ export default function createAnimations(scene){
 				key: 'baby-ghoul-left-down',
 			 	frames: { start: 6, end: 11 },
 			 	repeat: -1
+			},{
+				key: "baby-ghoul-death",
+				frames: { start: 12, end: 15 },
+				repeat: 0
 			}]
 		},{
 			frame: 'imp',
@@ -55,6 +59,10 @@ export default function createAnimations(scene){
 				key: 'imp-left-down',
 			 	frames: { start: 6, end: 11 },
 			 	repeat: -1
+			},{
+				key: "imp-death",
+				frames: { start: 12, end: 15 },
+				repeat: 0
 			}]
 		},{
 			frame: 'ghoul',
@@ -68,6 +76,10 @@ export default function createAnimations(scene){
 				key: 'ghoul-left-down',
 			 	frames: { start: 6, end: 11 },
 			 	repeat: -1
+			},{
+				key: "ghoul-death",
+				frames: { start: 12, end: 16 },
+				repeat: 0
 			}]
 		},{
 			frame: 'satyr',
@@ -81,6 +93,10 @@ export default function createAnimations(scene){
 				key: 'satyr-left-down',
 			 	frames: { start: 6, end: 11 },
 			 	repeat: -1
+			},{
+				key: "satyr-death",
+				frames: { start: 12, end: 16 },
+				repeat: 0
 			}]
 		},{
 			frame: 'egbert',
@@ -94,6 +110,10 @@ export default function createAnimations(scene){
 				key: 'egbert-left-down',
 			 	frames: { start: 6, end: 11 },
 			 	repeat: -1
+			},{
+				key: "egbert-death",
+				frames: { start: 12, end: 15 },
+				repeat: 0
 			}]
 		},{
 			frame: 'slime',
@@ -107,6 +127,10 @@ export default function createAnimations(scene){
 				key: 'slime-left-down',
 			 	frames: { start: 4, end: 7 },
 			 	repeat: -1
+			},{
+				key: "slime-death",
+				frames: { start: 8, end: 11 },
+				repeat: 0
 			}]
 		}]
 	};
