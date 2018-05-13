@@ -1,6 +1,7 @@
 import AssignResource from '../Resources/AssignResource';
 import Monster from './Monster';
 import enemyConfig from '../../Config/enemies.json';
+import Coin from '../Loot/Coin';
 
 class Enemy extends Phaser.GameObjects.Container {
 
@@ -30,6 +31,7 @@ class Enemy extends Phaser.GameObjects.Container {
 		this.attack_ready = true;
 		this.isHit = false;
 		this.hitRadius = 25;
+		this.loot_chance = 0.75;
 
 		this.graphics = {};
 		this.graphics.selected = this.drawSelected('selected');
@@ -167,6 +169,7 @@ class Enemy extends Phaser.GameObjects.Container {
 		this.scene.physics.world.disable(this);
 		this.scene.enemies.remove(this);
 		this.decompose();
+		this.dropLoot();
 	}
 
 	decompose(){
@@ -181,6 +184,13 @@ class Enemy extends Phaser.GameObjects.Container {
 
 	cleanup(){
 		this.destroy();
+	}
+
+	dropLoot(){
+		let roll = Math.random();
+		if(roll < this.loot_chance) {
+			new Coin({scene:this.scene, x:this.x, y:this.y});
+		}
 	}
 
 	attack(){

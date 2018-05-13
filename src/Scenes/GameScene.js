@@ -20,6 +20,8 @@ class GameScene extends Phaser.Scene {
 			UI: 10000,
 			TOP: 99999
 		}
+
+		this.coins = 0;
 	}
 
 	create (){
@@ -121,10 +123,13 @@ class GameScene extends Phaser.Scene {
 	}
 
 	levelComplete(){
-		this.time.paused = true;
-		this.level_complete.setVisible(true);
-		this.level_complete.button.input.enabled = true;
-		this.level_complete.button.once('pointerup', this.increaseLevel, this);
+		// Level complete activates 1.5 seconds after the last enemy dies to give time for loot to activate.
+		this.time.delayedCall(1500, () => {
+			this.time.paused = true;
+			this.level_complete.setVisible(true);
+			this.level_complete.button.input.enabled = true;
+			this.level_complete.button.once('pointerup', this.increaseLevel, this);
+		}, [], this);
 	}
 
 	spawnEnemy(enemy){

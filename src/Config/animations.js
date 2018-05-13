@@ -27,6 +27,13 @@ export default function createAnimations(scene){
 		hideOnComplete: true
 	});
 
+	scene.anims.create({
+		key: 'coin',
+		frames: scene.anims.generateFrameNumbers('coin-spin', { start: 0, end:  5 }),
+		frameRate: 10,
+		repeat: -1
+	});
+
 	// Enemies
 	let enemies = {
 		atlas: 'enemy',
