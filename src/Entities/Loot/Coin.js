@@ -23,7 +23,7 @@ class Coin extends Phaser.GameObjects.Sprite {
 
 	collect(){
 		this.scene.coins++;
-		this.scene.events.emit('add:coin');
+		this.scene.events.emit('increment:coin');
 		this.scene.tweens.add({
 				targets: this,
 				y: {

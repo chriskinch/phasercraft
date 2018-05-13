@@ -1,5 +1,9 @@
-class UI extends Phaser.GameObjects.Container {
+const styles = {
+	font: '16px monospace',
+	fill: '#ffffff'
+};
 
+class UI extends Phaser.GameObjects.Container {
 	constructor(scene) {
 		super(scene, 0, 0);
 		this.scene.add.existing(this).setDepth(this.scene.depth_group.UI);
@@ -10,8 +14,10 @@ class UI extends Phaser.GameObjects.Container {
 
 		this.setSpellFrames();
 		this.setCoinCount();
+		this.setWaveCount();
 
-		this.scene.events.on('add:coin', this.addCoinCount, this);
+		this.scene.events.on('increment:coin', this.addCoinCount, this);
+		this.scene.events.on('increment:wave', this.addWaveCount, this);
 	}
 
 	setSpellFrames(){
@@ -25,21 +31,29 @@ class UI extends Phaser.GameObjects.Container {
 	}
 
 	setCoinCount(){
-		let styles = {
-			font: '16px monospace',
-			fill: '#ffffff'
-		};
-
 		this.coins = this.scene.add.container(0, 0)
-		Phaser.Display.Align.In.TopRight(this.coins, this.scene.zone);
+		Phaser.Display.Align.In.TopRight(this.coins, this.scene.zone, -80);
 
 		this.coins.add(this.scene.add.sprite(0, 0, 'coin-spin').setDepth(this.scene.depth_group.UI));
-		this.coins.text = this.scene.add.text(15, 0, this.scene.coins, styles).setOrigin(0, 0.5);
+		this.coins.text = this.scene.add.text(15, 0, 'Coins: ' +this.scene.coins, styles).setOrigin(0, 0.5);
 		this.coins.add(this.coins.text);
 	}
 
 	addCoinCount(){
-		this.coins.text.setText(this.scene.coins);
+		this.coins.text.setText('Coins: ' +this.scene.coins);
+	}
+
+	setWaveCount(){
+		this.wave = this.scene.add.container(0, 0)
+		Phaser.Display.Align.In.TopRight(this.wave, this.scene.zone, -190);
+
+		this.wave.add(this.scene.add.sprite(0, 0, 'dungeon', 'ghast_baby').setScale(2).setDepth(this.scene.depth_group.UI));
+		this.wave.text = this.scene.add.text(15, 0, 'Wave: ' + (this.scene.wave+1), styles).setOrigin(0, 0.5);
+		this.wave.add(this.wave.text);
+	}
+
+	addWaveCount(){
+		this.wave.text.setText('Wave: ' + (this.scene.wave+1));
 	}
 
 }

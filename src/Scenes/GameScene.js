@@ -87,6 +87,7 @@ class GameScene extends Phaser.Scene {
 
 	increaseLevel(){
 		this.wave++;
+		this.events.emit('increment:wave');
 		this.level_complete.setVisible(false);
 		this.level_complete.button.input.enabled = false;
 		this.startLevel();
