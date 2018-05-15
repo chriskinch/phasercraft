@@ -30,6 +30,22 @@ class GameScene extends Phaser.Scene {
 		this.global_game_height = this.sys.game.config.height;
 		this.zone = this.add.zone(scene_padding, scene_padding, this.global_game_width - (scene_padding*2), this.global_game_height - (scene_padding*2)).setOrigin(0);
 
+
+		var base = this.make.tilemap({ key: 'enchanted_forrest_base', tileWidth: 16, tileHeight: 16 });
+		var tileset = base.addTilesetImage('enchanted_forrest');
+    var basemap = base.createStaticLayer(0, tileset, 0, 0).setScale(2);
+
+    var trees = this.make.tilemap({ key: 'enchanted_forrest_trees', tileWidth: 16, tileHeight: 16 });
+		var tileset = trees.addTilesetImage('enchanted_forrest');
+    var treemap = trees.createStaticLayer(0, tileset, 0, 0).setScale(2);
+
+    trees.setCollision([ 157, 158, 159, 160, 161, 162, 181, 182, 183, 184, 185, 186, 207, 208, 209, 210, 232, 233, 234,  ]);
+    console.log(tileset)
+
+    // var debugGraphics = this.add.graphics();
+    // debugGraphics.setScale(2);
+    // trees.renderDebug(debugGraphics);
+
 		this.UI = new UI(this);
 
 		this.input.on('pointerdown', (pointer, gameObject) => {
@@ -58,13 +74,15 @@ class GameScene extends Phaser.Scene {
 
 		this.setLevelCompleteUI();
 
-		//this.cameras.main.startFollow(this.player hero);
+		//this.cameras.main.startFollow(this.player);
 
 		this.input.mouse.capture = true;
 		this.cursors = this.input.keyboard.createCursorKeys();
 		this.cursors.esc = this.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.ESC);
 
 		this.physics.add.collider(this.player.hero, this);
+		this.physics.add.collider(this.player, treemap);
+		this.physics.add.collider(this.enemies, treemap);
 
 		this.events.once('player:dead', this.gameOver, this);
 

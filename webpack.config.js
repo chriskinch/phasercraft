@@ -2,7 +2,7 @@ const path = require('path');
 const HtmlWebpackPlugin = require('html-webpack-plugin');
 const CleanWebpackPlugin = require('clean-webpack-plugin');
 const webpack = require('webpack');
- 
+
 module.exports = {
     mode: 'development',
     entry: {
@@ -16,7 +16,7 @@ module.exports = {
     module: {
         rules: [
             {test: [ /\.vert$/, /\.frag$/ ], use: 'raw-loader'},
-            {test: /\.(png|jpg|gif)$/, use: [{loader: 'file-loader', options: {}}]}
+            {test: /\.(csv|png|jpg|gif)$/, use: [{loader: 'file-loader', options: {}}]}
         ]
     },
     plugins: [

@@ -11,6 +11,9 @@ import IconAtlas from '../Graphics/atlas/atlas-icons.png';
 import IconJSON from '../Graphics/atlas/atlas-icons.json';
 import HealEffect from '../Graphics/spritesheets/spells/heal.png';
 import FireballEffect from '../Graphics/spritesheets/spells/fireball.png';
+import EnchantedForrest from '../Graphics/maps/enchanted_forrest.png';
+import EnchantedForrestBase from '../Graphics/maps/enchanted_forrest_base.csv';
+import EnchantedForrestTrees from '../Graphics/maps/enchanted_forrest_trees.csv';
 import createAnimations from '../Config/animations';
 
 class LoadScene extends Phaser.Scene {
@@ -60,6 +63,9 @@ class LoadScene extends Phaser.Scene {
 		this.load.atlas('icon', IconAtlas, IconJSON);
 		this.load.spritesheet('heal-effect', HealEffect, { frameWidth: 192, frameHeight: 192 });
 		this.load.spritesheet('fireball-effect', FireballEffect, { frameWidth: 87, frameHeight: 87 });
+		this.load.image('enchanted_forrest', EnchantedForrest);
+    this.load.tilemapCSV('enchanted_forrest_base', EnchantedForrestBase);
+    this.load.tilemapCSV('enchanted_forrest_trees', EnchantedForrestTrees);
 		//this.loadExtender();
 	}
 
