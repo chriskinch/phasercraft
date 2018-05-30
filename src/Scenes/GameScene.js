@@ -30,17 +30,12 @@ class GameScene extends Phaser.Scene {
 		this.global_game_height = this.sys.game.config.height;
 		this.zone = this.add.zone(scene_padding, scene_padding, this.global_game_width - (scene_padding*2), this.global_game_height - (scene_padding*2)).setOrigin(0);
 
+    var map = this.add.tilemap('enchanted_forrest');
+    var tileset = map.addTilesetImage('tileset_organic');
+    var base = map.createStaticLayer('base', tileset).setScale(2);
+		// var trees = map.createDynamicLayer('trees', tileset).setScale(2);
 
-		var base = this.make.tilemap({ key: 'enchanted_forrest_base', tileWidth: 16, tileHeight: 16 });
-		var tileset = base.addTilesetImage('enchanted_forrest');
-    var basemap = base.createStaticLayer(0, tileset, 0, 0).setScale(2);
-
-    var trees = this.make.tilemap({ key: 'enchanted_forrest_trees', tileWidth: 16, tileHeight: 16 });
-		var tileset = trees.addTilesetImage('enchanted_forrest');
-    var treemap = trees.createStaticLayer(0, tileset, 0, 0).setScale(2);
-
-    trees.setCollision([ 157, 158, 159, 160, 161, 162, 181, 182, 183, 184, 185, 186, 207, 208, 209, 210, 232, 233, 234,  ]);
-    console.log(tileset)
+		// trees.setCollisionFromCollisionGroup();
 
     // var debugGraphics = this.add.graphics();
     // debugGraphics.setScale(2);
@@ -81,13 +76,75 @@ class GameScene extends Phaser.Scene {
 		this.cursors.esc = this.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.ESC);
 
 		this.physics.add.collider(this.player.hero, this);
-		this.physics.add.collider(this.player, treemap);
-		this.physics.add.collider(this.enemies, treemap);
+		// this.physics.add.collider(this.player, trees);
+		// this.physics.add.collider(this.enemies, trees);
 
 		this.events.once('player:dead', this.gameOver, this);
 
 		// Resume physics if we load the scene post game over.
 		this.physics.resume();
+
+		//var graphics = this.add.graphics();
+
+		// trees.forEachTile(function (tile)
+  //   {
+  //       var tileWorldPos = trees.tileToWorldXY(tile.x, tile.y);
+  //       var collisionGroup = tileset.getTileCollisionGroup(tile.index);
+
+  //       if (!collisionGroup || collisionGroup.objects.length === 0) { return; }
+
+  //       // You can assign custom properties to the whole collision object layer (or even to
+  //       // individual objects within the layer). Here, use a custom property to change the color of
+  //       // the stroke.
+  //       if (collisionGroup.properties && collisionGroup.properties.isInteractive)
+  //       {
+  //           graphics.lineStyle(5, 0x00ff00, 1);
+  //       }
+  //       else
+  //       {
+  //           graphics.lineStyle(5, 0x00ffff, 1);
+  //       }
+
+  //       // The group will have an array of objects - these are the individual collision shapes
+  //       var objects = collisionGroup.objects;
+
+  //       for (var i = 0; i < objects.length; i++)
+  //       {
+  //           var object = objects[i];
+  //           var objectX = tileWorldPos.x + object.x;
+  //           var objectY = tileWorldPos.y + object.y;
+
+  //           // When objects are parsed by Phaser, they will be guaranteed to have one of the
+  //           // following properties if they are a rectangle/ellipse/polygon/polyline.
+  //           if (object.rectangle)
+  //           {
+  //               graphics.strokeRect(objectX, objectY, object.width, object.height);
+  //           }
+  //           else if (object.ellipse)
+  //           {
+  //               // Ellipses in Tiled have a top-left origin, while ellipses in Phaser have a center
+  //               // origin
+  //               graphics.strokeEllipse(
+  //                   objectX + object.width / 2, objectY + object.height / 2,
+  //                   object.width, object.height
+  //               );
+  //           }
+  //           else if (object.polygon || object.polyline)
+  //           {
+  //               var originalPoints = object.polygon ? object.polygon : object.polyline;
+  //               var points = [];
+  //               for (var j = 0; j < originalPoints.length; j++)
+  //               {
+  //                   var point = originalPoints[j];
+  //                   points.push({
+  //                       x: objectX + point.x,
+  //                       y: objectY + point.y
+  //                   });
+  //               }
+  //               graphics.strokePoints(points);
+  //           }
+  //       }
+  //   });
 	}
 
 	update(time, delta) {
