@@ -16,7 +16,7 @@ class Game extends Phaser.Game {
 			physics: {
 				default: 'arcade',
 				arcade: {
-					debug: false,
+					debug: true,
 					gravity: { y: 0 }
 				}
 			},
@@ -27,7 +27,8 @@ class Game extends Phaser.Game {
 				GameOverScene
 			],
 			pixelArt: true,
-			antialias: false
+			antialias: false,
+			globalScale: 2
 		});
 
 		window.addEventListener('resize', this.resizeGame.bind(this));

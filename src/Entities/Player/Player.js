@@ -22,10 +22,12 @@ class Player extends Phaser.GameObjects.Container {
 		this.body.immovable = true;
 		this.body.setFriction(0,0);
 
+		this.setScale(2);
+
 		this.alive = true;
 		this.attack_ready = true;
 		this.swing_speed = config.swing_speed || this.scene.global_swing_speed;
-		this.range = config.range || 40;
+		this.range = config.range || 80;
 		this.damage = config.damage || 35;
 		this.delay = 0;
 		this.destination = {
