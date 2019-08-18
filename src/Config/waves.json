@@ -1,8 +1,8 @@
-[	
-	["baby-ghoul", "imp", "ghoul", "satyr", "egbert", "slime"],
-	["satyr", "baby-ghoul", "imp", "ghoul", "satyr", "egbert", "slime"],
-	["satyr", "satyr", "baby-ghoul", "imp", "ghoul", "satyr", "egbert", "slime"],
-	["satyr", "satyr", "satyr", "baby-ghoul", "imp", "ghoul", "satyr", "egbert", "slime"],
-	["satyr", "satyr", "satyr", "satyr", "baby-ghoul", "imp", "ghoul", "satyr", "egbert", "slime"],
-	["satyr", "satyr", "satyr", "satyr", "satyr", "baby-ghoul", "imp", "ghoul", "satyr", "egbert", "slime"]
+[
+	["baby-ghoul"],
+	["baby-ghoul", "imp"],
+  ["baby-ghoul", "imp", "ghoul"],
+  ["baby-ghoul", "imp", "ghoul", "satyr"],
+  ["baby-ghoul", "imp", "ghoul", "satyr", "egbert"],
+  ["baby-ghoul", "imp", "ghoul", "satyr", "egbert", "slime"]
 ]

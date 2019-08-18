@@ -1,6 +1,7 @@
 import AssignResource from '../Resources/AssignResource';
 import Monster from './Monster';
 import enemyConfig from '../../Config/enemies.json';
+import Coin from '../Loot/Coin';
 
 class Enemy extends Phaser.GameObjects.Container {
 
@@ -30,6 +31,7 @@ class Enemy extends Phaser.GameObjects.Container {
 		this.attack_ready = true;
 		this.isHit = false;
 		this.hitRadius = 25;
+		this.loot_chance = 0.75;
 
 		this.graphics = {};
 		this.graphics.selected = this.drawSelected('selected');
@@ -49,7 +51,7 @@ class Enemy extends Phaser.GameObjects.Container {
 		this.spawn_stop = this.scene.physics.add.staticImage(this.x, config.y, 'blank-gif');
 		this.scene.physics.add.collider(this.spawn_stop, this);
 
-		this.setAlpha(0);
+		this.setAlpha(0).setScale(2);
 		this.scene.tweens.add({ targets: this, alpha: 1, ease: 'Power1', duration: 500});
 
 		// Odd bug where the hit box is offset by 114px. not sure why but compensating here
@@ -62,6 +64,7 @@ class Enemy extends Phaser.GameObjects.Container {
 
 		this.scene.events.on('pointerdown:game', this.deselect, this);
 		this.scene.events.on('pointerdown:enemy', this.deselect, this);
+		this.once('enemy:dead', this.death, this);
 	}
 
 	update(time, delta) {
@@ -76,7 +79,7 @@ class Enemy extends Phaser.GameObjects.Container {
 			let walk_animation = (this.x - this.scene.player.x > 0) ? this.type + "-left-down" : this.type + "-right-up";
 			this.monster.walk(walk_animation);
 
-			if(this.health.value <= 0) this.death();
+			if(this.health.value <= 0) this.emit('enemy:dead', this);
 		}else{
 			this.spawningEnemy();
 		}
@@ -160,7 +163,34 @@ class Enemy extends Phaser.GameObjects.Container {
 		this.scene.events.off('spell:primed', this.primed, this);
 		this.scene.events.off('spell:cast', this.cast, this);
 		this.scene.events.emit('enemy:dead', this);
+		this.monster.death();
+		this.active = false;
+		this.input.enabled = false;
+		this.scene.physics.world.disable(this);
+		this.scene.enemies.remove(this);
+		this.decompose();
+		this.dropLoot();
+	}
+
+	decompose(){
+		this.scene.tweens.add({
+			targets: this,
+			alpha: 0,
+			ease: 'Power1',
+			duration: 10000,
+			onComplete: this.cleanup.bind(this)
+		});
+	}
+
+	cleanup(){
 		this.destroy();
+	}
+
+	dropLoot(){
+		let roll = Math.random();
+		if(roll < this.loot_chance) {
+			new Coin({scene:this.scene, x:this.x, y:this.y});
+		}
 	}
 
 	attack(){
@@ -180,7 +210,7 @@ class Enemy extends Phaser.GameObjects.Container {
 		//Just to display the hit area, not actually needed to work. Also doesn't have the same bug about being offset.
 		this.hitboxDebug = this.scene.add.graphics();
 		this.hitboxDebug.lineStyle(1, 0x00ffff, 1);
-		this.hitboxDebug.strokeCircleShape(new Phaser.Geom.Circle(0, 0, 25));
+		this.hitboxDebug.strokeCircleShape(new Phaser.Geom.Circle(0, 0, this.hitRadius));
 		this.add(this.hitboxDebug);
 	}
 

@@ -6,7 +6,7 @@ class Rage extends Resource {
 		config.max = config.max || 100;
 		config.value = config.value || 0;
 		config.regen_rate = config.regen_rate || 1;
-		config.regen_value = config.regen_value || 1;
+		config.regen_value = config.regen_value || 3;
 		config.colour = config.colour || 0xb93f3c;
 
 		super(config);

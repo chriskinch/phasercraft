@@ -1,6 +1,7 @@
 import PlayerSprite from '../Graphics/spritesheets/player.png';
 import ResourceFrame from '../Graphics/images/resource-frame.png';
 import AttackSwoosh from '../Graphics/spritesheets/swoosh.png';
+import CoinSpin from '../Graphics/spritesheets/coin.png';
 import BlankGif from '../Graphics/images/blank.gif';
 import DungeonAtlas from '../Graphics/atlas/atlas-dungeon.png';
 import DungeonJSON from '../Graphics/atlas/atlas-dungeon.json';
@@ -53,6 +54,7 @@ class LoadScene extends Phaser.Scene {
 		this.load.spritesheet('player', PlayerSprite, { frameWidth: 24, frameHeight: 32 });
 		this.load.image('blank-gif', BlankGif);
 		this.load.spritesheet('attack-swoosh', AttackSwoosh, { frameWidth: 32, frameHeight: 32 });
+		this.load.spritesheet('coin-spin', CoinSpin, { frameWidth: 16, frameHeight: 16 });
 		this.load.atlas('dungeon', DungeonAtlas, DungeonJSON);
 		this.load.atlas('enemy', EnemyAtlas, EnemyJSON);
 		this.load.atlas('icon', IconAtlas, IconJSON);
