@@ -22,12 +22,12 @@ class Enemy extends Phaser.GameObjects.Container {
 		config.scene.add.existing(this);
 		this.body.setFriction(0,0).setDrag(0).setGravityY(200).setBounce(0.2);
 
-		this.type = config.key;
+		this.key = config.key;
 		this.target = config.target;
-		this.damage = config.damage || enemyConfig[this.type].damage;
-		this.speed = config.speed || enemyConfig[this.type].speed;
-		this.range = config.range || enemyConfig[this.type].range;
-		this.swing_speed = config.swing_speed || enemyConfig[this.type].swing_speed;
+		this.damage = config.damage || enemyConfig[this.key].damage;
+		this.speed = config.speed || enemyConfig[this.key].speed;
+		this.range = config.range || enemyConfig[this.key].range;
+		this.swing_speed = config.swing_speed || enemyConfig[this.key].swing_speed;
 		this.attack_ready = true;
 		this.isHit = false;
 		this.hitRadius = 25;
@@ -42,9 +42,9 @@ class Enemy extends Phaser.GameObjects.Container {
 			scene: config.scene,
 			x: -14,
 			y: -30,
-			value: config.health || enemyConfig[this.type].health,
-			max: config.health || enemyConfig[this.type].health,
-			regen_rate: config.regen_rate || enemyConfig[this.type].regen_rate
+			value: config.health || enemyConfig[this.key].health,
+			max: config.health || enemyConfig[this.key].health,
+			regen_rate: config.regen_rate || enemyConfig[this.key].regen_rate
 		});
 		this.add(this.health);
 
@@ -76,7 +76,7 @@ class Enemy extends Phaser.GameObjects.Container {
 			if(!this.isHit) {
 				this.scene.physics.moveTo(this, this.scene.player.x, this.scene.player.y, this.speed);
 			}
-			let walk_animation = (this.x - this.scene.player.x > 0) ? this.type + "-left-down" : this.type + "-right-up";
+			let walk_animation = (this.x - this.scene.player.x > 0) ? this.key + "-left-down" : this.key + "-right-up";
 			this.monster.walk(walk_animation);
 
 			if(this.health.value <= 0) this.emit('enemy:dead', this);
