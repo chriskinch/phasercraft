@@ -2,6 +2,7 @@ import Player from '../Entities/Player/Player';
 import Enemy from '../Entities/Enemy/Enemy';
 import UI from '../Entities/UI';
 import waveConfig from '../Config/waves.json';
+import enemyTypes from '../Config/enemies.json';
 
 class GameScene extends Phaser.Scene {
 	constructor() {
@@ -90,19 +91,23 @@ class GameScene extends Phaser.Scene {
 		this.events.emit('increment:wave');
 		this.level_complete.setVisible(false);
 		this.level_complete.button.input.enabled = false;
-		this.startLevel();
+		this.startLevel(this.wave);
 	}
 
-	startLevel(){
+	startLevel(wave = 0){
 		this.time.paused = false;
-		let enemy_array = waveConfig[this.wave];
-		enemy_array.forEach((enemy, i, arr) => {
-			this.time.delayedCall(this.global_spawn_time * i, () => {
-				this.spawnEnemy(enemy);
-				// Set the level complete event once all enemies have spawned.
-				if(i === this.wave) this.events.once('enemies:dead', this.levelComplete, this);
-			}, [], this);
-		});
+		const enemies = waveConfig[wave];
+
+		if(typeof enemies === "object") {
+			this.spawnEnemies(enemies);
+		}else{
+			const types = Object.keys(enemyTypes);
+			const randomEnemies = Array.from({length: wave+1}, () => {
+				let random = Math.floor(Math.random() * types.length);
+				return types[random];
+			});
+			this.spawnEnemies(randomEnemies);
+		}
 	}
 
 	gameOver(){
@@ -131,6 +136,16 @@ class GameScene extends Phaser.Scene {
 			this.level_complete.button.input.enabled = true;
 			this.level_complete.button.once('pointerup', this.increaseLevel, this);
 		}, [], this);
+	}
+
+	spawnEnemies(list){
+		list.forEach((enemy, i) => {
+			this.time.delayedCall(this.global_spawn_time * i, () => {
+				this.spawnEnemy(enemy);
+				// Set the level complete event once all enemies have spawned.
+				if(i === this.wave) this.events.once('enemies:dead', this.levelComplete, this);
+			}, [], this);
+		});
 	}
 
 	spawnEnemy(enemy){
