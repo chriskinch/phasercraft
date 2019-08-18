@@ -1510,31 +1510,6 @@
 					}
 				},
 				{
-					"filename": "sword_gold",
-					"frame": {
-						"x": 115,
-						"y": 101,
-						"w": 10,
-						"h": 21
-					},
-					"rotated": false,
-					"trimmed": false,
-					"spriteSourceSize": {
-						"x": 0,
-						"y": 0,
-						"w": 10,
-						"h": 21
-					},
-					"sourceSize": {
-						"w": 10,
-						"h": 21
-					},
-					"anchor": {
-						"x": 0.5,
-						"y": 0.5
-					}
-				},
-				{
 					"filename": "flame_baby",
 					"frame": {
 						"x": 122,
