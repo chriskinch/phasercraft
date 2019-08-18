@@ -51,7 +51,7 @@ class Enemy extends Phaser.GameObjects.Container {
 		this.spawn_stop = this.scene.physics.add.staticImage(this.x, config.y, 'blank-gif');
 		this.scene.physics.add.collider(this.spawn_stop, this);
 
-		this.setAlpha(0);
+		this.setAlpha(0).setScale(2);
 		this.scene.tweens.add({ targets: this, alpha: 1, ease: 'Power1', duration: 500});
 
 		// Odd bug where the hit box is offset by 114px. not sure why but compensating here
@@ -210,7 +210,7 @@ class Enemy extends Phaser.GameObjects.Container {
 		//Just to display the hit area, not actually needed to work. Also doesn't have the same bug about being offset.
 		this.hitboxDebug = this.scene.add.graphics();
 		this.hitboxDebug.lineStyle(1, 0x00ffff, 1);
-		this.hitboxDebug.strokeCircleShape(new Phaser.Geom.Circle(0, 0, 25));
+		this.hitboxDebug.strokeCircleShape(new Phaser.Geom.Circle(0, 0, this.hitRadius));
 		this.add(this.hitboxDebug);
 	}
 
