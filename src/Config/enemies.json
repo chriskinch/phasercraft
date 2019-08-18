@@ -7,13 +7,13 @@
 		"health": 50,
 		"regen_rate": 0
 	},
-	"imp": {
-		"damage": 60,
-		"speed": 100,
+	"egbert": {
+		"damage": 75,
+		"speed": 50,
 		"range": 40,
-		"swing_speed": 2,
-		"health": 80,
-		"regen_rate": 0
+		"swing_speed": 1,
+		"health": 200,
+		"regen_rate": 3
 	},
 	"ghoul": {
 		"damage": 50,
@@ -23,6 +23,14 @@
 		"health": 100,
 		"regen_rate": 0
 	},
+	"imp": {
+		"damage": 60,
+		"speed": 100,
+		"range": 40,
+		"swing_speed": 2,
+		"health": 80,
+		"regen_rate": 0
+	},
 	"satyr": {
 		"damage": 120,
 		"speed": 60,
@@ -30,14 +38,6 @@
 		"swing_speed": 1,
 		"health": 150,
 		"regen_rate": 0
-	},
-	"egbert": {
-		"damage": 75,
-		"speed": 50,
-		"range": 40,
-		"swing_speed": 1,
-		"health": 200,
-		"regen_rate": 3
 	},
 	"slime": {
 		"damage": 250,
