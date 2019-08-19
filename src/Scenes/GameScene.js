@@ -1,6 +1,7 @@
 import Player from '../Entities/Player/Player';
 import Enemy from '../Entities/Enemy/Enemy';
 import UI from '../Entities/UI';
+import Menu from '../UI/Menu';
 import waveConfig from '../Config/waves.json';
 import enemyTypes from '../Config/enemies.json';
 
@@ -32,6 +33,7 @@ class GameScene extends Phaser.Scene {
 		this.zone = this.add.zone(scene_padding, scene_padding, this.global_game_width - (scene_padding*2), this.global_game_height - (scene_padding*2)).setOrigin(0);
 
 		this.UI = new UI(this);
+		this.Menu = new Menu(this);
 
 		this.input.on('pointerdown', (pointer, gameObject) => {
 			// Only trigger this if there are no other game objects in the way.
