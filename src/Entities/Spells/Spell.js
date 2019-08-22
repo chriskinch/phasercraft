@@ -9,6 +9,7 @@ class Spell extends Phaser.GameObjects.Sprite {
 		this.cooldown = config.cooldown;
 		this.value = config.value;
 		this.cost = config.cost;
+		this.slot = config.slot;
 
 		this.scene.anims.create({
 			key: this.name + '-animation',
@@ -74,6 +75,7 @@ class Spell extends Phaser.GameObjects.Sprite {
 		this.button[type]('pointerover', this.over, this);
 		this.button[type]('pointerout', this.out, this);
 		this.button[type]('pointerdown', this.prime, this);
+		this.scene.input.keyboard[type](`keydown-${this.slot}`, this.prime, this); 
 	}
 
 	over(){
