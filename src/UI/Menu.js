@@ -10,7 +10,12 @@ class Menu extends Phaser.GameObjects.Container {
 		
 		console.log("MENU")
 
-		const menu = this.scene.add.sprite(10, 20, 'menu-ui');
+		// const menu = this.scene.add.sprite(10, 20, 'menu-ui');
+
+		const menu = this.scene.add.ninePatch(0, 0, 500, 400, "menu-background", null, {
+			top: 14
+		});
+
 		Phaser.Display.Align.In.Center(menu, this.scene.zone);
 	}
 }

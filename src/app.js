@@ -3,6 +3,7 @@ import BootScene from './Scenes/BootScene';
 import LoadScene from './Scenes/LoadScene';
 import GameScene from './Scenes/GameScene';
 import GameOverScene from './Scenes/GameOverScene';
+import { NinePatchPlugin } from '@koreez/phaser3-ninepatch';
 
 document.body.setAttribute("style", "margin:0;");
 
@@ -26,6 +27,9 @@ class Game extends Phaser.Game {
 				GameScene,
 				GameOverScene
 			],
+			plugins: {
+				global: [{ key: 'NinePatchPlugin', plugin: NinePatchPlugin, start: true }],
+			},
 			pixelArt: true,
 			antialias: false,
 			globalScale: 2

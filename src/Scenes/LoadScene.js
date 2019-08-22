@@ -3,7 +3,7 @@ import ResourceFrame from '../Graphics/images/resource-frame.png';
 import AttackSwoosh from '../Graphics/spritesheets/swoosh.png';
 import CoinSpin from '../Graphics/spritesheets/coin.png';
 import BlankGif from '../Graphics/images/blank.gif';
-import MenuUI from '../Graphics/images/dice_heroes4.png';
+import MenuBackground from '../Graphics/images/menu-background.png';
 import DungeonAtlas from '../Graphics/atlas/atlas-dungeon.png';
 import DungeonJSON from '../Graphics/atlas/atlas-dungeon.json';
 import EnemyAtlas from '../Graphics/atlas/atlas-enemy.png';
@@ -54,7 +54,7 @@ class LoadScene extends Phaser.Scene {
 		this.load.image('resource-frame', ResourceFrame);
 		this.load.spritesheet('player', PlayerSprite, { frameWidth: 24, frameHeight: 32 });
 		this.load.image('blank-gif', BlankGif);
-		this.load.image('menu-ui', MenuUI);
+		this.load.image('menu-background', MenuBackground);
 		this.load.spritesheet('attack-swoosh', AttackSwoosh, { frameWidth: 32, frameHeight: 32 });
 		this.load.spritesheet('coin-spin', CoinSpin, { frameWidth: 16, frameHeight: 16 });
 		this.load.atlas('dungeon', DungeonAtlas, DungeonJSON);
