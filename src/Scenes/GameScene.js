@@ -139,12 +139,16 @@ class GameScene extends Phaser.Scene {
 	}
 
 	spawnEnemies(list){
+		// Remove exsiting instances of this even so that it does trigger multiple times
 		this.events.off('enemies:dead');
 
 		list.forEach((enemy, i) => {
 			this.time.delayedCall(this.global_spawn_time * i, () => {
 				this.spawnEnemy(enemy);
 				if(i === this.wave) {
+					// This event trigger on update so only add it once all enemies
+					// have spawned so that it does not trigger in the short window
+					// between the first zero enemies and the first spawning.
 					this.events.once('enemies:dead', this.increaseLevel, this);
 				}
 			}, [], this);
@@ -178,7 +182,6 @@ class GameScene extends Phaser.Scene {
 		const min_delay = n_wave * this.global_spawn_time;
 		const wave_offset = n_wave * time_scale;
 		const time_limit = min_delay + wave_offset + time_scale;
-		console.log(time_limit);
 		this.next_level_timer = this.time.delayedCall(time_limit, this.increaseLevel, [], this);
 	}
 }
