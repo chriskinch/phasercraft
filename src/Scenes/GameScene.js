@@ -138,14 +138,34 @@ class GameScene extends Phaser.Scene {
 		}, [], this);
 	}
 
+	waveCompleteDelay() {
+		this.removeNextLevelTimer();
+		// Pause time after a short delay so that loot has a change to animate and activate
+		this.time.delayedCall(1000, () => {
+			this.time.paused = true;
+		}, [], this);
+		// Give the player time to collect loot and cast spells.
+		// We use a regular setTimeout here as the game timers are paused.
+		setTimeout(() => { this.increaseLevel() }, 4000);
+	}
+
 	spawnEnemies(list){
+		// Remove exsiting instances of this even so that it does trigger multiple times
+		this.events.off('enemies:dead');
+
 		list.forEach((enemy, i) => {
 			this.time.delayedCall(this.global_spawn_time * i, () => {
 				this.spawnEnemy(enemy);
-				// Set the level complete event once all enemies have spawned.
-				if(i === this.wave) this.events.once('enemies:dead', this.levelComplete, this);
+				if(i === this.wave) {
+					// This event trigger on update so only add it once all enemies
+					// have spawned so that it does not trigger in the short window
+					// between the first zero enemies and the first spawning.
+					this.events.once('enemies:dead', this.waveCompleteDelay, this);
+				}
 			}, [], this);
 		});
+
+		this.setNextLevelTimer();
 	}
 
 	spawnEnemy(enemy){
@@ -157,6 +177,27 @@ class GameScene extends Phaser.Scene {
 			y: Math.random() * this.global_game_height,
 			target: this.player
 		}));
+	}
+
+	removeNextLevelTimer() {
+		if(this.next_level_timer) {
+			this.next_level_timer.remove(false);
+			delete this.next_level_timer;
+		}
+	}
+
+	setNextLevelTimer() {
+		// If all enemies are killed and next level time gets set again
+		// remove the first time so it doesn't trigger twice
+		this.removeNextLevelTimer();
+
+		// TODO: Make the timings smarter
+		const time_scale = 5000;
+		const n_wave = this.wave+1;
+		const min_delay = n_wave * this.global_spawn_time;
+		const wave_offset = n_wave * time_scale;
+		const time_limit = min_delay + wave_offset + time_scale;
+		this.next_level_timer = this.time.delayedCall(time_limit, this.increaseLevel, [], this);
 	}
 }
 
