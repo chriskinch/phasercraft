@@ -138,6 +138,17 @@ class GameScene extends Phaser.Scene {
 		}, [], this);
 	}
 
+	waveCompleteDelay() {
+		this.removeNextLevelTimer();
+		// Pause time after a short delay so that loot has a change to animate and activate
+		this.time.delayedCall(1000, () => {
+			this.time.paused = true;
+		}, [], this);
+		// Give the player time to collect loot and cast spells.
+		// We use a regular setTimeout here as the game timers are paused.
+		setTimeout(() => { this.increaseLevel() }, 4000);
+	}
+
 	spawnEnemies(list){
 		// Remove exsiting instances of this even so that it does trigger multiple times
 		this.events.off('enemies:dead');
@@ -149,7 +160,7 @@ class GameScene extends Phaser.Scene {
 					// This event trigger on update so only add it once all enemies
 					// have spawned so that it does not trigger in the short window
 					// between the first zero enemies and the first spawning.
-					this.events.once('enemies:dead', this.increaseLevel, this);
+					this.events.once('enemies:dead', this.waveCompleteDelay, this);
 				}
 			}, [], this);
 		});
@@ -168,13 +179,17 @@ class GameScene extends Phaser.Scene {
 		}));
 	}
 
-	setNextLevelTimer() {
-		// If all enemies are killed and next level time gets set again
-		// remove the first time so it doesn't trigger twice
+	removeNextLevelTimer() {
 		if(this.next_level_timer) {
 			this.next_level_timer.remove(false);
 			delete this.next_level_timer;
 		}
+	}
+
+	setNextLevelTimer() {
+		// If all enemies are killed and next level time gets set again
+		// remove the first time so it doesn't trigger twice
+		this.removeNextLevelTimer();
 
 		// TODO: Make the timings smarter
 		const time_scale = 5000;
