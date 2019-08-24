@@ -139,13 +139,18 @@ class GameScene extends Phaser.Scene {
 	}
 
 	spawnEnemies(list){
+		this.events.off('enemies:dead');
+
 		list.forEach((enemy, i) => {
 			this.time.delayedCall(this.global_spawn_time * i, () => {
 				this.spawnEnemy(enemy);
-				// Set the level complete event once all enemies have spawned.
-				if(i === this.wave) this.events.once('enemies:dead', this.levelComplete, this);
+				if(i === this.wave) {
+					this.events.once('enemies:dead', this.increaseLevel, this);
+				}
 			}, [], this);
 		});
+
+		this.setNextLevelTimer();
 	}
 
 	spawnEnemy(enemy){
@@ -157,6 +162,24 @@ class GameScene extends Phaser.Scene {
 			y: Math.random() * this.global_game_height,
 			target: this.player
 		}));
+	}
+
+	setNextLevelTimer() {
+		// If all enemies are killed and next level time gets set again
+		// remove the first time so it doesn't trigger twice
+		if(this.next_level_timer) {
+			this.next_level_timer.remove(false);
+			delete this.next_level_timer;
+		}
+
+		// TODO: Make the timings smarter
+		const time_scale = 5000;
+		const n_wave = this.wave+1;
+		const min_delay = n_wave * this.global_spawn_time;
+		const wave_offset = n_wave * time_scale;
+		const time_limit = min_delay + wave_offset + time_scale;
+		console.log(time_limit);
+		this.next_level_timer = this.time.delayedCall(time_limit, this.increaseLevel, [], this);
 	}
 }
 
