@@ -1,11 +1,6 @@
 import { NinePatch } from '@koreez/phaser3-ninepatch';
 import Hero from '../Entities/Player/Hero';
 
-const styles = {
-	font: '16px monospace',
-	fill: '#ffffff'
-};
-
 class Menu extends Phaser.GameObjects.Container {
 	constructor(scene) {
 		super(scene, 900, 470);
@@ -21,13 +16,15 @@ class Menu extends Phaser.GameObjects.Container {
 			padding: 28
 		}
 
-		console.log(this)
-
 		this.scene.input.keyboard.on(`keydown-S`, this.toggleVisibility, this); 
 
 		this.add(this.setBackground());
 		this.add(this.setHero());
 		this.setVisible(false);
+
+		const text = this.scene.add.text(0, 0, 'Hello Worlds', { fontFamily: 'VT323' }).setScale(2);
+		this.add(text);
+		console.log(text);
 
 		this.scene.add.existing(this).setDepth(this.scene.depth_group.UI);
 	}
@@ -50,6 +47,32 @@ class Menu extends Phaser.GameObjects.Container {
 	toggleVisibility() {
 		this.scene.children.bringToTop(this);
 		this.setVisible((this.visible) ? false : true);
+	}
+
+	createText() {
+		console.log("TEXT");
+
+		var style = {
+			font: "15px Revalia",
+			fill: "#fff",
+			boundsAlignH: "center",
+			boundsAlignV: "middle"
+		};
+		
+		var style2 = {
+			font: "25px FerrumExtracondensed",
+			fill: "#fff",
+			boundsAlignH: "center",
+			boundsAlignV: "middle"
+		};
+		
+		//  The Text is positioned at 0, 100
+		var text = this.scene.add.text(50, 100, "Revalia Google Font", style);
+		text.setShadow(3, 3, 'rgba(0,0,0,0.5)', 2);
+		
+		var text2 = his.scene.add.text(50, 200, "Ferrum Custom Font", style2);
+		text2.setShadow(3, 3, 'rgba(0,0,0,0.5)', 2);
+		
 	}
 }
 

@@ -40,6 +40,7 @@ class LoadScene extends Phaser.Scene {
 		let progress = this.add.graphics();
 
 		this.load.on('progress', function (value) {
+			console.debug(`${Math.round(value * 100)}%`);
 			progress.clear();
 			progress.fillStyle(0x3e6c18, 1);
 			progress.fillRect((window.innerWidth/2) - (p.w/2), (window.innerHeight/2) - (p.h/2), p.w, p.h);
@@ -48,9 +49,18 @@ class LoadScene extends Phaser.Scene {
 		});
 
 		this.load.on('complete', function () {
+			WebFont.load({
+				active: () => this.loaded = true,
+				custom: {
+					families: ['VT323'],
+					urls: ['https://fonts.googleapis.com/css?family=VT323&display=swap'],
+				},
+			});
+
 			progress.destroy();
 		});
 
+		this.load.script('https://ajax.googleapis.com/ajax/libs/webfont/1.6.26/webfont');
 		this.load.image('resource-frame', ResourceFrame);
 		this.load.spritesheet('player', PlayerSprite, { frameWidth: 24, frameHeight: 32 });
 		this.load.image('blank-gif', BlankGif);
