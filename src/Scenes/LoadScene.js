@@ -46,10 +46,12 @@ class LoadScene extends Phaser.Scene {
 			progress.fillRect((window.innerWidth/2) - (p.w/2), (window.innerHeight/2) - (p.h/2), p.w * value, p.h);
 		});
 
-		this.load.on('complete', function () {
+		this.load.on('complete', () => {
+			console.log(this.cache.html.get('menu'))
 			progress.destroy();
-		});
+		}, this);
 
+		// Game entities
 		this.load.image('resource-frame', ResourceFrame);
 		this.load.spritesheet('player', PlayerSprite, { frameWidth: 24, frameHeight: 32 });
 		this.load.image('blank-gif', BlankGif);
@@ -60,6 +62,9 @@ class LoadScene extends Phaser.Scene {
 		this.load.atlas('icon', IconAtlas, IconJSON);
 		this.load.spritesheet('heal-effect', HealEffect, { frameWidth: 192, frameHeight: 192 });
 		this.load.spritesheet('fireball-effect', FireballEffect, { frameWidth: 87, frameHeight: 87 });
+		
+		// UI elements
+		this.load.json('menu', './UI/menu.json');
 		//this.loadExtender();
 	}
 

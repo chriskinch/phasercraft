@@ -46,6 +46,7 @@ module.exports = {
         // })
     ],
     output: {
+        publicPath: './src',
         path: path.resolve(__dirname, 'dist'),
         filename: '[name].bundle.js'
     }

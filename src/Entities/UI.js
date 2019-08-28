@@ -18,6 +18,8 @@ class UI extends Phaser.GameObjects.Container {
 
 		this.scene.events.on('increment:coin', this.addCoinCount, this);
 		this.scene.events.on('increment:wave', this.addWaveCount, this);
+
+		console.log(this.scene.cache.html.getKeys());
 	}
 
 	setSpellFrames(){
