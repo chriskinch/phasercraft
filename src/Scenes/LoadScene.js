@@ -22,6 +22,8 @@ class LoadScene extends Phaser.Scene {
 	}
 
 	preload(){
+		const GameScene = this.game.scene.getScene('GameScene');
+
 		this.sys.game.font_config = {
 			image: 'wayne-3d',
 			width: 31,
@@ -39,7 +41,7 @@ class LoadScene extends Phaser.Scene {
 		let p = { h:4, w:100 };
 		let progress = this.add.graphics();
 
-		this.load.on('progress', function (value) {
+		this.load.on('progress', (value) => {
 			console.debug(`${Math.round(value * 100)}%`);
 			progress.clear();
 			progress.fillStyle(0x3e6c18, 1);
@@ -48,14 +50,21 @@ class LoadScene extends Phaser.Scene {
 			progress.fillRect((window.innerWidth/2) - (p.w/2), (window.innerHeight/2) - (p.h/2), p.w * value, p.h);
 		});
 
-		this.load.on('complete', function () {
+		this.load.on('complete', () => {
+			
+			
+
 			WebFont.load({
-				active: () => this.loaded = true,
-				custom: {
+				active: () => GameScene.events.emit('loaded:fonts', this),
+				google: {
 					families: ['VT323'],
 					urls: ['https://fonts.googleapis.com/css?family=VT323&display=swap'],
 				},
 			});
+
+			console.log(this.loaded)
+
+			this.events.once('loaded:fonts', this.setText, this);
 
 			progress.destroy();
 		});
@@ -73,6 +82,11 @@ class LoadScene extends Phaser.Scene {
 		this.load.spritesheet('heal-effect', HealEffect, { frameWidth: 192, frameHeight: 192 });
 		this.load.spritesheet('fireball-effect', FireballEffect, { frameWidth: 87, frameHeight: 87 });
 		//this.loadExtender();
+	}
+
+	setText() {
+		console.log("AHHHHH")
+		// this.add.text(0, 0, 'Hello Worlds', { fontFamily: 'VT323' }).setScale(2);
 	}
 
 	create(){

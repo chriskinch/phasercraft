@@ -16,15 +16,17 @@ class Menu extends Phaser.GameObjects.Container {
 			padding: 28
 		}
 
+		// Events
 		this.scene.input.keyboard.on(`keydown-S`, this.toggleVisibility, this); 
 
+		// Objects
 		this.add(this.setBackground());
 		this.add(this.setHero());
-		this.setVisible(false);
+		// We set the text once the fonts have loaded. This eveent is emitted across scenes.
+		this.scene.events.once('loaded:fonts', () => this.add(this.setText()), this);
 
-		const text = this.scene.add.text(0, 0, 'Hello Worlds', { fontFamily: 'VT323' }).setScale(2);
-		this.add(text);
-		console.log(text);
+		// Invisible until we need it
+		this.setVisible(false);
 
 		this.scene.add.existing(this).setDepth(this.scene.depth_group.UI);
 	}
@@ -35,10 +37,21 @@ class Menu extends Phaser.GameObjects.Container {
 		});
 	}
 
+	setText() {
+		// Here setResolution might eat up memory
+		// TODO: Find a more efficient way for pixel font style
+		return this.scene.add.text(
+			this.bounds.left + this.bounds.padding,
+			this.bounds.top + this.bounds.padding, 
+			'Anubis', 
+			{ fontFamily: 'VT323' }
+		).setScale(2).setResolution(10);
+	}
+
 	setHero() {
 		return new Hero({
-			x: this.bounds.left + this.bounds.padding,
-			y: this.bounds.top + this.bounds.padding,
+			x: this.bounds.left + this.bounds.padding + 15,
+			y: this.bounds.top + this.bounds.padding + 40,
 			scene: this.scene,
 			key: 'player',
 		}).setOrigin(0,0).setScale(2);

@@ -68,7 +68,7 @@ class GameScene extends Phaser.Scene {
 		this.cursors.esc = this.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.ESC);
 
 		this.physics.add.collider(this.player.hero, this);
-
+		
 		this.events.once('player:dead', this.gameOver, this);
 
 		// Resume physics if we load the scene post game over.
