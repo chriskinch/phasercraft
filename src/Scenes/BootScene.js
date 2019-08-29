@@ -12,7 +12,16 @@ class BootScene extends Phaser.Scene {
     }
 
    	create(){
-		this.scene.start('LoadScene');
+		// this.scene.start('LoadScene');
+
+		var style = {
+			'background-color': 'lime',
+			'width': '220px',
+			'height': '100px',
+			'font': '48px Arial',
+			'font-weight': 'bold'
+		};
+		var element = this.add.dom(400, 300, 'div', style, 'Phaser 3');
 	}
 }
 

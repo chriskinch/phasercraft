@@ -19,7 +19,14 @@ class UI extends Phaser.GameObjects.Container {
 		this.scene.events.on('increment:coin', this.addCoinCount, this);
 		this.scene.events.on('increment:wave', this.addWaveCount, this);
 
-		console.log(this.scene.cache.html.getKeys());
+		var style = {
+			'background-color': 'lime',
+			'width': '220px',
+			'height': '100px',
+			'font': '48px Arial',
+			'font-weight': 'bold'
+		};
+		var element = this.scene.add.dom(400, 300, 'div', style, 'Phaser 3');
 	}
 
 	setSpellFrames(){

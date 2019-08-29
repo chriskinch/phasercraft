@@ -10,6 +10,7 @@ class Game extends Phaser.Game {
 	constructor() {
 		super({
 			type: Phaser.AUTO,
+			parent: 'phaser-ui',
 			width: window.innerWidth,
 			height: window.innerHeight,
 			backgroundColor: '#6e9c48',
@@ -26,6 +27,9 @@ class Game extends Phaser.Game {
 				GameScene,
 				GameOverScene
 			],
+			dom: {
+				createContainer: true
+			},
 			pixelArt: true,
 			antialias: false,
 			globalScale: 2

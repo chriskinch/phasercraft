@@ -11,6 +11,7 @@ import IconAtlas from '../Graphics/atlas/atlas-icons.png';
 import IconJSON from '../Graphics/atlas/atlas-icons.json';
 import HealEffect from '../Graphics/spritesheets/spells/heal.png';
 import FireballEffect from '../Graphics/spritesheets/spells/fireball.png';
+import MenuHTML from '../UI/menu.html';
 import createAnimations from '../Config/animations';
 
 class LoadScene extends Phaser.Scene {
@@ -47,8 +48,8 @@ class LoadScene extends Phaser.Scene {
 		});
 
 		this.load.on('complete', () => {
-			console.log(this.cache.html.get('menu'))
-			progress.destroy();
+			console.log(this.cache.html.getKeys());
+			//progress.destroy();
 		}, this);
 
 		// Game entities
@@ -64,7 +65,13 @@ class LoadScene extends Phaser.Scene {
 		this.load.spritesheet('fireball-effect', FireballEffect, { frameWidth: 87, frameHeight: 87 });
 		
 		// UI elements
-		this.load.json('menu', './UI/menu.json');
+		// this.load.html('menu', 'https://labs.phaser.io/assets/text/loginform.html');
+
+		var div = document.createElement('div');
+
+		// console.log(div, MenuHTML)
+		// this.add.dom(0, 0, div);
+		// this.add.dom(400, 600).createFromCache('menu');
 		//this.loadExtender();
 	}
 

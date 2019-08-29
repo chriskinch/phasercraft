@@ -17,8 +17,8 @@ module.exports = {
     },
     module: {
         rules: [
-            {test: [ /\.vert$/, /\.frag$/ ], use: 'raw-loader'},
-            {test: /\.(png|jpg|gif)$/, use: [{loader: 'file-loader', options: {}}]}
+            { test: [ /\.html$/, /\.vert$/, /\.frag$/ ], use: 'raw-loader' },
+            { test: /\.(png|jpg|gif)$/, use: [{loader: 'file-loader'}] }
         ]
     },
     plugins: [
@@ -46,7 +46,6 @@ module.exports = {
         // })
     ],
     output: {
-        publicPath: './src',
         path: path.resolve(__dirname, 'dist'),
         filename: '[name].bundle.js'
     }
