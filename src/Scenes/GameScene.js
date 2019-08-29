@@ -1,6 +1,6 @@
 import Player from '../Entities/Player/Player';
 import Enemy from '../Entities/Enemy/Enemy';
-import UI from '../Entities/UI';
+import UI from '../Entities/UI/HUD';
 import waveConfig from '../Config/waves.json';
 import enemyTypes from '../Config/enemies.json';
 

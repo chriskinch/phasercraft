@@ -10,7 +10,7 @@ class Game extends Phaser.Game {
 	constructor() {
 		super({
 			type: Phaser.AUTO,
-			parent: 'phaser-ui',
+			parent: 'body',
 			width: window.innerWidth,
 			height: window.innerHeight,
 			backgroundColor: '#6e9c48',

@@ -48,8 +48,7 @@ class LoadScene extends Phaser.Scene {
 		});
 
 		this.load.on('complete', () => {
-			console.log(this.cache.html.getKeys());
-			//progress.destroy();
+			progress.destroy();
 		}, this);
 
 		// Game entities
@@ -65,13 +64,8 @@ class LoadScene extends Phaser.Scene {
 		this.load.spritesheet('fireball-effect', FireballEffect, { frameWidth: 87, frameHeight: 87 });
 		
 		// UI elements
-		// this.load.html('menu', 'https://labs.phaser.io/assets/text/loginform.html');
+		this.load.html('menu', './UI/menu.html');
 
-		var div = document.createElement('div');
-
-		// console.log(div, MenuHTML)
-		// this.add.dom(0, 0, div);
-		// this.add.dom(400, 600).createFromCache('menu');
 		//this.loadExtender();
 	}
 
