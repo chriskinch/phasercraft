@@ -22,7 +22,6 @@ class UI extends Phaser.GameObjects.Container {
 		this.scene.events.on('increment:wave', this.addWaveCount, this);
 
 		this.menu = new Menu({scene: scene, x:0, y:0, key:'S'}).createFromCache('menu').addListener('click');
-
 		this.add(this.menu);
 	}
 

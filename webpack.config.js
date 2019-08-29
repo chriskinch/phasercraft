@@ -18,7 +18,7 @@ module.exports = {
     },
     module: {
         rules: [
-            { test: [ /\.html$/, /\.vert$/, /\.frag$/ ], use: 'raw-loader' },
+            { test: [ /\.vert$/, /\.frag$/ ], use: 'raw-loader' },
             { test: /\.(png|jpg|gif)$/, use: [{loader: 'file-loader'}] }
         ]
     },

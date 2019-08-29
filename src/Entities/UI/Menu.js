@@ -28,10 +28,10 @@ class Menu extends Phaser.GameObjects.DOMElement {
         // NOW WE ARE IN BUSINESS!
         console.log(event.target, event.target.getAttribute('data-value'));
     }
-
-	toggleVisibility() {
+    
+    toggleVisibility() {
         this.setVisible((this.visible) ? false : true);
-	}
+    }
 }
 
 export default Menu;

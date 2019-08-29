@@ -11,7 +11,6 @@ import IconAtlas from '../Graphics/atlas/atlas-icons.png';
 import IconJSON from '../Graphics/atlas/atlas-icons.json';
 import HealEffect from '../Graphics/spritesheets/spells/heal.png';
 import FireballEffect from '../Graphics/spritesheets/spells/fireball.png';
-import MenuHTML from '../UI/menu.html';
 import createAnimations from '../Config/animations';
 
 class LoadScene extends Phaser.Scene {
@@ -49,7 +48,7 @@ class LoadScene extends Phaser.Scene {
 
 		this.load.on('complete', () => {
 			progress.destroy();
-		}, this);
+		});
 
 		// Game entities
 		this.load.image('resource-frame', ResourceFrame);
