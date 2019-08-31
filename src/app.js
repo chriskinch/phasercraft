@@ -1,8 +1,8 @@
 import 'phaser';
-import BootScene from './Scenes/BootScene';
 import LoadScene from './Scenes/LoadScene';
 import GameScene from './Scenes/GameScene';
 import GameOverScene from './Scenes/GameOverScene';
+import MenuScene from './Scenes/MenuScene';
 
 document.body.setAttribute("style", "margin:0;");
 
@@ -22,8 +22,8 @@ class Game extends Phaser.Game {
 				}
 			},
 			scene: [
-				BootScene,
 				LoadScene,
+				MenuScene,
 				GameScene,
 				GameOverScene
 			],

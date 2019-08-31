@@ -1,0 +1,78 @@
+<style>
+    @import url('https://fonts.googleapis.com/css?family=VT323&display=swap');
+    
+    #character-select {
+        background: darkolivegreen;
+        box-sizing: border-box;
+        font-family: 'VT323', monospace;
+        font-size: 2em;
+        padding: 1em;
+        height: 430px;
+        width: 900px;
+    }
+
+    h1 {
+        margin-top: 0;
+    }
+
+    .character-list {
+        display: flex;
+        list-style: none;
+        margin: 0;
+        padding: 0;
+    }
+
+    .character-list li {
+        text-align: center;
+        padding: 0.5em;
+    }
+
+    .character-list li:first-child {
+        padding-left: 0;
+    }
+
+    .character-list li:last-child {
+        padding-right: 0;
+    }
+
+    .character-list img {
+        padding-bottom: 0.5em;
+    }
+
+    .character-select-button {
+        background: darkslategrey;
+        border: 1px solid black;
+        color: white;
+        font-family: 'VT323', monospace;
+        font-size: 0.75em;
+        padding: 0.25em 1em;
+        width: 100%; 
+    }
+</style>
+
+<div id="character-select">
+    <h1>Character Select</h1>
+
+    <ol class="character-list">
+        <li>
+            <img src="UI/player/cleric.gif" />
+            <button class="character-select-button" data-character-type="cleric">Cleric</button>
+        </li>
+        <li>
+            <img src="UI/player/mage.gif" />
+            <button class="character-select-button" data-character-type="mage">Mage</button>
+        </li>
+        <li>
+            <img src="UI/player/occultist.gif" />
+            <button class="character-select-button" data-character-type="occultist">Occultist</button>
+        </li>
+        <li>
+            <img src="UI/player/ranger.gif" />
+            <button class="character-select-button" data-character-type="ranger">Ranger</button>
+        </li>
+        <li>
+            <img src="UI/player/warrior.gif" />
+            <button class="character-select-button" data-character-type="warrior">Warrior</button>
+        </li>
+    </ol>
+</div>

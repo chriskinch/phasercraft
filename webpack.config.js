@@ -31,7 +31,7 @@ module.exports = {
             //inject: 'body'
         }),
         new CopyPlugin([
-            { from: 'src/UI', to: 'UI' },
+            { from: 'src/UI', to: 'UI' }
         ]),
         new webpack.NamedModulesPlugin(),
         new webpack.HotModuleReplacementPlugin(),

@@ -1,4 +1,9 @@
 import PlayerSprite from '../Graphics/spritesheets/player/noob.gif';
+import ClericSprite from '../Graphics/spritesheets/player/cleric.gif';
+import MageSprite from '../Graphics/spritesheets/player/mage.gif';
+import OccultistSprite from '../Graphics/spritesheets/player/occultist.gif';
+import RangerSprite from '../Graphics/spritesheets/player/ranger.gif';
+import WarriorSprite from '../Graphics/spritesheets/player/warrior.gif';
 import ResourceFrame from '../Graphics/images/resource-frame.png';
 import AttackSwoosh from '../Graphics/spritesheets/swoosh.png';
 import CoinSpin from '../Graphics/spritesheets/coin.png';
@@ -11,7 +16,9 @@ import IconAtlas from '../Graphics/atlas/atlas-icons.png';
 import IconJSON from '../Graphics/atlas/atlas-icons.json';
 import HealEffect from '../Graphics/spritesheets/spells/heal.png';
 import FireballEffect from '../Graphics/spritesheets/spells/fireball.png';
+import Wayne3D from '../Graphics/fonts/wayne-3d.png';
 import createAnimations from '../Config/animations';
+
 
 class LoadScene extends Phaser.Scene {
 	constructor() {
@@ -30,11 +37,6 @@ class LoadScene extends Phaser.Scene {
 			spacing: { x: 1, y: 0 }
 		};
 
-		this.cache.bitmapFont.add('wayne-3d', Phaser.GameObjects.RetroFont.Parse(this, this.sys.game.font_config));
-		let loading_text = this.add.bitmapText(window.innerWidth/2, window.innerHeight/2 - 20, 'wayne-3d', 'LOADING');
-		loading_text.setOrigin(0.5, 0.5);
-		loading_text.setScale(0.5);
-
 		let p = { h:4, w:100 };
 		let progress = this.add.graphics();
 
@@ -51,8 +53,14 @@ class LoadScene extends Phaser.Scene {
 		});
 
 		// Game entities
+		this.load.image('wayne-3d', Wayne3D);
 		this.load.image('resource-frame', ResourceFrame);
 		this.load.spritesheet('player', PlayerSprite, { frameWidth: 24, frameHeight: 32 });
+		this.load.spritesheet('cleric', ClericSprite, { frameWidth: 24, frameHeight: 32 });
+		this.load.spritesheet('mage', MageSprite, { frameWidth: 24, frameHeight: 32 });
+		this.load.spritesheet('occultist', OccultistSprite, { frameWidth: 24, frameHeight: 32 });
+		this.load.spritesheet('ranger', RangerSprite, { frameWidth: 24, frameHeight: 32 });
+		this.load.spritesheet('warrior', WarriorSprite, { frameWidth: 24, frameHeight: 32 });
 		this.load.image('blank-gif', BlankGif);
 		this.load.spritesheet('attack-swoosh', AttackSwoosh, { frameWidth: 32, frameHeight: 32 });
 		this.load.spritesheet('coin-spin', CoinSpin, { frameWidth: 16, frameHeight: 16 });
@@ -63,6 +71,7 @@ class LoadScene extends Phaser.Scene {
 		this.load.spritesheet('fireball-effect', FireballEffect, { frameWidth: 87, frameHeight: 87 });
 		
 		// UI elements
+		this.load.html('character-select', './UI/character-select.html');
 		this.load.html('menu', './UI/menu.html');
 
 		//this.loadExtender();
@@ -70,7 +79,7 @@ class LoadScene extends Phaser.Scene {
 
 	create(){
 		createAnimations(this);
-		this.scene.start('GameScene');
+		this.scene.start('MenuScene');
 	}
 
 	loadExtender(){
