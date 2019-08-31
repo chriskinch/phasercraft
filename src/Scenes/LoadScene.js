@@ -1,4 +1,4 @@
-import PlayerSprite from '../Graphics/spritesheets/player.png';
+import PlayerSprite from '../Graphics/spritesheets/player/noob.gif';
 import ResourceFrame from '../Graphics/images/resource-frame.png';
 import AttackSwoosh from '../Graphics/spritesheets/swoosh.png';
 import CoinSpin from '../Graphics/spritesheets/coin.png';
