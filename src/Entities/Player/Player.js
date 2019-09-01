@@ -5,18 +5,18 @@ import AssignResource from '../Resources/AssignResource';
 import { getSpellSchools, getAssendedClass } from '../../Config/classes';
 
 class Player extends Phaser.GameObjects.Container {
-	constructor(config) {
-		super(config.scene, config.x, config.y);
+	constructor({scene, x, y, swing_speed, range, damage, primary_class, secondary_class}) {
+		super(scene, x, y);
 
 		this.hero = new Hero({
-			scene: this.scene,
+			scene: scene,
 			key: 'player',
 		});
 		this.add(this.hero);
 
 		this.setSize(this.hero.getBounds().width, this.hero.getBounds().height, true);
-		config.scene.physics.world.enable(this);
-		config.scene.add.existing(this);
+		scene.physics.world.enable(this);
+		scene.add.existing(this);
 
 		this.body.collideWorldBounds = true;
 		this.body.immovable = true;
@@ -26,46 +26,48 @@ class Player extends Phaser.GameObjects.Container {
 
 		this.alive = true;
 		this.attack_ready = true;
-		this.swing_speed = config.swing_speed || this.scene.global_swing_speed;
-		this.range = config.range || 80;
-		this.damage = config.damage || 35;
+		this.swing_speed = swing_speed || scene.global_swing_speed;
+		this.range = range || 80;
+		this.damage = damage || 35;
 		this.delay = 0;
 		this.destination = {
 			x: null,
 			y: null
 		}
 
-		this.type = this.setClass([config.primary_class, config.secondary_class]);
+		this.type = this.setClass([primary_class, secondary_class]);
 		this.spell_schools = this.setSpellSchools();
+		
 		this.assended = false;
-
 		this.assendClass = this.assendClass.bind(this);
 
-		this.health = new AssignResource('Health', {container: this, scene: this.scene, x: -14, y: -35, regen_value: 5});
+		this.createAnimations(this.type);
+
+		this.health = new AssignResource('Health', {container: this, scene: scene, x: -14, y: -35, regen_value: 5});
 		this.add(this.health);
 
-		this.resource = new AssignResource('Rage', {container: this, scene: this.scene, x: -14, y: -30});
+		this.resource = new AssignResource('Rage', {container: this, scene: scene, x: -14, y: -30});
 		this.add(this.resource);
 
-		this.weapon = new Weapon({scene:this.scene, key:'weapon-swooch'});
+		this.weapon = new Weapon({scene: scene, key:'weapon-swooch'});
 		this.add(this.weapon);
 
-		this.scene.events.once('player:dead', this.death, this);
-		this.scene.events.on('enemy:attack', this.hit, this);
+		scene.events.once('player:dead', this.death, this);
+		scene.events.on('enemy:attack', this.hit, this);
 		this.health.on('change', this.healthChanged);
 
 		this.spells = [];
-		this.spells.push(new AssignSpell('Heal', {player: this, scene: this.scene, x: this.x, y: this.y, key: 'spell-heal', slot:'ONE'}));
-		this.spells.push(new AssignSpell('Fireball', {player: this, scene: this.scene, x: this.x, y: this.y, key: 'spell-fireball', slot:'TWO'}));
+		this.spells.push(new AssignSpell('Heal', {player: this, scene: scene, x: this.x, y: this.y, key: 'spell-heal', slot:'ONE'}));
+		this.spells.push(new AssignSpell('Fireball', {player: this, scene: scene, x: this.x, y: this.y, key: 'spell-fireball', slot:'TWO'}));
 
 		this.idle();
 
 		this.setInteractive();
-		this.scene.events.on('pointerdown:game', this.gameDownHandler, this);
-		this.scene.events.on('pointermove:game', this.gameMoveHandler, this);
-		this.scene.events.on('pointerup:game', this.gameUpHandler, this);
-		this.scene.events.on('enemy:dead', this.targetDead, this);
-		this.on('pointerdown', () => this.scene.events.emit('pointerdown:player', this));
+		scene.events.on('pointerdown:game', this.gameDownHandler, this);
+		scene.events.on('pointermove:game', this.gameMoveHandler, this);
+		scene.events.on('pointerup:game', this.gameUpHandler, this);
+		scene.events.on('enemy:dead', this.targetDead, this);
+		this.on('pointerdown', () => scene.events.emit('pointerdown:player', this));
 	}
 
 	drawBar(opt) {
@@ -217,6 +219,23 @@ class Player extends Phaser.GameObjects.Container {
 		}
 	}
 
+	createAnimations(type) {
+		const player_animations = [
+			{key: "player-idle", frames: { start: 12, end: 17 }, repeat: -1},
+			{key: "player-right-up", frames: { start: 0, end: 5 }, repeat: -1},
+			{key: "player-left-down", frames: { start: 6, end: 11 }, repeat: -1},
+			{key: "player-death", frames: { start: 18, end: 23 }, repeat: 0}
+		];
+	
+		player_animations.forEach(animation => {
+			this.scene.anims.create({
+				key: animation.key,
+				frames: this.scene.anims.generateFrameNumbers(type, animation.frames),
+				frameRate: 12,
+				repeat: animation.repeat
+			});
+		});
+	}
 }
 
 export default Player;

@@ -1,3 +1,5 @@
+import Menu from './Menu';
+
 const styles = {
 	font: '16px monospace',
 	fill: '#ffffff'
@@ -6,7 +8,7 @@ const styles = {
 class UI extends Phaser.GameObjects.Container {
 	constructor(scene) {
 		super(scene, 0, 0);
-		this.scene.add.existing(this).setDepth(this.scene.depth_group.UI);
+		const { centerX, centerY } = this.scene.physics.world.bounds;
 
 		this.spells = 5;
 		this.spacing = 70;
@@ -18,6 +20,11 @@ class UI extends Phaser.GameObjects.Container {
 
 		this.scene.events.on('increment:coin', this.addCoinCount, this);
 		this.scene.events.on('increment:wave', this.addWaveCount, this);
+
+		this.menu = new Menu({scene: scene, x:centerX, y:centerY, key:'S'}).createFromCache('menu').addListener('click');
+		this.add(this.menu);
+
+		this.scene.add.existing(this).setDepth(this.scene.depth_group.UI);
 	}
 
 	setSpellFrames(){

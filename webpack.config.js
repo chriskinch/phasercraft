@@ -1,7 +1,8 @@
 const path = require('path');
+const webpack = require('webpack');
 const HtmlWebpackPlugin = require('html-webpack-plugin');
 const CleanWebpackPlugin = require('clean-webpack-plugin');
-const webpack = require('webpack');
+const CopyPlugin = require('copy-webpack-plugin');
 const WorkboxPlugin = require('workbox-webpack-plugin');
 const ManifestPlugin = require('webpack-manifest-plugin');
  
@@ -17,8 +18,8 @@ module.exports = {
     },
     module: {
         rules: [
-            {test: [ /\.vert$/, /\.frag$/ ], use: 'raw-loader'},
-            {test: /\.(png|jpg|gif)$/, use: [{loader: 'file-loader', options: {}}]}
+            { test: [ /\.vert$/, /\.frag$/ ], use: 'raw-loader' },
+            { test: /\.(png|jpg|gif)$/, use: [{loader: 'file-loader'}] }
         ]
     },
     plugins: [
@@ -29,6 +30,9 @@ module.exports = {
             //manifest: '<link rel="manifest" href="manifest.json">',
             //inject: 'body'
         }),
+        new CopyPlugin([
+            { from: 'src/UI', to: 'UI' }
+        ]),
         new webpack.NamedModulesPlugin(),
         new webpack.HotModuleReplacementPlugin(),
         new webpack.DefinePlugin({
