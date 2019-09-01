@@ -1,4 +1,4 @@
-import Player from '../Entities/Player/Player';
+import AssignClass from '../Entities/Player/AssignClass';
 import Enemy from '../Entities/Enemy/Enemy';
 import UI from '../Entities/UI/HUD';
 import waveConfig from '../Config/waves.json';
@@ -50,11 +50,12 @@ class GameScene extends Phaser.Scene {
 			this.events.emit('pointerup:game', this)
 		});
 
-		this.player = new Player({
+		console.log(this.config.type)
+		const typeClass = this.config.type.charAt(0).toUpperCase() + this.config.type.substring(1);
+		this.player = new AssignClass(typeClass, {
 			scene:this,
 			x: 400,
-			y: 400,
-			primary_class: this.config.name
+			y: 400
 		});
 
 		this.enemies = this.add.group();

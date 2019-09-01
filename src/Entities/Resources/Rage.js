@@ -1,22 +1,27 @@
 import Resource from './Resource';
 
 class Rage extends Resource {
+	constructor({
+		container,
+		scene,
+		x,
+		y,
+		max = 100,
+		value = 0,
+		regen_rate = 0,
+		regen_value = 3,
+		colour = 0xb93f3c,
+	}) {
+		super({container, scene, x, y, max, value, regen_rate, regen_value, colour});
 
-	constructor(config) {
-		config.max = config.max || 100;
-		config.value = config.value || 0;
-		config.regen_rate = config.regen_rate || 1;
-		config.regen_value = config.regen_value || 3;
-		config.colour = config.colour || 0xb93f3c;
-
-		super(config);
-    this.scene.events.on('player:attacked', this.generate, this);
+		scene.events.on('player:attacked', this.generate, this);
+		scene.events.on('player:attack', this.generate, this);
 	}
 
-  generate(player, damage){
-    let amount = Math.ceil(damage/20);
-    super.adjustValue(amount);
-  }
+	generate(player, damage){
+		let amount = Math.ceil(damage/10);
+		super.adjustValue(amount);
+	}
 }
 
 export default Rage;
