@@ -2,7 +2,7 @@ import 'phaser';
 import LoadScene from './Scenes/LoadScene';
 import GameScene from './Scenes/GameScene';
 import GameOverScene from './Scenes/GameOverScene';
-import MenuScene from './Scenes/MenuScene';
+import SelectScene from './Scenes/SelectScene';
 
 document.body.setAttribute("style", "margin:0;");
 
@@ -23,7 +23,7 @@ class Game extends Phaser.Game {
 			},
 			scene: [
 				LoadScene,
-				MenuScene,
+				SelectScene,
 				GameScene,
 				GameOverScene
 			],

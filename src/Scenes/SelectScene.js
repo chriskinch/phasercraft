@@ -1,6 +1,6 @@
 import CharacterSelect from '../Entities/UI/CharacterSelect';
 
-class MenuScene extends Phaser.Scene {
+class SelectScene extends Phaser.Scene {
 	constructor() {
 		super({
 			key: 'MenuScene'
@@ -23,10 +23,11 @@ class MenuScene extends Phaser.Scene {
 	}
 
 	clickHandler(event){
-		const name = event.target.getAttribute('data-character-type');
-		if (name) this.config.name = name;
-
-		if(this.config.name) this.scene.start('GameScene', this.config);
+		const type = event.target.getAttribute('data-character-type');
+		if (type) {
+			this.config.type = type;
+			this.scene.start('GameScene', this.config);
+		}
 	}
 	
 	setCharacterType(name) {
@@ -35,4 +36,4 @@ class MenuScene extends Phaser.Scene {
 	}
 }
 
-export default MenuScene;
+export default SelectScene;

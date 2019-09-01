@@ -1,15 +1,18 @@
 import Resource from './Resource';
 
 class Energy extends Resource {
-
-	constructor(config) {
-		config.max = config.max || 100;
-		config.value = config.value || 100;
-		config.regen_rate = config.regen_rate || 3;
-		config.regen_value = config.regen_value || 20;
-		config.colour = config.colour || 0xdcd743;
-
-		super(config);
+	constructor({
+		container,
+		scene,
+		x,
+		y,
+		max = 100,
+		value = 100,
+		regen_rate = 3,
+		regen_value = 20,
+		colour = 0xdcd743,
+	}) {
+		super({container, scene, x, y, max, value, regen_rate, regen_value, colour});
 	}
 }
 
