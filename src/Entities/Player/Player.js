@@ -150,9 +150,9 @@ class Player extends Phaser.GameObjects.Container {
 		this.alive = false;
 	}
 
-	hit(damage){
-		this.scene.events.emit('player:attacked', this, damage);
-		this.health.adjustValue(-damage);
+	hit(power){
+		this.scene.events.emit('player:attacked', this);
+		this.health.adjustValue(-power);
 	}
 
 	idle(){
@@ -176,15 +176,15 @@ class Player extends Phaser.GameObjects.Container {
 	}
 
 	attack(target){
-		const { damage, swing_speed } = this.stats;
+		const { attack_power, attack_speed } = this.stats;
 		
 		this.weapon.swoosh();
 		this.positionWeapon(target);
-		target.hit(damage);
+		target.hit(attack_power);
 		this.attack_ready = false;
-		this.swing = this.scene.time.addEvent({ delay: swing_speed*1000, callback: this.attackReady, callbackScope: this, loop: true });
+		this.swing = this.scene.time.addEvent({ delay: attack_speed*1000, callback: this.attackReady, callbackScope: this, loop: true });
 
-		this.scene.events.emit('player:attack', this, damage);
+		this.scene.events.emit('player:attack', this);
 	}
 
 	attackReady(){

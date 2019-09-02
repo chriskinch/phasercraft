@@ -18,9 +18,8 @@ class Rage extends Resource {
 		scene.events.on('player:attack', this.generate, this);
 	}
 
-	generate(player, damage){
-		let amount = Math.ceil(damage/10);
-		super.adjustValue(amount);
+	generate(player){
+		super.adjustValue(5);
 	}
 }
 

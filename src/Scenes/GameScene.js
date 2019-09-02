@@ -11,7 +11,7 @@ class GameScene extends Phaser.Scene {
 		});
 
 		this.global_tick = 0.2;
-		this.global_swing_speed = 1;
+		this.global_attack_speed = 1;
 		this.global_attack_delay = 250;
 		this.global_spawn_time = 200;
 		this.wave = 0;

@@ -1,10 +1,11 @@
 import Player from './Player';
 
 const stats = {
-    damage: 75,
+    attack_power: 15,
+    attack_speed: 1.2,
+    magic_power: 70,
     speed: 150,
     range: 160,
-    swing_speed: 1.2,
     knockback: 50,
     health: {
         max: 800,
