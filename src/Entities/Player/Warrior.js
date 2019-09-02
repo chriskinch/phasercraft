@@ -12,8 +12,9 @@ const stats = {
         regen_value: 15,
         regen_rate: 0.75
     },
-    resource: "Rage",
-    resource_rate: 0.2
+    resource: {
+        type: "Rage"
+    }
 }
 
 class Warrior extends Player {

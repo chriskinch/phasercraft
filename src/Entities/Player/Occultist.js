@@ -12,8 +12,9 @@ const stats = {
         regen_value: 12,
         regen_rate: 0.9
     },
-    resource: "Mana",
-    resource_rate: 0.2
+    resource: {
+        type: "Mana"
+    }
 }
 
 class Occultist extends Player {

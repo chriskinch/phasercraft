@@ -12,8 +12,9 @@ const stats = {
         regen_value: 10,
         regen_rate: 1
     },
-    resource: "Energy",
-    resource_rate: 0.2
+    resource: {
+        type: "Energy"
+    }
 }
 
 class Ranger extends Player {

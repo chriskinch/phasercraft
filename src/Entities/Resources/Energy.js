@@ -8,7 +8,7 @@ class Energy extends Resource {
 		y,
 		max = 100,
 		value = 100,
-		regen_rate = 3,
+		regen_rate = 2,
 		regen_value = 20,
 		colour = 0xdcd743,
 	}) {
