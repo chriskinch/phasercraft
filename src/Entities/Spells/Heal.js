@@ -8,10 +8,6 @@ class Heal extends Spell {
 		config.cost = config.cost || 20;
 
 		super(config);
-
-		// Assign button position then text position.
-		Phaser.Display.Align.In.BottomLeft(this.button, this.scene.UI.frames[0]);
-		Phaser.Display.Align.In.Center(this.text, this.button, -2, -2);
 	}
 
 	setTargetEvents(type){

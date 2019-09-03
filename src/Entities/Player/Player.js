@@ -59,8 +59,8 @@ class Player extends Phaser.GameObjects.Container {
 		this.health.on('change', this.healthChanged);
 
 		this.spells = [];
-		this.spells.push(new AssignSpell('Heal', {player: this, scene: scene, x: this.x, y: this.y, key: 'spell-heal', slot:'ONE'}));
-		this.spells.push(new AssignSpell('Fireball', {player: this, scene: scene, x: this.x, y: this.y, key: 'spell-fireball', slot:'TWO'}));
+		this.spells.push(new AssignSpell('Heal', {player: this, scene: scene, x: this.x, y: this.y, key: 'spell-heal', hotkey:'ONE', slot:0}));
+		this.spells.push(new AssignSpell('Fireball', {player: this, scene: scene, x: this.x, y: this.y, key: 'spell-fireball', hotkey:'TWO', slot:1}));
 
 		this.idle();
 

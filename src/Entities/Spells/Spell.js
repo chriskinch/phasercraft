@@ -9,6 +9,7 @@ class Spell extends Phaser.GameObjects.Sprite {
 		this.cooldown = config.cooldown;
 		this.value = config.value;
 		this.cost = config.cost;
+		this.hotkey = config.hotkey;
 		this.slot = config.slot;
 
 		this.scene.anims.create({
@@ -38,6 +39,9 @@ class Spell extends Phaser.GameObjects.Sprite {
 			align: 'center'
 		};
 		this.text = this.scene.add.text(0, 0, this.cooldown, styles).setOrigin(0.5).setDepth(this.scene.depth_group.UI).setVisible(false);
+
+		Phaser.Display.Align.In.BottomLeft(this.button, this.scene.UI.frames[this.slot]);
+		Phaser.Display.Align.In.Center(this.text, this.button, -2, -2);
 	}
 
 	checkReady(){
@@ -75,7 +79,7 @@ class Spell extends Phaser.GameObjects.Sprite {
 		this.button[type]('pointerover', this.over, this);
 		this.button[type]('pointerout', this.out, this);
 		this.button[type]('pointerdown', this.prime, this);
-		this.scene.input.keyboard[type](`keydown-${this.slot}`, this.prime, this); 
+		this.scene.input.keyboard[type](`keydown-${this.hotkey}`, this.prime, this); 
 	}
 
 	over(){

@@ -1,17 +1,13 @@
 import Spell from './Spell';
 
 class Fireball extends Spell {
-	constructor({player, scene, x, y, slot, cost = 30}) {
+	constructor({player, scene, x, y, hotkey, slot, cost = 30}) {
 		const key = 'spell-fireball';
 		const icon_name = 'icon_0017_fire-ball';
 		const cooldown = 1;
 		const value = 100;
 
-		super({player, scene, x, y, slot, key, icon_name, cooldown, cost, value});
-
-		// Assign button position then text position.
-		Phaser.Display.Align.In.BottomLeft(this.button, this.scene.UI.frames[1]);
-		Phaser.Display.Align.In.Center(this.text, this.button, -2, -2);
+		super({player, scene, x, y, slot, key, icon_name, cooldown, cost, value, hotkey, slot});
 	}
 
 	setTargetEvents(type){
