@@ -11,7 +11,7 @@ class GameScene extends Phaser.Scene {
 		});
 
 		this.global_tick = 0.2;
-		this.global_swing_speed = 1;
+		this.global_attack_speed = 1;
 		this.global_attack_delay = 250;
 		this.global_spawn_time = 200;
 		this.wave = 0;
@@ -50,7 +50,6 @@ class GameScene extends Phaser.Scene {
 			this.events.emit('pointerup:game', this)
 		});
 
-		console.log(this.config.type)
 		const typeClass = this.config.type.charAt(0).toUpperCase() + this.config.type.substring(1);
 		this.player = new AssignClass(typeClass, {
 			scene:this,

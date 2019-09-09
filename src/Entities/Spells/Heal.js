@@ -2,16 +2,20 @@ import Spell from './Spell';
 
 class Heal extends Spell {
 	constructor(config) {
-		config.icon_name = config.icon_name || 'icon_0015_heal';
-		config.cooldown = config.cooldown || 7;
-		config.value = config.value || 200;
-		config.cost = config.cost || 20;
+		const defaults = {
+			icon_name: 'icon_0015_heal',
+			cooldown: 1,
+			cost: {
+				rage: 20,
+				mana: 35,
+				energy: 30
+			}
+		}
 
-		super(config);
+		super({ ...defaults, ...config });
 
-		// Assign button position then text position.
-		Phaser.Display.Align.In.BottomLeft(this.button, this.scene.UI.frames[0]);
-		Phaser.Display.Align.In.Center(this.text, this.button, -2, -2);
+		// Sets value based on player power using a base value (param)
+		this.value = this.setValue(50);
 	}
 
 	setTargetEvents(type){
@@ -25,7 +29,7 @@ class Heal extends Spell {
 
 	effect(){
 		this.target.health.adjustValue(this.value);
-		this.player.resource.adjustValue(-this.cost);
+		this.player.resource.adjustValue(-this.cost[this.player.resource.type]);
 	}
 
 	animationUpdate(){

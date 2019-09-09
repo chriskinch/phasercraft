@@ -1,15 +1,10 @@
 class Spell extends Phaser.GameObjects.Sprite {
 
-	constructor(config) {
-		super(config.scene, config.x, config.y, config.key);
+	constructor({scene, x, y, key, ...config} = {}) {
+		super(scene, x, y, key);
 
-		this.player = config.player;
+		Object.assign(this, config);
 		this.name = this.constructor.name.toLowerCase();
-		this.icon_name = config.icon_name;
-		this.cooldown = config.cooldown;
-		this.value = config.value;
-		this.cost = config.cost;
-		this.slot = config.slot;
 
 		this.scene.anims.create({
 			key: this.name + '-animation',
@@ -38,6 +33,17 @@ class Spell extends Phaser.GameObjects.Sprite {
 			align: 'center'
 		};
 		this.text = this.scene.add.text(0, 0, this.cooldown, styles).setOrigin(0.5).setDepth(this.scene.depth_group.UI).setVisible(false);
+
+		Phaser.Display.Align.In.BottomLeft(this.button, this.scene.UI.frames[this.slot]);
+		Phaser.Display.Align.In.Center(this.text, this.button, -2, -2);
+	}
+
+	setValue(base){
+		const { magic_power } = this.player.stats;
+		// Value based on base + scaled percentage of base from mp + flat percent of mp
+		const value = base + (base * (magic_power/100)) + magic_power/10;
+		console.log(value);
+		return value;
 	}
 
 	checkReady(){
@@ -50,7 +56,7 @@ class Spell extends Phaser.GameObjects.Sprite {
 	}
 
 	checkResource(){
-		return (this.cost < this.player.resource.value);
+		return (this.cost[this.player.resource.type] < this.player.resource.value);
 	}
 
 	checkCooldown(){
@@ -75,7 +81,7 @@ class Spell extends Phaser.GameObjects.Sprite {
 		this.button[type]('pointerover', this.over, this);
 		this.button[type]('pointerout', this.out, this);
 		this.button[type]('pointerdown', this.prime, this);
-		this.scene.input.keyboard[type](`keydown-${this.slot}`, this.prime, this); 
+		this.scene.input.keyboard[type](`keydown-${this.hotkey}`, this.prime, this); 
 	}
 
 	over(){

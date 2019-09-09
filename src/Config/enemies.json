@@ -3,7 +3,7 @@
 		"damage": 30,
 		"speed": 80,
 		"range": 40,
-		"swing_speed": 1,
+		"attack_speed": 1,
 		"health": 50,
 		"regen_rate": 0
 	},
@@ -11,7 +11,7 @@
 		"damage": 75,
 		"speed": 50,
 		"range": 40,
-		"swing_speed": 1,
+		"attack_speed": 1,
 		"health": 200,
 		"regen_rate": 3
 	},
@@ -19,7 +19,7 @@
 		"damage": 50,
 		"speed": 60,
 		"range": 40,
-		"swing_speed": 2,
+		"attack_speed": 2,
 		"health": 100,
 		"regen_rate": 0
 	},
@@ -27,7 +27,7 @@
 		"damage": 60,
 		"speed": 100,
 		"range": 40,
-		"swing_speed": 2,
+		"attack_speed": 2,
 		"health": 80,
 		"regen_rate": 0
 	},
@@ -35,7 +35,7 @@
 		"damage": 120,
 		"speed": 60,
 		"range": 40,
-		"swing_speed": 1,
+		"attack_speed": 1,
 		"health": 150,
 		"regen_rate": 0
 	},
@@ -43,7 +43,7 @@
 		"damage": 250,
 		"speed": 20,
 		"range": 40,
-		"swing_speed": 3,
+		"attack_speed": 3,
 		"health": 200,
 		"regen_rate": 0
 	}

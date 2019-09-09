@@ -2,16 +2,20 @@ import Spell from './Spell';
 
 class Fireball extends Spell {
 	constructor(config) {
-		config.icon_name = config.icon_name || 'icon_0017_fire-ball';
-		config.cooldown = config.cooldown || 7;
-		config.value = config.value || 100;
-		config.cost = config.cost || 30;
+		const defaults = {
+			icon_name: 'icon_0017_fire-ball',
+			cooldown: 1,
+			cost: {
+				rage: 30,
+				mana: 50,
+				energy: 40
+			}
+		}
 
-		super(config);
+		super({ ...defaults, ...config });
 
-		// Assign button position then text position.
-		Phaser.Display.Align.In.BottomLeft(this.button, this.scene.UI.frames[1]);
-		Phaser.Display.Align.In.Center(this.text, this.button, -2, -2);
+		// Sets value based on player power using a base value (param)
+		this.value = this.setValue(30);
 	}
 
 	setTargetEvents(type){
@@ -25,7 +29,7 @@ class Fireball extends Spell {
 
 	effect(){
 		this.target.health.adjustValue(-this.value);
-		this.player.resource.adjustValue(-this.cost);
+		this.player.resource.adjustValue(-this.cost[this.player.resource.type]);
 	}
 
 	animationUpdate(){

@@ -27,7 +27,7 @@ class Enemy extends Phaser.GameObjects.Container {
 		this.damage = config.damage || enemyConfig[this.key].damage;
 		this.speed = config.speed || enemyConfig[this.key].speed;
 		this.range = config.range || enemyConfig[this.key].range;
-		this.swing_speed = config.swing_speed || enemyConfig[this.key].swing_speed;
+		this.attack_speed = config.attack_speed || enemyConfig[this.key].attack_speed;
 		this.attack_ready = true;
 		this.isHit = false;
 		this.hitRadius = 25;
@@ -197,7 +197,7 @@ class Enemy extends Phaser.GameObjects.Container {
 		if(this.attack_ready && this.spawned) {
 			this.scene.events.emit('enemy:attack', this.damage);
 			this.attack_ready = false;
-			this.swing = this.scene.time.addEvent({ delay: this.swing_speed*1000, callback: this.attackReady, callbackScope: this, loop: true });
+			this.swing = this.scene.time.addEvent({ delay: this.attack_speed*1000, callback: this.attackReady, callbackScope: this, loop: true });
 		}
 	}
 

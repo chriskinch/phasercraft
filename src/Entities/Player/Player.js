@@ -4,7 +4,7 @@ import AssignSpell from '../Spells/AssignSpell';
 import AssignResource from '../Resources/AssignResource';
 
 class Player extends Phaser.GameObjects.Container {
-	constructor({scene, x, y, stats}) {
+	constructor({scene, x, y, ...stats}) {
 		super(scene, x, y);
 
 		this.hero = new Hero({
@@ -43,7 +43,7 @@ class Player extends Phaser.GameObjects.Container {
 		});
 		this.add(this.health);
 
-		this.resource = new AssignResource(stats.resource, {
+		this.resource = new AssignResource(stats.resource.type, {
 			container: this,
 			scene: scene, x: -14,
 			y: -30,
@@ -59,8 +59,8 @@ class Player extends Phaser.GameObjects.Container {
 		this.health.on('change', this.healthChanged);
 
 		this.spells = [];
-		this.spells.push(new AssignSpell('Heal', {player: this, scene: scene, x: this.x, y: this.y, key: 'spell-heal', slot:'ONE'}));
-		this.spells.push(new AssignSpell('Fireball', {player: this, scene: scene, x: this.x, y: this.y, key: 'spell-fireball', slot:'TWO'}));
+		this.spells.push(new AssignSpell('Heal', {player: this, scene: scene, x: this.x, y: this.y, key: 'spell-heal', hotkey:'ONE', slot:0}));
+		this.spells.push(new AssignSpell('Fireball', {player: this, scene: scene, x: this.x, y: this.y, key: 'spell-fireball', hotkey:'TWO', slot:1}));
 
 		this.idle();
 
@@ -150,9 +150,9 @@ class Player extends Phaser.GameObjects.Container {
 		this.alive = false;
 	}
 
-	hit(damage){
-		this.scene.events.emit('player:attacked', this, damage);
-		this.health.adjustValue(-damage);
+	hit(power){
+		this.scene.events.emit('player:attacked', this);
+		this.health.adjustValue(-power);
 	}
 
 	idle(){
@@ -176,15 +176,15 @@ class Player extends Phaser.GameObjects.Container {
 	}
 
 	attack(target){
-		const { damage, swing_speed } = this.stats;
+		const { attack_power, attack_speed } = this.stats;
 		
 		this.weapon.swoosh();
 		this.positionWeapon(target);
-		target.hit(damage);
+		target.hit(attack_power);
 		this.attack_ready = false;
-		this.swing = this.scene.time.addEvent({ delay: swing_speed*1000, callback: this.attackReady, callbackScope: this, loop: true });
+		this.swing = this.scene.time.addEvent({ delay: attack_speed*1000, callback: this.attackReady, callbackScope: this, loop: true });
 
-		this.scene.events.emit('player:attack', this, damage);
+		this.scene.events.emit('player:attack', this);
 	}
 
 	attackReady(){
