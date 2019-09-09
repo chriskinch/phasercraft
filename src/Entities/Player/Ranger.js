@@ -5,7 +5,7 @@ class Ranger extends Player {
         const default_stats = {
             attack_power: 50,
             attack_speed: 0.8,
-            magic_power: 20,
+            magic_power: 30,
             speed: 150,
             range: 240,
             knockback: 20,

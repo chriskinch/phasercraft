@@ -38,6 +38,14 @@ class Spell extends Phaser.GameObjects.Sprite {
 		Phaser.Display.Align.In.Center(this.text, this.button, -2, -2);
 	}
 
+	setValue(base){
+		const { magic_power } = this.player.stats;
+		// Value based on base + scaled percentage of base from mp + flat percent of mp
+		const value = base + (base * (magic_power/100)) + magic_power/10;
+		console.log(value);
+		return value;
+	}
+
 	checkReady(){
 		let ready = (this.checkResource() && this.checkCooldown()) ? true : false;
 		if(ready){

@@ -5,15 +5,17 @@ class Heal extends Spell {
 		const defaults = {
 			icon_name: 'icon_0015_heal',
 			cooldown: 1,
-			value: 200,
 			cost: {
 				rage: 20,
-				mana: 30,
+				mana: 35,
 				energy: 30
 			}
 		}
 
 		super({ ...defaults, ...config });
+
+		// Sets value based on player power using a base value (param)
+		this.value = this.setValue(50);
 	}
 
 	setTargetEvents(type){

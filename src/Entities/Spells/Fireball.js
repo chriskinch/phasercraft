@@ -5,15 +5,17 @@ class Fireball extends Spell {
 		const defaults = {
 			icon_name: 'icon_0017_fire-ball',
 			cooldown: 1,
-			value: 100,
 			cost: {
 				rage: 30,
-				mana: 40,
+				mana: 50,
 				energy: 40
 			}
 		}
 
 		super({ ...defaults, ...config });
+
+		// Sets value based on player power using a base value (param)
+		this.value = this.setValue(30);
 	}
 
 	setTargetEvents(type){

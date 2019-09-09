@@ -5,7 +5,7 @@ class Cleric extends Player {
         const default_stats = {
             attack_power: 10,
             attack_speed: 1.2,
-            magic_power: 40,
+            magic_power: 50,
             speed: 150,
             range: 80,
             knockback: 80,

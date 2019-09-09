@@ -5,7 +5,7 @@ class Mage extends Player {
         const default_stats = {
             attack_power: 15,
             attack_speed: 1.2,
-            magic_power: 70,
+            magic_power: 80,
             speed: 150,
             range: 160,
             knockback: 50,
