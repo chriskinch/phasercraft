@@ -48,7 +48,7 @@ class Spell extends Phaser.GameObjects.Sprite {
 	}
 
 	checkResource(){
-		return (this.cost < this.player.resource.value);
+		return (this.cost[this.player.resource.type] < this.player.resource.value);
 	}
 
 	checkCooldown(){

@@ -6,7 +6,11 @@ class Heal extends Spell {
 			icon_name: 'icon_0015_heal',
 			cooldown: 1,
 			value: 200,
-			cost: 20,
+			cost: {
+				rage: 20,
+				mana: 30,
+				energy: 30
+			}
 		}
 
 		super({ ...defaults, ...config });
@@ -23,7 +27,7 @@ class Heal extends Spell {
 
 	effect(){
 		this.target.health.adjustValue(this.value);
-		this.player.resource.adjustValue(-this.cost);
+		this.player.resource.adjustValue(-this.cost[this.player.resource.type]);
 	}
 
 	animationUpdate(){

@@ -50,7 +50,6 @@ class GameScene extends Phaser.Scene {
 			this.events.emit('pointerup:game', this)
 		});
 
-		console.log(this.config.type)
 		const typeClass = this.config.type.charAt(0).toUpperCase() + this.config.type.substring(1);
 		this.player = new AssignClass(typeClass, {
 			scene:this,

@@ -43,8 +43,6 @@ class Player extends Phaser.GameObjects.Container {
 		});
 		this.add(this.health);
 
-		console.log(stats)
-
 		this.resource = new AssignResource(stats.resource.type, {
 			container: this,
 			scene: scene, x: -14,

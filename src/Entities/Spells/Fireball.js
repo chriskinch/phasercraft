@@ -6,7 +6,11 @@ class Fireball extends Spell {
 			icon_name: 'icon_0017_fire-ball',
 			cooldown: 1,
 			value: 100,
-			cost: 30,
+			cost: {
+				rage: 30,
+				mana: 40,
+				energy: 40
+			}
 		}
 
 		super({ ...defaults, ...config });
@@ -23,7 +27,7 @@ class Fireball extends Spell {
 
 	effect(){
 		this.target.health.adjustValue(-this.value);
-		this.player.resource.adjustValue(-this.cost);
+		this.player.resource.adjustValue(-this.cost[this.player.resource.type]);
 	}
 
 	animationUpdate(){
