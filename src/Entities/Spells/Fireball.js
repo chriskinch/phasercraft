@@ -1,13 +1,15 @@
 import Spell from './Spell';
 
 class Fireball extends Spell {
-	constructor({player, scene, x, y, hotkey, slot, cost = 30}) {
-		const key = 'spell-fireball';
-		const icon_name = 'icon_0017_fire-ball';
-		const cooldown = 1;
-		const value = 100;
+	constructor(config) {
+		const defaults = {
+			icon_name: 'icon_0017_fire-ball',
+			cooldown: 1,
+			value: 100,
+			cost: 30,
+		}
 
-		super({player, scene, x, y, slot, key, icon_name, cooldown, cost, value, hotkey, slot});
+		super({ ...defaults, ...config });
 	}
 
 	setTargetEvents(type){

@@ -4,7 +4,7 @@ import AssignSpell from '../Spells/AssignSpell';
 import AssignResource from '../Resources/AssignResource';
 
 class Player extends Phaser.GameObjects.Container {
-	constructor({scene, x, y, stats}) {
+	constructor({scene, x, y, ...stats}) {
 		super(scene, x, y);
 
 		this.hero = new Hero({
@@ -42,6 +42,8 @@ class Player extends Phaser.GameObjects.Container {
 			...stats.health
 		});
 		this.add(this.health);
+
+		console.log(stats)
 
 		this.resource = new AssignResource(stats.resource.type, {
 			container: this,

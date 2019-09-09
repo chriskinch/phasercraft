@@ -2,12 +2,14 @@ import Spell from './Spell';
 
 class Heal extends Spell {
 	constructor(config) {
-		config.icon_name = config.icon_name || 'icon_0015_heal';
-		config.cooldown = config.cooldown || 7;
-		config.value = config.value || 200;
-		config.cost = config.cost || 20;
+		const defaults = {
+			icon_name: 'icon_0015_heal',
+			cooldown: 1,
+			value: 200,
+			cost: 20,
+		}
 
-		super(config);
+		super({ ...defaults, ...config });
 	}
 
 	setTargetEvents(type){

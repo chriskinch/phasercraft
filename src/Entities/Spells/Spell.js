@@ -1,16 +1,10 @@
 class Spell extends Phaser.GameObjects.Sprite {
 
-	constructor(config) {
-		super(config.scene, config.x, config.y, config.key);
+	constructor({scene, x, y, key, ...config} = {}) {
+		super(scene, x, y, key);
 
-		this.player = config.player;
+		Object.assign(this, config);
 		this.name = this.constructor.name.toLowerCase();
-		this.icon_name = config.icon_name;
-		this.cooldown = config.cooldown;
-		this.value = config.value;
-		this.cost = config.cost;
-		this.hotkey = config.hotkey;
-		this.slot = config.slot;
 
 		this.scene.anims.create({
 			key: this.name + '-animation',
