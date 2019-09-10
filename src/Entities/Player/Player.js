@@ -151,7 +151,8 @@ class Player extends Phaser.GameObjects.Container {
 	}
 
 	hit(power){
-		this.scene.events.emit('player:attacked', this);
+		// If power is positive it's a hit, otherwise it's a heal so no event
+		if (power > 0) this.scene.events.emit('player:attacked', this);
 		this.health.adjustValue(-power);
 	}
 

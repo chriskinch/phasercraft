@@ -9,7 +9,8 @@ class Fireball extends Spell {
 				rage: 30,
 				mana: 50,
 				energy: 40
-			}
+			},
+			type: 'magic'
 		}
 
 		super({ ...defaults, ...config });
@@ -28,7 +29,7 @@ class Fireball extends Spell {
 	}
 
 	effect(){
-		this.target.health.adjustValue(-this.value);
+		this.target.health.adjustValue(-this.value, this.type);
 		this.player.resource.adjustValue(-this.cost[this.player.resource.type]);
 	}
 

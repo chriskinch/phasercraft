@@ -64,6 +64,7 @@ class Enemy extends Phaser.GameObjects.Container {
 
 		this.scene.events.on('pointerdown:game', this.deselect, this);
 		this.scene.events.on('pointerdown:enemy', this.deselect, this);
+		// this.scene.events.on('player:attack', this.text, this);
 		this.once('enemy:dead', this.death, this);
 	}
 
@@ -149,10 +150,10 @@ class Enemy extends Phaser.GameObjects.Container {
 		this.scene.events.on('pointerdown:enemy', this.deselect, this);
 	}
 
-	hit(damage){
+	hit(power, type = 'physical'){
 		this.isHit = true;
 		this.hit_delay = this.scene.time.delayedCall(this.scene.global_attack_delay, () => this.isHit = false, [], this);
-		this.health.adjustValue(-damage);
+		this.health.adjustValue(-power, type);
 	}
 
 	death(){
