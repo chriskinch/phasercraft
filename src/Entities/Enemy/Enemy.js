@@ -64,7 +64,6 @@ class Enemy extends Phaser.GameObjects.Container {
 
 		this.scene.events.on('pointerdown:game', this.deselect, this);
 		this.scene.events.on('pointerdown:enemy', this.deselect, this);
-		// this.scene.events.on('player:attack', this.text, this);
 		this.once('enemy:dead', this.death, this);
 	}
 
