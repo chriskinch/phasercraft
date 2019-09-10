@@ -14,8 +14,7 @@ class SelectScene extends Phaser.Scene {
 		this.character_select_menu = new CharacterSelect({
 			scene: this,
 			x: centerX,
-			y: centerY,
-			key:'S'
+			y: centerY
 		}).createFromCache('character-select')
 		.setVisible(true)
 		.addListener('click')

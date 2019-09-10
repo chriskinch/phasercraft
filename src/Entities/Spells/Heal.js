@@ -9,7 +9,8 @@ class Heal extends Spell {
 				rage: 20,
 				mana: 35,
 				energy: 30
-			}
+			},
+			type: 'heal'
 		}
 
 		super({ ...defaults, ...config });
@@ -28,7 +29,7 @@ class Heal extends Spell {
 	}
 
 	effect(){
-		this.target.health.adjustValue(this.value);
+		this.target.health.adjustValue(this.value, this.type);
 		this.player.resource.adjustValue(-this.cost[this.player.resource.type]);
 	}
 

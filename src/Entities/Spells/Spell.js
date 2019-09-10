@@ -42,7 +42,6 @@ class Spell extends Phaser.GameObjects.Sprite {
 		const { magic_power } = this.player.stats;
 		// Value based on base + scaled percentage of base from mp + flat percent of mp
 		const value = base + (base * (magic_power/100)) + magic_power/10;
-		console.log(value);
 		return value;
 	}
 
