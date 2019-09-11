@@ -44,8 +44,8 @@ class Spell extends Phaser.GameObjects.Sprite {
 		const scaled = base + (base * (magic_power/100)) + magic_power/10;
 		// Check for crit
 		const crit = this.player.isCritical();
-		const damage = crit ? scaled * 1.5 : scaled;
-		return damage;
+		const total = crit ? scaled * 1.5 : scaled;
+		return { crit: crit, amount: total };
 	}
 
 	checkReady(){

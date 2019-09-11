@@ -30,7 +30,6 @@ class SelectScene extends Phaser.Scene {
 	}
 	
 	setCharacterType(name) {
-		console.log(name);
 		this.config.name = name;
 	}
 }

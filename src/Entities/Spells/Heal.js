@@ -14,9 +14,6 @@ class Heal extends Spell {
 		}
 
 		super({ ...defaults, ...config });
-
-		// Sets value based on player power using a base value (param)
-		this.value = this.setValue(50);
 	}
 
 	setTargetEvents(type){
@@ -29,7 +26,9 @@ class Heal extends Spell {
 	}
 
 	effect(){
-		this.target.health.adjustValue(this.value, this.type);
+		// Returns crit boolean and modified value using spell base value.
+		const value = this.setValue(50);
+		this.target.health.adjustValue(value.amount, this.type, value.crit);
 		this.player.resource.adjustValue(-this.cost[this.player.resource.type]);
 	}
 

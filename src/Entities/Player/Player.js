@@ -183,7 +183,7 @@ class Player extends Phaser.GameObjects.Container {
 
 		const crit = this.isCritical();
 		const damage = crit ? attack_power * 1.5 : attack_power;
-		target.hit(damage);
+		target.hit({power: damage, crit: crit});
 
 		this.attack_ready = false;
 		this.swing = this.scene.time.addEvent({ delay: attack_speed*1000, callback: this.attackReady, callbackScope: this, loop: true });

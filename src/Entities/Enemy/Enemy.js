@@ -149,10 +149,10 @@ class Enemy extends Phaser.GameObjects.Container {
 		this.scene.events.on('pointerdown:enemy', this.deselect, this);
 	}
 
-	hit(power, type = 'physical'){
+	hit({power, type = 'physical', crit}){
 		this.isHit = true;
 		this.hit_delay = this.scene.time.delayedCall(this.scene.global_attack_delay, () => this.isHit = false, [], this);
-		this.health.adjustValue(-power, type);
+		this.health.adjustValue(-power, type, crit);
 	}
 
 	death(){
