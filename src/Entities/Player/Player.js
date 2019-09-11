@@ -181,7 +181,8 @@ class Player extends Phaser.GameObjects.Container {
 		this.weapon.swoosh();
 		this.positionWeapon(target);
 
-		const damage = this.checkCritical(attack_power);
+		const crit = this.isCritical();
+		const damage = crit ? attack_power * 1.5 : attack_power;
 		target.hit(damage);
 
 		this.attack_ready = false;
@@ -195,9 +196,9 @@ class Player extends Phaser.GameObjects.Container {
 		this.swing.remove(false);
 	}
 
-	checkCritical(value){
+	isCritical(){
 		const rng = Math.random() * 100; // Percentage roll up to 100.
-		return (rng < this.stats.critical_chance) ? value * 1.5 : value;
+		return (rng < this.stats.critical_chance);
 	}
 
 	positionWeapon(target){
