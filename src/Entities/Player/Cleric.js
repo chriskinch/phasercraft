@@ -6,6 +6,7 @@ class Cleric extends Player {
             attack_power: 10,
             attack_speed: 1.2,
             magic_power: 50,
+            critical_chance: 6,
             speed: 150,
             range: 80,
             knockback: 80,
