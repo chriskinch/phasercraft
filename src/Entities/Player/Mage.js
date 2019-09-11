@@ -6,10 +6,11 @@ class Mage extends Player {
             attack_power: 15,
             attack_speed: 1.2,
             magic_power: 80,
-            critical_chance: 50,
+            critical_chance: 10,
             speed: 150,
             range: 160,
             knockback: 50,
+            defence: 20,
             health: {
                 max: 800,
                 value: 800,

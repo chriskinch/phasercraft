@@ -10,6 +10,7 @@ class Occultist extends Player {
             speed: 150,
             range: 160,
             knockback: 50,
+            defence: 30,
             health: {
                 max: 1000,
                 value: 1000,
