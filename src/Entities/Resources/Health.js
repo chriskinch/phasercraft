@@ -19,10 +19,13 @@ class Health extends Resource {
 	adjustValue(adj, type, crit) {
 		this.setValue(this.value + adj);
 		if(type) {
-			this.container.add(new CombatText(this.scene, { x: 0, y: 0, value: Math.abs(adj), type: type }));
-			if(crit) {
-				console.log("CRIT!");
-			}
+			this.container.add(new CombatText(this.scene, {
+				x: 0,
+				y: 0,
+				value: Math.abs(adj),
+				type: type,
+				crit: crit
+			}));
 		}
 	}
 }
