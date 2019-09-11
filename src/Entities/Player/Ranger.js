@@ -10,6 +10,7 @@ class Ranger extends Player {
             speed: 150,
             range: 240,
             knockback: 20,
+            defence: 15,
             health: {
                 max: 1000,
                 value: 1000,

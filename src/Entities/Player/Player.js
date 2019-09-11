@@ -151,8 +151,11 @@ class Player extends Phaser.GameObjects.Container {
 	}
 
 	hit(power){
+		const damage = Math.ceil(power * (100/(100+this.stats.defence)));
+		// (100/(100+defense)).
+		console.log(damage)
 		this.scene.events.emit('player:attacked', this);
-		this.health.adjustValue(-power);
+		this.health.adjustValue(-damage);
 	}
 
 	idle(){

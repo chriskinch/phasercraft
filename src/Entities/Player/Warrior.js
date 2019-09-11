@@ -10,6 +10,7 @@ class Warrior extends Player {
             speed: 150,
             range: 80,
             knockback: 100,
+            defence: 60,
             health: {
                 max: 1300,
                 value: 1300,

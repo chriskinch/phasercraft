@@ -10,6 +10,7 @@ class Cleric extends Player {
             speed: 150,
             range: 80,
             knockback: 80,
+            defence: 25,
             health: {
                 max: 800,
                 value: 800,
