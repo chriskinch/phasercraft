@@ -69,7 +69,8 @@ class LoadScene extends Phaser.Scene {
 		this.load.atlas('icon', IconAtlas, IconJSON);
 		this.load.spritesheet('heal-effect', HealEffect, { frameWidth: 192, frameHeight: 192 });
 		this.load.spritesheet('fireball-effect', FireballEffect, { frameWidth: 87, frameHeight: 87 });
-		
+		this.load.spritesheet('whirlwind-effect', FireballEffect, { frameWidth: 87, frameHeight: 87 });
+
 		// UI elements
 		this.load.html('character-select', './UI/character-select.html');
 		this.load.html('menu', './UI/menu.html');

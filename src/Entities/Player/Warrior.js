@@ -20,7 +20,7 @@ class Warrior extends Player {
             resource: {
                 type: "Rage"
             },
-            abilities: []
+            abilities: ["Whirlwind"]
         }
 
         super({...default_stats, ...config});
