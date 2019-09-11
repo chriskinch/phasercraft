@@ -151,8 +151,7 @@ class Player extends Phaser.GameObjects.Container {
 	}
 
 	hit(power){
-		// If power is positive it's a hit, otherwise it's a heal so no event
-		if (power > 0) this.scene.events.emit('player:attacked', this);
+		this.scene.events.emit('player:attacked', this);
 		this.health.adjustValue(-power);
 	}
 
@@ -181,7 +180,10 @@ class Player extends Phaser.GameObjects.Container {
 		
 		this.weapon.swoosh();
 		this.positionWeapon(target);
-		target.hit(attack_power);
+
+		const damage = this.checkCritical(attack_power);
+		target.hit(damage);
+
 		this.attack_ready = false;
 		this.swing = this.scene.time.addEvent({ delay: attack_speed*1000, callback: this.attackReady, callbackScope: this, loop: true });
 
@@ -191,6 +193,11 @@ class Player extends Phaser.GameObjects.Container {
 	attackReady(){
 		this.attack_ready = true;
 		this.swing.remove(false);
+	}
+
+	checkCritical(value){
+		const rng = Math.random() * 100; // Percentage roll up to 100.
+		return (rng < this.stats.critical_chance) ? value * 1.5 : value;
 	}
 
 	positionWeapon(target){
