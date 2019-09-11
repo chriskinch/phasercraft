@@ -3,8 +3,10 @@ import Weapon from '../Weapon';
 import AssignSpell from '../Spells/AssignSpell';
 import AssignResource from '../Resources/AssignResource';
 
+const converter = require('number-to-words');
+
 class Player extends Phaser.GameObjects.Container {
-	constructor({scene, x, y, ...stats}) {
+	constructor({scene, x, y, abilities, ...stats}) {
 		super(scene, x, y);
 
 		this.hero = new Hero({
@@ -58,9 +60,17 @@ class Player extends Phaser.GameObjects.Container {
 		scene.events.on('enemy:attack', this.hit, this);
 		this.health.on('change', this.healthChanged);
 
-		this.spells = [];
-		this.spells.push(new AssignSpell('Heal', {player: this, scene: scene, x: this.x, y: this.y, key: 'spell-heal', hotkey:'ONE', slot:0}));
-		this.spells.push(new AssignSpell('Fireball', {player: this, scene: scene, x: this.x, y: this.y, key: 'spell-fireball', hotkey:'TWO', slot:1}));
+		this.spells = abilities.map((spell, i) => {
+			return new AssignSpell(spell, {
+				player: this,
+				scene: scene,
+				x: this.x,
+				y: this.y,
+				key: `spell-${spell.toLowerCase()}`,
+				hotkey:converter.toWords(i+1).toUpperCase(),
+				slot:i
+			});
+		});
 
 		this.idle();
 
@@ -152,8 +162,6 @@ class Player extends Phaser.GameObjects.Container {
 
 	hit(power){
 		const damage = Math.ceil(power * (100/(100+this.stats.defence)));
-		// (100/(100+defense)).
-		console.log(damage)
 		this.scene.events.emit('player:attacked', this);
 		this.health.adjustValue(-damage);
 	}
