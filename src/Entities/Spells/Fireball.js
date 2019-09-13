@@ -10,10 +10,13 @@ class Fireball extends Spell {
 				mana: 50,
 				energy: 40
 			},
-			type: 'magic',
+			type: 'magic'
 		}
 
-		super({ ...defaults, ...config });		
+		super({ ...defaults, ...config });
+		
+		// This is what the spell scales from.
+		this.power = this.player.stats.magic_power;
 	}
 
 	setTargetEvents(type){
@@ -27,7 +30,7 @@ class Fireball extends Spell {
 
 	effect(){
 		// Returns crit boolean and modified value using spell base value.
-		const value = this.setValue(30);
+		const value = this.setValue(30, this.player.stats.magic_power);
 		this.target.health.adjustValue(-value.amount, this.type, value.crit);
 		this.player.resource.adjustValue(-this.cost[this.player.resource.type]);
 	}

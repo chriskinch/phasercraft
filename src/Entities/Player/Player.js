@@ -2,6 +2,7 @@ import Hero from './Hero';
 import Weapon from '../Weapon';
 import AssignSpell from '../Spells/AssignSpell';
 import AssignResource from '../Resources/AssignResource';
+import targetVector from '../../Helpers/targetVector';
 
 const converter = require('number-to-words');
 
@@ -213,13 +214,10 @@ class Player extends Phaser.GameObjects.Container {
 	}
 
 	positionWeapon(target){
-		const player_position = this.body.position;
-		const target_position = target.body.position;
-		const delta_position = target_position.clone().subtract(player_position);
-		const range = Math.sqrt(Math.pow(delta_position.x,2) + Math.pow(delta_position.y,2));
+		const vector = targetVector(this, target);
 		// Normalised knockback values regardless of range
-		const knockback = { x: delta_position.x/range, y:delta_position.y/range };
-		const angle = Math.atan2(delta_position.y, delta_position.x) * 180 / Math.PI;
+		const knockback = { x: vector.delta.x/vector.range, y:vector.delta.y/vector.range };
+		const angle = Math.atan2(vector.delta.y, vector.delta.x) * 180 / Math.PI;
 
 		target.body.setVelocity(knockback.x*this.stats.knockback, knockback.y*this.stats.knockback);
 		this.weapon.setAngle(angle);

@@ -1,4 +1,5 @@
 import Spell from './Spell';
+import targetVector from '../../Helpers/targetVector';
 
 class Whirlwind extends Spell {
 	constructor(config) {
@@ -6,35 +7,38 @@ class Whirlwind extends Spell {
 			icon_name: 'icon_0005_coil',
 			cooldown: 1,
 			cost: {
-				rage: 0,
+				rage: 50,
 				mana: 80,
 				energy: 60
 			},
 			type: 'magic',
+			range: 120
 		}
 
         super({ ...defaults, ...config });
-        
-        this.setScale(4);
+		
+		// This is what the spell scales from.
+		this.power = this.player.stats.attack_power;
+		
+        this.setScale(5);
 	}
 
 	setTargetEvents(type){
-        console.log("HELLO");
-        this.enable()
-        this.emit('cast', this);
-		// // Elegible targets for this spell
-        // this.scene.events[type]('pointerdown:enemy', this.focused, this);
-		// // Event that clears the primed spell. Emitted by invalid targets.
-		// this.scene.events[type]('pointerdown:game', this.clear, this);
-		// this.scene.events[type]('keypress:esc', this.clear, this);
-		// this.scene.events[type]('pointerdown:player', this.clear, this);
+		// Call as it we click on a focues target to trigger effect().
+		// Acts like an instant cast.
+        this.focused();
 	}
 
 	effect(){
-        console.log("EFFECT")
-		// Returns crit boolean and modified value using spell base value.
-		const value = this.setValue(30);
-		// this.target.health.adjustValue(-value.amount, this.type, value.crit);
+		const enemiesInRange = this.scene.enemies.children.entries.filter(enemy => {
+			const vector = targetVector(this.player, enemy);
+			if (vector.range < this.range) return enemy;
+		})
+		// Scales value bases on player stat
+		const value = this.setValue(30, this.power);
+		enemiesInRange.forEach(target => {
+			target.health.adjustValue(-value.amount, this.type, value.crit);
+		});
         this.player.resource.adjustValue(-this.cost[this.player.resource.type]);
 	}
 
