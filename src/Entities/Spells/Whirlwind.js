@@ -11,7 +11,7 @@ class Whirlwind extends Spell {
 				mana: 80,
 				energy: 60
 			},
-			type: 'magic',
+			type: 'physical',
 			range: 120
 		}
 
