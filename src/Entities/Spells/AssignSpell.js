@@ -1,9 +1,11 @@
 import Heal from './Heal';
 import Fireball from './Fireball';
+import Whirlwind from './Whirlwind';
 
 const classes = {
   Fireball,
-  Heal
+  Heal,
+  Whirlwind
 };
 
 class AssignSpell {

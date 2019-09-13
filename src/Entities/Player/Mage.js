@@ -20,7 +20,7 @@ class Mage extends Player {
             resource: {
                 type: "Mana"
             },
-            abilities: ['Fireball']
+            abilities: ["Fireball"]
         }
 
         super({...default_stats, ...config});

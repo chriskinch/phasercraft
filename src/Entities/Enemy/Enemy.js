@@ -94,15 +94,9 @@ class Enemy extends Phaser.GameObjects.Container {
 		this.scene.physics.add.collider(this.scene.enemies, this.scene.enemies);
 
 		this.on('pointerdown', () => {
-			let spell = this.scene.spell;
 			this.scene.events.emit('pointerdown:enemy', this);
-			if(!spell || (spell && !this.scene.selected)){
-				this.select();
-			}
+			this.select();
 		});
-
-		this.scene.events.on('spell:primed', this.primed, this);
-		this.scene.events.on('spell:cast', this.cast, this);
 	}
 
 	spawningEnemy(){
