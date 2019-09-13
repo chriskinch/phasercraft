@@ -6,7 +6,7 @@ class Warrior extends Player {
             attack_power: 70,
             attack_speed: 1,
             magic_power: 10,
-            critical_chance: 10,
+            critical_chance: 50,
             speed: 150,
             range: 80,
             knockback: 100,
@@ -20,7 +20,7 @@ class Warrior extends Player {
             resource: {
                 type: "Rage"
             },
-            abilities: ["Whirlwind"]
+            abilities: ["Whirlwind", "Enrage"]
         }
 
         super({...default_stats, ...config});

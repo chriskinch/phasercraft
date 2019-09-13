@@ -92,7 +92,7 @@ class Resource extends Phaser.GameObjects.Sprite {
 
 	adjustRegeneration(adj) {
 		this.regen_rate += adj;
-		this.setRegenRate();
+		this.tick = this.setRegeneration();
 	}
 
 	doTick() {

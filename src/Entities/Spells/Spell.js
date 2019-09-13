@@ -57,7 +57,7 @@ class Spell extends Phaser.GameObjects.Sprite {
 	}
 
 	checkResource(){
-		return (this.cost[this.player.resource.type] < this.player.resource.value);
+		return (this.cost[this.player.resource.type] <= this.player.resource.value);
 	}
 
 	checkCooldown(){
@@ -111,9 +111,7 @@ class Spell extends Phaser.GameObjects.Sprite {
 		this.scene.events.emit('spell:cast', this);
 		this.effect();
 
-		// Play the animation
-		this.scene.add.existing(this).setDepth(1000);
-		this.anims.play(this.name + '-animation');
+		this.animation();
 
 		// Disable the button, show and start spell cooldown
 		this.disable();
@@ -127,6 +125,12 @@ class Spell extends Phaser.GameObjects.Sprite {
 			onUpdate: this.timerUpdate.bind(this),
 			onComplete: this.timerComplete.bind(this)
 		});
+	}
+
+	animation() {
+		// Play the animation
+		this.scene.add.existing(this).setDepth(1000);
+		this.anims.play(this.name + '-animation');
 	}
 
 	focused(target){

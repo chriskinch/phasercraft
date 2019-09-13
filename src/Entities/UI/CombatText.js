@@ -5,7 +5,7 @@ class CombatText extends Phaser.GameObjects.Text {
             fontFamily: 'VT323',
             fontSize: (crit) ? '24px' : '18px',
             stroke: (crit) ? '#800' : '#000',
-            color: color[type],
+            color: (type) ? color[type] : '#fff',
             strokeThickness: 5,
             shadow: {
                 offsetX: 2,

@@ -24,7 +24,7 @@ class Whirlwind extends Spell {
 	}
 
 	setTargetEvents(type){
-		// Call as it we click on a focues target to trigger effect().
+		// Call as it we click the spell to trigger effect().
 		// Acts like an instant cast.
         this.focused();
 	}
