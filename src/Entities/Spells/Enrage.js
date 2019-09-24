@@ -1,6 +1,6 @@
-import Spell from './Spell';
+import Boon from './Boon';
 
-class Enrage extends Spell {
+class Enrage extends Boon {
 	constructor(config) {
 		const defaults = {
 			icon_name: "icon_0019_fire-wall",
@@ -11,10 +11,17 @@ class Enrage extends Spell {
 				energy: 50
 			},
             type: "physical",
-            value: 90
+			value: {
+				critical_chance: (v) => console.log(this),
+				attack_power: 50,
+				health: {
+					regen_value: 30,
+					regen_rate: 0.5
+				}
+			}
 		}
 
-        super({ ...defaults, ...config });
+		super({ ...defaults, ...config });
 	}
 
 	setTargetEvents(type){
@@ -24,20 +31,20 @@ class Enrage extends Spell {
 	}
 
 	effect(){
-		this.player.stats.critical_chance += this.value;
-		this.player.stats.health.regen_value += this.value;
-        this.player.health.adjustRegeneration(-0.5);
+		this.scene.boons.addBoon(this);
+		// this.player.stats.critical_chance += this.value;
+		// this.player.stats.health.regen_value += this.value;
+        // this.player.health.adjustRegeneration(-0.5);
 
-        this.player.resource.adjustValue(-this.cost[this.player.resource.type]);
-    }
+        // this.player.resource.adjustValue(-this.cost[this.player.resource.type]);
+	}
     
     animation() {
         console.log("OVERWRITE ANIMATION")
     }
 
 	animationUpdate(){
-		this.x = this.player.x;
-		this.y = this.player.y;
+		
 	}
 }
 

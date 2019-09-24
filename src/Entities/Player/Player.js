@@ -54,13 +54,15 @@ class Player extends Phaser.GameObjects.Container {
 		});
 		this.add(this.resource);
 
+		this.boons = new Boons(this.scene, this);
+
 		this.weapon = new Weapon({scene: scene, key:'weapon-swooch'});
 		this.add(this.weapon);
 
 		scene.events.once('player:dead', this.death, this);
 		scene.events.on('enemy:attack', this.hit, this);
 		this.health.on('change', this.healthChanged);
-
+		
 		this.spells = abilities.map((spell, i) => {
 			return new AssignSpell(spell, {
 				player: this,

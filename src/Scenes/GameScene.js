@@ -3,6 +3,7 @@ import Enemy from '../Entities/Enemy/Enemy';
 import UI from '../Entities/UI/HUD';
 import waveConfig from '../Config/waves.json';
 import enemyTypes from '../Config/enemies.json';
+import Boons from '../Entities/UI/Boons';
 
 class GameScene extends Phaser.Scene {
 	constructor() {
