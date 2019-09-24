@@ -4,7 +4,7 @@ class Boon extends Spell {
 	constructor(config) {
         super(config);
         
-        console.log("BOOM")
+
     }
     
 }

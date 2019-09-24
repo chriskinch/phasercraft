@@ -6,18 +6,24 @@ class Enrage extends Boon {
 			icon_name: "icon_0019_fire-wall",
 			cooldown: 1,
 			cost: {
-				rage: 5,
+				rage: 0,
 				mana: 100,
 				energy: 50
 			},
-            type: "physical",
+			type: "physical",
+			duration: 3000,
 			value: {
-				critical_chance: (v) => console.log(this),
-				attack_power: 50,
-				health: {
-					regen_value: 30,
-					regen_rate: 0.5
-				}
+				critical_chance: (bs) => bs+50,
+				attack_power: (bs) => bs+150,
+				// health: {
+				// 	regen_value: 30,
+				// 	regen_rate: 0.25
+				// },
+				// test: {
+				// 	nested: {
+				// 		thing: 40
+				// 	}
+				// }
 			}
 		}
 
@@ -31,7 +37,9 @@ class Enrage extends Boon {
 	}
 
 	effect(){
-		this.scene.boons.addBoon(this);
+		this.scene.time.delayedCall(this.duration, this.player.boons.removeBoon, [this], this.player.boons);
+
+		this.player.boons.addBoon(this);
 		// this.player.stats.critical_chance += this.value;
 		// this.player.stats.health.regen_value += this.value;
         // this.player.health.adjustRegeneration(-0.5);
