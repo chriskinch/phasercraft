@@ -11,7 +11,7 @@ class Enrage extends Boon {
 				energy: 50
 			},
 			type: "physical",
-			duration: 3000,
+			duration: 5000,
 			value: {
 				critical_chance: (bs) => bs+40,
 				attack_power: (bs) => bs+100,
@@ -39,13 +39,14 @@ class Enrage extends Boon {
 			args: [this]
 		};
 		// if(!this.timer) {
+			this.test = "hello";
 			this.timer = this.scene.time.addEvent(timer_config);
 		// }else{
 		// 	this.timer.reset(timer_config);
 		// }
 		if(this.player.boons.contains(this)) this.player.boons.kill(this);;
 		this.player.boons.addBoon(this);
-		console.log(this.player.boons.children.entries)
+		// console.log(this.player.boons.children.entries)
 		// this.player.stats.critical_chance += this.value;
 		// this.player.stats.health.regen_value += this.value;
         // this.player.health.adjustRegeneration(-0.5);

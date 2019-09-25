@@ -11,7 +11,7 @@ class Bandage extends Boon {
 				energy: 50
 			},
 			type: "physical",
-			duration: 3000,
+			duration: 5000,
 			value: {
 				critical_chance: (bs) => bs+40,
 				attack_power: (bs) => bs+100,
