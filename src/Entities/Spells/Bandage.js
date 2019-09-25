@@ -1,6 +1,6 @@
 import Boon from './Boon';
 
-class Enrage extends Boon {
+class Bandage extends Boon {
 	constructor(config) {
 		const defaults = {
 			icon_name: "icon_0019_fire-wall",
@@ -45,7 +45,7 @@ class Enrage extends Boon {
 		// }
 		if(this.player.boons.contains(this)) this.player.boons.kill(this);;
 		this.player.boons.addBoon(this);
-		console.log(this.player.boons.children.entries)
+		// console.log(this.player.boons.children.entries[0].timer)
 		// this.player.stats.critical_chance += this.value;
 		// this.player.stats.health.regen_value += this.value;
         // this.player.health.adjustRegeneration(-0.5);
@@ -58,4 +58,4 @@ class Enrage extends Boon {
 	animationUpdate(){}
 }
 
-export default Enrage;
+export default Bandage;

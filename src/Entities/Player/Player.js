@@ -29,7 +29,7 @@ class Player extends Phaser.GameObjects.Container {
 		this.boons = new Boons(this.scene, this);
 		
 		this.base_stats = stats;
-		this.stats = { ...stats };
+		this.stats = JSON.parse(JSON.stringify(stats));
 
 		this.alive = true;
 		this.attack_ready = true;
