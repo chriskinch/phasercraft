@@ -1,26 +1,17 @@
 class Boons extends Phaser.GameObjects.Group {
 	constructor(scene, player) {
 		super(scene);
-		// const { centerX, centerY } = this.scene.physics.world.bounds;
         this.player = player;
     }
     
     addBoon(boon) {
         this.add(boon);
-        // console.log(this.children.entries)
         this.player.emit('boons:update', this);
     }
 
     removeBoon(boon) {
         this.remove(boon);
-        // console.log(this.children.entries)
         this.player.emit('boons:update', this);
-    }
-
-    iterator(o) {
-        Object.entries(o).forEach(([k, v]) => {
-            return (typeof v === "object") ? this.iterator(o[k]) : console.log(k, v);
-        })
     }
 
     iterateStats(value, player = this.player.stats) {
@@ -38,6 +29,10 @@ class Boons extends Phaser.GameObjects.Group {
         console.log("BASE BEFORE:", this.player.base_stats);
         console.log("BEFORE:", this.player.stats);
 
+        // If there are no boons in the queue set stats to base
+        if(this.children.entries.length === 0) this.player.stats = { ...this.player.base_stats };
+
+        // Loop through boons with an iterator to hit nested objects
         this.children.entries.forEach(boon => {
             this.iterateStats(boon.value);
         });

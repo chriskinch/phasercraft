@@ -11,18 +11,13 @@ class Enrage extends Boon {
 				energy: 50
 			},
 			type: "physical",
-			duration: 3000,
+			duration: 10000,
 			value: {
 				critical_chance: (bs) => bs+50,
 				attack_power: (bs) => bs+150,
 				// health: {
-				// 	regen_value: 30,
-				// 	regen_rate: 0.25
-				// },
-				// test: {
-				// 	nested: {
-				// 		thing: 40
-				// 	}
+				// 	regen_value: (bs) => bs+15,
+				// 	regen_rate: (bs) => bs-0.25
 				// }
 			}
 		}

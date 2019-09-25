@@ -20,12 +20,7 @@ class Warrior extends Player {
             resource: {
                 type: "Rage"
             },
-            abilities: ["Whirlwind", "Enrage"],
-            test: {
-                nested: {
-                    thing: 20
-                }
-            }
+            abilities: ["Whirlwind", "Enrage"]
         }
 
         super({...default_stats, ...config});
