@@ -14,13 +14,13 @@ class Boons extends Phaser.GameObjects.Group {
         this.player.emit('boons:update', this);
     }
 
-    iterateStats(value, player = this.player.stats) {
+    iterateStats(value, stats = this.player.stats, base = this.player.base_stats) {
         Object.keys(value).forEach(stat => {
             if (typeof value[stat] === 'object') {
-                this.iterateStats(value[stat], player[stat]);
+                this.iterateStats(value[stat], stats[stat], base[stat]);
             }else{
-                // console.log(`stat: ${stat}, function: ${value[stat]}, player: ${player[stat]}`);
-                player[stat] = value[stat](this.player.base_stats[stat]);
+                console.log(`stat: ${stat}, function: ${value[stat]}, player: ${stats[stat]}, base: ${base[stat]}`);
+                stats[stat] = value[stat](base[stat]);
             }
         });
     }
