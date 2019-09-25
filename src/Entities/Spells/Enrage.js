@@ -25,38 +25,21 @@ class Enrage extends Boon {
 		super({ ...defaults, ...config });
 	}
 
-	setTargetEvents(type){
-		// Call as it we click on the spell to trigger effect().
-		// Acts like an instant cast on the player.
-        this.focused(this.player);
-	}
-
 	effect(){
-		const timer_config = {
-			delay: this.duration,
-			callback: this.player.boons.removeBoon,
-			callbackScope: this.player.boons,
-			args: [this]
-		};
-		// if(!this.timer) {
-			this.test = "hello";
-			this.timer = this.scene.time.addEvent(timer_config);
-		// }else{
-		// 	this.timer.reset(timer_config);
-		// }
-		if(this.player.boons.contains(this)) this.player.boons.kill(this);;
 		this.player.boons.addBoon(this);
-		// console.log(this.player.boons.children.entries)
-		// this.player.stats.critical_chance += this.value;
-		// this.player.stats.health.regen_value += this.value;
-        // this.player.health.adjustRegeneration(-0.5);
+		this.player.hero.setTint(0xff3333);
 
-        // this.player.resource.adjustValue(-this.cost[this.player.resource.type]);
+		const timer_config = {
+			delay: this.duration + 1,
+			callback: this.clearEffect,
+			callbackScope: this
+		};
+        this.timer = this.scene.time.addEvent(timer_config);
 	}
-    
-    animation() {}
 
-	animationUpdate(){}
+	clearEffect() {
+		if(!this.player.boons.contains(this)) this.player.hero.clearTint();
+	}
 }
 
 export default Enrage;

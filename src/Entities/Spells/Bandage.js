@@ -32,25 +32,7 @@ class Bandage extends Boon {
 	}
 
 	effect(){
-		const timer_config = {
-			delay: this.duration,
-			callback: this.player.boons.removeBoon,
-			callbackScope: this.player.boons,
-			args: [this]
-		};
-		// if(!this.timer) {
-			this.timer = this.scene.time.addEvent(timer_config);
-		// }else{
-		// 	this.timer.reset(timer_config);
-		// }
-		if(this.player.boons.contains(this)) this.player.boons.kill(this);;
 		this.player.boons.addBoon(this);
-		// console.log(this.player.boons.children.entries[0].timer)
-		// this.player.stats.critical_chance += this.value;
-		// this.player.stats.health.regen_value += this.value;
-        // this.player.health.adjustRegeneration(-0.5);
-
-        // this.player.resource.adjustValue(-this.cost[this.player.resource.type]);
 	}
     
     animation() {}
