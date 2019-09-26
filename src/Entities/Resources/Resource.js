@@ -81,9 +81,27 @@ class Resource extends Phaser.GameObjects.Sprite {
 	}
 
 	regenerate() {
-		if(this.regen_rate > 0 && this.value < this.max) {
-			console.log(this)
-			this.adjustValue(this.regen_value, this.type);
+		const type = this.regenType(this.type);
+		const stats = this.getRegenStats(type);
+		console.log(stats)
+		if(stats.regen_rate > 0 && this.value < stats.max) {
+			console.log("REGEN");
+			this.adjustValue(stats.regen_value, this.type);
+		}
+	}
+
+	regenType(type) {
+		const t = (type === 'health') ? 'health' : 'resource';
+		return t;
+	}
+
+	getRegenStats(type) {
+		const { max, value, regen_value, regen_rate } = this.parentContainer.stats[type];
+		return {
+			max: (max) ? max : this.max,
+            value: (value) ? value : this.value,
+            regen_value: (regen_value) ? regen_value : this.regen_value,
+            regen_rate: (regen_rate) ? regen_rate : this.regen_rate
 		}
 	}
 
