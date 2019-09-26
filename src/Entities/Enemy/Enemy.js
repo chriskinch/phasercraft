@@ -79,7 +79,7 @@ class Enemy extends Phaser.GameObjects.Container {
 			let walk_animation = (this.x - this.scene.player.x > 0) ? this.key + "-left-down" : this.key + "-right-up";
 			this.monster.walk(walk_animation);
 
-			if(this.health.value <= 0) this.emit('enemy:dead', this);
+			if(this.health.getValue() <= 0) this.emit('enemy:dead', this);
 		}else{
 			this.spawningEnemy();
 		}
