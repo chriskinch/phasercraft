@@ -42,7 +42,6 @@ class Resource extends Phaser.GameObjects.Sprite {
 		this.tick = this.setRegenerationRate();
 		// If regen_rate is 0 delay is 0 (very fast) but timer won't unpause.
 		if(this.stats.regen_rate > 0) this.tick.paused = false;
-		this.tick.timeScale = 2;
 
 		this.type_category = this.regenType(this.type);
 		
@@ -108,7 +107,6 @@ class Resource extends Phaser.GameObjects.Sprite {
 		this.stats.max = max;
         this.stats.regen_value = regen_value;
 		this.stats.regen_rate = regen_rate;
-		
 		// Set the scale of the timer controlling regen rather then deleting and remaking
 		const scale = this.tick.delay / (regen_rate * 1000);
 		if(scale) this.tick.timeScale = scale;

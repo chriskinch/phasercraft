@@ -30,7 +30,7 @@ class Enrage extends Boon {
 		this.player.hero.setTint(0xff3333);
 
 		const timer_config = {
-			delay: this.duration * 1000 + 1, // Extra ms to ensure effect is over
+			delay: this.duration * 1000 + 1, // Extra ms to ensure effect is over before clearing
 			callback: this.clearEffect,
 			callbackScope: this
 		};
@@ -38,6 +38,7 @@ class Enrage extends Boon {
 	}
 
 	clearEffect() {
+		// Check to confirm spell is gone from boon group before removing tint
 		if(!this.player.boons.contains(this)) this.player.hero.clearTint();
 	}
 }
