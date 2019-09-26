@@ -17,9 +17,6 @@ class Whirlwind extends Spell {
 
         super({ ...defaults, ...config });
 		
-		// This is what the spell scales from.
-		this.power = this.player.stats.attack_power;
-		
         this.setScale(5);
 	}
 
@@ -35,7 +32,8 @@ class Whirlwind extends Spell {
 			if (vector.range < this.range) return enemy;
 		})
 		// Scales value bases on player stat
-		const value = this.setValue(30, this.power);
+		const value = this.setValue(30, this.player.stats.attack_power);
+
 		enemiesInRange.forEach(target => {
 			target.health.adjustValue(-value.amount, this.type, value.crit);
 		});

@@ -6,7 +6,7 @@ class Warrior extends Player {
             attack_power: 70,
             attack_speed: 1,
             magic_power: 10,
-            critical_chance: 50,
+            critical_chance: 10,
             speed: 150,
             range: 80,
             knockback: 100,

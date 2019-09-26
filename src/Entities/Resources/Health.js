@@ -16,14 +16,8 @@ class Health extends Resource {
 		super({container, scene, x, y, max, value, regen_rate, regen_value, colour});
 	}
 
-	regenerate() {
-		if(this.regen_rate > 0 && this.value < this.max) {
-			this.adjustValue(this.regen_value, 'heal');
-		}
-	}
-
 	adjustValue(adj, type, crit) {
-		this.setValue(this.value + adj);
+		this.setValue(this.stats.value + adj);
 		if(type) {
 			this.container.add(new CombatText(this.scene, {
 				x: 0,

@@ -1,43 +1,44 @@
-import Spell from './Spell';
+import Boon from './Boon';
 
-class Enrage extends Spell {
+class Enrage extends Boon {
 	constructor(config) {
 		const defaults = {
 			icon_name: "icon_0019_fire-wall",
-			cooldown: 1,
+			cooldown: 10,
 			cost: {
-				rage: 5,
+				rage: 40,
 				mana: 100,
 				energy: 50
 			},
-            type: "physical",
-            value: 90
+			type: "physical",
+			duration: 5,
+			value: {
+				critical_chance: (bs) => bs + 30,
+				attack_power: (bs) => bs * 2,
+				health: {
+					regen_value: (bs) => bs * 2,
+					regen_rate: (bs) => bs - 0.25
+				}
+			}
 		}
 
-        super({ ...defaults, ...config });
-	}
-
-	setTargetEvents(type){
-		// Call as it we click on the spell to trigger effect().
-		// Acts like an instant cast on the player.
-        this.focused(this.player);
+		super({ ...defaults, ...config });
 	}
 
 	effect(){
-		this.player.stats.critical_chance += this.value;
-		this.player.stats.health.regen_value += this.value;
-        this.player.health.adjustRegeneration(-0.5);
+		this.player.boons.addBoon(this);
+		this.player.hero.setTint(0xff3333);
 
-        this.player.resource.adjustValue(-this.cost[this.player.resource.type]);
-    }
-    
-    animation() {
-        console.log("OVERWRITE ANIMATION")
-    }
+		const timer_config = {
+			delay: this.duration * 1000 + 1, // Extra ms to ensure effect is over
+			callback: this.clearEffect,
+			callbackScope: this
+		};
+        this.timer = this.scene.time.addEvent(timer_config);
+	}
 
-	animationUpdate(){
-		this.x = this.player.x;
-		this.y = this.player.y;
+	clearEffect() {
+		if(!this.player.boons.contains(this)) this.player.hero.clearTint();
 	}
 }
 

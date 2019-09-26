@@ -3,6 +3,7 @@ import Weapon from '../Weapon';
 import AssignSpell from '../Spells/AssignSpell';
 import AssignResource from '../Resources/AssignResource';
 import targetVector from '../../Helpers/targetVector';
+import Boons from '../UI/Boons';
 
 const converter = require('number-to-words');
 
@@ -19,14 +20,17 @@ class Player extends Phaser.GameObjects.Container {
 		this.setSize(this.hero.getBounds().width, this.hero.getBounds().height, true);
 		scene.physics.world.enable(this);
 		scene.add.existing(this);
-
+		
 		this.body.collideWorldBounds = true;
 		this.body.immovable = true;
 		this.body.setFriction(0,0);
 		this.setScale(2);
-				
-		this.stats = stats;
+
+		this.boons = new Boons(this.scene, this);
 		
+		this.base_stats = stats;
+		this.stats = JSON.parse(JSON.stringify(stats));
+
 		this.alive = true;
 		this.attack_ready = true;
 		this.delay = 0;
@@ -54,13 +58,14 @@ class Player extends Phaser.GameObjects.Container {
 		});
 		this.add(this.resource);
 
+
 		this.weapon = new Weapon({scene: scene, key:'weapon-swooch'});
 		this.add(this.weapon);
 
 		scene.events.once('player:dead', this.death, this);
 		scene.events.on('enemy:attack', this.hit, this);
 		this.health.on('change', this.healthChanged);
-
+		
 		this.spells = abilities.map((spell, i) => {
 			return new AssignSpell(spell, {
 				player: this,
@@ -81,6 +86,7 @@ class Player extends Phaser.GameObjects.Container {
 		scene.events.on('pointerup:game', this.gameUpHandler, this);
 		scene.events.on('enemy:dead', this.targetDead, this);
 		this.on('pointerdown', () => scene.events.emit('pointerdown:player', this));
+		this.on('boons:update', this.updateStats, this);
 	}
 
 	drawBar(opt) {
@@ -112,6 +118,10 @@ class Player extends Phaser.GameObjects.Container {
 		if(keys.esc.isDown) {
 			this.scene.events.emit('keypress:esc');
 		}
+	}
+
+	updateStats() {
+		this.boons.calculate();
 	}
 
 	gameDownHandler(pointer, gameObject){
