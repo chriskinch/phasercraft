@@ -38,9 +38,9 @@ class Spell extends Phaser.GameObjects.Sprite {
 		Phaser.Display.Align.In.Center(this.text, this.button, -2, -2);
 	}
 
-	setValue(base){
+	setValue(base, power){
 		// Value based on base + scaled percentage of base from power + flat percent of power
-		const scaled = base + (base * (this.power/100)) + this.power/10;
+		const scaled = base + (base * (power/100)) + power/10;
 		// Check for crit
 		const crit = this.player.isCritical();
 		const total = crit ? scaled * 1.5 : scaled;
@@ -57,7 +57,7 @@ class Spell extends Phaser.GameObjects.Sprite {
 	}
 
 	checkResource(){
-		return (this.cost[this.player.resource.type] < this.player.resource.value);
+		return (this.cost[this.player.resource.type] <= this.player.resource.getValue());
 	}
 
 	checkCooldown(){
@@ -111,9 +111,7 @@ class Spell extends Phaser.GameObjects.Sprite {
 		this.scene.events.emit('spell:cast', this);
 		this.effect();
 
-		// Play the animation
-		this.scene.add.existing(this).setDepth(1000);
-		this.anims.play(this.name + '-animation');
+		this.animation();
 
 		// Disable the button, show and start spell cooldown
 		this.disable();
@@ -127,6 +125,12 @@ class Spell extends Phaser.GameObjects.Sprite {
 			onUpdate: this.timerUpdate.bind(this),
 			onComplete: this.timerComplete.bind(this)
 		});
+	}
+
+	animation() {
+		// Play the animation
+		this.scene.add.existing(this).setDepth(1000);
+		this.anims.play(this.name + '-animation');
 	}
 
 	focused(target){
