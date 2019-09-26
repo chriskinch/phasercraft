@@ -7,10 +7,17 @@ class Resource extends Phaser.GameObjects.Sprite {
 		this.container = config.container;
 		this.type = this.constructor.name.toLowerCase();
 		this.colour = config.colour;
-		this.max = config.max;
-		this.value = config.value;
+		// this.max = config.max;
+		// this.value = config.value;
 		this.regen_rate = config.regen_rate;
 		this.regen_value = config.regen_value;
+
+		this.stats = {
+			max: config.max,
+			value: config.value,
+			regen_rate: config.regen_rate,
+			regen_value: config.regen_value
+		}
 
 		this.setOrigin(0,0).setDepth(1000);
 
@@ -39,27 +46,28 @@ class Resource extends Phaser.GameObjects.Sprite {
 	}
 
 	setValue(new_value) {
-		if(new_value > this.max) {
-			this.value = this.max;
+		if(new_value > this.stats.max) {
+			this.stats.value = this.stats.max;
 		}else if(new_value < 0) {
-			this.value = 0;
+			this.stats.value = 0;
 		}else{
-			this.value = new_value;
+			this.stats.value = new_value;
 		}
 		this.graphics.current.scaleX = this.resourcePercent();
 		this.emit('change', this);
 	}
 
 	adjustValue(adj) {
-		this.setValue(this.value + adj);
+		this.setValue(this.stats.value + adj);
 	}
 
 	getValue() {
-		return this.value;
+		return this.stats.value;
 	}
 
 	resourcePercent(){
-		return (this.value > 0) ? this.value / this.max : 0;
+		console.log(this.stats)
+		return (this.stats.value > 0) ? this.stats.value / this.stats.max : 0;
 	}
 
 	drawBar(opt) {
@@ -84,7 +92,7 @@ class Resource extends Phaser.GameObjects.Sprite {
 		const type = this.regenType(this.type);
 		const stats = this.getRegenStats(type);
 		console.log(stats)
-		if(stats.regen_rate > 0 && this.value < stats.max) {
+		if(stats.regen_rate > 0 && this.stats.value < stats.max) {
 			console.log("REGEN");
 			this.adjustValue(stats.regen_value, this.type);
 		}
@@ -96,10 +104,11 @@ class Resource extends Phaser.GameObjects.Sprite {
 	}
 
 	getRegenStats(type) {
+		console.log(this)
 		const { max, value, regen_value, regen_rate } = this.parentContainer.stats[type];
 		return {
-			max: (max) ? max : this.max,
-            value: (value) ? value : this.value,
+			max: (max) ? max : this.stats.max,
+            value: (value) ? value : this.stats.value,
             regen_value: (regen_value) ? regen_value : this.regen_value,
             regen_rate: (regen_rate) ? regen_rate : this.regen_rate
 		}
