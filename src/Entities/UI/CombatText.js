@@ -1,6 +1,15 @@
 class CombatText extends Phaser.GameObjects.Text {
 	constructor(scene, { x, y, value, type, crit }) {
-        const color = { physical: '#fff', magic: '#ef0', burn: '#fa0', bleed: '#f33', poison: '#5c5', heal: '#7c6' }
+        const color = {
+            physical: '#fff',
+            magic: '#ef0',
+            burn: '#fa0',
+            bleed: '#f33',
+            poison: '#5c5',
+            heal: '#7c6',
+            health: '#9c6'
+        }
+
         super(scene, x, y-25, value, { 
             fontFamily: 'VT323',
             fontSize: (crit) ? '24px' : '18px',
