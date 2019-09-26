@@ -13,7 +13,7 @@
 		"range": 40,
 		"attack_speed": 1,
 		"health": 200,
-		"regen_rate": 3
+		"regen_rate": 0
 	},
 	"ghoul": {
 		"damage": 50,

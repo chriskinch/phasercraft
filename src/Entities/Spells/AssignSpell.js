@@ -1,11 +1,9 @@
-import Bandage from './Bandage';
 import Enrage from './Enrage';
 import Fireball from './Fireball';
 import Heal from './Heal';
 import Whirlwind from './Whirlwind';
 
 const classes = {
-  Bandage,
   Enrage,
   Fireball,
   Heal,

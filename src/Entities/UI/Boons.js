@@ -9,7 +9,7 @@ class Boons extends Phaser.GameObjects.Group {
         if(this.timers[boon.name]) this.timers[boon.name].remove();
 
         const timer_config = {
-			delay: boon.duration,
+			delay: boon.duration * 1000,
 			callback: this.removeBoon,
 			callbackScope: this,
 			args: [boon]

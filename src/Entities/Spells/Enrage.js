@@ -4,14 +4,14 @@ class Enrage extends Boon {
 	constructor(config) {
 		const defaults = {
 			icon_name: "icon_0019_fire-wall",
-			cooldown: 1,
+			cooldown: 10,
 			cost: {
-				rage: 45,
+				rage: 40,
 				mana: 100,
 				energy: 50
 			},
 			type: "physical",
-			duration: 5000,
+			duration: 5,
 			value: {
 				critical_chance: (bs) => bs + 30,
 				attack_power: (bs) => bs * 2,
@@ -30,7 +30,7 @@ class Enrage extends Boon {
 		this.player.hero.setTint(0xff3333);
 
 		const timer_config = {
-			delay: this.duration + 1,
+			delay: this.duration * 1000 + 1, // Extra ms to ensure effect is over
 			callback: this.clearEffect,
 			callbackScope: this
 		};

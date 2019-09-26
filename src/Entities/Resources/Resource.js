@@ -72,7 +72,6 @@ class Resource extends Phaser.GameObjects.Sprite {
 	}
 
 	resourcePercent(){
-		// console.log("CATCH: ", this.stats)
 		return (this.stats.value > 0) ? this.stats.value / this.stats.max : 0;
 	}
 
@@ -117,7 +116,7 @@ class Resource extends Phaser.GameObjects.Sprite {
 
 	setRegenerationRate(){
 		return this.scene.time.addEvent({
-			delay: this.stats.regen_rate*1000, 
+			delay: this.stats.regen_rate * 1000, 
 			callback: this.doTick,
 			callbackScope: this,
 			loop: true,
