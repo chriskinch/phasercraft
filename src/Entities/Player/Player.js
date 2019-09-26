@@ -122,8 +122,6 @@ class Player extends Phaser.GameObjects.Container {
 
 	updateStats() {
 		this.boons.calculate();
-		// console.log(stats);
-		// return stats
 	}
 
 	gameDownHandler(pointer, gameObject){

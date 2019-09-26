@@ -38,9 +38,9 @@ class Spell extends Phaser.GameObjects.Sprite {
 		Phaser.Display.Align.In.Center(this.text, this.button, -2, -2);
 	}
 
-	setValue(base){
+	setValue(base, power){
 		// Value based on base + scaled percentage of base from power + flat percent of power
-		const scaled = base + (base * (this.power/100)) + this.power/10;
+		const scaled = base + (base * (power/100)) + power/10;
 		// Check for crit
 		const crit = this.player.isCritical();
 		const total = crit ? scaled * 1.5 : scaled;

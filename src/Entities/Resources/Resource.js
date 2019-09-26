@@ -7,10 +7,6 @@ class Resource extends Phaser.GameObjects.Sprite {
 		this.container = config.container;
 		this.type = this.constructor.name.toLowerCase();
 		this.colour = config.colour;
-		// this.max = config.max;
-		// this.value = config.value;
-		this.regen_rate = config.regen_rate;
-		this.regen_value = config.regen_value;
 
 		this.stats = {
 			max: config.max,
@@ -42,7 +38,17 @@ class Resource extends Phaser.GameObjects.Sprite {
 		this.container.add(this.graphics.current);
 
 		this.graphics.current.scaleX = this.resourcePercent();
-		this.tick = this.setRegeneration();
+		// Regeneraton timer starts paused so that players and enemies both have it.
+		this.tick = this.setRegenerationRate();
+		// If regen_rate is 0 delay is 0 (very fast) but timer won't unpause.
+		if(this.stats.regen_rate > 0) this.tick.paused = false;
+		this.tick.timeScale = 2;
+
+		this.type_category = this.regenType(this.type);
+		
+		this.container.on('boons:calculated', (stats) => {
+			this.setRegenStats(stats[this.type_category]);
+		}, this);
 	}
 
 	setValue(new_value) {
@@ -66,7 +72,7 @@ class Resource extends Phaser.GameObjects.Sprite {
 	}
 
 	resourcePercent(){
-		console.log(this.stats)
+		// console.log("CATCH: ", this.stats)
 		return (this.stats.value > 0) ? this.stats.value / this.stats.max : 0;
 	}
 
@@ -89,12 +95,8 @@ class Resource extends Phaser.GameObjects.Sprite {
 	}
 
 	regenerate() {
-		const type = this.regenType(this.type);
-		const stats = this.getRegenStats(type);
-		console.log(stats)
-		if(stats.regen_rate > 0 && this.stats.value < stats.max) {
-			console.log("REGEN");
-			this.adjustValue(stats.regen_value, this.type);
+		if(this.stats.regen_rate > 0 && this.stats.value < this.stats.max) {
+			this.adjustValue(this.stats.regen_value, this.type);
 		}
 	}
 
@@ -103,26 +105,24 @@ class Resource extends Phaser.GameObjects.Sprite {
 		return t;
 	}
 
-	getRegenStats(type) {
-		console.log(this)
-		const { max, value, regen_value, regen_rate } = this.parentContainer.stats[type];
-		return {
-			max: (max) ? max : this.stats.max,
-            value: (value) ? value : this.stats.value,
-            regen_value: (regen_value) ? regen_value : this.regen_value,
-            regen_rate: (regen_rate) ? regen_rate : this.regen_rate
-		}
+	setRegenStats({max = this.stats.max, regen_value = this.stats.regen_value, regen_rate = this.stats.regen_rate}) {
+		this.stats.max = max;
+        this.stats.regen_value = regen_value;
+		this.stats.regen_rate = regen_rate;
+		
+		// Set the scale of the timer controlling regen rather then deleting and remaking
+		const scale = this.tick.delay / (regen_rate * 1000);
+		if(scale) this.tick.timeScale = scale;
 	}
 
-	setRegeneration(regen_rate = this.regen_rate){
-		if(this.tick) this.tick.remove(false);
-		this.regen_rate = regen_rate;
-		return (regen_rate > 0) ? this.scene.time.addEvent({ delay: regen_rate*1000, callback: this.doTick, callbackScope: this, loop: true }) : null;
-	}
-
-	adjustRegeneration(adj) {
-		this.regen_rate += adj;
-		this.tick = this.setRegeneration();
+	setRegenerationRate(){
+		return this.scene.time.addEvent({
+			delay: this.stats.regen_rate*1000, 
+			callback: this.doTick,
+			callbackScope: this,
+			loop: true,
+			paused: true
+		});
 	}
 
 	doTick() {

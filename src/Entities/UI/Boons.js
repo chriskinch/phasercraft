@@ -17,13 +17,11 @@ class Boons extends Phaser.GameObjects.Group {
         this.timers[boon.name] = this.scene.time.addEvent(timer_config);
         
         this.add(boon);
-        console.log("ADD LIST: ", this.getChildren());
         this.player.emit('boons:update', this);
     }
 
     removeBoon(boon) {
         this.remove(boon);
-        console.log("REMOVE LIST: ", this.getChildren());
         this.player.emit('boons:update', this);
     }
 
@@ -39,14 +37,15 @@ class Boons extends Phaser.GameObjects.Group {
     }
 
     calculate() {
-        console.log("BEFORE: ", this.player.stats);
-        // If there are no boons in the queue set stats to base
+        // console.log("BEFORE: ", this.player.stats);
+        // Reset stats before recalulating new list of boons. If no boon acts as reset.
         this.player.stats = JSON.parse(JSON.stringify(this.player.base_stats));
         // Loop through boons with an iterator to hit nested objects
         this.children.entries.forEach(boon => {
             this.iterateStats(boon.value);
         });
-        console.log("AFTER: ", this.player.stats);
+        this.player.emit('boons:calculated', this.player.stats);
+        // console.log("AFTER: ", this.player.stats);
     }
 
 }
