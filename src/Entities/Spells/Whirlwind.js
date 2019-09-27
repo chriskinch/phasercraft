@@ -5,9 +5,9 @@ class Whirlwind extends Spell {
 	constructor(config) {
 		const defaults = {
 			icon_name: 'icon_0005_coil',
-			cooldown: 1,
+			cooldown: 2,
 			cost: {
-				rage: 0,
+				rage: 50,
 				mana: 80,
 				energy: 60
 			},
