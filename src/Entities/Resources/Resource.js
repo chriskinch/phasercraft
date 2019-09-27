@@ -94,7 +94,7 @@ class Resource extends Phaser.GameObjects.Sprite {
 
 	regenerate() {
 		if(this.stats.regen_rate > 0 && this.stats.value < this.stats.max) {
-			this.adjustValue(this.stats.regen_value, this.type);
+			this.adjustValue(this.stats.regen_value);
 		}
 	}
 
