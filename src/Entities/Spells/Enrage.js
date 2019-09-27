@@ -6,15 +6,15 @@ class Enrage extends Boon {
 			icon_name: "icon_0019_fire-wall",
 			cooldown: 10,
 			cost: {
-				rage: 40,
-				mana: 100,
-				energy: 50
+				rage: 30,
+				mana: 80,
+				energy: 30
 			},
 			type: "physical",
 			duration: 5,
 			value: {
-				critical_chance: (bs) => bs + 30,
-				attack_power: (bs) => bs * 2,
+				critical_chance: (bs) => bs + 10,
+				attack_power: (bs) => bs * 1.2,
 				health: {
 					regen_value: (bs) => bs * 2,
 					regen_rate: (bs) => bs - 0.25
