@@ -7,7 +7,7 @@ class Whirlwind extends Spell {
 			icon_name: 'icon_0005_coil',
 			cooldown: 1,
 			cost: {
-				rage: 50,
+				rage: 0,
 				mana: 80,
 				energy: 60
 			},
@@ -27,10 +27,16 @@ class Whirlwind extends Spell {
 	}
 
 	effect(){
-		const enemiesInRange = this.scene.enemies.children.entries.filter(enemy => {
-			const vector = targetVector(this.player, enemy);
-			if (vector.range < this.range) return enemy;
-		})
+		const enemiesInRange = this.scene.enemies.children.entries
+			.filter(enemy => {
+				const vector = targetVector(this.player, enemy);
+				if (vector.range < this.range) return enemy;
+			})
+			.sort(function (a, b) {
+				const vector = targetVector(this.player, enemy);
+				return a.vector < b.vector;
+			});
+		console.log(enemiesInRange)
 		// Scales value bases on player stat
 		const value = this.setValue(30, this.player.stats.attack_power);
 
