@@ -56,7 +56,7 @@ class Resource extends Phaser.GameObjects.Sprite {
 		}else if(new_value < 0) {
 			this.stats.value = 0;
 		}else{
-			this.stats.value = new_value;
+			this.stats.value = Math.ceil(new_value);
 		}
 		this.graphics.current.scaleX = this.resourcePercent();
 		this.emit('change', this);
@@ -94,7 +94,7 @@ class Resource extends Phaser.GameObjects.Sprite {
 
 	regenerate() {
 		if(this.stats.regen_rate > 0 && this.stats.value < this.stats.max) {
-			this.adjustValue(this.stats.regen_value, this.type);
+			this.adjustValue(this.stats.regen_value);
 		}
 	}
 
