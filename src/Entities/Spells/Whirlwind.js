@@ -12,7 +12,8 @@ class Whirlwind extends Spell {
 				energy: 60
 			},
 			type: 'physical',
-			range: 120
+			range: 120,
+			cap: 5
 		}
 
         super({ ...defaults, ...config });
@@ -29,21 +30,29 @@ class Whirlwind extends Spell {
 	effect(){
 		const enemiesInRange = this.scene.enemies.children.entries
 			.filter(enemy => {
-				const vector = targetVector(this.player, enemy);
-				if (vector.range < this.range) return enemy;
+				enemy.vector = targetVector(this.player, enemy);
+				if (enemy.vector.range < this.range) return enemy;
 			})
 			.sort(function (a, b) {
-				const vector = targetVector(this.player, enemy);
-				return a.vector < b.vector;
+				return a.vector.range - b.vector.range;
 			});
-		console.log(enemiesInRange)
-		// Scales value bases on player stat
+
+		// Modified if more the cap. This ensure that the spell is not massivly overpowered.
+		// TODO: Abstract this capping functionality out as many spells might use.
+		const mod = this.powerCap(enemiesInRange);
+		// Scales value bases on player stat.
 		const value = this.setValue(30, this.player.stats.attack_power);
 
 		enemiesInRange.forEach(target => {
-			target.health.adjustValue(-value.amount, this.type, value.crit);
+			target.health.adjustValue(-value.amount * mod, this.type, value.crit);
 		});
         this.player.resource.adjustValue(-this.cost[this.player.resource.type]);
+	}
+
+	powerCap(enemies) {
+		const split = (enemies.length < this.cap) ? this.cap : enemies.length;
+		const spread = this.cap / split;
+		return spread;
 	}
 
 	animationUpdate(){

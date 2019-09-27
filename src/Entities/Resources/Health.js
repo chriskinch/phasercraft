@@ -22,7 +22,7 @@ class Health extends Resource {
 			this.container.add(new CombatText(this.scene, {
 				x: 0,
 				y: 0,
-				value: Math.abs(adj),
+				value: Math.ceil(Math.abs(adj)),
 				type: type,
 				crit: crit
 			}));
