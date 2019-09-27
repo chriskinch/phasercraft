@@ -3,10 +3,10 @@ import Player from './Player';
 class Ranger extends Player {
     constructor(config) {
         const default_stats = {
-            attack_power: 50,
-            attack_speed: 0.85,
+            attack_power: 40,
+            attack_speed: 0.9,
             magic_power: 30,
-            critical_chance: 15,
+            critical_chance: 13,
             speed: 150,
             range: 240,
             knockback: 20,

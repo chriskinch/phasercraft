@@ -3,8 +3,8 @@ import Player from './Player';
 class Cleric extends Player {
     constructor(config) {
         const default_stats = {
-            attack_power: 10,
-            attack_speed: 1.2,
+            attack_power: 30,
+            attack_speed: 1.1,
             magic_power: 50,
             critical_chance: 6,
             speed: 150,

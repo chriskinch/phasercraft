@@ -3,7 +3,7 @@ import Player from './Player';
 class Warrior extends Player {
     constructor(config) {
         const default_stats = {
-            attack_power: 70,
+            attack_power: 50,
             attack_speed: 1,
             magic_power: 10,
             critical_chance: 10,

@@ -107,9 +107,14 @@ class Spell extends Phaser.GameObjects.Sprite {
 		this.button.setTint(0xff9955);
 	}
 
+	charge() {
+		this.player.resource.adjustValue(-this.cost[this.player.resource.type]);
+	}
+
 	cast(){
 		this.scene.events.emit('spell:cast', this);
 		this.effect();
+		this.charge();
 
 		this.animation();
 

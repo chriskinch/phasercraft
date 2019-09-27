@@ -34,7 +34,7 @@ class Enrage extends Boon {
 			callback: this.clearEffect,
 			callbackScope: this
 		};
-        this.timer = this.scene.time.addEvent(timer_config);
+		this.timer = this.scene.time.addEvent(timer_config);
 	}
 
 	clearEffect() {

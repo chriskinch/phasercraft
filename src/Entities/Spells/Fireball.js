@@ -32,7 +32,6 @@ class Fireball extends Spell {
 		// Returns crit boolean and modified value using spell base value.
 		const value = this.setValue(30, this.player.stats.magic_power);
 		this.target.health.adjustValue(-value.amount, this.type, value.crit);
-		this.player.resource.adjustValue(-this.cost[this.player.resource.type]);
 	}
 
 	animationUpdate(){

@@ -3,7 +3,7 @@ import Player from './Player';
 class Occultist extends Player {
 	constructor(config) {
         const default_stats = {
-            attack_power: 10,
+            attack_power: 30,
             attack_speed: 1.2,
             magic_power: 60,
             critical_chance: 8,

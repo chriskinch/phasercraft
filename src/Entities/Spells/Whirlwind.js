@@ -46,7 +46,6 @@ class Whirlwind extends Spell {
 		enemiesInRange.forEach(target => {
 			target.health.adjustValue(-value.amount * mod, this.type, value.crit);
 		});
-        this.player.resource.adjustValue(-this.cost[this.player.resource.type]);
 	}
 
 	powerCap(enemies) {
