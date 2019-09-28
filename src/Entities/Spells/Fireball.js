@@ -30,7 +30,7 @@ class Fireball extends Spell {
 
 	effect(){
 		// Returns crit boolean and modified value using spell base value.
-		const value = this.setValue(30, this.player.stats.magic_power);
+		const value = this.setValue(45, this.player.stats.magic_power);
 		this.target.health.adjustValue(-value.amount, this.type, value.crit);
 	}
 

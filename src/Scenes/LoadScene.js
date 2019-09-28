@@ -16,7 +16,7 @@ import IconAtlas from '../Graphics/atlas/atlas-icons.png';
 import IconJSON from '../Graphics/atlas/atlas-icons.json';
 import HealEffect from '../Graphics/spritesheets/spells/heal.png';
 import FireballEffect from '../Graphics/spritesheets/spells/fireball.png';
-import SmiteEffect from '../Graphics/spritesheets/spells/smite.png';
+import SmiteEffect from '../Graphics/spritesheets/spells/smite.gif';
 import WhirlwindEffect from '../Graphics/spritesheets/spells/whirlwind.png';
 import Wayne3D from '../Graphics/fonts/wayne-3d.png';
 import createAnimations from '../Config/animations';
@@ -71,7 +71,7 @@ class LoadScene extends Phaser.Scene {
 		this.load.atlas('icon', IconAtlas, IconJSON);
 		this.load.spritesheet('heal-effect', HealEffect, { frameWidth: 192, frameHeight: 192 });
 		this.load.spritesheet('fireball-effect', FireballEffect, { frameWidth: 87, frameHeight: 87 });
-		this.load.spritesheet('smite-effect', SmiteEffect, { frameWidth: 87, frameHeight: 112 });
+		this.load.spritesheet('smite-effect', SmiteEffect, { frameWidth: 100, frameHeight: 129 });
 		this.load.spritesheet('whirlwind-effect', WhirlwindEffect, { frameWidth: 32, frameHeight: 32 });
 
 		// UI elements

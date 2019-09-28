@@ -30,7 +30,7 @@ class Heal extends Spell {
 
 	effect(){
 		// Scales value bases on player stat
-		const value = this.setValue(50, this.player.stats.magic_power);
+		const value = this.setValue(65, this.player.stats.magic_power);
 		this.target.health.adjustValue(value.amount, this.type, value.crit);
 	}
 

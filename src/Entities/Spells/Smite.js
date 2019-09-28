@@ -4,7 +4,7 @@ class Smite extends Spell {
 	constructor(config) {
 		const defaults = {
 			icon_name: 'icon_0007_bolt',
-			cooldown: 1,
+			cooldown: 3,
 			cost: {
 				rage: 30,
 				mana: 50,
@@ -31,12 +31,14 @@ class Smite extends Spell {
 	effect(){
 		// Returns crit boolean and modified value using spell base value.
 		const value = this.setValue(30, this.player.stats.magic_power);
+		const heal = this.setValue(15, this.player.stats.magic_power);
 		this.target.health.adjustValue(-value.amount, this.type, value.crit);
+		this.player.health.adjustValue(heal.amount, 'heal', heal.crit);
 	}
 
 	animationUpdate(){
 		this.x = this.target.x;
-		this.y = this.target.y;
+		this.y = this.target.y - 40;
 	}
 }
 
