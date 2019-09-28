@@ -20,7 +20,7 @@ class Cleric extends Player {
             resource: {
                 type: "Mana"
             },
-            abilities: ["Heal"]
+            abilities: ["Heal", "Smite"]
         }
 
         super({...default_stats, ...config});
