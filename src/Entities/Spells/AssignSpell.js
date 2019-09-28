@@ -2,6 +2,7 @@ import Enrage from './Enrage';
 import Fireball from './Fireball';
 import Heal from './Heal';
 import Smite from './Smite';
+import SnareTrap from './SnareTrap';
 import Whirlwind from './Whirlwind';
 
 const classes = {
@@ -9,6 +10,7 @@ const classes = {
   Fireball,
   Heal,
   Smite,
+  SnareTrap,
   Whirlwind
 };
 

@@ -87,6 +87,12 @@ class Player extends Phaser.GameObjects.Container {
 		scene.events.on('enemy:dead', this.targetDead, this);
 		this.on('pointerdown', () => scene.events.emit('pointerdown:player', this));
 		this.on('boons:update', this.updateStats, this);
+
+		this.on('boons:update', this.updateStats, this);
+
+		scene.events.on('spell:primed', () => this.spellPrimed = true, this);
+		scene.events.on('spell:cast', () => this.spellPrimed = false, this);
+		scene.events.on('spell:cleared', () => this.spellPrimed = false, this);
 	}
 
 	drawBar(opt) {
@@ -124,9 +130,11 @@ class Player extends Phaser.GameObjects.Container {
 		this.boons.calculate();
 	}
 
-	gameDownHandler(pointer, gameObject){
-		this.dragging = true;
-		this.moveTo();
+	gameDownHandler(){
+		if(!this.spellPrimed) {
+			this.dragging = true;
+			this.moveTo();
+		}
 	}
 
 	gameMoveHandler(){

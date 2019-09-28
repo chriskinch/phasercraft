@@ -3,9 +3,19 @@ class Spell extends Phaser.GameObjects.Sprite {
 	constructor({scene, x, y, key, ...config} = {}) {
 		super(scene, x, y, key);
 
+		console.log(key)
+
 		Object.assign(this, config);
 		this.name = this.constructor.name.toLowerCase();
+		
+		this.setAnimation();
 
+		this.setIcon();
+		this.checkReady();
+		this.player.resource.on('change', this.checkReady, this);
+	}
+
+	setAnimation(){
 		this.scene.anims.create({
 			key: this.name + '-animation',
 			frames: this.scene.anims.generateFrameNumbers(this.name + '-effect', { start: 0, end: 24 }),
@@ -15,13 +25,14 @@ class Spell extends Phaser.GameObjects.Sprite {
 			hideOnComplete: true
 		});
 
+		this.on('animationstart', this.animationStart);
 		this.on('animationupdate', this.animationUpdate);
 		this.on('animationcomplete', this.animationComplete);
-
-		this.setIcon();
-		this.checkReady();
-		this.player.resource.on('change', this.checkReady, this);
 	}
+
+	animationStart(){};
+	animationUpdate(){};
+	animationComplete(){};
 
 	setIcon(){
 		let p = 30;
@@ -97,6 +108,7 @@ class Spell extends Phaser.GameObjects.Sprite {
 		this.setIconEvents('on');
 		this.setTargetEvents('off');
 		this.out();
+		this.scene.events.emit('spell:cleared', this);
 	}
 
 	prime(){

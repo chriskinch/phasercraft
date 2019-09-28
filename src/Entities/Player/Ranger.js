@@ -20,7 +20,7 @@ class Ranger extends Player {
             resource: {
                 type: "Energy"
             },
-            abilities: []
+            abilities: ["SnareTrap"]
         }
 
         super({...default_stats, ...config});

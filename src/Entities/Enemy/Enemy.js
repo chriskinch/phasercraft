@@ -76,8 +76,6 @@ class Enemy extends Phaser.GameObjects.Container {
 			if(!this.isHit) {
 				this.scene.physics.moveTo(this, this.scene.player.x, this.scene.player.y, this.speed);
 			}
-			let walk_animation = (this.x - this.scene.player.x > 0) ? this.key + "-left-down" : this.key + "-right-up";
-			this.monster.walk(walk_animation);
 
 			if(this.health.getValue() <= 0) this.emit('enemy:dead', this);
 		}else{
@@ -91,12 +89,15 @@ class Enemy extends Phaser.GameObjects.Container {
 		this.spawned = true;
 
 		this.scene.physics.add.collider(this.target.hero, this, () => this.attack(), null, this);
-		this.scene.physics.add.collider(this.scene.enemies, this.scene.enemies);
+		this.collider = this.scene.physics.add.collider(this.scene.enemies, this.scene.enemies);
 
 		this.on('pointerdown', () => {
 			this.scene.events.emit('pointerdown:enemy', this);
 			this.select();
 		});
+
+		const walk_animation = (this.x - this.scene.player.x > 0) ? this.key + "-left-down" : this.key + "-right-up";
+		this.monster.walk(walk_animation);
 	}
 
 	spawningEnemy(){
