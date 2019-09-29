@@ -32,6 +32,7 @@ class Enemy extends Phaser.GameObjects.Container {
 		this.isHit = false;
 		this.hitRadius = 25;
 		this.loot_chance = 0.75;
+		this.active_group = config.active_group;
 
 		this.graphics = {};
 		this.graphics.selected = this.drawSelected('selected');
@@ -76,8 +77,6 @@ class Enemy extends Phaser.GameObjects.Container {
 			if(!this.isHit) {
 				this.scene.physics.moveTo(this, this.scene.player.x, this.scene.player.y, this.speed);
 			}
-			let walk_animation = (this.x - this.scene.player.x > 0) ? this.key + "-left-down" : this.key + "-right-up";
-			this.monster.walk(walk_animation);
 
 			if(this.health.getValue() <= 0) this.emit('enemy:dead', this);
 		}else{
@@ -90,24 +89,22 @@ class Enemy extends Phaser.GameObjects.Container {
 		this.spawn_stop.destroy();
 		this.spawned = true;
 
+		this.active_group.add(this);
+
 		this.scene.physics.add.collider(this.target.hero, this, () => this.attack(), null, this);
-		this.scene.physics.add.collider(this.scene.enemies, this.scene.enemies);
+		this.collider = this.scene.physics.add.collider(this.scene.active_enemies, this.scene.active_enemies);
 
 		this.on('pointerdown', () => {
 			this.scene.events.emit('pointerdown:enemy', this);
 			this.select();
 		});
+
+		const walk_animation = (this.x - this.scene.player.x > 0) ? this.key + "-left-down" : this.key + "-right-up";
+		this.monster.walk(walk_animation);
 	}
 
 	spawningEnemy(){
-		if(this.body.touching.down) {
-			if(!this.spawning) this.spawning = this.scene.time.delayedCall(100, this.enemySpawned, [], this);
-		}else{
-			if(this.spawning) {
-				this.spawning.remove(false);
-				delete this.spawning;
-			}
-		}
+		if(this.body.touching.down && this.body.wasTouching.down) this.enemySpawned();
 	}
 
 	drawSelected(){
@@ -162,6 +159,7 @@ class Enemy extends Phaser.GameObjects.Container {
 		this.input.enabled = false;
 		this.scene.physics.world.disable(this);
 		this.scene.enemies.remove(this);
+		this.scene.active_enemies.remove(this);
 		this.decompose();
 		this.dropLoot();
 	}

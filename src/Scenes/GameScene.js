@@ -59,6 +59,7 @@ class GameScene extends Phaser.Scene {
 
 		this.enemies = this.add.group();
 		this.enemies.runChildUpdate = true;
+		this.active_enemies = this.add.group();
 		this.startLevel();
 
 		this.setLevelCompleteUI();
@@ -85,7 +86,7 @@ class GameScene extends Phaser.Scene {
 			right: { isDown: (this.input.activePointer.buttons === 2 && this.input.activePointer.isDown) },
 		}
 
-		if(this.enemies.children.entries.length === 0 && !this.game_over) this.events.emit('enemies:dead');
+		if(this.enemies.getChildren().length === 0 && !this.game_over) this.events.emit('enemies:dead');
 
 		if(this.player.alive) this.player.update(mouse, this.cursors, time, delta);
 	}
@@ -154,21 +155,16 @@ class GameScene extends Phaser.Scene {
 	}
 
 	spawnEnemies(list){
-		// Remove exsiting instances of this even so that it does trigger multiple times
+		// Remove exsiting instances of this event so that it does trigger multiple times
 		this.events.off('enemies:dead');
-
+		
 		list.forEach((enemy, i) => {
 			this.time.delayedCall(this.global_spawn_time * i, () => {
 				this.spawnEnemy(enemy);
-				if(i === this.wave) {
-					// This event trigger on update so only add it once all enemies
-					// have spawned so that it does not trigger in the short window
-					// between the first zero enemies and the first spawning.
-					this.events.once('enemies:dead', this.waveCompleteDelay, this);
-				}
-			}, [], this);
+			});
 		});
 
+		this.events.once('enemies:dead', this.waveCompleteDelay, this);
 		this.setNextLevelTimer();
 	}
 
@@ -179,7 +175,8 @@ class GameScene extends Phaser.Scene {
 			key: enemy,
 			x: Math.random() * this.global_game_width,
 			y: Math.random() * this.global_game_height,
-			target: this.player
+			target: this.player,
+			active_group: this.active_enemies
 		}));
 	}
 
