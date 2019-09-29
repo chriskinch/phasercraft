@@ -1,19 +1,19 @@
-import Spell from './Spell';
+import SpellRework from './SpellRework';
 import targetVector from '../../Helpers/targetVector';
 
-class Whirlwind extends Spell {
+class Multishot extends SpellRework {
 	constructor(config) {
 		const defaults = {
 			icon_name: 'icon_0005_coil',
-			cooldown: 2,
+			cooldown: 1,
 			cost: {
-				rage: 0,
+				rage: 50,
 				mana: 80,
-				energy: 60
+				energy: 50
 			},
 			type: 'physical',
-			range: 120,
-			cap: 5
+			range: 480,
+			cap: 3
 		}
 
         super({ ...defaults, ...config });
@@ -22,12 +22,22 @@ class Whirlwind extends Spell {
 	}
 
 	setTargetEvents(type){
+        console.log("SET TARGET EVENTS", type)
 		// Call as it we click the spell to trigger effect().
-		// Acts like an instant cast.
+        // Acts like an instant cast.
         this.focused();
-	}
+        // this.scene.time.delayedCall(1000, () => this.focused(), [], this);
+        // this.scene.events[type]('pointerdown:game', this.focused, this);
+        // this.scene.events[type]('pointerdown:game', this.clear, this);
+    }
+    
+    setCastEvents(state) {
+        console.log("SET TARGET EVENTS", state);
+        this.castSpell();
+    }
 
 	effect(){
+        console.log("EFFECT: ", this)
 		const enemiesInRange = this.scene.enemies.children.entries
 			.filter(enemy => {
 				enemy.vector = targetVector(this.player, enemy);
@@ -35,29 +45,21 @@ class Whirlwind extends Spell {
 			})
 			.sort(function (a, b) {
 				return a.vector.range - b.vector.range;
-			});
+            })
+            .slice(0, this.cap);
 
-		// Modified if more the cap. This ensure that the spell is not massivly overpowered.
-		// TODO: Abstract this capping functionality out as many spells might use.
-		const mod = this.powerCap(enemiesInRange);
 		// Scales value bases on player stat.
 		const value = this.setValue(30, this.player.stats.attack_power);
 
 		enemiesInRange.forEach(target => {
-			target.health.adjustValue(-value.amount * mod, this.type, value.crit);
+			target.health.adjustValue(-value.amount, this.type, value.crit);
 		});
 	}
 
-	powerCap(enemies) {
-		const split = (enemies.length < this.cap) ? this.cap : enemies.length;
-		const spread = this.cap / split;
-		return spread;
-	}
-
 	animationUpdate(){
-		this.x = this.player.x;
-		this.y = this.player.y;
+		// this.x = this.player.x;
+		// this.y = this.player.y;
 	}
 }
 
-export default Whirlwind;
+export default Multishot;

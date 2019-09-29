@@ -1,10 +1,10 @@
-import Spell from './Spell';
+import SpellRework from './SpellRework';
 
-class Fireball extends Spell {
+class Fireball extends SpellRework {
 	constructor(config) {
 		const defaults = {
 			icon_name: 'icon_0017_fire-ball',
-			cooldown: 1,
+			cooldown: 5,
 			cost: {
 				rage: 30,
 				mana: 50,
@@ -28,10 +28,21 @@ class Fireball extends Spell {
 		this.scene.events[type]('pointerdown:player', this.clear, this);
 	}
 
-	effect(){
+	setCastEvents(type){
+		console.log(type)
+		// Elegible targets for this spell
+		this.scene.events[type]('pointerdown:enemy', this.castSpell, this);
+		// Event that clears the primed spell. Emitted by invalid targets.
+		// this.scene.events[type]('pointerdown:game', this.clear, this);
+		// this.scene.events[type]('keypress:esc', this.clear, this);
+		// this.scene.events[type]('pointerdown:player', this.clear, this);
+	}
+
+	effect(target){
+		console.log("EFFECT: ", target)
 		// Returns crit boolean and modified value using spell base value.
 		const value = this.setValue(45, this.player.stats.magic_power);
-		this.target.health.adjustValue(-value.amount, this.type, value.crit);
+		target.health.adjustValue(-value.amount, this.type, value.crit);
 	}
 
 	animationUpdate(){

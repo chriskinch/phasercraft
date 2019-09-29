@@ -5,12 +5,11 @@ class Spell extends Phaser.GameObjects.Sprite {
 		
 		Object.assign(this, config);
 		this.name = this.constructor.name.toLowerCase();
-		
+		console.log(this.name)
 		this.setAnimation();
 
 		this.setIcon();
 		this.checkReady();
-		this.player.resource.on('change', this.checkReady, this);
 	}
 
 	setAnimation(){
@@ -58,10 +57,11 @@ class Spell extends Phaser.GameObjects.Sprite {
 
 	checkReady(){
 		let ready = (this.checkResource() && this.checkCooldown()) ? true : false;
+		console.log("CHECK", this.enabled);
 		if(ready){
 			if(!this.enabled) this.enable();
 		}else{
-			this.disable();
+			//this.disable();
 		}
 	}
 
@@ -74,20 +74,25 @@ class Spell extends Phaser.GameObjects.Sprite {
 	}
 
 	enable(){
+		console.log("ENABLE");
 		this.enabled = true;
+		this.player.resource.off('change', this.checkReady, this);
 		this.setIconEvents('on');
 		this.once('cast', this.cast, this);
 		this.button.setAlpha(1);
 	}
 
 	disable(){
+		console.log("DISBALE");
 		this.enabled = false;
+		this.player.resource.on('change', this.checkReady, this);
 		this.setIconEvents('off');
 		this.off('cast', this.cast, this);
 		this.button.setAlpha(0.5);
 	}
 
 	setIconEvents(type){
+		console.log("SET ICON EVENTS", type);
 		this.button[type]('pointerover', this.over, this);
 		this.button[type]('pointerout', this.out, this);
 		this.button[type]('pointerdown', this.prime, this);
@@ -103,14 +108,16 @@ class Spell extends Phaser.GameObjects.Sprite {
 	}
 
 	clear() {
-		this.setIconEvents('on');
+		console.log("CLEAR");
+		this.checkReady();
 		this.setTargetEvents('off');
 		this.out();
 		this.scene.events.emit('spell:cleared', this);
 	}
 
 	prime(){
-		this.scene.spell = this; // Let the scene know what spell is primed for various effects.
+		console.log("PRIME");
+		// this.scene.spell = this; // Let the scene know what spell is primed for various effects.
 		this.scene.events.emit('spell:primed', this);
 		this.setIconEvents('off');
 		this.setTargetEvents('on');
@@ -118,10 +125,12 @@ class Spell extends Phaser.GameObjects.Sprite {
 	}
 
 	charge() {
+		console.log("CHARGE");
 		this.player.resource.adjustValue(-this.cost[this.player.resource.type]);
 	}
 
 	cast(){
+		console.log("CAST");
 		this.scene.events.emit('spell:cast', this);
 		this.effect();
 		this.charge();
@@ -149,6 +158,7 @@ class Spell extends Phaser.GameObjects.Sprite {
 	}
 
 	focused(target){
+		console.log("FOCUSED");
 		this.target = target;
 		this.emit('cast', this);
 	}
