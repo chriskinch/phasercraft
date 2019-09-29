@@ -32,6 +32,7 @@ class Enemy extends Phaser.GameObjects.Container {
 		this.isHit = false;
 		this.hitRadius = 25;
 		this.loot_chance = 0.75;
+		this.active_group = config.active_group;
 
 		this.graphics = {};
 		this.graphics.selected = this.drawSelected('selected');
@@ -88,8 +89,10 @@ class Enemy extends Phaser.GameObjects.Container {
 		this.spawn_stop.destroy();
 		this.spawned = true;
 
+		this.active_group.add(this);
+
 		this.scene.physics.add.collider(this.target.hero, this, () => this.attack(), null, this);
-		this.collider = this.scene.physics.add.collider(this.scene.enemies, this.scene.enemies);
+		this.collider = this.scene.physics.add.collider(this.scene.active_enemies, this.scene.active_enemies);
 
 		this.on('pointerdown', () => {
 			this.scene.events.emit('pointerdown:enemy', this);
@@ -101,14 +104,7 @@ class Enemy extends Phaser.GameObjects.Container {
 	}
 
 	spawningEnemy(){
-		if(this.body.touching.down) {
-			if(!this.spawning) this.spawning = this.scene.time.delayedCall(100, this.enemySpawned, [], this);
-		}else{
-			if(this.spawning) {
-				this.spawning.remove(false);
-				delete this.spawning;
-			}
-		}
+		if(this.body.touching.down && this.body.wasTouching.down) this.enemySpawned();
 	}
 
 	drawSelected(){
@@ -163,6 +159,7 @@ class Enemy extends Phaser.GameObjects.Container {
 		this.input.enabled = false;
 		this.scene.physics.world.disable(this);
 		this.scene.enemies.remove(this);
+		this.scene.active_enemies.remove(this);
 		this.decompose();
 		this.dropLoot();
 	}

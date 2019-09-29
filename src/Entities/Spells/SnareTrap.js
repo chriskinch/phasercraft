@@ -5,14 +5,15 @@ class SnareTrap extends Spell {
 	constructor(config) {
 		const defaults = {
 			icon_name: 'icon_0020_shackle',
-			cooldown: 1,
+			cooldown: 0,
 			cost: {
 				rage: 30,
 				mana: 50,
 				energy: 40
 			},
             type: 'magic',
-            duration: 5000
+            duration: 5,
+            lifespan: 20
 		}
 
 		super({ ...defaults, ...config });
@@ -23,8 +24,8 @@ class SnareTrap extends Spell {
     
     animation() {
         const pointer = this.scene.input.activePointer;
-        this.object = new Trap(this.scene, pointer.x, pointer.y);
-        this.object.once('trap:collide', this.effect);
+        this.item = new Trap(this.scene, pointer.x, pointer.y, this.lifespan);
+        this.item.once('trap:collide', this.effect, this);
     }
 
 	setTargetEvents(type){
@@ -41,13 +42,12 @@ class SnareTrap extends Spell {
             target.body.setMaxVelocity(0);
             target.monster.anims.pause();
             target.body.checkCollision.none = true;
-            console.log(this)
             // Returns crit boolean and modified value using spell base value.
             target.health.adjustValue(-20, 'bleed', false);
-
-            this.scene.time.delayedCall(5000, () => {
+            
+            this.scene.time.delayedCall(this.duration * 1000, () => {
                 target.body.setMaxVelocity(100);
-                target.monster.anims.play();
+                target.monster.anims.resume();
                 target.body.checkCollision.none = false;
             }, [], this);
         }

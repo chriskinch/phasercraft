@@ -2,9 +2,7 @@ class Spell extends Phaser.GameObjects.Sprite {
 
 	constructor({scene, x, y, key, ...config} = {}) {
 		super(scene, x, y, key);
-
-		console.log(key)
-
+		
 		Object.assign(this, config);
 		this.name = this.constructor.name.toLowerCase();
 		
