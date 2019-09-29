@@ -11,7 +11,7 @@ class SnareTrap extends Spell {
 				mana: 50,
 				energy: 40
 			},
-            type: 'magic',
+            type: 'bleed',
             duration: 5,
             lifespan: 20
 		}
@@ -42,8 +42,8 @@ class SnareTrap extends Spell {
             target.body.setMaxVelocity(0);
             target.monster.anims.pause();
             target.body.checkCollision.none = true;
-            // Returns crit boolean and modified value using spell base value.
-            target.health.adjustValue(-20, 'bleed', false);
+            // Using a flat value and false so trap annot crit. TODO: Bleed over time.
+            target.health.adjustValue(-20, this.type, false);
             
             this.scene.time.delayedCall(this.duration * 1000, () => {
                 target.body.setMaxVelocity(100);
