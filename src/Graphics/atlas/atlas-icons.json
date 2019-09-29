@@ -173,11 +173,11 @@
 },
 {
 	"filename": "icon_0019_fire-wall",
-	"frame": {"x":602,"y":0,"w":32,"h":30},
+	"frame": {"x":602,"y":0,"w":32,"h":32},
 	"rotated": false,
 	"trimmed": false,
-	"spriteSourceSize": {"x":0,"y":0,"w":32,"h":30},
-	"sourceSize": {"w":32,"h":30},
+	"spriteSourceSize": {"x":0,"y":0,"w":32,"h":32},
+	"sourceSize": {"w":32,"h":32},
 	"pivot": {"x":0.5,"y":0.5}
 },
 {
