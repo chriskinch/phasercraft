@@ -74,6 +74,7 @@ class LoadScene extends Phaser.Scene {
 		this.load.spritesheet('fireball-effect', FireballEffect, { frameWidth: 87, frameHeight: 87 });
 		this.load.spritesheet('smite-effect', SmiteEffect, { frameWidth: 100, frameHeight: 129 });
 		this.load.image('snare-trap', SnareTrap);
+		this.load.spritesheet('multishot-effect', AttackSwoosh, { frameWidth: 32, frameHeight: 32 });
 		this.load.spritesheet('whirlwind-effect', WhirlwindEffect, { frameWidth: 32, frameHeight: 32 });
 
 		// UI elements

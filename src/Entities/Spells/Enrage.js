@@ -23,6 +23,8 @@ class Enrage extends Boon {
 		}
 
 		super({ ...defaults, ...config });
+
+		this.hasAnimation = false;
 	}
 
 	effect(){
@@ -41,6 +43,9 @@ class Enrage extends Boon {
 		// Check to confirm spell is gone from boon group before removing tint
 		if(!this.player.boons.contains(this)) this.player.hero.clearTint();
 	}
+
+	setAnimation(){}
+	animationUpdate(){}
 }
 
 export default Enrage;

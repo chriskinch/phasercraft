@@ -7,12 +7,12 @@ class SnareTrap extends Spell {
 			icon_name: 'icon_0020_shackle',
 			cooldown: 0,
 			cost: {
-				rage: 30,
-				mana: 50,
-				energy: 40
+				rage: 20,
+				mana: 30,
+				energy: 20
 			},
             type: 'bleed',
-            duration: 5,
+            duration: 6,
             lifespan: 20
 		}
 
@@ -21,36 +21,44 @@ class SnareTrap extends Spell {
 		// This is what the spell scales from.
         this.power = this.player.stats.magic_power;
     }
+
+    // Override and remove the defaul spell animation functions.
+    setAnimation(){}
+    startAnimation() {}
+
+	setCastEvents(state){
+		// Elegible targets for this spell
+        this.scene.events[state]('pointerdown:game', this.castSpell, this);
+		// Event that clears the primed spell. Emitted by invalid targets.
+        this.scene.events[state]('pointerdown:enemy', this.clearSpell, this);
+		this.scene.events[state]('keypress:esc', this.clearSpell, this);
+		this.scene.events[state]('pointerdown:player', this.clearSpell, this);
+	}
+
+    triggerTrap(target) {
+        target.body.setMaxVelocity(0);
+        target.monster.anims.pause();
+        target.body.checkCollision.none = true;
+        // Using a flat value and false so trap annot crit. TODO: Bleed over time.
+        target.health.adjustValue(-20, this.type, false);
+        
+        this.scene.time.delayedCall(this.duration * 1000, () => {
+            target.body.setMaxVelocity(100);
+            target.monster.anims.resume();
+            target.body.checkCollision.none = false;
+        }, [], this);
+    }
     
-    animation() {
+    layTrap() {
         const pointer = this.scene.input.activePointer;
         this.item = new Trap(this.scene, pointer.x, pointer.y, this.lifespan);
         this.item.once('trap:collide', this.effect, this);
     }
 
-	setTargetEvents(type){
-		// Elegible targets for this spell
-        this.scene.events[type]('pointerdown:game', this.focused, this);
-		// Event that clears the primed spell. Emitted by invalid targets.
-        this.scene.events[type]('pointerdown:enemy', this.clear, this);
-		this.scene.events[type]('keypress:esc', this.clear, this);
-		this.scene.events[type]('pointerdown:player', this.clear, this);
-	}
-
-	effect(target){
-        if(target) {
-            target.body.setMaxVelocity(0);
-            target.monster.anims.pause();
-            target.body.checkCollision.none = true;
-            // Using a flat value and false so trap annot crit. TODO: Bleed over time.
-            target.health.adjustValue(-20, this.type, false);
-            
-            this.scene.time.delayedCall(this.duration * 1000, () => {
-                target.body.setMaxVelocity(100);
-                target.monster.anims.resume();
-                target.body.checkCollision.none = false;
-            }, [], this);
-        }
+    effect(target){
+        // Only trigger if the target have a body.
+        // Game scene does not so lay the trap rather then trigger the trap.
+        (target.body) ? this.triggerTrap(target) : this.layTrap();
     }
 }
 

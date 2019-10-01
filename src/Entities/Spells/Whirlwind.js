@@ -21,13 +21,13 @@ class Whirlwind extends Spell {
         this.setScale(5);
 	}
 
-	setTargetEvents(type){
+	setCastEvents(state) {
 		// Call as it we click the spell to trigger effect().
 		// Acts like an instant cast.
-        this.focused();
-	}
+        if(state === 'on') this.castSpell();
+    }
 
-	effect(){
+	effect(target){
 		const enemiesInRange = this.scene.enemies.children.entries
 			.filter(enemy => {
 				enemy.vector = targetVector(this.player, enemy);

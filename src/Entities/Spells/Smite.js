@@ -14,29 +14,29 @@ class Smite extends Spell {
 		}
 
 		super({ ...defaults, ...config });
-		
 		// This is what the spell scales from.
 		this.power = this.player.stats.magic_power;
 	}
 
-	setTargetEvents(type){
+	setCastEvents(state){
 		// Elegible targets for this spell
-		this.scene.events[type]('pointerdown:enemy', this.focused, this);
+		this.scene.events[state]('pointerdown:enemy', this.castSpell, this);
 		// Event that clears the primed spell. Emitted by invalid targets.
-		this.scene.events[type]('pointerdown:game', this.clear, this);
-		this.scene.events[type]('keypress:esc', this.clear, this);
-		this.scene.events[type]('pointerdown:player', this.clear, this);
+		this.scene.events[state]('pointerdown:game', this.clearSpell, this);
+		this.scene.events[state]('keypress:esc', this.clearSpell, this);
+		this.scene.events[state]('pointerdown:player', this.clearSpell, this);
 	}
 
-	effect(){
+	effect(target){
 		// Returns crit boolean and modified value using spell base value.
 		const value = this.setValue(30, this.player.stats.magic_power);
 		const heal = this.setValue(15, this.player.stats.magic_power);
-		this.target.health.adjustValue(-value.amount, this.type, value.crit);
 		this.player.health.adjustValue(heal.amount, 'heal', heal.crit);
+		target.health.adjustValue(-value.amount, this.type, value.crit);
 	}
 
 	animationUpdate(){
+		console.log(this)
 		this.x = this.target.x;
 		this.y = this.target.y - 40;
 	}
