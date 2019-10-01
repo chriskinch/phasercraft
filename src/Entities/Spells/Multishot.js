@@ -17,17 +17,22 @@ class Multishot extends Spell {
 		}
 
         super({ ...defaults, ...config });
-		
-        this.setScale(5);
 	}
     
     setCastEvents(state) {
         // Call as we click the spell i.e: instant cast.
-        // Instanly triggers an off state so only do this when stae is on.
+        // Instanly triggers an off state so only do this when state is on.
         if(state === 'on') this.castSpell();
     }
 
 	effect(target){
+		// Scales value bases on player stat.
+		const value = this.setValue(30, this.player.stats.attack_power);
+		target.health.adjustValue(-value.amount, this.type, value.crit);
+	}
+
+	startAnimation() {
+		console.log("ANIM");
 		const enemiesInRange = this.scene.enemies.children.entries
 			.filter(enemy => {
 				enemy.vector = targetVector(this.player, enemy);
@@ -36,13 +41,11 @@ class Multishot extends Spell {
 			.sort(function (a, b) {
 				return a.vector.range - b.vector.range;
             })
-            .slice(0, this.cap);
-
-		// Scales value bases on player stat.
-		const value = this.setValue(30, this.player.stats.attack_power);
-
+			.slice(0, this.cap);
+			
 		enemiesInRange.forEach(enemy => {
-			enemy.health.adjustValue(-value.amount, this.type, value.crit);
+			console.log("ANIM");
+			this.effect(enemy);
 		});
 	}
 

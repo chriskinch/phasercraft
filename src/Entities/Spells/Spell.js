@@ -9,11 +9,14 @@ class Spell extends Phaser.GameObjects.Sprite {
 		this.player.clearLastPrimedSpell = () => {};
         
         this.setAnimation();
-
         Object.assign(this, this.setIcon());
-        const ready = this.checkResource();
-        this.setButtonEvents(ready ? 'on' : 'off');
-        this.button.setAlpha(ready ? 1 : 0.4);
+        // Initial state is assumed to be off so check for ready 
+        this.checkReady();
+    }
+
+    checkReady() {
+        this.player.resource.on('change', this.onResourceChangeHandler, this);
+        this.onResourceChangeHandler(); // Check instantly as some resources update infrequently.
     }
 
     clearSpell() {
@@ -24,7 +27,8 @@ class Spell extends Phaser.GameObjects.Sprite {
 	}
 
     onResourceChangeHandler() {
-        if(this.checkResource()) {
+        const ready = this.checkResource();
+        if(ready) {
             this.setButtonEvents('on');
             this.button.setAlpha(1);
             this.player.resource.off('change', this.onResourceChangeHandler, this);
@@ -48,8 +52,7 @@ class Spell extends Phaser.GameObjects.Sprite {
             },
 			onComplete: () => {
                 this.text.setVisible(false);
-                this.player.resource.on('change', this.onResourceChangeHandler, this);
-                this.onResourceChangeHandler();
+                this.checkReady();
             }
         });
 	}
@@ -103,7 +106,11 @@ class Spell extends Phaser.GameObjects.Sprite {
 
     setIcon() {
         let p = 30;
-		const button = this.scene.add.sprite(0, 0, 'icon', this.icon_name).setInteractive().setDepth(this.scene.depth_group.UI).setScale(2);
+        const button = this.scene.add.sprite(0, 0, 'icon', this.icon_name)
+            .setInteractive()
+            .setDepth(this.scene.depth_group.UI)
+            .setScale(2)
+            .setAlpha(0.4);
 
 		let styles = {
 			font: '21px monospace',
