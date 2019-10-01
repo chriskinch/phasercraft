@@ -132,13 +132,13 @@ class Enemy extends Phaser.GameObjects.Container {
 		}
 	}
 
-	primed(){
-		this.scene.events.off('pointerdown:enemy', this.deselect, this);
-	}
+	// primed(){
+	// 	this.scene.events.off('pointerdown:enemy', this.deselect, this);
+	// }
 
-	cast() {
-		this.scene.events.on('pointerdown:enemy', this.deselect, this);
-	}
+	// cast() {
+	// 	this.scene.events.on('pointerdown:enemy', this.deselect, this);
+	// }
 
 	hit({power, type = 'physical', crit}){
 		this.isHit = true;
@@ -151,8 +151,6 @@ class Enemy extends Phaser.GameObjects.Container {
 		this.health.remove();
 		this.scene.events.off('pointerdown:enemy', this.deselect, this);
 		this.scene.events.off('pointerdown:game', this.deselect, this);
-		this.scene.events.off('spell:primed', this.primed, this);
-		this.scene.events.off('spell:cast', this.cast, this);
 		this.scene.events.emit('enemy:dead', this);
 		this.monster.death();
 		this.active = false;

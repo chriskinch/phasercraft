@@ -28,13 +28,13 @@ class SnareTrap extends Spell {
         this.item.once('trap:collide', this.effect, this);
     }
 
-	setTargetEvents(type){
+	setCastEvents(state){
 		// Elegible targets for this spell
-        this.scene.events[type]('pointerdown:game', this.focused, this);
+        this.scene.events[state]('pointerdown:game', this.castSpell, this);
 		// Event that clears the primed spell. Emitted by invalid targets.
-        this.scene.events[type]('pointerdown:enemy', this.clear, this);
-		this.scene.events[type]('keypress:esc', this.clear, this);
-		this.scene.events[type]('pointerdown:player', this.clear, this);
+        this.scene.events[state]('pointerdown:enemy', this.clearSpell, this);
+		this.scene.events[state]('keypress:esc', this.clearSpell, this);
+		this.scene.events[state]('pointerdown:player', this.clearSpell, this);
 	}
 
 	effect(target){

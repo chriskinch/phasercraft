@@ -1,15 +1,15 @@
-import SpellRework from './SpellRework';
+import Spell from './Spell';
 import targetVector from '../../Helpers/targetVector';
 
-class Multishot extends SpellRework {
+class Multishot extends Spell {
 	constructor(config) {
 		const defaults = {
 			icon_name: 'icon_0005_coil',
-			cooldown: 1,
+			cooldown: 0,
 			cost: {
 				rage: 50,
 				mana: 80,
-				energy: 50
+				energy: 5
 			},
 			type: 'physical',
 			range: 480,
@@ -20,24 +20,14 @@ class Multishot extends SpellRework {
 		
         this.setScale(5);
 	}
-
-	setTargetEvents(type){
-        console.log("SET TARGET EVENTS", type)
-		// Call as it we click the spell to trigger effect().
-        // Acts like an instant cast.
-        this.focused();
-        // this.scene.time.delayedCall(1000, () => this.focused(), [], this);
-        // this.scene.events[type]('pointerdown:game', this.focused, this);
-        // this.scene.events[type]('pointerdown:game', this.clear, this);
-    }
     
     setCastEvents(state) {
-        console.log("SET TARGET EVENTS", state);
-        this.castSpell();
+        // Call as we click the spell i.e: instant cast.
+        // Instanly triggers an off state so only do this when stae is on.
+        if(state === 'on') this.castSpell();
     }
 
-	effect(){
-        console.log("EFFECT: ", this)
+	effect(target){
 		const enemiesInRange = this.scene.enemies.children.entries
 			.filter(enemy => {
 				enemy.vector = targetVector(this.player, enemy);
@@ -51,8 +41,8 @@ class Multishot extends SpellRework {
 		// Scales value bases on player stat.
 		const value = this.setValue(30, this.player.stats.attack_power);
 
-		enemiesInRange.forEach(target => {
-			target.health.adjustValue(-value.amount, this.type, value.crit);
+		enemiesInRange.forEach(enemy => {
+			enemy.health.adjustValue(-value.amount, this.type, value.crit);
 		});
 	}
 
