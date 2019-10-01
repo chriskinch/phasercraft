@@ -27,11 +27,11 @@ class Spell extends Phaser.GameObjects.Sprite {
 	}
 
     onResourceChangeHandler() {
-        const ready = this.checkResource();
-        if(ready) {
+        console.log("READY: ", this.checkResource());
+        if(this.checkResource()) {
             this.setButtonEvents('on');
             this.button.setAlpha(1);
-            this.player.resource.off('change', this.onResourceChangeHandler, this);
+            // this.player.resource.off('change', this.onResourceChangeHandler, this);
         }
     }
 
@@ -41,7 +41,7 @@ class Spell extends Phaser.GameObjects.Sprite {
         this.setCastEvents('off');
         this.out();
         this.player.clearLastPrimedSpell = () => {};
-        this.player.resource.off('change', this.onResourceChangeHandler, this);
+        // this.player.resource.off('change', this.onResourceChangeHandler, this);
         return this.scene.tweens.addCounter({
 			from: 0,
 			to: this.cooldown,
