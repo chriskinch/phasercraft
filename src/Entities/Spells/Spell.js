@@ -16,7 +16,7 @@ class Spell extends Phaser.GameObjects.Sprite {
         this.button.setAlpha(ready ? 1 : 0.4);
     }
 
-    clearSpell(name) {
+    clearSpell() {
         this.out();
         this.setCastEvents('off');
         this.setButtonEvents('on');
