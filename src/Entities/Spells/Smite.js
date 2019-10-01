@@ -7,7 +7,7 @@ class Smite extends Spell {
 			cooldown: 3,
 			cost: {
 				rage: 30,
-				mana: 300,
+				mana: 50,
 				energy: 40
 			},
 			type: 'magic'
@@ -36,6 +36,7 @@ class Smite extends Spell {
 	}
 
 	animationUpdate(){
+		console.log(this)
 		this.x = this.target.x;
 		this.y = this.target.y - 40;
 	}

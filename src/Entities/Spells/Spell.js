@@ -10,8 +10,17 @@ class Spell extends Phaser.GameObjects.Sprite {
         
         this.setAnimation();
         Object.assign(this, this.setIcon());
-        // Initial state is assumed to be off so check for ready 
+        // Initial state is assumed to be off so check for ready.
         this.checkReady();
+
+        // On any spell cast check all spells for readiness and disable if needed.
+        this.scene.events.on('spell:cast', () => {
+            if(!this.checkResource()) {
+                this.button.setAlpha(0.4);
+                this.setButtonEvents('off');
+                this.checkReady();
+            }
+        }, this);
     }
 
     checkReady() {
@@ -27,11 +36,10 @@ class Spell extends Phaser.GameObjects.Sprite {
 	}
 
     onResourceChangeHandler() {
-        console.log("READY: ", this.checkResource());
         if(this.checkResource()) {
             this.setButtonEvents('on');
             this.button.setAlpha(1);
-            // this.player.resource.off('change', this.onResourceChangeHandler, this);
+            this.player.resource.off('change', this.onResourceChangeHandler, this);
         }
     }
 
@@ -41,7 +49,7 @@ class Spell extends Phaser.GameObjects.Sprite {
         this.setCastEvents('off');
         this.out();
         this.player.clearLastPrimedSpell = () => {};
-        // this.player.resource.off('change', this.onResourceChangeHandler, this);
+        this.player.resource.off('change', this.onResourceChangeHandler, this);
         return this.scene.tweens.addCounter({
 			from: 0,
 			to: this.cooldown,
@@ -59,13 +67,14 @@ class Spell extends Phaser.GameObjects.Sprite {
 
     castSpell(target) {
         this.target = target;
-		this.scene.events.emit('spell:cast', this);
         this.effect(target);
-        
         // Charge the player some resource
         this.player.resource.adjustValue(-this.typedCost);
         // Do the animation
         this.animation = (this.hasAnimation) ? this.startAnimation() : null;
+
+        this.scene.events.emit('spell:cast', this);
+
 		// Set spell cooldown
 		this.cooldownTimer = this.setCooldown();
 	}
@@ -91,7 +100,7 @@ class Spell extends Phaser.GameObjects.Sprite {
         // For some reason this doesn work as this.button.setTint(); ???
 		// this.scene.time.delayedCall(0, () => this.button.setTint(), [], this);
 		this.button.setTint();
-	}
+    }
 
     setButtonEvents(state) {
         this.button[state]('pointerover', this.over, this);

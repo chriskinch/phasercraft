@@ -7,12 +7,12 @@ class SnareTrap extends Spell {
 			icon_name: 'icon_0020_shackle',
 			cooldown: 0,
 			cost: {
-				rage: 30,
-				mana: 50,
-				energy: 40
+				rage: 20,
+				mana: 30,
+				energy: 20
 			},
             type: 'bleed',
-            duration: 5,
+            duration: 6,
             lifespan: 20
 		}
 

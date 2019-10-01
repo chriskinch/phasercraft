@@ -7,7 +7,7 @@ class Heal extends Spell {
 			cooldown: 1,
 			cost: {
 				rage: 20,
-				mana: 350,
+				mana: 35,
 				energy: 30
 			},
 			type: 'heal'

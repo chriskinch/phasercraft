@@ -8,31 +8,32 @@ class Multishot extends Spell {
 			cooldown: 0,
 			cost: {
 				rage: 50,
-				mana: 80,
-				energy: 50
+				mana: 100,
+				energy: 60
 			},
 			type: 'physical',
-			range: 480,
+			range: 360,
 			cap: 3
 		}
 
-        super({ ...defaults, ...config });
+		super({ ...defaults, ...config });
 	}
     
     setCastEvents(state) {
         // Call as we click the spell i.e: instant cast.
         // Instanly triggers an off state so only do this when state is on.
-        if(state === 'on') this.castSpell();
+		if(state === 'on') this.castSpell();
     }
 
 	effect(target){
 		// Scales value bases on player stat.
-		const value = this.setValue(30, this.player.stats.attack_power);
-		target.health.adjustValue(-value.amount, this.type, value.crit);
+		if(target) {
+			const value = this.setValue(30, this.player.stats.attack_power);
+			target.health.adjustValue(-value.amount, this.type, value.crit);
+		}
 	}
 
 	startAnimation() {
-		console.log("ANIM");
 		const enemiesInRange = this.scene.enemies.children.entries
 			.filter(enemy => {
 				enemy.vector = targetVector(this.player, enemy);
@@ -44,14 +45,22 @@ class Multishot extends Spell {
 			.slice(0, this.cap);
 			
 		enemiesInRange.forEach(enemy => {
-			console.log("ANIM");
+			this.target = enemy;
 			this.effect(enemy);
+
+			const animation = this.scene.add.sprite(100, 100, 'multishot-effect')
+				.anims.play('multishot-animation')
+				.setDepth(1000)
+				.setScale(3)
+				.on('animationupdate', () => {
+					this.animationUpdate(animation, enemy);
+				});
 		});
 	}
 
-	animationUpdate(){
-		// this.x = this.player.x;
-		// this.y = this.player.y;
+	animationUpdate(effect, target){
+		effect.x = target.x;
+		effect.y = target.y;
 	}
 }
 
