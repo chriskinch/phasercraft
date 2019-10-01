@@ -71,6 +71,7 @@ class LoadScene extends Phaser.Scene {
 		this.load.atlas('enemy', EnemyAtlas, EnemyJSON);
 		this.load.atlas('icon', IconAtlas, IconJSON);
 		this.load.spritesheet('heal-effect', HealEffect, { frameWidth: 192, frameHeight: 192 });
+		this.load.spritesheet('siphonsoul-effect', HealEffect, { frameWidth: 192, frameHeight: 192 });
 		this.load.spritesheet('fireball-effect', FireballEffect, { frameWidth: 87, frameHeight: 87 });
 		this.load.spritesheet('smite-effect', SmiteEffect, { frameWidth: 100, frameHeight: 129 });
 		this.load.image('snare-trap', SnareTrap);
