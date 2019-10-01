@@ -198,7 +198,7 @@ class GameScene extends Phaser.Scene {
 		const min_delay = n_wave * this.global_spawn_time;
 		const wave_offset = n_wave * time_scale;
 		const time_limit = min_delay + wave_offset + time_scale;
-		// this.next_level_timer = this.time.delayedCall(time_limit, this.increaseLevel, [], this);
+		this.next_level_timer = this.time.delayedCall(time_limit, this.increaseLevel, [], this);
 	}
 }
 

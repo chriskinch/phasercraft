@@ -132,14 +132,6 @@ class Enemy extends Phaser.GameObjects.Container {
 		}
 	}
 
-	// primed(){
-	// 	this.scene.events.off('pointerdown:enemy', this.deselect, this);
-	// }
-
-	// cast() {
-	// 	this.scene.events.on('pointerdown:enemy', this.deselect, this);
-	// }
-
 	hit({power, type = 'physical', crit}){
 		this.isHit = true;
 		this.hit_delay = this.scene.time.delayedCall(this.scene.global_attack_delay, () => this.isHit = false, [], this);
