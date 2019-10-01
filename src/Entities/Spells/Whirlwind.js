@@ -7,7 +7,7 @@ class Whirlwind extends Spell {
 			icon_name: 'icon_0005_coil',
 			cooldown: 2,
 			cost: {
-				rage: 0,
+				rage: 50,
 				mana: 80,
 				energy: 60
 			},

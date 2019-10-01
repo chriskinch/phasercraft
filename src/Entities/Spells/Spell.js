@@ -11,11 +11,12 @@ class Spell extends Phaser.GameObjects.Sprite {
         this.setAnimation();
 
         Object.assign(this, this.setIcon());
-        this.setButtonEvents(this.checkResource() ? 'on' : 'off');
+        const ready = this.checkResource();
+        this.setButtonEvents(ready ? 'on' : 'off');
+        this.button.setAlpha(ready ? 1 : 0.4);
     }
 
-    clearSpell() {
-		console.log("CLEAR: ", this);
+    clearSpell(name) {
         this.out();
         this.setCastEvents('off');
         this.setButtonEvents('on');
@@ -23,7 +24,6 @@ class Spell extends Phaser.GameObjects.Sprite {
 	}
 
     onResourceChangeHandler() {
-        console.log("RESOURCE CHANGE");
         if(this.checkResource()) {
             this.setButtonEvents('on');
             this.button.setAlpha(1);
@@ -32,11 +32,11 @@ class Spell extends Phaser.GameObjects.Sprite {
     }
 
     setCooldown() {
-        console.log("COOLING DOWN");
-        this.button.setAlpha(0.5);
+        this.button.setAlpha(0.4);
         this.text.setVisible(true);
         this.setCastEvents('off');
         this.out();
+        this.player.clearLastPrimedSpell = () => {};
         this.player.resource.off('change', this.onResourceChangeHandler, this);
         return this.scene.tweens.addCounter({
 			from: 0,
@@ -55,32 +55,25 @@ class Spell extends Phaser.GameObjects.Sprite {
 	}
 
     castSpell(target) {
-        console.log("CAST", target);
         this.target = target;
 		this.scene.events.emit('spell:cast', this);
         this.effect(target);
         
         // Charge the player some resource
         this.player.resource.adjustValue(-this.typedCost);
-
         // Do the animation
         this.animation = (this.hasAnimation) ? this.startAnimation() : null;
-
 		// Set spell cooldown
 		this.cooldownTimer = this.setCooldown();
 	}
 	
-	clearLastPrimed() {
-		console.log("PREV: ", this.player.clearLastPrimedSpell);
+	clearLastPrimedSpell() {
 		this.player.clearLastPrimedSpell();
-		this.player.clearLastPrimedSpell = () => { 
-			this.out();
-		};
+		this.player.clearLastPrimedSpell = () => this.clearSpell(this.name);
 	}
     
     setPrimed() {
-		console.log("PRIMED", this);
-		this.clearLastPrimed();
+		this.clearLastPrimedSpell();
         this.scene.events.emit('spell:primed', this);
         this.setButtonEvents('off');
         this.setCastEvents('on');
@@ -92,14 +85,12 @@ class Spell extends Phaser.GameObjects.Sprite {
 	}
 
 	out() {
-        console.log("OUT");
         // For some reason this doesn work as this.button.setTint(); ???
 		// this.scene.time.delayedCall(0, () => this.button.setTint(), [], this);
 		this.button.setTint();
 	}
 
     setButtonEvents(state) {
-        console.log("SET BUTTON EVENTS", state)        
         this.button[state]('pointerover', this.over, this);
         this.button[state]('pointerout', this.out, this);
         this.button[state]('pointerdown', this.setPrimed, this);
@@ -107,7 +98,6 @@ class Spell extends Phaser.GameObjects.Sprite {
     }
 
     checkResource() {
-        console.log("CHECK: ", this.typedCost <= this.player.resource.getValue())
 		return (this.typedCost <= this.player.resource.getValue());
 	}
 

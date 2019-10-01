@@ -9,7 +9,7 @@ class Multishot extends Spell {
 			cost: {
 				rage: 50,
 				mana: 80,
-				energy: 5
+				energy: 50
 			},
 			type: 'physical',
 			range: 480,
