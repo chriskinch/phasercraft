@@ -23,18 +23,6 @@ class Spell extends Phaser.GameObjects.Sprite {
         }, this);
     }
 
-    checkReady() {
-        this.player.resource.on('change', this.onResourceChangeHandler, this);
-        this.onResourceChangeHandler(); // Check instantly as some resources update infrequently.
-    }
-
-    clearSpell() {
-        this.out();
-        this.setCastEvents('off');
-        this.setButtonEvents('on');
-        this.scene.events.emit('spell:cleared', this);
-	}
-
     onResourceChangeHandler() {
         if(this.checkResource()) {
             this.setButtonEvents('on');
@@ -43,13 +31,36 @@ class Spell extends Phaser.GameObjects.Sprite {
         }
     }
 
-    setCooldown() {
+    checkReady() {
+        this.player.resource.on('change', this.onResourceChangeHandler, this);
+        this.onResourceChangeHandler(); // Check instantly as some resources update infrequently.
+    }
+
+    checkAllSpells() {
+        this.player.spells.forEach(spell => spell.checkReady());
+    }
+
+    clearSpell() {
+        this.out();
+        this.setCastEvents('off');
+        this.setButtonEvents('on');
+        this.scene.events.emit('spell:cleared', this);
+    }
+    
+    disableSpell() {
         this.button.setAlpha(0.4);
-        this.text.setVisible(true);
         this.setCastEvents('off');
         this.out();
         this.player.clearLastPrimedSpell = () => {};
         this.player.resource.off('change', this.onResourceChangeHandler, this);
+    }
+
+    disbaleAllSpells() {
+        this.player.spells.forEach(spell => spell.disableSpell());
+    }
+
+    setCooldown() {
+        this.text.setVisible(true);
         return this.scene.tweens.addCounter({
 			from: 0,
 			to: this.cooldown,
@@ -75,8 +86,17 @@ class Spell extends Phaser.GameObjects.Sprite {
 
         this.scene.events.emit('spell:cast', this);
 
-		// Set spell cooldown
-		this.cooldownTimer = this.setCooldown();
+        // Disable spell ready for cooldown
+        this.disableSpell();
+        // If true delay the cooldown until duration is over
+        if(!this.cooldownDelay) {
+            this.cooldownTimer = this.setCooldown();
+        }else{
+            this.scene.events.once('spell:cooldown', () => {
+                this.cooldownTimer = this.setCooldown(); 
+            }, this);
+
+        }
 	}
 	
 	clearLastPrimedSpell() {
