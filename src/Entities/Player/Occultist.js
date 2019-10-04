@@ -20,7 +20,7 @@ class Occultist extends Player {
             resource: {
                 type: "Mana"
             },
-            abilities: ["Fireball", "SiphonSoul"]
+            abilities: ["Fireball", "SiphonSoul", "Smite"]
         }
 
         super({...default_stats, ...config});

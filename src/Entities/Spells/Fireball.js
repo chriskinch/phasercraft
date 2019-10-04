@@ -4,10 +4,10 @@ class Fireball extends Spell {
 	constructor(config) {
 		const defaults = {
 			icon_name: 'icon_0017_fire-ball',
-			cooldown: 1,
+			cooldown: 10,
 			cost: {
 				rage: 30,
-				mana: 50,
+				mana: 30,
 				energy: 40
 			},
 			type: 'magic'

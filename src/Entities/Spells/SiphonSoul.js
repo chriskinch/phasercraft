@@ -55,8 +55,6 @@ class SiphonSoul extends Spell {
         this.player.body.setMaxVelocity(100);
         this.emitter.stop();
 
-        this.checkAllSpells();
-
         this.scene.events.emit('spell:cooldown', this);
         this.scene.events.off('pointerdown:game', this.clearEffect, this);
     }
@@ -100,7 +98,7 @@ class SiphonSoul extends Spell {
     }
 
     startAnimation() {
-        this.disbaleAllSpells();
+        this.disableAllSpells();
 
 		this.scene.time.addEvent({
 			delay: this.duration * 1000,
