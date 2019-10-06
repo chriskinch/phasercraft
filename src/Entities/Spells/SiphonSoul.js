@@ -32,30 +32,28 @@ class SiphonSoul extends Spell {
 
     effect(target){
         // Root the target in place.
+        console.log(target.body.maxVelocity);
         target.body.setMaxVelocity(0);
         target.monster.anims.pause();
         target.body.checkCollision.none = true;
         // Also root the player until spell is over or click to move.
         this.player.body.setMaxVelocity(0);
         this.player.idle();
-        // Scaled value but cannot crit.
-        // const value = this.setValue(10, this.player.stats.magic_power);
-        // target.health.adjustValue(-value.amount, this.type, false);
 
         this.target = target;
         this.scene.events.on('pointerdown:game', this.clearEffect, this);
     }
 
     clearEffect() {
-        // Root the target in place.
-        this.target.body.setMaxVelocity(100);
+        // Set player and target stats back to normal.
+        this.target.body.setMaxVelocity(10000);
         this.target.monster.anims.resume();
         this.target.body.checkCollision.none = false;
-        // Also root the player until spell is over or click to move.
-        this.player.body.setMaxVelocity(100);
-        this.emitter.stop();
 
-        this.scene.events.emit('spell:cooldown', this);
+        this.player.body.setMaxVelocity(10000);
+        this.emitter.stop();
+        // We handle when to start the cooldown. Goes with cooldownDelay = true.
+        this.cooldownTimer = this.setCooldown();
         this.scene.events.off('pointerdown:game', this.clearEffect, this);
     }
 
@@ -98,21 +96,17 @@ class SiphonSoul extends Spell {
     }
 
     startAnimation() {
-        this.disableAllSpells();
-
 		this.scene.time.addEvent({
 			delay: this.duration * 1000,
-			callback: this.clearEffect,
-			callbackScope: this
+			callback: () => {
+                if(!this.enabled) this.clearEffect();
+            },
+            callbackScope: this,
         });
         this.setParticles();
     }
 
-    animationUpdate() {
-        console.log("UPDATE")
-        this.x = this.target.x;
-        this.y = this.target.y;
-    }
+    animationUpdate() {}
 }
 
 export default SiphonSoul;

@@ -11,15 +11,21 @@ class Spell extends Phaser.GameObjects.Sprite {
         
         this.setAnimation();
         Object.assign(this, this.setIcon());
-        // Initial state is assumed to be off so check for ready.
-        if(this.checkReady()) this.enableSpell();
+        // Initial state is assumed to be off so check for ready if not monitor.
+        if(this.checkReady()) {
+			this.enableSpell();
+		}else{
+			this.monitorReady();
+		}
         // On any spell cast check all spells for readiness and disable if needed.
         this.scene.events.on('spell:cast', () => {
-            if(!this.checkReady()) {
-                this.disableSpell();
-                this.monitorReady();
-            }
-        }, this);
+			this.disableSpell();
+		}, this);
+		// Once a spell is cooling down monitor if all spells are ready.
+		// This covers us for disabling spells while one is channeled.
+		this.scene.events.on('spell:cooldown', () => {
+			this.monitorReady();
+		}, this);
     }
 
     checkResource() {
@@ -31,7 +37,6 @@ class Spell extends Phaser.GameObjects.Sprite {
     }
     
     checkReady() {
-        console.log(`CHECK: ${this.name}`, this.checkResource(), this.checkCooldown(), !this.enabled)
         return (this.checkResource() && this.checkCooldown() && !this.enabled);
     }
     
@@ -51,23 +56,14 @@ class Spell extends Phaser.GameObjects.Sprite {
         this.player.resource.off('change', this.onResourceChangeHandler, this);
     }
 
-    enableAllSpells() {
-        this.player.spells.forEach(spell => {
-            if(spell.checkReady()) spell.enableSpell();
-        });
-    }
-
     disableSpell() {
         this.enabled = false;
-        this.button.setAlpha(0.4);
+		this.button.setAlpha(0.4);
+		this.setButtonEvents('off');
         this.setCastEvents('off');
         this.out();
         this.player.clearLastPrimedSpell = () => {};
         this.player.resource.off('change', this.onResourceChangeHandler, this);
-    }
-
-    disableAllSpells() {
-        this.player.spells.forEach(spell => spell.disableSpell());
     }
 
     clearSpell() {
@@ -78,21 +74,26 @@ class Spell extends Phaser.GameObjects.Sprite {
     }
 
     setCooldown() {
-        this.text.setVisible(true);
+		this.text.setVisible(true);
         return this.scene.tweens.addCounter({
 			from: 0,
 			to: this.cooldown,
-            duration: this.cooldown * 1000,
+			duration: this.cooldown * 1000,
+			onStart: () => {
+				// Do this on start so we know the timer has been setup.
+				this.scene.events.emit('spell:cooldown', this);
+			},
 			onUpdate: () => {
                 const time = this.cooldown - Math.floor(this.cooldownTimer.getValue());
                 this.text.setText(time);
             },
 			onComplete: () => {
                 this.text.setVisible(false);
-                this.monitorReady();
             }
         });
 	}
+
+
 
     castSpell(target) {
         this.target = target;
@@ -101,21 +102,11 @@ class Spell extends Phaser.GameObjects.Sprite {
         this.player.resource.adjustValue(-this.typedCost);
         // Do the animation
         this.animation = (this.hasAnimation) ? this.startAnimation() : null;
-
-        // Disable spell ready for cooldown
-        this.disableAllSpells();
-        // If true delay the cooldown until custom emit event is triggered
-        if(!this.cooldownDelay) {
-            this.cooldownTimer = this.setCooldown();
-        }else{
-            this.scene.events.once('spell:cooldown', () => {
-                this.cooldownTimer = this.setCooldown();
-                this.enableAllSpells();
-            }, this);
-
-        }
-
-        this.scene.events.emit('spell:cast', this);
+		
+		// Check if cooldown should be trigger automatically. Other wise spell must handle this.
+		if(!this.cooldownDelay) this.cooldownTimer = this.setCooldown();
+		
+		this.scene.events.emit('spell:cast', this);
 	}
 	
 	clearLastPrimedSpell() {
