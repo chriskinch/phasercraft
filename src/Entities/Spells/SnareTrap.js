@@ -43,7 +43,7 @@ class SnareTrap extends Spell {
         target.health.adjustValue(-20, this.type, false);
         
         this.scene.time.delayedCall(this.duration * 1000, () => {
-            target.body.setMaxVelocity(100);
+            target.body.setMaxVelocity(10000);
             target.monster.anims.resume();
             target.body.checkCollision.none = false;
         }, [], this);

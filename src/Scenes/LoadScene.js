@@ -16,6 +16,8 @@ import IconAtlas from '../Graphics/atlas/atlas-icons.png';
 import IconJSON from '../Graphics/atlas/atlas-icons.json';
 import HealEffect from '../Graphics/spritesheets/spells/heal.png';
 import FireballEffect from '../Graphics/spritesheets/spells/fireball.png';
+import SiphonSoulAtlas from '../Graphics/atlas/spells/atlas-siphonsoul.png';
+import SiphonSoulJSON from '../Graphics/atlas/spells/atlas-siphonsoul.json';
 import SmiteEffect from '../Graphics/spritesheets/spells/smite.gif';
 import SnareTrap from '../Graphics/spritesheets/spells/snaretrap.gif';
 import WhirlwindEffect from '../Graphics/spritesheets/spells/whirlwind.png';
@@ -71,7 +73,9 @@ class LoadScene extends Phaser.Scene {
 		this.load.atlas('enemy', EnemyAtlas, EnemyJSON);
 		this.load.atlas('icon', IconAtlas, IconJSON);
 		this.load.spritesheet('heal-effect', HealEffect, { frameWidth: 192, frameHeight: 192 });
+		this.load.spritesheet('siphonsoul-effect', HealEffect, { frameWidth: 192, frameHeight: 192 });
 		this.load.spritesheet('fireball-effect', FireballEffect, { frameWidth: 87, frameHeight: 87 });
+		this.load.atlas('siphon-soul', SiphonSoulAtlas, SiphonSoulJSON);
 		this.load.spritesheet('smite-effect', SmiteEffect, { frameWidth: 100, frameHeight: 129 });
 		this.load.image('snare-trap', SnareTrap);
 		this.load.spritesheet('multishot-effect', AttackSwoosh, { frameWidth: 32, frameHeight: 32 });

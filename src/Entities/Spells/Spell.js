@@ -4,28 +4,66 @@ class Spell extends Phaser.GameObjects.Sprite {
 		Object.assign(this, config);
         this.name = this.constructor.name.toLowerCase();
         this.typedCost = this.cost[this.player.resource.type];
-		this.hasAnimation = true;
-		// Placeholder for clearnign the previous spell so it doesn't error
-		this.player.clearLastPrimedSpell = () => {};
+        this.hasAnimation = true;
+        this.enabled = false;
+        // Placeholder empty function for clearing last spell
+        this.player.clearLastPrimedSpell = () => {};
         
         this.setAnimation();
         Object.assign(this, this.setIcon());
-        // Initial state is assumed to be off so check for ready.
-        this.checkReady();
-
+        // Initial state is assumed to be off so check for ready if not monitor.
+        if(this.checkReady()) {
+			this.enableSpell();
+		}else{
+			this.monitorReady();
+		}
         // On any spell cast check all spells for readiness and disable if needed.
         this.scene.events.on('spell:cast', () => {
-            if(!this.checkResource()) {
-                this.button.setAlpha(0.4);
-                this.setButtonEvents('off');
-                this.checkReady();
-            }
-        }, this);
+			this.disableSpell();
+		}, this);
+		// Once a spell is cooling down monitor if all spells are ready.
+		// This covers us for disabling spells while one is channeled.
+		this.scene.events.on('spell:cooldown', () => {
+			this.monitorReady();
+		}, this);
     }
 
+    checkResource() {
+		return (this.typedCost <= this.player.resource.getValue());
+    }
+    
+    checkCooldown() {
+		return (!this.cooldownTimer || this.cooldownTimer.getValue() === this.cooldown);
+    }
+    
     checkReady() {
+        return (this.checkResource() && this.checkCooldown() && !this.enabled);
+    }
+    
+    monitorReady() {
         this.player.resource.on('change', this.onResourceChangeHandler, this);
         this.onResourceChangeHandler(); // Check instantly as some resources update infrequently.
+    }
+
+    onResourceChangeHandler() {
+        if(this.checkReady()) this.enableSpell();
+    }
+
+    enableSpell() {
+        this.enabled = true;
+        this.button.setAlpha(1);
+        this.setButtonEvents('on');
+        this.player.resource.off('change', this.onResourceChangeHandler, this);
+    }
+
+    disableSpell() {
+        this.enabled = false;
+		this.button.setAlpha(0.4);
+		this.setButtonEvents('off');
+        this.setCastEvents('off');
+        this.out();
+        this.player.clearLastPrimedSpell = () => {};
+        this.player.resource.off('change', this.onResourceChangeHandler, this);
     }
 
     clearSpell() {
@@ -33,37 +71,29 @@ class Spell extends Phaser.GameObjects.Sprite {
         this.setCastEvents('off');
         this.setButtonEvents('on');
         this.scene.events.emit('spell:cleared', this);
-	}
-
-    onResourceChangeHandler() {
-        if(this.checkResource()) {
-            this.setButtonEvents('on');
-            this.button.setAlpha(1);
-            this.player.resource.off('change', this.onResourceChangeHandler, this);
-        }
     }
 
     setCooldown() {
-        this.button.setAlpha(0.4);
-        this.text.setVisible(true);
-        this.setCastEvents('off');
-        this.out();
-        this.player.clearLastPrimedSpell = () => {};
-        this.player.resource.off('change', this.onResourceChangeHandler, this);
+		this.text.setVisible(true);
         return this.scene.tweens.addCounter({
 			from: 0,
 			to: this.cooldown,
-            duration: this.cooldown * 1000,
+			duration: this.cooldown * 1000,
+			onStart: () => {
+				// Do this on start so we know the timer has been setup.
+				this.scene.events.emit('spell:cooldown', this);
+			},
 			onUpdate: () => {
                 const time = this.cooldown - Math.floor(this.cooldownTimer.getValue());
                 this.text.setText(time);
             },
 			onComplete: () => {
                 this.text.setVisible(false);
-                this.checkReady();
             }
         });
 	}
+
+
 
     castSpell(target) {
         this.target = target;
@@ -72,11 +102,11 @@ class Spell extends Phaser.GameObjects.Sprite {
         this.player.resource.adjustValue(-this.typedCost);
         // Do the animation
         this.animation = (this.hasAnimation) ? this.startAnimation() : null;
-
-        this.scene.events.emit('spell:cast', this);
-
-		// Set spell cooldown
-		this.cooldownTimer = this.setCooldown();
+		
+		// Check if cooldown should be trigger automatically. Other wise spell must handle this.
+		if(!this.cooldownDelay) this.cooldownTimer = this.setCooldown();
+		
+		this.scene.events.emit('spell:cast', this);
 	}
 	
 	clearLastPrimedSpell() {
@@ -108,10 +138,6 @@ class Spell extends Phaser.GameObjects.Sprite {
         this.button[state]('pointerdown', this.setPrimed, this);
         this.scene.input.keyboard[state](`keydown-${this.hotkey}`, this.setPrimed, this);
     }
-
-    checkResource() {
-		return (this.typedCost <= this.player.resource.getValue());
-	}
 
     setIcon() {
         let p = 30;

@@ -33,6 +33,7 @@ class Enemy extends Phaser.GameObjects.Container {
 		this.hitRadius = 25;
 		this.loot_chance = 0.75;
 		this.active_group = config.active_group;
+		this.alive = true;
 
 		this.graphics = {};
 		this.graphics.selected = this.drawSelected('selected');
@@ -145,6 +146,7 @@ class Enemy extends Phaser.GameObjects.Container {
 		this.scene.events.off('pointerdown:game', this.deselect, this);
 		this.scene.events.emit('enemy:dead', this);
 		this.monster.death();
+		this.alive = false;
 		this.active = false;
 		this.input.enabled = false;
 		this.scene.physics.world.disable(this);
