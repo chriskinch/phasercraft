@@ -18,7 +18,7 @@ class SiphonSoul extends Spell {
 		super({ ...defaults, ...config });
 		
 		// This is what the spell scales from.
-        this.power = this.player.stats.magic_power / 10;
+        this.power = this.player.stats.magic_power / 8;
     }
 
 	setCastEvents(state){
