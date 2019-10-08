@@ -20,15 +20,43 @@ class Menu extends Phaser.GameObjects.DOMElement {
         this.setVisible(false);
 
         scene.add.existing(this);
+
+        Object.assign(this, this.setIcon());
     }
 
     clickHandler(event){
         // NOW WE ARE IN BUSINESS!
-        // console.log("INTERNAL HANDLER: ", event.target, event.target.getAttribute('data-value'));
+        // console.log("INTERNAL HANDLER: ", event.target.getAttribute('data-tab'));
+
+        const close = event.target.getAttribute('data-close');
+        if(typeof close === "string") this.toggleVisibility();
+
+        const tab = event.target.getAttribute('data-tab');
+        if(typeof tab === "string") this.tabButton(tab);
     }
     
     toggleVisibility() {
-        this.setVisible((this.visible) ? false : true);
+        console.log("TOGGLE");
+        const scene_manager = this.scene.scene;
+        this.setVisible(!this.visible);
+        (this.visible) ? scene_manager.pause() : scene_manager.resume();
+    }
+
+    tabButton(tab) {
+        console.log("TAB: ", tab);
+    }
+
+    setIcon() {
+        const menu_button = this.scene.add.sprite(0, 0, 'icon', 'icon_0021_charm')
+            .setInteractive()
+            .setDepth(this.scene.depth_group.UI)
+            .setScale(2);
+
+        Phaser.Display.Align.In.BottomRight(menu_button, this.scene.zone);
+        
+        menu_button.on('pointerdown', this.toggleVisibility, this);
+        
+        return {menu_button: menu_button};
     }
 }
 
