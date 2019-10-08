@@ -25,10 +25,13 @@
         background-color: black;
         border: none;
         color: white;
+        cursor: pointer;
         padding: 12px 16px;
         text-align: center;
         font-size: 17px;
-        cursor: pointer;
+        position: absolute;
+        right: 10px;
+        top: 10px;
     }
 
     .btnic .fa {
@@ -71,12 +74,22 @@
         text-indent: -9999px;
         width: 820px;
     }
+
+    .menu-tabs .tab.active {
+        background-color: #999;
+        margin-left: -10px;
+    }
+
+    .active .pb {
+        background-color: #999;
+        border-color:  #777;
+    }
 </style>
 
 <div id="menu-container">
     <aside class="menu-tabs">
         <ul>
-            <li class="tab"><button class="pb pb-character" data-tab="character">Character</button></li>
+            <li class="tab active"><button class="pb pb-character" data-tab="character">Character</button></li>
             <li class="tab"><button class="pb pb-character" data-tab="equipment">Equipment</button></li>
             <li class="tab"><button class="pb pb-character" data-tab="spells">Spells</button></li>
             <li class="tab"><button class="pb pb-character" data-tab="system">System</button></li>
@@ -84,7 +97,6 @@
     </aside>
 
     <section id="menu">
-        <h1>Game Menu</h1>
         <button class="btnic" data-close><i class="fa fa-close"></i></button>
         <section>
             Hello World!

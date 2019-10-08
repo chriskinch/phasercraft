@@ -43,7 +43,7 @@ class Menu extends Phaser.GameObjects.DOMElement {
     }
 
     tabButton(tab) {
-        console.log("TAB: ", tab);
+        console.log("TAB: ", tab, this);
     }
 
     setIcon() {
