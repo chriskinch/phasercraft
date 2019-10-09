@@ -7,6 +7,11 @@
   resolved "https://registry.yarnpkg.com/@babel/parser/-/parser-7.5.5.tgz#02f077ac8817d3df4a832ef59de67565e71cca4b"
   integrity sha512-E5BN68cqR7dhKan1SfqgPGhQ178bkVKpXTPEXnFJBrEt8/DKRZlybmy+IgYLTeN7tp1R5Ccmbm2rBk17sHYU3g==
 
+"@koreez/phaser3-ninepatch@^2.0.2":
+  version "2.0.2"
+  resolved "https://registry.yarnpkg.com/@koreez/phaser3-ninepatch/-/phaser3-ninepatch-2.0.2.tgz#d91d8baf13f8afca83fb45d4db6f0f9f5a9d9657"
+  integrity sha512-kzku+M/+Nv4ST+68EDokRKjx7QI93johbk4AEIHbaOdbrZsRbXrVUZmmmfbWBPkrstRvVRdWlKRLR1BnVn1wZQ==
+
 "@types/events@*":
   version "3.0.0"
   resolved "https://registry.yarnpkg.com/@types/events/-/events-3.0.0.tgz#2862f3f58a9a7f7c3e78d79f130dd4d71c25c2a7"
