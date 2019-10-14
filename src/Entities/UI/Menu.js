@@ -21,7 +21,7 @@ class Menu extends Phaser.GameObjects.DOMElement {
 
         scene.add.existing(this);
 
-        Object.assign(this, this.setIcon());
+		Object.assign(this, this.setIcon());
     }
 
     clickHandler(event){
@@ -33,13 +33,24 @@ class Menu extends Phaser.GameObjects.DOMElement {
 
         const tab = event.target.getAttribute('data-tab');
         if(typeof tab === "string") this.tabButton(tab);
-    }
+	}
+	
+	setStats() {
+		const {health, resource, ...stats} = this.scene.player.stats;
+
+		Object.entries(stats).forEach(s => {
+			const el = this.node.querySelector(`.${s[0]}-value`);
+			if(el) el.innerText = s[1];
+		});		
+	}
     
     toggleVisibility() {
         console.log("TOGGLE");
         const scene_manager = this.scene.scene;
         this.setVisible(!this.visible);
-        (this.visible) ? scene_manager.pause() : scene_manager.resume();
+		(this.visible) ? scene_manager.pause() : scene_manager.resume();
+		
+		this.setStats();
     }
 
     tabButton(tab) {
