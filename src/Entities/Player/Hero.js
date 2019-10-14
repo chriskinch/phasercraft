@@ -1,9 +1,9 @@
 class Hero extends Phaser.GameObjects.Sprite {
 
-	constructor(config) {
-		super(config.scene, 0, 0, config.key);
-		config.scene.physics.world.enable(this);
-		config.scene.add.existing(this);
+	constructor({scene, x=0, y=0, key}) {
+		super(scene, x, y, key);
+		scene.physics.world.enable(this);
+		scene.add.existing(this);
 
 		this.body.collideWorldBounds = true;
 		this.body.immovable = true;

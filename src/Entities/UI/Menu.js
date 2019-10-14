@@ -1,6 +1,8 @@
 import { NinePatch } from '@koreez/phaser3-ninepatch';
 import Hero from '../Player/Hero';
 
+const UppercaseFirst = Phaser.Utils.String.UppercaseFirst;
+
 class Menu extends Phaser.GameObjects.Container {
 	constructor({scene, x, y}) {
 		super(scene, x, y);
@@ -8,12 +10,13 @@ class Menu extends Phaser.GameObjects.Container {
 		this.setSize(800, 470);
 		Phaser.Display.Align.In.Center(this, this.scene.zone);
 
+		const padding = 42;
 		this.bounds = {
-			top: this.height * -0.5,
-			left: this.width * -0.5,
-			bottom: this.height * 0.5,
-			right: this.width * 0.5,
-			padding: 42
+			top: this.height * -0.5 + padding,
+			left: this.width * -0.5 + padding,
+			bottom: this.height * 0.5 + padding,
+			right: this.width * 0.5 + padding,
+			padding: padding
 		}
 
 		// Events
@@ -21,14 +24,14 @@ class Menu extends Phaser.GameObjects.Container {
 
 		// Objects
 		this.add(this.setBackground());
-		this.add(this.setHero());
-		// We set the text once the fonts have loaded. This eveent is emitted across scenes.
-		this.add(this.setText());
+		this.add(this.setHero({x:this.bounds.left, y:this.bounds.top + 60}).setScale(5).setOrigin(0.5));
 
 		// Invisible until we need it
 		this.setVisible(false);
 
 		this.scene.add.existing(this).setDepth(this.scene.depth_group.TOP);
+
+		this.player = scene.player;
 	}
 
 	setBackground() {
@@ -37,15 +40,30 @@ class Menu extends Phaser.GameObjects.Container {
 		});
 	}
 
-	setText() {
+	setStats() {
+		const { health, resource, ...stats } = this.player.stats;
+		const stat_keys = Object.keys(stats).map(s => UppercaseFirst(s.replace('_', ' ') + ':'));
+		const stat_values = Object.values(stats);
+		console.log(stat_keys)
 		// Here setResolution might eat up memory
+		var haiku2 = "Green hat, Master Sword\nMonsters and chickens beware\nMoney making game";
+
+		this.add(this.setText("Level 1", { align: 'right' }));
+		this.add(this.setText(stat_keys, { align: 'right', oleft: 150, otop:40 }));
+		this.add(this.setText(stat_values, { align: 'left', oleft: 320, otop:40 }));
+	}
+
+	setText(text, {align = 'left', oleft = 0, otop = 0} ) {
 		// TODO: Find a more efficient way for pixel font style
 		return this.scene.add.text(
-			this.bounds.left + this.bounds.padding,
-			this.bounds.top + this.bounds.padding, 
-			'Anubis', 
-			{ fontFamily: 'VT323' }
-		).setScale(2);
+			this.bounds.left + oleft,
+			this.bounds.top + otop, 
+			text, 
+			{ 
+				fontFamily: 'VT323',
+				align: align
+			}
+		).setScale(1.5);
 	}
 
 	setHero() {
@@ -58,36 +76,14 @@ class Menu extends Phaser.GameObjects.Container {
 	}
 
 	toggleVisibility() {
+		this.player = this.scene.player;
+		// We set the text once the fonts have loaded. This eveent is emitted across scenes.
+		this.setStats();
+
 		this.scene.children.bringToTop(this);
 		this.setVisible(!this.visible);
-        // (this.visible) ? this.scene.scene.pause() : this.scene.scene.resume();
+        (this.visible) ? this.scene.scene.pause() : this.scene.scene.resume();
     }
-
-	createText() {
-		console.log("TEXT");
-
-		var style = {
-			font: "15px Revalia",
-			fill: "#fff",
-			boundsAlignH: "center",
-			boundsAlignV: "middle"
-		};
-		
-		var style2 = {
-			font: "25px FerrumExtracondensed",
-			fill: "#fff",
-			boundsAlignH: "center",
-			boundsAlignV: "middle"
-		};
-		
-		//  The Text is positioned at 0, 100
-		var text = this.scene.add.text(50, 100, "Revalia Google Font", style);
-		text.setShadow(3, 3, 'rgba(0,0,0,0.5)', 2);
-		
-		var text2 = his.scene.add.text(50, 200, "Ferrum Custom Font", style2);
-		text2.setShadow(3, 3, 'rgba(0,0,0,0.5)', 2);
-		
-	}
 }
 
 export default Menu;
