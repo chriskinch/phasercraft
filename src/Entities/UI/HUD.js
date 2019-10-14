@@ -21,7 +21,7 @@ class UI extends Phaser.GameObjects.Container {
 		this.scene.events.on('increment:coin', this.addCoinCount, this);
 		this.scene.events.on('increment:wave', this.addWaveCount, this);
 
-		this.menu = new Menu({scene: scene, x:centerX, y:centerY, key:'S'});
+		this.menu = new Menu({scene: scene, x:centerX, y:centerY, key:'S'}).createFromCache('menu').addListener('click');
 		this.add(this.menu);
 
 		this.scene.add.existing(this).setDepth(this.scene.depth_group.UI);
