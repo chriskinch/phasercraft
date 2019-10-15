@@ -1,27 +1,24 @@
+import Character from './Character';
+
 class Menu extends Phaser.GameObjects.DOMElement {
 	constructor({scene, x, y, element, style, innerText, key}) {
         super(scene, x, y, element, style, innerText);
-        
-		this.bounds = {
-			top: this.height * -0.5,
-			left: this.width * -0.5,
-			bottom: this.height * 0.5,
-			right: this.width * 0.5,
-			padding: 28
-		}
 
         // Toggle on key binding
         scene.input.keyboard.on(`keydown-${key}`, this.toggleVisibility, this);
         
         // Pass event data on so we can do stuff with data-attrs
-        this.on('click', (event) => { this.clickHandler(event); });
+        this.on('click', (event) => { this.clickHandler(event) });
 
         // Menus by default start out hidden
-        this.setVisible(false);
+        this.setVisible(false).setDepth(this.scene.depth_group.UI);
 
         scene.add.existing(this);
 
-		Object.assign(this, this.setIcon());
+        Object.assign(this, this.setIcon());
+        
+        const config = { scene: scene, x: x, y: y };
+        this.character = new Character(config).createFromCache('character').addListener('click');
     }
 
     clickHandler(event){
@@ -34,23 +31,14 @@ class Menu extends Phaser.GameObjects.DOMElement {
         const tab = event.target.getAttribute('data-tab');
         if(typeof tab === "string") this.tabButton(tab);
 	}
-	
-	setStats() {
-		const {health, resource, ...stats} = this.scene.player.stats;
-
-		Object.entries(stats).forEach(s => {
-			const el = this.node.querySelector(`.${s[0]}-value`);
-			if(el) el.innerText = s[1];
-		});		
-	}
     
     toggleVisibility() {
         console.log("TOGGLE");
         const scene_manager = this.scene.scene;
         this.setVisible(!this.visible);
 		(this.visible) ? scene_manager.pause() : scene_manager.resume();
-		
-		this.setStats();
+        
+        this.character.toggleVisibility();
     }
 
     tabButton(tab) {

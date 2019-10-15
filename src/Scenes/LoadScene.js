@@ -84,6 +84,7 @@ class LoadScene extends Phaser.Scene {
 		// UI elements
 		this.load.html('character-select', './UI/character-select.html');
 		this.load.html('menu', './UI/menu.html');
+		this.load.html('character', './UI/character.html');
 
 		//this.loadExtender();
 	}
