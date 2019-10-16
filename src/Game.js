@@ -1,19 +1,42 @@
 import Phaser from "phaser";
-import ExampleScene from "./Scenes/ExampleScene";
+// import ExampleScene from "./Scenes/ExampleScene";
+import LoadScene from './Scenes/LoadScene';
+import SelectScene from './Scenes/SelectScene';
+// import GameScene from './Scenes/GameScene';
+// import GameOverScene from './Scenes/GameOverScene';
 
 import * as React from "react";
 
-import { GAME_HEIGHT, GAME_WIDTH } from "./config";
+// import { GAME_HEIGHT, GAME_WIDTH } from "./config";
 
-export default class IGame extends React.Component {
+export default class Game extends React.Component {
   componentDidMount() {
     const config = {
-      type: Phaser.AUTO,
-      width: GAME_WIDTH,
-      height: GAME_HEIGHT,
+			type: Phaser.AUTO,
+			width: window.innerWidth,
+			height: window.innerHeight,
+      backgroundColor: '#6e9c48',
       parent: "phaser-game",
-      scene: [ExampleScene]
-    };
+			physics: {
+				default: 'arcade',
+				arcade: {
+					debug: false,
+					gravity: { y: 0 }
+				}
+			},
+			scene: [
+				LoadScene,
+				SelectScene,
+				// GameScene,
+				// GameOverScene
+			],
+			dom: {
+				createContainer: true
+			},
+			pixelArt: true,
+			antialias: false,
+			globalScale: 2
+		}
 
     new Phaser.Game(config);
   }

@@ -29,7 +29,7 @@
     "array.prototype.flatten": "^1.2.1",
     "eslint-loader": "3.0.2",
     "flat-map-polyfill": "^0.3.8",
-    "phaser": "^3.19.0",
+    "phaser": "^3.20.1",
     "react": "^16.10.2",
     "react-dom": "^16.10.2",
     "react-redux": "^7.1.1",

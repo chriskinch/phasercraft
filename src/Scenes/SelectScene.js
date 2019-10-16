@@ -1,24 +1,18 @@
-import CharacterSelect from '../Entities/UI/CharacterSelect';
+import { Scene } from 'phaser';
+import store from "../store";
+import { TOGGLE_UI } from "../store/gameReducer";
 
-class SelectScene extends Phaser.Scene {
+class SelectScene extends Scene {
 	constructor() {
 		super({
-			key: 'MenuScene'
+			key: 'SelectScene'
 		});
 
 		this.config = {};
 	}
 
    	create(){
-		const { centerX, centerY } = this.physics.world.bounds;
-		this.character_select_menu = new CharacterSelect({
-			scene: this,
-			x: centerX,
-			y: centerY
-		}).createFromCache('character-select')
-		.setVisible(true)
-		.addListener('click')
-		.on('click', (event) => { this.clickHandler(event); });
+		store.dispatch({ type: TOGGLE_UI });
 	}
 
 	clickHandler(event){
