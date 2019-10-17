@@ -9,14 +9,14 @@ import * as React from "react";
 
 // import { GAME_HEIGHT, GAME_WIDTH } from "./config";
 
-export default class Game extends React.Component {
+export default class Canvas extends React.Component {
   componentDidMount() {
     const config = {
-			type: Phaser.AUTO,
-			width: window.innerWidth,
-			height: window.innerHeight,
-      backgroundColor: '#6e9c48',
-      parent: "phaser-game",
+		type: Phaser.AUTO,
+		width: window.innerWidth,
+		height: window.innerHeight,
+      	backgroundColor: '#6e9c48',
+      	parent: "phaser-game",
 			physics: {
 				default: 'arcade',
 				arcade: {
@@ -25,6 +25,7 @@ export default class Game extends React.Component {
 				}
 			},
 			scene: [
+				// ExampleScene
 				LoadScene,
 				SelectScene,
 				// GameScene,

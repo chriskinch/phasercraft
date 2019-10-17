@@ -6,6 +6,7 @@
     "number-to-words": "^1.2.4"
   },
   "dependencies": {
+    "jest-canvas-mock": "^2.1.2",
     "phaser": "^3.16.2",
     "react": "^16.8.6",
     "react-dom": "^16.8.6",
@@ -16,7 +17,7 @@
   "scripts": {
     "start": "react-scripts start",
     "build": "react-scripts build",
-    "test": "react-scripts test",
+    "test": "react-scripts test --setupFiles ./node_modules/jest-canvas-mock",
     "eject": "react-scripts eject"
   },
   "eslintConfig": {

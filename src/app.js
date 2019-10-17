@@ -2,7 +2,7 @@ import React, { Component } from 'react';
 // import logo from './logo.svg';
 import './App.css';
 
-import Game from "./Game";
+import Game from "./Game"
 import UI from "./UI/UI";
 import { Provider } from "react-redux";
 
