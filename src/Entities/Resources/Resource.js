@@ -1,4 +1,6 @@
-class Resource extends Phaser.GameObjects.Sprite {
+import { GameObjects } from 'phaser';
+
+class Resource extends GameObjects.Sprite {
 
 	constructor(config) {
 		super(config.scene, config.x, config.y, 'resource-frame');

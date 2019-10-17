@@ -1,4 +1,6 @@
-class Boons extends Phaser.GameObjects.Group {
+import { GameObjects } from 'phaser';
+
+class Boons extends GameObjects.Group {
 	constructor(scene, player) {
 		super(scene);
         this.player = player;

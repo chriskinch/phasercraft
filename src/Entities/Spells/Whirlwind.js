@@ -32,6 +32,7 @@ class Whirlwind extends Spell {
 			.filter(enemy => {
 				enemy.vector = targetVector(this.player, enemy);
 				if (enemy.vector.range < this.range) return enemy;
+				return null;
 			})
 			.sort(function (a, b) {
 				return a.vector.range - b.vector.range;

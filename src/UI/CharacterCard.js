@@ -1,6 +1,6 @@
 import React from "react";
 import store from "../store";
-import { TOGGLE_UI } from "../store/gameReducer";
+import { CHARACTER_SELECT } from "../store/gameReducer";
 
 const CharacterCard = ({ type }) => {
   return (
@@ -27,7 +27,12 @@ const CharacterCard = ({ type }) => {
                 width: "100%",
                 textTransform: "capitalize"
             }}
-            onClick={() => {store.dispatch({ type: TOGGLE_UI });}}
+            onClick={() => {
+                store.dispatch({ 
+                    type: CHARACTER_SELECT,
+                    character: type
+                });
+            }}
         >{ type }</button>
     </li>
   );

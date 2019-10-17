@@ -1,3 +1,4 @@
+import Phaser, { GameObjects } from 'phaser';
 import Hero from './Hero';
 import Weapon from '../Weapon';
 import AssignSpell from '../Spells/AssignSpell';
@@ -7,7 +8,7 @@ import Boons from '../UI/Boons';
 
 const converter = require('number-to-words');
 
-class Player extends Phaser.GameObjects.Container {
+class Player extends GameObjects.Container {
 	constructor({scene, x, y, abilities, ...stats}) {
 		super(scene, x, y);
 

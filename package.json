@@ -3,6 +3,7 @@
   "version": "0.1.0",
   "private": true,
   "devDependencies": {
+    "babel-loader": "8.0.5",
     "number-to-words": "^1.2.4"
   },
   "dependencies": {

@@ -2,7 +2,7 @@ import Phaser from "phaser";
 // import ExampleScene from "./Scenes/ExampleScene";
 import LoadScene from './Scenes/LoadScene';
 import SelectScene from './Scenes/SelectScene';
-// import GameScene from './Scenes/GameScene';
+import GameScene from './Scenes/GameScene';
 // import GameOverScene from './Scenes/GameOverScene';
 
 import * as React from "react";
@@ -13,8 +13,8 @@ export default class Canvas extends React.Component {
   componentDidMount() {
     const config = {
 		type: Phaser.AUTO,
-		width: window.innerWidth,
-		height: window.innerHeight,
+		width: window.outerWidth,
+		height: window.outerHeight,
       	backgroundColor: '#6e9c48',
       	parent: "phaser-game",
 			physics: {
@@ -28,7 +28,7 @@ export default class Canvas extends React.Component {
 				// ExampleScene
 				LoadScene,
 				SelectScene,
-				// GameScene,
+				GameScene,
 				// GameOverScene
 			],
 			dom: {

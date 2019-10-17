@@ -5,9 +5,6 @@ import CharacterCard from "./CharacterCard";
 import { MENU_HEIGHT, MENU_WIDTH } from "../config";
 
 function UI({ showUi }) {
-
-  console.log(showUi)
-
   return (
     <div>
       {showUi &&

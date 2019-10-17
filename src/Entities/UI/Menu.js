@@ -1,4 +1,6 @@
-class Menu extends Phaser.GameObjects.DOMElement {
+import { GameObjects, Display } from 'phaser';
+
+class Menu extends GameObjects.DOMElement {
 	constructor({scene, x, y, element, style, innerText, key}) {
         super(scene, x, y, element, style, innerText);
         
@@ -52,7 +54,7 @@ class Menu extends Phaser.GameObjects.DOMElement {
             .setDepth(this.scene.depth_group.UI)
             .setScale(2);
 
-        Phaser.Display.Align.In.BottomRight(menu_button, this.scene.zone);
+        Display.Align.In.BottomRight(menu_button, this.scene.zone);
         
         menu_button.on('pointerdown', this.toggleVisibility, this);
         

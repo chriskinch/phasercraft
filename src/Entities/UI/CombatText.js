@@ -1,4 +1,6 @@
-class CombatText extends Phaser.GameObjects.Text {
+import { GameObjects } from 'phaser';
+
+class CombatText extends GameObjects.Text {
 	constructor(scene, { x, y, value, type, crit }) {
         const color = {
             physical: '#fff',

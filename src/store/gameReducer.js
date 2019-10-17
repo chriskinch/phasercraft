@@ -1,11 +1,11 @@
-export const TOGGLE_UI = "TOGGLE_UI";
+export const CHARACTER_SELECT = "CHARACTER_SELECT";
 
 const initState = {
-  showUi: false
+  showUi: true
 };
 
-export const toggleUi = () => ({
-  type: TOGGLE_UI
+export const characterSelect = () => ({
+  type: CHARACTER_SELECT
 });
 
 export const gameReducer = (
@@ -14,8 +14,8 @@ export const gameReducer = (
 ) => {
   console.log("Action:", action);
   switch (action.type) {
-    case TOGGLE_UI:
-      return { ...state, showUi: !state.showUi };
+    case CHARACTER_SELECT:
+      return { ...state, showUi: !state.showUi, character: action.character }
 
     default:
       return state;

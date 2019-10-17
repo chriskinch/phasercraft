@@ -1,4 +1,6 @@
-class Spell extends Phaser.GameObjects.Sprite {
+import { GameObjects, Display } from 'phaser';
+
+class Spell extends GameObjects.Sprite {
 	constructor({scene, x, y, key, ...config} = {}) {
 		super(scene, x, y, key);	
 		Object.assign(this, config);
@@ -140,7 +142,6 @@ class Spell extends Phaser.GameObjects.Sprite {
     }
 
     setIcon() {
-        let p = 30;
         const button = this.scene.add.sprite(0, 0, 'icon', this.icon_name)
             .setInteractive()
             .setDepth(this.scene.depth_group.UI)
@@ -154,8 +155,8 @@ class Spell extends Phaser.GameObjects.Sprite {
 		};
 		const text = this.scene.add.text(0, 0, this.cooldown, styles).setOrigin(0.5).setDepth(this.scene.depth_group.UI).setVisible(false);
 
-		Phaser.Display.Align.In.BottomLeft(button, this.scene.UI.frames[this.slot]);
-        Phaser.Display.Align.In.Center(text, button, -2, -2);
+		Display.Align.In.BottomLeft(button, this.scene.UI.frames[this.slot]);
+        Display.Align.In.Center(text, button, -2, -2);
         
         return {button: button, text: text};
     }

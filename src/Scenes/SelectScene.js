@@ -1,6 +1,5 @@
 import { Scene } from 'phaser';
 import store from "../store";
-import { TOGGLE_UI } from "../store/gameReducer";
 
 class SelectScene extends Scene {
 	constructor() {
@@ -12,19 +11,14 @@ class SelectScene extends Scene {
 	}
 
    	create(){
-		store.dispatch({ type: TOGGLE_UI });
+		store.subscribe(this.chooseCharacter.bind(this));
 	}
 
-	clickHandler(event){
-		const type = event.target.getAttribute('data-character-type');
-		if (type) {
-			this.config.type = type;
-			this.scene.start('GameScene', this.config);
-		}
-	}
-	
-	setCharacterType(name) {
-		this.config.name = name;
+	chooseCharacter(type){
+		console.log(this)
+		const { character } = store.getState();
+		this.config.type = character;
+		this.scene.start('GameScene', this.config);
 	}
 }
 

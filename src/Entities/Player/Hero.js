@@ -1,4 +1,6 @@
-class Hero extends Phaser.GameObjects.Sprite {
+import { GameObjects } from 'phaser';
+
+class Hero extends GameObjects.Sprite {
 
 	constructor(config) {
 		super(config.scene, 0, 0, config.key);

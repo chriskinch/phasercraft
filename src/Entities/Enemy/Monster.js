@@ -1,4 +1,6 @@
-class Monster extends Phaser.GameObjects.Sprite {
+import { GameObjects } from 'phaser';
+
+class Monster extends GameObjects.Sprite {
 
 	constructor(config) {
 		super(config.scene, 0, 0, config.key);

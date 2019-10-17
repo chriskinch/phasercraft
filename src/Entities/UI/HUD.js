@@ -1,3 +1,4 @@
+import { GameObjects, Display } from 'phaser';
 import Menu from './Menu';
 
 const styles = {
@@ -5,7 +6,7 @@ const styles = {
 	fill: '#ffffff'
 };
 
-class UI extends Phaser.GameObjects.Container {
+class UI extends GameObjects.Container {
 	constructor(scene) {
 		super(scene, 0, 0);
 		const { centerX, centerY } = this.scene.physics.world.bounds;
@@ -28,8 +29,8 @@ class UI extends Phaser.GameObjects.Container {
 	}
 
 	setSpellFrames(){
-		let x = Phaser.Display.Bounds.GetLeft(this.scene.zone);
-		let y = Phaser.Display.Bounds.GetBottom(this.scene.zone);
+		let x = Display.Bounds.GetLeft(this.scene.zone);
+		let y = Display.Bounds.GetBottom(this.scene.zone);
 		for(let i=0; i<this.spells; i++) {
 			let frame = this.scene.add.sprite(x + (this.spacing*i), y, 'icon', 'icon_blank').setScale(1.8).setAlpha(0.3);
 			this.add(frame);
@@ -39,7 +40,7 @@ class UI extends Phaser.GameObjects.Container {
 
 	setCoinCount(){
 		this.coins = this.scene.add.container(0, 0)
-		Phaser.Display.Align.In.TopRight(this.coins, this.scene.zone, -80);
+		Display.Align.In.TopRight(this.coins, this.scene.zone, -80);
 
 		this.coins.add(this.scene.add.sprite(0, 0, 'coin-spin').setDepth(this.scene.depth_group.UI));
 		this.coins.text = this.scene.add.text(15, 0, 'Coins: ' +this.scene.coins, styles).setOrigin(0, 0.5);
@@ -52,7 +53,7 @@ class UI extends Phaser.GameObjects.Container {
 
 	setWaveCount(){
 		this.wave = this.scene.add.container(0, 0)
-		Phaser.Display.Align.In.TopRight(this.wave, this.scene.zone, -190);
+		Display.Align.In.TopRight(this.wave, this.scene.zone, -190);
 
 		this.wave.add(this.scene.add.sprite(0, 0, 'dungeon', 'ghast_baby').setScale(2).setDepth(this.scene.depth_group.UI));
 		this.wave.text = this.scene.add.text(15, 0, 'Wave: ' + (this.scene.wave+1), styles).setOrigin(0, 0.5);

@@ -1,10 +1,11 @@
+import { Scene, Input, GameObjects, Display } from 'phaser';
 import AssignClass from '../Entities/Player/AssignClass';
 import Enemy from '../Entities/Enemy/Enemy';
 import UI from '../Entities/UI/HUD';
 import waveConfig from '../Config/waves.json';
 import enemyTypes from '../Config/enemies.json';
 
-class GameScene extends Phaser.Scene {
+class GameScene extends Scene {
 	constructor() {
 		super({
 			key: 'GameScene'
@@ -68,7 +69,7 @@ class GameScene extends Phaser.Scene {
 
 		this.input.mouse.capture = true;
 		this.cursors = this.input.keyboard.createCursorKeys();
-		this.cursors.esc = this.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.ESC);
+		this.cursors.esc = this.input.keyboard.addKey(Input.Keyboard.KeyCodes.ESC);
 
 		this.physics.add.collider(this.player.hero, this);
 
@@ -124,9 +125,9 @@ class GameScene extends Phaser.Scene {
 
 	setLevelCompleteUI(){
 		this.level_complete = this.add.container(300, 300).setDepth(this.depth_group.TOP).setVisible(false);
-		Phaser.Display.Align.In.Center(this.level_complete, this.zone);
+		Display.Align.In.Center(this.level_complete, this.zone);
 
-		this.cache.bitmapFont.add('wayne-3d', Phaser.GameObjects.RetroFont.Parse(this, this.sys.game.font_config));
+		this.cache.bitmapFont.add('wayne-3d', GameObjects.RetroFont.Parse(this, this.sys.game.font_config));
 		this.level_complete.add(this.add.bitmapText(0, 0, 'wayne-3d', 'LEVEL COMPLETE').setOrigin(0.5).setScale(2));
 		this.level_complete.add(this.add.bitmapText(0, 60, 'wayne-3d', 'NEXT').setOrigin(0.5));
 		this.level_complete.button = this.make.image({key:'blank-gif', x:0, y:60}).setScale(13, 4).setInteractive();
@@ -169,7 +170,6 @@ class GameScene extends Phaser.Scene {
 	}
 
 	spawnEnemy(enemy){
-		let rand = Math.round(Math.random() * 5);
 		this.enemies.add(new Enemy({
 			scene: this,
 			key: enemy,

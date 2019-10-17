@@ -1,4 +1,6 @@
-class Coin extends Phaser.GameObjects.Sprite {
+import { GameObjects } from 'phaser';
+
+class Coin extends GameObjects.Sprite {
 
 	constructor(config) {
 		super(config.scene, config.x, config.y, 'coin-spin');
