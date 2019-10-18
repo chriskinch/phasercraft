@@ -3,17 +3,16 @@ import Phaser from "phaser";
 import LoadScene from './Scenes/LoadScene';
 import SelectScene from './Scenes/SelectScene';
 import GameScene from './Scenes/GameScene';
-// import GameOverScene from './Scenes/GameOverScene';
+import GameOverScene from './Scenes/GameOverScene';
 
 import * as React from "react";
 
-import { GAME_HEIGHT, GAME_WIDTH } from "./config";
+import { GAME_WIDTH } from "./config";
 
 export default class Canvas extends React.Component {
 	componentDidMount() {
 		const scale = window.outerWidth / GAME_WIDTH;
 		const relative_height = window.outerHeight / scale;
-		console.log(window.outerHeight, scale)
 		const config = {
 			type: Phaser.AUTO,
 			width: GAME_WIDTH,
@@ -32,7 +31,7 @@ export default class Canvas extends React.Component {
 				LoadScene,
 				SelectScene,
 				GameScene,
-				// GameOverScene
+				GameOverScene
 			],
 			// dom: {
 			// 	createContainer: true

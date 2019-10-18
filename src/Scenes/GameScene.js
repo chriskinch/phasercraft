@@ -5,7 +5,7 @@ import UI from '../Entities/UI/HUD';
 import waveConfig from '../Config/waves.json';
 import enemyTypes from '../Config/enemies.json';
 
-class GameScene extends Scene {
+export default class GameScene extends Scene {
 	constructor() {
 		super({
 			key: 'GameScene'
@@ -201,5 +201,3 @@ class GameScene extends Scene {
 		this.next_level_timer = this.time.delayedCall(time_limit, this.increaseLevel, [], this);
 	}
 }
-
-export default GameScene;

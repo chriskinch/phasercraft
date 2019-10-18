@@ -1,7 +1,7 @@
 import { Scene } from 'phaser';
 import store from "../store";
 
-class SelectScene extends Scene {
+export default class SelectScene extends Scene {
 	constructor() {
 		super({
 			key: 'SelectScene'
@@ -21,5 +21,3 @@ class SelectScene extends Scene {
 		this.scene.start('GameScene', this.config);
 	}
 }
-
-export default SelectScene;
