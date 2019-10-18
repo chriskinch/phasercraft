@@ -18,7 +18,7 @@ class Whirlwind extends Spell {
 
         super({ ...defaults, ...config });
 		
-        this.setScale(5);
+        this.setScale(2);
 	}
 
 	setCastEvents(state) {

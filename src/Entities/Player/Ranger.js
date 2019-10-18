@@ -7,7 +7,7 @@ class Ranger extends Player {
             attack_speed: 0.9,
             magic_power: 30,
             critical_chance: 13,
-            speed: 150,
+            speed: 100,
             range: 240,
             knockback: 20,
             defence: 15,

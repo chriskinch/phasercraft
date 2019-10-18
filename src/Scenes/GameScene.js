@@ -31,7 +31,7 @@ class GameScene extends Scene {
 	}
 
 	create (){
-		const scene_padding = 60;
+		const scene_padding = 30;
 		this.global_game_width = this.sys.game.config.width;
 		this.global_game_height = this.sys.game.config.height;
 		this.zone = this.add.zone(scene_padding, scene_padding, this.global_game_width - (scene_padding*2), this.global_game_height - (scene_padding*2)).setOrigin(0);
@@ -54,8 +54,8 @@ class GameScene extends Scene {
 		const typeClass = this.config.type.charAt(0).toUpperCase() + this.config.type.substring(1);
 		this.player = new AssignClass(typeClass, {
 			scene:this,
-			x: 400,
-			y: 400
+			x: 100,
+			y: 100
 		});
 
 		this.enemies = this.add.group();

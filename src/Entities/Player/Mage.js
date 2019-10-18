@@ -7,7 +7,7 @@ class Mage extends Player {
             attack_speed: 1,
             magic_power: 80,
             critical_chance: 10,
-            speed: 150,
+            speed: 100,
             range: 160,
             knockback: 50,
             defence: 20,

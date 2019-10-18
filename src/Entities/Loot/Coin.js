@@ -13,9 +13,6 @@ class Coin extends GameObjects.Sprite {
 
 		this.scene.time.delayedCall(500, this.activate, [], this);
 		this.once('loot:collect', this.collect, this);
-
-		this.scaleX = 2;
-		this.scaleY = 2;
 	}
 
 	activate(){

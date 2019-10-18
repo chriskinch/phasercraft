@@ -52,7 +52,6 @@ class Multishot extends Spell {
 			const animation = this.scene.add.sprite(100, 100, 'multishot-effect')
 				.anims.play('multishot-animation')
 				.setDepth(1000)
-				.setScale(3)
 				.on('animationupdate', () => {
 					this.animationUpdate(animation, enemy);
 				});

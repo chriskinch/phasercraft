@@ -1,7 +1,7 @@
 {
 	"baby-ghoul": {
 		"damage": 30,
-		"speed": 80,
+		"speed": 50,
 		"range": 40,
 		"attack_speed": 1.5,
 		"health": 50,
@@ -9,7 +9,7 @@
 	},
 	"egbert": {
 		"damage": 75,
-		"speed": 50,
+		"speed": 30,
 		"range": 40,
 		"attack_speed": 1,
 		"health": 200,
@@ -17,7 +17,7 @@
 	},
 	"ghoul": {
 		"damage": 50,
-		"speed": 60,
+		"speed": 40,
 		"range": 40,
 		"attack_speed": 2,
 		"health": 100,
@@ -25,7 +25,7 @@
 	},
 	"imp": {
 		"damage": 25,
-		"speed": 100,
+		"speed": 70,
 		"range": 40,
 		"attack_speed": 1,
 		"health": 80,
@@ -33,7 +33,7 @@
 	},
 	"satyr": {
 		"damage": 120,
-		"speed": 60,
+		"speed": 40,
 		"range": 40,
 		"attack_speed": 1,
 		"health": 150,

@@ -2,7 +2,7 @@ import { GameObjects, Display } from 'phaser';
 import Menu from './Menu';
 
 const styles = {
-	font: '16px monospace',
+	font: '12px monospace',
 	fill: '#ffffff'
 };
 
@@ -12,7 +12,7 @@ class UI extends GameObjects.Container {
 		const { centerX, centerY } = this.scene.physics.world.bounds;
 
 		this.spells = 5;
-		this.spacing = 70;
+		this.spacing = 40;
 		this.frames = [];
 
 		this.setSpellFrames();
@@ -32,7 +32,7 @@ class UI extends GameObjects.Container {
 		let x = Display.Bounds.GetLeft(this.scene.zone);
 		let y = Display.Bounds.GetBottom(this.scene.zone);
 		for(let i=0; i<this.spells; i++) {
-			let frame = this.scene.add.sprite(x + (this.spacing*i), y, 'icon', 'icon_blank').setScale(1.8).setAlpha(0.3);
+			let frame = this.scene.add.sprite(x + (this.spacing*i), y, 'icon', 'icon_blank').setAlpha(0.3);
 			this.add(frame);
 			this.frames.push(frame);
 		}
@@ -55,7 +55,7 @@ class UI extends GameObjects.Container {
 		this.wave = this.scene.add.container(0, 0)
 		Display.Align.In.TopRight(this.wave, this.scene.zone, -190);
 
-		this.wave.add(this.scene.add.sprite(0, 0, 'dungeon', 'ghast_baby').setScale(2).setDepth(this.scene.depth_group.UI));
+		this.wave.add(this.scene.add.sprite(0, 0, 'dungeon', 'ghast_baby').setDepth(this.scene.depth_group.UI));
 		this.wave.text = this.scene.add.text(15, 0, 'Wave: ' + (this.scene.wave+1), styles).setOrigin(0, 0.5);
 		this.wave.add(this.wave.text);
 	}

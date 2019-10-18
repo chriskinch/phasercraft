@@ -51,8 +51,7 @@ class Menu extends GameObjects.DOMElement {
     setIcon() {
         const menu_button = this.scene.add.sprite(0, 0, 'icon', 'icon_0021_charm')
             .setInteractive()
-            .setDepth(this.scene.depth_group.UI)
-            .setScale(2);
+            .setDepth(this.scene.depth_group.UI);
 
         Display.Align.In.BottomRight(menu_button, this.scene.zone);
         

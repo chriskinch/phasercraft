@@ -7,16 +7,19 @@ import GameScene from './Scenes/GameScene';
 
 import * as React from "react";
 
-// import { GAME_HEIGHT, GAME_WIDTH } from "./config";
+import { GAME_HEIGHT, GAME_WIDTH } from "./config";
 
 export default class Canvas extends React.Component {
-  componentDidMount() {
-    const config = {
-		type: Phaser.AUTO,
-		width: window.outerWidth,
-		height: window.outerHeight,
-      	backgroundColor: '#6e9c48',
-      	parent: "phaser-game",
+	componentDidMount() {
+		const scale = window.outerWidth / GAME_WIDTH;
+		const relative_height = window.outerHeight / scale;
+		console.log(window.outerHeight, scale)
+		const config = {
+			type: Phaser.AUTO,
+			width: GAME_WIDTH,
+			height: relative_height,
+			backgroundColor: '#6e9c48',
+			parent: "phaser-game",
 			physics: {
 				default: 'arcade',
 				arcade: {
@@ -31,22 +34,23 @@ export default class Canvas extends React.Component {
 				GameScene,
 				// GameOverScene
 			],
-			dom: {
-				createContainer: true
-			},
+			// dom: {
+			// 	createContainer: true
+			// },
 			pixelArt: true,
 			antialias: false,
-			globalScale: 2
+			fullscreen: true,
+			zoom: scale
 		}
 
-    new Phaser.Game(config);
-  }
+    	new Phaser.Game(config);
+	}
 
-  shouldComponentUpdate() {
-    return false;
-  }
+	shouldComponentUpdate() {
+		return false;
+	}
 
-  render() {
-    return <div id="phaser-game" />;
-  }
+	render() {
+		return <div id="phaser-game" />;
+	}
 }

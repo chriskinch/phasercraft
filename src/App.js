@@ -16,11 +16,12 @@ class App extends Component {
       <Provider store={store}>
         <div
           style={{
-            display: "flex",
-            alignContent: "center",
-            justifyContent: "center",
-            flexDirection: "row",
-            height: "100vh"
+            // display: "flex",
+            // alignContent: "center",
+            // justifyContent: "center",
+            // flexDirection: "row",
+            height: "100vh",
+            width: "100vw"
           }}
         >
           <UI />

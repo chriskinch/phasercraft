@@ -54,7 +54,7 @@ class Enemy extends GameObjects.Container {
 		this.spawn_stop = this.scene.physics.add.staticImage(this.x, config.y, 'blank-gif');
 		this.scene.physics.add.collider(this.spawn_stop, this);
 
-		this.setAlpha(0).setScale(2);
+		this.setAlpha(0);
 		this.scene.tweens.add({ targets: this, alpha: 1, ease: 'Power1', duration: 500});
 
 		// Odd bug where the hit box is offset by 114px. not sure why but compensating here

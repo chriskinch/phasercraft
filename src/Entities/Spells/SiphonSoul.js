@@ -18,7 +18,7 @@ class SiphonSoul extends Spell {
 		super({ ...defaults, ...config });
 		
 		// This is what the spell scales from.
-        this.power = this.player.stats.magic_power / 8;
+        this.power = this.player.stats.magic_power / 12;
     }
 
 	setCastEvents(state){
@@ -32,7 +32,6 @@ class SiphonSoul extends Spell {
 
     effect(target){
         // Root the target in place.
-        console.log(target.body.maxVelocity);
         target.body.setMaxVelocity(0);
         target.monster.anims.pause();
         target.body.checkCollision.none = true;
@@ -65,7 +64,7 @@ class SiphonSoul extends Spell {
             y: this.player.y,
             power: 2,
             epsilon: 50,
-            gravity: 200
+            gravity: 50
         });
     
         this.emitter = particles.createEmitter({
@@ -73,7 +72,7 @@ class SiphonSoul extends Spell {
             x: this.target.x,
             y: this.target.y,
             lifespan: 5000,
-            speed: 20,
+            speed: 15,
             particleBringToTop: true,
             frequency: 300,
             deathZone: {
@@ -92,7 +91,7 @@ class SiphonSoul extends Spell {
             deathCallback: () => {
                 this.player.health.adjustValue(this.power, 'heal', false);
             }
-        });
+        }).setScale(0.5);
     }
 
     startAnimation() {

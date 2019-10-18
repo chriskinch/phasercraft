@@ -17,7 +17,7 @@ class Player extends GameObjects.Container {
 			key: 'player',
 		});
 		this.add(this.hero);
-
+		
 		this.setSize(this.hero.getBounds().width, this.hero.getBounds().height, true);
 		scene.physics.world.enable(this);
 		scene.add.existing(this);
@@ -25,7 +25,6 @@ class Player extends GameObjects.Container {
 		this.body.collideWorldBounds = true;
 		this.body.immovable = true;
 		this.body.setFriction(0,0);
-		this.setScale(2);
 
 		this.boons = new Boons(this.scene, this);
 		
