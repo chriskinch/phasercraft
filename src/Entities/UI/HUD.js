@@ -12,7 +12,7 @@ class UI extends GameObjects.Container {
 		const { centerX, centerY } = this.scene.physics.world.bounds;
 
 		this.spells = 5;
-		this.spacing = 40;
+		this.spacing = 60;
 		this.frames = [];
 
 		this.setSpellFrames();
@@ -32,7 +32,7 @@ class UI extends GameObjects.Container {
 		let x = Display.Bounds.GetLeft(this.scene.zone);
 		let y = Display.Bounds.GetBottom(this.scene.zone);
 		for(let i=0; i<this.spells; i++) {
-			let frame = this.scene.add.sprite(x + (this.spacing*i), y, 'icon', 'icon_blank').setAlpha(0.3);
+			let frame = this.scene.add.sprite(x + (this.spacing*i), y, 'icon', 'icon_blank').setAlpha(0.3).setScale(1.5);
 			this.add(frame);
 			this.frames.push(frame);
 		}

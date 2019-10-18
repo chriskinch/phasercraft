@@ -91,7 +91,7 @@ class SiphonSoul extends Spell {
             deathCallback: () => {
                 this.player.health.adjustValue(this.power, 'heal', false);
             }
-        }).setScale(0.5);
+        }).setScale(0.75);
     }
 
     startAnimation() {

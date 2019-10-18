@@ -29,7 +29,7 @@ class Coin extends GameObjects.Sprite {
 		this.scene.tweens.add({
 				targets: this,
 				y: {
-					value: this.y - 50,
+					value: this.y - 25,
 					duration: 750,
 					ease: 'Cubic.easeOut'
 				},
@@ -43,8 +43,8 @@ class Coin extends GameObjects.Sprite {
 	}
 
 	getRandomVelocity(){
-		let min = 50;
-		let max = 100;
+		let min = 25;
+		let max = 50;
 		let v = min + (Math.random() * (max-min));
 		let absV = (Math.random() >= 0.5) ? -v : v;
 		return absV;

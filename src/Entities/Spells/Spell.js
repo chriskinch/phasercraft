@@ -145,7 +145,8 @@ class Spell extends GameObjects.Sprite {
         const button = this.scene.add.sprite(0, 0, 'icon', this.icon_name)
             .setInteractive()
             .setDepth(this.scene.depth_group.UI)
-            .setAlpha(0.4);
+            .setAlpha(0.4)
+            .setScale(1.5);
 
 		let styles = {
 			font: '12px monospace',

@@ -8,7 +8,7 @@ class Occultist extends Player {
             magic_power: 60,
             critical_chance: 8,
             speed: 100,
-            range: 160,
+            range: 80,
             knockback: 50,
             defence: 30,
             health: {

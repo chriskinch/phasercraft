@@ -31,7 +31,7 @@ export default class GameScene extends Scene {
 	}
 
 	create (){
-		const scene_padding = 30;
+		const scene_padding = 40;
 		this.global_game_width = this.sys.game.config.width;
 		this.global_game_height = this.sys.game.config.height;
 		this.zone = this.add.zone(scene_padding, scene_padding, this.global_game_width - (scene_padding*2), this.global_game_height - (scene_padding*2)).setOrigin(0);

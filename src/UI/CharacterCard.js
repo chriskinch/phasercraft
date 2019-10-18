@@ -19,7 +19,7 @@ const CharacterCard = ({ type }) => {
             className="character-select-button" 
             style={{
                 background: "darkslategrey",
-                border: "1px solid black",
+                border: "3px solid black",
                 color: "white",
                 fontFamily: "'VT323', monospace",
                 fontSize: "0.75em",

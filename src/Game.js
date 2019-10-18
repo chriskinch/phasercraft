@@ -7,16 +7,14 @@ import GameOverScene from './Scenes/GameOverScene';
 
 import * as React from "react";
 
-import { GAME_WIDTH } from "./config";
+// import { GAME_HEIGHT, GAME_WIDTH } from "./config";
 
 export default class Canvas extends React.Component {
 	componentDidMount() {
-		const scale = window.outerWidth / GAME_WIDTH;
-		const relative_height = window.outerHeight / scale;
 		const config = {
 			type: Phaser.AUTO,
-			width: GAME_WIDTH,
-			height: relative_height,
+			width: window.outerWidth,
+			height: window.outerHeight,
 			backgroundColor: '#6e9c48',
 			parent: "phaser-game",
 			physics: {
@@ -38,8 +36,7 @@ export default class Canvas extends React.Component {
 			// },
 			pixelArt: true,
 			antialias: false,
-			fullscreen: true,
-			zoom: scale
+			fullscreen: true
 		}
 
     	new Phaser.Game(config);
