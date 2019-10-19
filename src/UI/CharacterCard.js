@@ -23,7 +23,6 @@ const CharacterCard = ({ type }) => {
             css="padding-bottom: 0.5em"
         />
         <Button 
-            button_color="#ffcc00"
             className="character-select-button"
             text={ type }
             onClick={() => {
