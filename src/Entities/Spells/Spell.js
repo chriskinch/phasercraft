@@ -149,11 +149,11 @@ class Spell extends GameObjects.Sprite {
             .setScale(1.5);
 
 		let styles = {
-			font: '12px monospace',
+			font: '16px monospace',
 			fill: '#ffffff',
 			align: 'center'
 		};
-		const text = this.scene.add.text(0, 0, this.cooldown, styles).setOrigin(0.5).setDepth(this.scene.depth_group.UI).setVisible(false);
+		const text = this.scene.add.text(-2, -2, this.cooldown, styles).setOrigin(0.5).setDepth(this.scene.depth_group.UI).setVisible(false);
 
 		Display.Align.In.BottomLeft(button, this.scene.UI.frames[this.slot]);
         Display.Align.In.Center(text, button, 0, 0);

@@ -1,23 +1,20 @@
-export const CHARACTER_SELECT = "CHARACTER_SELECT";
+import { createAction, createReducer } from 'redux-starter-kit'
 
 const initState = {
-  showUi: true
+    showUi: true,
+    menu: "character",
+    stats: {}
 };
 
-export const characterSelect = () => ({
-  type: CHARACTER_SELECT
+export const toggleUi = createAction("TOGGLE_UI", character => ({
+    payload: character
+}));
+
+export const updateStats = createAction("UPDATE_STATS", stats => ({
+    payload: { stats }
+}));
+
+export const gameReducer = createReducer(initState, {
+    [toggleUi]: (state, action) => ({ ...state, showUi: !state.showUi, ...action.payload }),
+    [updateStats]: (state, action) => ({ ...state, ...action.payload })
 });
-
-export const gameReducer = (
-  state = initState,
-  action
-) => {
-  console.log("Action:", action);
-  switch (action.type) {
-    case CHARACTER_SELECT:
-      return { ...state, showUi: !state.showUi, character: action.character }
-
-    default:
-      return state;
-  }
-};

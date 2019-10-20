@@ -25,15 +25,11 @@ export default class Canvas extends React.Component {
 				}
 			},
 			scene: [
-				// ExampleScene
 				LoadScene,
 				SelectScene,
 				GameScene,
 				GameOverScene
 			],
-			// dom: {
-			// 	createContainer: true
-			// },
 			pixelArt: true,
 			antialias: false,
 			fullscreen: true

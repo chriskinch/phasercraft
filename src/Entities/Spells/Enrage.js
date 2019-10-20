@@ -6,7 +6,7 @@ class Enrage extends Boon {
 			icon_name: "icon_0019_fire-wall",
 			cooldown: 10,
 			cost: {
-				rage: 30,
+				rage: 0,
 				mana: 80,
 				energy: 30
 			},

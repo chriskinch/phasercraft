@@ -1,6 +1,6 @@
 import { darken } from 'polished';
 
-export function pixel_background({bg_color = "#e4f6f7"} = {}) {
+export const pixel_background = ({bg_color = "#e4f6f7"} = {}) => {
     return `
         background: ${bg_color};
         box-shadow: 0 6px 0 ${darken(0.3, bg_color)}, 0 10px 0 rgba(0,0,0,0.25);

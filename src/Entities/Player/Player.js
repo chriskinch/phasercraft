@@ -5,6 +5,8 @@ import AssignSpell from '../Spells/AssignSpell';
 import AssignResource from '../Resources/AssignResource';
 import targetVector from '../../Helpers/targetVector';
 import Boons from '../UI/Boons';
+import store from '../../store';
+import { updateStats } from '../../store/gameReducer';
 
 const converter = require('number-to-words');
 
@@ -30,6 +32,9 @@ class Player extends GameObjects.Container {
 		
 		this.base_stats = stats;
 		this.stats = JSON.parse(JSON.stringify(stats));
+
+		// TODO: I should probably unify where stats live as a SSOT
+		store.dispatch(updateStats(this.stats));
 
 		this.alive = true;
 		this.attack_ready = true;
@@ -88,8 +93,6 @@ class Player extends GameObjects.Container {
 		this.on('pointerdown', () => scene.events.emit('pointerdown:player', this));
 		this.on('boons:update', this.updateStats, this);
 
-		this.on('boons:update', this.updateStats, this);
-
 		scene.events.on('spell:primed', () => this.spellPrimed = true, this);
 		scene.events.on('spell:cast', () => this.spellPrimed = false, this);
 		scene.events.on('spell:cleared', () => this.spellPrimed = false, this);
@@ -126,7 +129,12 @@ class Player extends GameObjects.Container {
 	}
 
 	updateStats() {
+		// console.log("BEFORE: ", this.stats);
+		// console.log("BEFORE: ", store.getState().stats);
 		this.boons.calculate();
+		store.dispatch(updateStats(this.stats));
+		// console.log("AFTER: ", this.stats);
+		// console.log("AFTER: ", store.getState().stats);
 	}
 
 	gameDownHandler(scene, pointer){

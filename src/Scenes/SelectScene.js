@@ -11,12 +11,16 @@ export default class SelectScene extends Scene {
 	}
 
    	create(){
-		store.subscribe(this.chooseCharacter.bind(this));
+		// Save the returned unsub function and call one first action.
+		// Looks like and infinite loop but actually acts like a "once" event.
+		const unsubscribe = store.subscribe(() => {
+			this.chooseCharacter()
+			unsubscribe();			
+		});
 	}
 
 	chooseCharacter(){
-		const { character } = store.getState();
-		this.config.type = character;
+		this.config.type = store.getState().character;
 		this.scene.start('GameScene', this.config);
 	}
 }

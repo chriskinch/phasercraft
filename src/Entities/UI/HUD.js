@@ -1,5 +1,6 @@
 import { GameObjects, Display } from 'phaser';
-import Menu from './Menu';
+import { toggleUi } from "../../store/gameReducer";
+import store from '../../store';
 
 const styles = {
 	font: '12px monospace',
@@ -9,8 +10,7 @@ const styles = {
 class UI extends GameObjects.Container {
 	constructor(scene) {
 		super(scene, 0, 0);
-		const { centerX, centerY } = this.scene.physics.world.bounds;
-
+		
 		this.spells = 5;
 		this.spacing = 60;
 		this.frames = [];
@@ -18,12 +18,13 @@ class UI extends GameObjects.Container {
 		this.setSpellFrames();
 		this.setCoinCount();
 		this.setWaveCount();
+		Object.assign(this, this.setInvetoryIcon());
+
+		// Toggle menu on key binding
+		scene.input.keyboard.on(`keydown-S`, this.toggleMenu, this);
 
 		this.scene.events.on('increment:coin', this.addCoinCount, this);
 		this.scene.events.on('increment:wave', this.addWaveCount, this);
-
-		this.menu = new Menu({scene: scene, x:centerX, y:centerY, key:'S'}).createFromCache('menu').addListener('click');
-		this.add(this.menu);
 
 		this.scene.add.existing(this).setDepth(this.scene.depth_group.UI);
 	}
@@ -64,6 +65,23 @@ class UI extends GameObjects.Container {
 		this.wave.text.setText('Wave: ' + (this.scene.wave+1));
 	}
 
+	setInvetoryIcon() {
+		const menu_button = this.scene.add.sprite(0, 0, 'icon', 'icon_0021_charm')
+			.setInteractive()
+			.setDepth(this.scene.depth_group.UI);
+
+		Display.Align.In.BottomRight(menu_button, this.scene.zone);
+		
+		menu_button.on('pointerdown', () => this.toggleMenu, this);
+		
+		return {menu_button: menu_button};
+	}
+
+	toggleMenu() {
+		store.dispatch(toggleUi({menu: "equipment"}));		
+		// const scene_manager = this.scene.scene;
+		// (this.visible) ? scene_manager.pause() : scene_manager.resume();
+	}
 }
 
 export default UI;
