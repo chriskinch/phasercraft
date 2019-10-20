@@ -2,7 +2,6 @@ import React from "react";
 import store from "../store";
 import { CHARACTER_SELECT } from "../store/gameReducer";
 import 'styled-components/macro';
-
 import Button from './components/atoms/Button'
 
 const CharacterCard = ({ type }) => {

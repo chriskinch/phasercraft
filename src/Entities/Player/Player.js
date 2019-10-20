@@ -106,7 +106,6 @@ class Player extends GameObjects.Container {
 
 	update(mouse, keys, time, delta){
 		this.mouse = mouse;
-
 		this.setDepth(this.y);
 
 		let arrived = this.atDestination(this, this.destination);
@@ -130,22 +129,22 @@ class Player extends GameObjects.Container {
 		this.boons.calculate();
 	}
 
-	gameDownHandler(){
+	gameDownHandler(scene, pointer){
 		if(!this.spellPrimed) {
 			this.dragging = true;
-			this.moveTo();
+			this.moveTo(pointer);
 		}
 	}
 
-	gameMoveHandler(){
-		if(this.dragging) this.moveTo();
+	gameMoveHandler(scene, pointer){
+		if(this.dragging) this.moveTo(pointer);
 	}
 
 	gameUpHandler(){
 		this.dragging = false;
 	}
 
-	moveTo(target = this.mouse.pointer){
+	moveTo(target){
 		this.destination = {
 			x: target.x,
 			y: target.y

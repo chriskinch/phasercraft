@@ -41,11 +41,11 @@ export default class GameScene extends Scene {
 		this.input.on('pointerdown', (pointer, gameObject) => {
 			// Only trigger this if there are no other game objects in the way.
 			if(gameObject.length === 0) {
-				this.events.emit('pointerdown:game', this)
+				this.events.emit('pointerdown:game', this, this.input.activePointer);
 			}
 		});
 		this.input.on('pointermove', () => {
-			this.events.emit('pointermove:game', this)
+			this.events.emit('pointermove:game', this, this.input.activePointer)
 		});
 		this.input.on('pointerup', () => {
 			this.events.emit('pointerup:game', this)

@@ -14,8 +14,7 @@ export default class SelectScene extends Scene {
 		store.subscribe(this.chooseCharacter.bind(this));
 	}
 
-	chooseCharacter(type){
-		console.log(this)
+	chooseCharacter(){
 		const { character } = store.getState();
 		this.config.type = character;
 		this.scene.start('GameScene', this.config);
