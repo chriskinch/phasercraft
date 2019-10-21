@@ -2,10 +2,9 @@ import React from "react";
 import 'styled-components/macro';
 import { darken } from 'polished';
 
-const Button = ({ bg_color="#ffc93e", className, color="#222", onClick, text, text_shadow_color="rgba(255, 255, 255, 0.5)" }) => {
+const Button = ({ bg_color="#ffc93e", color="#222", onClick, text, text_shadow_color="rgba(255, 255, 255, 0.5)" }) => {
     return (
         <button 
-            className={ className }
             css={`
                 display: inline-block;
                 padding: 0 12px;

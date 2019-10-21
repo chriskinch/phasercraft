@@ -72,15 +72,15 @@ class UI extends GameObjects.Container {
 
 		Display.Align.In.BottomRight(menu_button, this.scene.zone);
 		
-		menu_button.on('pointerdown', () => this.toggleMenu, this);
+		menu_button.on('pointerdown', this.toggleMenu, this);
 		
 		return {menu_button: menu_button};
 	}
 
 	toggleMenu() {
 		store.dispatch(toggleUi({menu: "equipment"}));		
-		// const scene_manager = this.scene.scene;
-		// (this.visible) ? scene_manager.pause() : scene_manager.resume();
+		const scene_manager = this.scene.scene;
+		(this.visible) ? scene_manager.pause() : scene_manager.resume();
 	}
 }
 

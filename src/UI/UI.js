@@ -1,6 +1,8 @@
 import React from "react";
 import { connect } from "react-redux";
 import { pixel_background } from './themes';
+import { toggleUi } from "../store/gameReducer";
+import Button from './components/atoms/Button'
 import Character from "./components/organisms/Character";
 import Equipment from "./components/organisms/Equipment";
 import Title from "./components/atoms/Title";
@@ -43,6 +45,11 @@ const UI = ({ menu, showUi }) => {
                         margin-right: 12px;
                     `}>
                         <Title text={ config[menu].title } />
+                        <div css={`
+                            width: 50px;
+                        `}>
+                            <Button text="X" onClick={() => toggleUi() } />
+                        </div>
                     </div>
                     <div
                         id={ config[menu].title.toLowerCase().replace(" ", "-") }
