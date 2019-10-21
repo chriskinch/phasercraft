@@ -8,7 +8,7 @@ import Equipment from "./components/organisms/Equipment";
 import Title from "./components/atoms/Title";
 import 'styled-components/macro';
 
-const UI = ({ menu, showUi }) => {
+const UI = ({ menu, showUi, toggleUi }) => {
     const config = {
         character: {
             component: Character,
@@ -42,14 +42,15 @@ const UI = ({ menu, showUi }) => {
                 `}>
                     <div css={`
                         margin-bottom: 14px;
-                        margin-right: 12px;
                     `}>
                         <Title text={ config[menu].title } />
-                        <div css={`
-                            width: 50px;
-                        `}>
-                            <Button text="X" onClick={() => toggleUi() } />
-                        </div>
+                        { menu !== "character" &&
+                            <div css={`
+                                float: right;
+                            `}>
+                                <Button text="X" onClick={ () => toggleUi({menu: "equipment"}) } type="square" />
+                            </div>
+                        }
                     </div>
                     <div
                         id={ config[menu].title.toLowerCase().replace(" ", "-") }
@@ -70,4 +71,4 @@ const mapStateToProps = (state) => ({
     ...state
 });
 
-export default connect(mapStateToProps)(UI);
+export default connect(mapStateToProps, { toggleUi })(UI);

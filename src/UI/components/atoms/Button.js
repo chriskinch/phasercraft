@@ -2,14 +2,21 @@ import React from "react";
 import 'styled-components/macro';
 import { darken } from 'polished';
 
-const Button = ({ bg_color="#ffc93e", color="#222", onClick, text, text_shadow_color="rgba(255, 255, 255, 0.5)" }) => {
+const Button = ({ 
+    bg_color="#ffc93e",
+    color="#222",
+    onClick,
+    text,
+    text_shadow_color="rgba(255, 255, 255, 0.5)",
+    type 
+}) => {
     return (
         <button 
             css={`
                 display: inline-block;
                 padding: 0 12px;
                 height: 32px;
-                min-width: 96px;
+                min-width: ${type === "square" ? "32px": "96px"};
                 background: ${bg_color};
                 border: none;
                 border-bottom: 2px solid ${darken(0.3, bg_color)};

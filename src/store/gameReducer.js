@@ -6,8 +6,8 @@ const initState = {
     stats: {}
 };
 
-export const toggleUi = createAction("TOGGLE_UI", character => ({
-    payload: character
+export const toggleUi = createAction("TOGGLE_UI", data => ({
+    payload: { ...data }
 }));
 
 export const updateStats = createAction("UPDATE_STATS", stats => ({
