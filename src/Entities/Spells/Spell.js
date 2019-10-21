@@ -27,7 +27,9 @@ class Spell extends GameObjects.Sprite {
 		// This covers us for disabling spells while one is channeled.
 		this.scene.events.on('spell:cooldown', () => {
 			this.monitorReady();
-		}, this);
+        }, this);
+        
+        this.scene.add.existing(this).setDepth(1000).setVisible(false);
     }
 
     checkResource() {
@@ -174,7 +176,6 @@ class Spell extends GameObjects.Sprite {
     }
 
     startAnimation() {
-        this.scene.add.existing(this).setDepth(1000);
 		this.anims.play(this.name + '-animation');
     }
     
