@@ -25,6 +25,8 @@ class Mage extends Player {
 
         super({...default_stats, ...config});
 
+        console.log(this)
+
         this.scene.add.existing(this);
 	}
 }

@@ -267,6 +267,8 @@ class Player extends GameObjects.Container {
 				frameRate: 12,
 				repeat: animation.repeat
 			});
+			console.log(this.scene.anims.generateFrameNumbers(type, animation.frames))
+
 		});
 	}
 }
