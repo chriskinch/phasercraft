@@ -12,15 +12,12 @@ export default class LoadScene extends Scene {
 			spacing: { x: 1, y: 0 }
 		};
 
-		let p = { h:4, w:100 };
 		let progress = this.add.graphics();
 
 		this.load.on('progress', function (value) {
 			progress.clear();
-			progress.fillStyle(0x3e6c18, 1);
-			progress.fillRect((window.innerWidth/2) - (p.w/2), (window.innerHeight/2) - (p.h/2), p.w, p.h);
-			progress.fillStyle(0x6efc48, 1);
-			progress.fillRect((window.innerWidth/2) - (p.w/2), (window.innerHeight/2) - (p.h/2), p.w * value, p.h);
+			progress.fillStyle(0x00ff00, 1);
+			progress.fillRect(0, 0, window.outerWidth * value, 4);
 		});
 
 		this.load.on('complete', () => {
