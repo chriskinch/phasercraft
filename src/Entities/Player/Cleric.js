@@ -2,7 +2,8 @@ import Player from './Player';
 
 class Cleric extends Player {
     constructor(config) {
-        const default_stats = {
+        const defaults = {
+            classification: "cleric",
             attack_power: 30,
             attack_speed: 1.1,
             magic_power: 50,
@@ -23,7 +24,7 @@ class Cleric extends Player {
             abilities: ["Heal", "Smite"]
         }
 
-        super({...default_stats, ...config});
+        super({...defaults, ...config});
 
         this.scene.add.existing(this);
 	}

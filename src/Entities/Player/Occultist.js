@@ -2,7 +2,8 @@ import Player from './Player';
 
 class Occultist extends Player {
 	constructor(config) {
-        const default_stats = {
+        const defaults = {
+            classification: "occultist",
             attack_power: 30,
             attack_speed: 1.2,
             magic_power: 60,
@@ -23,7 +24,7 @@ class Occultist extends Player {
             abilities: ["Fireball", "SiphonSoul"]
         }
 
-        super({...default_stats, ...config});
+        super({...defaults, ...config});
 
         this.scene.add.existing(this);
 	}

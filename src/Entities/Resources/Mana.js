@@ -12,7 +12,8 @@ class Mana extends Resource {
 		regen_value = 2,
 		colour = 0x3a86ec,
 	}) {
-		super({container, scene, x, y, max, value, regen_rate, regen_value, colour});
+		const name = "mana";
+		super({name, container, scene, x, y, max, value, regen_rate, regen_value, colour});
 	}
 }
 

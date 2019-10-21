@@ -3,6 +3,7 @@ import Spell from './Spell';
 class SiphonSoul extends Spell {
 	constructor(config) {
 		const defaults = {
+            name: "siphonsoul",
 			icon_name: 'icon_0000_death',
 			cooldown: 5,
 			cost: {

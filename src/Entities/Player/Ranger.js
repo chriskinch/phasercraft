@@ -2,7 +2,8 @@ import Player from './Player';
 
 class Ranger extends Player {
     constructor(config) {
-        const default_stats = {
+        const defaults = {
+            classification: "ranger",
             attack_power: 40,
             attack_speed: 0.9,
             magic_power: 30,
@@ -23,7 +24,7 @@ class Ranger extends Player {
             abilities: ["SnareTrap", "Multishot"]
         }
 
-        super({...default_stats, ...config});
+        super({...defaults, ...config});
 
         this.scene.add.existing(this);
 	}

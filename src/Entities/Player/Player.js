@@ -11,7 +11,7 @@ import { updateStats } from '../../store/gameReducer';
 const converter = require('number-to-words');
 
 class Player extends GameObjects.Container {
-	constructor({scene, x, y, abilities, ...stats}) {
+	constructor({scene, x, y, abilities, classification, ...stats}) {
 		super(scene, x, y);
 
 		this.hero = new Hero({
@@ -43,8 +43,8 @@ class Player extends GameObjects.Container {
 			x: null,
 			y: null
 		}
-		const type = this.constructor.name.toLocaleLowerCase();
-		this.createAnimations(type);
+
+		this.createAnimations(classification);
 
 		this.health = new AssignResource('Health', {
 			container: this,
@@ -267,8 +267,6 @@ class Player extends GameObjects.Container {
 				frameRate: 12,
 				repeat: animation.repeat
 			});
-			console.log(this.scene.anims.generateFrameNumbers(type, animation.frames))
-
 		});
 	}
 }

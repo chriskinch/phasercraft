@@ -4,6 +4,7 @@ import Trap from '../Weapons/Trap';
 class SnareTrap extends Spell {
 	constructor(config) {
 		const defaults = {
+            name: "snaretrap",
 			icon_name: 'icon_0020_shackle',
 			cooldown: 0,
 			cost: {

@@ -4,8 +4,8 @@ class Spell extends GameObjects.Sprite {
 	constructor({scene, x, y, key, ...config} = {}) {
 		super(scene, x, y, key);	
 		Object.assign(this, config);
-        this.name = this.constructor.name.toLowerCase();
-        this.typedCost = this.cost[this.player.resource.type];
+
+        this.typedCost = this.cost[this.player.resource.name];
         this.hasAnimation = true;
         this.enabled = false;
         // Placeholder empty function for clearing last spell

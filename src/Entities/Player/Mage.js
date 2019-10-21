@@ -2,7 +2,8 @@ import Player from './Player';
 
 class Mage extends Player {
     constructor(config) {
-        const default_stats = {
+        const defaults = {
+            classification: "mage",
             attack_power: 35,
             attack_speed: 1,
             magic_power: 80,
@@ -23,9 +24,7 @@ class Mage extends Player {
             abilities: ["Fireball"]
         }
 
-        super({...default_stats, ...config});
-
-        console.log(this)
+        super({...defaults, ...config});
 
         this.scene.add.existing(this);
 	}

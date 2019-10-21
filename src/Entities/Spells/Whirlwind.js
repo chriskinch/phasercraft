@@ -4,6 +4,7 @@ import targetVector from '../../Helpers/targetVector';
 class Whirlwind extends Spell {
 	constructor(config) {
 		const defaults = {
+			name: "whirlwind",
 			icon_name: 'icon_0005_coil',
 			cooldown: 2,
 			cost: {

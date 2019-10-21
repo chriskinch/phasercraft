@@ -7,7 +7,8 @@ class Resource extends GameObjects.Sprite {
 		config.scene.add.existing(this);
 
 		this.container = config.container;
-		this.type = this.constructor.name.toLowerCase();
+		this.name = config.name;
+		// this.name = this.constructor.name.toLowerCase();
 		this.colour = config.colour;
 
 		this.stats = {
@@ -45,10 +46,10 @@ class Resource extends GameObjects.Sprite {
 		// If regen_rate is 0 delay is 0 (very fast) but timer won't unpause.
 		if(this.stats.regen_rate > 0) this.tick.paused = false;
 
-		this.type_category = this.regenType(this.type);
+		this.category = this.regenType(this.name);
 		
 		this.container.on('boons:calculated', (stats) => {
-			this.setRegenStats(stats[this.type_category]);
+			this.setRegenStats(stats[this.category]);
 		}, this);
 	}
 

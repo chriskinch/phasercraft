@@ -3,6 +3,7 @@ import Spell from './Spell';
 class Heal extends Spell {
 	constructor(config) {
 		const defaults = {
+			name: "heal",
 			icon_name: 'icon_0015_heal',
 			cooldown: 3,
 			cost: {

@@ -13,7 +13,8 @@ class Health extends Resource {
 		regen_value = 0,
 		colour = 0x72ce6f,
 	}) {
-		super({container, scene, x, y, max, value, regen_rate, regen_value, colour});
+		const name = "health";
+		super({name, container, scene, x, y, max, value, regen_rate, regen_value, colour});
 	}
 
 	adjustValue(adj, type, crit) {

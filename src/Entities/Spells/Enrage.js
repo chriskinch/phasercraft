@@ -3,6 +3,7 @@ import Boon from './Boon';
 class Enrage extends Boon {
 	constructor(config) {
 		const defaults = {
+			name: "enrage",
 			icon_name: "icon_0019_fire-wall",
 			cooldown: 10,
 			cost: {

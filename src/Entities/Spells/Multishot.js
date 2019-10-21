@@ -4,6 +4,7 @@ import targetVector from '../../Helpers/targetVector';
 class Multishot extends Spell {
 	constructor(config) {
 		const defaults = {
+			name: "multishot",
 			icon_name: 'icon_0004_corpse-explode',
 			cooldown: 0,
 			cost: {
