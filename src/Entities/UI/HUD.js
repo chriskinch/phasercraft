@@ -79,8 +79,8 @@ class UI extends GameObjects.Container {
 
 	toggleMenu() {
 		store.dispatch(toggleUi({menu: "equipment"}));		
-		//const scene_manager = this.scene.scene;
-		//(this.visible) ? scene_manager.pause() : scene_manager.resume();
+		// TODO: I can pause the game but I need to work on unpausing...
+		// (this.visible) ? this.scene.scene.pause() : this.scene.scene.resume();
 	}
 }
 
