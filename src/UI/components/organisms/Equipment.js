@@ -7,7 +7,9 @@ import Stats from "../molecules/Stats";
 const Equipment = (props) => {
     const { character, stats } = props;
     return (
-        <>
+        <div css={`
+            display: flex;
+        `}>
             <section>
                 <h2>Level 1</h2>
                 <img 
@@ -21,14 +23,13 @@ const Equipment = (props) => {
                     { stats }
                 </Stats>
             </section>
-            <section>
+            <section css="width: 50px">
                 <Slot slot="Helm" />
                 <Slot slot="Body" />
                 <Slot slot="Weapon" />
                 <Slot slot="Amulet" />
-                <Slot slot="Ring" />
             </section>
-        </>
+        </div>
     );
 }
 

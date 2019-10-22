@@ -34,3 +34,47 @@ export const pixel_background = ({bg_color = "#e4f6f7"} = {}) => {
         }
     `
 };
+
+export const pixel_emboss = ({bg_color = "#e4f6f7"} = {}) => {
+    const depth = "6px";
+    const tint = "rgba(0,0,0,0.3)";
+    return `
+        background: rgba(0,0,0,0.1);
+        border-top: ${depth} solid rgba(0,0,0,0.1);
+        box-shadow: 0 -${depth} 0 ${tint};
+        box-sizing: border-box;
+        color: rgba(0,0,0,0.2);
+        display: inline-block;
+        height: 50px;
+        line-height: 20px;
+        padding: 0.5em;
+        position: relative;
+        margin: 6px;
+        text-align: center;
+        width: 50px;
+        &:before {
+            background: rgba(0,0,0,0.1);
+            border-top: ${depth} solid rgba(0,0,0,0.1);
+            bottom: ${depth};
+            box-shadow: 0 -${depth} 0 ${tint};
+            content: '';
+            display: block;
+            left: -${depth};
+            position: absolute;
+            top: 0;
+            width: ${depth};
+        }
+        &:after {
+            background: rgba(0,0,0,0.1);
+            border-top: ${depth} solid rgba(0,0,0,0.1);
+            bottom: ${depth};
+            box-shadow: 0 -${depth} 0 ${tint};
+            content: '';
+            display: block;
+            right: -${depth};
+            position: absolute;
+            top: 0;
+            width: ${depth};
+        }
+    `
+};
