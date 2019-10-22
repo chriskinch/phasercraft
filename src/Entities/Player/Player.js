@@ -63,7 +63,6 @@ class Player extends GameObjects.Container {
 		});
 		this.add(this.resource);
 
-
 		this.weapon = new Weapon({scene: scene, key:'weapon-swooch'});
 		this.add(this.weapon);
 

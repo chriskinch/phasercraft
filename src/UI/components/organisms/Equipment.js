@@ -1,6 +1,7 @@
 import React from "react";
 import { connect } from "react-redux";
 import 'styled-components/macro';
+import Inventory from "../molecules/Inventory";
 import Slot from '../atoms/Slot';
 import Stats from "../molecules/Stats";
 
@@ -23,11 +24,14 @@ const Equipment = (props) => {
                     { stats }
                 </Stats>
             </section>
-            <section css="width: 50px">
+            <section css="width: 62px; margin: 0 1em;">
                 <Slot slot="Helm" />
                 <Slot slot="Body" />
                 <Slot slot="Weapon" />
                 <Slot slot="Amulet" />
+            </section>
+            <section css="flex-grow: 1">
+                <Inventory />
             </section>
         </div>
     );
