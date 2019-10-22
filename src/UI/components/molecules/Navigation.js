@@ -13,6 +13,7 @@ const Navigation = ({menu, switchUi}) => {
             { items &&
                 items.map((item, i) => <button key={i} css={`
                     ${ pixel_background({bg_color: (menu === item.toLowerCase()) ? "#44bff7" : "#ffa53d"}) }
+                    color: white;
                     float: left;
                     font-size: 2em;
                     margin-right: 0.5em;
