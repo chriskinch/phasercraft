@@ -6,7 +6,9 @@ const Title = ({text}) => {
     return (
         <h1 css={`
             ${ pixel_background({ bg_color: "#44bff7" }) }
-            color: white
+            color: white;
+            float: left;
+            margin-right: 1em;
         `}>{ text }</h1>
     );
 }

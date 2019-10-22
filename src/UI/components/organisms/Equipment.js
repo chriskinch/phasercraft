@@ -24,13 +24,13 @@ const Equipment = (props) => {
                     { stats }
                 </Stats>
             </section>
-            <section css="width: 62px; margin: 0 1em;">
+            <section css="width: 62px; margin: 0 2em;">
                 <Slot slot="Helm" />
                 <Slot slot="Body" />
                 <Slot slot="Weapon" />
                 <Slot slot="Amulet" />
             </section>
-            <section css="flex-grow: 1">
+            <section css="flex-grow: 1; padding: 6px;">
                 <Inventory />
             </section>
         </div>

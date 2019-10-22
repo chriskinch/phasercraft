@@ -1,10 +1,10 @@
 import React from "react";
-import { toggleUi } from "../../../store/gameReducer";
+import { selectCharacter } from "../../../store/gameReducer";
 import { connect } from 'react-redux';
 import 'styled-components/macro';
 import Button from '../atoms/Button'
 
-const CharacterCard = ({ toggleUi, type }) => {
+const CharacterCard = ({ selectCharacter, type }) => {
     return (
         <li css={`
             padding: 0.5em;
@@ -24,9 +24,9 @@ const CharacterCard = ({ toggleUi, type }) => {
             <Button 
                 className="character-select-button"
                 text={ type }
-                onClick={() => toggleUi({character: type}) } />
+                onClick={() => selectCharacter(type) } />
         </li>
     );
 }
 
-export default connect(null, { toggleUi })(CharacterCard);
+export default connect(null, { selectCharacter })(CharacterCard);

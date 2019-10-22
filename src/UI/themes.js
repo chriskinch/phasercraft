@@ -3,9 +3,11 @@ import { darken } from 'polished';
 export const pixel_background = ({bg_color = "#e4f6f7"} = {}) => {
     return `
         background: ${bg_color};
+        border: none;
         box-shadow: 0 6px 0 ${darken(0.3, bg_color)}, 0 10px 0 rgba(0,0,0,0.25);
         box-sizing: border-box;
         display: inline-block;
+        outline: 0;
         padding: 0.25em;
         position: relative;
         height: 100%;

@@ -2,9 +2,12 @@ import React from "react";
 import { connect } from "react-redux";
 import { pixel_background } from './themes';
 import { toggleUi } from "../store/gameReducer";
+import Arcanum from "./components/organisms/Arcanum";
+import Armory from "./components/organisms/Armory";
 import Button from './components/atoms/Button'
 import Character from "./components/organisms/Character";
 import Equipment from "./components/organisms/Equipment";
+import Navigation from "./components/molecules/Navigation";
 import Title from "./components/atoms/Title";
 import 'styled-components/macro';
 
@@ -17,10 +20,18 @@ const UI = ({ menu, showUi, toggleUi }) => {
         equipment: {
             component: Equipment,
             title: "Equipment"
+        },
+        armory: {
+            component: Armory,
+            title: "Armory"
+        },
+        arcanum: {
+            component: Arcanum,
+            title: "Arcanum"
         }
     };
 
-    const MenuContents = config[menu].component;
+    const MenuContents = menu ? config[menu].component : Equipment;
 
     return (
         <div css={`
@@ -43,14 +54,16 @@ const UI = ({ menu, showUi, toggleUi }) => {
                     <div css={`
                         margin-bottom: 14px;
                     `}>
-                        <Title text={ config[menu].title } />
-                        { menu !== "character" &&
+                        { menu !== "character" ?
+                            <>
+                            <Navigation />
                             <div css={`
                                 float: right;
                             `}>
-                                <Button text="X" onClick={ () => toggleUi({menu: "equipment"}) } type="square" />
+                                <Button text="X" onClick={ () => toggleUi() } type="square" />
                             </div>
-                        }
+                            </>
+                        : <Title text={ config[menu].title } /> }
                     </div>
                     <div
                         id={ config[menu].title.toLowerCase().replace(" ", "-") }

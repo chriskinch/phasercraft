@@ -1,26 +1,26 @@
 import React from "react";
 import 'styled-components/macro';
+import { pixel_emboss } from '../../themes';
 
 const Inventory = () => {
-    const items = ["A","J","Y","U","F","I","O","P","K","W","K","L"];
+    // Max inventory space is 12
+    const items = new Array(12);
     return (
         <div css={`
+            ${ pixel_emboss }
             align-items: center;
             box-sizing: border-box;
             display: grid;
+            grid-gap: 1rem;
             grid-template-columns: auto auto auto auto;
             height: 100%;
             padding: 0 1em;
             margin: 0;
             text-align: center;
             width: 100%;
-            div {
-                border:1px solid rgba(0,0,0,0.1);
-                height: 100%;
-            }
         `}>
             { items &&
-                items.map((item) => <div>{item}</div>)
+                items.map((item, i) => <div key={i}>{item}</div>)
             }
         </div>
     );
