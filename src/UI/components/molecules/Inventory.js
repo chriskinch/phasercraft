@@ -1,10 +1,14 @@
 import React from "react";
 import 'styled-components/macro';
 import { pixel_emboss } from '../../themes';
+import Loot from '../atoms/Loot';
 
 const Inventory = () => {
     // Max inventory space is 12
-    const items = new Array(12);
+    const items = new Array(16);
+    // Temp: FILL WITH LOOT!
+    items.fill(<Loot />);
+
     return (
         <div css={`
             ${ pixel_emboss }
