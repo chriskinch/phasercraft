@@ -2,7 +2,7 @@ import Item from "./Item";
 
 class Legendary extends Item {
 	constructor() {
-        super("legendary");
+        super({base: 180, tier: "legendary", potential: 4, multiplier: 2.1});
 	}
 }
 

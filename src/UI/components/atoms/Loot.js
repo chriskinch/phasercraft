@@ -19,7 +19,7 @@ const Loot = () => {
     const num = Math.floor(Math.random() * Object.values(type)[0]) + 1;
 
     return (
-        <img src={`graphics/images/loot/${name}/${name}_${num}.png`} />
+        <img src={`graphics/images/loot/${name}/${name}_${num}.png`} alt="Loot!" />
     );
 }
 

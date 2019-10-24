@@ -13,7 +13,7 @@ class LootTable {
 		return (
 			(roll < 0.01) ? new Legendary() :
 			(roll < 0.1) ? new Epic() :
-			(roll < 0.4) ? new Rare() :
+			(roll < 0.3) ? new Rare() :
 			new Common()
 		);
 	}
