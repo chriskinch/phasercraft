@@ -1,11 +1,12 @@
-class Item {
+import Common from "./Common";
+import Rare from "./Rare";
+
+class LootTable {
 	constructor(config) {
-		this.stats = {
-			ap: 100,
-			mp: 50
-		}
-		console.log("Item: ", config);
+		const loot = new Common();
+		console.log(loot);
+		console.log("Table: ", config);
 	}
 }
 
-export default Item;
+export default LootTable;

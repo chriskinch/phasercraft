@@ -6,6 +6,10 @@ class Item {
 		}
 		console.log("Item: ", config);
 	}
+
+	generate(){
+		return this;
+	}
 }
 
 export default Item;

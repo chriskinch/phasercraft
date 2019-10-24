@@ -4,6 +4,7 @@ import Enemy from '../Entities/Enemy/Enemy';
 import UI from '../Entities/UI/HUD';
 import waveConfig from '../Config/waves.json';
 import enemyTypes from '../Config/enemies.json';
+import LootTable from '../Entities/Loot/LootTable';
 
 export default class GameScene extends Scene {
 	constructor() {
@@ -24,6 +25,8 @@ export default class GameScene extends Scene {
 		}
 
 		this.coins = 0;
+
+		this.loot_table = new LootTable();
 	}
 
 	init(config) {
