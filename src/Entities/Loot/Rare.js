@@ -1,9 +1,8 @@
 import Item from "./Item";
 
 class Rare extends Item {
-	constructor(config) {
-		super(config);
-        console.log("Rare", config);
+	constructor() {
+		super("rare");
 	}
 }
 
