@@ -12,8 +12,6 @@ class Item {
 			"health_max",
 			"health_regen"
 		];
-
-		this.potential = 3;
 		
 		this.stat_pool = this.generateStatPool(this.base);
 		this.remaining = this.stat_pool;

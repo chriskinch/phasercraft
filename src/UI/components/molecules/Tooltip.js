@@ -34,7 +34,7 @@ const Loot = () => {
 
     return (
         <>
-            <ReactTooltip id={id}><Stats>{ item.stats }</Stats></ReactTooltip>
+            <Tooltip id={id} item={item} />
             <img css={`
                 border: 3px solid ${color};
                 border-radius: 0.25em;
