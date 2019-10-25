@@ -25,8 +25,6 @@ export default class GameScene extends Scene {
 		}
 
 		this.coins = 0;
-
-		this.loot_table = new LootTable();
 	}
 
 	init(config) {
