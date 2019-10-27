@@ -4,36 +4,39 @@ import 'styled-components/macro';
 import Inventory from "../molecules/Inventory";
 import Slot from '../atoms/Slot';
 import Stats from "../molecules/Stats";
+import CustomDragLayer from "../protons/CustomDragLayer";
 
-const Equipment = (props) => {
-    const { character, stats } = props;
+const Equipment = ({ character, stats }) => {
     return (
-        <div css={`
-            display: flex;
-        `}>
-            <section>
-                <h2>Level 1</h2>
-                <img 
-                    src={`UI/player/${character}.gif`}
-                    alt="This is you!"
-                    css={`
-                        height: 3em;
-                    `}
-                />
-                <Stats>
-                    { stats }
-                </Stats>
-            </section>
-            <section css="width: 62px; margin: 0 2em;">
-                <Slot slot="Helm" />
-                <Slot slot="Body" />
-                <Slot slot="Weapon" />
-                <Slot slot="Amulet" />
-            </section>
-            <section css="flex-grow: 1; padding: 6px;">
-                <Inventory />
-            </section>
-        </div>
+        <>
+            <CustomDragLayer />
+            <div css={`
+                display: flex;
+            `}>
+                <section>
+                    <h2>Level 1</h2>
+                    <img 
+                        src={`UI/player/${character}.gif`}
+                        alt="This is you!"
+                        css={`
+                            height: 3em;
+                        `}
+                    />
+                    <Stats>
+                        { stats }
+                    </Stats>
+                </section>
+                <section css="width: 62px; margin: 0 2em;">
+                    <Slot slot="helm" />
+                    <Slot slot="body" />
+                    <Slot slot="weapon" />
+                    <Slot slot="amulet" />
+                </section>
+                <section css="flex-grow: 1; padding: 0 6px;">
+                    <Inventory />
+                </section>
+            </div>
+        </>
     );
 }
 

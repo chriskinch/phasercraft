@@ -4,8 +4,14 @@ const initState = {
     character: null,
     showUi: true,
     menu: "character",
-    stats: {}
+    stats: {},
+    loot: [],
+    inventory: []
 };
+
+export const addLoot = createAction("ADD_LOOT", loot => ({
+    payload: { loot }
+}));
 
 export const selectCharacter = createAction("SELECT_CHARACTER", character => ({
     payload: { character }
@@ -19,13 +25,19 @@ export const toggleUi = createAction("TOGGLE_UI", menu => ({
     payload: { menu }
 }));
 
+export const updateLootTable = createAction("UPDATE_LOOT_TABLE", loot => ({
+    payload: { loot }
+}));
+
 export const updateStats = createAction("UPDATE_STATS", stats => ({
     payload: { stats }
 }));
 
 export const gameReducer = createReducer(initState, {
-    [selectCharacter]: (state, action) => ({ ...state, showUi: !state.showUi, ...action.payload }),
+    [addLoot]: (state, action) => { state.inventory.push(action.payload.loot) },
+    [selectCharacter]: (state, action) => ({ ...state, showUi: false, ...action.payload }),
     [switchUi]: (state, action) => ({ ...state, ...action.payload }),
     [toggleUi]: (state, action) => ({ ...state, showUi: !state.showUi, ...action.payload }),
+    [updateLootTable]: (state, action) => ({ ...state, ...action.payload }),
     [updateStats]: (state, action) => ({ ...state, ...action.payload })
 });

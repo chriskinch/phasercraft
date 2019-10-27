@@ -7,6 +7,7 @@ const Stat = ({label, value, lw = "110px", vw = "50px"}) => {
             <dt css={`
                 clear: left;
                 float: left;
+                text-align: left;
                 text-transform: capitalize;
                 white-space: nowrap;
                 width: ${lw};

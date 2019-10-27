@@ -6,6 +6,9 @@ import waveConfig from '../Config/waves.json';
 import enemyTypes from '../Config/enemies.json';
 import LootTable from '../Entities/Loot/LootTable';
 
+import { updateLootTable, addLoot } from "../store/gameReducer";
+import store from '../store';
+
 export default class GameScene extends Scene {
 	constructor() {
 		super({
@@ -25,6 +28,13 @@ export default class GameScene extends Scene {
 		}
 
 		this.coins = 0;
+
+		const table = new LootTable();
+		store.dispatch(updateLootTable(table.loot));
+		store.dispatch(addLoot(table.loot[1]));
+		store.dispatch(addLoot(table.loot[55]));
+		store.dispatch(addLoot(table.loot[20]));
+		console.log(store.getState())
 	}
 
 	init(config) {

@@ -5,10 +5,10 @@ import Legendary from "./Legendary";
 
 class LootTable {
 	constructor() {
-		this.loot = Array.from({length: 100}, () => this.tierRoll());
+		this.loot = Array.from({length: 100}, () => this.qualityRoll());
 	}
 
-	tierRoll(roll = Math.random()) {
+	qualityRoll(roll = Math.random()) {
 		return (
 			(roll < 0.01) ? new Legendary() :
 			(roll < 0.1) ? new Epic() :

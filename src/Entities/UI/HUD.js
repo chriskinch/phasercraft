@@ -1,5 +1,5 @@
 import { GameObjects, Display } from 'phaser';
-import { toggleUi } from "../../store/gameReducer";
+import { toggleUi, addLoot } from "../../store/gameReducer";
 import store from '../../store';
 
 const styles = {
@@ -21,7 +21,9 @@ class UI extends GameObjects.Container {
 		Object.assign(this, this.setInvetoryIcon());
 
 		// Toggle menu on key binding
-		scene.input.keyboard.on(`keydown-S`, this.toggleMenu, this);
+		scene.input.keyboard.on('keyup-S', this.toggleMenu, this);
+		// TEMP KEYBIND TO ADD ITEMS
+		scene.input.keyboard.on('keyup-R', () => store.dispatch(addLoot(store.getState().loot[Math.floor(Math.random() * 100)])), this);
 
 		this.scene.events.on('increment:coin', this.addCoinCount, this);
 		this.scene.events.on('increment:wave', this.addWaveCount, this);
