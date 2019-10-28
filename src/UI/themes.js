@@ -37,28 +37,26 @@ export const pixel_background = ({bg_color = "#e4f6f7"} = {}) => {
     `
 };
 
-export const pixel_emboss = ({bg_color = "#e4f6f7"} = {}) => {
+export const pixel_emboss = ({rgb = "0,0,0", a = 0.1} = {}) => {
     const depth = "6px";
-    const tint = "rgba(0,0,0,0.3)";
     return `
-        background: rgba(0,0,0,0.1);
-        border-top: ${depth} solid rgba(0,0,0,0.1);
-        box-shadow: 0 -${depth} 0 ${tint};
+        background: rgba(${rgb},${a});
+        border-top: ${depth} solid rgba(${rgb},${a});
+        box-shadow: 0 -${depth} 0 rgba(${rgb},${a*3});
         box-sizing: border-box;
-        color: rgba(0,0,0,0.2);
+        color: rgba(${rgb},0.2);
         display: inline-block;
-        height: 50px;
+        height: 54px;
         line-height: 20px;
-        padding: 0.5em;
         position: relative;
-        margin: 6px;
+        margin: 4px;
         text-align: center;
-        width: 50px;
+        width: 54px;
         &:before {
-            background: rgba(0,0,0,0.1);
-            border-top: ${depth} solid rgba(0,0,0,0.1);
+            background: rgba(${rgb},${a});
+            border-top: ${depth} solid rgba(${rgb},${a});
             bottom: ${depth};
-            box-shadow: 0 -${depth} 0 ${tint};
+            box-shadow: 0 -${depth} 0 rgba(${rgb},${a*3});
             content: '';
             display: block;
             left: -${depth};
@@ -67,10 +65,10 @@ export const pixel_emboss = ({bg_color = "#e4f6f7"} = {}) => {
             width: ${depth};
         }
         &:after {
-            background: rgba(0,0,0,0.1);
-            border-top: ${depth} solid rgba(0,0,0,0.1);
+            background: rgba(${rgb},${a});
+            border-top: ${depth} solid rgba(${rgb},${a});
             bottom: ${depth};
-            box-shadow: 0 -${depth} 0 ${tint};
+            box-shadow: 0 -${depth} 0 rgba(${rgb},${a*3});
             content: '';
             display: block;
             right: -${depth};

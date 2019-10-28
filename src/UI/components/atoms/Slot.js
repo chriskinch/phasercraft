@@ -1,30 +1,33 @@
-import React from "react";
-import 'styled-components/macro';
-import { pixel_emboss } from '../../themes';
-import { useDrop } from 'react-dnd';
+import React from "react"
+import "styled-components/macro"
+import { pixel_emboss } from "../../themes"
+import { useDrop } from "react-dnd"
+import Loot from "../molecules/Loot"
 
-const Slot = ({ slot }) => {
-    console.log(slot)
+const Slot = ({ loot, slot }) => {
+    console.log("EQ: ", loot)
     const [{ canDrop, isOver }, drop] = useDrop({
         accept: slot,
-        drop: () => ({ name: slot }),
+        drop: () => ({ slot: slot }),
         collect: monitor => ({
             isOver: monitor.isOver(),
             canDrop: monitor.canDrop(),
         }),
     })
     const isActive = canDrop && isOver
-    const bg_color = (isActive) ? 'darkgreen' : (canDrop) ? 'darkkhaki' : null;
+    const rgb = (isActive) ? '0,100,0' : (canDrop) ? '100,100,0' : undefined;
+    const a = (isActive || canDrop) ? 0.3 : undefined;
 
     return (
         <div 
             ref={drop}
             css={`
-                ${pixel_emboss()}
-                background-color: ${bg_color};
+                ${pixel_emboss({rgb: rgb, a: a})}
                 text-transform: capitalize;
             `}
-        >{slot}</div>
+        >
+            { loot && <Loot id={slot} loot={loot} /> }
+        </div>
     );
 }
 

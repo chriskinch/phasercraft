@@ -6,10 +6,20 @@ const initState = {
     menu: "character",
     stats: {},
     loot: [],
-    inventory: []
+    inventory: [],
+    equipment: {
+        amulet: null,
+        body: null,
+        helm: null,
+        weapon: null
+    }
 };
 
 export const addLoot = createAction("ADD_LOOT", loot => ({
+    payload: { loot }
+}));
+
+export const equipLoot = createAction("EQUIP_LOOT", loot => ({
     payload: { loot }
 }));
 
@@ -35,6 +45,7 @@ export const updateStats = createAction("UPDATE_STATS", stats => ({
 
 export const gameReducer = createReducer(initState, {
     [addLoot]: (state, action) => { state.inventory.push(action.payload.loot) },
+    [equipLoot]: (state, action) => { state.equipment[action.payload.loot.set] = action.payload.loot },
     [selectCharacter]: (state, action) => ({ ...state, showUi: false, ...action.payload }),
     [switchUi]: (state, action) => ({ ...state, ...action.payload }),
     [toggleUi]: (state, action) => ({ ...state, showUi: !state.showUi, ...action.payload }),

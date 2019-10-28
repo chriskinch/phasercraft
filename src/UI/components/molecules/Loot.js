@@ -4,16 +4,21 @@ import LootIcon from "../atoms/LootIcon"
 import Tooltip from "./Tooltip"
 import { useDrag } from "react-dnd"
 import { getEmptyImage } from "react-dnd-html5-backend"
+import { connect } from 'react-redux';
+import { equipLoot } from "../../../store/gameReducer"
+import store from "../../../store"
 
-const Loot = ({id, item}) => {
-    const { category, color, icon, set } = item;
+const Loot = ({id, loot, equipLoot}) => {
+    const { category, color, icon, set } = loot;
 
     const [{ isDragging }, drag, preview] = useDrag({
-        item: { category, color, icon, type: set },
+        item: { type: set, category, color, icon },
         end: (item, monitor) => {
             const dropResult = monitor.getDropResult();
             if (item && dropResult) {
-                alert(`You dropped ${icon} into ${dropResult.type}!`)
+                equipLoot(loot);
+                console.log(`You dropped ${icon} into ${dropResult.slot}!`)
+                console.log(store.getState());
             }
         },
         collect: monitor => ({
@@ -32,12 +37,12 @@ const Loot = ({id, item}) => {
 
     return (
         <div ref={drag} css={draggingCSS}>
-            <Tooltip id={id} item={item} />
+            <Tooltip id={id} loot={loot} />
             <div data-tip data-for={id}>
-                <LootIcon {...item} />
+                <LootIcon {...loot} />
             </div>
         </div>
     );
 }; 
 
-export default Loot;
+export default connect(null, {equipLoot})(Loot);

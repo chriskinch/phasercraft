@@ -5,7 +5,7 @@ import Loot from "../molecules/Loot";
 import store from "../../../store";
 
 const Inventory = () => {
-    const items = store.getState().inventory;
+    const inventory = store.getState().inventory;
 
     return (
         <div css={`
@@ -13,10 +13,11 @@ const Inventory = () => {
             display: grid;
             grid-template-columns: 25% 25% 25% 25%;
             grid-template-rows: min-content min-content min-content min-content;
+            padding-top: 1em;
             height: 100%;
             width: 100%;
         `}>
-            { items && items.map((item, i) => <Loot item={item} key={i} id={i.toString()} />) }
+            { inventory && inventory.map((loot, i) => <Loot loot={loot} key={i} id={i.toString()} />) }
         </div>
     );
 }

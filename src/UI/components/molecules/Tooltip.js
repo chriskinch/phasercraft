@@ -3,8 +3,8 @@ import ReactTooltip from 'react-tooltip';
 import 'styled-components/macro';
 import Stats from "./Stats";
 
-const Tooltip = ({ id, item }) => {
-    const { color, stats } = item;
+const Tooltip = ({ id, loot }) => {
+    const { color, stats } = loot;
     return (
         <ReactTooltip 
             id={id}
