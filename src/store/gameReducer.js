@@ -1,4 +1,5 @@
-import { createAction, createReducer } from 'redux-starter-kit'
+import { createAction, createReducer } from "redux-starter-kit"
+import pull from "lodash/pull"
 
 const initState = {
     character: null,
@@ -45,7 +46,12 @@ export const updateStats = createAction("UPDATE_STATS", stats => ({
 
 export const gameReducer = createReducer(initState, {
     [addLoot]: (state, action) => { state.inventory.push(action.payload.loot) },
-    [equipLoot]: (state, action) => { state.equipment[action.payload.loot.set] = action.payload.loot },
+    [equipLoot]: (state, action) => {
+        console.log(action.payload.loot)
+        // if(state.equipment[action.payload.loot.set]) state.inventory.push(state.equipment[action.payload.loot.set])
+        pull(state.inventory, action.payload.loot)
+        state.equipment[action.payload.loot.set] = action.payload.loot
+    },
     [selectCharacter]: (state, action) => ({ ...state, showUi: false, ...action.payload }),
     [switchUi]: (state, action) => ({ ...state, ...action.payload }),
     [toggleUi]: (state, action) => ({ ...state, showUi: !state.showUi, ...action.payload }),

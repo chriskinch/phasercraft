@@ -16,8 +16,18 @@ const Loot = ({id, loot, equipLoot}) => {
         end: (item, monitor) => {
             const dropResult = monitor.getDropResult();
             if (item && dropResult) {
-                equipLoot(loot);
+                const slot = dropResult.slot;
                 console.log(`You dropped ${icon} into ${dropResult.slot}!`)
+                switch(slot) {
+                    case "amulet":
+                    case "body":
+                    case "helm":
+                    case "weapon":
+                        equipLoot(loot);
+                    default:
+                        console.log("Unrecognized slot!");
+                }
+                
                 console.log(store.getState());
             }
         },
