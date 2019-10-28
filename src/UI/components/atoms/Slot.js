@@ -4,7 +4,8 @@ import { pixel_emboss } from "../../themes"
 import { useDrop } from "react-dnd"
 import Loot from "../molecules/Loot"
 
-const Slot = ({ loot, slot }) => {
+const Slot = ({loot, slot}) => {
+    console.log("SLOT: ", slot, loot);
     const [{ canDrop, isOver }, drop] = useDrop({
         accept: slot,
         drop: () => ({ slot: slot }),
@@ -25,7 +26,7 @@ const Slot = ({ loot, slot }) => {
                 text-transform: capitalize;
             `}
         >
-            { loot && <Loot id={slot} loot={loot} /> }
+            { loot && <Loot loot={loot} /> }
         </div>
     );
 }

@@ -4,7 +4,6 @@ import { useDragLayer } from "react-dnd"
 import LootIcon from "../atoms/LootIcon"
 
 const getItemStyles = (initialOffset, currentOffset) => {
-    // console.log(initialOffset, currentOffset);
     if (!initialOffset || !currentOffset) {
         return {
             display: 'none',
@@ -18,10 +17,9 @@ const getItemStyles = (initialOffset, currentOffset) => {
     }
 }
 
-const CustomDragLayer = (props) => {
+const CustomDragLayer = () => {
     const { isDragging, item, initialOffset, currentOffset } = useDragLayer(monitor => ({
         item: monitor.getItem(),
-        itemType: monitor.getItemType(),
         initialOffset: monitor.getInitialSourceClientOffset(),
         currentOffset: monitor.getSourceClientOffset(),
         isDragging: monitor.isDragging(),
@@ -43,7 +41,7 @@ const CustomDragLayer = (props) => {
             width: 100%;
             height: 100%;
         `}>
-            <div style={getItemStyles(initialOffset, currentOffset/*, props.snapToGrid*/)}>
+            <div style={getItemStyles(initialOffset, currentOffset)}>
                 {renderItem()}
             </div>
         </div>

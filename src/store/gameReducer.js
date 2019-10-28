@@ -47,9 +47,9 @@ export const updateStats = createAction("UPDATE_STATS", stats => ({
 export const gameReducer = createReducer(initState, {
     [addLoot]: (state, action) => { state.inventory.push(action.payload.loot) },
     [equipLoot]: (state, action) => {
-        console.log(action.payload.loot)
-        // if(state.equipment[action.payload.loot.set]) state.inventory.push(state.equipment[action.payload.loot.set])
+        console.log("EQUIP: ", action.payload.loot)
         pull(state.inventory, action.payload.loot)
+        // if(state.equipment[action.payload.loot.set]) state.inventory.push(state.equipment[action.payload.loot.set])
         state.equipment[action.payload.loot.set] = action.payload.loot
     },
     [selectCharacter]: (state, action) => ({ ...state, showUi: false, ...action.payload }),

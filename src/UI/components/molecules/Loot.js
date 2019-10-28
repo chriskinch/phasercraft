@@ -11,29 +11,36 @@ import store from "../../../store"
 const Loot = ({id, loot, equipLoot}) => {
     const { category, color, icon, set } = loot;
 
-    const [{ isDragging }, drag, preview] = useDrag({
+    let [{ isDragging }, drag, preview] = useDrag({
         item: { type: set, category, color, icon },
+        begin: monitor => {
+            console.log("BEGIN: ", isDragging)
+        },
         end: (item, monitor) => {
+            console.log("END: ", monitor.internalMonitor.store.getState())
             const dropResult = monitor.getDropResult();
             if (item && dropResult) {
                 const slot = dropResult.slot;
-                console.log(`You dropped ${icon} into ${dropResult.slot}!`)
                 switch(slot) {
                     case "amulet":
                     case "body":
                     case "helm":
                     case "weapon":
                         equipLoot(loot);
+                        break;
                     default:
                         console.log("Unrecognized slot!");
                 }
                 
-                console.log(store.getState());
+                // console.log(store.getState());
             }
         },
-        collect: monitor => ({
-            isDragging: monitor.isDragging(),
-        })
+        collect: monitor => {
+            console.log("COLLECT: ", monitor.getItemType())
+            return ({
+                isDragging: monitor.isDragging(),
+            })
+        }
     })
 
     const draggingCSS = isDragging ? `
@@ -41,9 +48,12 @@ const Loot = ({id, loot, equipLoot}) => {
         filter: grayscale(100%);
     ` : null
 
+    const inventory = store.getState().inventory;
+
     useEffect(() => {
+        console.log("EFFECT: ", store.getState().inventory)
         preview(getEmptyImage(), { captureDraggingState: true })
-    });
+    }, [preview, inventory.length] );
 
     return (
         <div ref={drag} css={draggingCSS}>

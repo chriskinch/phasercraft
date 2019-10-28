@@ -33,7 +33,9 @@ const Inventory = () => {
                 width: 100%;
             `}
         >
-            { inventory && inventory.map((loot, i) => <Loot loot={loot} key={i} id={i.toString()} />) }
+            { inventory &&
+                inventory.map((loot, i) => <Loot loot={loot} key={i} id={`item_${i.toString()}`} />)
+            }
         </div>
     );
 }
