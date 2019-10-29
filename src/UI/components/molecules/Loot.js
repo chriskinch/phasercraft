@@ -9,20 +9,20 @@ import { equipLoot, unequipLoot } from "../../../store/gameReducer"
 import store from "../../../store"
 
 const Loot = ({id, loot, equipLoot, unequipLoot}) => {
-    const { category, color, icon, set, equipped } = loot;
+    const { category, color, icon, set, hide } = loot;
 
     let [{ isDragging }, drag, preview] = useDrag({
         item: { type: set, category, color, icon },
         end: (item, monitor) => {
             const dropResult = monitor.getDropResult();
             if (item && dropResult) {
-                const slot = dropResult.slot;
-                console.log(store.getState().inventory)
-                switch(slot) {
+                const equiptment = store.getState().equipment;
+                switch(dropResult.slot) {
                     case "amulet":
                     case "body":
                     case "helm":
                     case "weapon":
+                        if(equiptment[set]) unequipLoot(equiptment[set]);
                         equipLoot(loot);
                         break;
                     case "inventory":
@@ -50,7 +50,7 @@ const Loot = ({id, loot, equipLoot, unequipLoot}) => {
     return (
         <div ref={drag} css={`
             ${draggingCSS}
-            display: ${equipped ? 'none' : 'block'}
+            display: ${hide ? 'none' : 'block'}
         `}>
             <Tooltip id={id} loot={loot} />
             <div data-tip data-for={id}>

@@ -8,17 +8,10 @@ import store from "../../../store";
 const Inventory = () => {
     const inventory = store.getState().inventory;
 
-    const [{ canDrop, isOver }, drop] = useDrop({
+    const [, drop] = useDrop({
         accept: ["amulet", "body", "helm", "weapon"],
-        drop: () => ({ slot: "inventory" }),
-        collect: monitor => ({
-            isOver: monitor.isOver(),
-            canDrop: monitor.canDrop(),
-        }),
+        drop: () => ({ slot: "inventory" })
     })
-    const isActive = canDrop && isOver
-    const rgb = (isActive) ? '0,100,0' : (canDrop) ? '100,100,0' : undefined;
-    const a = (isActive || canDrop) ? 0.3 : undefined;
 
     return (
         <div 
@@ -34,7 +27,7 @@ const Inventory = () => {
             `}
         >
             { inventory &&
-                inventory.map((loot, i) => <Loot loot={loot} key={i} id={`item_${i.toString()}`} />)
+                inventory.map((loot, i) => <Loot loot={loot} key={i} id={i.toString()} />)
             }
         </div>
     );
