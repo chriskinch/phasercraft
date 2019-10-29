@@ -1,50 +1,41 @@
 {
   "name": "phasercraft",
-  "version": "1.0.0",
-  "description": "A Phaser based RPG game",
-  "main": "app.js",
-  "scripts": {
-    "start": "webpack-dev-server --open --https",
-    "build": "webpack",
-    "preview": "http-server dist",
-    "test": "echo \"Error: no test specified\" && exit 1"
-  },
-  "repository": {
-    "type": "git",
-    "url": "git+https://github.com/chriskinch/phasercraft.git"
-  },
-  "author": "Chris Kinch",
-  "license": "ISC",
-  "bugs": {
-    "url": "https://github.com/chriskinch/phasercraft/issues"
-  },
-  "homepage": "https://github.com/chriskinch/phasercraft#readme",
+  "version": "1.1.0",
+  "private": true,
   "devDependencies": {
-    "babel-core": "^6.26.0",
-    "babel-preset-env": "^1.6.1",
-    "browser-sync": "^2.23.6",
-    "browserify": "^16.1.1",
-    "clean-webpack-plugin": "^0.1.19",
-    "copy-webpack-plugin": "^5.0.4",
-    "file-loader": "^1.1.11",
-    "html-webpack-plugin": "^3.2.0",
-    "install": "^0.11.0",
-    "json-loader": "^0.5.7",
-    "npm": "^6.0.1",
-    "number-to-words": "^1.2.4",
-    "raw-loader": "^0.5.1",
-    "webpack": "^4.20.2",
-    "webpack-cli": "^3.1.1",
-    "webpack-dev-server": "^3.1.1",
-    "webpack-livereload-plugin": "^2.1.1",
-    "webpack-manifest-plugin": "^2.0.2",
-    "workbox-webpack-plugin": "^3.2.0"
+    "babel-loader": "8.0.5",
+    "number-to-words": "^1.2.4"
   },
   "dependencies": {
-    "array-flatten": "^2.1.1",
-    "array.prototype.flatmap": "^1.2.1",
-    "array.prototype.flatten": "^1.2.1",
-    "flat-map-polyfill": "^0.3.8",
-    "phaser": "^3.19.0"
-  }
+    "jest-canvas-mock": "^2.1.2",
+    "lodash": "^4.17.15",
+    "phaser": "^3.16.2",
+    "polished": "^3.4.1",
+    "react": "^16.8.6",
+    "react-dnd": "^9.4.0",
+    "react-dnd-html5-backend": "^9.4.0",
+    "react-dnd-touch-backend": "^9.4.0",
+    "react-dom": "^16.8.6",
+    "react-redux": "^7.0.2",
+    "react-scripts": "3.0.0",
+    "react-tooltip": "^3.11.1",
+    "redux": "^4.0.1",
+    "redux-starter-kit": "^0.9.1",
+    "styled-components": "^4.4.0"
+  },
+  "scripts": {
+    "start": "react-scripts start",
+    "build": "react-scripts build",
+    "test": "react-scripts test --setupFiles ./node_modules/jest-canvas-mock",
+    "eject": "react-scripts eject"
+  },
+  "eslintConfig": {
+    "extends": "react-app"
+  },
+  "browserslist": [
+    ">0.2%",
+    "not dead",
+    "not ie <= 11",
+    "not op_mini all"
+  ]
 }

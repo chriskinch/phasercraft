@@ -1,4 +1,6 @@
-class Weapon extends Phaser.GameObjects.Sprite {
+import { GameObjects } from 'phaser';
+
+class Weapon extends GameObjects.Sprite {
 
 	constructor(config, options={}) {
 		super(config.scene, 0, 0, config.key);

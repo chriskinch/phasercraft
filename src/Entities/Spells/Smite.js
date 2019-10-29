@@ -3,6 +3,7 @@ import Spell from './Spell';
 class Smite extends Spell {
 	constructor(config) {
 		const defaults = {
+			name: "smite",
 			icon_name: 'icon_0007_bolt',
 			cooldown: 3,
 			cost: {
@@ -36,7 +37,6 @@ class Smite extends Spell {
 	}
 
 	animationUpdate(){
-		console.log(this)
 		this.x = this.target.x;
 		this.y = this.target.y - 40;
 	}

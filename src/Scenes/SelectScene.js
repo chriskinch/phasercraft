@@ -1,37 +1,26 @@
-import CharacterSelect from '../Entities/UI/CharacterSelect';
+import { Scene } from 'phaser';
+import store from "../store";
 
-class SelectScene extends Phaser.Scene {
+export default class SelectScene extends Scene {
 	constructor() {
 		super({
-			key: 'MenuScene'
+			key: 'SelectScene'
 		});
 
 		this.config = {};
 	}
 
    	create(){
-		const { centerX, centerY } = this.physics.world.bounds;
-		this.character_select_menu = new CharacterSelect({
-			scene: this,
-			x: centerX,
-			y: centerY
-		}).createFromCache('character-select')
-		.setVisible(true)
-		.addListener('click')
-		.on('click', (event) => { this.clickHandler(event); });
+		// Save the returned unsub function and call one first action.
+		// Looks like and infinite loop but actually acts like a "once" event.
+		const unsubscribe = store.subscribe(() => {
+			this.chooseCharacter()
+			unsubscribe();			
+		});
 	}
 
-	clickHandler(event){
-		const type = event.target.getAttribute('data-character-type');
-		if (type) {
-			this.config.type = type;
-			this.scene.start('GameScene', this.config);
-		}
-	}
-	
-	setCharacterType(name) {
-		this.config.name = name;
+	chooseCharacter(){
+		this.config.type = store.getState().character;
+		this.scene.start('GameScene', this.config);
 	}
 }
-
-export default SelectScene;

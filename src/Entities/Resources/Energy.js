@@ -12,7 +12,8 @@ class Energy extends Resource {
 		regen_value = 20,
 		colour = 0xdcd743,
 	}) {
-		super({container, scene, x, y, max, value, regen_rate, regen_value, colour});
+		const name = "energy";
+		super({name, container, scene, x, y, max, value, regen_rate, regen_value, colour});
 	}
 }
 

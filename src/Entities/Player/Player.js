@@ -1,14 +1,17 @@
+import Phaser, { GameObjects } from 'phaser';
 import Hero from './Hero';
 import Weapon from '../Weapon';
 import AssignSpell from '../Spells/AssignSpell';
 import AssignResource from '../Resources/AssignResource';
 import targetVector from '../../Helpers/targetVector';
 import Boons from '../UI/Boons';
+import store from '../../store';
+import { updateStats } from '../../store/gameReducer';
 
 const converter = require('number-to-words');
 
-class Player extends Phaser.GameObjects.Container {
-	constructor({scene, x, y, abilities, ...stats}) {
+class Player extends GameObjects.Container {
+	constructor({scene, x, y, abilities, classification, ...stats}) {
 		super(scene, x, y);
 
 		this.hero = new Hero({
@@ -16,7 +19,7 @@ class Player extends Phaser.GameObjects.Container {
 			key: 'player',
 		});
 		this.add(this.hero);
-
+		
 		this.setSize(this.hero.getBounds().width, this.hero.getBounds().height, true);
 		scene.physics.world.enable(this);
 		scene.add.existing(this);
@@ -24,12 +27,14 @@ class Player extends Phaser.GameObjects.Container {
 		this.body.collideWorldBounds = true;
 		this.body.immovable = true;
 		this.body.setFriction(0,0);
-		this.setScale(2);
 
 		this.boons = new Boons(this.scene, this);
 		
 		this.base_stats = stats;
 		this.stats = JSON.parse(JSON.stringify(stats));
+
+		// TODO: I should probably unify where stats live as a SSOT
+		store.dispatch(updateStats(this.stats));
 
 		this.alive = true;
 		this.attack_ready = true;
@@ -38,8 +43,8 @@ class Player extends Phaser.GameObjects.Container {
 			x: null,
 			y: null
 		}
-		const type = this.constructor.name.toLocaleLowerCase();
-		this.createAnimations(type);
+
+		this.createAnimations(classification);
 
 		this.health = new AssignResource('Health', {
 			container: this,
@@ -57,7 +62,6 @@ class Player extends Phaser.GameObjects.Container {
 			...stats.resource
 		});
 		this.add(this.resource);
-
 
 		this.weapon = new Weapon({scene: scene, key:'weapon-swooch'});
 		this.add(this.weapon);
@@ -88,8 +92,6 @@ class Player extends Phaser.GameObjects.Container {
 		this.on('pointerdown', () => scene.events.emit('pointerdown:player', this));
 		this.on('boons:update', this.updateStats, this);
 
-		this.on('boons:update', this.updateStats, this);
-
 		scene.events.on('spell:primed', () => this.spellPrimed = true, this);
 		scene.events.on('spell:cast', () => this.spellPrimed = false, this);
 		scene.events.on('spell:cleared', () => this.spellPrimed = false, this);
@@ -106,7 +108,6 @@ class Player extends Phaser.GameObjects.Container {
 
 	update(mouse, keys, time, delta){
 		this.mouse = mouse;
-
 		this.setDepth(this.y);
 
 		let arrived = this.atDestination(this, this.destination);
@@ -127,25 +128,30 @@ class Player extends Phaser.GameObjects.Container {
 	}
 
 	updateStats() {
+		// console.log("BEFORE: ", this.stats);
+		// console.log("BEFORE: ", store.getState().stats);
 		this.boons.calculate();
+		store.dispatch(updateStats(this.stats));
+		// console.log("AFTER: ", this.stats);
+		// console.log("AFTER: ", store.getState().stats);
 	}
 
-	gameDownHandler(){
+	gameDownHandler(scene, pointer){
 		if(!this.spellPrimed) {
 			this.dragging = true;
-			this.moveTo();
+			this.moveTo(pointer);
 		}
 	}
 
-	gameMoveHandler(){
-		if(this.dragging) this.moveTo();
+	gameMoveHandler(scene, pointer){
+		if(this.dragging) this.moveTo(pointer);
 	}
 
 	gameUpHandler(){
 		this.dragging = false;
 	}
 
-	moveTo(target = this.mouse.pointer){
+	moveTo(target){
 		this.destination = {
 			x: target.x,
 			y: target.y

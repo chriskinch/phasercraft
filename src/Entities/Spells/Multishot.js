@@ -4,6 +4,7 @@ import targetVector from '../../Helpers/targetVector';
 class Multishot extends Spell {
 	constructor(config) {
 		const defaults = {
+			name: "multishot",
 			icon_name: 'icon_0004_corpse-explode',
 			cooldown: 0,
 			cost: {
@@ -38,6 +39,7 @@ class Multishot extends Spell {
 			.filter(enemy => {
 				enemy.vector = targetVector(this.player, enemy);
 				if (enemy.vector.range < this.range) return enemy;
+				return null;
 			})
 			.sort(function (a, b) {
 				return a.vector.range - b.vector.range;
@@ -51,7 +53,6 @@ class Multishot extends Spell {
 			const animation = this.scene.add.sprite(100, 100, 'multishot-effect')
 				.anims.play('multishot-animation')
 				.setDepth(1000)
-				.setScale(3)
 				.on('animationupdate', () => {
 					this.animationUpdate(animation, enemy);
 				});

@@ -1,4 +1,6 @@
-class CombatText extends Phaser.GameObjects.Text {
+import { GameObjects } from 'phaser';
+
+class CombatText extends GameObjects.Text {
 	constructor(scene, { x, y, value, type, crit }) {
         const color = {
             physical: '#fff',
@@ -12,15 +14,15 @@ class CombatText extends Phaser.GameObjects.Text {
 
         super(scene, x, y-25, value, { 
             fontFamily: 'VT323',
-            fontSize: (crit) ? '24px' : '18px',
+            fontSize: (crit) ? '21px' : '16px',
             stroke: (crit) ? '#800' : '#000',
             color: (type) ? color[type] : '#fff',
             strokeThickness: 5,
             shadow: {
-                offsetX: 2,
-                offsetY: 2,
+                offsetX: 1,
+                offsetY: 1,
                 color: '#000',
-                blur: 2,
+                blur: 1,
                 stroke: true,
                 fill: false
             }

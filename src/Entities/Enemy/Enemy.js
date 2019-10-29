@@ -1,9 +1,10 @@
+import { GameObjects, Geom } from 'phaser';
 import AssignResource from '../Resources/AssignResource';
 import Monster from './Monster';
 import enemyConfig from '../../Config/enemies.json';
 import Coin from '../Loot/Coin';
 
-class Enemy extends Phaser.GameObjects.Container {
+class Enemy extends GameObjects.Container {
 
 	constructor(config) {
 		super(config.scene, config.x, config.y - 300);
@@ -53,11 +54,11 @@ class Enemy extends Phaser.GameObjects.Container {
 		this.spawn_stop = this.scene.physics.add.staticImage(this.x, config.y, 'blank-gif');
 		this.scene.physics.add.collider(this.spawn_stop, this);
 
-		this.setAlpha(0).setScale(2);
+		this.setAlpha(0);
 		this.scene.tweens.add({ targets: this, alpha: 1, ease: 'Power1', duration: 500});
 
 		// Odd bug where the hit box is offset by 114px. not sure why but compensating here
-		this.setInteractive(new Phaser.Geom.Circle(14, 14, this.hitRadius), Phaser.Geom.Circle.Contains);
+		this.setInteractive(new Geom.Circle(14, 14, this.hitRadius), Geom.Circle.Contains);
 		this.bringToTop(this.monster);
 
 		if(this.scene.sys.game.config.physics.arcade.debug){
@@ -194,7 +195,7 @@ class Enemy extends Phaser.GameObjects.Container {
 		//Just to display the hit area, not actually needed to work. Also doesn't have the same bug about being offset.
 		this.hitboxDebug = this.scene.add.graphics();
 		this.hitboxDebug.lineStyle(1, 0x00ffff, 1);
-		this.hitboxDebug.strokeCircleShape(new Phaser.Geom.Circle(0, 0, this.hitRadius));
+		this.hitboxDebug.strokeCircleShape(new Geom.Circle(0, 0, this.hitRadius));
 		this.add(this.hitboxDebug);
 	}
 

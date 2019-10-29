@@ -1,9 +1,11 @@
-class Spell extends Phaser.GameObjects.Sprite {
+import { GameObjects, Display } from 'phaser';
+
+class Spell extends GameObjects.Sprite {
 	constructor({scene, x, y, key, ...config} = {}) {
 		super(scene, x, y, key);	
 		Object.assign(this, config);
-        this.name = this.constructor.name.toLowerCase();
-        this.typedCost = this.cost[this.player.resource.type];
+
+        this.typedCost = this.cost[this.player.resource.name];
         this.hasAnimation = true;
         this.enabled = false;
         // Placeholder empty function for clearing last spell
@@ -25,7 +27,9 @@ class Spell extends Phaser.GameObjects.Sprite {
 		// This covers us for disabling spells while one is channeled.
 		this.scene.events.on('spell:cooldown', () => {
 			this.monitorReady();
-		}, this);
+        }, this);
+        
+        this.scene.add.existing(this).setDepth(1000).setVisible(false);
     }
 
     checkResource() {
@@ -140,22 +144,21 @@ class Spell extends Phaser.GameObjects.Sprite {
     }
 
     setIcon() {
-        let p = 30;
         const button = this.scene.add.sprite(0, 0, 'icon', this.icon_name)
             .setInteractive()
             .setDepth(this.scene.depth_group.UI)
-            .setScale(2)
-            .setAlpha(0.4);
+            .setAlpha(0.4)
+            .setScale(1.5);
 
 		let styles = {
-			font: '21px monospace',
+			font: '16px monospace',
 			fill: '#ffffff',
 			align: 'center'
 		};
-		const text = this.scene.add.text(0, 0, this.cooldown, styles).setOrigin(0.5).setDepth(this.scene.depth_group.UI).setVisible(false);
+		const text = this.scene.add.text(-2, -2, this.cooldown, styles).setOrigin(0.5).setDepth(this.scene.depth_group.UI).setVisible(false);
 
-		Phaser.Display.Align.In.BottomLeft(button, this.scene.UI.frames[this.slot]);
-        Phaser.Display.Align.In.Center(text, button, -2, -2);
+		Display.Align.In.BottomLeft(button, this.scene.UI.frames[this.slot]);
+        Display.Align.In.Center(text, button, 0, 0);
         
         return {button: button, text: text};
     }
@@ -173,7 +176,6 @@ class Spell extends Phaser.GameObjects.Sprite {
     }
 
     startAnimation() {
-        this.scene.add.existing(this).setDepth(1000);
 		this.anims.play(this.name + '-animation');
     }
     

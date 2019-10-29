@@ -12,7 +12,8 @@ class Rage extends Resource {
 		regen_value = 3,
 		colour = 0xb93f3c,
 	}) {
-		super({container, scene, x, y, max, value, regen_rate, regen_value, colour});
+		const name = "rage";
+		super({name, container, scene, x, y, max, value, regen_rate, regen_value, colour});
 
 		scene.events.on('player:attacked', this.generate, this);
 		scene.events.on('player:attack', this.generate, this);

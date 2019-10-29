@@ -1,4 +1,6 @@
-class Coin extends Phaser.GameObjects.Sprite {
+import { GameObjects } from 'phaser';
+
+class Coin extends GameObjects.Sprite {
 
 	constructor(config) {
 		super(config.scene, config.x, config.y, 'coin-spin');
@@ -11,9 +13,6 @@ class Coin extends Phaser.GameObjects.Sprite {
 
 		this.scene.time.delayedCall(500, this.activate, [], this);
 		this.once('loot:collect', this.collect, this);
-
-		this.scaleX = 2;
-		this.scaleY = 2;
 	}
 
 	activate(){
@@ -30,7 +29,7 @@ class Coin extends Phaser.GameObjects.Sprite {
 		this.scene.tweens.add({
 				targets: this,
 				y: {
-					value: this.y - 50,
+					value: this.y - 25,
 					duration: 750,
 					ease: 'Cubic.easeOut'
 				},
@@ -44,8 +43,8 @@ class Coin extends Phaser.GameObjects.Sprite {
 	}
 
 	getRandomVelocity(){
-		let min = 50;
-		let max = 100;
+		let min = 25;
+		let max = 50;
 		let v = min + (Math.random() * (max-min));
 		let absV = (Math.random() >= 0.5) ? -v : v;
 		return absV;

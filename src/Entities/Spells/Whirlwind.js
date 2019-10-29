@@ -4,6 +4,7 @@ import targetVector from '../../Helpers/targetVector';
 class Whirlwind extends Spell {
 	constructor(config) {
 		const defaults = {
+			name: "whirlwind",
 			icon_name: 'icon_0005_coil',
 			cooldown: 2,
 			cost: {
@@ -18,7 +19,7 @@ class Whirlwind extends Spell {
 
         super({ ...defaults, ...config });
 		
-        this.setScale(5);
+        this.setScale(2);
 	}
 
 	setCastEvents(state) {
@@ -32,6 +33,7 @@ class Whirlwind extends Spell {
 			.filter(enemy => {
 				enemy.vector = targetVector(this.player, enemy);
 				if (enemy.vector.range < this.range) return enemy;
+				return null;
 			})
 			.sort(function (a, b) {
 				return a.vector.range - b.vector.range;

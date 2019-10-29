@@ -2,13 +2,14 @@ import Player from './Player';
 
 class Warrior extends Player {
     constructor(config) {
-        const default_stats = {
+        const defaults = {
+            classification: "warrior",
             attack_power: 50,
             attack_speed: 1,
             magic_power: 10,
             critical_chance: 10,
-            speed: 150,
-            range: 80,
+            speed: 100,
+            range: 40,
             knockback: 100,
             defence: 60,
             health: {
@@ -23,7 +24,7 @@ class Warrior extends Player {
             abilities: ["Whirlwind", "Enrage"]
         }
 
-        super({...default_stats, ...config});
+        super({...defaults, ...config});
 
         this.scene.add.existing(this);
 	}

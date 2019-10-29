@@ -1,6 +1,7 @@
+import { GameObjects } from 'phaser';
 import dropIn from '../../Helpers/spawnStyle';
 
-class Trap extends Phaser.GameObjects.Sprite {
+class Trap extends GameObjects.Sprite {
 	constructor(scene, x, y, lifespan) {
 		super(scene, x, y - 20, 'snare-trap');
 		scene.physics.world.enable(this);

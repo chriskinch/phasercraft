@@ -3,6 +3,7 @@ import Spell from './Spell';
 class Fireball extends Spell {
 	constructor(config) {
 		const defaults = {
+			name: "fireball",
 			icon_name: 'icon_0017_fire-ball',
 			cooldown: 1,
 			cost: {

@@ -1,37 +1,41 @@
-import Menu from './Menu';
+import { GameObjects, Display } from 'phaser';
+import { toggleUi, addLoot } from "../../store/gameReducer";
+import store from '../../store';
 
 const styles = {
-	font: '16px monospace',
+	font: '12px monospace',
 	fill: '#ffffff'
 };
 
-class UI extends Phaser.GameObjects.Container {
+class UI extends GameObjects.Container {
 	constructor(scene) {
 		super(scene, 0, 0);
-		const { centerX, centerY } = this.scene.physics.world.bounds;
-
+		
 		this.spells = 5;
-		this.spacing = 70;
+		this.spacing = 60;
 		this.frames = [];
 
 		this.setSpellFrames();
 		this.setCoinCount();
 		this.setWaveCount();
+		Object.assign(this, this.setInvetoryIcon());
+
+		// Toggle menu on key binding
+		scene.input.keyboard.on('keyup-S', this.toggleMenu, this);
+		// TEMP KEYBIND TO ADD ITEMS
+		scene.input.keyboard.on('keyup-R', () => store.dispatch(addLoot(store.getState().loot[Math.floor(Math.random() * 100)])), this);
 
 		this.scene.events.on('increment:coin', this.addCoinCount, this);
 		this.scene.events.on('increment:wave', this.addWaveCount, this);
-
-		this.menu = new Menu({scene: scene, x:centerX, y:centerY, key:'S'}).createFromCache('menu').addListener('click');
-		this.add(this.menu);
 
 		this.scene.add.existing(this).setDepth(this.scene.depth_group.UI);
 	}
 
 	setSpellFrames(){
-		let x = Phaser.Display.Bounds.GetLeft(this.scene.zone);
-		let y = Phaser.Display.Bounds.GetBottom(this.scene.zone);
+		let x = Display.Bounds.GetLeft(this.scene.zone);
+		let y = Display.Bounds.GetBottom(this.scene.zone);
 		for(let i=0; i<this.spells; i++) {
-			let frame = this.scene.add.sprite(x + (this.spacing*i), y, 'icon', 'icon_blank').setScale(1.8).setAlpha(0.3);
+			let frame = this.scene.add.sprite(x + (this.spacing*i), y, 'icon', 'icon_blank').setAlpha(0.3).setScale(1.5);
 			this.add(frame);
 			this.frames.push(frame);
 		}
@@ -39,7 +43,7 @@ class UI extends Phaser.GameObjects.Container {
 
 	setCoinCount(){
 		this.coins = this.scene.add.container(0, 0)
-		Phaser.Display.Align.In.TopRight(this.coins, this.scene.zone, -80);
+		Display.Align.In.TopRight(this.coins, this.scene.zone, -80);
 
 		this.coins.add(this.scene.add.sprite(0, 0, 'coin-spin').setDepth(this.scene.depth_group.UI));
 		this.coins.text = this.scene.add.text(15, 0, 'Coins: ' +this.scene.coins, styles).setOrigin(0, 0.5);
@@ -52,9 +56,9 @@ class UI extends Phaser.GameObjects.Container {
 
 	setWaveCount(){
 		this.wave = this.scene.add.container(0, 0)
-		Phaser.Display.Align.In.TopRight(this.wave, this.scene.zone, -190);
+		Display.Align.In.TopRight(this.wave, this.scene.zone, -190);
 
-		this.wave.add(this.scene.add.sprite(0, 0, 'dungeon', 'ghast_baby').setScale(2).setDepth(this.scene.depth_group.UI));
+		this.wave.add(this.scene.add.sprite(0, 0, 'dungeon', 'ghast_baby').setDepth(this.scene.depth_group.UI));
 		this.wave.text = this.scene.add.text(15, 0, 'Wave: ' + (this.scene.wave+1), styles).setOrigin(0, 0.5);
 		this.wave.add(this.wave.text);
 	}
@@ -63,6 +67,23 @@ class UI extends Phaser.GameObjects.Container {
 		this.wave.text.setText('Wave: ' + (this.scene.wave+1));
 	}
 
+	setInvetoryIcon() {
+		const menu_button = this.scene.add.sprite(0, 0, 'icon', 'icon_0021_charm')
+			.setInteractive()
+			.setDepth(this.scene.depth_group.UI);
+
+		Display.Align.In.BottomRight(menu_button, this.scene.zone);
+		
+		menu_button.on('pointerdown', this.toggleMenu, this);
+		
+		return {menu_button: menu_button};
+	}
+
+	toggleMenu() {
+		store.dispatch(toggleUi("equipment"));
+		// TODO: I can pause the game but I need to work on unpausing...
+		// (this.visible) ? this.scene.scene.pause() : this.scene.scene.resume();
+	}
 }
 
 export default UI;
