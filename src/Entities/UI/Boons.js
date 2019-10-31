@@ -1,5 +1,6 @@
 import { GameObjects } from "phaser"
 import store from "../../store"
+import { setStats, updateStats } from "../../store/gameReducer"
 
 class Boons extends GameObjects.Group {
 	constructor(scene, player) {
@@ -20,36 +21,35 @@ class Boons extends GameObjects.Group {
         this.timers[boon.name] = this.scene.time.addEvent(timer_config);
         
         this.add(boon);
-        this.player.emit('boons:update', this);
+        this.calculate(this.children.entries);
     }
 
     removeBoon(boon) {
         this.remove(boon);
-        this.player.emit('boons:update', this);
     }
 
-    iterateStats(value, stats = store.getState().stats, base = store.getState().base_stats) {
-        Object.keys(value).forEach(stat => {
-            if (typeof value[stat] === 'object') {
-                this.iterateStats(value[stat], stats[stat], base[stat]);
-            }else{
-                // console.log(`stat: ${stat}, function: ${value[stat]}, player: ${stats[stat]}, base: ${base[stat]}`);
-                stats[stat] = value[stat](stats[stat]);
-            }
+    resolveStats(keys) {
+        const stats = store.getState().base_stats;
+        const resolved = {}
+        Object.keys(keys).forEach(key => {
+            resolved[key] = keys[key](stats[key]);
         });
+
+        return resolved;
     }
 
-    calculate() {
-        // console.log("BEFORE: ", this.player.stats);
+    calculate(boons) {
+        console.log("BEFORE: ", store.getState());
         // Reset stats before recalulating new list of boons. If no boon acts as reset.
-        this.player.stats = JSON.parse(JSON.stringify(this.player.base_stats));
+        // this.player.stats = JSON.parse(JSON.stringify(this.player.base_stats));
+        // store.dispatch(setStats(store.getState().base_stats));
         // Loop through boons with an iterator to hit nested objects
-        this.children.entries.forEach(boon => {
-            this.iterateStats(boon.value);
+        boons.forEach(boon => {
+            console.log("CALCULATED: ", this.resolveStats(boon.value))
+            store.dispatch(updateStats(this.resolveStats(boon.value)));
         });
-        this.player.emit('boons:calculated', this.player.stats);
-        // console.log("AFTER: ", this.player.stats);
-    }
+        // this.player.emit('boons:calculated', this.player.stats);
+        console.log("AFTER: ", store.getState());    }
 
 }
 

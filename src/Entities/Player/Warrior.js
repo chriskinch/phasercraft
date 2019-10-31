@@ -19,7 +19,7 @@ class Warrior extends Player {
                 health_regen_rate: 0.75
             },
             resource_type: "Rage",
-            abilities: ["Whirlwind", "Enrage"]
+            abilities: ["Whirlwind", "Enrage", "Enrage2"]
         }
 
         super({...defaults, ...config});

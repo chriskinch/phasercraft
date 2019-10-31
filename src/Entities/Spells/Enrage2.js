@@ -1,9 +1,9 @@
 import Boon from './Boon';
 
-class Enrage extends Boon {
+class Enrage2 extends Boon {
 	constructor(config) {
 		const defaults = {
-			name: "enrage",
+			name: "enrage2",
 			icon_name: "icon_0019_fire-wall",
 			cooldown: 10,
 			cost: {
@@ -14,10 +14,10 @@ class Enrage extends Boon {
 			type: "physical",
 			duration: 5,
 			value: {
-				critical_chance: (bs) => bs + 10, // Increse by 10
-				attack_power: (bs) => bs * 1.2, // Increse by 20%
-				health_regen_value: (bs) => bs * 2, // Increse by 100%
-				health_regen_rate: (bs) => bs - 0.25 // Tick 0.25s more frequently
+				critical_chance: (bs) => bs + 10,
+				magic_power: (bs) => bs * 1.2,
+				health_regen_value: (bs) => bs * 2,
+				health_regen_rate: (bs) => bs - 0.25
 			}
 		}
 
@@ -47,4 +47,4 @@ class Enrage extends Boon {
 	animationUpdate(){}
 }
 
-export default Enrage;
+export default Enrage2;

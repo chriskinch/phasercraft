@@ -6,7 +6,7 @@ import AssignResource from "../Resources/AssignResource"
 import targetVector from "../../Helpers/targetVector"
 import Boons from "../UI/Boons"
 import store from "../../store"
-import { updateStats, setBaseStats, setStats } from "../../store/gameReducer"
+import { setBaseStats, setStats } from "../../store/gameReducer"
 import isEmpty from "lodash/isEmpty"
 
 const converter = require('number-to-words');
@@ -22,7 +22,7 @@ class Player extends GameObjects.Container {
 
 		//TODO: Swap out this temp solution to keep stats up to date.
 		store.subscribe(() => {
-			console.log("STAT UPDATE: ", store.getState().stats)
+			// console.log("STAT UPDATE: ", store.getState().stats)
 			this.stats = store.getState().stats;
 		});
 
@@ -97,7 +97,6 @@ class Player extends GameObjects.Container {
 		scene.events.on('pointerup:game', this.gameUpHandler, this);
 		scene.events.on('enemy:dead', this.targetDead, this);
 		this.on('pointerdown', () => scene.events.emit('pointerdown:player', this));
-		this.on('boons:update', this.updateStats, this);
 
 		scene.events.on('spell:primed', () => this.spellPrimed = true, this);
 		scene.events.on('spell:cast', () => this.spellPrimed = false, this);
@@ -132,15 +131,6 @@ class Player extends GameObjects.Container {
 		if(keys.esc.isDown) {
 			this.scene.events.emit('keypress:esc');
 		}
-	}
-
-	updateStats() {
-		// console.log("BEFORE: ", this.stats);
-		// console.log("BEFORE: ", store.getState().stats);
-		this.boons.calculate();
-		store.dispatch(updateStats(this.stats));
-		// console.log("AFTER: ", this.stats);
-		// console.log("AFTER: ", store.getState().stats);
 	}
 
 	gameDownHandler(scene, pointer){
