@@ -18,9 +18,6 @@ class SnareTrap extends Spell {
 		}
 
 		super({ ...defaults, ...config });
-		
-		// This is what the spell scales from.
-        this.power = this.player.stats.magic_power;
     }
 
     // Override and remove the defaul spell animation functions.

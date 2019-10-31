@@ -29,7 +29,7 @@ class Multishot extends Spell {
 	effect(target){
 		// Scales value bases on player stat.
 		if(target) {
-			const value = this.setValue(30, this.player.stats.attack_power);
+			const value = this.setValue({ base: 30, key: "attack_power" });
 			target.health.adjustValue(-value.amount, this.type, value.crit);
 		}
 	}

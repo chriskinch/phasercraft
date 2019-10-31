@@ -15,9 +15,6 @@ class Heal extends Spell {
 		}
 
 		super({ ...defaults, ...config });
-
-		// This is what the spell scales from.
-		this.power = this.player.stats.magic_power;
 	}
 
 	setCastEvents(state){
@@ -31,7 +28,7 @@ class Heal extends Spell {
 
 	effect(target){
 		// Scales value bases on player stat
-		const value = this.setValue(130, this.player.stats.magic_power);
+		const value = this.setValue({ base: 130, key: "magic_power" });
 		target.health.adjustValue(value.amount, this.type, value.crit);
 	}
 

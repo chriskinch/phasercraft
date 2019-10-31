@@ -25,16 +25,15 @@ class Enemy extends GameObjects.Container {
 
 		this.key = config.key;
 		this.target = config.target;
-		this.damage = config.damage || enemyConfig[this.key].damage;
-		this.speed = config.speed || enemyConfig[this.key].speed;
-		this.range = config.range || enemyConfig[this.key].range;
-		this.attack_speed = config.attack_speed || enemyConfig[this.key].attack_speed;
 		this.attack_ready = true;
 		this.isHit = false;
 		this.hitRadius = 25;
 		this.loot_chance = 0.75;
 		this.active_group = config.active_group;
 		this.alive = true;
+
+		this.stats = enemyConfig[this.key];
+		this.stats.health_value = this.stats.health_max;
 
 		this.graphics = {};
 		this.graphics.selected = this.drawSelected('selected');
@@ -45,9 +44,7 @@ class Enemy extends GameObjects.Container {
 			scene: config.scene,
 			x: -14,
 			y: -30,
-			value: config.health || enemyConfig[this.key].health,
-			max: config.health || enemyConfig[this.key].health,
-			regen_rate: config.regen_rate || enemyConfig[this.key].regen_rate
+			...this.stats
 		});
 		this.add(this.health);
 
@@ -77,7 +74,7 @@ class Enemy extends GameObjects.Container {
 			this.health.update(this);
 
 			if(!this.isHit) {
-				this.scene.physics.moveTo(this, this.scene.player.x, this.scene.player.y, this.speed);
+				this.scene.physics.moveTo(this, this.scene.player.x, this.scene.player.y, this.stats.speed);
 			}
 
 			if(this.health.getValue() <= 0) this.emit('enemy:dead', this);
@@ -180,9 +177,14 @@ class Enemy extends GameObjects.Container {
 
 	attack(){
 		if(this.attack_ready && this.spawned) {
-			this.scene.events.emit('enemy:attack', this.damage);
+			this.scene.events.emit('enemy:attack', this.stats.damage);
 			this.attack_ready = false;
-			this.swing = this.scene.time.addEvent({ delay: this.attack_speed*1000, callback: this.attackReady, callbackScope: this, loop: true });
+			this.swing = this.scene.time.addEvent({ 
+				delay: this.stats.attack_speed*1000,
+				callback: this.attackReady,
+				callbackScope: this,
+				loop: true
+			});
 		}
 	}
 

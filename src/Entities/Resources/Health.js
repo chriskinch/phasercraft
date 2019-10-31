@@ -2,19 +2,16 @@ import Resource from './Resource';
 import CombatText from '../UI/CombatText';
 
 class Health extends Resource {
-	constructor({
-		container,
-		scene,
-		x,
-		y,
-		max = 1000,
-		value = 1000,
-		regen_rate = 1,
-		regen_value = 0,
-		colour = 0x72ce6f,
-	}) {
-		const name = "health";
-		super({name, container, scene, x, y, max, value, regen_rate, regen_value, colour});
+	constructor(config) {
+		const defaults = {
+			name: "health",
+			health_max: 1000,
+			health_value: 1000,
+			health_regen_rate: 1,
+			health_regen_value: 0,
+			colour: 0x72ce6f
+		}
+		super({...defaults, ...config});
 	}
 
 	adjustValue(adj, type, crit) {

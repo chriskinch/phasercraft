@@ -1,4 +1,4 @@
-import { GameObjects } from 'phaser';
+import { GameObjects } from "phaser"
 
 class Resource extends GameObjects.Sprite {
 
@@ -8,14 +8,14 @@ class Resource extends GameObjects.Sprite {
 
 		this.container = config.container;
 		this.name = config.name;
-		// this.name = this.constructor.name.toLowerCase();
+		this.category = this.regenType(this.name);
 		this.colour = config.colour;
 
 		this.stats = {
-			max: config.max,
-			value: config.value,
-			regen_rate: config.regen_rate,
-			regen_value: config.regen_value
+			max: config[`${this.category}_max`],
+			value: config[`${this.category}_value`],
+			regen_rate: config[`${this.category}_regen_rate`],
+			regen_value: config[`${this.category}_regen_value`]
 		}
 
 		this.setOrigin(0,0).setDepth(1000);
@@ -45,8 +45,6 @@ class Resource extends GameObjects.Sprite {
 		this.tick = this.setRegenerationRate();
 		// If regen_rate is 0 delay is 0 (very fast) but timer won't unpause.
 		if(this.stats.regen_rate > 0) this.tick.paused = false;
-
-		this.category = this.regenType(this.name);
 		
 		this.container.on('boons:calculated', (stats) => {
 			this.setRegenStats(stats[this.category]);

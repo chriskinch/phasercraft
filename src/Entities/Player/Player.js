@@ -1,18 +1,30 @@
-import Phaser, { GameObjects } from 'phaser';
-import Hero from './Hero';
-import Weapon from '../Weapon';
-import AssignSpell from '../Spells/AssignSpell';
-import AssignResource from '../Resources/AssignResource';
-import targetVector from '../../Helpers/targetVector';
-import Boons from '../UI/Boons';
-import store from '../../store';
-import { updateStats } from '../../store/gameReducer';
+import Phaser, { GameObjects } from "phaser"
+import Hero from "./Hero"
+import Weapon from "../Weapon"
+import AssignSpell from "../Spells/AssignSpell"
+import AssignResource from "../Resources/AssignResource"
+import targetVector from "../../Helpers/targetVector"
+import Boons from "../UI/Boons"
+import store from "../../store"
+import { updateStats, setBaseStats, setStats } from "../../store/gameReducer"
+import isEmpty from "lodash/isEmpty"
 
 const converter = require('number-to-words');
 
 class Player extends GameObjects.Container {
-	constructor({scene, x, y, abilities, classification, ...stats}) {
+	constructor({scene, x, y, abilities, classification, stats, resource_type}) {
 		super(scene, x, y);
+		// Adding this in place for when there is a stats state when resuming from gameover or a save.
+		if(isEmpty(store.getState().base_stats)) store.dispatch(setBaseStats(stats));
+		if(isEmpty(store.getState().stats)) store.dispatch(setStats(stats));
+
+		this.stats = store.getState().stats;
+
+		//TODO: Swap out this temp solution to keep stats up to date.
+		store.subscribe(() => {
+			console.log("STAT UPDATE: ", store.getState().stats)
+			this.stats = store.getState().stats;
+		});
 
 		this.hero = new Hero({
 			scene: scene,
@@ -29,12 +41,6 @@ class Player extends GameObjects.Container {
 		this.body.setFriction(0,0);
 
 		this.boons = new Boons(this.scene, this);
-		
-		this.base_stats = stats;
-		this.stats = JSON.parse(JSON.stringify(stats));
-
-		// TODO: I should probably unify where stats live as a SSOT
-		store.dispatch(updateStats(this.stats));
 
 		this.alive = true;
 		this.attack_ready = true;
@@ -51,15 +57,16 @@ class Player extends GameObjects.Container {
 			scene: scene,
 			x: -14,
 			y: -35,
-			...stats.health
+			...stats
 		});
 		this.add(this.health);
 
-		this.resource = new AssignResource(stats.resource.type, {
+		this.resource = new AssignResource(resource_type, {
 			container: this,
-			scene: scene, x: -14,
+			scene: scene,
+			x: -14,
 			y: -30,
-			...stats.resource
+			...stats
 		});
 		this.add(this.resource);
 

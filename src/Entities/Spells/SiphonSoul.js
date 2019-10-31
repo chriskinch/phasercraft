@@ -19,7 +19,7 @@ class SiphonSoul extends Spell {
 		super({ ...defaults, ...config });
 		
 		// This is what the spell scales from.
-        this.power = this.player.stats.magic_power / 12;
+        this.power = this.player.stats.magic_power / 10;
     }
 
 	setCastEvents(state){
@@ -58,7 +58,8 @@ class SiphonSoul extends Spell {
     }
 
     setParticles() {
-        var particles = this.scene.add.particles('siphon-soul');
+        const value = this.setValue({ base: 10, key: "magic_power", reducer: v => v/5});
+        const particles = this.scene.add.particles('siphon-soul');
 
         this.well = particles.createGravityWell({
             x: this.player.x,
@@ -84,13 +85,13 @@ class SiphonSoul extends Spell {
             },
             emitCallback: () => {
                 if(this.target.alive) {
-                    this.target.health.adjustValue(-this.power, this.type, false);
+                    this.target.health.adjustValue(-value.amount, this.type, false);
                 } else {
                     this.clearEffect();
                 }
             },
             deathCallback: () => {
-                this.player.health.adjustValue(this.power, 'heal', false);
+                this.player.health.adjustValue(value.amount, 'heal', false);
             }
         }).setScale(0.75);
     }

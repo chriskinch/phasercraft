@@ -1,4 +1,5 @@
-import { GameObjects } from 'phaser';
+import { GameObjects } from "phaser"
+import store from "../../store"
 
 class Boons extends GameObjects.Group {
 	constructor(scene, player) {
@@ -27,7 +28,7 @@ class Boons extends GameObjects.Group {
         this.player.emit('boons:update', this);
     }
 
-    iterateStats(value, stats = this.player.stats, base = this.player.base_stats) {
+    iterateStats(value, stats = store.getState().stats, base = store.getState().base_stats) {
         Object.keys(value).forEach(stat => {
             if (typeof value[stat] === 'object') {
                 this.iterateStats(value[stat], stats[stat], base[stat]);
