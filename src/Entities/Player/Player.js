@@ -22,6 +22,7 @@ class Player extends GameObjects.Container {
 
 		//TODO: Swap out this temp solution to keep stats up to date.
 		store.subscribe(() => {
+			console.log("UPDATE STATS!")
 			if(this.stats !== store.getState().stats) this.stats = store.getState().stats;
 		});
 
@@ -68,6 +69,9 @@ class Player extends GameObjects.Container {
 			...stats
 		});
 		this.add(this.resource);
+
+		console.log(stats)
+
 
 		this.weapon = new Weapon({scene: scene, key:'weapon-swooch'});
 		this.add(this.weapon);

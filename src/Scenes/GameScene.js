@@ -34,7 +34,6 @@ export default class GameScene extends Scene {
 		store.dispatch(addLoot(table.loot[1]));
 		store.dispatch(addLoot(table.loot[55]));
 		store.dispatch(addLoot(table.loot[20]));
-		console.log(store.getState())
 	}
 
 	init(config) {
