@@ -26,30 +26,24 @@ class Boons extends GameObjects.Group {
 
     removeBoon(boon) {
         this.remove(boon);
+        this.calculate(this.children.entries);
     }
 
     resolveStats(keys) {
         const stats = store.getState().base_stats;
         const resolved = {}
         Object.keys(keys).forEach(key => {
-            resolved[key] = keys[key](stats[key]);
+            resolved[key] = (typeof keys[key] === "function") ? keys[key](stats[key]) : keys[key];
         });
-
         return resolved;
     }
 
     calculate(boons) {
-        console.log("BEFORE: ", store.getState());
-        // Reset stats before recalulating new list of boons. If no boon acts as reset.
-        // this.player.stats = JSON.parse(JSON.stringify(this.player.base_stats));
-        // store.dispatch(setStats(store.getState().base_stats));
+        // Always start from base_stats when calculating boons.
+        store.dispatch(setStats(store.getState().base_stats));
         // Loop through boons with an iterator to hit nested objects
-        boons.forEach(boon => {
-            console.log("CALCULATED: ", this.resolveStats(boon.value))
-            store.dispatch(updateStats(this.resolveStats(boon.value)));
-        });
-        // this.player.emit('boons:calculated', this.player.stats);
-        console.log("AFTER: ", store.getState());    }
+        boons.forEach(boon => store.dispatch(updateStats(this.resolveStats(boon.value))));
+    }
 
 }
 

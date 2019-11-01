@@ -14,10 +14,10 @@ class Enrage extends Boon {
 			type: "physical",
 			duration: 5,
 			value: {
-				critical_chance: (bs) => bs + 10, // Increse by 10
-				attack_power: (bs) => bs * 1.2, // Increse by 20%
-				health_regen_value: (bs) => bs * 2, // Increse by 100%
-				health_regen_rate: (bs) => bs - 0.25 // Tick 0.25s more frequently
+				critical_chance: 10, // Increse by 10
+				attack_power: (bs) => bs * 0.2, // Increse by 20%
+				health_regen_value: (bs) => bs, // Increse by 100%
+				health_regen_rate: -0.25 // Tick 0.25s more frequently
 			}
 		}
 

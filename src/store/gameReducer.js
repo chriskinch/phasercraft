@@ -67,10 +67,14 @@ export const updateLootTable = createAction("UPDATE_LOOT_TABLE", loot => ({
     payload: { loot }
 }));
 
+export const syncStats = createAction("SYNC_STATS", stats => ({
+    payload: { stats }
+}));
+
 // Helpers
 
-const addStats = (state, add) => mergeWith(state.stats, add.stats, (o,s) => o+s);
-const removeStats = (state, add) => mergeWith(state.stats, add.stats, (o,s) => o-s);
+const addStats = (stats, add) => mergeWith(stats, add, (o,s) => o+s);
+const removeStats = (stats, add) => mergeWith(stats, add, (o,s) => o-s);
 
 // Reducers
 
@@ -78,8 +82,8 @@ export const gameReducer = createReducer(initState, {
     [addLoot]: (state, action) => { state.inventory.push(action.payload.loot) },
     [equipLoot]: (state, action) => {
         state.equipment[action.payload.loot.set] = cloneDeep(action.payload.loot);
-        addStats(state, action.payload.loot);
         action.payload.loot.hide = true;
+        addStats(state.base_stats, action.payload.loot.stats);
     },
     [selectCharacter]: (state, action) => ({ ...state, showUi: false, ...action.payload }),
     [setBaseStats]: (state, action) => {state.base_stats = {...state.base_stats, ...action.payload.base_stats}},
@@ -91,15 +95,15 @@ export const gameReducer = createReducer(initState, {
         if(check) {
             const index = findIndex(state.inventory, action.payload.loot);
             state.equipment[action.payload.loot.set] = null;
-            removeStats(state, action.payload.loot);
+            removeStats(state.base_stats, action.payload.loot.stats);
             state.inventory[index] = action.payload.loot;
         }
     },
     [updateStats]: (state, action) => {
-        addStats(state, action.payload);
+        addStats(state.stats, action.payload.stats);
         // mergeWith(state.base_stats, action.payload.base_stats, (ov, sv) => {
         //     return ov + sv;
         // });
     },
-    [updateLootTable]: (state, action) => ({ ...state, ...action.payload }),
+    [updateLootTable]: (state, action) => ({ ...state, ...action.payload })
 });
