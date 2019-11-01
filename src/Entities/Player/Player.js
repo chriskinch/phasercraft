@@ -22,8 +22,7 @@ class Player extends GameObjects.Container {
 
 		//TODO: Swap out this temp solution to keep stats up to date.
 		store.subscribe(() => {
-			// console.log("STAT UPDATE: ", store.getState().stats)
-			this.stats = store.getState().stats;
+			if(this.stats !== store.getState().stats) this.stats = store.getState().stats;
 		});
 
 		this.hero = new Hero({
