@@ -14,17 +14,12 @@ const converter = require('number-to-words');
 class Player extends GameObjects.Container {
 	constructor({scene, x, y, abilities, classification, stats, resource_type}) {
 		super(scene, x, y);
+		this.classification = classification;
+		this.name = "player";
+		const base_stats = {...stats, resource_type}; // Add resource type into to base stats.
 		// Adding this in place for when there is a stats state when resuming from gameover or a save.
-		if(isEmpty(store.getState().base_stats)) store.dispatch(setBaseStats(stats));
-		if(isEmpty(store.getState().stats)) store.dispatch(setStats(stats));
-
-		this.stats = store.getState().stats;
-
-		//TODO: Swap out this temp solution to keep stats up to date.
-		store.subscribe(() => {
-			console.log("UPDATE STATS!")
-			if(this.stats !== store.getState().stats) this.stats = store.getState().stats;
-		});
+		if(isEmpty(store.getState().base_stats)) store.dispatch(setBaseStats(base_stats));
+		if(isEmpty(store.getState().stats)) store.dispatch(setStats(base_stats));
 
 		this.hero = new Hero({
 			scene: scene,
@@ -70,11 +65,22 @@ class Player extends GameObjects.Container {
 		});
 		this.add(this.resource);
 
-		console.log(stats)
-
-
 		this.weapon = new Weapon({scene: scene, key:'weapon-swooch'});
 		this.add(this.weapon);
+
+		this.stats = store.getState().stats;
+		//TODO: Swap out this temp solution to keep stats up to date.
+		store.subscribe(() => {
+			// console.log("UPDATE STATS: ", this.resource)
+			this.resource_stats = {
+				resource_max: this.resource.stats.max,
+				resource_value: this.resource.stats.value,
+				resource_regen_rate: this.resource.stats.regen_rate,
+				resource_regen_value: this.resource.stats.regen_value
+			}
+			// console.log("TYPE: ", this.resource_stats)
+			if(this.stats !== store.getState().stats) this.stats = store.getState().stats;
+		});
 
 		scene.events.once('player:dead', this.death, this);
 		scene.events.on('enemy:attack', this.hit, this);

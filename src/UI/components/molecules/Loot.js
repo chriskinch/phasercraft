@@ -5,10 +5,10 @@ import Tooltip from "./Tooltip"
 import { useDrag } from "react-dnd"
 import { getEmptyImage } from "react-dnd-html5-backend"
 import { connect } from 'react-redux';
-import { equipLoot, unequipLoot, updateBaseStats } from "../../../store/gameReducer"
+import { equipLoot, unequipLoot } from "../../../store/gameReducer"
 import store from "../../../store"
 
-const Loot = ({id, loot, equipLoot, unequipLoot, updateBaseStats}) => {
+const Loot = ({id, loot, equipLoot, unequipLoot}) => {
     const { category, color, icon, set, hide } = loot;
 
     let [{ isDragging }, drag, preview] = useDrag({
@@ -60,4 +60,4 @@ const Loot = ({id, loot, equipLoot, unequipLoot, updateBaseStats}) => {
     );
 }; 
 
-export default connect(null, {equipLoot, unequipLoot, updateBaseStats})(Loot);
+export default connect(null, {equipLoot, unequipLoot})(Loot);

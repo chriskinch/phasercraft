@@ -1,4 +1,7 @@
 import { GameObjects } from "phaser"
+import store from "../../store"
+import { setStats, setBaseStats } from "../../store/gameReducer"
+import pick from "lodash/pick"
 
 class Resource extends GameObjects.Sprite {
 
@@ -10,6 +13,8 @@ class Resource extends GameObjects.Sprite {
 		this.name = config.name;
 		this.category = this.regenType(this.name);
 		this.colour = config.colour;
+	
+		this.resources = pick(config, ["resource_max", "resource_value", "resource_regen_rate", "resource_regen_value"]);
 
 		this.stats = {
 			max: config[`${this.category}_max`],
@@ -18,10 +23,14 @@ class Resource extends GameObjects.Sprite {
 			regen_value: config[`${this.category}_regen_value`]
 		}
 
+		if(this.container.name === "player") {
+			store.dispatch(setStats(this.resources));
+			store.dispatch(setBaseStats(this.resources));
+		}
+
 		this.setOrigin(0,0).setDepth(1000);
 
 		this.graphics = {};
-
 		this.graphics.background = this.drawBar({
 			type: 'background',
 			colour: 0x111111,

@@ -4,27 +4,52 @@ import "styled-components/macro"
 import Inventory from "../molecules/Inventory"
 import Slot from "../atoms/Slot"
 import Stats from "../molecules/Stats"
+import StatBar from "../molecules/StatBar"
 import CustomDragLayer from "../protons/CustomDragLayer"
+import _ from "lodash"
+import store from "../../../store"
 
-const Equipment = ({ character, equipment, stats }) => {
+const Equipment = (props) => {
+    const { character, equipment, stats } = props;
     const { amulet, body, helm, weapon } = equipment;
+    const { resource_type } = stats;
+    const offence_state = _.pick(stats, ["attack_power", "magic_power", "attack_speed", "critical_chance"]);
+    const defence_stats = _.pick(stats, ["health_regen_rate", "health_regen_value", "defence", "speed"]);
+
+    const colour = (resource_type === "Mana") ? "blue" :
+        (resource_type === "Rage") ? "red" :
+        (resource_type === "Energy") ? "yellow" :
+        "white"; 
+    
     return (
         <>
             <CustomDragLayer />
             <div css={`
                 display: flex;
             `}>
-                <section>
+                <section css={`
+                    width: 170px;
+                `}>
                     <h2>Level 1</h2>
-                    <img 
-                        src={`UI/player/${character}.gif`}
-                        alt="This is you!"
-                        css={`
-                            height: 3em;
-                        `}
-                    />
+                    <div>
+                        <img 
+                            src={`UI/player/${character}.gif`}
+                            alt="This is you!"
+                            css={`
+                                float: left;
+                                height: 3em;
+                                margin-right: 1em;
+                                margin-bottom: 1em;
+                            `}
+                        />
+                        <StatBar colour={"Green"} label={"HP"} value={stats.health_max} />
+                        <StatBar colour={colour} label={"RP"} value={stats.resource_max} />
+                    </div>
                     <Stats>
-                        { stats }
+                        {offence_state}
+                    </Stats>
+                    <Stats>
+                        {defence_stats}
                     </Stats>
                 </section>
                 <section css="width: 62px; margin: 0 2em;">

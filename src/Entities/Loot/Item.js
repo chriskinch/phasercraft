@@ -14,7 +14,8 @@ class Item {
 			"speed",
 			"defence",
 			"health_max",
-			"health_regen"
+			"health_regen_rate",
+			"health_regen_value"
 		];
 		
 		this.stat_pool = this.generateStatPool(this.base);
@@ -22,14 +23,21 @@ class Item {
 
 		const keys = [...new Set(this.generateKeys(this.keys, stat_names))];
 
+		const it = this.allocateStatIterator(this.stat_pool, keys.length);
 		this.stats = {};
-		keys.forEach((key, i) => this.stats[key] = this.allocateStat(this.stat_pool, i, keys.length));
-
+		this.info = {}
+		keys.forEach((key, i) => {
+			const stat = it.next(key);
+			const converted = this.adjustStats(stat);
+			// console.log(converted);
+			this.stats[key] = converted.adjusted;
+			this.info[key] = converted;
+		});
 		this.category = this.getCategory();
 		this.icon = this.getIcon(this.category);
 		this.set = this.getSet(this.category);
 
-		// console.log(this.quality, this.stats, this.stat_pool)
+		// console.log(this.quality, this, this.stat_pool)
 	}
 
 	generateStatPool(base) {
@@ -43,15 +51,40 @@ class Item {
 		return Array.from({length: n}, () => sample(stat_names));
 	}
 
-	allocateStat(pool, loop, length) {
-		// TODO: MAKE THIS NOT A GROSS FUNCTION!
-		if(length === 1) return pool; //If I only have 1 stat just assign the whole pool.
-		const segment = 1/(length * 2); // E.g 2 stats = 50% mid way so range is from 25% to 75%.
-		const range = {min: segment, max: segment * 3};
-		const rand_range = random(range.min, range.max);
-		const deduction = Math.round( pool * rand_range );
-		this.remaining -= (loop+1 === length) ? 0 : deduction; // Last loop don't deduct. Otherwise you can go over budget.
-		return (loop+1 === length) ? this.remaining : deduction; // Last loop just return what remains.
+	allocateStatIterator(pool, length) {
+		let count = 0;
+		const statIterator = {
+		   	next: (key) => {
+				const range = 1/(length * 2); // E.g 2 stats = 50% mid way so range is from 25% to 75%.
+				const deduction = Math.round( pool * random(range, range * 3)); // Percentage of lower to upper range.
+				if (count < length-1) {
+					pool -= deduction;
+					count++;
+					return { value: deduction, done: false, key };
+			   	}
+			   	return { value: pool, done: true, key };
+		   	}
+		};
+		return statIterator;
+	}
+
+	adjustStats(stat) {
+		const funcs = {
+			attack_power: (v) => ({...stat, adjusted: v/2, format: "basic"}),
+			attack_speed: (v) => ({...stat, adjusted: -v/1000, format: "percent"}),
+			critical_chance: (v) => ({...stat, adjusted: v/1000, format: "percent"}),
+			defence: (v) => ({...stat, adjusted: v/2, format: "basic"}),
+			health_max: (v) => ({...stat, adjusted: v, format: "basic"}),
+			health_regen_rate: (v) => ({...stat, adjusted: -v/1000, format: "percent"}),
+			health_regen_value: (v) => ({...stat, adjusted: v/20, format: "basic"}),
+			magic_power: (v) => ({...stat, adjusted: v/2, format: "basic"}),
+			speed: (v) => ({...stat, adjusted: v/10, format: "basic"}),
+			default: (v) => ({...stat, adjusted: v, format: "basic"})
+		};
+
+		return funcs.hasOwnProperty(stat.key) ? 
+			funcs[stat.key](stat.value) :
+			funcs.default(stat.value);
 	}
 
 	getIcon(category) {

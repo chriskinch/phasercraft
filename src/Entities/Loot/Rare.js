@@ -4,7 +4,7 @@ class Rare extends Item {
 	constructor() {
 		super({
 			base: 60,
-			color: "#3333ff",
+			color: "#0077ff",
 			quality: "rare",
 			keys: { min: 2, max: 3 },
 			multiplier: 1.3
