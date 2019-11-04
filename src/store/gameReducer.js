@@ -1,11 +1,15 @@
 import { createAction, createReducer } from "redux-starter-kit"
 import cloneDeep from "lodash/cloneDeep"
 import findIndex from "lodash/findIndex"
+import mergeWith from "lodash/mergeWith"
+
+// Init
 
 const initState = {
     character: null,
     showUi: true,
     menu: "character",
+    base_stats: {},
     stats: {},
     loot: [],
     inventory: [],
@@ -17,6 +21,8 @@ const initState = {
     }
 };
 
+// Actions
+
 export const addLoot = createAction("ADD_LOOT", loot => ({
     payload: { loot }
 }));
@@ -27,6 +33,14 @@ export const equipLoot = createAction("EQUIP_LOOT", loot => ({
 
 export const selectCharacter = createAction("SELECT_CHARACTER", character => ({
     payload: { character }
+}));
+
+export const setBaseStats = createAction("SET_BASE_STATS", base_stats => ({
+    payload: { base_stats }
+}));
+
+export const setStats = createAction("SET_STATS", stats => ({
+    payload: { stats }
 }));
 
 export const switchUi = createAction("SWITCH_UI", menu => ({
@@ -41,21 +55,37 @@ export const unequipLoot = createAction("UNEQUIP_LOOT", loot => ({
     payload: { loot }
 }));
 
+export const updateBaseStats = createAction("UPDATE_BASE_STATS", base_stats => ({
+    payload: { base_stats }
+}));
+
+export const updateStats = createAction("UPDATE_BASE_STATS", stats => ({
+    payload: { stats }
+}));
+
 export const updateLootTable = createAction("UPDATE_LOOT_TABLE", loot => ({
     payload: { loot }
 }));
 
-export const updateStats = createAction("UPDATE_STATS", stats => ({
-    payload: { stats }
-}));
+// Helpers
+
+const addStats = (stats, add) => mergeWith(stats, add, (o,s) => o+s);
+const removeStats = (stats, add) => mergeWith(stats, add, (o,s) => o-s);
+const syncStats = (state) => state.stats = state.base_stats;
+
+// Reducers
 
 export const gameReducer = createReducer(initState, {
     [addLoot]: (state, action) => { state.inventory.push(action.payload.loot) },
     [equipLoot]: (state, action) => {
         state.equipment[action.payload.loot.set] = cloneDeep(action.payload.loot);
         action.payload.loot.hide = true;
+        addStats(state.base_stats, action.payload.loot.stats);
+        syncStats(state);
     },
     [selectCharacter]: (state, action) => ({ ...state, showUi: false, ...action.payload }),
+    [setBaseStats]: (state, action) => {state.base_stats = {...state.base_stats, ...action.payload.base_stats}},
+    [setStats]: (state, action) => {state.stats = {...state.stats, ...action.payload.stats}},
     [switchUi]: (state, action) => ({ ...state, ...action.payload }),
     [toggleUi]: (state, action) => ({ ...state, showUi: !state.showUi, ...action.payload }),
     [unequipLoot]: (state, action) => {
@@ -64,8 +94,12 @@ export const gameReducer = createReducer(initState, {
             const index = findIndex(state.inventory, action.payload.loot);
             state.equipment[action.payload.loot.set] = null;
             state.inventory[index] = action.payload.loot;
+            removeStats(state.base_stats, action.payload.loot.stats);
+            syncStats(state);
         }
     },
-    [updateLootTable]: (state, action) => ({ ...state, ...action.payload }),
-    [updateStats]: (state, action) => ({ ...state, ...action.payload })
+    [updateStats]: (state, action) => {
+        addStats(state.stats, action.payload.stats);
+    },
+    [updateLootTable]: (state, action) => ({ ...state, ...action.payload })
 });

@@ -4,7 +4,7 @@ import 'styled-components/macro';
 import Stats from "./Stats";
 
 const Tooltip = ({ id, loot }) => {
-    const { color, stats } = loot;
+    const { color, stats, info } = loot;
     return (
         <ReactTooltip 
             id={id}
@@ -13,7 +13,7 @@ const Tooltip = ({ id, loot }) => {
             `}
             type="light"
             globalEventOff="click"
-        ><Stats size={1.2}>{ stats }</Stats></ReactTooltip>
+        ><Stats size={1.2} info={info}>{ stats }</Stats></ReactTooltip>
     );
 }
 

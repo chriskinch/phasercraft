@@ -1,18 +1,25 @@
-import Phaser, { GameObjects } from 'phaser';
-import Hero from './Hero';
-import Weapon from '../Weapon';
-import AssignSpell from '../Spells/AssignSpell';
-import AssignResource from '../Resources/AssignResource';
-import targetVector from '../../Helpers/targetVector';
-import Boons from '../UI/Boons';
-import store from '../../store';
-import { updateStats } from '../../store/gameReducer';
+import Phaser, { GameObjects } from "phaser"
+import Hero from "./Hero"
+import Weapon from "../Weapon"
+import AssignSpell from "../Spells/AssignSpell"
+import AssignResource from "../Resources/AssignResource"
+import targetVector from "../../Helpers/targetVector"
+import Boons from "../UI/Boons"
+import store from "../../store"
+import { setBaseStats, setStats } from "../../store/gameReducer"
+import isEmpty from "lodash/isEmpty"
 
 const converter = require('number-to-words');
 
 class Player extends GameObjects.Container {
-	constructor({scene, x, y, abilities, classification, ...stats}) {
+	constructor({scene, x, y, abilities, classification, stats, resource_type}) {
 		super(scene, x, y);
+		this.classification = classification;
+		this.name = "player";
+		const base_stats = {...stats, resource_type}; // Add resource type into to base stats.
+		// Adding this in place for when there is a stats state when resuming from gameover or a save.
+		if(isEmpty(store.getState().base_stats)) store.dispatch(setBaseStats(base_stats));
+		if(isEmpty(store.getState().stats)) store.dispatch(setStats(base_stats));
 
 		this.hero = new Hero({
 			scene: scene,
@@ -29,12 +36,6 @@ class Player extends GameObjects.Container {
 		this.body.setFriction(0,0);
 
 		this.boons = new Boons(this.scene, this);
-		
-		this.base_stats = stats;
-		this.stats = JSON.parse(JSON.stringify(stats));
-
-		// TODO: I should probably unify where stats live as a SSOT
-		store.dispatch(updateStats(this.stats));
 
 		this.alive = true;
 		this.attack_ready = true;
@@ -51,20 +52,35 @@ class Player extends GameObjects.Container {
 			scene: scene,
 			x: -14,
 			y: -35,
-			...stats.health
+			...stats
 		});
 		this.add(this.health);
 
-		this.resource = new AssignResource(stats.resource.type, {
+		this.resource = new AssignResource(resource_type, {
 			container: this,
-			scene: scene, x: -14,
+			scene: scene,
+			x: -14,
 			y: -30,
-			...stats.resource
+			...stats
 		});
 		this.add(this.resource);
 
 		this.weapon = new Weapon({scene: scene, key:'weapon-swooch'});
 		this.add(this.weapon);
+
+		this.stats = store.getState().stats;
+		//TODO: Swap out this temp solution to keep stats up to date.
+		store.subscribe(() => {
+			// console.log("UPDATE STATS: ", this.resource)
+			this.resource_stats = {
+				resource_max: this.resource.stats.max,
+				resource_value: this.resource.stats.value,
+				resource_regen_rate: this.resource.stats.regen_rate,
+				resource_regen_value: this.resource.stats.regen_value
+			}
+			// console.log("TYPE: ", this.resource_stats)
+			if(this.stats !== store.getState().stats) this.stats = store.getState().stats;
+		});
 
 		scene.events.once('player:dead', this.death, this);
 		scene.events.on('enemy:attack', this.hit, this);
@@ -90,7 +106,6 @@ class Player extends GameObjects.Container {
 		scene.events.on('pointerup:game', this.gameUpHandler, this);
 		scene.events.on('enemy:dead', this.targetDead, this);
 		this.on('pointerdown', () => scene.events.emit('pointerdown:player', this));
-		this.on('boons:update', this.updateStats, this);
 
 		scene.events.on('spell:primed', () => this.spellPrimed = true, this);
 		scene.events.on('spell:cast', () => this.spellPrimed = false, this);
@@ -125,15 +140,6 @@ class Player extends GameObjects.Container {
 		if(keys.esc.isDown) {
 			this.scene.events.emit('keypress:esc');
 		}
-	}
-
-	updateStats() {
-		// console.log("BEFORE: ", this.stats);
-		// console.log("BEFORE: ", store.getState().stats);
-		this.boons.calculate();
-		store.dispatch(updateStats(this.stats));
-		// console.log("AFTER: ", this.stats);
-		// console.log("AFTER: ", store.getState().stats);
 	}
 
 	gameDownHandler(scene, pointer){

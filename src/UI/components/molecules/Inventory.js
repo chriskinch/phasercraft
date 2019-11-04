@@ -1,9 +1,9 @@
-import React from "react";
-import "styled-components/macro";
-import { pixel_emboss } from "../../themes";
+import React from "react"
+import "styled-components/macro"
+import { pixel_emboss } from "../../themes"
 import { useDrop } from "react-dnd"
-import Loot from "../molecules/Loot";
-import store from "../../../store";
+import Loot from "../molecules/Loot"
+import store from "../../../store"
 
 const Inventory = () => {
     const inventory = store.getState().inventory;

@@ -15,9 +15,6 @@ class Fireball extends Spell {
 		}
 
 		super({ ...defaults, ...config });
-		
-		// This is what the spell scales from.
-		this.power = this.player.stats.magic_power;
 	}
 
 	setCastEvents(state){
@@ -31,7 +28,7 @@ class Fireball extends Spell {
 
 	effect(target){
 		// Returns crit boolean and modified value using spell base value.
-		const value = this.setValue(45, this.player.stats.magic_power);
+		const value = this.setValue({ base: 45, key: "magic_power" });
 		target.health.adjustValue(-value.amount, this.type, value.crit);
 	}
 

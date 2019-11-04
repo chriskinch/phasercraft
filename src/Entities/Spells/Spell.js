@@ -1,4 +1,5 @@
-import { GameObjects, Display } from 'phaser';
+import { GameObjects, Display } from "phaser"
+import store from "../../store"
 
 class Spell extends GameObjects.Sprite {
 	constructor({scene, x, y, key, ...config} = {}) {
@@ -179,12 +180,13 @@ class Spell extends GameObjects.Sprite {
 		this.anims.play(this.name + '-animation');
     }
     
-    setValue(base, power){
+    setValue({base, key, reducer=(v)=>v }){
+        const power = store.getState().stats[key];
 		// Value based on base + scaled percentage of base from power + flat percent of power
 		const scaled = base + (base * (power/100)) + power/10;
 		// Check for crit
 		const crit = this.player.isCritical();
-		const total = crit ? scaled * 1.5 : scaled;
+		const total = reducer(crit ? scaled * 1.5 : scaled);
 		return { crit: crit, amount: total };
 	}
 }
