@@ -6,15 +6,14 @@ import Slot from "../atoms/Slot"
 import Stats from "../molecules/Stats"
 import StatBar from "../molecules/StatBar"
 import CustomDragLayer from "../protons/CustomDragLayer"
-import _ from "lodash"
-import store from "../../../store"
+import pick from "lodash/pick"
 
 const Equipment = (props) => {
     const { character, equipment, stats } = props;
     const { amulet, body, helm, weapon } = equipment;
     const { resource_type } = stats;
-    const offence_state = _.pick(stats, ["attack_power", "magic_power", "attack_speed", "critical_chance"]);
-    const defence_stats = _.pick(stats, ["health_regen_rate", "health_regen_value", "defence", "speed"]);
+    const offence_state = pick(stats, ["attack_power", "magic_power", "attack_speed", "critical_chance"]);
+    const defence_stats = pick(stats, ["health_regen_rate", "health_regen_value", "defence", "speed"]);
 
     const colour = (resource_type === "Mana") ? "blue" :
         (resource_type === "Rage") ? "red" :
