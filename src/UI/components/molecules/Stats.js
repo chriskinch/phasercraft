@@ -9,6 +9,7 @@ const Stats = (props) => {
             clear: both;
             overflow:hidden;
             font-size: ${size}em;
+            margin-bottom: 0;
         `}>
             { Object.entries(stats).map((stat, i) => <Stat key = {i} label={ stat[0] } value={ stat[1] } info={info} /> ) }
         </dl>
