@@ -21,7 +21,7 @@ const initState = {
         helm: null,
         weapon: null
     },
-    coins: 999
+    coins: 999  
 };
 
 // Actions

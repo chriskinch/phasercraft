@@ -2,7 +2,7 @@ import { GameObjects, Display } from 'phaser';
 import { toggleUi, addLoot } from "../../store/gameReducer";
 import store from '../../store';
 import { from } from 'rxjs';
-import { map, filter, distinctUntilChanged } from 'rxjs/operators';
+import { map, distinctUntilChanged } from 'rxjs/operators';
 
 const styles = {
 	font: '12px monospace',
