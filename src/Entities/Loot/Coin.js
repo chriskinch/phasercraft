@@ -1,4 +1,6 @@
 import { GameObjects } from 'phaser';
+import store from "../../store"
+import { addCoins } from "../../store/gameReducer"
 
 class Coin extends GameObjects.Sprite {
 
@@ -24,8 +26,7 @@ class Coin extends GameObjects.Sprite {
 	}
 
 	collect(){
-		this.scene.coins++;
-		this.scene.events.emit('increment:coin');
+		store.dispatch(addCoins());
 		this.scene.tweens.add({
 				targets: this,
 				y: {

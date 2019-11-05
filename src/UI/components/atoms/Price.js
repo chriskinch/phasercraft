@@ -14,7 +14,7 @@ const Price = ({ color, cost }) => {
             position: absolute;
         `}><img css={`
             width: 8px;
-        `} src="./UI/icons/coin.gif" /> {cost}</div>
+        `} src="./UI/icons/coin.gif" alt="Item cost:" /> {cost}</div>
     );
 }
 

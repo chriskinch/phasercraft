@@ -3,6 +3,7 @@ import LootTable from "../Entities/Loot/LootTable"
 import cloneDeep from "lodash/cloneDeep"
 import findIndex from "lodash/findIndex"
 import mergeWith from "lodash/mergeWith"
+import pull from "lodash/pull"
 
 // Init
 
@@ -19,13 +20,19 @@ const initState = {
         body: null,
         helm: null,
         weapon: null
-    }
+    },
+    coins: 999
 };
 
 // Actions
+export const addCoins = createAction("ADD_COIN");
 
 export const addLoot = createAction("ADD_LOOT", id => ({
     payload: { id }
+}));
+
+export const deductCoin = createAction("DEDUCT_COIN", cost => ({
+    payload: { cost }
 }));
 
 export const equipLoot = createAction("EQUIP_LOOT", loot => ({
@@ -84,10 +91,13 @@ const sortDecending = key => (a, b) => a[key] < b[key] ? 1 : -1;
 // Reducers
 
 export const gameReducer = createReducer(initState, {
+    [addCoins]: state => { state.coins++ },
     [addLoot]: (state, action) => {
         const loot = state.loot[action.payload.id];
+        pull(state.loot, loot);
         state.inventory.push(loot);
     },
+    [deductCoin]: (state, action) => { state.coins -= action.payload.cost },
     [equipLoot]: (state, action) => {
         state.equipment[action.payload.loot.set] = cloneDeep(action.payload.loot);
         action.payload.loot.hide = true;

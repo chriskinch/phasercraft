@@ -1,6 +1,8 @@
 import { GameObjects, Display } from 'phaser';
 import { toggleUi, addLoot } from "../../store/gameReducer";
 import store from '../../store';
+import { from } from 'rxjs';
+import { map, filter, distinctUntilChanged } from 'rxjs/operators';
 
 const styles = {
 	font: '12px monospace',
@@ -20,12 +22,20 @@ class UI extends GameObjects.Container {
 		this.setWaveCount();
 		Object.assign(this, this.setInvetoryIcon());
 
+		// Subscribe and update only if coins change. Uses RxJS.
+		const state$ = from(store);
+		state$.pipe(
+			map(state => state.coins),
+			distinctUntilChanged()
+		).subscribe(n => this.changeCoinCount(n));
+
 		// Toggle menu on key binding
 		scene.input.keyboard.on('keyup-S', this.toggleMenu, this);
 		// TEMP KEYBIND TO ADD ITEMS
 		scene.input.keyboard.on('keyup-R', () => store.dispatch(addLoot(Math.floor(Math.random() * 100))), this);
 
-		this.scene.events.on('increment:coin', this.addCoinCount, this);
+		// this.scene.events.on('coins:add', this.changeCoinCount, this);
+		// this.scene.events.on('coins:remove', this.changeCoinCount, this);
 		this.scene.events.on('increment:wave', this.addWaveCount, this);
 
 		this.scene.add.existing(this).setDepth(this.scene.depth_group.UI);
@@ -46,12 +56,13 @@ class UI extends GameObjects.Container {
 		Display.Align.In.TopRight(this.coins, this.scene.zone, -80);
 
 		this.coins.add(this.scene.add.sprite(0, 0, 'coin-spin').setDepth(this.scene.depth_group.UI));
-		this.coins.text = this.scene.add.text(15, 0, 'Coins: ' +this.scene.coins, styles).setOrigin(0, 0.5);
+		this.coins.text = this.scene.add.text(15, 0, 'Coins: ', styles).setOrigin(0, 0.5);
 		this.coins.add(this.coins.text);
 	}
 
-	addCoinCount(){
-		this.coins.text.setText('Coins: ' +this.scene.coins);
+	changeCoinCount(coins){
+		console.log("UPDATE: ", coins);
+		this.coins.text.setText('Coins: ' + coins);
 	}
 
 	setWaveCount(){

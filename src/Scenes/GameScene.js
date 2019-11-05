@@ -26,8 +26,6 @@ export default class GameScene extends Scene {
 			TOP: 99999
 		}
 
-		this.coins = 0;
-
 		store.dispatch(generateLootTable(99));
 		store.dispatch(addLoot(1));
 		store.dispatch(addLoot(55));
