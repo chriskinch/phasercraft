@@ -1,36 +1,31 @@
 import React from "react"
 import "styled-components/macro"
-import { pixel_emboss } from "../../themes"
 import { useDrop } from "react-dnd"
 import Loot from "../molecules/Loot"
-import store from "../../../store"
 
-const Inventory = () => {
-    const inventory = store.getState().inventory;
-
+const LootList = ({cols=4, list, name}) => {
     const [, drop] = useDrop({
         accept: ["amulet", "body", "helm", "weapon"],
-        drop: () => ({ slot: "inventory" })
+        drop: () => ({ slot: name })
     })
 
     return (
         <div 
             ref={drop}
             css={`
-                ${ pixel_emboss }
                 display: grid;
-                grid-template-columns: 25% 25% 25% 25%;
+                grid-template-columns: repeat(${cols}, 1fr);
                 grid-template-rows: min-content min-content min-content min-content;
-                padding-top: 1em;
-                height: 100%;
+                height: calc(100vh - 145px);
                 width: 100%;
+                overflow-y: scroll;
             `}
         >
-            { inventory &&
-                inventory.map((loot, i) => <Loot loot={loot} key={i} id={i.toString()} />)
+            { list &&
+                list.map((loot, i) => <Loot loot={loot} key={i} id={i.toString()} />)
             }
         </div>
     );
 }
 
-export default Inventory;
+export default LootList;

@@ -23,7 +23,7 @@ class UI extends GameObjects.Container {
 		// Toggle menu on key binding
 		scene.input.keyboard.on('keyup-S', this.toggleMenu, this);
 		// TEMP KEYBIND TO ADD ITEMS
-		scene.input.keyboard.on('keyup-R', () => store.dispatch(addLoot(store.getState().loot[Math.floor(Math.random() * 100)])), this);
+		scene.input.keyboard.on('keyup-R', () => store.dispatch(addLoot(Math.floor(Math.random() * 100))), this);
 
 		this.scene.events.on('increment:coin', this.addCoinCount, this);
 		this.scene.events.on('increment:wave', this.addWaveCount, this);

@@ -19,8 +19,6 @@ class Item {
 		];
 		
 		this.stat_pool = this.generateStatPool(this.base);
-		this.remaining = this.stat_pool;
-
 		const keys = [...new Set(this.generateKeys(this.keys, stat_names))];
 
 		const it = this.allocateStatIterator(this.stat_pool, keys.length);
