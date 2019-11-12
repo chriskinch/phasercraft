@@ -19,7 +19,7 @@ class Mage extends Player {
                 health_regen_rate: 1
             },
             resource_type: "Mana",
-            abilities: ["Fireball"]
+            abilities: ["Fireball", "EarthShield"]
         }
 
         super({...defaults, ...config});
