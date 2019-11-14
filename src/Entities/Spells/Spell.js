@@ -173,8 +173,15 @@ class Spell extends GameObjects.Sprite {
 			showOnStart: true,
             hideOnComplete: true
         });
+        this.on('animationstart', this.animationStart);
         this.on('animationupdate', this.animationUpdate);
+        this.on('animationcomplete', this.animationComplete);
     }
+
+    // Holding functions
+    animationStart() {}
+    animationUpdate() {}
+    animationComplete() {}
 
     startAnimation() {
 		this.anims.play(this.name + '-animation');
