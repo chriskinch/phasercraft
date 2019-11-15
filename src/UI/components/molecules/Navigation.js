@@ -24,8 +24,9 @@ const Navigation = ({menu, switchUi}) => {
     );
 }
 
-const mapStateToProps = (state) => ({
-    ...state
-});
+const mapStateToProps = (state) => {
+    const { menu } = state;
+    return { menu }
+};
 
 export default connect(mapStateToProps, {switchUi})(Navigation);

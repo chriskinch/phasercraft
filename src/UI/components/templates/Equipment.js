@@ -7,8 +7,7 @@ import Stats from "../molecules/Stats"
 import StatBar from "../molecules/StatBar"
 import pick from "lodash/pick"
 
-const Equipment = (props) => {
-    const { character, equipment, stats } = props;
+const Equipment = ({ character, equipment, stats }) => {
     const { amulet, body, helm, weapon } = equipment;
     const { resource_type } = stats;
     const offence_state = pick(stats, ["attack_power", "magic_power", "attack_speed", "critical_chance"]);
@@ -61,8 +60,9 @@ const Equipment = (props) => {
     );
 }
 
-const mapStateToProps = (state) => ({
-    ...state
-});
+const mapStateToProps = (state) => {
+    const { character, equipment, stats } = state;
+    return { character, equipment, stats }
+};
 
 export default connect(mapStateToProps)(Equipment);

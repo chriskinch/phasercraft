@@ -82,8 +82,9 @@ const UI = ({ menu, showUi, toggleUi }) => {
     );
 }
 
-const mapStateToProps = (state) => ({
-    ...state
-});
+const mapStateToProps = (state) => {
+    const { menu, showUi } = state;
+    return { menu, showUi }
+};
 
 export default connect(mapStateToProps, { toggleUi })(UI);

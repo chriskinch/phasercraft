@@ -33,8 +33,9 @@ const Armory = ({coins, addLoot, deductCoin, sortLoot, generateLootTable}) => {
     );
 }
 
-const mapStateToProps = (state) => ({
-    ...state
-});
+const mapStateToProps = (state) => {
+    const { coins } = state;
+    return { coins }
+};
 
 export default connect(mapStateToProps, {addLoot, deductCoin, sortLoot, generateLootTable })(Armory);

@@ -21,7 +21,8 @@ const initState = {
         helm: null,
         weapon: null
     },
-    coins: 999  
+    coins: 999,
+    selected: null
 };
 
 // Actions
@@ -41,6 +42,10 @@ export const equipLoot = createAction("EQUIP_LOOT", loot => ({
 
 export const selectCharacter = createAction("SELECT_CHARACTER", character => ({
     payload: { character }
+}));
+
+export const selectLoot = createAction("SELECT_LOOT", (id) => ({
+    payload: { id }
 }));
 
 export const setBaseStats = createAction("SET_BASE_STATS", base_stats => ({
@@ -103,6 +108,9 @@ export const gameReducer = createReducer(initState, {
         action.payload.loot.hide = true;
         addStats(state.base_stats, action.payload.loot.stats);
         syncStats(state);
+    },
+    [selectLoot]: (state, action) => {
+        state.loot[action.payload.id].selected = true
     },
     [selectCharacter]: (state, action) => ({ ...state, showUi: false, ...action.payload }),
     [setBaseStats]: (state, action) => {state.base_stats = {...state.base_stats, ...action.payload.base_stats}},
