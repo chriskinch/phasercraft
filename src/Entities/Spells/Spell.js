@@ -22,11 +22,13 @@ class Spell extends GameObjects.Sprite {
 		}
         // On any spell cast check all spells for readiness and disable if needed.
         this.scene.events.on('spell:cast', () => {
+            console.log("SC: ", this.cooldownDelay)
 			this.disableSpell();
 		}, this);
 		// Once a spell is cooling down monitor if all spells are ready.
 		// This covers us for disabling spells while one is channeled.
 		this.scene.events.on('spell:cooldown', () => {
+            console.log("CD: ", this.cooldownDelay)
 			this.monitorReady();
         }, this);
         
@@ -46,6 +48,7 @@ class Spell extends GameObjects.Sprite {
     }
     
     monitorReady() {
+        console.log("SPELL READY: ", this)
         this.player.resource.on('change', this.onResourceChangeHandler, this);
         this.onResourceChangeHandler(); // Check instantly as some resources update infrequently.
     }
@@ -107,7 +110,7 @@ class Spell extends GameObjects.Sprite {
         this.player.resource.adjustValue(-this.typedCost);
         // Do the animation
         this.animation = (this.hasAnimation) ? this.startAnimation() : null;
-		
+		console.log("CAST: ", this)
 		// Check if cooldown should be trigger automatically. Other wise spell must handle this.
 		if(!this.cooldownDelay) this.cooldownTimer = this.setCooldown();
 		

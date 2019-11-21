@@ -5,26 +5,26 @@ class EarthShield extends Spell {
 		const defaults = {
             name: "earthshield",
 			icon_name: 'icon_0008_ki',
-			cooldown: 0,
+			cooldown: 5,
 			cost: {
 				rage: 20,
 				mana: 30,
 				energy: 20
 			},
             type: 'magic',
-            duration: 6,
-            lifespan: 20
+            lifespan: 10,
+            rate: 250,
+            capacity: 5,
+            charges: 5,
+            ready: true,
+            cooldownDelay: true
         }
-		super({ ...defaults, ...config });
-        
+		super({ ...defaults, ...config });   
         this.radius = 40;
+    }
 
-        // this.scene.physics.world.enable(this);
-        console.log(this);
-        // this.body.setSize(101, 101, true);
-        // this.body.syncBounds = true;
-        // this.body.isCircle = true;
-        // this.body.immovable = true;
+    create() {
+        console.log("CREATED")
     }
 
 	setCastEvents(state){
@@ -42,11 +42,49 @@ class EarthShield extends Spell {
         this.body.isCircle = true;
         this.body.immovable = true;
         this.scene.physics.add.collider(this.scene.active_enemies, this, this.touch, null, this);
+        this.lifespanTimer = this.scene.time.addEvent({
+            delay: this.lifespan * 1000,
+            callback: () => {
+                console.log("EXPIRED")
+                this.kill();
+            },
+            callbackScope: this
+        });
     }
 
-    touch() {
-        const value = this.setValue({ base: 5, key: "magic_power" });
-        this.target.health.adjustValue(value.amount, this.type, value.crit);
+    throttle() {
+        return this.scene.time.addEvent({
+            delay: this.rate,
+            callback: () => {
+                console.log("READY")
+                this.ready = true;
+                this.throttleDelay.remove(false);
+            },
+            callbackScope: this
+        });
+    }
+
+    kill() {
+        this.motion.stop();
+        this.lifespanTimer.remove(false);
+        this.destroy();
+    }
+
+    touch(enemy) {
+        if(this.ready) {
+            console.log("TOUCH")
+            // The actual hit.
+            const value = this.setValue({ base: 1, key: "magic_power" });
+            enemy.health.adjustValue(-value.amount, this.type, value.crit);
+            // Reduce charges and scale.
+            this.charges--;
+            this.setScale(this.charges/this.capacity);
+            // Not ready until delay timer completes.
+            this.ready = false;
+            this.throttleDelay = this.throttle();
+        }
+        // Kill this spell when we are out of charges.
+        if(this.charges <= 0) this.kill();
     }
 
     animationStart() {
@@ -71,6 +109,7 @@ class EarthShield extends Spell {
             duration: 3000,
             delay: 250,
 			onUpdate: () => {
+                console.log("UPDATING")
                 const time = Math.floor(this.motion.getValue());
                 const angle = Math.PI/180 * time;
                 this.x = Math.cos(angle) * this.radius + this.target.x;
@@ -82,29 +121,10 @@ class EarthShield extends Spell {
                 (this.y > this.target.y) ? this.setDepth(10000) : this.setDepth(this.target.y + sub_depth)
             }
         });
-        
-        // this.scene.tweens.add({
-        //     targets: this,
-        //     repeat: -1,
-        //     y: {
-        //         value: this.y - 25,
-        //         duration: 750,
-        //         ease: 'Cubic.easeOut'
-        //     },
-        //     onUpdate: () => console.log(this)
-        // });
+    }
 
-        // $.each(dots, function(key, value){
-        //     var segment = angle*key;
-        //     var x = Math.cos(segment) * radius;
-        //     var y = Math.sin(segment) * radius;
-        //     $(value).css({
-        //       'left': ox + x,
-        //       'top': oy + y
-        //     });
-        //     console.text(dots.length);
-            
-        //   });
+    attackReady() {
+        console.log("READY")
     }
 }
 
