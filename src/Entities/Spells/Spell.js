@@ -115,7 +115,6 @@ class Spell extends GameObjects.Sprite {
         }else{
             this.scene.events.emit('spell:disableall', this);
         }
-        // this.cooldownTimer = this.setCooldown();
 		this.scene.events.emit('spell:cast', this);
 	}
 	
