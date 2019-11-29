@@ -13,7 +13,7 @@ class SiphonSoul extends Spell {
 			},
             type: 'magic',
             duration: 5,
-            cooldownDelay: true
+            cooldownDelayAll: true
 		}
 
 		super({ ...defaults, ...config });
@@ -52,8 +52,11 @@ class SiphonSoul extends Spell {
 
         this.player.body.setMaxVelocity(10000);
         this.emitter.stop();
-        // We handle when to start the cooldown. Goes with cooldownDelay = true.
+
+        // We handle when to start the cooldown. Goes with cooldownDelayAll = true.
+        this.customAnimationTimer.remove();
         this.cooldownTimer = this.setCooldown();
+        this.scene.events.emit('spell:enableall', this);
         this.scene.events.off('pointerdown:game', this.clearEffect, this);
     }
 
@@ -97,7 +100,7 @@ class SiphonSoul extends Spell {
     }
 
     startAnimation() {
-		this.scene.time.addEvent({
+		this.customAnimationTimer = this.scene.time.addEvent({
 			delay: this.duration * 1000,
 			callback: () => {
                 if(!this.enabled) this.clearEffect();

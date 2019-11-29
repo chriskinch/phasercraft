@@ -5,26 +5,22 @@ class EarthShield extends Spell {
 		const defaults = {
             name: "earthshield",
 			icon_name: 'icon_0008_ki',
-			cooldown: 5,
+			cooldown: 10,
 			cost: {
-				rage: 20,
-				mana: 30,
-				energy: 20
+				rage: 75,
+				mana: 110,
+				energy: 70
 			},
             type: 'magic',
-            lifespan: 10,
+            lifespan: 20,
             rate: 250,
-            capacity: 5,
-            charges: 5,
+            capacity: 8,
+            charges: 8,
             ready: true,
             cooldownDelay: true
         }
 		super({ ...defaults, ...config });   
         this.radius = 40;
-    }
-
-    create() {
-        console.log("CREATED")
     }
 
 	setCastEvents(state){
@@ -37,26 +33,28 @@ class EarthShield extends Spell {
 	}
 
     effect(target){
+        this.setVisible(true);
         this.scene.physics.world.enable(this);
-        this.body.syncBounds = true;
+        // this.body.syncBounds = true;
         this.body.isCircle = true;
+        this.body.setCircle(30); //TODO: Must be a better way!?
+        this.body.setOffset(40, 20); //TODO: Must be a better way!?
         this.body.immovable = true;
         this.scene.physics.add.collider(this.scene.active_enemies, this, this.touch, null, this);
         this.lifespanTimer = this.scene.time.addEvent({
             delay: this.lifespan * 1000,
             callback: () => {
-                console.log("EXPIRED")
-                this.kill();
+                this.end();
             },
             callbackScope: this
         });
+        if(this.motion) this.motion.restart();
     }
 
     throttle() {
         return this.scene.time.addEvent({
             delay: this.rate,
             callback: () => {
-                console.log("READY")
                 this.ready = true;
                 this.throttleDelay.remove(false);
             },
@@ -64,17 +62,24 @@ class EarthShield extends Spell {
         });
     }
 
-    kill() {
-        this.motion.stop();
-        this.lifespanTimer.remove(false);
-        this.destroy();
+    end() {
+        this.cooldownTimer = this.setCooldown();
+        this.monitorSpell();
+        this.motion.remove();
+        delete this.motion;
+        this.anims.currentAnim.resume();
+        this.lifespanTimer.remove();
+        delete this.lifespanTimer;
+        this.charges = this.capacity;
+        this.body.setEnable(false);
+        this.setVisible(false);
+        this.setScale(1);
     }
 
     touch(enemy) {
         if(this.ready) {
-            console.log("TOUCH")
             // The actual hit.
-            const value = this.setValue({ base: 1, key: "magic_power" });
+            const value = this.setValue({ base: 10, key: "magic_power" });
             enemy.health.adjustValue(-value.amount, this.type, value.crit);
             // Reduce charges and scale.
             this.charges--;
@@ -84,7 +89,7 @@ class EarthShield extends Spell {
             this.throttleDelay = this.throttle();
         }
         // Kill this spell when we are out of charges.
-        if(this.charges <= 0) this.kill();
+        if(this.charges <= 0) this.end();
     }
 
     animationStart() {
@@ -93,7 +98,7 @@ class EarthShield extends Spell {
     }
 
 	animationUpdate(){
-        const frames = 2; //this.anims.currentAnim.frames.length - 1;
+        const frames = this.anims.currentAnim.frames.length - 1;
         const end = this.anims.currentAnim.frames[frames];
         if(this.anims.currentFrame === end) {
             this.anims.currentAnim.pause(end);
@@ -109,7 +114,6 @@ class EarthShield extends Spell {
             duration: 3000,
             delay: 250,
 			onUpdate: () => {
-                console.log("UPDATING")
                 const time = Math.floor(this.motion.getValue());
                 const angle = Math.PI/180 * time;
                 this.x = Math.cos(angle) * this.radius + this.target.x;
@@ -121,10 +125,6 @@ class EarthShield extends Spell {
                 (this.y > this.target.y) ? this.setDepth(10000) : this.setDepth(this.target.y + sub_depth)
             }
         });
-    }
-
-    attackReady() {
-        console.log("READY")
     }
 }
 
