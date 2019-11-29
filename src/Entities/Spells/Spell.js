@@ -16,12 +16,7 @@ class Spell extends GameObjects.Sprite {
         Object.assign(this, this.setIcon());
         // Initial state is assumed to be off so monitor spell.
         this.monitorSpell();
-        // On any spell cast check all spells for readiness and disable if needed.
-        this.scene.events.on('spell:cast', () => {
-            // if(this.cooldownDelay) this.killSpell();
-            // if(this.cooldownDelayAll) this.scene.events.emit('spell:disableall', this);
-        }, this);
-
+        
         this.scene.events.on('spell:disableall', this.killSpell, this);
         this.scene.events.on('spell:enableall', this.monitorSpell, this);
         this.scene.add.existing(this).setDepth(1000).setVisible(false);
