@@ -1,11 +1,10 @@
 import React from "react"
-import store from "../../../store"
+import { connect } from "react-redux"
 import { pixel_emboss } from "../../themes"
 import LootList from "../molecules/LootList"
 import "styled-components/macro"
 
-const Stock = () => {
-    const stock = store.getState().loot;
+const Stock = ({ loot }) => {
     return (
         <div css={`
             ${ pixel_emboss }
@@ -13,9 +12,14 @@ const Stock = () => {
             padding-top: 2px;
             width: 100%;
         `}>
-            <LootList list={stock} name={"stock"} cols={9}/>
+            <LootList list={loot} name={"stock"} cols={9} />
         </div>
     );
 }
 
-export default Stock;
+const mapStateToProps = (state) => {
+    const { loot } = state;
+    return { loot }
+};
+
+export default connect(mapStateToProps)(Stock);

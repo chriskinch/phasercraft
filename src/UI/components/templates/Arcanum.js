@@ -1,5 +1,4 @@
 import React from "react";
-import { connect } from "react-redux";
 import 'styled-components/macro';
 
 const Arcanum = () => {
@@ -14,8 +13,4 @@ const Arcanum = () => {
     );
 }
 
-const mapStateToProps = (state) => ({
-    ...state
-});
-
-export default connect(mapStateToProps)(Arcanum);
+export default Arcanum;
