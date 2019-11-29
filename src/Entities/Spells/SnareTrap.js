@@ -57,6 +57,7 @@ class SnareTrap extends Spell {
         // Only trigger if the target have a body.
         // Game scene does not so lay the trap rather then trigger the trap.
         (target.body) ? this.triggerTrap(target) : this.layTrap();
+        this.clearSpell();
     }
 }
 
