@@ -14,22 +14,11 @@ class Spell extends GameObjects.Sprite {
         
         this.setAnimation();
         Object.assign(this, this.setIcon());
-        // Initial state is assumed to be off so check for ready if not monitor.
-        if(this.checkReady()) {
-			this.enableSpell();
-		}else{
-			this.monitorReady();
-		}
-        // On any spell cast check all spells for readiness and disable if needed.
-        this.scene.events.on('spell:cast', () => {
-			this.disableSpell();
-		}, this);
-		// Once a spell is cooling down monitor if all spells are ready.
-		// This covers us for disabling spells while one is channeled.
-		this.scene.events.on('spell:cooldown', () => {
-			this.monitorReady();
-        }, this);
+        // Initial state is assumed to be off so monitor spell.
+        this.monitorSpell();
         
+        this.scene.events.on('spell:disableall', this.killSpell, this);
+        this.scene.events.on('spell:enableall', this.monitorSpell, this);
         this.scene.add.existing(this).setDepth(1000).setVisible(false);
     }
 
@@ -42,33 +31,40 @@ class Spell extends GameObjects.Sprite {
     }
     
     checkReady() {
-        return (this.checkResource() && this.checkCooldown() && !this.enabled);
-    }
-    
-    monitorReady() {
-        this.player.resource.on('change', this.onResourceChangeHandler, this);
-        this.onResourceChangeHandler(); // Check instantly as some resources update infrequently.
+        return (this.checkResource() && this.checkCooldown());
     }
 
     onResourceChangeHandler() {
-        if(this.checkReady()) this.enableSpell();
+        this.checkReady() ? this.enableSpell() : this.disableSpell();
     }
 
     enableSpell() {
-        this.enabled = true;
-        this.button.setAlpha(1);
-        this.setButtonEvents('on');
-        this.player.resource.off('change', this.onResourceChangeHandler, this);
+        if(!this.enabled) {
+            this.button.setAlpha(1);
+            this.setButtonEvents('on');
+            this.enabled = true;
+        }
+    }
+
+    monitorSpell() {
+        this.player.resource.on('change', this.onResourceChangeHandler, this);
+        if(this.checkReady()) this.enableSpell();
     }
 
     disableSpell() {
-        this.enabled = false;
-		this.button.setAlpha(0.4);
-		this.setButtonEvents('off');
-        this.setCastEvents('off');
-        this.out();
-        this.player.clearLastPrimedSpell = () => {};
+        if(this.enabled) {
+            this.button.setAlpha(0.4);
+            this.setButtonEvents('off');
+            this.setCastEvents('off');
+            this.out();
+            this.player.clearLastPrimedSpell = () => {};
+            this.enabled = false;
+        }
+    }
+
+    killSpell() {
         this.player.resource.off('change', this.onResourceChangeHandler, this);
+        this.disableSpell();
     }
 
     clearSpell() {
@@ -79,14 +75,12 @@ class Spell extends GameObjects.Sprite {
     }
 
     setCooldown() {
-		this.text.setVisible(true);
         return this.scene.tweens.addCounter({
 			from: 0,
 			to: this.cooldown,
 			duration: this.cooldown * 1000,
 			onStart: () => {
-				// Do this on start so we know the timer has been setup.
-				this.scene.events.emit('spell:cooldown', this);
+                this.text.setVisible(true);
 			},
 			onUpdate: () => {
                 const time = this.cooldown - Math.floor(this.cooldownTimer.getValue());
@@ -94,12 +88,11 @@ class Spell extends GameObjects.Sprite {
             },
 			onComplete: () => {
                 this.text.setVisible(false);
+                this.onResourceChangeHandler();
             }
         });
-	}
-
-
-
+    }
+    
     castSpell(target) {
         this.target = target;
         this.effect(target);
@@ -107,10 +100,16 @@ class Spell extends GameObjects.Sprite {
         this.player.resource.adjustValue(-this.typedCost);
         // Do the animation
         this.animation = (this.hasAnimation) ? this.startAnimation() : null;
-		
-		// Check if cooldown should be trigger automatically. Other wise spell must handle this.
-		if(!this.cooldownDelay) this.cooldownTimer = this.setCooldown();
-		
+        // Check if cooldown should be trigger automatically. Other wise spell must handle this.
+		if(!this.cooldownDelayAll) {
+            if(!this.cooldownDelay) {
+                this.cooldownTimer = this.setCooldown();
+            }else{
+                this.killSpell();
+            }
+        }else{
+            this.scene.events.emit('spell:disableall', this);
+        }
 		this.scene.events.emit('spell:cast', this);
 	}
 	
@@ -141,7 +140,7 @@ class Spell extends GameObjects.Sprite {
         this.button[state]('pointerover', this.over, this);
         this.button[state]('pointerout', this.out, this);
         this.button[state]('pointerdown', this.setPrimed, this);
-        this.scene.input.keyboard[state](`keydown-${this.hotkey}`, this.setPrimed, this);
+        this.button.scene.input.keyboard[state](`keydown-${this.hotkey}`, this.setPrimed, this);
     }
 
     setIcon() {
@@ -173,8 +172,15 @@ class Spell extends GameObjects.Sprite {
 			showOnStart: true,
             hideOnComplete: true
         });
+        this.on('animationstart', this.animationStart);
         this.on('animationupdate', this.animationUpdate);
+        this.on('animationcomplete', this.animationComplete);
     }
+
+    // Holding functions
+    animationStart() {}
+    animationUpdate() {}
+    animationComplete() {}
 
     startAnimation() {
 		this.anims.play(this.name + '-animation');
