@@ -1,5 +1,7 @@
 import { Scene, GameObjects } from "phaser";
 import createAnimations from '../Config/animations';
+import store from "../store";
+import { toggleUi } from "../store/gameReducer";
 
 export default class LoadScene extends Scene {
 	preload(){
@@ -53,6 +55,7 @@ export default class LoadScene extends Scene {
 
 	create(){
 		createAnimations(this);
+		store.dispatch(toggleUi("character"));
 		this.scene.start('SelectScene');
 	}
 }
