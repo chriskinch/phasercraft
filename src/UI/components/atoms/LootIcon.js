@@ -2,7 +2,6 @@ import React from "react";
 import 'styled-components/macro';
 
 const LootIcon = ({ id, category, color, icon, isSeletced, onClick }) => {
-    console.log(isSeletced, id)
     return (
         <img css={`
             border: 3px solid ${isSeletced ? "red" : color};

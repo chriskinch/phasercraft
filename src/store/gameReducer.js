@@ -32,6 +32,10 @@ export const addLoot = createAction("ADD_LOOT", id => ({
     payload: { id }
 }));
 
+export const buyLoot = createAction("BUY_LOOT", id => ({
+    payload: { id }
+}));
+
 export const deductCoin = createAction("DEDUCT_COIN", cost => ({
     payload: { cost }
 }));
@@ -99,8 +103,14 @@ export const gameReducer = createReducer(initState, {
     [addCoins]: state => { state.coins++ },
     [addLoot]: (state, action) => {
         const loot = state.loot[action.payload.id];
+        state.inventory.push(loot);
+    },
+    [buyLoot]: (state, action) => {
+        console.log(action)
+        const loot = state.loot[action.payload.id];
         pull(state.loot, loot);
         state.inventory.push(loot);
+        state.selected = null;
     },
     [deductCoin]: (state, action) => { state.coins -= action.payload.cost },
     [equipLoot]: (state, action) => {
@@ -110,7 +120,8 @@ export const gameReducer = createReducer(initState, {
         syncStats(state);
     },
     [selectLoot]: (state, action) => {
-        state.loot[action.payload.id].selected = true
+        state.selected = action.payload.id;
+        console.log(state.selected, action)
     },
     [selectCharacter]: (state, action) => ({ ...state, showUi: false, ...action.payload }),
     [setBaseStats]: (state, action) => {state.base_stats = {...state.base_stats, ...action.payload.base_stats}},

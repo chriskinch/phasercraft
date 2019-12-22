@@ -1,12 +1,11 @@
-import React, { useState } from "react"
+import React from "react"
 import "styled-components/macro"
 import { useDrop } from "react-dnd"
 import Loot from "../molecules/Loot"
+import { connect } from "react-redux"
+import { selectLoot } from "../../../store/gameReducer"
 
-const LootList = ({cols=4, list, name}) => {
-    const [selected, setSelected] = useState(null);
-    console.log("LIST: ", selected)
-
+const LootList = ({cols=4, list, name, selected, selectLoot}) => {
     const [, drop] = useDrop({
         accept: ["amulet", "body", "helm", "weapon"],
         drop: () => ({ slot: name })
@@ -26,13 +25,19 @@ const LootList = ({cols=4, list, name}) => {
         >
             { list &&
                 list.map((loot, i) => {
-                    const isSeletced = (selected === i) ? true : false;
-                    console.log("MAP: ", isSeletced)
-                    return <Loot loot={loot} isSeletced={isSeletced} setSelected={() => setSelected(i)} key={i} id={i.toString()} />
+                    console.log("SELECTED: ", selected===i);
+                    return <Loot loot={loot} isSeletced={selected === i} setSelected={() => {
+                        selectLoot(i)
+                    }} key={i} id={i.toString()} />
                 })
             }
         </div>
     );
 }
 
-export default LootList;
+const mapStateToProps = (state) => {
+    const { selected } = state;
+    return { selected }
+};
+
+export default connect(mapStateToProps, {selectLoot})(LootList);
