@@ -3,7 +3,6 @@
   "version": "1.1.0",
   "private": true,
   "devDependencies": {
-    "babel-jest": "^24.9.0",
     "babel-loader": "8.0.5",
     "number-to-words": "^1.2.4",
     "react-app-rewired": "^2.1.5"
@@ -19,7 +18,7 @@
     "react-dnd-touch-backend": "^9.4.0",
     "react-dom": "^16.8.6",
     "react-redux": "^7.0.2",
-    "react-scripts": "3.0.0",
+    "react-scripts": "3.0.1",
     "react-tooltip": "^3.11.1",
     "redux": "^4.0.1",
     "redux-starter-kit": "^0.9.1",
