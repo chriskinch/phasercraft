@@ -1,6 +1,6 @@
 // Jest Snapshot v1, https://goo.gl/fbAQLP
 
-exports[`renders correctly 1`] = `
+exports[`Test Button component renders correctly 1`] = `
 <button
   className="Button___StyledButton-sc-1n071co-0 cwsYGO"
 >
