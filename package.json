@@ -3,8 +3,10 @@
   "version": "1.1.0",
   "private": true,
   "devDependencies": {
+    "babel-jest": "^24.9.0",
     "babel-loader": "8.0.5",
-    "number-to-words": "^1.2.4"
+    "number-to-words": "^1.2.4",
+    "react-app-rewired": "^2.1.5"
   },
   "dependencies": {
     "jest-canvas-mock": "^2.1.2",
@@ -25,9 +27,9 @@
     "styled-components": "^4.4.0"
   },
   "scripts": {
-    "start": "react-scripts start",
-    "build": "react-scripts build",
-    "test": "react-scripts test --setupFiles ./node_modules/jest-canvas-mock",
+    "start": "react-app-rewired start",
+    "build": "react-app-rewired build",
+    "test": "react-app-rewired test --setupFiles ./node_modules/jest-canvas-mock",
     "eject": "react-scripts eject"
   },
   "eslintConfig": {
