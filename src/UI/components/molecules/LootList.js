@@ -25,9 +25,10 @@ const LootList = ({cols=4, list, name, selected, selectLoot}) => {
         >
             { list &&
                 list.map((loot, i) => {
-                    console.log("SELECTED: ", selected===i);
-                    return <Loot loot={loot} isSeletced={selected === i} setSelected={() => {
-                        selectLoot(i)
+                    // Check for matching selected uuid
+                    const isSelected = selected ? selected.uuid === loot.uuid : null;
+                    return <Loot loot={loot} isSelected={isSelected} setSelected={() => {
+                        selectLoot(loot)
                     }} key={i} id={i.toString()} />
                 })
             }

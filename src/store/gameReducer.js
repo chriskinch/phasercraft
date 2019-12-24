@@ -21,7 +21,7 @@ const initState = {
         helm: null,
         weapon: null
     },
-    coins: 999,
+    coins: 19,
     selected: null
 };
 
@@ -32,12 +32,8 @@ export const addLoot = createAction("ADD_LOOT", id => ({
     payload: { id }
 }));
 
-export const buyLoot = createAction("BUY_LOOT", id => ({
-    payload: { id }
-}));
-
-export const deductCoin = createAction("DEDUCT_COIN", cost => ({
-    payload: { cost }
+export const buyLoot = createAction("BUY_LOOT", loot => ({
+    payload: { loot }
 }));
 
 export const equipLoot = createAction("EQUIP_LOOT", loot => ({
@@ -106,13 +102,12 @@ export const gameReducer = createReducer(initState, {
         state.inventory.push(loot);
     },
     [buyLoot]: (state, action) => {
-        console.log(action)
-        const loot = state.loot[action.payload.id];
+        const { loot } = action.payload;
         pull(state.loot, loot);
         state.inventory.push(loot);
+        state.coins -= loot.cost
         state.selected = null;
     },
-    [deductCoin]: (state, action) => { state.coins -= action.payload.cost },
     [equipLoot]: (state, action) => {
         state.equipment[action.payload.loot.set] = cloneDeep(action.payload.loot);
         action.payload.loot.hide = true;
@@ -121,7 +116,6 @@ export const gameReducer = createReducer(initState, {
     },
     [selectLoot]: (state, action) => {
         state.selected = action.payload.id;
-        console.log(state.selected, action)
     },
     [selectCharacter]: (state, action) => ({ ...state, showUi: false, ...action.payload }),
     [setBaseStats]: (state, action) => {state.base_stats = {...state.base_stats, ...action.payload.base_stats}},

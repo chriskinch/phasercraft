@@ -9,7 +9,6 @@ import { equipLoot, unequipLoot } from "../../../store/gameReducer"
 import store from "../../../store"
 
 const Loot = ({id, loot, isSelected, setSelected, equipLoot, unequipLoot}) => {
-    console.log("SELECTED LOOT: ", isSelected);
     const { category, color, icon, set, hide } = loot;
 
     let [{ isDragging }, drag, preview] = useDrag({
@@ -55,8 +54,8 @@ const Loot = ({id, loot, isSelected, setSelected, equipLoot, unequipLoot}) => {
         `}>
             <div dangerouslySetInnerHTML={{__html: "<!-- some comment -->"}} />
             <Tooltip id={id} loot={loot} />
-            <div data-tip data-for={id}>
-                <LootIcon {...loot} id={id} isSeletced={isSelected} onClick={ () => setSelected(id) } />
+            <div data-tip data-for={id} onClick={ () => setSelected() }>
+                <LootIcon {...loot} id={id} selected={isSelected} />
             </div>
         </div>
     );
