@@ -9,7 +9,7 @@ import pull from "lodash/pull"
 
 const initState = {
     character: null,
-    showUi: true,
+    showUi: false,
     menu: "character",
     base_stats: {},
     stats: {},

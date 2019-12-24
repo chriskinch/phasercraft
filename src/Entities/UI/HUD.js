@@ -29,8 +29,14 @@ class UI extends GameObjects.Container {
 			distinctUntilChanged()
 		).subscribe(n => this.changeCoinCount(n));
 
-		// Toggle menu on key binding
-		scene.input.keyboard.on('keyup-S', this.toggleMenu, this);
+		// Toggle menu on key binding and sub to store
+		store.subscribe(() => {
+			if(this.showUi !== store.getState().showUi) {
+				this.showUi = store.getState().showUi;
+				this.toggleMenu(this.showUi);
+			}
+		});
+		scene.input.keyboard.on('keyup-S', () => store.dispatch(toggleUi("equipment")), this);
 		// TEMP KEYBIND TO ADD ITEMS
 		scene.input.keyboard.on('keyup-R', () => store.dispatch(addLoot(Math.floor(Math.random() * 100))), this);
 
@@ -90,10 +96,8 @@ class UI extends GameObjects.Container {
 		return {menu_button: menu_button};
 	}
 
-	toggleMenu() {
-		store.dispatch(toggleUi("equipment"));
-		// TODO: I can pause the game but I need to work on unpausing...
-		// (this.visible) ? this.scene.scene.pause() : this.scene.scene.resume();
+	toggleMenu(visible) {
+		(visible) ? this.scene.scene.pause() : this.scene.scene.resume();
 	}
 }
 
