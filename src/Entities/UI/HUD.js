@@ -1,6 +1,8 @@
 import { GameObjects, Display } from 'phaser';
 import { toggleUi, addLoot } from "../../store/gameReducer";
 import store from '../../store';
+import { from } from 'rxjs';
+import { map, distinctUntilChanged } from 'rxjs/operators';
 
 const styles = {
 	font: '12px monospace',
@@ -20,6 +22,13 @@ class UI extends GameObjects.Container {
 		this.setWaveCount();
 		Object.assign(this, this.setInvetoryIcon());
 
+		// Subscribe and update only if coins change. Uses RxJS.
+		const state$ = from(store);
+		state$.pipe(
+			map(state => state.coins),
+			distinctUntilChanged()
+		).subscribe(n => this.changeCoinCount(n));
+
 		// Toggle menu on key binding and sub to store
 		store.subscribe(() => {
 			if(this.showUi !== store.getState().showUi) {
@@ -29,11 +38,12 @@ class UI extends GameObjects.Container {
 		});
 		scene.input.keyboard.on('keyup-P', () => store.dispatch(toggleUi("equipment")), this);
 		// TEMP KEYBINDS
-		scene.input.keyboard.on('keyup-R', () => store.dispatch(addLoot(store.getState().loot[Math.floor(Math.random() * 100)])), this);
+		scene.input.keyboard.on('keyup-R', () => store.dispatch(addLoot(Math.floor(Math.random() * 100))), this);
 		scene.input.keyboard.on('keyup-S', () => { localStorage.setItem('itemname','contents') }, this);
 		scene.input.keyboard.on('keyup-D', () => { localStorage.removeItem('itemname') }, this);
 
-		this.scene.events.on('increment:coin', this.addCoinCount, this);
+		// this.scene.events.on('coins:add', this.changeCoinCount, this);
+		// this.scene.events.on('coins:remove', this.changeCoinCount, this);
 		this.scene.events.on('increment:wave', this.addWaveCount, this);
 
 		this.scene.add.existing(this).setDepth(this.scene.depth_group.UI);
@@ -54,12 +64,12 @@ class UI extends GameObjects.Container {
 		Display.Align.In.TopRight(this.coins, this.scene.zone, -80);
 
 		this.coins.add(this.scene.add.sprite(0, 0, 'coin-spin').setDepth(this.scene.depth_group.UI));
-		this.coins.text = this.scene.add.text(15, 0, 'Coins: ' +this.scene.coins, styles).setOrigin(0, 0.5);
+		this.coins.text = this.scene.add.text(15, 0, 'Coins: ', styles).setOrigin(0, 0.5);
 		this.coins.add(this.coins.text);
 	}
 
-	addCoinCount(){
-		this.coins.text.setText('Coins: ' +this.scene.coins);
+	changeCoinCount(coins){
+		this.coins.text.setText('Coins: ' + coins);
 	}
 
 	setWaveCount(){

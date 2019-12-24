@@ -19,8 +19,6 @@ class Item {
 		];
 		
 		this.stat_pool = this.generateStatPool(this.base);
-		this.remaining = this.stat_pool;
-
 		const keys = [...new Set(this.generateKeys(this.keys, stat_names))];
 
 		const it = this.allocateStatIterator(this.stat_pool, keys.length);
@@ -37,6 +35,7 @@ class Item {
 		this.icon = this.getIcon(this.category);
 		this.set = this.getSet(this.category);
 
+		this.uuid = Math.round(Math.random() * 1000000);
 		// console.log(this.quality, this, this.stat_pool)
 	}
 

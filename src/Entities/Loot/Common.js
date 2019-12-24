@@ -5,8 +5,10 @@ class Common extends Item {
 		super({
 			base: 15,
 			color: "#bbbbbb",
-			quality: "common",
+			cost: 5,
 			keys: { min: 1, max: 2 },
+			quality: "common",
+			quality_sort: 5,
 			multiplier: 1.1
 		});
 	}

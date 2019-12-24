@@ -5,8 +5,8 @@ import Epic from "./Epic";
 import Legendary from "./Legendary";
 
 class LootTable {
-	constructor() {
-		this.loot = Array.from({length: 100}, () => this.qualityRoll());
+	constructor(quantity) {
+		this.loot = Array.from({length: quantity}, () => this.qualityRoll());
 	}
 
 	qualityRoll(roll = Math.random()) {

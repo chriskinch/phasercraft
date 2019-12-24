@@ -71,14 +71,6 @@ class Player extends GameObjects.Container {
 		this.stats = store.getState().stats;
 		//TODO: Swap out this temp solution to keep stats up to date.
 		store.subscribe(() => {
-			// console.log("UPDATE STATS: ", this.resource)
-			this.resource_stats = {
-				resource_max: this.resource.stats.max,
-				resource_value: this.resource.stats.value,
-				resource_regen_rate: this.resource.stats.regen_rate,
-				resource_regen_value: this.resource.stats.regen_value
-			}
-			// console.log("TYPE: ", this.resource_stats)
 			if(this.stats !== store.getState().stats) this.stats = store.getState().stats;
 		});
 

@@ -1,15 +1,16 @@
-import React from "react";
-import { connect } from "react-redux";
-import { pixel_background } from './themes';
-import { toggleUi } from "../store/gameReducer";
-import Arcanum from "./components/organisms/Arcanum";
-import Armory from "./components/organisms/Armory";
-import Button from './components/atoms/Button'
-import Character from "./components/organisms/Character";
-import Equipment from "./components/organisms/Equipment";
-import Navigation from "./components/molecules/Navigation";
-import Title from "./components/atoms/Title";
-import 'styled-components/macro';
+import React from "react"
+import { connect } from "react-redux"
+import { pixel_background } from "./themes"
+import { toggleUi } from "../store/gameReducer"
+import Arcanum from "./components/templates/Arcanum"
+import Armory from "./components/templates/Armory"
+import Button from "./components/atoms/Button"
+import Character from "./components/templates/Character"
+import Equipment from "./components/templates/Equipment"
+import Navigation from "./components/molecules/Navigation"
+import Title from "./components/atoms/Title"
+import CustomDragLayer from "./components/protons/CustomDragLayer"
+import "styled-components/macro"
 
 const UI = ({ menu, showUi, toggleUi }) => {
     const config = {
@@ -72,6 +73,7 @@ const UI = ({ menu, showUi, toggleUi }) => {
                             padding: 1em;
                         `}
                     >
+                        <CustomDragLayer />
                         <MenuContents />
                     </div>
                 </div>
@@ -80,8 +82,9 @@ const UI = ({ menu, showUi, toggleUi }) => {
     );
 }
 
-const mapStateToProps = (state) => ({
-    ...state
-});
+const mapStateToProps = (state) => {
+    const { menu, showUi } = state;
+    return { menu, showUi }
+};
 
 export default connect(mapStateToProps, { toggleUi })(UI);

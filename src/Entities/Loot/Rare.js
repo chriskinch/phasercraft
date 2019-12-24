@@ -5,8 +5,10 @@ class Rare extends Item {
 		super({
 			base: 60,
 			color: "#0077ff",
-			quality: "rare",
+			cost: 40,
 			keys: { min: 2, max: 3 },
+			quality: "rare",
+			quality_sort: 3,
 			multiplier: 1.3
 		});
 	}
