@@ -4,35 +4,43 @@ import { pixel_background } from "./themes"
 import { toggleUi } from "../store/gameReducer"
 import Arcanum from "./components/templates/Arcanum"
 import Armory from "./components/templates/Armory"
-import Button from "./components/atoms/Button"
 import Character from "./components/templates/Character"
 import Equipment from "./components/templates/Equipment"
-import Navigation from "./components/molecules/Navigation"
-import Title from "./components/atoms/Title"
+import Header from "./components/organisms/Header"
+import Save from "./components/templates/Save"
 import CustomDragLayer from "./components/protons/CustomDragLayer"
 import "styled-components/macro"
 
 const UI = ({ menu, showUi, toggleUi }) => {
     const config = {
+        arcanum: {
+            component: Arcanum,
+            title: "Arcanum",
+            navigation: true
+        },
+        armory: {
+            component: Armory,
+            title: "Armory",
+            navigation: true
+        },
         character: {
             component: Character,
             title: "Character Select"
         },
         equipment: {
             component: Equipment,
-            title: "Equipment"
+            title: "Equipment",
+            navigation: true
         },
-        armory: {
-            component: Armory,
-            title: "Armory"
-        },
-        arcanum: {
-            component: Arcanum,
-            title: "Arcanum"
+        save: {
+            component: Save,
+            title: "Load Game Save"
         }
     };
 
-    const MenuContents = menu ? config[menu].component : Equipment;
+    // Use specified menu other use equipment as default
+    const CurrentMenu = menu ? config[menu] : config.equipment;
+    console.log(menu)
 
     return (
         <div css={`
@@ -55,26 +63,17 @@ const UI = ({ menu, showUi, toggleUi }) => {
                     <div css={`
                         margin-bottom: 14px;
                     `}>
-                        { menu !== "character" ?
-                            <>
-                            <Navigation />
-                            <div css={`
-                                float: right;
-                            `}>
-                                <Button text="X" onClick={ () => toggleUi() } type="square" />
-                            </div>
-                            </>
-                        : <Title text={ config[menu].title } /> }
+                        <Header config={CurrentMenu} toggleUi={toggleUi} />
                     </div>
                     <div
-                        id={ config[menu].title.toLowerCase().replace(" ", "-") }
+                        id={ CurrentMenu.title.toLowerCase().replace(" ", "-") }
                         css={`
                             ${ pixel_background() }
                             padding: 1em;
                         `}
                     >
                         <CustomDragLayer />
-                        <MenuContents />
+                        <CurrentMenu.component />
                     </div>
                 </div>
             }

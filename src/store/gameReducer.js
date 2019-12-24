@@ -10,7 +10,7 @@ import pull from "lodash/pull"
 const initState = {
     character: null,
     showUi: false,
-    menu: "character",
+    menu: "save",
     base_stats: {},
     stats: {},
     loot: [],
@@ -21,8 +21,9 @@ const initState = {
         helm: null,
         weapon: null
     },
-    coins: 19,
-    selected: null
+    coins: 0,
+    selected: null,
+    saveSlot: null
 };
 
 // Actions
