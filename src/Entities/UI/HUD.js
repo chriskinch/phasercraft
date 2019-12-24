@@ -27,9 +27,11 @@ class UI extends GameObjects.Container {
 				this.toggleMenu(this.showUi);
 			}
 		});
-		scene.input.keyboard.on('keyup-S', () => store.dispatch(toggleUi("equipment")), this);
-		// TEMP KEYBIND TO ADD ITEMS
+		scene.input.keyboard.on('keyup-P', () => store.dispatch(toggleUi("equipment")), this);
+		// TEMP KEYBINDS
 		scene.input.keyboard.on('keyup-R', () => store.dispatch(addLoot(store.getState().loot[Math.floor(Math.random() * 100)])), this);
+		scene.input.keyboard.on('keyup-S', () => { localStorage.setItem('itemname','contents') }, this);
+		scene.input.keyboard.on('keyup-D', () => { localStorage.removeItem('itemname') }, this);
 
 		this.scene.events.on('increment:coin', this.addCoinCount, this);
 		this.scene.events.on('increment:wave', this.addWaveCount, this);
