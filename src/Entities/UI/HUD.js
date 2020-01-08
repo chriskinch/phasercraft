@@ -1,5 +1,5 @@
 import { GameObjects, Display } from 'phaser';
-import { toggleUi, addLoot } from "../../store/gameReducer";
+import { toggleUi, addLoot, loadGame } from "../../store/gameReducer";
 import store from '../../store';
 import { from } from 'rxjs';
 import { map, distinctUntilChanged } from 'rxjs/operators';
@@ -39,8 +39,15 @@ class UI extends GameObjects.Container {
 		scene.input.keyboard.on('keyup-P', () => store.dispatch(toggleUi("equipment")), this);
 		// TEMP KEYBINDS
 		scene.input.keyboard.on('keyup-R', () => store.dispatch(addLoot(Math.floor(Math.random() * 100))), this);
-		scene.input.keyboard.on('keyup-S', () => { localStorage.setItem('itemname','contents') }, this);
-		scene.input.keyboard.on('keyup-D', () => { localStorage.removeItem('itemname') }, this);
+
+		// Saving
+		const slot = store.getState().saveSlot;
+		scene.input.keyboard.on('keyup-S', () => localStorage.setItem(slot, JSON.stringify(store.getState())), this);
+		scene.input.keyboard.on('keyup-D', () => localStorage.removeItem(slot), this);
+		scene.input.keyboard.on('keyup-L', () => {
+			const save_data = JSON.parse(localStorage.getItem(slot));
+			save_data ? store.dispatch(loadGame(save_data)) : console.log("NO DATA TO LOAD");
+		}, this);
 
 		// this.scene.events.on('coins:add', this.changeCoinCount, this);
 		// this.scene.events.on('coins:remove', this.changeCoinCount, this);

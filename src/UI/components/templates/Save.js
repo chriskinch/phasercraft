@@ -1,10 +1,13 @@
 import React from "react"
 import { connect } from "react-redux"
-import { switchUi } from "../../../store/gameReducer"
+import { setSaveSlot, switchUi } from "../../../store/gameReducer"
 import Button from "../atoms/Button"
 import 'styled-components/macro'
 
-const Save = ({switchUi}) => {
+const Save = ({setSaveSlot, switchUi}) => {
+    const slots = ["a", "b", "c"];
+    const save_games = slots.forEach(n => localStorage.getItem("slot_" + n));
+    console.log(save_games);
     return (
         <ol css={`
             display: flex;
@@ -26,7 +29,11 @@ const Save = ({switchUi}) => {
                         }
                     `}>
                         <h2>Slot {i}</h2>
-                        <Button text="Select" onClick={()=> switchUi("character") } />
+                        <Button text="Select" onClick={e => {
+                            const slot = "slot_"  + i.toLowerCase();
+                            setSaveSlot(slot)
+                            switchUi("character")
+                        }} />
                     </li>
                 )
             })}
@@ -39,4 +46,4 @@ const mapStateToProps = (state) => {
     return { saveSlot }
 };
 
-export default connect(mapStateToProps, { switchUi })(Save);
+export default connect(mapStateToProps, { setSaveSlot, switchUi })(Save);

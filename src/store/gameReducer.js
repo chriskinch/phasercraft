@@ -41,6 +41,10 @@ export const equipLoot = createAction("EQUIP_LOOT", loot => ({
     payload: { loot }
 }));
 
+export const loadGame = createAction("LOAD_GAME", state => ({
+    payload: { state }
+}));
+
 export const selectCharacter = createAction("SELECT_CHARACTER", character => ({
     payload: { character }
 }));
@@ -51,6 +55,10 @@ export const selectLoot = createAction("SELECT_LOOT", (id) => ({
 
 export const setBaseStats = createAction("SET_BASE_STATS", base_stats => ({
     payload: { base_stats }
+}));
+
+export const setSaveSlot = createAction("SET_SAVE_SLOT", saveSlot => ({
+    payload: { saveSlot }
 }));
 
 export const setStats = createAction("SET_STATS", stats => ({
@@ -115,11 +123,13 @@ export const gameReducer = createReducer(initState, {
         addStats(state.base_stats, action.payload.loot.stats);
         syncStats(state);
     },
+    [loadGame]: (state, action) => action.payload.state,
     [selectLoot]: (state, action) => {
         state.selected = action.payload.id;
     },
     [selectCharacter]: (state, action) => ({ ...state, showUi: false, ...action.payload }),
     [setBaseStats]: (state, action) => {state.base_stats = {...state.base_stats, ...action.payload.base_stats}},
+    [setSaveSlot]: (state, action) => {state.saveSlot = action.payload.saveSlot},
     [setStats]: (state, action) => {state.stats = {...state.stats, ...action.payload.stats}},
     [sortLoot]: (state, action) => {
         const func = (action.payload.order === "ascending") ? sortAscending : sortDecending;

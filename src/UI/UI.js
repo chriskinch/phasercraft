@@ -40,7 +40,6 @@ const UI = ({ menu, showUi, toggleUi }) => {
 
     // Use specified menu other use equipment as default
     const CurrentMenu = menu ? config[menu] : config.equipment;
-    console.log(menu)
 
     return (
         <div css={`
