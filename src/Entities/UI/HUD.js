@@ -42,8 +42,13 @@ class UI extends GameObjects.Container {
 
 		// Saving
 		const slot = store.getState().saveSlot;
-		scene.input.keyboard.on('keyup-S', () => localStorage.setItem(slot, JSON.stringify(store.getState())), this);
-		scene.input.keyboard.on('keyup-D', () => localStorage.removeItem(slot), this);
+		scene.input.keyboard.on('keyup-S', () => {
+			console.log(store.getState())
+			localStorage.setItem(slot, JSON.stringify(store.getState()))
+		}, this);
+		scene.input.keyboard.on('keyup-D', () => {
+			["slot_a", "slot_b", "slot_c"].forEach(slot => {localStorage.removeItem(slot)});
+		}, this);
 		scene.input.keyboard.on('keyup-L', () => {
 			const save_data = JSON.parse(localStorage.getItem(slot));
 			save_data ? store.dispatch(loadGame(save_data)) : console.log("NO DATA TO LOAD");

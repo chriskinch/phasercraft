@@ -1,13 +1,13 @@
-import React from "react"
+import React, { useState } from "react"
 import { connect } from "react-redux"
-import { setSaveSlot, switchUi } from "../../../store/gameReducer"
+import { loadGame, selectCharacter, setSaveSlot, switchUi } from "../../../store/gameReducer"
 import Button from "../atoms/Button"
 import 'styled-components/macro'
 
-const Save = ({setSaveSlot, switchUi}) => {
-    const slots = ["a", "b", "c"];
-    const save_games = slots.forEach(n => localStorage.getItem("slot_" + n));
-    console.log(save_games);
+const Save = ({loadGame, selectCharacter, setSaveSlot, switchUi}) => {
+    const slots = ["slot_a", "slot_b", "slot_c"];
+    const [saveGames, setSaveGames] = useState(slots.map(slot => JSON.parse(localStorage.getItem(slot))))
+
     return (
         <ol css={`
             display: flex;
@@ -15,7 +15,8 @@ const Save = ({setSaveSlot, switchUi}) => {
             margin: 0;
             padding: 0;
         `}>
-            { ["A", "B", "C"].map(i => {
+            { saveGames.map((save, i) => {
+                const { saveSlot, character, coins } = save || {};
                 return (
                     <li key={i} css={`
                         flex: 1;
@@ -28,12 +29,34 @@ const Save = ({setSaveSlot, switchUi}) => {
                             padding-right: 0;
                         }
                     `}>
-                        <h2>Slot {i}</h2>
-                        <Button text="Select" onClick={e => {
-                            const slot = "slot_"  + i.toLowerCase();
-                            setSaveSlot(slot)
-                            switchUi("character")
-                        }} />
+                        <h2 css="text-transform:capitalize;">{"Slot " + Number(i+1)}</h2>
+                        { save &&
+                            <>
+                            <img 
+                                src={`UI/player/${character.toLowerCase()}.gif`}
+                                alt={`Load this save game.`} 
+                                css="padding-bottom: 0.5em"
+                            />
+                            <p>Gold: { coins }</p>
+                            </>
+                        }
+                        <div css={`
+                            display:flex;
+                        `}>
+                            <Button text={save ? "Load" : "Select"} onClick={e => {
+                                if(save) {
+                                    loadGame(save)
+                                    selectCharacter(character)
+                                }else{
+                                    setSaveSlot(slots[i])
+                                    switchUi("character")
+                                }
+                            }} />
+                            <Button text="Delete" onClick={e => {
+                                localStorage.removeItem(saveSlot)
+                                setSaveGames(slots.map(slot => JSON.parse(localStorage.getItem(slot))));
+                            }} />
+                        </div>
                     </li>
                 )
             })}
@@ -46,4 +69,4 @@ const mapStateToProps = (state) => {
     return { saveSlot }
 };
 
-export default connect(mapStateToProps, { setSaveSlot, switchUi })(Save);
+export default connect(mapStateToProps, { loadGame, selectCharacter, setSaveSlot, switchUi })(Save);
