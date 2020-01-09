@@ -21,6 +21,7 @@ class UI extends GameObjects.Container {
 		this.setCoinCount();
 		this.setWaveCount();
 		Object.assign(this, this.setInvetoryIcon());
+		Object.assign(this, this.setSystemIcon());
 
 		// Subscribe and update only if coins change. Uses RxJS.
 		const state$ = from(store);
@@ -43,7 +44,7 @@ class UI extends GameObjects.Container {
 		// Saving
 		const slot = store.getState().saveSlot;
 		scene.input.keyboard.on('keyup-S', () => {
-			console.log(store.getState())
+			console.log("GAME SAVED TO: " + store.getState().saveSlot);
 			localStorage.setItem(slot, JSON.stringify(store.getState()))
 		}, this);
 		scene.input.keyboard.on('keyup-D', () => {
@@ -98,15 +99,27 @@ class UI extends GameObjects.Container {
 	}
 
 	setInvetoryIcon() {
-		const menu_button = this.scene.add.sprite(0, 0, 'icon', 'icon_0021_charm')
+		const button = this.scene.add.sprite(0, 0, 'icon', 'icon_0021_charm')
 			.setInteractive()
 			.setDepth(this.scene.depth_group.UI);
 
-		Display.Align.In.BottomRight(menu_button, this.scene.zone);
+		Display.Align.In.BottomRight(button, this.scene.zone);
 		
-		menu_button.on('pointerdown', this.toggleMenu, this);
+		button.on('pointerdown', () => store.dispatch(toggleUi("equipment")), this);
 		
-		return {menu_button: menu_button};
+		return {button: button};
+	}
+
+	setSystemIcon() {
+		const button = this.scene.add.sprite(0, 0, 'icon', 'icon_0006_golem')
+			.setInteractive()
+			.setDepth(this.scene.depth_group.UI);
+
+		Display.Align.In.BottomCenter(button, this.scene.zone);
+		
+		button.on('pointerdown', () => store.dispatch(toggleUi("system")), this);
+		
+		return {button: button};
 	}
 
 	toggleMenu(visible) {

@@ -4,9 +4,13 @@ import { loadGame, selectCharacter, setSaveSlot, switchUi } from "../../../store
 import Button from "../atoms/Button"
 import 'styled-components/macro'
 
+const getSaveGames = function(slots) {
+    return slots.map(slot => JSON.parse(localStorage.getItem(slot)))
+}
+
 const Save = ({loadGame, selectCharacter, setSaveSlot, switchUi}) => {
     const slots = ["slot_a", "slot_b", "slot_c"];
-    const [saveGames, setSaveGames] = useState(slots.map(slot => JSON.parse(localStorage.getItem(slot))))
+    const [saveGames, setSaveGames] = useState(getSaveGames(slots))
 
     return (
         <ol css={`
@@ -54,7 +58,7 @@ const Save = ({loadGame, selectCharacter, setSaveSlot, switchUi}) => {
                             }} />
                             <Button text="Delete" onClick={e => {
                                 localStorage.removeItem(saveSlot)
-                                setSaveGames(slots.map(slot => JSON.parse(localStorage.getItem(slot))));
+                                setSaveGames(getSaveGames(slots));
                             }} />
                         </div>
                     </li>

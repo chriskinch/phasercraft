@@ -4,8 +4,8 @@ import Navigation from "../molecules/Navigation"
 import Title from "../atoms/Title"
 import "styled-components/macro"
 
-const Header = ({config, menu, toggleUi}) => {
-    const { navigation, title } = config;
+const Header = ({config, toggleUi}) => {
+    const { navigation, title } = config || {};
     if(navigation){
         return (
             <>

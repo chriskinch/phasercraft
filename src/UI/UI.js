@@ -8,6 +8,7 @@ import Character from "./components/templates/Character"
 import Equipment from "./components/templates/Equipment"
 import Header from "./components/organisms/Header"
 import Save from "./components/templates/Save"
+import System from "./components/templates/System"
 import CustomDragLayer from "./components/protons/CustomDragLayer"
 import "styled-components/macro"
 
@@ -35,6 +36,10 @@ const UI = ({ menu, showUi, toggleUi }) => {
         save: {
             component: Save,
             title: "Load Game Save"
+        },
+        system: {
+            component: System,
+            title: "System"
         }
     };
 
@@ -53,7 +58,7 @@ const UI = ({ menu, showUi, toggleUi }) => {
                     box-sizing: border-box;
                     height: 100%;
                     padding: 1em;
-                    width: 100%;
+                    width: "100%";
                     pointer-events: all;
                     background: rgba(0,0,0,0.5);
                     display: flex;
@@ -67,8 +72,10 @@ const UI = ({ menu, showUi, toggleUi }) => {
                     <div
                         id={ CurrentMenu.title.toLowerCase().replace(" ", "-") }
                         css={`
-                            ${ pixel_background() }
+                            ${ menu === "system" ? null : pixel_background() }
+                            margin: 0 auto;
                             padding: 1em;
+                            width: ${ menu === "system" ? "200px" : "100%"};
                         `}
                     >
                         <CustomDragLayer />
