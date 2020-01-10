@@ -5,7 +5,7 @@ import Title from "../atoms/Title"
 import "styled-components/macro"
 
 const Header = ({config, toggleUi}) => {
-    const { navigation, title } = config || {};
+    const { navigation, title, close } = config || {};
     if(navigation){
         return (
             <>
@@ -19,7 +19,16 @@ const Header = ({config, toggleUi}) => {
         );
     }else{ 
         return (
-            <Title text={ title } /> 
+            <>
+                <Title text={ title } />
+                <div css={`
+                    float: right;
+                `}>
+                    {close &&
+                        <Button text="X" onClick={ () => toggleUi() } type="square" />
+                    }
+                </div>
+            </>
         )
     }
 }

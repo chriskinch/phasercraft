@@ -8,10 +8,12 @@ const getSaveGames = function(slots) {
     return slots.map(slot => JSON.parse(localStorage.getItem(slot)))
 }
 
-const Save = ({loadGame, selectCharacter, setSaveSlot, switchUi}) => {
+const Save = ({loadGame, selectCharacter, setSaveSlot, switchUi, load}) => {
     const slots = ["slot_a", "slot_b", "slot_c"];
     const [saveGames, setSaveGames] = useState(getSaveGames(slots))
-
+    const otherGames = load ? saveGames.filter(save => save !== null) : saveGames;
+    const props = {load: true}
+    console.log({...props})
     return (
         <ol css={`
             display: flex;
@@ -19,7 +21,7 @@ const Save = ({loadGame, selectCharacter, setSaveSlot, switchUi}) => {
             margin: 0;
             padding: 0;
         `}>
-            { saveGames.map((save, i) => {
+            { otherGames.map((save, i) => {
                 const { saveSlot, character, coins } = save || {};
                 return (
                     <li key={i} css={`

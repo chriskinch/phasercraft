@@ -33,13 +33,20 @@ const UI = ({ menu, showUi, toggleUi }) => {
             title: "Equipment",
             navigation: true
         },
+        load: {
+            component: Save,
+            title: "Load Game",
+            props: {load: true},
+            close: true
+        },
         save: {
             component: Save,
-            title: "Load Game Save"
+            title: "Pick a Game Save"
         },
         system: {
             component: System,
-            title: "System"
+            title: "System",
+            close: true
         }
     };
 
@@ -67,7 +74,7 @@ const UI = ({ menu, showUi, toggleUi }) => {
                     <div css={`
                         margin-bottom: 14px;
                     `}>
-                        <Header config={CurrentMenu} toggleUi={toggleUi} />
+                        <Header config={CurrentMenu} toggleUi={toggleUi} type={CurrentMenu.type}/>
                     </div>
                     <div
                         id={ CurrentMenu.title.toLowerCase().replace(" ", "-") }
@@ -79,7 +86,7 @@ const UI = ({ menu, showUi, toggleUi }) => {
                         `}
                     >
                         <CustomDragLayer />
-                        <CurrentMenu.component />
+                        <CurrentMenu.component {...CurrentMenu.props} />
                     </div>
                 </div>
             }

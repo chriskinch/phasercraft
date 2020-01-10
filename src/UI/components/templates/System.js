@@ -1,10 +1,10 @@
 import React from "react"
 import { connect } from "react-redux"
-import { toggleUi } from "../../../store/gameReducer";
+import { switchUi, toggleUi } from "../../../store/gameReducer";
 import Button from "../atoms/Button"
 import "styled-components/macro"
 
-const System = ({state, saveSlot, toggleUi}) => {
+const System = ({state, saveSlot, switchUi, toggleUi}) => {
     console.log(state)
     return (
         <>
@@ -12,9 +12,10 @@ const System = ({state, saveSlot, toggleUi}) => {
                 localStorage.setItem(saveSlot, JSON.stringify(state))
                 toggleUi();
             }} />
-            <Button text="Load" onClick={e => {
+            {/* <Button text="Load" onClick={e => {
                 console.log("LOAD")
-            }} />
+                switchUi("load");
+            }} /> */}
             <Button text="Quit" onClick={e => {
                 window.location.reload()
             }} />
@@ -27,4 +28,4 @@ const mapStateToProps = (state) => {
     return { state, saveSlot }
 };
 
-export default connect(mapStateToProps, {toggleUi})(System);
+export default connect(mapStateToProps, {switchUi, toggleUi})(System);

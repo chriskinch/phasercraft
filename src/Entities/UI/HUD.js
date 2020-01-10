@@ -1,4 +1,4 @@
-import { GameObjects, Display } from 'phaser';
+import { GameObjects, Display, Actions, Geom } from 'phaser';
 import { toggleUi, addLoot, loadGame } from "../../store/gameReducer";
 import store from '../../store';
 import { from } from 'rxjs';
@@ -20,8 +20,14 @@ class UI extends GameObjects.Container {
 		this.setSpellFrames();
 		this.setCoinCount();
 		this.setWaveCount();
-		Object.assign(this, this.setInvetoryIcon());
-		Object.assign(this, this.setSystemIcon());
+		this.buttons = [
+			this.setInvetoryIcon(),
+			this.setSystemIcon()
+		];
+
+		// Position buttons in the bottom right
+		const {x, y, width, height} = this.scene.zone;
+		Actions.IncXY(this.buttons, x + width, y + height, -35);
 
 		// Subscribe and update only if coins change. Uses RxJS.
 		const state$ = from(store);
@@ -103,23 +109,17 @@ class UI extends GameObjects.Container {
 			.setInteractive()
 			.setDepth(this.scene.depth_group.UI);
 
-		Display.Align.In.BottomRight(button, this.scene.zone);
-		
 		button.on('pointerdown', () => store.dispatch(toggleUi("equipment")), this);
-		
-		return {button: button};
+		return button;
 	}
 
 	setSystemIcon() {
 		const button = this.scene.add.sprite(0, 0, 'icon', 'icon_0006_golem')
 			.setInteractive()
 			.setDepth(this.scene.depth_group.UI);
-
-		Display.Align.In.BottomCenter(button, this.scene.zone);
 		
 		button.on('pointerdown', () => store.dispatch(toggleUi("system")), this);
-		
-		return {button: button};
+		return button;
 	}
 
 	toggleMenu(visible) {
