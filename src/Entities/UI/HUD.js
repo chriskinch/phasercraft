@@ -1,4 +1,4 @@
-import { GameObjects, Display, Actions, Geom } from 'phaser';
+import { GameObjects, Display, Actions } from 'phaser';
 import { toggleUi, addLoot, loadGame } from "../../store/gameReducer";
 import store from '../../store';
 import { from } from 'rxjs';
@@ -50,7 +50,6 @@ class UI extends GameObjects.Container {
 		// Saving
 		const slot = store.getState().saveSlot;
 		scene.input.keyboard.on('keyup-S', () => {
-			console.log("GAME SAVED TO: " + store.getState().saveSlot);
 			localStorage.setItem(slot, JSON.stringify(store.getState()))
 		}, this);
 		scene.input.keyboard.on('keyup-D', () => {

@@ -1,17 +1,19 @@
 import React from "react";
 import 'styled-components/macro';
-import { darken } from 'polished';
+import { darken, grayscale } from 'polished';
 
 const Button = (props) => {
+    const { disabled } = props;
     const { 
-        bg_color="#ffc93e",
-        color="#222",
+        bg_color= disabled ? "grey" : "#ffc93e",
+        color= disabled ? "#444" : "#222",
         text,
         text_shadow_color="rgba(255, 255, 255, 0.5)",
-        onClick  
+        onClick
     } = props;
     return (
         <button 
+            disabled={disabled}
             css={`
                 display: inline-block;
                 padding: 0 12px;
@@ -34,6 +36,12 @@ const Button = (props) => {
                     transform:translateY(3px);
                     border-bottom-width: 2px;
                     box-shadow: none;
+                }
+                &:disabled {
+                    color: #333;
+                    background: grey;
+                    border-color: ${grayscale(darken(0.3, bg_color))};
+                    box-shadow: 0 3px 0px ${grayscale(darken(0.3, bg_color))};
                 }
             `}
             onClick={onClick}>{ text }</button>
