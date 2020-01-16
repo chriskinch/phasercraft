@@ -2,7 +2,7 @@
 
 exports[`Test Button component renders correctly 1`] = `
 <button
-  className="Button___StyledButton-sc-1n071co-0 cwsYGO"
+  className="Button___StyledButton-sc-1n071co-0 iQDOJq"
 >
   Button Title
 </button>
