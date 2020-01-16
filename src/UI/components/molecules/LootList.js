@@ -1,11 +1,60 @@
-import React from "react"
+import React, { useEffect } from "react"
 import "styled-components/macro"
-import { useDrop } from "react-dnd"
+import { useDrop, useDrag } from "react-dnd"
+import { getEmptyImage } from "react-dnd-html5-backend"
 import Loot from "../molecules/Loot"
 import { connect } from "react-redux"
-import { selectLoot } from "../../../store/gameReducer"
+import { equipLoot, selectLoot, unequipLoot } from "../../../store/gameReducer"
+import store from "../../../store"
 
-const LootList = ({cols=4, list, name, selected, selectLoot}) => {
+const LootList = ({cols=4, list, name, selected, equipLoot, selectLoot, unequipLoot}) => {
+    // This must go here rather then inside the Loot component due to this bug:
+    // https://github.com/react-dnd/react-dnd/issues/1589
+    // Wraps the Loot component instead. Means some duplication of code. :(
+    const LootDrag = (props) => {
+        const { loot } = props;
+        const { category, color, icon, set, uuid } = loot;
+    
+        let [{ isDragging }, drag, preview] = useDrag({
+            item: { type: set, category, color, icon, uuid },
+            end: (item, monitor) => {
+                const dropResult = monitor.getDropResult();
+                if (item && dropResult) {
+                    const equipment = store.getState().equipment;
+                    switch(dropResult.slot) {
+                        case "amulet":
+                        case "body":
+                        case "helm":
+                        case "weapon":
+                            if(equipment[set]) unequipLoot(equipment[set]);
+                            equipLoot(loot);
+                            break;
+                        default:
+                            console.log("Unrecognized slot!");
+                    }                
+                }
+            },
+            collect: monitor => ({
+                isDragging: monitor.isDragging(),
+            })
+        })
+
+        const draggingCSS = isDragging ? `
+            opacity: 0.1;
+            filter: grayscale(100%);
+        ` : null
+
+        useEffect(() => {
+            preview(getEmptyImage(), { captureDraggingState: true })
+        });
+
+        return (
+            <div ref={drag} css={draggingCSS}>
+                <Loot {...props} />
+            </div>
+        );
+    };
+
     const [, drop] = useDrop({
         accept: ["amulet", "body", "helm", "weapon"],
         drop: () => ({ slot: name })
@@ -27,7 +76,7 @@ const LootList = ({cols=4, list, name, selected, selectLoot}) => {
                 list.map((loot, i) => {
                     // Check for matching selected uuid
                     const isSelected = selected ? selected.uuid === loot.uuid : null;
-                    return <Loot loot={loot} isSelected={isSelected} setSelected={() => {
+                    return <LootDrag loot={loot} isSelected={isSelected} setSelected={() => {
                         selectLoot(loot)
                     }} key={i} id={i.toString()} />
                 })
@@ -41,4 +90,4 @@ const mapStateToProps = (state) => {
     return { selected }
 };
 
-export default connect(mapStateToProps, {selectLoot})(LootList);
+export default connect(mapStateToProps, {equipLoot, selectLoot, unequipLoot})(LootList);

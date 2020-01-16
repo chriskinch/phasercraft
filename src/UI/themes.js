@@ -78,3 +78,18 @@ export const pixel_emboss = ({rgb = "0,0,0", a = 0.1} = {}) => {
         }
     `
 };
+
+export const dialog_overlay = ({bg_color = "#e4f6f7"} = {}) => {
+    return `
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        background-color: rgba(0,0,0,0.9);
+        padding: 10% 35%;
+        color: white;
+        font-size: 1.5em;
+        font-weight: bold;
+    `
+};
