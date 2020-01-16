@@ -1,10 +1,12 @@
 import React from "react"
 import "styled-components/macro"
+import Loot from "../molecules/Loot"
 import { pixel_emboss } from "../../themes"
 import { useDrop } from "react-dnd"
-import Loot from "../molecules/Loot"
+import { connect } from "react-redux"
+import { unequipLoot } from "../../../store/gameReducer"
 
-const Slot = ({loot, slot}) => {
+const Slot = ({loot, slot, unequipLoot}) => {
     const [{ canDrop, isOver }, drop] = useDrop({
         accept: slot,
         drop: () => ({ slot: slot }),
@@ -24,10 +26,11 @@ const Slot = ({loot, slot}) => {
                 ${pixel_emboss({rgb: rgb, a: a})}
                 text-transform: capitalize;
             `}
+            onClick={() => unequipLoot(loot)}
         >
             { loot && <Loot loot={loot} /> }
         </div>
     );
 }
 
-export default Slot;
+export default connect(null, {unequipLoot})(Slot);

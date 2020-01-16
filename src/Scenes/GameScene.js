@@ -5,7 +5,7 @@ import UI from '../Entities/UI/HUD';
 import waveConfig from '../Config/waves.json';
 import enemyTypes from '../Config/enemies.json';
 
-import { generateLootTable } from "../store/gameReducer";
+import { addLoot,generateLootTable } from "../store/gameReducer";
 import store from '../store';
 
 export default class GameScene extends Scene {
@@ -27,6 +27,9 @@ export default class GameScene extends Scene {
 		}
 
 		store.dispatch(generateLootTable(99));
+		store.dispatch(addLoot(1));
+		store.dispatch(addLoot(55));
+		store.dispatch(addLoot(20));
 	}
 
 	init(config) {
