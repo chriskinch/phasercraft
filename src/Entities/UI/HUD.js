@@ -1,5 +1,5 @@
-import { GameObjects, Display } from 'phaser';
-import { toggleUi, addLoot } from "../../store/gameReducer";
+import { GameObjects, Display, Actions } from 'phaser';
+import { toggleUi, addLoot, loadGame } from "../../store/gameReducer";
 import store from '../../store';
 import { from } from 'rxjs';
 import { map, distinctUntilChanged } from 'rxjs/operators';
@@ -20,7 +20,14 @@ class UI extends GameObjects.Container {
 		this.setSpellFrames();
 		this.setCoinCount();
 		this.setWaveCount();
-		Object.assign(this, this.setInvetoryIcon());
+		this.buttons = [
+			this.setInvetoryIcon(),
+			this.setSystemIcon()
+		];
+
+		// Position buttons in the bottom right
+		const {x, y, width, height} = this.scene.zone;
+		Actions.IncXY(this.buttons, x + width, y + height, -35);
 
 		// Subscribe and update only if coins change. Uses RxJS.
 		const state$ = from(store);
@@ -29,10 +36,29 @@ class UI extends GameObjects.Container {
 			distinctUntilChanged()
 		).subscribe(n => this.changeCoinCount(n));
 
-		// Toggle menu on key binding
-		scene.input.keyboard.on('keyup-S', this.toggleMenu, this);
-		// TEMP KEYBIND TO ADD ITEMS
+		// Toggle menu on key binding and sub to store
+		store.subscribe(() => {
+			if(this.showUi !== store.getState().showUi) {
+				this.showUi = store.getState().showUi;
+				this.toggleMenu(this.showUi);
+			}
+		});
+		scene.input.keyboard.on('keyup-P', () => store.dispatch(toggleUi("equipment")), this);
+		// TEMP KEYBINDS
 		scene.input.keyboard.on('keyup-R', () => store.dispatch(addLoot(Math.floor(Math.random() * 100))), this);
+
+		// Saving
+		const slot = store.getState().saveSlot;
+		scene.input.keyboard.on('keyup-S', () => {
+			localStorage.setItem(slot, JSON.stringify(store.getState()))
+		}, this);
+		scene.input.keyboard.on('keyup-D', () => {
+			["slot_a", "slot_b", "slot_c"].forEach(slot => {localStorage.removeItem(slot)});
+		}, this);
+		scene.input.keyboard.on('keyup-L', () => {
+			const save_data = JSON.parse(localStorage.getItem(slot));
+			save_data ? store.dispatch(loadGame(save_data)) : console.log("NO DATA TO LOAD");
+		}, this);
 
 		// this.scene.events.on('coins:add', this.changeCoinCount, this);
 		// this.scene.events.on('coins:remove', this.changeCoinCount, this);
@@ -61,7 +87,6 @@ class UI extends GameObjects.Container {
 	}
 
 	changeCoinCount(coins){
-		console.log("UPDATE: ", coins);
 		this.coins.text.setText('Coins: ' + coins);
 	}
 
@@ -79,21 +104,25 @@ class UI extends GameObjects.Container {
 	}
 
 	setInvetoryIcon() {
-		const menu_button = this.scene.add.sprite(0, 0, 'icon', 'icon_0021_charm')
+		const button = this.scene.add.sprite(0, 0, 'icon', 'icon_0021_charm')
 			.setInteractive()
 			.setDepth(this.scene.depth_group.UI);
 
-		Display.Align.In.BottomRight(menu_button, this.scene.zone);
-		
-		menu_button.on('pointerdown', this.toggleMenu, this);
-		
-		return {menu_button: menu_button};
+		button.on('pointerdown', () => store.dispatch(toggleUi("equipment")), this);
+		return button;
 	}
 
-	toggleMenu() {
-		store.dispatch(toggleUi("equipment"));
-		// TODO: I can pause the game but I need to work on unpausing...
-		// (this.visible) ? this.scene.scene.pause() : this.scene.scene.resume();
+	setSystemIcon() {
+		const button = this.scene.add.sprite(0, 0, 'icon', 'icon_0006_golem')
+			.setInteractive()
+			.setDepth(this.scene.depth_group.UI);
+		
+		button.on('pointerdown', () => store.dispatch(toggleUi("system")), this);
+		return button;
+	}
+
+	toggleMenu(visible) {
+		(visible) ? this.scene.scene.pause() : this.scene.scene.resume();
 	}
 }
 

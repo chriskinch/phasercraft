@@ -3,10 +3,10 @@ import { connect } from "react-redux"
 import "styled-components/macro"
 import Button from "../atoms/Button"
 import Stock from "../organisms/Stock"
-import { buyLoot, deductCoin, generateLootTable, sortLoot } from "../../../store/gameReducer"
+import { buyLoot, generateLootTable, sortLoot } from "../../../store/gameReducer"
 import store from "../../../store"
 
-const Armory = ({coins, buyLoot, deductCoin, sortLoot, generateLootTable}) => {
+const Armory = ({coins, buyLoot, sortLoot, generateLootTable}) => {
     return (
         <div css={`
             display: flex;
@@ -17,11 +17,9 @@ const Armory = ({coins, buyLoot, deductCoin, sortLoot, generateLootTable}) => {
                 <Button text="Stats" onClick={() => sortLoot("stat_pool", "decending")} />
                 <h3>Action</h3>
                 <Button text="Buy" onClick={() => {
-                    const cost = 10;
-                    if(cost <= coins) {
-                        console.log("STORE: ", store.getState().selected)
+                    const selected = store.getState().selected;
+                    if(selected && selected.cost <= coins) {
                         buyLoot(store.getState().selected);
-                        deductCoin(10);
                     }else{
                         console.log("CANNOT AFFORD")
                     }
@@ -40,4 +38,4 @@ const mapStateToProps = (state) => {
     return { coins }
 };
 
-export default connect(mapStateToProps, {buyLoot, deductCoin, sortLoot, generateLootTable })(Armory);
+export default connect(mapStateToProps, {buyLoot, sortLoot, generateLootTable })(Armory);

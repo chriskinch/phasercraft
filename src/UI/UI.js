@@ -4,35 +4,54 @@ import { pixel_background } from "./themes"
 import { toggleUi } from "../store/gameReducer"
 import Arcanum from "./components/templates/Arcanum"
 import Armory from "./components/templates/Armory"
-import Button from "./components/atoms/Button"
 import Character from "./components/templates/Character"
 import Equipment from "./components/templates/Equipment"
-import Navigation from "./components/molecules/Navigation"
-import Title from "./components/atoms/Title"
+import Header from "./components/organisms/Header"
+import Save from "./components/templates/Save"
+import System from "./components/templates/System"
 import CustomDragLayer from "./components/protons/CustomDragLayer"
 import "styled-components/macro"
 
 const UI = ({ menu, showUi, toggleUi }) => {
     const config = {
+        arcanum: {
+            component: Arcanum,
+            title: "Arcanum",
+            navigation: true
+        },
+        armory: {
+            component: Armory,
+            title: "Armory",
+            navigation: true
+        },
         character: {
             component: Character,
             title: "Character Select"
         },
         equipment: {
             component: Equipment,
-            title: "Equipment"
+            title: "Equipment",
+            navigation: true
         },
-        armory: {
-            component: Armory,
-            title: "Armory"
+        load: {
+            component: Save,
+            title: "Load Game",
+            props: {load: true},
+            close: true
         },
-        arcanum: {
-            component: Arcanum,
-            title: "Arcanum"
+        save: {
+            component: Save,
+            title: "Pick a Game Save"
+        },
+        system: {
+            component: System,
+            title: "System",
+            close: true
         }
     };
 
-    const MenuContents = menu ? config[menu].component : Equipment;
+    // Use specified menu other use equipment as default
+    const CurrentMenu = menu ? config[menu] : config.equipment;
 
     return (
         <div css={`
@@ -46,7 +65,7 @@ const UI = ({ menu, showUi, toggleUi }) => {
                     box-sizing: border-box;
                     height: 100%;
                     padding: 1em;
-                    width: 100%;
+                    width: "100%";
                     pointer-events: all;
                     background: rgba(0,0,0,0.5);
                     display: flex;
@@ -55,26 +74,19 @@ const UI = ({ menu, showUi, toggleUi }) => {
                     <div css={`
                         margin-bottom: 14px;
                     `}>
-                        { menu !== "character" ?
-                            <>
-                            <Navigation />
-                            <div css={`
-                                float: right;
-                            `}>
-                                <Button text="X" onClick={ () => toggleUi() } type="square" />
-                            </div>
-                            </>
-                        : <Title text={ config[menu].title } /> }
+                        <Header config={CurrentMenu} toggleUi={toggleUi} type={CurrentMenu.type}/>
                     </div>
                     <div
-                        id={ config[menu].title.toLowerCase().replace(" ", "-") }
+                        id={ CurrentMenu.title.toLowerCase().replace(" ", "-") }
                         css={`
-                            ${ pixel_background() }
+                            ${ menu === "system" ? null : pixel_background() }
+                            margin: 0 auto;
                             padding: 1em;
+                            width: ${ menu === "system" ? "200px" : "100%"};
                         `}
                     >
                         <CustomDragLayer />
-                        <MenuContents />
+                        <CurrentMenu.component {...CurrentMenu.props} />
                     </div>
                 </div>
             }
