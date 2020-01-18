@@ -1,0 +1,38 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`Test Loot component renders correctly 1`] = `
+Array [
+  <div
+    className="__react_component_tooltip place-top type-dark "
+    data-id="tooltip"
+    id="1"
+  >
+    <dl
+      className="Stats___StyledDl-fmuwui-0 eKIhjp"
+    />
+    <div
+      className="Price___StyledDiv-sc-1aanb30-0 zmTFO"
+    >
+      <img
+        alt="Item cost:"
+        className="Price___StyledImg-sc-1aanb30-1 eeVBtC"
+        src="./UI/icons/coin.gif"
+      />
+       
+      0
+    </div>
+  </div>,
+  <div
+    className="loot-icon"
+    data-for="1"
+    data-tip={true}
+    onClick={null}
+  >
+    <img
+      alt="Loot!"
+      className="LootIcon___StyledImg-sc-14rfzhx-0 djRcFB"
+      src="graphics/images/loot/staff/staff_3.png"
+    />
+  </div>,
+]
+`;
