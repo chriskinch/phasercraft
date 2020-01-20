@@ -2,19 +2,18 @@ import { GameObjects } from 'phaser';
 import store from "../../store"
 import { addCoins } from "../../store/gameReducer"
 
-class Coin extends GameObjects.Sprite {
-
+class Gem extends GameObjects.Sprite {
 	constructor(config) {
-		super(config.scene, config.x, config.y, 'coin-spin');
+		super(config.scene, config.x, config.y, 'gem');
 		config.scene.physics.world.enable(this);
 		config.scene.add.existing(this).setDepth(this.scene.depth_group.UI);
 
-		this.anims.play('coin');
 		this.body.setVelocity(this.getRandomVelocity(), this.getRandomVelocity()).setDrag(100);
 		this.body.immovable = true;
 
 		this.scene.time.delayedCall(500, this.activate, [], this);
-		this.once('loot:collect', this.collect, this);
+        this.once('loot:collect', this.collect, this);
+        this.setScale(0.5)
 	}
 
 	activate(){
@@ -26,7 +25,7 @@ class Coin extends GameObjects.Sprite {
 	}
 
 	collect(){
-		store.dispatch(addCoins(1));
+		store.dispatch(addCoins(5));
 		this.scene.tweens.add({
 				targets: this,
 				y: {
@@ -52,4 +51,4 @@ class Coin extends GameObjects.Sprite {
 	}
 }
 
-export default Coin;
+export default Gem;

@@ -19,13 +19,15 @@ const initState = {
         helm: null,
         weapon: null
     },
-    coins: 999,
+    coins: 0,
     selected: null,
     saveSlot: null
 };
 
 // Actions
-export const addCoins = createAction("ADD_COIN");
+export const addCoins = createAction("ADD_COIN", value => ({
+    payload: { value }
+}));
 
 export const addLoot = createAction("ADD_LOOT", id => ({
     payload: { id }
@@ -103,7 +105,7 @@ const sortDecending = key => (a, b) => a[key] < b[key] ? 1 : -1;
 // Reducers
 
 export const gameReducer = createReducer(initState, {
-    [addCoins]: state => { state.coins++ },
+    [addCoins]: (state, action) => { state.coins += action.payload.value },
     [addLoot]: (state, action) => {
         const loot = state.loot[action.payload.id];
         state.inventory.push(loot);
