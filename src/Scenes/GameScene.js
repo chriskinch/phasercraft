@@ -27,9 +27,9 @@ export default class GameScene extends Scene {
 		}
 
 		store.dispatch(generateLootTable(99));
-		store.dispatch(addLoot(1));
-		store.dispatch(addLoot(55));
-		store.dispatch(addLoot(20));
+		// store.dispatch(addLoot(1));
+		// store.dispatch(addLoot(55));
+		// store.dispatch(addLoot(20));
 	}
 
 	init(config) {
