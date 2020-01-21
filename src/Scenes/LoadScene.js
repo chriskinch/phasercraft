@@ -39,6 +39,7 @@ export default class LoadScene extends Scene {
 		this.load.image('blank-gif', 'images/blank.gif');
 		this.load.spritesheet('attack-swoosh', 'spritesheets/swoosh.png', { frameWidth: 32, frameHeight: 32 });
 		this.load.spritesheet('coin-spin', 'spritesheets/coin.png', { frameWidth: 16, frameHeight: 16 });
+		this.load.spritesheet('gem-shine', 'spritesheets/gem.png', { frameWidth: 28, frameHeight: 32 });
 		this.load.atlas('dungeon', 'atlas/atlas-dungeon.png', 'atlas/atlas-dungeon.json');
 		this.load.atlas('enemy', 'atlas/atlas-enemy.png', 'atlas/atlas-enemy.json');
 		this.load.atlas('icon', 'atlas/atlas-icons.png', 'atlas/atlas-icons.json');
@@ -51,7 +52,6 @@ export default class LoadScene extends Scene {
 		this.load.image('snare-trap', 'spritesheets/spells/snaretrap.gif');
 		this.load.spritesheet('multishot-effect', 'spritesheets/swoosh.png', { frameWidth: 32, frameHeight: 32 });
 		this.load.spritesheet('whirlwind-effect', 'spritesheets/spells/whirlwind.png', { frameWidth: 32, frameHeight: 32 });
-		this.load.image('gem', 'images/loot/gem/gem_2.png');
 	}
 
 	create(){

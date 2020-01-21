@@ -18,6 +18,13 @@ export default function createAnimations(scene){
 		repeat: -1
 	});
 
+	scene.anims.create({
+		key: 'gem',
+		frames: scene.anims.generateFrameNumbers('gem-shine', { start: 0, end:  7 }),
+		frameRate: 10,
+		repeat: -1
+	});
+
 	// Enemies
 	let enemies = {
 		atlas: 'enemy',

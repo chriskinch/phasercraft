@@ -3,11 +3,14 @@ import store from "../../store"
 import { addCoins } from "../../store/gameReducer"
 
 class Gem extends GameObjects.Sprite {
+
 	constructor(config) {
-		super(config.scene, config.x, config.y, 'gem');
+		super(config.scene, config.x, config.y, 'gem-shine');
 		config.scene.physics.world.enable(this);
 		config.scene.add.existing(this).setDepth(this.scene.depth_group.UI);
 
+		console.log(this.anims)
+		// this.anims.play('gem');
 		this.body.setVelocity(this.getRandomVelocity(), this.getRandomVelocity()).setDrag(100);
 		this.body.immovable = true;
 
