@@ -10,7 +10,7 @@ class Gem extends GameObjects.Sprite {
 		config.scene.add.existing(this).setDepth(this.scene.depth_group.UI);
 
 		console.log(this.anims)
-		// this.anims.play('gem');
+		this.anims.play('gem');
 		this.body.setVelocity(this.getRandomVelocity(), this.getRandomVelocity()).setDrag(100);
 		this.body.immovable = true;
 

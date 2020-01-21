@@ -13,7 +13,7 @@ export default function createAnimations(scene){
 
 	scene.anims.create({
 		key: 'coin',
-		frames: scene.anims.generateFrameNumbers('coin-spin', { start: 0, end:  5 }),
+		frames: scene.anims.generateFrameNumbers('coin-spin', { start: 0, end:  7 }),
 		frameRate: 10,
 		repeat: -1
 	});
