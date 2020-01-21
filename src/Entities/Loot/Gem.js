@@ -1,4 +1,4 @@
-import { GameObjects } from 'phaser';
+import { GameObjects, Display } from 'phaser';
 import store from "../../store"
 import { addCoins } from "../../store/gameReducer"
 
@@ -9,14 +9,14 @@ class Gem extends GameObjects.Sprite {
 		config.scene.physics.world.enable(this);
 		config.scene.add.existing(this).setDepth(this.scene.depth_group.UI);
 
-		console.log(this.anims)
 		this.anims.play('gem');
 		this.body.setVelocity(this.getRandomVelocity(), this.getRandomVelocity()).setDrag(100);
 		this.body.immovable = true;
 
 		this.scene.time.delayedCall(500, this.activate, [], this);
         this.once('loot:collect', this.collect, this);
-        this.setScale(0.5)
+
+        this.setScale(0.5);
 	}
 
 	activate(){
