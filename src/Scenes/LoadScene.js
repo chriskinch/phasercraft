@@ -39,6 +39,7 @@ export default class LoadScene extends Scene {
 		this.load.image('blank-gif', 'images/blank.gif');
 		this.load.spritesheet('attack-swoosh', 'spritesheets/swoosh.png', { frameWidth: 32, frameHeight: 32 });
 		this.load.spritesheet('coin-spin', 'spritesheets/coin.png', { frameWidth: 16, frameHeight: 16 });
+		this.load.spritesheet('gem-shine', 'spritesheets/gem.png', { frameWidth: 32, frameHeight: 28 });
 		this.load.atlas('dungeon', 'atlas/atlas-dungeon.png', 'atlas/atlas-dungeon.json');
 		this.load.atlas('enemy', 'atlas/atlas-enemy.png', 'atlas/atlas-enemy.json');
 		this.load.atlas('icon', 'atlas/atlas-icons.png', 'atlas/atlas-icons.json');

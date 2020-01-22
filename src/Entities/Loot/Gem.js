@@ -1,21 +1,26 @@
-import { GameObjects } from 'phaser';
+import { GameObjects, Display } from 'phaser';
 import store from "../../store"
 import { addCoins } from "../../store/gameReducer"
 import getRandomVelocity from "../../Helpers/getRandomVelocity"
+import random from "lodash/random"
 
-class Coin extends GameObjects.Sprite {
+class Gem extends GameObjects.Sprite {
 
 	constructor(config) {
-		super(config.scene, config.x, config.y, 'coin-spin');
+		super(config.scene, config.x, config.y, 'gem-shine');
 		config.scene.physics.world.enable(this);
 		config.scene.add.existing(this).setDepth(this.scene.depth_group.UI);
 
-		this.anims.play('coin');
-		this.body.setVelocity(getRandomVelocity(25, 50), getRandomVelocity(25, 50)).setDrag(100);
+		this.anims.delayedPlay(random(1000,2000), 'gem');
+		this.body.setVelocity(getRandomVelocity(35, 70), getRandomVelocity(35, 70)).setDrag(100);
 		this.body.immovable = true;
 
 		this.scene.time.delayedCall(500, this.activate, [], this);
-		this.once('loot:collect', this.collect, this);
+        this.once('loot:collect', this.collect, this);
+
+		const color = new Display.Color().random(100);
+		this.setScale(0.5).setTint(color.color);
+		
 	}
 
 	activate(){
@@ -27,7 +32,7 @@ class Coin extends GameObjects.Sprite {
 	}
 
 	collect(){
-		store.dispatch(addCoins(1));
+		store.dispatch(addCoins(5));
 		this.scene.tweens.add({
 				targets: this,
 				y: {
@@ -45,4 +50,4 @@ class Coin extends GameObjects.Sprite {
 	}
 }
 
-export default Coin;
+export default Gem;

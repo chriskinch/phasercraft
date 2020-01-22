@@ -3,6 +3,7 @@ import AssignResource from '../Resources/AssignResource';
 import Monster from './Monster';
 import enemyConfig from '../../Config/enemies.json';
 import Coin from '../Loot/Coin';
+import Gem from '../Loot/Gem';
 
 class Enemy extends GameObjects.Container {
 
@@ -29,6 +30,7 @@ class Enemy extends GameObjects.Container {
 		this.isHit = false;
 		this.hitRadius = 25;
 		this.loot_chance = 0.75;
+		this.loot_multiplier = config.loot_multiplier;
 		this.active_group = config.active_group;
 		this.alive = true;
 
@@ -169,9 +171,14 @@ class Enemy extends GameObjects.Container {
 	}
 
 	dropLoot(){
-		let roll = Math.random();
-		if(roll < this.loot_chance) {
-			new Coin({scene:this.scene, x:this.x, y:this.y});
+		const drop_amount = Math.ceil(Math.random() * this.stats.loot_multiplier);
+		for(let i = 0; i < drop_amount; i++){
+			const drop_type = Math.random();
+			if(drop_type < this.loot_chance) {
+				new Coin({scene:this.scene, x:this.x, y:this.y});
+			}else{
+				new Gem({scene:this.scene, x:this.x, y:this.y});
+			}
 		}
 	}
 
