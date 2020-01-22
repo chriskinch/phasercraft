@@ -5,8 +5,11 @@ import UI from '../Entities/UI/HUD';
 import waveConfig from '../Config/waves.json';
 import enemyTypes from '../Config/enemies.json';
 
-import { generateLootTable } from "../store/gameReducer";
+import { generateLootTable, nextWave } from "../store/gameReducer";
 import store from '../store';
+
+import { from } from 'rxjs';
+import { map, distinctUntilChanged } from 'rxjs/operators';
 
 export default class GameScene extends Scene {
 	constructor() {
@@ -30,6 +33,13 @@ export default class GameScene extends Scene {
 		// store.dispatch(addLoot(1));
 		// store.dispatch(addLoot(55));
 		// store.dispatch(addLoot(20));
+
+		// Subscribe and update only if coins change. Uses RxJS.
+		const state$ = from(store);
+		state$.pipe(
+			map(state => state.wave),
+			distinctUntilChanged()
+		).subscribe(n => this.changeWaveNumber(n));
 	}
 
 	init(config) {
@@ -98,7 +108,12 @@ export default class GameScene extends Scene {
 		if(this.player.alive) this.player.update(mouse, this.cursors, time, delta);
 	}
 
+	changeWaveNumber(wave) {
+		console.log("WAVE")
+	}
+
 	increaseLevel(){
+		store.dispatch(nextWave());
 		this.wave++;
 		this.events.emit('increment:wave');
 		this.level_complete.setVisible(false);
