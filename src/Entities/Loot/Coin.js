@@ -1,6 +1,7 @@
 import { GameObjects } from 'phaser';
 import store from "../../store"
 import { addCoins } from "../../store/gameReducer"
+import getRandomVelocity from "../../Helpers/getRandomVelocity"
 
 class Coin extends GameObjects.Sprite {
 
@@ -10,7 +11,7 @@ class Coin extends GameObjects.Sprite {
 		config.scene.add.existing(this).setDepth(this.scene.depth_group.UI);
 
 		this.anims.play('coin');
-		this.body.setVelocity(this.getRandomVelocity(), this.getRandomVelocity()).setDrag(100);
+		this.body.setVelocity(getRandomVelocity(25, 50), getRandomVelocity(25, 50)).setDrag(100);
 		this.body.immovable = true;
 
 		this.scene.time.delayedCall(500, this.activate, [], this);
@@ -41,14 +42,6 @@ class Coin extends GameObjects.Sprite {
 				},
 				onComplete: () => this.destroy()
 		});
-	}
-
-	getRandomVelocity(){
-		let min = 25;
-		let max = 50;
-		let v = min + (Math.random() * (max-min));
-		let absV = (Math.random() >= 0.5) ? -v : v;
-		return absV;
 	}
 }
 

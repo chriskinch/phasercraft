@@ -1,6 +1,8 @@
 import { GameObjects, Display } from 'phaser';
 import store from "../../store"
 import { addCoins } from "../../store/gameReducer"
+import getRandomVelocity from "../../Helpers/getRandomVelocity"
+import random from "lodash/random"
 
 class Gem extends GameObjects.Sprite {
 
@@ -9,14 +11,16 @@ class Gem extends GameObjects.Sprite {
 		config.scene.physics.world.enable(this);
 		config.scene.add.existing(this).setDepth(this.scene.depth_group.UI);
 
-		this.anims.play('gem');
-		this.body.setVelocity(this.getRandomVelocity(), this.getRandomVelocity()).setDrag(100);
+		this.anims.delayedPlay(random(1000,2000), 'gem');
+		this.body.setVelocity(getRandomVelocity(35, 70), getRandomVelocity(35, 70)).setDrag(100);
 		this.body.immovable = true;
 
 		this.scene.time.delayedCall(500, this.activate, [], this);
         this.once('loot:collect', this.collect, this);
 
-        this.setScale(0.5);
+		const color = new Display.Color().random(100);
+		this.setScale(0.5).setTint(color.color);
+		
 	}
 
 	activate(){
@@ -43,14 +47,6 @@ class Gem extends GameObjects.Sprite {
 				},
 				onComplete: () => this.destroy()
 		});
-	}
-
-	getRandomVelocity(){
-		let min = 25;
-		let max = 50;
-		let v = min + (Math.random() * (max-min));
-		let absV = (Math.random() >= 0.5) ? -v : v;
-		return absV;
 	}
 }
 

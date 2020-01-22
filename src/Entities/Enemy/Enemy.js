@@ -29,7 +29,7 @@ class Enemy extends GameObjects.Container {
 		this.attack_ready = true;
 		this.isHit = false;
 		this.hitRadius = 25;
-		this.loot_chance = 0;
+		this.loot_chance = 0.75;
 		this.loot_multiplier = config.loot_multiplier;
 		this.active_group = config.active_group;
 		this.alive = true;
