@@ -21,7 +21,7 @@ export default class GameScene extends Scene {
 		this.global_attack_speed = 1;
 		this.global_attack_delay = 250;
 		this.global_spawn_time = 200;
-		this.wave = 0;
+		// this.wave = 0;
 
 		this.depth_group = {
 			BASE: 10,
@@ -113,23 +113,24 @@ export default class GameScene extends Scene {
 	}
 
 	increaseLevel(){
+		console.log("INCREASE: ", store.getState().wave)
 		store.dispatch(nextWave());
-		this.wave++;
-		this.events.emit('increment:wave');
-		this.level_complete.setVisible(false);
-		this.level_complete.button.input.enabled = false;
-		this.startLevel(this.wave);
+		// this.wave++;
+		// this.events.emit('increment:wave');
+		// this.level_complete.setVisible(false);
+		// this.level_complete.button.input.enabled = false;
+		this.startLevel(store.getState().wave);
 	}
 
-	startLevel(wave = 0){
+	startLevel(wave = 1){
 		this.time.paused = false;
-		const enemies = waveConfig[wave];
+		const enemies = waveConfig[wave - 1];
 
 		if(typeof enemies === "object") {
 			this.spawnEnemies(enemies);
 		}else{
 			const types = Object.keys(enemyTypes);
-			const randomEnemies = Array.from({length: wave+1}, () => {
+			const randomEnemies = Array.from({length: wave}, () => {
 				let random = Math.floor(Math.random() * types.length);
 				return types[random];
 			});
@@ -165,12 +166,12 @@ export default class GameScene extends Scene {
 		}, [], this);
 	}
 
-	waveCompleteDelay() {
-		this.removeNextLevelTimer();
+	waveComplete() {
+		// this.removeNextLevelTimer();
 		// Pause time after a short delay so that loot has a change to animate and activate
-		this.time.delayedCall(1000, () => {
-			this.time.paused = true;
-		}, [], this);
+		// this.time.delayedCall(1000, () => {
+		// 	this.time.paused = true;
+		// }, [], this);
 		// Give the player time to collect loot and cast spells.
 		// We use a regular setTimeout here as the game timers are paused.
 		setTimeout(() => { this.increaseLevel() }, 4000);
@@ -186,8 +187,8 @@ export default class GameScene extends Scene {
 			});
 		});
 
-		this.events.once('enemies:dead', this.waveCompleteDelay, this);
-		this.setNextLevelTimer();
+		this.events.once('enemies:dead', this.waveComplete, this);
+		// this.setNextLevelTimer();
 	}
 
 	spawnEnemy(enemy){
@@ -215,7 +216,7 @@ export default class GameScene extends Scene {
 
 		// TODO: Make the timings smarter
 		const time_scale = 5000;
-		const n_wave = this.wave+1;
+		const n_wave = store.getState().wave+1;
 		const min_delay = n_wave * this.global_spawn_time;
 		const wave_offset = n_wave * time_scale;
 		const time_limit = min_delay + wave_offset + time_scale;

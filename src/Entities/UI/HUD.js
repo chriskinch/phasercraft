@@ -36,6 +36,11 @@ class UI extends GameObjects.Container {
 			distinctUntilChanged()
 		).subscribe(n => this.changeCoinCount(n));
 
+		state$.pipe(
+			map(state => state.wave),
+			distinctUntilChanged()
+		).subscribe(n => this.addWaveCount(n));
+
 		// Toggle menu on key binding and sub to store
 		store.subscribe(() => {
 			if(this.showUi !== store.getState().showUi) {
@@ -60,10 +65,6 @@ class UI extends GameObjects.Container {
 			save_data ? store.dispatch(loadGame(save_data)) : console.log("NO DATA TO LOAD");
 		}, this);
 
-		// this.scene.events.on('coins:add', this.changeCoinCount, this);
-		// this.scene.events.on('coins:remove', this.changeCoinCount, this);
-		this.scene.events.on('increment:wave', this.addWaveCount, this);
-
 		this.scene.add.existing(this).setDepth(this.scene.depth_group.UI);
 	}
 
@@ -87,6 +88,7 @@ class UI extends GameObjects.Container {
 	}
 
 	changeCoinCount(coins){
+		console.log("HELLO")
 		this.coins.text.setText('Coins: ' + coins);
 	}
 
@@ -99,8 +101,8 @@ class UI extends GameObjects.Container {
 		this.wave.add(this.wave.text);
 	}
 
-	addWaveCount(){
-		this.wave.text.setText('Wave: ' + (this.scene.wave+1));
+	addWaveCount(wave){
+		this.wave.text.setText('Wave: ' + wave);
 	}
 
 	setInvetoryIcon() {
