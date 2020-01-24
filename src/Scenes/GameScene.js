@@ -11,9 +11,6 @@ import sample from "lodash/sample"
 import { generateLootTable, nextWave } from "../store/gameReducer"
 import store from "../store"
 
-import { from } from "rxjs"
-import { map, distinctUntilChanged } from "rxjs/operators"
-
 export default class GameScene extends Scene {
 	constructor() {
 		super({
@@ -33,16 +30,6 @@ export default class GameScene extends Scene {
 		}
 
 		store.dispatch(generateLootTable(99));
-		// store.dispatch(addLoot(1));
-		// store.dispatch(addLoot(55));
-		// store.dispatch(addLoot(20));
-
-		// Subscribe and update only if coins change. Uses RxJS.
-		const state$ = from(store);
-		state$.pipe(
-			map(state => state.wave),
-			distinctUntilChanged()
-		).subscribe(n => this.changeWaveNumber(n));
 	}
 
 	init(config) {
@@ -111,10 +98,6 @@ export default class GameScene extends Scene {
 		if(this.player.alive) this.player.update(mouse, this.cursors, time, delta);
 	}
 
-	changeWaveNumber(wave) {
-		// console.log("WAVE")
-	}
-
 	increaseLevel(){
 		store.dispatch(nextWave());
 		// this.wave++;
@@ -146,7 +129,6 @@ export default class GameScene extends Scene {
 					return types[random];
 				});
 				const sampleEnemies = Array.from({length: wave_set + 2 }, () => sample(types));
-				console.log(randomEnemies, sampleEnemies)
 				this.spawnEnemies(randomEnemies, wave_set);
 			}
 		}
