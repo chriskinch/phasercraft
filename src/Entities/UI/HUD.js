@@ -88,7 +88,6 @@ class UI extends GameObjects.Container {
 	}
 
 	changeCoinCount(coins){
-		console.log("HELLO")
 		this.coins.text.setText('Coins: ' + coins);
 	}
 

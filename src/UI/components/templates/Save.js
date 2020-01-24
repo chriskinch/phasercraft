@@ -41,7 +41,7 @@ const Save = ({loadGame, selectCharacter, setSaveSlot, switchUi, load}) => {
                 padding: 0;
             `}>
                 { otherGames.map((save, i) => {
-                    const { saveSlot, character, coins } = save || {};
+                    const { saveSlot, character, coins, wave } = save || {};
                     return (
                         <li key={i} css={`
                             flex: 1;
@@ -62,7 +62,8 @@ const Save = ({loadGame, selectCharacter, setSaveSlot, switchUi, load}) => {
                                     alt={`Load this save game.`} 
                                     css="padding-bottom: 0.5em"
                                 />
-                                <p>Gold: { coins }</p>
+                                <p css='margin:0;'>Wave: { wave }</p>
+                                <p css='margin:0 0 0.5em 0;'>Gold: { coins }</p>
                                 </>
                             }
                             <div css={`
