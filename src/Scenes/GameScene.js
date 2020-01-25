@@ -124,12 +124,8 @@ export default class GameScene extends Scene {
 				this.spawnBoss(types);
 			}else{
 				// Other wise spawn x random enemies scaling every 10 levels
-				const randomEnemies = Array.from({length: wave_sub + 2 }, () => {
-					let random = Math.floor(Math.random() * types.length);
-					return types[random];
-				});
 				const sampleEnemies = Array.from({length: wave_set + 2 }, () => sample(types));
-				this.spawnEnemies(randomEnemies, wave_set);
+				this.spawnEnemies(sampleEnemies, wave_set);
 			}
 		}
 	}
