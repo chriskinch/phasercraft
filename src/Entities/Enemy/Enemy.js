@@ -1,9 +1,8 @@
-import { GameObjects, Geom } from 'phaser';
-import AssignResource from '../Resources/AssignResource';
-import Monster from './Monster';
-import enemyConfig from '../../Config/enemies.json';
-import Coin from '../Loot/Coin';
-import Gem from '../Loot/Gem';
+import { GameObjects, Geom } from "phaser"
+import AssignResource from "../Resources/AssignResource"
+import Monster from "./Monster"
+import Coin from "../Loot/Coin"
+import Gem from "../Loot/Gem"
 
 class Enemy extends GameObjects.Container {
 
@@ -28,13 +27,15 @@ class Enemy extends GameObjects.Container {
 		this.target = config.target;
 		this.attack_ready = true;
 		this.isHit = false;
-		this.hitRadius = 25;
+		this.hit_radius = config.hit_radius || 25;
 		this.loot_chance = 0.75;
 		this.loot_multiplier = config.loot_multiplier;
 		this.active_group = config.active_group;
 		this.alive = true;
 
-		this.stats = enemyConfig[this.key];
+		this.set = config.set || 0;
+
+		this.stats = this.setStats(config.types[this.key], this.set);
 		this.stats.health_value = this.stats.health_max;
 
 		this.graphics = {};
@@ -57,7 +58,7 @@ class Enemy extends GameObjects.Container {
 		this.scene.tweens.add({ targets: this, alpha: 1, ease: 'Power1', duration: 500});
 
 		// Odd bug where the hit box is offset by 114px. not sure why but compensating here
-		this.setInteractive(new Geom.Circle(14, 14, this.hitRadius), Geom.Circle.Contains);
+		this.setInteractive(new Geom.Circle(14, 14, this.hit_radius), Geom.Circle.Contains);
 		this.bringToTop(this.monster);
 
 		if(this.scene.sys.game.config.physics.arcade.debug){
@@ -83,6 +84,17 @@ class Enemy extends GameObjects.Container {
 		}else{
 			this.spawningEnemy();
 		}
+	}
+
+	setStats(stats, set){
+		// Stats get adjusted indivdually as wave go on.
+		const new_stats = {};
+		new_stats.damage = Math.round(stats.damage * (set/5 + 1));
+		new_stats.health_max = stats.health_max * (set + 1);
+		new_stats.attack_speed = stats.attack_speed - (set/50);
+		new_stats.loot_multiplier = stats.loot_multiplier * (set/5 + 1);
+		
+		return {...stats, ...new_stats};
 	}
 
 	enemySpawned(){
@@ -204,7 +216,7 @@ class Enemy extends GameObjects.Container {
 		//Just to display the hit area, not actually needed to work. Also doesn't have the same bug about being offset.
 		this.hitboxDebug = this.scene.add.graphics();
 		this.hitboxDebug.lineStyle(1, 0x00ffff, 1);
-		this.hitboxDebug.strokeCircleShape(new Geom.Circle(0, 0, this.hitRadius));
+		this.hitboxDebug.strokeCircleShape(new Geom.Circle(0, 0, this.hit_radius));
 		this.add(this.hitboxDebug);
 	}
 

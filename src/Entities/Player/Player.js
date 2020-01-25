@@ -198,7 +198,9 @@ class Player extends GameObjects.Container {
 		let target = this.scene.selected;
 		this.moveTo(target);
 		let distance = Phaser.Math.Distance.Between(target.x,target.y, this.x, this.y);
-		if(distance <= this.stats.range) {
+		let hit_distance = distance - target.hit_radius;
+
+		if(hit_distance <= this.stats.range) {
 			this.idle();
 			this.attack_delay = null;
 			if(this.attack_ready) this.attack(target);

@@ -21,7 +21,8 @@ const initState = {
     },
     coins: 0,
     selected: null,
-    saveSlot: null
+    saveSlot: null,
+    wave: 1
 };
 
 // Actions
@@ -44,6 +45,8 @@ export const equipLoot = createAction("EQUIP_LOOT", loot => ({
 export const loadGame = createAction("LOAD_GAME", state => ({
     payload: { state }
 }));
+
+export const nextWave = createAction("NEXT_WAVE");
 
 export const selectCharacter = createAction("SELECT_CHARACTER", character => ({
     payload: { character }
@@ -125,6 +128,7 @@ export const gameReducer = createReducer(initState, {
         syncStats(state);
     },
     [loadGame]: (state, action) => action.payload.state,
+    [nextWave]: state => { state.wave++ },
     [selectLoot]: (state, action) => {
         state.selected = action.payload.id;
     },

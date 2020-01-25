@@ -1,12 +1,15 @@
-import { Scene, Input, GameObjects, Display } from 'phaser';
-import AssignClass from '../Entities/Player/AssignClass';
-import Enemy from '../Entities/Enemy/Enemy';
-import UI from '../Entities/UI/HUD';
-import waveConfig from '../Config/waves.json';
-import enemyTypes from '../Config/enemies.json';
+import { Scene, Input, GameObjects, Display } from "phaser"
+import AssignClass from "../Entities/Player/AssignClass"
+import Enemy from "../Entities/Enemy/Enemy"
+import Boss from "../Entities/Enemy/Boss"
+import UI from "../Entities/UI/HUD"
+import waveConfig from "../Config/waves.json"
+import enemyTypes from "../Config/enemies.json"
+import bossTypes from "../Config/bosses.json"
+import sample from "lodash/sample"
 
-import { generateLootTable } from "../store/gameReducer";
-import store from '../store';
+import { generateLootTable, nextWave } from "../store/gameReducer"
+import store from "../store"
 
 export default class GameScene extends Scene {
 	constructor() {
@@ -18,7 +21,7 @@ export default class GameScene extends Scene {
 		this.global_attack_speed = 1;
 		this.global_attack_delay = 250;
 		this.global_spawn_time = 200;
-		this.wave = 0;
+		// this.wave = 0;
 
 		this.depth_group = {
 			BASE: 10,
@@ -27,9 +30,6 @@ export default class GameScene extends Scene {
 		}
 
 		store.dispatch(generateLootTable(99));
-		// store.dispatch(addLoot(1));
-		// store.dispatch(addLoot(55));
-		// store.dispatch(addLoot(20));
 	}
 
 	init(config) {
@@ -67,7 +67,7 @@ export default class GameScene extends Scene {
 		this.enemies = this.add.group();
 		this.enemies.runChildUpdate = true;
 		this.active_enemies = this.add.group();
-		this.startLevel();
+		this.startLevel(store.getState().wave);
 
 		this.setLevelCompleteUI();
 
@@ -99,26 +99,38 @@ export default class GameScene extends Scene {
 	}
 
 	increaseLevel(){
-		this.wave++;
-		this.events.emit('increment:wave');
-		this.level_complete.setVisible(false);
-		this.level_complete.button.input.enabled = false;
-		this.startLevel(this.wave);
+		store.dispatch(nextWave());
+		// this.wave++;
+		// this.events.emit('increment:wave');
+		// this.level_complete.setVisible(false);
+		// this.level_complete.button.input.enabled = false;
+		this.startLevel(store.getState().wave);
 	}
 
-	startLevel(wave = 0){
-		this.time.paused = false;
-		const enemies = waveConfig[wave];
+	startLevel(wave = 1){
+		// this.time.paused = false;
+		const enemies = waveConfig[wave - 1];
+		const types = Object.keys(enemyTypes);
 
 		if(typeof enemies === "object") {
+			// Spawn the list of predefined enemies from the wave json
 			this.spawnEnemies(enemies);
 		}else{
-			const types = Object.keys(enemyTypes);
-			const randomEnemies = Array.from({length: wave+1}, () => {
-				let random = Math.floor(Math.random() * types.length);
-				return types[random];
-			});
-			this.spawnEnemies(randomEnemies);
+			const wave_set = Math.floor(store.getState().wave / 10);
+			const wave_sub = store.getState().wave % 10;
+			const boss_wave = wave_sub === 0 ? true : false;
+			if(boss_wave) {
+				// If the wave is a multiple of 10 it's a boss!
+				this.spawnBoss(types);
+			}else{
+				// Other wise spawn x random enemies scaling every 10 levels
+				const randomEnemies = Array.from({length: wave_sub + 2 }, () => {
+					let random = Math.floor(Math.random() * types.length);
+					return types[random];
+				});
+				const sampleEnemies = Array.from({length: wave_set + 2 }, () => sample(types));
+				this.spawnEnemies(randomEnemies, wave_set);
+			}
 		}
 	}
 
@@ -150,40 +162,59 @@ export default class GameScene extends Scene {
 		}, [], this);
 	}
 
-	waveCompleteDelay() {
-		this.removeNextLevelTimer();
+	waveComplete() {
+		// this.removeNextLevelTimer();
 		// Pause time after a short delay so that loot has a change to animate and activate
-		this.time.delayedCall(1000, () => {
-			this.time.paused = true;
-		}, [], this);
+		// this.time.delayedCall(1000, () => {
+		// 	this.time.paused = true;
+		// }, [], this);
 		// Give the player time to collect loot and cast spells.
 		// We use a regular setTimeout here as the game timers are paused.
 		setTimeout(() => { this.increaseLevel() }, 4000);
 	}
 
-	spawnEnemies(list){
+	spawnEnemies(list, set){
 		// Remove exsiting instances of this event so that it does trigger multiple times
 		this.events.off('enemies:dead');
 		
 		list.forEach((enemy, i) => {
 			this.time.delayedCall(this.global_spawn_time * i, () => {
-				this.spawnEnemy(enemy);
+				this.spawnEnemy(enemy, set);
 			});
 		});
 
-		this.events.once('enemies:dead', this.waveCompleteDelay, this);
-		this.setNextLevelTimer();
+		this.events.once('enemies:dead', this.waveComplete, this);
+		// this.setNextLevelTimer();
 	}
 
-	spawnEnemy(enemy){
+	spawnEnemy(enemy, set){
 		this.enemies.add(new Enemy({
 			scene: this,
 			key: enemy,
 			x: Math.random() * this.global_game_width,
 			y: Math.random() * this.global_game_height,
+			types: enemyTypes,
+			target: this.player,
+			active_group: this.active_enemies,
+			set: set
+		}));
+	}
+
+	spawnBoss(types) {
+		this.events.off('enemies:dead');
+
+		this.enemies.add(new Boss({
+			scene: this,
+			key: sample(types),
+			x: Math.random() * this.global_game_width,
+			y: Math.random() * this.global_game_height,
+			types: bossTypes,
+			hit_radius: 15,
 			target: this.player,
 			active_group: this.active_enemies
 		}));
+
+		this.events.once('enemies:dead', this.waveComplete, this);
 	}
 
 	removeNextLevelTimer() {
@@ -200,7 +231,7 @@ export default class GameScene extends Scene {
 
 		// TODO: Make the timings smarter
 		const time_scale = 5000;
-		const n_wave = this.wave+1;
+		const n_wave = store.getState().wave+1;
 		const min_delay = n_wave * this.global_spawn_time;
 		const wave_offset = n_wave * time_scale;
 		const time_limit = min_delay + wave_offset + time_scale;
