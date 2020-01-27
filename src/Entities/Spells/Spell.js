@@ -4,8 +4,8 @@ import store from "../../store"
 class Spell extends GameObjects.Sprite {
 	constructor({scene, x, y, key, ...config} = {}) {
 		super(scene, x, y, key);	
-		Object.assign(this, config);
-
+        Object.assign(this, config);
+        
         this.typedCost = this.cost[this.player.resource.name];
         this.hasAnimation = true;
         this.enabled = false;
@@ -168,7 +168,7 @@ class Spell extends GameObjects.Sprite {
 			key: this.name + '-animation',
 			frames: this.scene.anims.generateFrameNumbers(this.name + '-effect', { start: 0, end: 24 }),
 			frameRate: 24,
-			repeat: 0,
+			repeat: this.loop ? -1 : 0,
 			showOnStart: true,
             hideOnComplete: true
         });

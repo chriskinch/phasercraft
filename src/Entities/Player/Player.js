@@ -65,6 +65,15 @@ class Player extends GameObjects.Container {
 		});
 		this.add(this.resource);
 
+		this.shield = new AssignResource('Shield', {
+			container: this,
+			scene: scene,
+			x: -14,
+			y: -40,
+			...stats
+		});
+		this.add(this.shield);
+
 		this.weapon = new Weapon({scene: scene, key:'weapon-swooch'});
 		this.add(this.weapon);
 
@@ -186,7 +195,8 @@ class Player extends GameObjects.Container {
 	hit(power){
 		const damage = Math.ceil(power * (100/(100+this.stats.defence)));
 		this.scene.events.emit('player:attacked', this);
-		this.health.adjustValue(-damage);
+		const pool = this.shield.hasShield() ? this.shield : this.health;
+		pool.adjustValue(-damage);
 	}
 
 	idle(){

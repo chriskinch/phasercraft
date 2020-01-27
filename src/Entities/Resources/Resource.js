@@ -22,7 +22,7 @@ class Resource extends GameObjects.Sprite {
 			regen_rate: config[`${this.category}_regen_rate`],
 			regen_value: config[`${this.category}_regen_value`]
 		}
-
+		
 		if(this.container.name === "player") {
 			store.dispatch(setStats(this.resources));
 			store.dispatch(setBaseStats(this.resources));
@@ -85,10 +85,11 @@ class Resource extends GameObjects.Sprite {
 	}
 
 	drawBar(opt) {
+		const {colour, width, height, depth} = opt;
 		let graphics = this.scene.add.graphics();
-			graphics.fillStyle(opt.colour, 1);
-			graphics.fillRect(0,0,opt.width,opt.height);
-			graphics.setDepth(opt.depth);
+			graphics.fillStyle(colour, 1);
+			graphics.fillRect(0,0,width,height);
+			graphics.setDepth(depth);
 			graphics.x = this.x;
 			graphics.y = this.y;
 
@@ -109,7 +110,7 @@ class Resource extends GameObjects.Sprite {
 	}
 
 	regenType(type) {
-		const t = (type === 'health') ? 'health' : 'resource';
+		const t = (type === 'health') ? 'health' : (type === 'shield') ? 'shield' : 'resource';
 		return t;
 	}
 
