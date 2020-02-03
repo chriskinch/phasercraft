@@ -2,6 +2,7 @@ import EarthShield from "./EarthShield"
 import Enrage from "./Enrage"
 import Fireball from "./Fireball"
 import Heal from "./Heal"
+import Invocation from "./Invocation"
 import ManaShield from "./ManaShield"
 import Multishot from "./Multishot"
 import SiphonSoul from "./SiphonSoul"
@@ -14,6 +15,7 @@ const classes = {
   Enrage,
   Fireball,
   Heal,
+  Invocation,
   ManaShield,
   Multishot,
   SiphonSoul,
