@@ -5,7 +5,7 @@ class Invocation extends Boon {
 		const defaults = {
 			name: "invocation",
 			icon_name: "icon_0014_haste",
-			cooldown: 6,
+			cooldown: 60,
 			cost: {
 				rage: 0,
 				mana: 0,
@@ -14,8 +14,8 @@ class Invocation extends Boon {
 			type: "magic",
 			duration: 5,
 			value: {
-				resource_regen_value: (bs) => bs * 4, // Increse by 200%
-				resource_regen_rate: -0.1 // Tick 0.5s more frequently
+				resource_regen_value: (bs) => bs * 4, // Increse by 400%
+				resource_regen_rate: -0.1 // Tick 0.1s more frequently
 			}
         }
 
@@ -36,13 +36,13 @@ class Invocation extends Boon {
         
         // Also root the player until spell is over or click to move.
         this.player.body.setMaxVelocity(0);
-        this.player.idle();
+        this.player.root();
 
-        this.scene.events.once('player:attacked', this.clearEffect, this);
+        this.scene.events.once('player:hit', this.clearEffect, this);
 	}
 
 	clearEffect() {
-        console.log("CLEAR")
+		this.player.idle();
         this.player.hero.clearTint();
         // Set player stats back to normal.
         this.player.body.setMaxVelocity(10000);

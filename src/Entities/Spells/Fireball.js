@@ -8,7 +8,7 @@ class Fireball extends Spell {
 			cooldown: 1,
 			cost: {
 				rage: 30,
-				mana: 300,
+				mana: 50,
 				energy: 40
 			},
 			type: 'magic'

@@ -1,8 +1,7 @@
 import { GameObjects, Display, Actions } from 'phaser';
 import { toggleUi, addLoot, loadGame } from "../../store/gameReducer";
 import store from '../../store';
-import { from } from 'rxjs';
-import { map, distinctUntilChanged } from 'rxjs/operators';
+import mapStateToData from "../../Helpers/mapStateToData"
 
 const styles = {
 	font: '12px monospace',
@@ -29,25 +28,11 @@ class UI extends GameObjects.Container {
 		const {x, y, width, height} = this.scene.zone;
 		Actions.IncXY(this.buttons, x + width, y + height, -35);
 
-		// Subscribe and update only if coins change. Uses RxJS.
-		const state$ = from(store);
-		state$.pipe(
-			map(state => state.coins),
-			distinctUntilChanged()
-		).subscribe(n => this.changeCoinCount(n));
+		// Maps coins, wave and showUi sections of the store to various functions.
+		mapStateToData("coins", coins => this.coins.text.setText('Coins: ' + coins));
+		mapStateToData("wave", wave => this.wave.text.setText('Wave: ' + wave));
+		mapStateToData("showUi", showUi => (showUi) ? this.scene.scene.pause() : this.scene.scene.resume());
 
-		state$.pipe(
-			map(state => state.wave),
-			distinctUntilChanged()
-		).subscribe(n => this.addWaveCount(n));
-
-		// Toggle menu on key binding and sub to store
-		store.subscribe(() => {
-			if(this.showUi !== store.getState().showUi) {
-				this.showUi = store.getState().showUi;
-				this.toggleMenu(this.showUi);
-			}
-		});
 		scene.input.keyboard.on('keyup-P', () => store.dispatch(toggleUi("equipment")), this);
 		// TEMP KEYBINDS
 		scene.input.keyboard.on('keyup-R', () => store.dispatch(addLoot(Math.floor(Math.random() * 100))), this);
@@ -87,10 +72,6 @@ class UI extends GameObjects.Container {
 		this.coins.add(this.coins.text);
 	}
 
-	changeCoinCount(coins){
-		this.coins.text.setText('Coins: ' + coins);
-	}
-
 	setWaveCount(){
 		this.wave = this.scene.add.container(0, 0)
 		Display.Align.In.TopRight(this.wave, this.scene.zone, -190);
@@ -98,10 +79,6 @@ class UI extends GameObjects.Container {
 		this.wave.add(this.scene.add.sprite(0, 0, 'dungeon', 'ghast_baby').setDepth(this.scene.depth_group.UI));
 		this.wave.text = this.scene.add.text(15, 0, 'Wave: ' + (this.scene.wave+1), styles).setOrigin(0, 0.5);
 		this.wave.add(this.wave.text);
-	}
-
-	addWaveCount(wave){
-		this.wave.text.setText('Wave: ' + wave);
 	}
 
 	setInvetoryIcon() {

@@ -8,7 +8,7 @@ class EarthShield extends Spell {
 			cooldown: 10,
 			cost: {
 				rage: 75,
-				mana: 110,
+				mana: 120,
 				energy: 70
 			},
             type: 'magic',
