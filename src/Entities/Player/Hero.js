@@ -21,6 +21,11 @@ class Hero extends GameObjects.Sprite {
 	idle(){
 		this.anims.play('player-idle', true);
 	}
+
+	root(){
+		this.anims.play('player-idle', true);
+		this.anims.stop();
+	}
 }
 
 export default Hero;

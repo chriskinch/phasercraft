@@ -12,6 +12,7 @@ const Equipment = ({ character, equipment, stats }) => {
     const { resource_type } = stats;
     const offence_state = pick(stats, ["attack_power", "magic_power", "attack_speed", "critical_chance"]);
     const defence_stats = pick(stats, ["health_regen_rate", "health_regen_value", "defence", "speed"]);
+    const support_stats = pick(stats, ["resource_regen_rate", "resource_regen_value"]);
 
     const colour = (resource_type === "Mana") ? "blue" :
         (resource_type === "Rage") ? "red" :
@@ -45,6 +46,9 @@ const Equipment = ({ character, equipment, stats }) => {
                 </Stats>
                 <Stats>
                     {defence_stats}
+                </Stats>
+                <Stats>
+                    {support_stats}
                 </Stats>
             </section>
             <section css="width: 62px; margin: 0 2em;">
