@@ -1,7 +1,7 @@
 import React from "react"
 import store from "../../../store"
 import { pixel_emboss } from "../../themes"
-import LootList from "../molecules/LootList"
+import LootListDrag from "../molecules/LootListDrag"
 import "styled-components/macro"
 
 const Inventory = () => {
@@ -13,7 +13,7 @@ const Inventory = () => {
             padding-top: 0.75em;
             width: 100%;
         `}>
-            <LootList list={inventory} name={"inventory"} />
+            <LootListDrag list={inventory} name={"inventory"} />
         </div>
     );
 }

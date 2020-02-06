@@ -6,7 +6,6 @@ import Tooltip from "./Tooltip"
 const Loot = ({id, loot, isSelected, setSelected}) => {
     return (
         <>
-            <div dangerouslySetInnerHTML={{__html: "<!-- some comment -->"}} />
             <Tooltip id={id} loot={loot} />
             <div data-tip data-for={id} onClick={ setSelected ? () => setSelected() : null }>
                 <LootIcon {...loot} id={id} selected={isSelected} />
