@@ -5,6 +5,7 @@ import Heal from "./Heal"
 import Invocation from "./Invocation"
 import ManaShield from "./ManaShield"
 import Multishot from "./Multishot"
+import PowerInfusion from "./PowerInfusion"
 import SiphonSoul from "./SiphonSoul"
 import Smite from "./Smite"
 import SnareTrap from "./SnareTrap"
@@ -18,6 +19,7 @@ const classes = {
   Invocation,
   ManaShield,
   Multishot,
+  PowerInfusion,
   SiphonSoul,
   Smite,
   SnareTrap,
