@@ -1,6 +1,6 @@
 import { GameObjects } from "phaser"
-import store from "../../store"
-import { setStats, updateStats } from "../../store/gameReducer"
+import store from "@store"
+import { setStats, updateStats } from "@store/gameReducer"
 
 class Boons extends GameObjects.Group {
 	constructor(scene, player) {

@@ -1,9 +1,9 @@
 import React, { useState } from "react"
 import { connect } from "react-redux"
-import { loadGame, selectCharacter, setSaveSlot, switchUi } from "../../../store/gameReducer"
-import Button from "../atoms/Button"
-import Dialog from "../organisms/Dialog"
-import { dialog_overlay } from "../../themes"
+import { loadGame, selectCharacter, setSaveSlot, switchUi } from "@store/gameReducer"
+import Button from "@atoms/Button"
+import Dialog from "@organisms/Dialog"
+import { dialog_overlay } from "@UI/themes"
 import 'styled-components/macro'
 
 const getSaveGames = function(slots) {

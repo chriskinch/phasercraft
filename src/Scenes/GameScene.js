@@ -1,15 +1,15 @@
 import { Scene, Input, GameObjects, Display } from "phaser"
-import AssignClass from "../Entities/Player/AssignClass"
-import Enemy from "../Entities/Enemy/Enemy"
-import Boss from "../Entities/Enemy/Boss"
-import UI from "../Entities/UI/HUD"
-import waveConfig from "../Config/waves.json"
-import enemyTypes from "../Config/enemies.json"
-import bossTypes from "../Config/bosses.json"
+import AssignClass from "@Entities/Player/AssignClass"
+import Enemy from "@Entities/Enemy/Enemy"
+import Boss from "@Entities/Enemy/Boss"
+import UI from "@Entities/UI/HUD"
+import waveConfig from "@Config/waves.json"
+import enemyTypes from "@Config/enemies.json"
+import bossTypes from "@Config/bosses.json"
 import sample from "lodash/sample"
 
-import { generateLootTable, nextWave } from "../store/gameReducer"
-import store from "../store"
+import { generateLootTable, nextWave } from "@store/gameReducer"
+import store from "@store"
 
 export default class GameScene extends Scene {
 	constructor() {

@@ -1,7 +1,7 @@
 import React from "react"
 import "styled-components/macro"
 import { useDragLayer } from "react-dnd"
-import LootIcon from "../atoms/LootIcon"
+import LootIcon from "@atoms/LootIcon"
 
 const getItemStyles = (initialOffset, currentOffset) => {
     if (!initialOffset || !currentOffset) {

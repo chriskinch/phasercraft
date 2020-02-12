@@ -1,5 +1,5 @@
 import { Scene } from 'phaser';
-import store from "../store";
+import store from "@store";
 
 export default class SelectScene extends Scene {
 	constructor() {

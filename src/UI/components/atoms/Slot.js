@@ -1,10 +1,10 @@
 import React from "react"
 import "styled-components/macro"
-import Loot from "../molecules/Loot"
-import { pixel_emboss } from "../../themes"
+import Loot from "@molecules/Loot"
+import { pixel_emboss } from "@UI/themes"
 import { useDrop } from "react-dnd"
 import { connect } from "react-redux"
-import { unequipLoot } from "../../../store/gameReducer"
+import { unequipLoot } from "@store/gameReducer"
 
 const Slot = ({loot, slot, unequipLoot}) => {
     const [{ canDrop, isOver }, drop] = useDrop({

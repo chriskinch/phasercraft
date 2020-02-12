@@ -1,5 +1,5 @@
 import { createAction, createReducer } from "redux-starter-kit"
-import LootTable from "../Entities/Loot/LootTable"
+import LootTable from "@Entities/Loot/LootTable"
 import mergeWith from "lodash/mergeWith"
 import remove from "lodash/remove"
 

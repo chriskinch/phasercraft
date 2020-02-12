@@ -2,7 +2,7 @@ import React from "react"
 import ReactTooltip from "react-tooltip"
 import "styled-components/macro"
 import Stats from "./Stats"
-import Price from "../atoms/Price"
+import Price from "@atoms/Price"
 
 const Tooltip = ({ id, loot }) => {
     const { color, stats, info, cost } = loot;

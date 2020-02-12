@@ -7,6 +7,8 @@
     "number-to-words": "^1.2.4"
   },
   "dependencies": {
+    "@craco/craco": "^5.6.3",
+    "craco-alias": "^2.1.0",
     "jest-canvas-mock": "^2.1.2",
     "lodash": "^4.17.15",
     "phaser": "3.21.0",
@@ -26,9 +28,9 @@
     "styled-components": "^4.4.0"
   },
   "scripts": {
-    "start": "react-scripts start",
-    "build": "react-scripts build",
-    "test": "react-scripts test --setupFiles ./node_modules/jest-canvas-mock",
+    "start": "craco start",
+    "build": "craco build",
+    "test": "craco test --setupFiles ./node_modules/jest-canvas-mock",
     "eject": "react-scripts eject"
   },
   "eslintConfig": {

@@ -1,7 +1,7 @@
 import React from "react";
 import 'styled-components/macro';
 import { connect } from "react-redux";
-import { switchUi } from "../../../store/gameReducer";
+import { switchUi } from "@store/gameReducer";
 import { pixel_background } from '../../themes';
 
 const Navigation = ({menu, switchUi}) => {

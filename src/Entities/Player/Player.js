@@ -1,14 +1,14 @@
 import Phaser, { GameObjects } from "phaser"
 import Hero from "./Hero"
-import Weapon from "../Weapon"
-import AssignSpell from "../Spells/AssignSpell"
-import AssignResource from "../Resources/AssignResource"
-import targetVector from "../../Helpers/targetVector"
-import Boons from "../UI/Boons"
-import store from "../../store"
-import { setBaseStats, setStats } from "../../store/gameReducer"
+import Weapon from "@Entities/Weapon"
+import AssignSpell from "@Entities/Spells/AssignSpell"
+import AssignResource from "@Entities/Resources/AssignResource"
+import targetVector from "@Helpers/targetVector"
+import Boons from "@Entities/UI/Boons"
+import store from "@store"
+import { setBaseStats, setStats } from "@store/gameReducer"
 import isEmpty from "lodash/isEmpty"
-import mapStateToData from "../../Helpers/mapStateToData"
+import mapStateToData from "@Helpers/mapStateToData"
 
 const converter = require('number-to-words');
 

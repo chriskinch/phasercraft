@@ -1,6 +1,6 @@
 import React from "react"
 import "styled-components/macro"
-import LootIcon from "../atoms/LootIcon"
+import LootIcon from "@atoms/LootIcon"
 import Tooltip from "./Tooltip"
 
 const Loot = ({id, loot, isSelected, setSelected}) => {

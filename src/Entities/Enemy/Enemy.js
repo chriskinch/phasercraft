@@ -1,8 +1,8 @@
 import { GameObjects, Geom } from "phaser"
-import AssignResource from "../Resources/AssignResource"
+import AssignResource from "@Entities/Resources/AssignResource"
 import Monster from "./Monster"
-import Coin from "../Loot/Coin"
-import Gem from "../Loot/Gem"
+import Coin from "@Entities/Loot/Coin"
+import Gem from "@Entities/Loot/Gem"
 
 class Enemy extends GameObjects.Container {
 
