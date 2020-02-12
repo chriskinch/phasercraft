@@ -1,7 +1,7 @@
 import React from "react"
-import Button from "../atoms/Button"
-import Navigation from "../molecules/Navigation"
-import Title from "../atoms/Title"
+import Button from "@atoms/Button"
+import Navigation from "@molecules/Navigation"
+import Title from "@atoms/Title"
 import "styled-components/macro"
 
 const Header = ({config, toggleUi}) => {

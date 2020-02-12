@@ -1,10 +1,10 @@
 import React from "react"
 import { connect } from "react-redux"
 import "styled-components/macro"
-import Button from "../atoms/Button"
-import Stock from "../organisms/Stock"
-import { buyLoot, generateLootTable, sortLoot } from "../../../store/gameReducer"
-import store from "../../../store"
+import Button from "@atoms/Button"
+import Stock from "@organisms/Stock"
+import { buyLoot, generateLootTable, sortLoot } from "@store/gameReducer"
+import store from "@store"
 
 const Armory = ({coins, buyLoot, sortLoot, generateLootTable}) => {
     return (

@@ -1,7 +1,7 @@
 import { GameObjects, Display, Actions } from 'phaser';
-import { toggleUi, addLoot, loadGame } from "../../store/gameReducer";
-import store from '../../store';
-import mapStateToData from "../../Helpers/mapStateToData"
+import { toggleUi, addLoot, loadGame } from "@store/gameReducer";
+import store from '@store';
+import mapStateToData from "@Helpers/mapStateToData"
 
 const styles = {
 	font: '12px monospace',

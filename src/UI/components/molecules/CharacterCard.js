@@ -1,5 +1,5 @@
 import React from "react";
-import { selectCharacter } from "../../../store/gameReducer";
+import { selectCharacter } from "@store/gameReducer";
 import { connect } from 'react-redux';
 import 'styled-components/macro';
 import Button from '../atoms/Button'

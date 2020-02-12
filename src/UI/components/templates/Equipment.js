@@ -1,10 +1,10 @@
 import React from "react"
 import { connect } from "react-redux"
 import "styled-components/macro"
-import Inventory from "../organisms/Inventory"
-import Slot from "../atoms/Slot"
-import Stats from "../molecules/Stats"
-import StatBar from "../molecules/StatBar"
+import Inventory from "@organisms/Inventory"
+import Slot from "@atoms/Slot"
+import Stats from "@molecules/Stats"
+import StatBar from "@molecules/StatBar"
 import pick from "lodash/pick"
 
 const Equipment = ({ character, equipment, stats }) => {

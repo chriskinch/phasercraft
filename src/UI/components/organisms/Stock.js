@@ -1,7 +1,7 @@
 import React from "react"
 import { connect } from "react-redux"
-import { pixel_emboss } from "../../themes"
-import LootList from "../molecules/LootList"
+import { pixel_emboss } from "@UI/themes"
+import LootList from "@molecules/LootList"
 import "styled-components/macro"
 
 const Stock = ({ loot }) => {

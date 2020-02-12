@@ -1,4 +1,4 @@
-import store from "../store"
+import store from "@store"
 import isEqual from "lodash/isEqual"
 import get from "lodash/get"
 import { from } from "rxjs"

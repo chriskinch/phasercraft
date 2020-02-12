@@ -1,7 +1,7 @@
 import { GameObjects, Display } from 'phaser';
-import store from "../../store"
-import { addCoins } from "../../store/gameReducer"
-import getRandomVelocity from "../../Helpers/getRandomVelocity"
+import store from "@store"
+import { addCoins } from "@store/gameReducer"
+import getRandomVelocity from "@Helpers/getRandomVelocity"
 import random from "lodash/random"
 
 class Gem extends GameObjects.Sprite {

@@ -1,7 +1,7 @@
 import { Scene, GameObjects } from "phaser";
 import createAnimations from '../Config/animations';
-import store from "../store";
-import { toggleUi } from "../store/gameReducer";
+import store from "@store";
+import { toggleUi } from "@store/gameReducer";
 
 export default class LoadScene extends Scene {
 	preload(){

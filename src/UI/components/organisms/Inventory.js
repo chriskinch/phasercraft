@@ -1,7 +1,7 @@
 import React from "react"
-import store from "../../../store"
-import { pixel_emboss } from "../../themes"
-import LootListDrag from "../molecules/LootListDrag"
+import store from "@store"
+import { pixel_emboss } from "@UI/themes"
+import LootListDrag from "@molecules/LootListDrag"
 import "styled-components/macro"
 
 const Inventory = () => {

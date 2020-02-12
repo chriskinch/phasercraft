@@ -1,9 +1,9 @@
 import React, { useState } from "react"
 import { connect } from "react-redux"
-import { switchUi, toggleUi } from "../../../store/gameReducer";
-import Button from "../atoms/Button"
-import Dialog from "../organisms/Dialog"
-import { dialog_overlay } from "../../themes"
+import { switchUi, toggleUi } from "@store/gameReducer";
+import Button from "@atoms/Button"
+import Dialog from "@organisms/Dialog"
+import { dialog_overlay } from "@UI/themes"
 import "styled-components/macro"
 
 const System = ({state, saveSlot, switchUi, toggleUi}) => {

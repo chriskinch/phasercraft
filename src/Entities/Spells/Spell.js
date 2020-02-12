@@ -1,5 +1,5 @@
 import { GameObjects, Display } from "phaser"
-import store from "../../store"
+import store from "@store"
 
 class Spell extends GameObjects.Sprite {
 	constructor({scene, x, y, key, ...config} = {}) {

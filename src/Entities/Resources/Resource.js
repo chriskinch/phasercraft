@@ -1,8 +1,8 @@
 import { GameObjects } from "phaser"
-import store from "../../store"
-import { setStats, setBaseStats } from "../../store/gameReducer"
+import store from "@store"
+import { setStats, setBaseStats } from "@store/gameReducer"
 import pick from "lodash/pick"
-import mapStateToData from "../../Helpers/mapStateToData"
+import mapStateToData from "@Helpers/mapStateToData"
 
 class Resource extends GameObjects.Sprite {
 

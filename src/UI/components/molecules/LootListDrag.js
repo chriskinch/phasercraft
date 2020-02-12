@@ -2,10 +2,10 @@ import React, { useEffect } from "react"
 import "styled-components/macro"
 import { useDrop, useDrag } from "react-dnd"
 import { getEmptyImage } from "react-dnd-html5-backend"
-import Loot from "../molecules/Loot"
+import Loot from "@molecules/Loot"
 import { connect } from "react-redux"
-import { equipLoot, selectLoot, unequipLoot } from "../../../store/gameReducer"
-import store from "../../../store"
+import { equipLoot, selectLoot, unequipLoot } from "@store/gameReducer"
+import store from "@store"
 
 const LootListDrag = ({cols=4, list, name, selected, equipLoot, selectLoot, unequipLoot}) => {
     // This must go here rather then inside the Loot component due to this bug:

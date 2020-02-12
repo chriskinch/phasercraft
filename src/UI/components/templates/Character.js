@@ -1,5 +1,5 @@
 import React from "react";
-import CharacterCard from "../molecules/CharacterCard";
+import CharacterCard from "@molecules/CharacterCard";
 import 'styled-components/macro';
 
 const Character = () => {
