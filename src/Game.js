@@ -1,10 +1,10 @@
-import Phaser from "phaser";
-import LoadScene from '@Scenes/LoadScene';
-import SelectScene from '@Scenes/SelectScene';
-import GameScene from '@Scenes/GameScene';
-import GameOverScene from '@Scenes/GameOverScene';
-
-import * as React from "react";
+import Phaser from "phaser"
+import TitleScene from "@Scenes/TitleScene"
+import LoadScene from "@Scenes/LoadScene"
+import SelectScene from "@Scenes/SelectScene"
+import GameScene from "@Scenes/GameScene"
+import GameOverScene from "@Scenes/GameOverScene"
+import * as React from "react"
 
 export default class Canvas extends React.Component {
 	componentDidMount() {
@@ -23,6 +23,7 @@ export default class Canvas extends React.Component {
 			},
 			scene: [
 				LoadScene,
+				TitleScene,
 				SelectScene,
 				GameScene,
 				GameOverScene
