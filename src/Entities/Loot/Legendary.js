@@ -5,9 +5,11 @@ class Legendary extends Item {
 		super({
 			base: 170,
 			color: "#ff9900",
-			quality: "legendary",
+			cost: 200,
 			keys: { min: 3, max: 4 },
-			multiplier: 2
+			quality: "legendary",
+			quality_sort: 1,
+			multiplier: 2,
 		});
 	}
 }

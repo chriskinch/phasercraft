@@ -1,5 +1,5 @@
 import React from "react";
-import Stat from "../atoms/Stat";
+import Stat from "@atoms/Stat";
 import 'styled-components/macro';
 
 const Health = ({stats}) => {

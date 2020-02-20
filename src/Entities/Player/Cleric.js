@@ -19,7 +19,7 @@ class Cleric extends Player {
                 health_regen_rate: 1
             },
             resource_type: "Mana",
-            abilities: ["Heal", "Smite"]
+            abilities: ["Heal", "Smite", "PowerInfusion"]
         }
 
         super({...defaults, ...config});

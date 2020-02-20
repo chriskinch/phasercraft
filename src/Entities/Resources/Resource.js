@@ -1,7 +1,8 @@
 import { GameObjects } from "phaser"
-import store from "../../store"
-import { setStats, setBaseStats } from "../../store/gameReducer"
+import store from "@store"
+import { setStats, setBaseStats } from "@store/gameReducer"
 import pick from "lodash/pick"
+import mapStateToData from "@Helpers/mapStateToData"
 
 class Resource extends GameObjects.Sprite {
 
@@ -13,8 +14,8 @@ class Resource extends GameObjects.Sprite {
 		this.name = config.name;
 		this.category = this.regenType(this.name);
 		this.colour = config.colour;
-	
-		this.resources = pick(config, ["resource_max", "resource_value", "resource_regen_rate", "resource_regen_value"]);
+		
+		this.resources = pick(config, this.selectKeys("resource"));
 
 		this.stats = {
 			max: config[`${this.category}_max`],
@@ -22,10 +23,19 @@ class Resource extends GameObjects.Sprite {
 			regen_rate: config[`${this.category}_regen_rate`],
 			regen_value: config[`${this.category}_regen_value`]
 		}
-
+		
 		if(this.container.name === "player") {
 			store.dispatch(setStats(this.resources));
 			store.dispatch(setBaseStats(this.resources));
+
+			// console.log(this.selectKeys(this.category))
+			this.selectKeys(this.category).forEach(key => {
+				mapStateToData(
+					`stats.${key}`,
+					stat => this.stats[this.normaliseStat(key)] = stat,
+					{init: false}
+				);
+			});
 		}
 
 		this.setOrigin(0,0).setDepth(1000);
@@ -54,10 +64,10 @@ class Resource extends GameObjects.Sprite {
 		this.tick = this.setRegenerationRate();
 		// If regen_rate is 0 delay is 0 (very fast) but timer won't unpause.
 		if(this.stats.regen_rate > 0) this.tick.paused = false;
-		
-		this.container.on('boons:calculated', (stats) => {
-			this.setRegenStats(stats[this.category]);
-		}, this);
+	}
+
+	selectKeys(prefix) {
+		return ["max", "value", "regen_value", "regen_rate"].map(key => `${prefix}_${key}`);
 	}
 
 	setValue(new_value) {
@@ -85,10 +95,11 @@ class Resource extends GameObjects.Sprite {
 	}
 
 	drawBar(opt) {
+		const {colour, width, height, depth} = opt;
 		let graphics = this.scene.add.graphics();
-			graphics.fillStyle(opt.colour, 1);
-			graphics.fillRect(0,0,opt.width,opt.height);
-			graphics.setDepth(opt.depth);
+			graphics.fillStyle(colour, 1);
+			graphics.fillRect(0,0,width,height);
+			graphics.setDepth(depth);
 			graphics.x = this.x;
 			graphics.y = this.y;
 
@@ -109,17 +120,18 @@ class Resource extends GameObjects.Sprite {
 	}
 
 	regenType(type) {
-		const t = (type === 'health') ? 'health' : 'resource';
+		const t = (type === 'health') ? 'health' : (type === 'shield') ? 'shield' : 'resource';
 		return t;
 	}
 
-	setRegenStats({max = this.stats.max, regen_value = this.stats.regen_value, regen_rate = this.stats.regen_rate}) {
-		this.stats.max = max;
-        this.stats.regen_value = regen_value;
-		this.stats.regen_rate = regen_rate;
+	setRegen() {
 		// Set the scale of the timer controlling regen rather then deleting and remaking
-		const scale = this.tick.delay / (regen_rate * 1000);
+		const scale = (this.tick) ? this.tick.delay / (this.stats.regen_rate * 1000) : undefined;
 		if(scale) this.tick.timeScale = scale;
+	}
+
+	normaliseStat(key) {
+		return key.split("_").slice(1).join("_")
 	}
 
 	setRegenerationRate(){

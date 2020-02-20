@@ -5,8 +5,10 @@ class Fine extends Item {
 		super({
 			base: 30,
 			color: "#00dd00",
-			quality: "fine",
+			cost: 15,
 			keys: { min: 1, max: 3 },
+			quality: "fine",
+			quality_sort: 4,
 			multiplier: 1.2
 		});
 	}

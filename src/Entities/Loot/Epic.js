@@ -5,8 +5,10 @@ class Epic extends Item {
 		super({
 			base: 100,
 			color: "#9900ff",
-			quality: "epic",
+			cost: 90,
 			keys: { min: 2, max: 3 },
+			quality: "epic",
+			quality_sort: 2,
 			multiplier: 1.5
 		});
 	}

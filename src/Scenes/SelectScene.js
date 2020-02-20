@@ -1,5 +1,5 @@
 import { Scene } from 'phaser';
-import store from "../store";
+import store from "@store";
 
 export default class SelectScene extends Scene {
 	constructor() {
@@ -14,8 +14,10 @@ export default class SelectScene extends Scene {
 		// Save the returned unsub function and call one first action.
 		// Looks like and infinite loop but actually acts like a "once" event.
 		const unsubscribe = store.subscribe(() => {
-			this.chooseCharacter()
-			unsubscribe();			
+			if(store.getState().character) {
+				this.chooseCharacter()
+				unsubscribe();
+			}
 		});
 	}
 

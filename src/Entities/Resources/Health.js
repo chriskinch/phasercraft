@@ -9,6 +9,7 @@ class Health extends Resource {
 			health_value: 1000,
 			health_regen_rate: 1,
 			health_regen_value: 0,
+			shield_value: 0,
 			colour: 0x72ce6f
 		}
 		super({...defaults, ...config});

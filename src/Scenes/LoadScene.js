@@ -1,5 +1,7 @@
 import { Scene, GameObjects } from "phaser";
 import createAnimations from '../Config/animations';
+import store from "@store";
+import { toggleUi } from "@store/gameReducer";
 
 export default class LoadScene extends Scene {
 	preload(){
@@ -37,11 +39,14 @@ export default class LoadScene extends Scene {
 		this.load.image('blank-gif', 'images/blank.gif');
 		this.load.spritesheet('attack-swoosh', 'spritesheets/swoosh.png', { frameWidth: 32, frameHeight: 32 });
 		this.load.spritesheet('coin-spin', 'spritesheets/coin.png', { frameWidth: 16, frameHeight: 16 });
+		this.load.spritesheet('gem-shine', 'spritesheets/gem.png', { frameWidth: 32, frameHeight: 28 });
 		this.load.atlas('dungeon', 'atlas/atlas-dungeon.png', 'atlas/atlas-dungeon.json');
 		this.load.atlas('enemy', 'atlas/atlas-enemy.png', 'atlas/atlas-enemy.json');
 		this.load.atlas('icon', 'atlas/atlas-icons.png', 'atlas/atlas-icons.json');
 		this.load.spritesheet('heal-effect', 'spritesheets/spells/heal.png', { frameWidth: 192, frameHeight: 192 });
 		this.load.spritesheet('siphonsoul-effect', 'spritesheets/spells/heal.png', { frameWidth: 192, frameHeight: 192 });
+		this.load.spritesheet('earthshield-effect', 'spritesheets/spells/earthshield.png', { frameWidth: 150, frameHeight: 105 });
+		this.load.spritesheet('manashield-effect', 'spritesheets/spells/manashield.png', { frameWidth: 50, frameHeight: 50 });
 		this.load.spritesheet('fireball-effect', 'spritesheets/spells/fireball.png', { frameWidth: 87, frameHeight: 87 });
 		this.load.atlas('siphon-soul', 'atlas/spells/atlas-siphonsoul.png', 'atlas/spells/atlas-siphonsoul.json');
 		this.load.spritesheet('smite-effect', 'spritesheets/spells/smite.gif', { frameWidth: 100, frameHeight: 129 });
@@ -52,6 +57,8 @@ export default class LoadScene extends Scene {
 
 	create(){
 		createAnimations(this);
+		store.dispatch(toggleUi("save"));
 		this.scene.start('SelectScene');
+		//console.log(localStorage.getItem('itemname','contents'));
 	}
 }

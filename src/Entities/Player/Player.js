@@ -1,13 +1,14 @@
 import Phaser, { GameObjects } from "phaser"
 import Hero from "./Hero"
-import Weapon from "../Weapon"
-import AssignSpell from "../Spells/AssignSpell"
-import AssignResource from "../Resources/AssignResource"
-import targetVector from "../../Helpers/targetVector"
-import Boons from "../UI/Boons"
-import store from "../../store"
-import { setBaseStats, setStats } from "../../store/gameReducer"
+import Weapon from "@Entities/Weapon"
+import AssignSpell from "@Entities/Spells/AssignSpell"
+import AssignResource from "@Entities/Resources/AssignResource"
+import targetVector from "@Helpers/targetVector"
+import Boons from "@Entities/UI/Boons"
+import store from "@store"
+import { setBaseStats, setStats } from "@store/gameReducer"
 import isEmpty from "lodash/isEmpty"
+import mapStateToData from "@Helpers/mapStateToData"
 
 const converter = require('number-to-words');
 
@@ -65,22 +66,21 @@ class Player extends GameObjects.Container {
 		});
 		this.add(this.resource);
 
+		this.shield = new AssignResource('Shield', {
+			container: this,
+			scene: scene,
+			x: -14,
+			y: -40,
+			...stats
+		});
+		this.add(this.shield);
+
 		this.weapon = new Weapon({scene: scene, key:'weapon-swooch'});
 		this.add(this.weapon);
 
-		this.stats = store.getState().stats;
-		//TODO: Swap out this temp solution to keep stats up to date.
-		store.subscribe(() => {
-			// console.log("UPDATE STATS: ", this.resource)
-			this.resource_stats = {
-				resource_max: this.resource.stats.max,
-				resource_value: this.resource.stats.value,
-				resource_regen_rate: this.resource.stats.regen_rate,
-				resource_regen_value: this.resource.stats.regen_value
-			}
-			// console.log("TYPE: ", this.resource_stats)
-			if(this.stats !== store.getState().stats) this.stats = store.getState().stats;
-		});
+		// This maps the stats section of the store to this.stats.
+		// Updates on store change sing RxJS.
+		mapStateToData("stats", stats => this.stats = stats);
 
 		scene.events.once('player:dead', this.death, this);
 		scene.events.on('enemy:attack', this.hit, this);
@@ -110,6 +110,12 @@ class Player extends GameObjects.Container {
 		scene.events.on('spell:primed', () => this.spellPrimed = true, this);
 		scene.events.on('spell:cast', () => this.spellPrimed = false, this);
 		scene.events.on('spell:cleared', () => this.spellPrimed = false, this);
+
+		// mapStateToData("stats", s => this.stats = s);
+	}
+
+	temp(s) {
+		console.log("CHANGED: ", s, this)
 	}
 
 	drawBar(opt) {
@@ -194,7 +200,10 @@ class Player extends GameObjects.Container {
 	hit(power){
 		const damage = Math.ceil(power * (100/(100+this.stats.defence)));
 		this.scene.events.emit('player:attacked', this);
-		this.health.adjustValue(-damage);
+		const hasShield = this.shield.hasShield();
+		const pool = hasShield ? this.shield : this.health;
+		if(!hasShield) this.scene.events.emit('player:hit', this);
+		pool.adjustValue(-damage);
 	}
 
 	idle(){
@@ -202,11 +211,18 @@ class Player extends GameObjects.Container {
 		this.hero.idle();
 	}
 
+	root(){
+		this.body.setVelocity(0);
+		this.hero.root();
+	}
+
 	goToRange(){
 		let target = this.scene.selected;
 		this.moveTo(target);
 		let distance = Phaser.Math.Distance.Between(target.x,target.y, this.x, this.y);
-		if(distance <= this.stats.range) {
+		let hit_distance = distance - target.hit_radius;
+
+		if(hit_distance <= this.stats.range) {
 			this.idle();
 			this.attack_delay = null;
 			if(this.attack_ready) this.attack(target);
