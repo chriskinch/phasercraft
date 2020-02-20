@@ -1,0 +1,15 @@
+{
+  "files": {
+    "main.css": "/phasercraft/static/css/main.15569215.chunk.css",
+    "main.js": "/phasercraft/static/js/main.f1c6e5ad.chunk.js",
+    "main.js.map": "/phasercraft/static/js/main.f1c6e5ad.chunk.js.map",
+    "runtime~main.js": "/phasercraft/static/js/runtime~main.24b4b948.js",
+    "runtime~main.js.map": "/phasercraft/static/js/runtime~main.24b4b948.js.map",
+    "static/js/2.c0e707df.chunk.js": "/phasercraft/static/js/2.c0e707df.chunk.js",
+    "static/js/2.c0e707df.chunk.js.map": "/phasercraft/static/js/2.c0e707df.chunk.js.map",
+    "index.html": "/phasercraft/index.html",
+    "precache-manifest.4bc7e46eb8ecdf77db9fa656febed61b.js": "/phasercraft/precache-manifest.4bc7e46eb8ecdf77db9fa656febed61b.js",
+    "service-worker.js": "/phasercraft/service-worker.js",
+    "static/css/main.15569215.chunk.css.map": "/phasercraft/static/css/main.15569215.chunk.css.map"
+  }
+}
