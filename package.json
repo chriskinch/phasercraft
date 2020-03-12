@@ -5,6 +5,7 @@
   "homepage": "http://chriskinch.github.io/phasercraft",
   "devDependencies": {
     "babel-loader": "8.0.5",
+    "gh-pages": "^2.2.0",
     "number-to-words": "^1.2.4"
   },
   "dependencies": {
@@ -32,7 +33,9 @@
     "start": "craco start",
     "build": "craco build",
     "test": "craco test --setupFiles ./node_modules/jest-canvas-mock",
-    "eject": "react-scripts eject"
+    "eject": "react-scripts eject",
+    "predeploy": "craco build",
+    "deploy": "gh-pages -d build"
   },
   "eslintConfig": {
     "extends": "react-app"
