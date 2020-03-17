@@ -1,5 +1,6 @@
 {
-  "name": "phasercraft",
+  "name": "@chriskinch/phasercraft",
+  "author": "chriskinch",
   "version": "0.0.6",
   "devDependencies": {
     "babel-loader": "8.0.5",
