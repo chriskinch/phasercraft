@@ -1,7 +1,7 @@
 {
   "name": "@chriskinch/phasercraft",
   "author": "chriskinch",
-  "version": "0.0.8",
+  "version": "0.0.9",
   "devDependencies": {
     "babel-loader": "8.0.5",
     "number-to-words": "^1.2.4"
