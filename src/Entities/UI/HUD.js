@@ -33,7 +33,7 @@ class UI extends GameObjects.Container {
 		mapStateToData("wave", wave => this.wave.text.setText('Wave: ' + wave));
 		mapStateToData("showUi", showUi => (showUi) ? this.scene.scene.pause() : this.scene.scene.resume());
 
-		scene.input.keyboard.on('keyup-P', () => store.dispatch(toggleUi("equipment")), this);
+		scene.input.keyboard.on('keyup-P', () => store.dispatch(toggleUi("character")), this);
 		// TEMP KEYBINDS
 		scene.input.keyboard.on('keyup-R', () => store.dispatch(addLoot(Math.floor(Math.random() * 100))), this);
 

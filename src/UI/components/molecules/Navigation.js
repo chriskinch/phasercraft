@@ -6,7 +6,7 @@ import { pixel_background } from '../../themes';
 
 const Navigation = ({menu, switchUi}) => {
     // Max inventory space is 12
-    const items = ["Equipment", "Armory", "Arcanum"];
+    const items = ["Character", "Equipment", "Armory", "Arcanum"];
 
     return (
         <nav>
