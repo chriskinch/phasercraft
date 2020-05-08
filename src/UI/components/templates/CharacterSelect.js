@@ -2,7 +2,7 @@ import React from "react";
 import CharacterCard from "@molecules/CharacterCard";
 import 'styled-components/macro';
 
-const Character = () => {
+const CharacterSelect = () => {
     return (
         <ol 
             className="character-list"
@@ -22,4 +22,4 @@ const Character = () => {
     );
 }
 
-export default Character;
+export default CharacterSelect;

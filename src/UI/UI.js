@@ -4,7 +4,7 @@ import { pixel_background } from "./themes"
 import { toggleUi } from "@store/gameReducer"
 import Arcanum from "@templates/Arcanum"
 import Armory from "@templates/Armory"
-import Character from "@templates/Character"
+import CharacterSelect from "@templates/CharacterSelect"
 import Equipment from "@templates/Equipment"
 import Header from "@organisms/Header"
 import Save from "@templates/Save"
@@ -25,7 +25,7 @@ const UI = ({ menu, showUi, toggleUi }) => {
             navigation: true
         },
         character: {
-            component: Character,
+            component: CharacterSelect,
             title: "Character Select"
         },
         equipment: {
