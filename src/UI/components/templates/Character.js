@@ -1,13 +1,12 @@
 import React from "react"
 import { connect } from "react-redux"
 import "styled-components/macro"
-import Inventory from "@organisms/Inventory"
 import Slot from "@atoms/Slot"
 import Stats from "@molecules/Stats"
 import StatBar from "@molecules/StatBar"
 import pick from "lodash/pick"
 
-const Character = ({ character, equipment, stats }) => {
+const Character = ({ character, equipment, stats, xp }) => {
     const { amulet, body, helm, weapon } = equipment;
     const { resource_type } = stats;
     const offence_state = pick(stats, ["attack_power", "magic_power", "attack_speed", "critical_chance"]);
@@ -17,17 +16,31 @@ const Character = ({ character, equipment, stats }) => {
     const colour = (resource_type === "Mana") ? "blue" :
         (resource_type === "Rage") ? "red" :
         (resource_type === "Energy") ? "yellow" :
-        "white"; 
-    
+        "white";
+
+    const xpCurve = l => (l*l) + (l*10);
+    const givenXpOf = (exp = 0, count = 1) => {
+        const next = xpCurve(count);
+        const remainder = exp - next;
+        return (remainder < 0) ? {xpRemaining: exp, toNextLevel: next, currentLevel: count} : givenXpOf(remainder, count + 1);
+    }
+    const experience = givenXpOf(xp);
+
     return (
         <div css={`
             display: flex;
         `}>
             <section css={`
-                width: 170px;
+                width: 50%;
             `}>
-                <h2>Level 1</h2>
-                <div>
+                <div css="margin-bottom:0.5em">
+                    <h2 css={`
+                        float:left;
+                        margin-right:0.5em
+                    `}>Level {experience.currentLevel}</h2>
+                    <StatBar colour={"#eee"} label={"XP"} value={experience.xpRemaining} max={experience.toNextLevel} />
+                </div>
+                <div css="clear:both">
                     <img 
                         src={`UI/player/${character}.gif`}
                         alt="This is you!"
@@ -51,22 +64,19 @@ const Character = ({ character, equipment, stats }) => {
                     {support_stats}
                 </Stats>
             </section>
-            <section css="width: 62px; margin: 0 2em;">
+            <section css="width: 50%; margin: 0 2em;">
                 <Slot slot="helm" loot={helm} />
                 <Slot slot="body" loot={body}  />
                 <Slot slot="weapon" loot={weapon}  />
                 <Slot slot="amulet" loot={amulet}  />
-            </section>
-            <section css="flex-grow: 1; padding: 0 6px;">
-                <Inventory />
             </section>
         </div>
     );
 }
 
 const mapStateToProps = (state) => {
-    const { character, equipment, stats } = state;
-    return { character, equipment, stats }
+    const { character, equipment, stats, xp } = state;
+    return { character, equipment, stats, xp }
 };
 
 export default connect(mapStateToProps)(Character);

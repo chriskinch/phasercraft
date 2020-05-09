@@ -22,7 +22,8 @@ const initState = {
     coins: 0,
     selected: null,
     saveSlot: null,
-    wave: 1
+    wave: 1,
+    xp: 13876,
 };
 
 // Actions
