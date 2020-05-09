@@ -23,7 +23,7 @@ const initState = {
     selected: null,
     saveSlot: null,
     wave: 1,
-    xp: 13876,
+    xp: 0,
 };
 
 // Actions
@@ -33,6 +33,10 @@ export const addCoins = createAction("ADD_COIN", value => ({
 
 export const addLoot = createAction("ADD_LOOT", id => ({
     payload: { id }
+}));
+
+export const addXP = createAction("ADD_XP", value => ({
+    payload: { value }
 }));
 
 export const buyLoot = createAction("BUY_LOOT", loot => ({
@@ -114,6 +118,7 @@ export const gameReducer = createReducer(initState, {
         const loot = state.loot[action.payload.id];
         state.inventory.push(loot);
     },
+    [addXP]: (state, action) => { state.xp += action.payload.value },
     [buyLoot]: (state, action) => {
         const { loot } = action.payload;
         remove(state.loot, (l) => l.uuid === loot.uuid);

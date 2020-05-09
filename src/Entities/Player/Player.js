@@ -9,6 +9,7 @@ import store from "@store"
 import { setBaseStats, setStats } from "@store/gameReducer"
 import isEmpty from "lodash/isEmpty"
 import mapStateToData from "@Helpers/mapStateToData"
+// import CombatText from "../UI/CombatText"
 
 const converter = require('number-to-words');
 
@@ -269,7 +270,14 @@ class Player extends GameObjects.Container {
 		this.weapon.setAngle(angle);
 	}
 
-	targetDead(){
+	targetDead(enemy){
+		// this.add(new CombatText(this.scene, {
+		// 	x: 0,
+		// 	y: -30,
+		// 	value: `${enemy.xp} xp`,
+		// 	wander: 0,
+		// 	gravity: 0
+		// }))
 		if(!this.scene.selected) this.idle();
 	}
 

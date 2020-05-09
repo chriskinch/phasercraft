@@ -3,6 +3,8 @@ import AssignResource from "@Entities/Resources/AssignResource"
 import Monster from "./Monster"
 import Coin from "@Entities/Loot/Coin"
 import Gem from "@Entities/Loot/Gem"
+import store from "@store"
+import { addXP } from "@store/gameReducer"
 
 class Enemy extends GameObjects.Container {
 
@@ -37,6 +39,8 @@ class Enemy extends GameObjects.Container {
 
 		this.stats = this.setStats(config.types[this.key], this.set);
 		this.stats.health_value = this.stats.health_max;
+
+		this.xp = this.stats.health_value / 10;
 
 		this.graphics = {};
 		this.graphics.selected = this.drawSelected('selected');
@@ -166,6 +170,7 @@ class Enemy extends GameObjects.Container {
 		this.scene.active_enemies.remove(this);
 		this.decompose();
 		this.dropLoot();
+		store.dispatch(addXP(this.xp));
 	}
 
 	decompose(){

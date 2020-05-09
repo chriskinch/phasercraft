@@ -5,6 +5,8 @@ import Slot from "@atoms/Slot"
 import Stats from "@molecules/Stats"
 import StatBar from "@molecules/StatBar"
 import pick from "lodash/pick"
+import store from '@store';
+
 
 const Character = ({ character, equipment, stats, xp }) => {
     const { amulet, body, helm, weapon } = equipment;
@@ -25,7 +27,7 @@ const Character = ({ character, equipment, stats, xp }) => {
         return (remainder < 0) ? {xpRemaining: exp, toNextLevel: next, currentLevel: count} : givenXpOf(remainder, count + 1);
     }
     const experience = givenXpOf(xp);
-
+    console.log(stats, store.getState().stats)
     return (
         <div css={`
             display: flex;
@@ -51,8 +53,8 @@ const Character = ({ character, equipment, stats, xp }) => {
                             margin-bottom: 1em;
                         `}
                     />
-                    <StatBar colour={"Green"} label={"HP"} value={stats.health_max} />
-                    <StatBar colour={colour} label={"RP"} value={stats.resource_max} />
+                    <StatBar colour={"Green"} label={"HP"} value={stats.health_value} max={stats.health_max} />
+                    <StatBar colour={colour} label={"RP"} value={stats.resource_value} max={stats.resource_max} />
                 </div>
                 <Stats>
                     {offence_state}

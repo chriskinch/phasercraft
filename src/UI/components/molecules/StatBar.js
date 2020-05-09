@@ -4,7 +4,7 @@ import 'styled-components/macro';
 
 const StatBar = ({colour, label, value, max}) => {
     max = max || value;
-    console.log(max)
+
     return (
         <div css={`
             &:before {
