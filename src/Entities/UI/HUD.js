@@ -23,7 +23,6 @@ class UI extends GameObjects.Container {
 			this.setInvetoryIcon(),
 			this.setSystemIcon()
 		];
-		this.setXpBar();
 
 		// Position buttons in the bottom right
 		const {x, y, width, height} = this.scene.zone;
