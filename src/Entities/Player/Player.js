@@ -9,7 +9,7 @@ import store from "@store"
 import { addXP, setBaseStats, setLevel, setStats } from "@store/gameReducer"
 import isEmpty from "lodash/isEmpty"
 import mapStateToData from "@Helpers/mapStateToData"
-// import CombatText from "../UI/CombatText"
+import CombatText from "../UI/CombatText"
 
 const converter = require('number-to-words');
 
@@ -81,8 +81,9 @@ class Player extends GameObjects.Container {
 		this.add(this.weapon);
 
 		// This maps the stats section of the store to this.stats.
-		// Updates on store change sing RxJS.
+		// Updates on store change using RxJS.
 		mapStateToData("stats", stats => this.stats = stats);
+		mapStateToData("level.currentLevel", this.LevelUp.bind(this));
 
 		scene.events.once('player:dead', this.death, this);
 		scene.events.on('enemy:attack', this.hit, this);
@@ -293,6 +294,20 @@ class Player extends GameObjects.Container {
 			toNextLevel: next,
 			currentLevel: count
 		})) : this.setExperience(remainder, count + 1);
+	}
+
+	LevelUp(level) {
+		level > 1 &&
+		this.add(new CombatText(this.scene, {
+			x: 0,
+			y: -30,
+			type: 'level',
+			value: 'LEVEL+',
+			wander: 0,
+			speed: 50,
+			length: 2000,
+			gravity: 50
+		}))
 	}
 
 	createAnimations(type) {
