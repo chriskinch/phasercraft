@@ -8,12 +8,13 @@ import Character from "@templates/Character"
 import CharacterSelect from "@templates/CharacterSelect"
 import Equipment from "@templates/Equipment"
 import Header from "@organisms/Header"
+import HUD from "@templates/HUD"
 import Save from "@templates/Save"
 import System from "@templates/System"
 import CustomDragLayer from "@protons/CustomDragLayer"
 import "styled-components/macro"
 
-const UI = ({ menu, showUi, toggleUi }) => {
+const UI = ({ menu, showHUD, showUi, toggleUi }) => {
     const config = {
         arcanum: {
             component: Arcanum,
@@ -66,6 +67,9 @@ const UI = ({ menu, showUi, toggleUi }) => {
             height:100vh;
             pointer-events: none;
         `}>
+            {showHUD &&
+                <HUD />
+            }
             {showUi &&
                 <div css={`
                     box-sizing: border-box;
@@ -101,8 +105,8 @@ const UI = ({ menu, showUi, toggleUi }) => {
 }
 
 const mapStateToProps = (state) => {
-    const { menu, showUi } = state;
-    return { menu, showUi }
+    const { menu, showUi, showHUD } = state;
+    return { menu, showHUD, showUi }
 };
 
 export default connect(mapStateToProps, { toggleUi })(UI);

@@ -7,6 +7,7 @@ import remove from "lodash/remove"
 
 const initState = {
     character: null,
+    showHUD: false,
     showUi: false,
     menu: "save",
     base_stats: {},
@@ -81,6 +82,10 @@ export const switchUi = createAction("SWITCH_UI", menu => ({
     payload: { menu }
 }));
 
+export const toggleHUD = createAction("TOGGLE_HUD", menu => ({
+    payload: { menu }
+}));
+
 export const toggleUi = createAction("TOGGLE_UI", menu => ({
     payload: { menu }
 }));
@@ -148,6 +153,7 @@ export const gameReducer = createReducer(initState, {
         state.loot = sorted;
     },
     [switchUi]: (state, action) => ({ ...state, ...action.payload }),
+    [toggleHUD]: (state, action) => ({ ...state, showHUD: !state.showHUD, ...action.payload }),
     [toggleUi]: (state, action) => ({ ...state, showUi: !state.showUi, ...action.payload }),
     [unequipLoot]: (state, action) => {
         state.equipment[action.payload.loot.set] = null;

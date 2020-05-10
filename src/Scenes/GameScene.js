@@ -8,7 +8,7 @@ import enemyTypes from "@Config/enemies.json"
 import bossTypes from "@Config/bosses.json"
 import sample from "lodash/sample"
 
-import { generateLootTable, nextWave } from "@store/gameReducer"
+import { generateLootTable, nextWave, toggleHUD } from "@store/gameReducer"
 import store from "@store"
 
 export default class GameScene extends Scene {
@@ -134,7 +134,10 @@ export default class GameScene extends Scene {
 		this.game_over = true;
 		this.physics.pause();
 		this.enemies.runChildUpdate = false;
-		this.time.delayedCall(1500, () => this.scene.start('GameOverScene'), [], this);
+		this.time.delayedCall(1500, () => {
+			store.dispatch(toggleHUD());
+			this.scene.start('GameOverScene');
+		}, [], this);
 	}
 
 	setLevelCompleteUI(){

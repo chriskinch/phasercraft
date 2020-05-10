@@ -18,7 +18,7 @@ const StatBar = ({colour, label, value, max}) => {
                 transform: scaleX(${value/max});
                 transform-origin: left;
             }
-            border: 3px solid black;
+            border: ${label ? '3px' : '2px'} solid black;
             background-color: ${darken(0.3, colour)};
             margin-bottom: 2px;
             overflow: hidden;
@@ -35,9 +35,13 @@ const StatBar = ({colour, label, value, max}) => {
                 top: 0;
             }
         `}>
-            <label css="position:relative;">{label}</label>:
-            <span css="position:relative;">{value}</span>
-            <span css="position:relative;float:right">{max}</span>
+            { label &&
+                <>
+                    <label css="position:relative;">{label}</label>:
+                    <span css="position:relative;">{value}</span>
+                    <span css="position:relative;float:right">{max}</span>
+                </>
+            }
         </div>
     )
 }
