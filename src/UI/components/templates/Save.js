@@ -75,7 +75,7 @@ const Save = ({loadGame, selectCharacter, setSaveSlot, switchUi, load}) => {
                                         selectCharacter(character)
                                     }else{
                                         setSaveSlot(slots[i])
-                                        switchUi("character")
+                                        switchUi("select")
                                     }
                                 }} />
                                 <Button text="Delete" disabled={save ? false : true} onClick={() => {

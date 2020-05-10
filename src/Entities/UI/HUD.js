@@ -1,5 +1,5 @@
 import { GameObjects, Display, Actions } from 'phaser';
-import { toggleUi, addLoot, loadGame } from "@store/gameReducer";
+import { toggleHUD, toggleUi, addLoot, loadGame } from "@store/gameReducer";
 import store from '@store';
 import mapStateToData from "@Helpers/mapStateToData"
 
@@ -31,9 +31,12 @@ class UI extends GameObjects.Container {
 		// Maps coins, wave and showUi sections of the store to various functions.
 		mapStateToData("coins", coins => this.coins.text.setText('Coins: ' + coins));
 		mapStateToData("wave", wave => this.wave.text.setText('Wave: ' + wave));
-		mapStateToData("showUi", showUi => (showUi) ? this.scene.scene.pause() : this.scene.scene.resume());
+		mapStateToData("showUi", showUi => {
+			store.dispatch(toggleHUD());
+			(showUi) ? this.scene.scene.pause() : this.scene.scene.resume()
+		});
 
-		scene.input.keyboard.on('keyup-P', () => store.dispatch(toggleUi("equipment")), this);
+		scene.input.keyboard.on('keyup-P', () => store.dispatch(toggleUi("character")), this);
 		// TEMP KEYBINDS
 		scene.input.keyboard.on('keyup-R', () => store.dispatch(addLoot(Math.floor(Math.random() * 100))), this);
 
@@ -97,10 +100,6 @@ class UI extends GameObjects.Container {
 		
 		button.on('pointerdown', () => store.dispatch(toggleUi("system")), this);
 		return button;
-	}
-
-	toggleMenu(visible) {
-		(visible) ? this.scene.scene.pause() : this.scene.scene.resume();
 	}
 }
 

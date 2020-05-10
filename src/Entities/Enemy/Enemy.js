@@ -38,6 +38,8 @@ class Enemy extends GameObjects.Container {
 		this.stats = this.setStats(config.types[this.key], this.set);
 		this.stats.health_value = this.stats.health_max;
 
+		this.xp = this.stats.health_value / 10;
+
 		this.graphics = {};
 		this.graphics.selected = this.drawSelected('selected');
 		this.add(this.graphics.selected);

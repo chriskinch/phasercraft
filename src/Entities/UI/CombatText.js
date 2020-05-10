@@ -1,7 +1,7 @@
 import { GameObjects } from 'phaser';
 
 class CombatText extends GameObjects.Text {
-	constructor(scene, { x, y, value, type, crit }) {
+	constructor(scene, { x, y, value, type, crit, wander = 1, length = 500, speed = 60, gravity = 200}) {
         const color = {
             physical: '#fff',
             magic: '#ef0',
@@ -9,7 +9,8 @@ class CombatText extends GameObjects.Text {
             bleed: '#f33',
             poison: '#5c5',
             heal: '#7c6',
-            health: '#9c6'
+            health: '#9c6',
+            level: '#8f0'
         }
 
         super(scene, x, y-25, value, { 
@@ -30,8 +31,8 @@ class CombatText extends GameObjects.Text {
         
         this.scene.physics.world.enable(this);
 
-        const rand_plus_minus = Math.random() - 0.5;
-        this.body.setVelocity(120 * rand_plus_minus, -60).setGravityY(200);
+        const rand_plus_minus = (Math.random() - 0.5) * wander;
+        this.body.setVelocity(120 * rand_plus_minus, -speed).setGravityY(gravity);
         this.setOrigin(0.5);
 
         this.scene.add.existing(this);
@@ -39,7 +40,7 @@ class CombatText extends GameObjects.Text {
         this.scene.add.tween({
             targets: this,
             ease: 'Sine.easeInOut',
-            duration: 500,
+            duration: length,
             delay: 250,
             alpha: {
                 from: 1,

@@ -7,10 +7,12 @@ import remove from "lodash/remove"
 
 const initState = {
     character: null,
+    showHUD: false,
     showUi: false,
     menu: "save",
     base_stats: {},
     stats: {},
+    level: {},
     loot: [],
     inventory: [],
     equipment: {
@@ -22,7 +24,8 @@ const initState = {
     coins: 0,
     selected: null,
     saveSlot: null,
-    wave: 1
+    wave: 1,
+    xp: 0,
 };
 
 // Actions
@@ -32,6 +35,10 @@ export const addCoins = createAction("ADD_COIN", value => ({
 
 export const addLoot = createAction("ADD_LOOT", id => ({
     payload: { id }
+}));
+
+export const addXP = createAction("ADD_XP", value => ({
+    payload: { value }
 }));
 
 export const buyLoot = createAction("BUY_LOOT", loot => ({
@@ -60,6 +67,10 @@ export const setBaseStats = createAction("SET_BASE_STATS", base_stats => ({
     payload: { base_stats }
 }));
 
+export const setLevel = createAction("SET_LEVEL", level => ({
+    payload: { level }
+}));
+
 export const setSaveSlot = createAction("SET_SAVE_SLOT", saveSlot => ({
     payload: { saveSlot }
 }));
@@ -73,6 +84,10 @@ export const sortLoot = createAction("SORT_LOOT", (key, order) => ({
 }));
 
 export const switchUi = createAction("SWITCH_UI", menu => ({
+    payload: { menu }
+}));
+
+export const toggleHUD = createAction("TOGGLE_HUD", menu => ({
     payload: { menu }
 }));
 
@@ -113,6 +128,7 @@ export const gameReducer = createReducer(initState, {
         const loot = state.loot[action.payload.id];
         state.inventory.push(loot);
     },
+    [addXP]: (state, action) => { state.xp += action.payload.value },
     [buyLoot]: (state, action) => {
         const { loot } = action.payload;
         remove(state.loot, (l) => l.uuid === loot.uuid);
@@ -134,6 +150,7 @@ export const gameReducer = createReducer(initState, {
     },
     [selectCharacter]: (state, action) => ({ ...state, showUi: false, ...action.payload }),
     [setBaseStats]: (state, action) => {state.base_stats = {...state.base_stats, ...action.payload.base_stats}},
+    [setLevel]: (state, action) => ({ ...state, ...action.payload }),
     [setSaveSlot]: (state, action) => {state.saveSlot = action.payload.saveSlot},
     [setStats]: (state, action) => {state.stats = {...state.stats, ...action.payload.stats}},
     [sortLoot]: (state, action) => {
@@ -142,6 +159,7 @@ export const gameReducer = createReducer(initState, {
         state.loot = sorted;
     },
     [switchUi]: (state, action) => ({ ...state, ...action.payload }),
+    [toggleHUD]: (state, action) => {state.showHUD = !state.showHUD},
     [toggleUi]: (state, action) => ({ ...state, showUi: !state.showUi, ...action.payload }),
     [unequipLoot]: (state, action) => {
         state.equipment[action.payload.loot.set] = null;

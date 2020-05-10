@@ -6,9 +6,10 @@ import AssignResource from "@Entities/Resources/AssignResource"
 import targetVector from "@Helpers/targetVector"
 import Boons from "@Entities/UI/Boons"
 import store from "@store"
-import { setBaseStats, setStats } from "@store/gameReducer"
+import { addXP, setBaseStats, setLevel, setStats } from "@store/gameReducer"
 import isEmpty from "lodash/isEmpty"
 import mapStateToData from "@Helpers/mapStateToData"
+import CombatText from "../UI/CombatText"
 
 const converter = require('number-to-words');
 
@@ -47,6 +48,7 @@ class Player extends GameObjects.Container {
 		}
 
 		this.createAnimations(classification);
+		this.setExperience();
 
 		this.health = new AssignResource('Health', {
 			container: this,
@@ -79,8 +81,9 @@ class Player extends GameObjects.Container {
 		this.add(this.weapon);
 
 		// This maps the stats section of the store to this.stats.
-		// Updates on store change sing RxJS.
+		// Updates on store change using RxJS.
 		mapStateToData("stats", stats => this.stats = stats);
+		mapStateToData("level.currentLevel", this.LevelUp.bind(this));
 
 		scene.events.once('player:dead', this.death, this);
 		scene.events.on('enemy:attack', this.hit, this);
@@ -269,8 +272,42 @@ class Player extends GameObjects.Container {
 		this.weapon.setAngle(angle);
 	}
 
-	targetDead(){
+	targetDead(enemy){
+		store.dispatch(addXP(enemy.xp));
+		this.setExperience();
+		// this.add(new CombatText(this.scene, {
+		// 	x: 0,
+		// 	y: -30,
+		// 	value: `${enemy.xp} xp`,
+		// 	wander: 0,
+		// 	gravity: 0
+		// }))
 		if(!this.scene.selected) this.idle();
+	}
+
+	setExperience(exp = store.getState().xp, count = 1) {
+		const xpCurve = l => (l*l) + (l*10);
+		const next = xpCurve(count);
+		const remainder = exp - next;
+		return (remainder < 0) ? store.dispatch(setLevel({
+			xpRemaining: exp,
+			toNextLevel: next,
+			currentLevel: count
+		})) : this.setExperience(remainder, count + 1);
+	}
+
+	LevelUp(level) {
+		level > 1 &&
+		this.add(new CombatText(this.scene, {
+			x: 0,
+			y: -30,
+			type: 'level',
+			value: 'LEVEL+',
+			wander: 0,
+			speed: 50,
+			length: 2000,
+			gravity: 50
+		}))
 	}
 
 	createAnimations(type) {
