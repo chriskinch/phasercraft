@@ -12,6 +12,7 @@ const initState = {
     menu: "save",
     base_stats: {},
     stats: {},
+    level: {},
     loot: [],
     inventory: [],
     equipment: {
@@ -64,6 +65,10 @@ export const selectLoot = createAction("SELECT_LOOT", (id) => ({
 
 export const setBaseStats = createAction("SET_BASE_STATS", base_stats => ({
     payload: { base_stats }
+}));
+
+export const setLevel = createAction("SET_LEVEL", level => ({
+    payload: { level }
 }));
 
 export const setSaveSlot = createAction("SET_SAVE_SLOT", saveSlot => ({
@@ -145,6 +150,7 @@ export const gameReducer = createReducer(initState, {
     },
     [selectCharacter]: (state, action) => ({ ...state, showUi: false, ...action.payload }),
     [setBaseStats]: (state, action) => {state.base_stats = {...state.base_stats, ...action.payload.base_stats}},
+    [setLevel]: (state, action) => ({ ...state, ...action.payload }),
     [setSaveSlot]: (state, action) => {state.saveSlot = action.payload.saveSlot},
     [setStats]: (state, action) => {state.stats = {...state.stats, ...action.payload.stats}},
     [sortLoot]: (state, action) => {
@@ -153,7 +159,7 @@ export const gameReducer = createReducer(initState, {
         state.loot = sorted;
     },
     [switchUi]: (state, action) => ({ ...state, ...action.payload }),
-    [toggleHUD]: (state, action) => ({ ...state, showHUD: !state.showHUD, ...action.payload }),
+    [toggleHUD]: (state, action) => {state.showHUD = !state.showHUD},
     [toggleUi]: (state, action) => ({ ...state, showUi: !state.showUi, ...action.payload }),
     [unequipLoot]: (state, action) => {
         state.equipment[action.payload.loot.set] = null;

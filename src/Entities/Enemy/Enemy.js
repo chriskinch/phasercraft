@@ -3,8 +3,6 @@ import AssignResource from "@Entities/Resources/AssignResource"
 import Monster from "./Monster"
 import Coin from "@Entities/Loot/Coin"
 import Gem from "@Entities/Loot/Gem"
-import store from "@store"
-import { addXP } from "@store/gameReducer"
 
 class Enemy extends GameObjects.Container {
 
@@ -170,7 +168,6 @@ class Enemy extends GameObjects.Container {
 		this.scene.active_enemies.remove(this);
 		this.decompose();
 		this.dropLoot();
-		store.dispatch(addXP(this.xp));
 	}
 
 	decompose(){

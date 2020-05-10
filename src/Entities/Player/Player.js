@@ -6,7 +6,7 @@ import AssignResource from "@Entities/Resources/AssignResource"
 import targetVector from "@Helpers/targetVector"
 import Boons from "@Entities/UI/Boons"
 import store from "@store"
-import { setBaseStats, setStats } from "@store/gameReducer"
+import { addXP, setBaseStats, setLevel, setStats } from "@store/gameReducer"
 import isEmpty from "lodash/isEmpty"
 import mapStateToData from "@Helpers/mapStateToData"
 // import CombatText from "../UI/CombatText"
@@ -48,6 +48,7 @@ class Player extends GameObjects.Container {
 		}
 
 		this.createAnimations(classification);
+		this.setExperience();
 
 		this.health = new AssignResource('Health', {
 			container: this,
@@ -271,6 +272,8 @@ class Player extends GameObjects.Container {
 	}
 
 	targetDead(enemy){
+		store.dispatch(addXP(enemy.xp));
+		this.setExperience();
 		// this.add(new CombatText(this.scene, {
 		// 	x: 0,
 		// 	y: -30,
@@ -279,6 +282,17 @@ class Player extends GameObjects.Container {
 		// 	gravity: 0
 		// }))
 		if(!this.scene.selected) this.idle();
+	}
+
+	setExperience(exp = store.getState().xp, count = 1) {
+		const xpCurve = l => (l*l) + (l*10);
+		const next = xpCurve(count);
+		const remainder = exp - next;
+		return (remainder < 0) ? store.dispatch(setLevel({
+			xpRemaining: exp,
+			toNextLevel: next,
+			currentLevel: count
+		})) : this.setExperience(remainder, count + 1);
 	}
 
 	createAnimations(type) {

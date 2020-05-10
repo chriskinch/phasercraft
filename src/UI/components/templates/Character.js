@@ -5,10 +5,8 @@ import Slot from "@atoms/Slot"
 import Stats from "@molecules/Stats"
 import StatBar from "@molecules/StatBar"
 import pick from "lodash/pick"
-import store from '@store';
 
-
-const Character = ({ character, equipment, stats, xp }) => {
+const Character = ({ character, equipment, stats, level }) => {
     const { amulet, body, helm, weapon } = equipment;
     const { resource_type } = stats;
     const offence_state = pick(stats, ["attack_power", "magic_power", "attack_speed", "critical_chance"]);
@@ -20,14 +18,6 @@ const Character = ({ character, equipment, stats, xp }) => {
         (resource_type === "Energy") ? "yellow" :
         "white";
 
-    const xpCurve = l => (l*l) + (l*10);
-    const givenXpOf = (exp = 0, count = 1) => {
-        const next = xpCurve(count);
-        const remainder = exp - next;
-        return (remainder < 0) ? {xpRemaining: exp, toNextLevel: next, currentLevel: count} : givenXpOf(remainder, count + 1);
-    }
-    const experience = givenXpOf(xp);
-    console.log(stats, store.getState().stats)
     return (
         <div css={`
             display: flex;
@@ -39,8 +29,8 @@ const Character = ({ character, equipment, stats, xp }) => {
                     <h2 css={`
                         float:left;
                         margin-right:0.5em
-                    `}>Level {experience.currentLevel}</h2>
-                    <StatBar colour={"#eee"} label={"XP"} value={experience.xpRemaining} max={experience.toNextLevel} />
+                    `}>Level {level.currentLevel}</h2>
+                    <StatBar colour={"#eee"} label={"XP"} value={level.xpRemaining} max={level.toNextLevel} />
                 </div>
                 <div css="clear:both">
                     <img 
@@ -77,8 +67,8 @@ const Character = ({ character, equipment, stats, xp }) => {
 }
 
 const mapStateToProps = (state) => {
-    const { character, equipment, stats, xp } = state;
-    return { character, equipment, stats, xp }
+    const { character, equipment, stats, level } = state;
+    return { character, equipment, stats, level }
 };
 
 export default connect(mapStateToProps)(Character);
