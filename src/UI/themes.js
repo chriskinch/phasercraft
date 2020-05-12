@@ -44,12 +44,9 @@ export const pixel_emboss = ({rgb = "0,0,0", a = 0.1} = {}) => {
         border-top: ${depth} solid rgba(${rgb},${a});
         box-shadow: 0 -${depth} 0 rgba(${rgb},${a*3});
         box-sizing: border-box;
-        height: auto;
-        line-height: 20px;
         position: relative;
         margin: ${depth};
         text-align: center;
-        width: 100%;
         &:before {
             background: rgba(${rgb},${a});
             border-top: ${depth} solid rgba(${rgb},${a});

@@ -1,6 +1,7 @@
 import React from "react"
 import { connect } from "react-redux"
 import "styled-components/macro"
+import { pixel_emboss } from "@UI/themes"
 import Button from "@atoms/Button"
 import Stock from "@organisms/Stock"
 import { buyLoot, generateLootTable, sortLoot } from "@store/gameReducer"
@@ -9,9 +10,12 @@ import store from "@store"
 const Armory = ({coins, buyLoot, sortLoot, generateLootTable}) => {
     return (
         <div css={`
-            display: flex;
+            display: grid;
+            grid-template-columns: 96px 1fr;
+            grid-gap: 2em;
+            height: 100%;
         `}>
-            <section css="width: 96px; margin-right: 2em;">
+            <section>
                 <h3>Sort</h3>
                 <Button text="Quality" onClick={() => sortLoot("quality_sort", "ascending")} />
                 <Button text="Stats" onClick={() => sortLoot("stat_pool", "decending")} />
@@ -26,7 +30,10 @@ const Armory = ({coins, buyLoot, sortLoot, generateLootTable}) => {
                 }} />
                 <Button text="Restock" onClick={() => generateLootTable(99)} />
             </section>
-            <section css="flex-grow: 1; padding: 0 6px;">
+            <section css={`
+                ${ pixel_emboss }
+                padding: 0.5em;
+            `}>
                 <Stock />
             </section>
         </div>

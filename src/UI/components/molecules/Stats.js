@@ -7,7 +7,6 @@ const Stats = ({ info, children: { health, resource, ...stats }, styles={} }) =>
         <dl css={`
             clear: both;
             overflow:hidden;
-            font-size: ${styles.size || 1}em;
             margin: 0;
             width: ${styles.width || 'auto'};
         `}>

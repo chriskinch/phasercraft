@@ -1,7 +1,7 @@
 import React from "react";
 import 'styled-components/macro';
 
-const Stat = ({delimeter=":", icon, info, label, value, vw = "35px"}) => {
+const Stat = ({delimeter=":", icon, info, label, value}) => {
     const formatted_label = info && info[label].short ? info[label].short : label.split("_").join(" ");
     console.log(info, info && info.short )
     const icon_css = (icon) ? `
@@ -17,6 +17,7 @@ const Stat = ({delimeter=":", icon, info, label, value, vw = "35px"}) => {
                 ${icon_css}
                 clear: left;
                 float: left;
+                margin-right: 0.5em;
                 text-align: left;
                 text-transform: capitalize;
                 white-space: nowrap;
@@ -24,7 +25,6 @@ const Stat = ({delimeter=":", icon, info, label, value, vw = "35px"}) => {
             <dd css={`
                 float: right;
                 margin-left: 0;
-                min-width: ${vw};
             `}>{ formatted_value }</dd>
         </>
     )

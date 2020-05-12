@@ -24,8 +24,9 @@ const Character = ({ character, equipment, stats, level }) => {
     return (
         <div css={`
             display: grid;
-            grid-template-columns: 3fr 5fr;
-            grid-gap: 2em;
+            grid-template-columns: 170px 1fr;
+            grid-gap: 1em;
+            height: 100%;
         `}>
             <section>
                 <div css="margin-bottom:0.5em">
@@ -46,8 +47,8 @@ const Character = ({ character, equipment, stats, level }) => {
                             margin-bottom: 1em;
                         `}
                     />
-                    <StatBar colour={"Green"} label={"HP"} value={stats.health_value} max={stats.health_max} />
-                    <StatBar colour={colour} label={"RP"} value={stats.resource_value} max={stats.resource_max} />
+                    <StatBar colour={"Green"} label={"HP"} value={stats.health_max} />
+                    <StatBar colour={colour} label={"RP"} value={stats.health_max} />
                 </div>
                 <Stats>
                     {offence_state}
@@ -64,6 +65,8 @@ const Character = ({ character, equipment, stats, level }) => {
                 padding: 0.5em;
                 display: grid;
                 grid-template-columns: 1fr 1fr;
+                grid-template-rows: min-content min-content;
+                grid-gap: 1em;
             `}>
                 <Slot slot="helm" loot={helm} component={DetailedLoot} />
                 <Slot slot="body" loot={body} component={DetailedLoot} />

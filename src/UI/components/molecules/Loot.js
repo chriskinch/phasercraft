@@ -7,7 +7,7 @@ const Loot = ({id, loot, isSelected, setSelected}) => {
     return (
         <>
             <Tooltip id={id} loot={loot} />
-            <div data-tip data-for={id} onClick={ setSelected ? () => setSelected() : null }>
+            <div data-tip data-for={id} onClick={ setSelected ? () => setSelected() : null } css={'line-height: 0;'}>
                 <LootIcon {...loot} id={id} selected={isSelected} />
             </div>
         </>

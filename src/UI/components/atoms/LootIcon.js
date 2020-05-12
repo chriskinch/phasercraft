@@ -8,6 +8,7 @@ const LootIcon = ({ category, color, icon, selected, styles={} }) => {
             border-radius: 0.25em;
             padding: 3px;
             background: white;
+            width: ${styles.width || 24}px;
             ${styles.override}
         `} src={`graphics/images/loot/${category}/${icon}.png`} alt="Loot!" />
     )

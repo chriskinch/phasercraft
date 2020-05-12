@@ -1,13 +1,14 @@
 import React from "react"
 import { connect } from "react-redux"
 import "styled-components/macro"
+import { pixel_emboss } from "@UI/themes"
 import Inventory from "@organisms/Inventory"
 import DroppableSlot from "@atoms/DroppableSlot"
 import Stats from "@molecules/Stats"
 import StatBar from "@molecules/StatBar"
 import pick from "lodash/pick"
 
-const Equipment = ({ character, equipment, stats }) => {
+const Equipment = ({ character, equipment, stats, level }) => {
     const { amulet, body, helm, weapon } = equipment;
     const { resource_type } = stats;
     const offence_state = pick(stats, ["attack_power", "magic_power", "attack_speed", "critical_chance"]);
@@ -21,12 +22,13 @@ const Equipment = ({ character, equipment, stats }) => {
     
     return (
         <div css={`
-            display: flex;
+            display: grid;
+            grid-template-columns: 170px 56px 1fr;
+            grid-gap: 2em;
+            height: 100%;
         `}>
-            <section css={`
-                width: 180px;
-            `}>
-                <h2>Level 1</h2>
+            <section>
+                <h2 css="margin-bottom:0.5em">Level {level.currentLevel}</h2>
                 <div>
                     <img 
                         src={`UI/player/${character}.gif`}
@@ -52,17 +54,18 @@ const Equipment = ({ character, equipment, stats }) => {
                 </Stats>
             </section>
             <section css={`
-                width: 54px;
-                margin: 0 2em;
                 display: grid;
-                grid-template-rows: 1fr 1fr 1fr 1fr;
+                grid-template-rows: repeat(4, 1fr);
             `}>
                 <DroppableSlot slot="helm" loot={helm} />
                 <DroppableSlot slot="body" loot={body}  />
                 <DroppableSlot slot="weapon" loot={weapon}  />
                 <DroppableSlot slot="amulet" loot={amulet}  />
             </section>
-            <section css="display: flex; flex-grow:1; padding: 0 6px;">
+            <section css={`
+                ${ pixel_emboss }
+                padding: 0.5em;
+            `}>
                 <Inventory />
             </section>
         </div>
@@ -70,8 +73,8 @@ const Equipment = ({ character, equipment, stats }) => {
 }
 
 const mapStateToProps = (state) => {
-    const { character, equipment, stats } = state;
-    return { character, equipment, stats }
+    const { character, equipment, stats, level } = state;
+    return { character, equipment, stats, level }
 };
 
 export default connect(mapStateToProps)(Equipment);

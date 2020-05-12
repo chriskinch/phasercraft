@@ -12,9 +12,8 @@ const DetailedLoot = ({id, loot}) => {
             padding: 0.25em;
             border: 3px solid #333;
             border-radius: 0.25em;
-            margin-bottom: 0.25em;
         `}>
-            <LootIcon {...loot} id={id} styles={{override: 'margin-right:0.5em; width:16px;'}} />
+            <LootIcon {...loot} id={id} styles={{width:16, override:'margin-right:0.5em;'}} />
             <Stats info={loot.info} styles={{width:'100%'}}>{ loot.stats }</Stats>
         </div>
     );

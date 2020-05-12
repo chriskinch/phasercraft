@@ -91,7 +91,7 @@ const UI = ({ menu, showHUD, showUi, toggleUi }) => {
                         css={`
                             ${ menu === "system" ? null : pixel_background() }
                             margin: 0 auto;
-                            padding: 1em;
+                            padding: calc(1em + 6px) 1em 1em;
                             width: ${ menu === "system" ? "200px" : "100%"};
                         `}
                     >

@@ -10,12 +10,13 @@ const Tooltip = ({ id, loot }) => {
         <ReactTooltip 
             id={id}
             css={`
-                border: 5px solid ${color}
+                border: 5px solid ${color};
+                font-size: 1em;
             `}
             type="light"
             globalEventOff="click"
         >
-            <Stats size={1.2} info={info}>{ stats }</Stats>
+            <Stats info={info}>{ stats }</Stats>
             <Price cost={cost} color={color} />
         </ReactTooltip>
     );
