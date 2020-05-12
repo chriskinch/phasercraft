@@ -2,7 +2,7 @@ import React from "react"
 import { connect } from "react-redux"
 import "styled-components/macro"
 import Inventory from "@organisms/Inventory"
-import Slot from "@atoms/Slot"
+import DroppableSlot from "@atoms/DroppableSlot"
 import Stats from "@molecules/Stats"
 import StatBar from "@molecules/StatBar"
 import pick from "lodash/pick"
@@ -24,7 +24,7 @@ const Equipment = ({ character, equipment, stats }) => {
             display: flex;
         `}>
             <section css={`
-                width: 170px;
+                width: 180px;
             `}>
                 <h2>Level 1</h2>
                 <div>
@@ -51,13 +51,18 @@ const Equipment = ({ character, equipment, stats }) => {
                     {support_stats}
                 </Stats>
             </section>
-            <section css="width: 62px; margin: 0 2em;">
-                <Slot slot="helm" loot={helm} />
-                <Slot slot="body" loot={body}  />
-                <Slot slot="weapon" loot={weapon}  />
-                <Slot slot="amulet" loot={amulet}  />
+            <section css={`
+                width: 54px;
+                margin: 0 2em;
+                display: grid;
+                grid-template-rows: 1fr 1fr 1fr 1fr;
+            `}>
+                <DroppableSlot slot="helm" loot={helm} />
+                <DroppableSlot slot="body" loot={body}  />
+                <DroppableSlot slot="weapon" loot={weapon}  />
+                <DroppableSlot slot="amulet" loot={amulet}  />
             </section>
-            <section css="flex-grow: 1; padding: 0 6px;">
+            <section css="display: flex; flex-grow:1; padding: 0 6px;">
                 <Inventory />
             </section>
         </div>

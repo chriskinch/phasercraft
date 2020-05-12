@@ -4,11 +4,14 @@ import "styled-components/macro"
 import Slot from "@atoms/Slot"
 import Stats from "@molecules/Stats"
 import StatBar from "@molecules/StatBar"
+import DetailedLoot from "@molecules/DetailedLoot"
 import pick from "lodash/pick"
+import { pixel_emboss } from "@UI/themes"
 
 const Character = ({ character, equipment, stats, level }) => {
     const { amulet, body, helm, weapon } = equipment;
     const { resource_type } = stats;
+    console.log(stats)
     const offence_state = pick(stats, ["attack_power", "magic_power", "attack_speed", "critical_chance"]);
     const defence_stats = pick(stats, ["health_regen_rate", "health_regen_value", "defence", "speed"]);
     const support_stats = pick(stats, ["resource_regen_rate", "resource_regen_value"]);
@@ -20,11 +23,11 @@ const Character = ({ character, equipment, stats, level }) => {
 
     return (
         <div css={`
-            display: flex;
+            display: grid;
+            grid-template-columns: 3fr 5fr;
+            grid-gap: 2em;
         `}>
-            <section css={`
-                width: 50%;
-            `}>
+            <section>
                 <div css="margin-bottom:0.5em">
                     <h2 css={`
                         float:left;
@@ -56,11 +59,16 @@ const Character = ({ character, equipment, stats, level }) => {
                     {support_stats}
                 </Stats>
             </section>
-            <section css="width: 50%; margin: 0 2em;">
-                <Slot slot="helm" loot={helm} />
-                <Slot slot="body" loot={body}  />
-                <Slot slot="weapon" loot={weapon}  />
-                <Slot slot="amulet" loot={amulet}  />
+            <section css={`
+                ${ pixel_emboss }
+                padding: 0.5em;
+                display: grid;
+                grid-template-columns: 1fr 1fr;
+            `}>
+                <Slot slot="helm" loot={helm} component={DetailedLoot} />
+                <Slot slot="body" loot={body} component={DetailedLoot} />
+                <Slot slot="weapon" loot={weapon} component={DetailedLoot} />
+                <Slot slot="amulet" loot={amulet} component={DetailedLoot} />
             </section>
         </div>
     );

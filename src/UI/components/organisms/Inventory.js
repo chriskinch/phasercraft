@@ -9,9 +9,6 @@ const Inventory = () => {
     return (
         <div css={`
             ${ pixel_emboss }
-            height: 100%;
-            padding-top: 0.75em;
-            width: 100%;
         `}>
             <LootListDrag list={inventory} name={"inventory"} />
         </div>

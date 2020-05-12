@@ -69,7 +69,7 @@ class Item {
 
 	adjustStats(stat) {
 		const funcs = {
-			attack_power: (v) => ({...stat, adjusted: v/2, format: "basic"}),
+			attack_power: (v) => ({...stat, adjusted: v/2, format: "basic", label: "Attack Power", short: "Atk Pwr", abr: "AP"}),
 			attack_speed: (v) => ({...stat, adjusted: -v/1000, format: "percent"}),
 			critical_chance: (v) => ({...stat, adjusted: v/1000, format: "percent"}),
 			defence: (v) => ({...stat, adjusted: v/2, format: "basic"}),

@@ -21,7 +21,7 @@ const initState = {
         helm: null,
         weapon: null
     },
-    coins: 0,
+    coins: 999,
     selected: null,
     saveSlot: null,
     wave: 1,
@@ -87,8 +87,8 @@ export const switchUi = createAction("SWITCH_UI", menu => ({
     payload: { menu }
 }));
 
-export const toggleHUD = createAction("TOGGLE_HUD", menu => ({
-    payload: { menu }
+export const toggleHUD = createAction("TOGGLE_HUD", showHUD => ({
+    payload: { showHUD }
 }));
 
 export const toggleUi = createAction("TOGGLE_UI", menu => ({
@@ -159,7 +159,7 @@ export const gameReducer = createReducer(initState, {
         state.loot = sorted;
     },
     [switchUi]: (state, action) => ({ ...state, ...action.payload }),
-    [toggleHUD]: (state, action) => {state.showHUD = !state.showHUD},
+    [toggleHUD]: (state, action) => ({ ...state, ...action.payload }),
     [toggleUi]: (state, action) => ({ ...state, showUi: !state.showUi, ...action.payload }),
     [unequipLoot]: (state, action) => {
         state.equipment[action.payload.loot.set] = null;

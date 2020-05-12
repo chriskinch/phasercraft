@@ -70,6 +70,8 @@ const LootListDrag = ({cols=4, list, name, selected, equipLoot, selectLoot, uneq
                 height: calc(100vh - 145px);
                 width: 100%;
                 overflow-y: scroll;
+                position: relative;
+                top: 0.75em;
             `}
         >
             { list &&
