@@ -78,9 +78,9 @@ class Item {
 			attack_speed: (v) => ({...stat, adjusted: -v/1000, format: "percent", label: "Attack Speed", short: "Atk Spd", abr: "AS"}),
 			critical_chance: (v) => ({...stat, adjusted: v/10, format: "percent", label: "Critical Chance", short: "Crit", abr: "C"}),
 			defence: (v) => ({...stat, adjusted: v/2, format: "basic", label: "Defence", short: "Def", abr: "D"}),
-			health_max: (v) => ({...stat, adjusted: v, format: "basic", label: "Health Max", short: "Health", abr: "H"}),
+			health_max: (v) => ({...stat, adjusted: v*4, format: "basic", label: "Health Max", short: "Health", abr: "H"}),
 			health_regen_rate: (v) => ({...stat, adjusted: -v/1000, format: "percent", label: "Regen Rate", short: "Reg R", abr: "RR"}),
-			health_regen_value: (v) => ({...stat, adjusted: v/20, format: "basic", label: "Regen Value", short: "Reg V", abr: "RV"}),
+			health_regen_value: (v) => ({...stat, adjusted: v/10, format: "basic", label: "Regen Value", short: "Reg V", abr: "RV"}),
 			magic_power: (v) => ({...stat, adjusted: v/2, format: "basic", label: "Magic Power", short: "Mgc Pwr", abr: "MP"}),
 			speed: (v) => ({...stat, adjusted: v/10, format: "basic", label: "Speed", short: "Spd", abr: "S"}),
 			default: (v) => ({...stat, adjusted: v, format: "basic", label: "Default", short: "Default", abr: "Default"})
