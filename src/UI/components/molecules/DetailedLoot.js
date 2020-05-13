@@ -3,7 +3,7 @@ import "styled-components/macro"
 import LootIcon from "@atoms/LootIcon"
 import Stats from "@molecules/Stats"
 
-const DetailedLoot = ({id, loot}) => {
+const DetailedLoot = ({id, loot, compare}) => {
     return (
         <div css={`
             display: flex;
@@ -14,7 +14,7 @@ const DetailedLoot = ({id, loot}) => {
             border-radius: 0.25em;
         `}>
             <LootIcon {...loot} id={id} styles={{width:16, override:'margin-right:0.5em;'}} />
-            <Stats info={loot.info} styles={{width:'100%'}}>{ loot.stats }</Stats>
+            <Stats info={loot.info} compare={compare} styles={{width:'100%'}}>{ loot.stats }</Stats>
         </div>
     );
 };

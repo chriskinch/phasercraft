@@ -3,16 +3,16 @@ import "styled-components/macro"
 
 import { pixel_emboss } from "@UI/themes"
 
-const Slot = ({loot, component, background}) => {
+const Slot = ({loot, component, background, compare}) => {
     const Component = component;
     return (
         <div 
             css={`
                 ${background ? pixel_emboss : ""}
-                text-transform: capitalize;
+                text-transform: capitalize;         
             `}
         >
-            { loot && <Component loot={loot} /> }
+            { loot && <Component loot={loot} compare={compare} /> }
         </div>
     );
 }

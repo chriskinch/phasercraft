@@ -2,9 +2,9 @@ import React from "react"
 import { connect } from "react-redux"
 import "styled-components/macro"
 import Slot from "@atoms/Slot"
+import DetailedLoot from "@molecules/DetailedLoot"
 import GroupedStats from "@organisms/GroupedStats"
 import StatBar from "@molecules/StatBar"
-import DetailedLoot from "@molecules/DetailedLoot"
 import { pixel_emboss } from "@UI/themes"
 
 const Character = ({ character, equipment: { amulet, body, helm, weapon }, stats, stats: { resource_type }, level }) => {
@@ -47,10 +47,10 @@ const Character = ({ character, equipment: { amulet, body, helm, weapon }, stats
                 grid-template-rows: min-content min-content;
                 grid-gap: 1em;
             `}>
-                <Slot slot="helm" loot={helm} component={DetailedLoot} />
-                <Slot slot="body" loot={body} component={DetailedLoot} />
-                <Slot slot="weapon" loot={weapon} component={DetailedLoot} />
-                <Slot slot="amulet" loot={amulet} component={DetailedLoot} />
+                <Slot loot={helm} component={DetailedLoot} />
+                <Slot loot={body} component={DetailedLoot} />
+                <Slot loot={weapon} component={DetailedLoot} />
+                <Slot loot={amulet} component={DetailedLoot} />
             </section>
         </div>
     );

@@ -1,6 +1,7 @@
 import sample from "lodash/sample"
 import findKey from "lodash/findKey"
 import random from "lodash/random"
+import round from "lodash/round"
 
 class Item {
 	constructor(config) {
@@ -27,9 +28,9 @@ class Item {
 		keys.forEach((key, i) => {
 			const stat = it.next(key);
 			const converted = this.adjustStats(stat);
-			// console.log(converted);
-			this.stats[key] = converted.adjusted;
-			this.info[key] = converted;
+			const normalised = this.round(converted);
+			this.stats[key] = normalised.rounded;
+			this.info[key] = normalised;
 		});
 		this.category = this.getCategory();
 		this.icon = this.getIcon(this.category);
@@ -37,6 +38,10 @@ class Item {
 
 		this.uuid = Math.round(Math.random() * 1000000);
 		// console.log(this.quality, this, this.stat_pool)
+	}
+
+	round(stat) {
+		return {...stat, rounded: stat.format === "percent" ? Math.ceil((stat.adjusted + Number.EPSILON) * 100) / 100 : Math.ceil(stat.adjusted)};
 	}
 
 	generateStatPool(base) {
@@ -71,7 +76,7 @@ class Item {
 		const funcs = {
 			attack_power: (v) => ({...stat, adjusted: v/2, format: "basic", label: "Attack Power", short: "Atk Pwr", abr: "AP"}),
 			attack_speed: (v) => ({...stat, adjusted: -v/1000, format: "percent", label: "Attack Speed", short: "Atk Spd", abr: "AS"}),
-			critical_chance: (v) => ({...stat, adjusted: v/1000, format: "percent", label: "Critical Chance", short: "Crit", abr: "C"}),
+			critical_chance: (v) => ({...stat, adjusted: v/10, format: "percent", label: "Critical Chance", short: "Crit", abr: "C"}),
 			defence: (v) => ({...stat, adjusted: v/2, format: "basic", label: "Defence", short: "Def", abr: "D"}),
 			health_max: (v) => ({...stat, adjusted: v, format: "basic", label: "Health Max", short: "Health", abr: "H"}),
 			health_regen_rate: (v) => ({...stat, adjusted: -v/1000, format: "percent", label: "Regen Rate", short: "Reg R", abr: "RR"}),
