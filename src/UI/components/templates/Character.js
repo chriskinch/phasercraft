@@ -2,25 +2,12 @@ import React from "react"
 import { connect } from "react-redux"
 import "styled-components/macro"
 import Slot from "@atoms/Slot"
-import Stats from "@molecules/Stats"
+import GroupedStats from "@organisms/GroupedStats"
 import StatBar from "@molecules/StatBar"
 import DetailedLoot from "@molecules/DetailedLoot"
-import pick from "lodash/pick"
 import { pixel_emboss } from "@UI/themes"
 
-const Character = ({ character, equipment, stats, level }) => {
-    const { amulet, body, helm, weapon } = equipment;
-    const { resource_type } = stats;
-    console.log(stats)
-    const offence_state = pick(stats, ["attack_power", "magic_power", "attack_speed", "critical_chance"]);
-    const defence_stats = pick(stats, ["health_regen_rate", "health_regen_value", "defence", "speed"]);
-    const support_stats = pick(stats, ["resource_regen_rate", "resource_regen_value"]);
-
-    const colour = (resource_type === "Mana") ? "blue" :
-        (resource_type === "Rage") ? "red" :
-        (resource_type === "Energy") ? "yellow" :
-        "white";
-
+const Character = ({ character, equipment: { amulet, body, helm, weapon }, stats, stats: { resource_type }, level }) => {
     return (
         <div css={`
             display: grid;
@@ -47,18 +34,10 @@ const Character = ({ character, equipment, stats, level }) => {
                             margin-bottom: 1em;
                         `}
                     />
-                    <StatBar colour={"Green"} label={"HP"} value={stats.health_max} />
-                    <StatBar colour={colour} label={"RP"} value={stats.health_max} />
+                    <StatBar type={"health"} label={"HP"} value={stats.health_max} />
+                    <StatBar type={resource_type} label={"RP"} value={stats.health_max} />
                 </div>
-                <Stats>
-                    {offence_state}
-                </Stats>
-                <Stats>
-                    {defence_stats}
-                </Stats>
-                <Stats>
-                    {support_stats}
-                </Stats>
+                <GroupedStats stats={stats} />
             </section>
             <section css={`
                 ${ pixel_emboss }

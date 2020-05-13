@@ -10,6 +10,7 @@ const LootList = ({cols=4, list, selected, selectLoot}) => {
             css={`
                 display: grid;
                 grid-template-columns: repeat(${cols}, 1fr);
+                grid-gap: 0.5em;
                 height: calc(100vh - 158px);
                 overflow-y: scroll;
             `}

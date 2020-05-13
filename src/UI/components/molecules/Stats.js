@@ -10,7 +10,7 @@ const Stats = ({ info, children: { health, resource, ...stats }, styles={} }) =>
             margin: 0;
             width: ${styles.width || 'auto'};
         `}>
-            { Object.entries(stats).map((stat, i) => <Stat key={i} label={stat[0]} value={stat[1]} info={info} /> ) }
+            { Object.entries(stats).map((stat, i) => <Stat key={i} type={stat[0]} label='label' value={stat[1]} info={info} /> ) }
         </dl>
     )
 }
