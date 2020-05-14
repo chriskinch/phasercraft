@@ -5,12 +5,13 @@ import { connect } from "react-redux"
 import { selectLoot } from "@store/gameReducer"
 
 const LootList = ({cols=4, list, selected, selectLoot}) => {
-    return (
+    return ( 
         <div 
             css={`
                 display: grid;
                 grid-template-columns: repeat(${cols}, 1fr);
                 grid-gap: 0.5em;
+                grid-auto-rows: min-content;
                 height: calc(100vh - 158px);
                 overflow-y: scroll;
             `}
@@ -19,9 +20,13 @@ const LootList = ({cols=4, list, selected, selectLoot}) => {
                 list.map((loot, i) => {
                     // Check for matching selected uuid
                     const isSelected = selected ? selected.uuid === loot.uuid : null;
-                    return <Loot loot={loot} isSelected={isSelected} setSelected={() => {
-                        selectLoot(loot)
-                    }} key={i} id={i.toString()} />
+                    return <Loot 
+                        loot={loot}
+                        isSelected={isSelected}
+                        setSelected={() => { selectLoot(loot) }}
+                        key={i}
+                        id={i.toString()}
+                    />
                 })
             }
         </div>

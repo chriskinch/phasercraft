@@ -1,7 +1,6 @@
 import sample from "lodash/sample"
 import findKey from "lodash/findKey"
 import random from "lodash/random"
-import round from "lodash/round"
 
 class Item {
 	constructor(config) {

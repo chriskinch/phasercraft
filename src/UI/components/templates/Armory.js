@@ -4,15 +4,16 @@ import "styled-components/macro"
 import { pixel_emboss } from "@UI/themes"
 import Button from "@atoms/Button"
 import Stock from "@organisms/Stock"
-import { buyLoot, generateLootTable, sortLoot } from "@store/gameReducer"
+import { buyLoot, generateLootTable, filterLoot, sortLoot } from "@store/gameReducer"
 import store from "@store"
+import _ from "lodash"
 
-const Armory = ({coins, buyLoot, sortLoot, generateLootTable}) => {
+const Armory = ({coins, loot, filterLoot, buyLoot, sortLoot, generateLootTable}) => {
     return (
         <div css={`
             display: grid;
-            grid-template-columns: 96px 1fr;
-            grid-gap: 2em;
+            grid-template-columns: 84px 42px 1fr;
+            grid-gap: 1em;
             height: 100%;
         `}>
             <section>
@@ -30,6 +31,13 @@ const Armory = ({coins, buyLoot, sortLoot, generateLootTable}) => {
                 }} />
                 <Button text="Restock" onClick={() => generateLootTable(99)} />
             </section>
+            <section>
+                <h3>Filter</h3>
+                <Button text="AP" onClick={() => filterLoot('attack_power') } />
+                <Button text="MP" onClick={() => filterLoot('magic_power') } />
+                <Button text="AS" onClick={() => console.log("AS")} />
+                <Button text="Cr" onClick={() => console.log("Cr")} />
+            </section>
             <section css={`
                 ${ pixel_emboss }
                 padding: 0.5em;
@@ -41,8 +49,8 @@ const Armory = ({coins, buyLoot, sortLoot, generateLootTable}) => {
 }
 
 const mapStateToProps = (state) => {
-    const { coins } = state;
-    return { coins }
+    const { coins, loot } = state;
+    return { coins, loot }
 };
 
-export default connect(mapStateToProps, {buyLoot, sortLoot, generateLootTable })(Armory);
+export default connect(mapStateToProps, { buyLoot, sortLoot, filterLoot, generateLootTable })(Armory);
