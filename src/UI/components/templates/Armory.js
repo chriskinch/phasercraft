@@ -1,14 +1,13 @@
-import React from "react"
+import React, { useRef } from "react"
 import { connect } from "react-redux"
 import "styled-components/macro"
 import { pixel_emboss } from "@UI/themes"
 import Button from "@atoms/Button"
 import Stock from "@organisms/Stock"
-import { buyLoot, generateLootTable, filterLoot, sortLoot } from "@store/gameReducer"
+import { buyLoot, generateLootTable, toggleFilter, sortLoot } from "@store/gameReducer"
 import store from "@store"
-import _ from "lodash"
 
-const Armory = ({coins, loot, filterLoot, buyLoot, sortLoot, generateLootTable}) => {
+const Armory = ({coins, buyLoot, sortLoot, toggleFilter, generateLootTable}) => {
     return (
         <div css={`
             display: grid;
@@ -33,10 +32,10 @@ const Armory = ({coins, loot, filterLoot, buyLoot, sortLoot, generateLootTable})
             </section>
             <section>
                 <h3>Filter</h3>
-                <Button text="AP" onClick={() => filterLoot('attack_power') } />
-                <Button text="MP" onClick={() => filterLoot('magic_power') } />
-                <Button text="AS" onClick={() => console.log("AS")} />
-                <Button text="Cr" onClick={() => console.log("Cr")} />
+                <Button text="AP" onClick={() => toggleFilter("attack_power")} />
+                <Button text="MP" onClick={() => toggleFilter("magic_power") } />
+                <Button text="AS" onClick={() => toggleFilter("attack_speed")} />
+                <Button text="CC" onClick={() => toggleFilter("critical_chance")} />
             </section>
             <section css={`
                 ${ pixel_emboss }
@@ -49,8 +48,8 @@ const Armory = ({coins, loot, filterLoot, buyLoot, sortLoot, generateLootTable})
 }
 
 const mapStateToProps = (state) => {
-    const { coins, loot } = state;
-    return { coins, loot }
+    const { coins } = state;
+    return { coins }
 };
 
-export default connect(mapStateToProps, { buyLoot, sortLoot, filterLoot, generateLootTable })(Armory);
+export default connect(mapStateToProps, { buyLoot, sortLoot, toggleFilter, generateLootTable })(Armory);

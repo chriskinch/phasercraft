@@ -1,8 +1,8 @@
-import React from "react";
+import React, { useState, forwardRef, useImperativeHandle } from "react";
 import 'styled-components/macro';
 import { darken, grayscale } from 'polished';
 
-const Button = (props) => {
+const Button = forwardRef((props, ref) => {
     const { disabled } = props;
     const { 
         bg_color = disabled ? "grey" : "#ffc93e",
@@ -12,22 +12,34 @@ const Button = (props) => {
         onClick,
         size = 1.5
     } = props;
+
+    const [on, setOn] = useState(false);
+    const toggleOn = () => setOn(!on);
+    
+    useImperativeHandle(ref, () => ({
+        toggleOn: toggleOn,
+        on: on
+    }));
+
+    const state_color = on ? 'lime' : bg_color;
+
     return (
         <button 
+            ref={ref}
             disabled={disabled}
             css={`
                 display: inline-block;
                 padding: 0 12px;
                 height: 1.5em;
-                background: ${bg_color};
+                background: ${state_color};
                 border: none;
-                border-bottom: 2px solid ${darken(0.3, bg_color)};
+                border-bottom: 2px solid ${darken(0.3, state_color)};
                 color: ${color};
                 outline: none;
                 font-weight: bold;
                 font-size: ${size}em;
                 border-radius: 3px;
-                box-shadow: 0 3px 0px ${darken(0.3, bg_color)};
+                box-shadow: 0 3px 0px ${darken(0.3, state_color)};
                 text-shadow: 0 1px ${text_shadow_color};
                 margin-bottom: 0.5em;
                 width: 100%;
@@ -39,12 +51,12 @@ const Button = (props) => {
                 &:disabled {
                     color: #333;
                     background: grey;
-                    border-color: ${grayscale(darken(0.3, bg_color))};
-                    box-shadow: 0 3px 0px ${grayscale(darken(0.3, bg_color))};
+                    border-color: ${grayscale(darken(0.3, state_color))};
+                    box-shadow: 0 3px 0px ${grayscale(darken(0.3, state_color))};
                 }
             `}
-            onClick={onClick}>{ text }</button>
+            onClick={onClick} className={text}>{ text }</button>
     );
-}
+});
 
 export default Button;

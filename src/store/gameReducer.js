@@ -15,6 +15,7 @@ const initState = {
     stats: {},
     level: {},
     loot: [],
+    filters: [],
     inventory: [],
     equipment: {
         amulet: null,
@@ -90,6 +91,10 @@ export const sortLoot = createAction("SORT_LOOT", (key, order) => ({
 
 export const switchUi = createAction("SWITCH_UI", menu => ({
     payload: { menu }
+}));
+
+export const toggleFilter = createAction("TOGGLE_FILTER", key => ({
+    payload: { key }
 }));
 
 export const toggleHUD = createAction("TOGGLE_HUD", showHUD => ({
@@ -170,6 +175,10 @@ export const gameReducer = createReducer(initState, {
         state.loot = sorted;
     },
     [switchUi]: (state, action) => ({ ...state, ...action.payload }),
+    [toggleFilter]: (state, action) => {
+        state.filters.includes(action.payload.key) ? _.remove(state.filters, i => i === action.payload.key) : state.filters.push(action.payload.key);
+        state.loot = _.map(state.loot, l => _.has(l.stats, action.payload.stat) ? l : {...l, isHidden: action.payload.toggle});
+    },
     [toggleHUD]: (state, action) => ({ ...state, ...action.payload }),
     [toggleUi]: (state, action) => ({ ...state, showUi: !state.showUi, ...action.payload }),
     [unequipLoot]: (state, action) => {
