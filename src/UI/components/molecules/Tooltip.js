@@ -11,28 +11,43 @@ const Tooltip = ({ id, loot, equipment }) => {
     const afterShowHandler = e => {
         setCompare(equipment[loot.set])
     }
+    const styles = `
+        border-style: solid;
+        border-width: 5px;
+        background: white;
+        padding: 0.5em 1em;
+    `;
     return (
         <ReactTooltip 
-            id={id}
             css={`
-                border: 5px solid ${color};
                 font-size: 1em;
+                background-color: transparent !important;
+                padding: 0;
+                text-align: left;
             `}
+            id={id}
             type="light"
             globalEventOff="click"
             afterShow={afterShowHandler}
         >
-            <div>
-                <h5>Store</h5>
-                <Stats info={info}>{ stats }</Stats>
-                <Price cost={cost} color={color} />
-            </div>
             { compare && 
-                <div>
+                <div css={`
+                    ${styles}
+                    border-color: ${compare.color};
+                    margin-bottom: 0.5em;
+                    color: grey;
+                `}>
                     <h5>Equipped</h5>
-                    <Stats info={compare.info}>{ compare.stats }</Stats>
+                    <Stats info={compare.info} compare={loot}>{ compare.stats }</Stats>
                 </div>
             }
+            <div css={`
+                ${styles}
+                border-color ${color};  
+            `}>
+                <Stats info={info} compare={compare}>{ stats }</Stats>
+                <Price cost={cost} color={color} />
+            </div>
         </ReactTooltip>
     );
 }

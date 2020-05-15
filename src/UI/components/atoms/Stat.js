@@ -28,7 +28,8 @@ const Stat = ({delimeter=":", icon, info, label, type="label", value, compare_va
                 white-space: nowrap;
             `}>{ formatted_label }{delimeter}</dt>
             <dd css={`
-                float: right;
+                overflow: hidden;
+                text-align: right;
                 margin-left: 0;
             `}>
                 { round(value, 2) }

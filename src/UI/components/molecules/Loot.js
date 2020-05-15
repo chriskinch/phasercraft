@@ -8,7 +8,13 @@ const Loot = ({loot, loot: {uuid}, tooltips, isSelected, setSelected}) => {
     return (
         <>
             {tooltips && <Tooltip id={uuid} loot={loot} /> }
-            <div data-tip data-for={uuid} onClick={setSelected ? () => setSelected() : null} css={'line-height: 0;'}>
+            <div
+                data-tip
+                data-for={uuid}
+                onClick={setSelected ? () => setSelected() : null}
+                onContextMenu={(e)=> e.preventDefault()}
+                css={'line-height: 0;'}
+            >
                 <LootIcon {...loot} selected={isSelected} />
             </div>
         </>

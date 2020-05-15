@@ -67,7 +67,9 @@ const Save = ({loadGame, selectCharacter, setSaveSlot, switchUi, toggleHUD, load
                                 </>
                             }
                             <div css={`
-                                display:flex;
+                                display:grid;
+                                grid-template-columns: 1fr 1fr;
+                                grid-gap: 0.5em;
                             `}>
                                 {save ?
                                     <Button text={"Load"} onClick={e => {
