@@ -5,7 +5,7 @@ import "styled-components/macro"
 
 const Stock = ({ loot }) => {
     return (
-        <LootList list={loot} name={"stock"} cols={9} />
+        <LootList list={loot} name={"stock"} cols={9} tooltips />
     );
 }
 

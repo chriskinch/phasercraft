@@ -4,7 +4,7 @@ import Loot from "@molecules/Loot"
 import { connect } from "react-redux"
 import { selectLoot } from "@store/gameReducer"
 
-const LootList = ({cols=4, list, selected, selectLoot}) => {
+const LootList = ({cols=4, list, selected, tooltips, selectLoot}) => {
     return ( 
         <div 
             css={`
@@ -25,6 +25,7 @@ const LootList = ({cols=4, list, selected, selectLoot}) => {
                         isSelected={isSelected}
                         setSelected={() => { selectLoot(loot) }}
                         key={loot.uuid}
+                        tooltips={tooltips}
                     />
                 })
             }
