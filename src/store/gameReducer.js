@@ -51,10 +51,6 @@ export const equipLoot = createAction("EQUIP_LOOT", loot => ({
     payload: { loot }
 }));
 
-export const filterLoot = createAction("FILTER_LOOT", (stat, toggle=true) => ({
-    payload: { stat, toggle }
-}));
-
 export const loadGame = createAction("LOAD_GAME", state => ({
     payload: { state }
 }));
@@ -152,12 +148,6 @@ export const gameReducer = createReducer(initState, {
         remove(state.inventory, (l) => l.uuid === loot.uuid);
         addStats(state.base_stats, loot.stats);
         syncStats(state);
-    },
-    [filterLoot]: (state, action) => {
-        const filtered = _.map(state.loot, l => _.has(l.stats, action.payload.stat) ? l : {...l, isHidden: action.payload.toggle});
-        // const func = (action.payload.order === "ascending") ? sortAscending : sortDecending;
-        // const sorted = state.loot.slice().sort(func(action.payload.key));
-        state.loot = filtered;
     },
     [loadGame]: (state, action) => action.payload.state,
     [nextWave]: state => { state.wave++ },
