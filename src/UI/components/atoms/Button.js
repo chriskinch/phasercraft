@@ -1,8 +1,8 @@
-import React, { useState, forwardRef, useImperativeHandle } from "react";
+import React from "react";
 import 'styled-components/macro';
 import { darken, grayscale } from 'polished';
 
-const Button = forwardRef((props, ref) => {
+const Button = (props) => {
     const { disabled } = props;
     const { 
         bg_color = disabled ? "grey" : "#ffc93e",
@@ -10,22 +10,14 @@ const Button = forwardRef((props, ref) => {
         text,
         text_shadow_color="rgba(255, 255, 255, 0.5)",
         onClick,
-        size = 1.5
+        size = 1.5,
+        on
     } = props;
-
-    const [on, setOn] = useState(false);
-    const toggleOn = () => setOn(!on);
-    
-    useImperativeHandle(ref, () => ({
-        toggleOn: toggleOn,
-        on: on
-    }));
 
     const state_color = on ? 'lime' : bg_color;
 
     return (
         <button 
-            ref={ref}
             disabled={disabled}
             css={`
                 display: inline-block;
@@ -57,6 +49,6 @@ const Button = forwardRef((props, ref) => {
             `}
             onClick={onClick} className={text}>{ text }</button>
     );
-});
+};
 
 export default Button;

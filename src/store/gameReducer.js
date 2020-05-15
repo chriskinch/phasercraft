@@ -176,8 +176,10 @@ export const gameReducer = createReducer(initState, {
     },
     [switchUi]: (state, action) => ({ ...state, ...action.payload }),
     [toggleFilter]: (state, action) => {
-        state.filters.includes(action.payload.key) ? _.remove(state.filters, i => i === action.payload.key) : state.filters.push(action.payload.key);
-        state.loot = _.map(state.loot, l => _.has(l.stats, action.payload.stat) ? l : {...l, isHidden: action.payload.toggle});
+        if(action.payload.key) state.filters.includes(action.payload.key) ? _.remove(state.filters, i => i === action.payload.key) : state.filters.push(action.payload.key);
+        state.loot = _.map(state.loot, l => 
+            state.filters.every(r => Object.keys(l.stats).includes(r)) ? {...l, isHidden: false} : {...l, isHidden: true}
+        );
     },
     [toggleHUD]: (state, action) => ({ ...state, ...action.payload }),
     [toggleUi]: (state, action) => ({ ...state, showUi: !state.showUi, ...action.payload }),

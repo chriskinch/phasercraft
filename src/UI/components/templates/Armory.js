@@ -1,4 +1,4 @@
-import React, { useRef } from "react"
+import React from "react"
 import { connect } from "react-redux"
 import "styled-components/macro"
 import { pixel_emboss } from "@UI/themes"
@@ -7,11 +7,12 @@ import Stock from "@organisms/Stock"
 import { buyLoot, generateLootTable, toggleFilter, sortLoot } from "@store/gameReducer"
 import store from "@store"
 
-const Armory = ({coins, buyLoot, sortLoot, toggleFilter, generateLootTable}) => {
+const Armory = ({coins, buyLoot, filters, sortLoot, toggleFilter, generateLootTable}) => {
+    const filterOn = filter => filters.includes(filter);
     return (
         <div css={`
             display: grid;
-            grid-template-columns: 84px 42px 1fr;
+            grid-template-columns: 90px 90px 1fr;
             grid-gap: 1em;
             height: 100%;
         `}>
@@ -28,14 +29,27 @@ const Armory = ({coins, buyLoot, sortLoot, toggleFilter, generateLootTable}) => 
                         console.log("CANNOT AFFORD")
                     }
                 }} />
-                <Button text="Restock" onClick={() => generateLootTable(99)} />
+                <Button text="Restock" onClick={() => {
+                    generateLootTable(99);
+                    toggleFilter();
+                }} />
             </section>
             <section>
                 <h3>Filter</h3>
-                <Button text="AP" onClick={() => toggleFilter("attack_power")} />
-                <Button text="MP" onClick={() => toggleFilter("magic_power") } />
-                <Button text="AS" onClick={() => toggleFilter("attack_speed")} />
-                <Button text="CC" onClick={() => toggleFilter("critical_chance")} />
+                <div  css={`
+                    display:grid;
+                    grid-template-columns: 1fr 1fr;
+                    column-gap: 0.5em;
+                `}>                
+                    <Button text="AP" on={filterOn("attack_power")} onClick={() => toggleFilter("attack_power")} />
+                    <Button text="MP" on={filterOn("magic_power")} onClick={() => toggleFilter("magic_power") } />
+                    <Button text="AS" on={filterOn("attack_speed")} onClick={() => toggleFilter("attack_speed")} />
+                    <Button text="CC" on={filterOn("critical_chance")} onClick={() => toggleFilter("critical_chance")} />
+                    <Button text="HR" on={filterOn("health_regen_rate")} onClick={() => toggleFilter("health_regen_rate")} />
+                    <Button text="HV" on={filterOn("health_regen_value")} onClick={() => toggleFilter("health_regen_value") } />
+                    <Button text="DF" on={filterOn("defence")} onClick={() => toggleFilter("defence")} />
+                    <Button text="SP" on={filterOn("speed")} onClick={() => toggleFilter("speed")} />
+                </div>
             </section>
             <section css={`
                 ${ pixel_emboss }
@@ -48,8 +62,8 @@ const Armory = ({coins, buyLoot, sortLoot, toggleFilter, generateLootTable}) => 
 }
 
 const mapStateToProps = (state) => {
-    const { coins } = state;
-    return { coins }
+    const { coins, filters} = state;
+    return { coins, filters }
 };
 
 export default connect(mapStateToProps, { buyLoot, sortLoot, toggleFilter, generateLootTable })(Armory);
