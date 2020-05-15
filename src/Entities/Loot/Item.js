@@ -35,7 +35,7 @@ class Item {
 		this.icon = this.getIcon(this.category);
 		this.set = this.getSet(this.category);
 
-		this.uuid = Math.round(Math.random() * 1000000);
+		this.uuid = Math.round(Math.random() * 1000000).toString();
 		// console.log(this.quality, this, this.stat_pool)
 	}
 

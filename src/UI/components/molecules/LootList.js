@@ -24,8 +24,7 @@ const LootList = ({cols=4, list, selected, selectLoot}) => {
                         loot={loot}
                         isSelected={isSelected}
                         setSelected={() => { selectLoot(loot) }}
-                        key={i}
-                        id={i.toString()}
+                        key={loot.uuid}
                     />
                 })
             }
