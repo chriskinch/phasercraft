@@ -27,16 +27,20 @@ class Item {
 		keys.forEach((key, i) => {
 			const stat = it.next(key);
 			const converted = this.adjustStats(stat);
-			// console.log(converted);
-			this.stats[key] = converted.adjusted;
-			this.info[key] = converted;
+			const normalised = this.round(converted);
+			this.stats[key] = normalised.rounded;
+			this.info[key] = normalised;
 		});
 		this.category = this.getCategory();
 		this.icon = this.getIcon(this.category);
 		this.set = this.getSet(this.category);
 
-		this.uuid = Math.round(Math.random() * 1000000);
+		this.uuid = Math.round(Math.random() * 1000000).toString();
 		// console.log(this.quality, this, this.stat_pool)
+	}
+
+	round(stat) {
+		return {...stat, rounded: stat.format === "percent" ? Math.ceil((stat.adjusted + Number.EPSILON) * 100) / 100 : Math.ceil(stat.adjusted)};
 	}
 
 	generateStatPool(base) {
@@ -69,16 +73,16 @@ class Item {
 
 	adjustStats(stat) {
 		const funcs = {
-			attack_power: (v) => ({...stat, adjusted: v/2, format: "basic"}),
-			attack_speed: (v) => ({...stat, adjusted: -v/1000, format: "percent"}),
-			critical_chance: (v) => ({...stat, adjusted: v/1000, format: "percent"}),
-			defence: (v) => ({...stat, adjusted: v/2, format: "basic"}),
-			health_max: (v) => ({...stat, adjusted: v, format: "basic"}),
-			health_regen_rate: (v) => ({...stat, adjusted: -v/1000, format: "percent"}),
-			health_regen_value: (v) => ({...stat, adjusted: v/20, format: "basic"}),
-			magic_power: (v) => ({...stat, adjusted: v/2, format: "basic"}),
-			speed: (v) => ({...stat, adjusted: v/10, format: "basic"}),
-			default: (v) => ({...stat, adjusted: v, format: "basic"})
+			attack_power: (v) => ({...stat, adjusted: v/2, format: "basic", label: "Attack Power", short: "Atk Pwr", abr: "AP"}),
+			attack_speed: (v) => ({...stat, adjusted: -v/1000, format: "percent", label: "Attack Speed", short: "Atk Spd", abr: "AS"}),
+			critical_chance: (v) => ({...stat, adjusted: v/10, format: "percent", label: "Critical Chance", short: "Crit", abr: "C"}),
+			defence: (v) => ({...stat, adjusted: v/2, format: "basic", label: "Defence", short: "Def", abr: "D"}),
+			health_max: (v) => ({...stat, adjusted: v*4, format: "basic", label: "Health Max", short: "Health", abr: "H"}),
+			health_regen_rate: (v) => ({...stat, adjusted: -v/1000, format: "percent", label: "Regen Rate", short: "Reg R", abr: "RR"}),
+			health_regen_value: (v) => ({...stat, adjusted: v/10, format: "basic", label: "Regen Value", short: "Reg V", abr: "RV"}),
+			magic_power: (v) => ({...stat, adjusted: v/2, format: "basic", label: "Magic Power", short: "Mgc Pwr", abr: "MP"}),
+			speed: (v) => ({...stat, adjusted: v/10, format: "basic", label: "Speed", short: "Spd", abr: "S"}),
+			default: (v) => ({...stat, adjusted: v, format: "basic", label: "Default", short: "Default", abr: "Default"})
 		};
 
 		return funcs.hasOwnProperty(stat.key) ? 

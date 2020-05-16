@@ -1,9 +1,11 @@
 import React from "react";
-import { darken } from 'polished';
-import 'styled-components/macro';
+import { darken } from "polished";
+import getResourceColour from "@Helpers/getResourceColour"
+import "styled-components/macro";
 
-const StatBar = ({colour, label, value, max}) => {
+const StatBar = ({type, colour, label, value, max}) => {
     max = max || value;
+    colour = colour || getResourceColour(type);
 
     return (
         <div css={`

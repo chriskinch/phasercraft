@@ -3,12 +3,19 @@ import "styled-components/macro"
 import LootIcon from "@atoms/LootIcon"
 import Tooltip from "./Tooltip"
 
-const Loot = ({id, loot, isSelected, setSelected}) => {
+const Loot = ({loot, loot: {uuid}, tooltips, isSelected, setSelected}) => {
+    if(loot.isHidden) return null;
     return (
         <>
-            <Tooltip id={id} loot={loot} />
-            <div data-tip data-for={id} onClick={ setSelected ? () => setSelected() : null }>
-                <LootIcon {...loot} id={id} selected={isSelected} />
+            {tooltips && <Tooltip id={uuid} loot={loot} /> }
+            <div
+                data-tip
+                data-for={uuid}
+                onClick={setSelected ? () => setSelected() : null}
+                onContextMenu={(e)=> e.preventDefault()}
+                css={'line-height: 0;'}
+            >
+                <LootIcon {...loot} selected={isSelected} />
             </div>
         </>
     );

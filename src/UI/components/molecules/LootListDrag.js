@@ -7,7 +7,7 @@ import { connect } from "react-redux"
 import { equipLoot, selectLoot, unequipLoot } from "@store/gameReducer"
 import store from "@store"
 
-const LootListDrag = ({cols=4, list, name, selected, equipLoot, selectLoot, unequipLoot}) => {
+const LootListDrag = ({cols=6, list, name, selected, equipLoot, selectLoot, unequipLoot}) => {
     // This must go here rather then inside the Loot component due to this bug:
     // https://github.com/react-dnd/react-dnd/issues/1589
     // Wraps the Loot component instead. Means some duplication of code. :(
@@ -66,9 +66,7 @@ const LootListDrag = ({cols=4, list, name, selected, equipLoot, selectLoot, uneq
             css={`
                 display: grid;
                 grid-template-columns: repeat(${cols}, 1fr);
-                grid-template-rows: min-content min-content min-content min-content;
-                height: calc(100vh - 145px);
-                width: 100%;
+                grid-gap: 1em;
                 overflow-y: scroll;
             `}
         >

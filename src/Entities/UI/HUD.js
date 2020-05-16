@@ -32,7 +32,7 @@ class UI extends GameObjects.Container {
 		mapStateToData("coins", coins => this.coins.text.setText('Coins: ' + coins));
 		mapStateToData("wave", wave => this.wave.text.setText('Wave: ' + wave));
 		mapStateToData("showUi", showUi => {
-			store.dispatch(toggleHUD());
+			store.dispatch(toggleHUD(!showUi));
 			(showUi) ? this.scene.scene.pause() : this.scene.scene.resume()
 		});
 

@@ -1,6 +1,6 @@
 import React, { useState } from "react"
 import { connect } from "react-redux"
-import { loadGame, selectCharacter, setSaveSlot, switchUi } from "@store/gameReducer"
+import { loadGame, selectCharacter, setSaveSlot, switchUi, toggleHUD } from "@store/gameReducer"
 import Button from "@atoms/Button"
 import Dialog from "@organisms/Dialog"
 import { dialog_overlay } from "@UI/themes"
@@ -10,7 +10,7 @@ const getSaveGames = function(slots) {
     return slots.map(slot => JSON.parse(localStorage.getItem(slot)))
 }
 
-const Save = ({loadGame, selectCharacter, setSaveSlot, switchUi, load}) => {
+const Save = ({loadGame, selectCharacter, setSaveSlot, switchUi, toggleHUD, load}) => {
     const slots = ["slot_a", "slot_b", "slot_c"];
     const [saveGames, setSaveGames] = useState(getSaveGames(slots))
     const [showDialog, setShowDialog] = useState(false);
@@ -67,17 +67,20 @@ const Save = ({loadGame, selectCharacter, setSaveSlot, switchUi, load}) => {
                                 </>
                             }
                             <div css={`
-                                display:flex;
+                                display:grid;
+                                grid-template-columns: 1fr 1fr;
+                                grid-gap: 0.5em;
                             `}>
-                                <Button text={save ? "Load" : "Select"} onClick={e => {
-                                    if(save) {
+                                {save ?
+                                    <Button text={"Load"} onClick={e => {
                                         loadGame(save)
                                         selectCharacter(character)
-                                    }else{
+                                    }}/> :
+                                    <Button text={"Select"} onClick={e => {
                                         setSaveSlot(slots[i])
                                         switchUi("select")
-                                    }
-                                }} />
+                                    }}/>
+                                }
                                 <Button text="Delete" disabled={save ? false : true} onClick={() => {
                                     setCurrentSaveSlot(saveSlot)
                                     setShowDialog(true)
@@ -97,4 +100,4 @@ const mapStateToProps = (state) => {
     return { saveSlot }
 };
 
-export default connect(mapStateToProps, { loadGame, selectCharacter, setSaveSlot, switchUi })(Save);
+export default connect(mapStateToProps, { loadGame, selectCharacter, setSaveSlot, switchUi, toggleHUD })(Save);

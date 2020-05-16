@@ -2,6 +2,7 @@ import { createAction, createReducer } from "redux-starter-kit"
 import LootTable from "@Entities/Loot/LootTable"
 import mergeWith from "lodash/mergeWith"
 import remove from "lodash/remove"
+import _ from "lodash"
 
 // Init
 
@@ -14,6 +15,7 @@ const initState = {
     stats: {},
     level: {},
     loot: [],
+    filters: [],
     inventory: [],
     equipment: {
         amulet: null,
@@ -87,8 +89,12 @@ export const switchUi = createAction("SWITCH_UI", menu => ({
     payload: { menu }
 }));
 
-export const toggleHUD = createAction("TOGGLE_HUD", menu => ({
-    payload: { menu }
+export const toggleFilter = createAction("TOGGLE_FILTER", key => ({
+    payload: { key }
+}));
+
+export const toggleHUD = createAction("TOGGLE_HUD", showHUD => ({
+    payload: { showHUD }
 }));
 
 export const toggleUi = createAction("TOGGLE_UI", menu => ({
@@ -159,7 +165,13 @@ export const gameReducer = createReducer(initState, {
         state.loot = sorted;
     },
     [switchUi]: (state, action) => ({ ...state, ...action.payload }),
-    [toggleHUD]: (state, action) => {state.showHUD = !state.showHUD},
+    [toggleFilter]: (state, action) => {
+        if(action.payload.key) state.filters.includes(action.payload.key) ? _.remove(state.filters, i => i === action.payload.key) : state.filters.push(action.payload.key);
+        state.loot = _.map(state.loot, l => 
+            state.filters.every(r => Object.keys(l.stats).includes(r)) ? {...l, isHidden: false} : {...l, isHidden: true}
+        );
+    },
+    [toggleHUD]: (state, action) => ({ ...state, ...action.payload }),
     [toggleUi]: (state, action) => ({ ...state, showUi: !state.showUi, ...action.payload }),
     [unequipLoot]: (state, action) => {
         state.equipment[action.payload.loot.set] = null;
