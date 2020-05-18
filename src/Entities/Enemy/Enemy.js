@@ -3,6 +3,7 @@ import AssignResource from "@Entities/Resources/AssignResource"
 import Monster from "./Monster"
 import Coin from "@Entities/Loot/Coin"
 import Gem from "@Entities/Loot/Gem"
+import Banes from "@Entities/UI/Banes"
 
 class Enemy extends GameObjects.Container {
 
@@ -35,7 +36,8 @@ class Enemy extends GameObjects.Container {
 
 		this.set = config.set || 0;
 
-		this.stats = this.setStats(config.types[this.key], this.set);
+		this.base_stats = this.setStats(config.types[this.key], this.set);
+		this.stats = { ...this.base_stats };
 		this.stats.health_value = this.stats.health_max;
 
 		this.xp = this.stats.health_value / 10;
@@ -52,6 +54,8 @@ class Enemy extends GameObjects.Container {
 			...this.stats
 		});
 		this.add(this.health);
+
+		this.banes = new Banes(this.scene, this);
 
 		this.spawn_stop = this.scene.physics.add.staticImage(this.x, config.y, 'blank-gif');
 		this.scene.physics.add.collider(this.spawn_stop, this);
