@@ -1,3 +1,4 @@
+import Consecration from "./Consecration"
 import EarthShield from "./EarthShield"
 import Enrage from "./Enrage"
 import Fireball from "./Fireball"
@@ -12,6 +13,7 @@ import SnareTrap from "./SnareTrap"
 import Whirlwind from "./Whirlwind"
 
 const classes = {
+  Consecration,
   EarthShield,
   Enrage,
   Fireball,

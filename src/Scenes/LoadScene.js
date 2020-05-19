@@ -53,6 +53,7 @@ export default class LoadScene extends Scene {
 		this.load.image('snare-trap', 'spritesheets/spells/snaretrap.gif');
 		this.load.spritesheet('multishot-effect', 'spritesheets/swoosh.png', { frameWidth: 32, frameHeight: 32 });
 		this.load.spritesheet('whirlwind-effect', 'spritesheets/spells/whirlwind.png', { frameWidth: 32, frameHeight: 32 });
+		this.load.spritesheet('consecration-effect', 'spritesheets/spells/whirlwind.png', { frameWidth: 32, frameHeight: 32 });
 	}
 
 	create(){
