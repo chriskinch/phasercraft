@@ -48,7 +48,7 @@ export default class LoadScene extends Scene {
 		this.load.spritesheet('earthshield-effect', 'spritesheets/spells/earthshield.png', { frameWidth: 150, frameHeight: 105 });
 		this.load.spritesheet('manashield-effect', 'spritesheets/spells/manashield.png', { frameWidth: 50, frameHeight: 50 });
 		this.load.spritesheet('fireball-effect', 'spritesheets/spells/fireball.png', { frameWidth: 87, frameHeight: 87 });
-		this.load.spritesheet('frostbolt-effect', 'spritesheets/spells/fireball.png', { frameWidth: 87, frameHeight: 87 });
+		this.load.spritesheet('frostbolt-effect', 'spritesheets/spells/frostbolt.png', { frameWidth: 150, frameHeight: 67 });
 		this.load.atlas('siphon-soul', 'atlas/spells/atlas-siphonsoul.png', 'atlas/spells/atlas-siphonsoul.json');
 		this.load.spritesheet('smite-effect', 'spritesheets/spells/smite.gif', { frameWidth: 100, frameHeight: 129 });
 		this.load.image('snare-trap', 'spritesheets/spells/snaretrap.gif');
