@@ -38,7 +38,7 @@ class PowerInfusion extends Boon {
 	}
 
 	effect(){
-		this.player.boons.addBoon(this);
+		this.player.boons.addEffect(this);
 		this.player.hero.setTint(0xffff66);
 
 		const timer_config = {

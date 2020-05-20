@@ -2,6 +2,7 @@ import Consecration from "./Consecration"
 import EarthShield from "./EarthShield"
 import Enrage from "./Enrage"
 import Fireball from "./Fireball"
+import Frostbolt from "./Frostbolt"
 import Heal from "./Heal"
 import Invocation from "./Invocation"
 import ManaShield from "./ManaShield"
@@ -17,6 +18,7 @@ const classes = {
   EarthShield,
   Enrage,
   Fireball,
+  Frostbolt,
   Heal,
   Invocation,
   ManaShield,
