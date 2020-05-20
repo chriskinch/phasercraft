@@ -24,7 +24,7 @@ class Invocation extends Boon {
 	}
 
 	effect(){
-		this.player.boons.addBoon(this);
+		this.player.boons.addEffect(this);
 		this.player.hero.setTint(0x8bc2f8);
 
 		const timer_config = {
