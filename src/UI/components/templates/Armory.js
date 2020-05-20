@@ -23,7 +23,7 @@ const Armory = ({coins, buyLoot, filters, sortLoot, toggleFilter, generateLootTa
                 <h3>Action</h3>
                 <Button text="Buy" onClick={() => {
                     const selected = store.getState().selected;
-                    if(selected && selected.cost <= coins) {
+                    if(selected?.cost <= coins) {
                         buyLoot(store.getState().selected);
                     }else{
                         console.log("CANNOT AFFORD")
