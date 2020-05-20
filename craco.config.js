@@ -1,6 +1,19 @@
+const path = require("path");
+const fs = require("fs");
 const CracoAlias = require("craco-alias");
+const rewireBabelLoader = require("craco-babel-loader");
 
-module.exports = {
+// helpers
+
+const appDirectory = fs.realpathSync(process.cwd());
+const resolveApp = relativePath => path.resolve(appDirectory, relativePath);
+
+module.exports = { 
+  babel: {
+    loaderOptions: {
+      babelrc: true,
+    },
+  },
   plugins: [
     {
       plugin: CracoAlias,
