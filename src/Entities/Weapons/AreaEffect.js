@@ -1,5 +1,4 @@
 import { GameObjects } from 'phaser';
-import dropIn from '../../Helpers/spawnStyle';
 
 class AreaEffect extends GameObjects.Sprite {
 	constructor(scene, x, y, lifespan) {
@@ -9,24 +8,21 @@ class AreaEffect extends GameObjects.Sprite {
 
         this.body.isCircle = true;
 
-        dropIn('trap', this, y+20, { gravity: 500, bounce: 0.4 } );
-
-        this.on('trap:spawned', this.spawnedHandler, this);
-
         this.scene.time.delayedCall(lifespan * 1000, () => {
             this.destroy()
         }, [], this);
-        
+
+        this.scene.physics.add.collider(this.scene.active_enemies, this, this.collide, null, this, true);
+        this.body.immovable = true;
+
+        this.setScale(5);
     }
     
     collide(target) {
+        console.log(target)
         if(target.spawned) {
             this.emit('trap:collide', target);
         }
-    }
-
-    spawnedHandler() {
-        this.scene.physics.add.collider(this.scene.active_enemies, this, this.collide, null, this);
     }
 }
 

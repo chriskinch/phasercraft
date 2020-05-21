@@ -32,15 +32,15 @@ class Consecration extends Spell {
     }
 
     areaEffect() {
-        console.log(this)
         const pointer = this.scene.input.activePointer;
-        this.item = new AreaEffect(this.scene, this.player.x, this.player.y, this.lifespan);
+		this.item = new AreaEffect(this.scene, this.player.x, this.player.y + 14, this.lifespan);
+		this.item.once('area:collide', this.effect, this);
     }
 
 	effect(target){
-        this.areaEffect();
-
-		const enemiesInRange = this.scene.enemies.children.entries
+		console.log(target)
+		if(target?.body) {
+			const enemiesInRange = this.scene.enemies.children.entries
 			.filter(enemy => {
 				enemy.vector = targetVector(this.player, enemy);
 				if (enemy.vector.range < this.range) return enemy;
@@ -50,15 +50,18 @@ class Consecration extends Spell {
 				return a.vector.range - b.vector.range;
 			});
 
-		// Modified if more the cap. This ensure that the spell is not massivly overpowered.
-		// TODO: Abstract this capping functionality out as many spells might use.
-		const mod = this.powerCap(enemiesInRange);
-		// Scales value bases on player stat.
-		const value = this.setValue({ base: 30, key: "attack_power" });
+			// Modified if more the cap. This ensure that the spell is not massivly overpowered.
+			// TODO: Abstract this capping functionality out as many spells might use.
+			const mod = this.powerCap(enemiesInRange);
+			// Scales value bases on player stat.
+			const value = this.setValue({ base: 30, key: "attack_power" });
 
-		enemiesInRange.forEach(target => {
-			target.health.adjustValue(-value.amount * mod, this.type, value.crit);
-		});
+			enemiesInRange.forEach(target => {
+				target.health.adjustValue(-value.amount * mod, this.type, value.crit);
+			});
+		}else{
+			this.areaEffect();
+		}
 	}
 
 	powerCap(enemies) {
