@@ -2,6 +2,9 @@ import React from "react"
 import { connect } from "react-redux"
 import "styled-components/macro"
 import { pixel_emboss } from "@UI/themes"
+import store from "@store"
+import { sellLoot } from "@store/gameReducer"
+import Button from "@atoms/Button"
 import Inventory from "@organisms/Inventory"
 import DroppableSlot from "@atoms/DroppableSlot"
 import Slot from "@atoms/Slot"
@@ -16,7 +19,8 @@ const Equipment = ({
     stats,
     stats: { resource_type },
     level,
-    selected
+    selected,
+    sellLoot
 }) => {
     return (
         <div css={`
@@ -25,8 +29,8 @@ const Equipment = ({
             grid-gap: 0.5em 1em;
             height: 100%;
             grid-template-areas:
-                "stats eq inv"
-                "stats eq com";
+                "stats eq inv act"
+                "stats eq com com";
             grid-template-rows: 1fr 101px;
         `}>
             <section css={"grid-area: stats"}>
@@ -64,6 +68,12 @@ const Equipment = ({
             `}>
                 <Inventory />
             </section>
+            <Button css={`
+                grid-area: act;
+            `} text="$" onClick={() => {
+                const { inventory, selected } = store.getState();
+                (selected && inventory.includes(selected)) ? sellLoot(store.getState().selected) : console.log("Nothing to sell?");
+            }} />
             <section css={`
                 display: grid;
                 grid-template-columns: 1fr 1fr;
@@ -88,4 +98,4 @@ const mapStateToProps = (state) => {
     return { character, equipment, stats, level, selected }
 };
 
-export default connect(mapStateToProps)(Equipment);
+export default connect(mapStateToProps, { sellLoot })(Equipment);

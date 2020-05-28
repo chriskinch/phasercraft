@@ -65,6 +65,10 @@ export const selectLoot = createAction("SELECT_LOOT", (id) => ({
     payload: { id }
 }));
 
+export const sellLoot = createAction("SELL_LOOT", loot => ({
+    payload: { loot }
+}));
+
 export const setBaseStats = createAction("SET_BASE_STATS", base_stats => ({
     payload: { base_stats }
 }));
@@ -155,6 +159,13 @@ export const gameReducer = createReducer(initState, {
         state.selected = action.payload.id;
     },
     [selectCharacter]: (state, action) => ({ ...state, showUi: false, ...action.payload }),
+    [sellLoot]: (state, action) => {
+        const { loot } = action.payload;
+        remove(state.inventory, (l) => l.uuid === loot.uuid);
+        state.loot.push(loot);
+        state.coins += Math.round(loot.cost/3);
+        state.selected = null;
+    },
     [setBaseStats]: (state, action) => {state.base_stats = {...state.base_stats, ...action.payload.base_stats}},
     [setLevel]: (state, action) => ({ ...state, ...action.payload }),
     [setSaveSlot]: (state, action) => {state.saveSlot = action.payload.saveSlot},
