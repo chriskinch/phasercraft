@@ -1,17 +1,20 @@
-import { GameObjects, Geom } from "phaser"
+import { GameObjects } from "phaser"
 
 class AreaEffect extends GameObjects.Sprite {
-	constructor(scene, x, y, lifespan) {
-		super(scene, x, y - 7, 'snare-trap');
+	constructor(scene, x, y, lifespan, range) {
+		super(scene, x, y - 7, 'consecration');
 		scene.physics.world.enable(this);
 		scene.add.existing(this);
         
-        var shape = new Geom.Circle(46, 45, 45);
-
         this.scene.physics.add.overlap(this.scene.active_enemies, this, this.overlap, this.throttle, this);
         
-        this.setScale(5, 4);
-        this.setInteractive(shape, Geom.Circle.Contains)
+        this.body.isCircle = true;
+
+        const offset = (this.width/2) - range
+        this.body.setCircle(range, offset, offset);
+
+        this.setScale(1, 0.8);
+        
         this.timestamps = {};
 
         this.scene.time.delayedCall(lifespan * 1000, () => {
@@ -26,7 +29,6 @@ class AreaEffect extends GameObjects.Sprite {
     }
 
     throttle(target) {
-        console.log(!this.timestamps[target.uuid])
         return this.timestamps[target.uuid] ? this.scene.game.getTime() - this.timestamps[target.uuid] > 1000 : !this.timestamps[target.uuid];
     }
 }

@@ -1,5 +1,4 @@
 import Spell from './Spell';
-import targetVector from '../../Helpers/targetVector';
 import AreaEffect from '../Weapons/AreaEffect';
 
 class Consecration extends Spell {
@@ -7,19 +6,21 @@ class Consecration extends Spell {
 		const defaults = {
 			name: "consecration",
 			icon_name: 'icon_0003_decay',
-			cooldown: 2,
+			cooldown: 30,
 			cost: {
-				rage: 50,
-				mana: 80,
-				energy: 60
+				rage: 60,
+				mana: 100,
+				energy: 70
 			},
 			type: 'magic',
-			range: 120,
+			range: 80,
 			cap: 5,
-			lifespan: 10
+			lifespan: 15
         }
         
-        super({ ...defaults, ...config });
+		super({ ...defaults, ...config });
+
+		this.hasAnimation = false;
     }
 
 	setCastEvents(state) {
@@ -29,7 +30,7 @@ class Consecration extends Spell {
     }
 
     areaEffect() {
-		this.item = new AreaEffect(this.scene, this.player.x, this.player.y + 14, this.lifespan);
+		this.item = new AreaEffect(this.scene, this.player.x, this.player.y + 14, this.lifespan, this.range);
 		this.item.on('area:overlap', this.effect, this);
     }
 
