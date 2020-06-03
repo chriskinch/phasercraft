@@ -1,4 +1,4 @@
-export default function dropIn(name, item, offset, { gravity = 200, bounce = 0.3, immovable = true}){
+export function dropIn(name, item, offset, { gravity = 200, bounce = 0.3, immovable = true}){
     item.body.setFriction(0,0).setDrag(0).setGravityY(gravity).setBounce(bounce);
 
     const spawn_stop = item.scene.physics.add.staticImage(item.x, offset, 'blank-gif');

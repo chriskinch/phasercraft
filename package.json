@@ -27,7 +27,8 @@
     "redux-logger": "^3.0.6",
     "redux-starter-kit": "^0.9.1",
     "rxjs": "^6.5.3",
-    "styled-components": "^4.4.0"
+    "styled-components": "^4.4.0",
+    "uuid": "^8.1.0"
   },
   "scripts": {
     "start": "craco start",
