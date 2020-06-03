@@ -7,7 +7,8 @@ class AreaEffect extends GameObjects.Sprite {
 		scene.add.existing(this);
         
         this.scene.physics.add.overlap(this.scene.active_enemies, this, this.overlap, this.throttle, this);
-        
+        this.scene.physics.add.overlap(this.scene.player, this, this.overlap, this.throttle, this);
+
         this.body.isCircle = true;
 
         const offset = (this.width/2) - range
@@ -24,8 +25,9 @@ class AreaEffect extends GameObjects.Sprite {
     }
     
     overlap(target) {
+        const type = target.name === 'player' ? 'player' : 'enemy';
         this.timestamps[target.uuid] = this.scene.game.getTime();
-        this.emit('area:overlap', target);
+        this.emit(`${type}:area:overlap`, target);
     }
 
     throttle(target) {

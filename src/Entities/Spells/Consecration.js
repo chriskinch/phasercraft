@@ -31,11 +31,11 @@ class Consecration extends Spell {
 
     areaEffect() {
 		this.item = new AreaEffect(this.scene, this.player.x, this.player.y + 14, this.lifespan, this.range);
-		this.item.on('area:overlap', this.effect, this);
+		this.item.on('enemy:area:overlap', this.effect, this);
+		this.item.on('player:area:overlap', this.playerEffect, this);
     }
 
 	effect(target){
-		// console.log(target?.key)
 		if(target?.body) {
 			// Scales value bases on player stat.
 			const value = this.setValue({ base: 3, key: "magic_power" });
@@ -43,6 +43,12 @@ class Consecration extends Spell {
 		}else{
 			this.areaEffect();
 		}
+	}
+
+	playerEffect() {
+		// Scales value bases on player stat.
+		const value = this.setValue({ base: 5, key: "magic_power" });
+		this.player.health.adjustValue(value.amount, "heal");
 	}
 
 	// Override and remove the defaul spell animation functions.
