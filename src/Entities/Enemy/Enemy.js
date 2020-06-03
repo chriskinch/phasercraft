@@ -1,4 +1,5 @@
 import { GameObjects, Geom } from "phaser"
+import { v4 as uuid } from 'uuid';
 import AssignResource from "@Entities/Resources/AssignResource"
 import Monster from "./Monster"
 import Coin from "@Entities/Loot/Coin"
@@ -9,6 +10,8 @@ class Enemy extends GameObjects.Container {
 
 	constructor(config) {
 		super(config.scene, config.x, config.y - 300);
+
+		this.uuid = uuid();
 
 		this.monster = new Monster({
 			scene: this.scene,

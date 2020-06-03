@@ -1,4 +1,5 @@
 import Phaser, { GameObjects } from "phaser"
+import { v4 as uuid } from 'uuid';
 import Hero from "./Hero"
 import Weapon from "@Entities/Weapon"
 import AssignSpell from "@Entities/Spells/AssignSpell"
@@ -18,6 +19,7 @@ class Player extends GameObjects.Container {
 		super(scene, x, y);
 		this.classification = classification;
 		this.name = "player";
+		this.uuid = uuid();
 		const base_stats = {...stats, resource_type}; // Add resource type into to base stats.
 		// Adding this in place for when there is a stats state when resuming from gameover or a save.
 		if(isEmpty(store.getState().base_stats)) store.dispatch(setBaseStats(base_stats));
