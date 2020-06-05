@@ -2,20 +2,28 @@ import React, { useState } from "react"
 import ReactTooltip from "react-tooltip"
 import "styled-components/macro"
 import Stats from "./Stats"
+import StatsCompared from "./StatsCompared"
 import Price from "@atoms/Price"
 import { connect } from "react-redux"
 
 const Tooltip = ({ id, loot, equipment }) => {
-    const { color, stats, info, cost } = loot;
+    const { color, stats, cost } = loot;
     const [compare, setCompare] = useState(null);
-    const afterShowHandler = e => {
+    const afterShowHandler = () => {
+        compareStats(loot, equipment[loot.set]);
         setCompare(equipment[loot.set])
+    }
+    const compareStats = (l, e) => {
+        console.log(l, e)
+        return {}
     }
     const styles = `
         border-style: solid;
         border-width: 5px;
         background: white;
         padding: 0.5em 1em;
+        border-radius: 3px;
+        border-color: ${color};
     `;
     return (
         <ReactTooltip 
@@ -30,24 +38,24 @@ const Tooltip = ({ id, loot, equipment }) => {
             globalEventOff="click"
             afterShow={afterShowHandler}
         >
-            { compare && 
-                <div css={`
-                    ${styles}
-                    border-color: ${compare.color};
-                    margin-bottom: 0.5em;
-                    color: grey;
-                `}>
-                    <h5>Equipped</h5>
-                    <Stats info={compare.info} compare={loot}>{ compare.stats }</Stats>
-                </div>
-            }
             <div css={`
-                ${styles}
-                border-color ${color};  
+                display: grid;
+                grid-template-columns: 1fr min-content;
+                align-items: end;
+                grid-gap: 0.5em;
             `}>
-                <Stats info={info} compare={compare}>{ stats }</Stats>
+                <div css={`${styles}`}>
+                    <Stats>{ stats }</Stats>
+                </div>
                 <Price cost={cost} color={color} />
+                { compare && 
+                    <div css={`${styles} border-color: #333;`}>
+                        <h4>Stat comparison</h4>
+                        <Stats label={'label'}>{ stats }</Stats>
+                    </div>
+                }
             </div>
+            
         </ReactTooltip>
     );
 }

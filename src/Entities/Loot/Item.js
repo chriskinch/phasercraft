@@ -28,8 +28,8 @@ class Item {
 			const stat = it.next(key);
 			const converted = this.adjustStats(stat);
 			const normalised = this.round(converted);
-			this.stats[key] = normalised.rounded;
-			this.info[key] = normalised;
+			// this.stats[key] = normalised.rounded;
+			this.stats[key] = normalised;
 		});
 		this.category = this.getCategory();
 		this.icon = this.getIcon(this.category);

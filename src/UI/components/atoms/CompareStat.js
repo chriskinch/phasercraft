@@ -2,12 +2,17 @@ import React from "react";
 import 'styled-components/macro';
 import round from "lodash/round"
 
-const Stat = ({delimeter=":", icon, label, type, value}) => {
-    const formatted_label = label ? label : type.split("_").join(" ");
+const Stat = ({delimeter=":", icon, info, label, type="label", value, compare_value=0}) => {
+    const formatted_label = info ? info[type][label] : type.split("_").join(" ");
     const icon_css = (icon) ? `
         background: url(${icon}) no-repeat left center;
         padding-left: 16px;
     ` : null;
+    
+    const diff = round(value - compare_value, 2);
+    const modulated_diff = Math.sign(value) * diff;
+    const display_diff = modulated_diff === 0 ? '-' : modulated_diff;
+    const diff_colour = modulated_diff === 0 ? 'grey' : modulated_diff > 0 ? 'green' : 'red';
 
     return (
         <>
@@ -26,6 +31,7 @@ const Stat = ({delimeter=":", icon, label, type, value}) => {
                 margin-left: 0;
             `}>
                 { round(value, 2) }
+                { compare_value !== null && <span css={`color: ${diff_colour};`}>({display_diff})</span> }
             </dd>
         </>
     )

@@ -7,13 +7,12 @@ const Price = ({ color, cost }) => {
             background: rgba(255,255,255,0.95);
             border: 5px solid ${color};
             border-radius: 3px;
-            bottom: -39px;
             font-size: 1.2em;
-            left: -5px;
             padding: 0.1em 0.5em;
-            position: absolute;
+            white-space: nowrap;
         `}><img css={`
             width: 8px;
+            margin-right: 0.25em;
         `} src="./UI/icons/coin.gif" alt="Item cost:" /> {cost}</div>
     );
 }
