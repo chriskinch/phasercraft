@@ -25,13 +25,13 @@ const Equipment = ({
     return (
         <div css={`
             display: grid;
-            grid-template-columns: 150px 56px 1fr;
+            grid-template-columns: 150px 56px 1fr 1fr;
             grid-gap: 0.5em 1em;
             height: 100%;
             grid-template-areas:
-                "stats eq inv act"
-                "stats eq com com";
-            grid-template-rows: 1fr 101px;
+                "stats eq inv com"
+                "stats eq inv act";
+            grid-template-rows: 1fr min-content;
         `}>
             <section css={"grid-area: stats"}>
                 <h2 css="margin-bottom:0.5em">Level {level.currentLevel}</h2>
@@ -68,16 +68,21 @@ const Equipment = ({
             `}>
                 <Inventory />
             </section>
-            <Button css={`
+            <section css={`
                 grid-area: act;
-            `} text="$" onClick={() => {
-                const { inventory, selected } = store.getState();
-                (selected && inventory.includes(selected)) ? sellLoot(store.getState().selected) : console.log("Nothing to sell?");
-            }} />
+            `}>
+                <Button text="Sell" onClick={() => {
+                    const { inventory, selected } = store.getState();
+                    (selected && inventory.includes(selected)) ? sellLoot(store.getState().selected) : console.log("Nothing to sell?");
+                }} />
+                <Button text="Scrap" onClick={() => {
+                    console.log("Scrapping not implemented. :(");
+                }} />
+            </section>
             <section css={`
                 display: grid;
-                grid-template-columns: 1fr 1fr;
-                grid-gap: 1em;
+                grid-auto-rows: min-content;
+                grid-gap: 0.5em;
                 grid-area: com;
                 ${ pixel_emboss }
                 padding: 0.5em;

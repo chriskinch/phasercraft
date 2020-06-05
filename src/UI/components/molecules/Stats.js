@@ -12,7 +12,7 @@ const Stats = ({ info, children: { health, resource, ...stats }, compare, styles
         `}>
             { Object.entries(stats).map((stat, i) => {
                 const compare_value = compare ? compare.stats[stat[0]] : null;
-                return <Stat key={i} type={stat[0]} label='short' value={stat[1]} info={info} compare_value={compare_value} />
+                return <Stat key={i} type={stat[0]} label='abr' value={stat[1]} info={info} compare_value={compare_value} />
             })}
         </dl>
     )
