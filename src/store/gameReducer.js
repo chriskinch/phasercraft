@@ -2,10 +2,9 @@ import { createAction, createReducer } from "redux-starter-kit"
 import LootTable from "@Entities/Loot/LootTable"
 import mergeWith from "lodash/mergeWith"
 import remove from "lodash/remove"
-import _ from "lodash"
+import map from "lodash/map"
 
 // Init
-
 const initState = {
     character: null,
     showHUD: false,
@@ -124,8 +123,8 @@ export const generateLootTable = createAction("UPDATE_LOOT_TABLE", quantity => (
 
 // Helpers
 
-const addStats = (stats, add) => mergeWith(stats, add, (o,s) => o+s);
-const removeStats = (stats, add) => mergeWith(stats, add, (o,s) => o-s);
+const addStats = (stats, add) => mergeWith(stats, add, (o,s) => o+s.rounded);
+const removeStats = (stats, add) => mergeWith(stats, add, (o,s) => o-s.rounded);
 const syncStats = (state) => state.stats = state.base_stats;
 const sortAscending = key => (a, b) => a[key] > b[key] ? 1 : -1;
 const sortDecending = key => (a, b) => a[key] < b[key] ? 1 : -1;
@@ -155,9 +154,7 @@ export const gameReducer = createReducer(initState, {
     },
     [loadGame]: (state, action) => action.payload.state,
     [nextWave]: state => { state.wave++ },
-    [selectLoot]: (state, action) => {
-        state.selected = action.payload.id;
-    },
+    [selectLoot]: (state, action) => { state.selected = action.payload.id },
     [selectCharacter]: (state, action) => ({ ...state, showUi: false, ...action.payload }),
     [sellLoot]: (state, action) => {
         const { loot } = action.payload;
@@ -177,8 +174,8 @@ export const gameReducer = createReducer(initState, {
     },
     [switchUi]: (state, action) => ({ ...state, ...action.payload }),
     [toggleFilter]: (state, action) => {
-        if(action.payload.key) state.filters.includes(action.payload.key) ? _.remove(state.filters, i => i === action.payload.key) : state.filters.push(action.payload.key);
-        state.loot = _.map(state.loot, l => 
+        if(action.payload.key) state.filters.includes(action.payload.key) ? remove(state.filters, i => i === action.payload.key) : state.filters.push(action.payload.key);
+        state.loot = map(state.loot, l => 
             state.filters.every(r => Object.keys(l.stats).includes(r)) ? {...l, isHidden: false} : {...l, isHidden: true}
         );
     },
@@ -190,10 +187,6 @@ export const gameReducer = createReducer(initState, {
         removeStats(state.base_stats, action.payload.loot.stats);
         syncStats(state);
     },
-    [updateStats]: (state, action) => {
-        addStats(state.stats, action.payload.stats);
-    },
-    [generateLootTable]: (state, action) => {
-        state.loot = new LootTable(action.payload.quantity).loot
-    }
+    [updateStats]: (state, action) => { mergeWith(state.stats, action.payload.stats, (o,s) => o+s) },
+    [generateLootTable]: (state, action) => { state.loot = new LootTable(action.payload.quantity).loot }
 });

@@ -12,7 +12,6 @@ const Price = ({ color, cost }) => {
             white-space: nowrap;
         `}><img css={`
             width: 8px;
-            margin-right: 0.25em;
         `} src="./UI/icons/coin.gif" alt="Item cost:" /> {cost}</div>
     );
 }
