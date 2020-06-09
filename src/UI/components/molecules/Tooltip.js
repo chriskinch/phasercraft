@@ -21,7 +21,8 @@ const Tooltip = ({ id, loot, equipment }) => {
                 ...es,
                 adjusted: ls.adjusted - es.adjusted,
                 rounded: ls.rounded - es.rounded,
-                value: ls.value - es.value
+                value: ls.value - es.value,
+                polarity: Math.sign(Math.abs(ls.rounded)  - Math.abs(es.rounded))
             }; 
         })
         return merged;
@@ -34,6 +35,7 @@ const Tooltip = ({ id, loot, equipment }) => {
         border-radius: 3px;
         border-color: ${color};
     `;
+
     return (
         <ReactTooltip 
             css={`
@@ -58,7 +60,7 @@ const Tooltip = ({ id, loot, equipment }) => {
                 </div>
                 <Price cost={cost} color={color} />
                 { compare && 
-                    <div css={`${styles} border-color: #333;`}>
+                    <div css={`${styles} border-color: grey;`}>
                         <h4>Stat comparison</h4>
                         <Stats>{ compare }</Stats>
                     </div>

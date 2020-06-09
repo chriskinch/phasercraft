@@ -35,7 +35,7 @@ const Character = ({ character, equipment: { amulet, body, helm, weapon }, stats
                         `}
                     />
                     <StatBar type={"health"} label={"HP"} value={stats.health_max} />
-                    <StatBar type={resource_type} label={"RP"} value={stats.health_max} />
+                    <StatBar type={resource_type} label={"RP"} value={stats.resource_max} />
                 </div>
                 <GroupedStats stats={stats} />
             </section>

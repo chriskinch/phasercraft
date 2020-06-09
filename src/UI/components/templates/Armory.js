@@ -45,6 +45,7 @@ const Armory = ({coins, buyLoot, filters, sortLoot, toggleFilter, generateLootTa
                     <Button text="MP" on={filterOn("magic_power")} onClick={() => toggleFilter("magic_power") } />
                     <Button text="AS" on={filterOn("attack_speed")} onClick={() => toggleFilter("attack_speed")} />
                     <Button text="CC" on={filterOn("critical_chance")} onClick={() => toggleFilter("critical_chance")} />
+                    <Button text="HM" on={filterOn("health_max")} onClick={() => toggleFilter("health_max") } />
                     <Button text="HR" on={filterOn("health_regen_rate")} onClick={() => toggleFilter("health_regen_rate")} />
                     <Button text="HV" on={filterOn("health_regen_value")} onClick={() => toggleFilter("health_regen_value") } />
                     <Button text="DF" on={filterOn("defence")} onClick={() => toggleFilter("defence")} />

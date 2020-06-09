@@ -7,8 +7,6 @@ import { sellLoot } from "@store/gameReducer"
 import Button from "@atoms/Button"
 import Inventory from "@organisms/Inventory"
 import DroppableSlot from "@atoms/DroppableSlot"
-import Slot from "@atoms/Slot"
-import DetailedLoot from "@molecules/DetailedLoot"
 import GroupedStats from "@organisms/GroupedStats"
 import StatBar from "@molecules/StatBar"
 
@@ -25,7 +23,7 @@ const Equipment = ({
     return (
         <div css={`
             display: grid;
-            grid-template-columns: 150px 56px 1fr 1fr;
+            grid-template-columns: 150px 56px 1fr 66px;
             grid-gap: 0.5em 1em;
             height: 100%;
             grid-template-areas:
@@ -47,7 +45,7 @@ const Equipment = ({
                         `}
                     />
                     <StatBar type={"health"} label={"HP"} value={stats.health_max} />
-                    <StatBar type={resource_type} label={"RP"} value={stats.health_max} />
+                    <StatBar type={resource_type} label={"RP"} value={stats.resource_max} />
                 </div>
                 <GroupedStats stats={stats} />
             </section>
@@ -78,21 +76,6 @@ const Equipment = ({
                 <Button text="Scrap" onClick={() => {
                     console.log("Scrapping not implemented. :(");
                 }} />
-            </section>
-            <section css={`
-                display: grid;
-                grid-auto-rows: min-content;
-                grid-gap: 0.5em;
-                grid-area: com;
-                ${ pixel_emboss }
-                padding: 0.5em;
-            `}>
-                { selected &&
-                    <>
-                        <Slot loot={equipment[selected.set]} component={DetailedLoot} compare={selected} />
-                        <Slot loot={selected} component={DetailedLoot} compare={equipment[selected.set]} />
-                    </>
-                }
             </section>
         </div>
     );

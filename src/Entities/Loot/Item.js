@@ -1,3 +1,4 @@
+import { v4 as uuid } from 'uuid';
 import sample from "lodash/sample"
 import findKey from "lodash/findKey"
 import random from "lodash/random"
@@ -35,7 +36,7 @@ class Item {
 		this.icon = this.getIcon(this.category);
 		this.set = this.getSet(this.category);
 
-		this.uuid = Math.round(Math.random() * 1000000).toString();
+		this.uuid = uuid();
 		// console.log(this.quality, this, this.stat_pool)
 	}
 
