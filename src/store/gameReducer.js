@@ -22,7 +22,7 @@ const initState = {
         helm: null,
         weapon: null
     },
-    coins: 9999,
+    coins: 0,
     selected: null,
     saveSlot: null,
     wave: 1,

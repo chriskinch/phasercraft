@@ -29,7 +29,7 @@ export default class GameScene extends Scene {
 			TOP: 99999
 		}
 
-		store.dispatch(generateLootTable(99));
+		store.dispatch(generateLootTable(45));
 	}
 
 	init(config) {
