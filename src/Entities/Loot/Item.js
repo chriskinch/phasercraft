@@ -1,3 +1,4 @@
+import { v4 as uuid } from 'uuid';
 import sample from "lodash/sample"
 import findKey from "lodash/findKey"
 import random from "lodash/random"
@@ -28,14 +29,14 @@ class Item {
 			const stat = it.next(key);
 			const converted = this.adjustStats(stat);
 			const normalised = this.round(converted);
-			this.stats[key] = normalised.rounded;
-			this.info[key] = normalised;
+			// this.stats[key] = normalised.rounded;
+			this.stats[key] = normalised;
 		});
 		this.category = this.getCategory();
 		this.icon = this.getIcon(this.category);
 		this.set = this.getSet(this.category);
 
-		this.uuid = Math.round(Math.random() * 1000000).toString();
+		this.uuid = uuid();
 		// console.log(this.quality, this, this.stat_pool)
 	}
 

@@ -76,7 +76,7 @@ const LootListDrag = ({cols=6, list, name, selected, equipLoot, selectLoot, uneq
                     const isSelected = selected ? selected.uuid === loot.uuid : null;
                     return <LootDrag loot={loot} isSelected={isSelected} setSelected={() => {
                         selectLoot(loot)
-                    }} key={i} id={i.toString()} />
+                    }} key={loot.uuid} id={i.toString()} />
                 })
             }
         </div>

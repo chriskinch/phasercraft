@@ -1,4 +1,4 @@
-import React from "react"
+import React, { createContext } from "react"
 import { connect } from "react-redux"
 import { pixel_background } from "./themes"
 import { toggleUi } from "@store/gameReducer"
@@ -13,6 +13,8 @@ import Save from "@templates/Save"
 import System from "@templates/System"
 import CustomDragLayer from "@protons/CustomDragLayer"
 import "styled-components/macro"
+
+export const MenuContext = createContext('character');
 
 const UI = ({ menu, showHUD, showUi, toggleUi }) => {
     const config = {
@@ -96,7 +98,9 @@ const UI = ({ menu, showHUD, showUi, toggleUi }) => {
                         `}
                     >
                         <CustomDragLayer />
-                        <CurrentMenu.component {...CurrentMenu.props} />
+                        <MenuContext.Provider value={menu}>
+                            <CurrentMenu.component {...CurrentMenu.props} />
+                        </MenuContext.Provider>
                     </div>
                 </div>
             }

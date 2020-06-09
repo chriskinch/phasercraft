@@ -3,11 +3,11 @@ import "styled-components/macro"
 import LootIcon from "@atoms/LootIcon"
 import Tooltip from "./Tooltip"
 
-const Loot = ({loot, loot: {uuid}, tooltips, isSelected, setSelected}) => {
+const Loot = ({loot, loot: {uuid}, isSelected, setSelected}) => {
     if(loot.isHidden) return null;
     return (
         <>
-            {tooltips && <Tooltip id={uuid} loot={loot} /> }
+            <Tooltip id={uuid} loot={loot} />
             <div
                 data-tip
                 data-for={uuid}
