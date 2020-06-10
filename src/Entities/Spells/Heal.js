@@ -5,10 +5,10 @@ class Heal extends Spell {
 		const defaults = {
 			name: "heal",
 			icon_name: 'icon_0015_heal',
-			cooldown: 3,
+			cooldown: 5,
 			cost: {
-				rage: 20,
-				mana: 35,
+				rage: 25,
+				mana: 40,
 				energy: 30
 			},
 			type: 'heal'
@@ -28,7 +28,7 @@ class Heal extends Spell {
 
 	effect(target){
 		// Scales value bases on player stat
-		const value = this.setValue({ base: 130, key: "magic_power" });
+		const value = this.setValue({ base: 150, key: "magic_power" });
 		target.health.adjustValue(value.amount, this.type, value.crit);
 	}
 
