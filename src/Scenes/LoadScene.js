@@ -44,6 +44,7 @@ export default class LoadScene extends Scene {
 		this.load.atlas('enemy', 'atlas/atlas-enemy.png', 'atlas/atlas-enemy.json');
 		this.load.atlas('icon', 'atlas/atlas-icons.png', 'atlas/atlas-icons.json');
 		this.load.spritesheet('heal-effect', 'spritesheets/spells/heal.png', { frameWidth: 192, frameHeight: 192 });
+		this.load.spritesheet('faith-effect', 'spritesheets/spells/heal.png', { frameWidth: 192, frameHeight: 192 });
 		this.load.spritesheet('siphonsoul-effect', 'spritesheets/spells/heal.png', { frameWidth: 192, frameHeight: 192 });
 		this.load.spritesheet('earthshield-effect', 'spritesheets/spells/earthshield.png', { frameWidth: 150, frameHeight: 105 });
 		this.load.spritesheet('manashield-effect', 'spritesheets/spells/manashield.png', { frameWidth: 50, frameHeight: 50 });
