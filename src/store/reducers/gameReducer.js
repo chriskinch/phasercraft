@@ -1,4 +1,4 @@
-import { createAction, createReducer } from "redux-starter-kit"
+import { createAction, createReducer } from "@reduxjs/toolkit"
 import LootTable from "@Entities/Loot/LootTable"
 import mergeWith from "lodash/mergeWith"
 import remove from "lodash/remove"
@@ -11,6 +11,7 @@ const initState = {
     showUi: false,
     menu: "save",
     base_stats: {},
+    spells: [],
     stats: {},
     level: {},
     loot: [],
@@ -40,6 +41,10 @@ export const addLoot = createAction("ADD_LOOT", id => ({
 
 export const addXP = createAction("ADD_XP", value => ({
     payload: { value }
+}));
+
+export const assignSpells = createAction("ASSIGN_SPELLS", spells => ({
+    payload: { spells }
 }));
 
 export const buyLoot = createAction("BUY_LOOT", loot => ({
@@ -131,12 +136,13 @@ const sortDecending = key => (a, b) => a[key] < b[key] ? 1 : -1;
 
 // Reducers
 
-export const gameReducer = createReducer(initState, {
+export default createReducer(initState, {
     [addCoins]: (state, action) => { state.coins += action.payload.value },
     [addLoot]: (state, action) => {
         const loot = state.loot[action.payload.id];
         state.inventory.push(loot);
     },
+    [assignSpells]: (state, action) => ({ ...state, ...action.payload }),
     [addXP]: (state, action) => { state.xp += action.payload.value },
     [buyLoot]: (state, action) => {
         const { loot } = action.payload;

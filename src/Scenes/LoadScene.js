@@ -1,7 +1,7 @@
 import { Scene, GameObjects } from "phaser";
 import createAnimations from '../Config/animations';
-import store from "@store";
-import { toggleUi } from "@store/gameReducer";
+import store from "@store"
+import { toggleUi } from "@store/reducers/gameReducer";
 
 export default class LoadScene extends Scene {
 	preload(){
@@ -56,12 +56,14 @@ export default class LoadScene extends Scene {
 		this.load.spritesheet('multishot-effect', 'spritesheets/swoosh.png', { frameWidth: 32, frameHeight: 32 });
 		this.load.spritesheet('whirlwind-effect', 'spritesheets/spells/whirlwind.png', { frameWidth: 32, frameHeight: 32 });
 		this.load.image('consecration', 'spritesheets/spells/consecration.png', { frameWidth: 200, frameHeight: 200 });
+		this.load.image("tiles", "tilesets/tileset_organic_extruded.png");
+		// this.load.tilemapCSV('enchanted_forrest', 'tilesets/enchanted_forrest_map_base.csv');
+		this.load.tilemapTiledJSON('map', 'tilesets/enchanted_forrest_map.json');
 	}
 
 	create(){
 		createAnimations(this);
 		store.dispatch(toggleUi("save"));
 		this.scene.start('SelectScene');
-		//console.log(localStorage.getItem('itemname','contents'));
 	}
 }

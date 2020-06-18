@@ -1,6 +1,6 @@
 import React, { useState } from "react"
 import { connect } from "react-redux"
-import { loadGame, selectCharacter, setSaveSlot, switchUi, toggleHUD } from "@store/gameReducer"
+import { loadGame, selectCharacter, setSaveSlot, switchUi, toggleHUD } from "@store/reducers/gameReducer"
 import Button from "@atoms/Button"
 import Dialog from "@organisms/Dialog"
 import { dialog_overlay } from "@UI/themes"
@@ -96,7 +96,7 @@ const Save = ({loadGame, selectCharacter, setSaveSlot, switchUi, toggleHUD, load
 }
 
 const mapStateToProps = (state) => {
-    const { saveSlot } = state;
+    const { saveSlot } = state.game;
     return { saveSlot }
 };
 

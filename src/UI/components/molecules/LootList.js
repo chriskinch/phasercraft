@@ -2,7 +2,7 @@ import React from "react"
 import "styled-components/macro"
 import Loot from "@molecules/Loot"
 import { connect } from "react-redux"
-import { selectLoot } from "@store/gameReducer"
+import { selectLoot } from "@store/reducers/gameReducer"
 
 const LootList = ({cols=4, list, selected, selectLoot}) => {
     const items = [];
@@ -32,7 +32,7 @@ const LootList = ({cols=4, list, selected, selectLoot}) => {
 }
 
 const mapStateToProps = (state) => {
-    const { selected } = state;
+    const { selected } = state.game;
     return { selected }
 };
 

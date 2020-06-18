@@ -4,7 +4,7 @@ import { useDrop, useDrag } from "react-dnd"
 import { getEmptyImage } from "react-dnd-html5-backend"
 import Loot from "@molecules/Loot"
 import { connect } from "react-redux"
-import { equipLoot, selectLoot, unequipLoot } from "@store/gameReducer"
+import { equipLoot, selectLoot, unequipLoot } from "@store/reducers/gameReducer"
 import store from "@store"
 
 const LootListDrag = ({cols=6, list, name, selected, equipLoot, selectLoot, unequipLoot}) => {
@@ -20,7 +20,7 @@ const LootListDrag = ({cols=6, list, name, selected, equipLoot, selectLoot, uneq
             end: (item, monitor) => {
                 const dropResult = monitor.getDropResult();
                 if (item && dropResult) {
-                    const equipment = store.getState().equipment;
+                    const equipment = store.getState().game.equipment;
                     switch(dropResult.slot) {
                         case "amulet":
                         case "body":
@@ -84,7 +84,7 @@ const LootListDrag = ({cols=6, list, name, selected, equipLoot, selectLoot, uneq
 }
 
 const mapStateToProps = (state) => {
-    const { selected } = state;
+    const { selected } = state.game;
     return { selected }
 };
 

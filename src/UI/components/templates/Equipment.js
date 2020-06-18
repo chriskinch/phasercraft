@@ -3,7 +3,7 @@ import { connect } from "react-redux"
 import "styled-components/macro"
 import { pixel_emboss } from "@UI/themes"
 import store from "@store"
-import { sellLoot } from "@store/gameReducer"
+import { sellLoot } from "@store/reducers/gameReducer"
 import Button from "@atoms/Button"
 import Inventory from "@organisms/Inventory"
 import DroppableSlot from "@atoms/DroppableSlot"
@@ -70,8 +70,8 @@ const Equipment = ({
                 grid-area: act;
             `}>
                 <Button text="Sell" onClick={() => {
-                    const { inventory, selected } = store.getState();
-                    (selected && inventory.includes(selected)) ? sellLoot(store.getState().selected) : console.log("Nothing to sell?");
+                    const { inventory, selected } = store.getState().game;
+                    (selected && inventory.includes(selected)) ? sellLoot(store.getState().game.selected) : console.log("Nothing to sell?");
                 }} />
                 <Button text="Scrap" onClick={() => {
                     console.log("Scrapping not implemented. :(");
@@ -82,7 +82,7 @@ const Equipment = ({
 }
 
 const mapStateToProps = (state) => {
-    const { character, equipment, stats, level, selected } = state;
+    const { character, equipment, stats, level, selected } = state.game;
     return { character, equipment, stats, level, selected }
 };
 

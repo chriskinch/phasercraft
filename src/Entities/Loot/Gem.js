@@ -1,6 +1,6 @@
 import { GameObjects, Display } from 'phaser';
 import store from "@store"
-import { addCoins } from "@store/gameReducer"
+import { addCoins } from "@store/reducers/gameReducer"
 import getRandomVelocity from "@Helpers/getRandomVelocity"
 import random from "lodash/random"
 

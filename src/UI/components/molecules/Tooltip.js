@@ -72,7 +72,7 @@ const Tooltip = ({ id, loot, equipment }) => {
 }
 
 const mapStateToProps = (state) => {
-    const { equipment } = state;
+    const { equipment } = state.game;
     return { equipment }
 };
 

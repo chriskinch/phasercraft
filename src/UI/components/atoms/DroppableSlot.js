@@ -4,7 +4,7 @@ import Loot from "@molecules/Loot"
 import { pixel_emboss } from "@UI/themes"
 import { useDrop } from "react-dnd"
 import { connect } from "react-redux"
-import { unequipLoot } from "@store/gameReducer"
+import { unequipLoot } from "@store/reducers/gameReducer"
 
 const DroppableSlot = ({loot, slot, unequipLoot}) => {
     const [{ canDrop, isOver }, drop] = useDrop({

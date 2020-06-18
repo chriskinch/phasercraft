@@ -1,6 +1,6 @@
 import StatusEffects from "./StatusEffects"
 import store from "@store"
-import { setStats, updateStats } from "@store/gameReducer"
+import { setStats, updateStats } from "@store/reducers/gameReducer"
 
 class Boons extends StatusEffects {
     addEffect(boon) {
@@ -9,10 +9,10 @@ class Boons extends StatusEffects {
 
     calculate(boons) {
         // Always start from base_stats when calculating boons.
-        store.dispatch(setStats(store.getState().base_stats));
+        store.dispatch(setStats(store.getState().game.base_stats));
         // Loop through boons with an iterator to hit nested objects
         boons.forEach(boon => {
-            return store.dispatch(updateStats(this.resolveStats(boon.value, store.getState().base_stats)))
+            return store.dispatch(updateStats(this.resolveStats(boon.value, store.getState().game.base_stats)))
         });
     }
 

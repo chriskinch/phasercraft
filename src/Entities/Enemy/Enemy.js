@@ -113,7 +113,13 @@ class Enemy extends GameObjects.Container {
 
 		this.active_group.add(this);
 
-		this.scene.physics.add.collider(this.target.hero, this, () => this.attack(), null, this);
+		this.scene.physics.add.collider(this.target, this, () => this.attack(), null, this);
+
+		this.scene.physics.add.collider(this, this.scene.mapset.trees);
+		this.scene.physics.add.collider(this, this.scene.mapset.bushes);
+		this.scene.physics.add.collider(this, this.scene.mapset.ore);
+		this.scene.physics.add.collider(this, this.scene.mapset.details);
+
 		this.collider = this.scene.physics.add.collider(this.scene.active_enemies, this.scene.active_enemies);
 
 		this.on('pointerdown', () => {

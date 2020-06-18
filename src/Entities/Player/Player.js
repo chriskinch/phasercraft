@@ -7,7 +7,7 @@ import AssignResource from "@Entities/Resources/AssignResource"
 import targetVector from "@Helpers/targetVector"
 import Boons from "@Entities/UI/Boons"
 import store from "@store"
-import { addXP, setBaseStats, setLevel, setStats } from "@store/gameReducer"
+import { addXP, assignSpells, setBaseStats, setLevel, setStats } from "@store/reducers/gameReducer"
 import isEmpty from "lodash/isEmpty"
 import mapStateToData from "@Helpers/mapStateToData"
 import CombatText from "../UI/CombatText"
@@ -22,20 +22,23 @@ class Player extends GameObjects.Container {
 		this.uuid = uuid();
 		const base_stats = {...stats, resource_type}; // Add resource type into to base stats.
 		// Adding this in place for when there is a stats state when resuming from gameover or a save.
-		if(isEmpty(store.getState().base_stats)) store.dispatch(setBaseStats(base_stats));
-		if(isEmpty(store.getState().stats)) store.dispatch(setStats(base_stats));
+		if(isEmpty(store.getState().game.base_stats)) store.dispatch(setBaseStats(base_stats));
+		if(isEmpty(store.getState().game.stats)) store.dispatch(setStats(base_stats));
 
 		this.hero = new Hero({
 			scene: scene,
 			key: 'player',
 		});
 		this.add(this.hero);
-		
-		this.setSize(this.hero.getBounds().width, this.hero.getBounds().height, true);
 		scene.physics.world.enable(this);
 		scene.add.existing(this);
+
+		const {width, height} = this.hero.getBounds();			
+		this.setSize(width, height/2, true);
+		this.body.setSize(width, height/2, true);
+		this.body.setOffset(0, height/4)
 		
-		this.body.collideWorldBounds = true;
+		// this.body.collideWorldBounds = true;
 		this.body.immovable = true;
 		this.body.setFriction(0,0);
 
@@ -90,18 +93,20 @@ class Player extends GameObjects.Container {
 		scene.events.once('player:dead', this.death, this);
 		scene.events.on('enemy:attack', this.hit, this);
 		this.health.on('change', this.healthChanged);
-		
-		this.spells = abilities.map((spell, i) => {
-			return new AssignSpell(spell, {
-				player: this,
-				scene: scene,
-				x: this.x,
-				y: this.y,
-				key: `spell-${spell.toLowerCase()}`,
-				hotkey:converter.toWords(i+1).toUpperCase(),
-				slot:i
-			});
-		});
+
+		store.dispatch(assignSpells(
+			abilities.map((spell, i) => {
+				return new AssignSpell(spell, {
+					player: this,
+					scene: scene,
+					x: this.x,
+					y: this.y,
+					key: `spell-${spell.toLowerCase()}`,
+					hotkey:converter.toWords(i+1).toUpperCase(),
+					slot:i
+				})
+			})
+		))
 
 		this.idle();
 
@@ -110,17 +115,15 @@ class Player extends GameObjects.Container {
 		scene.events.on('pointermove:game', this.gameMoveHandler, this);
 		scene.events.on('pointerup:game', this.gameUpHandler, this);
 		scene.events.on('enemy:dead', this.targetDead, this);
-		this.on('pointerdown', () => scene.events.emit('pointerdown:player', this));
+		this.on('pointerdown', () => {
+			scene.events.emit('pointerdown:player', this)
+		});
 
-		scene.events.on('spell:primed', () => this.spellPrimed = true, this);
-		scene.events.on('spell:cast', () => this.spellPrimed = false, this);
-		scene.events.on('spell:cleared', () => this.spellPrimed = false, this);
+		// scene.events.on('spell:primed', () => this.spellPrimed = true, this);
+		// scene.events.on('spell:cast', () => this.spellPrimed = false, this);
+		// scene.events.on('spell:cleared', () => this.spellPrimed = false, this);
 
 		// mapStateToData("stats", s => this.stats = s);
-	}
-
-	temp(s) {
-		console.log("CHANGED: ", s, this)
 	}
 
 	drawBar(opt) {
@@ -154,24 +157,25 @@ class Player extends GameObjects.Container {
 	}
 
 	gameDownHandler(scene, pointer){
-		if(!this.spellPrimed) {
+		// console.log("PRIMED: ", this.spellPrimed)
+		// if(!this.spellPrimed) {
 			this.dragging = true;
-			this.moveTo(pointer);
-		}
+			this.moveTo({x:pointer.worldX, y:pointer.worldY});
+		// }
 	}
 
 	gameMoveHandler(scene, pointer){
-		if(this.dragging) this.moveTo(pointer);
+		if(this.dragging) this.moveTo({x:pointer.worldX, y:pointer.worldY});
 	}
 
 	gameUpHandler(){
 		this.dragging = false;
 	}
 
-	moveTo(target){
+	moveTo({x, y}){
 		this.destination = {
-			x: target.x,
-			y: target.y
+			x: x,
+			y: y
 		}
 		this.scene.physics.moveTo(this, this.destination.x, this.destination.y, this.stats.speed);
 		this.walk();
@@ -223,7 +227,7 @@ class Player extends GameObjects.Container {
 
 	goToRange(){
 		let target = this.scene.selected;
-		this.moveTo(target);
+		this.moveTo({x:target.x, y:target.y});
 		let distance = Phaser.Math.Distance.Between(target.x,target.y, this.x, this.y);
 		let hit_distance = distance - target.hit_radius;
 
@@ -287,7 +291,7 @@ class Player extends GameObjects.Container {
 		if(!this.scene.selected) this.idle();
 	}
 
-	setExperience(exp = store.getState().xp, count = 1) {
+	setExperience(exp = store.getState().game.xp, count = 1) {
 		const xpCurve = l => (l*l) + (l*10);
 		const next = xpCurve(count);
 		const remainder = exp - next;

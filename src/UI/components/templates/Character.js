@@ -57,7 +57,7 @@ const Character = ({ character, equipment: { amulet, body, helm, weapon }, stats
 }
 
 const mapStateToProps = (state) => {
-    const { character, equipment, stats, level } = state;
+    const { character, equipment, stats, level } = state.game;
     return { character, equipment, stats, level }
 };
 

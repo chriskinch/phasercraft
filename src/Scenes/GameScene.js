@@ -8,7 +8,7 @@ import enemyTypes from "@Config/enemies.json"
 import bossTypes from "@Config/bosses.json"
 import sample from "lodash/sample"
 
-import { generateLootTable, nextWave, toggleHUD } from "@store/gameReducer"
+import { generateLootTable, nextWave, toggleHUD } from "@store/reducers/gameReducer"
 import store from "@store"
 
 export default class GameScene extends Scene {
@@ -36,7 +36,7 @@ export default class GameScene extends Scene {
 		this.config = config;
 	}
 
-	create (){
+	create (){	
 		const scene_padding = 40;
 		this.global_game_width = this.sys.game.config.width;
 		this.global_game_height = this.sys.game.config.height;
@@ -60,26 +60,55 @@ export default class GameScene extends Scene {
 		const typeClass = this.config.type.charAt(0).toUpperCase() + this.config.type.substring(1);
 		this.player = new AssignClass(typeClass, {
 			scene:this,
-			x: 100,
-			y: 100
+			x: this.global_game_width / 2,
+			y: this.global_game_height / 2
 		});
 
 		this.enemies = this.add.group();
 		this.enemies.runChildUpdate = true;
 		this.active_enemies = this.add.group();
-		this.startLevel(store.getState().wave);
+		this.startLevel(store.getState().game.wave);
 
 		this.setLevelCompleteUI();
-
-		//this.cameras.main.startFollow(this.player hero);
 
 		this.input.mouse.capture = true;
 		this.cursors = this.input.keyboard.createCursorKeys();
 		this.cursors.esc = this.input.keyboard.addKey(Input.Keyboard.KeyCodes.ESC);
 
-		this.physics.add.collider(this.player.hero, this);
-
 		this.events.once('player:dead', this.gameOver, this);
+
+		// When loading from an array, make sure to specify the tileWidth and tileHeight
+		const map = this.make.tilemap({ key: "map"});
+		// const tileset = map.addTilesetImage("tileset_organic", "tiles");
+		const tileset = map.addTilesetImage("tileset_organic", "tiles", 16, 16, 1, 2);
+		this.mapset = {
+			base: map.createStaticLayer("base", tileset, 0, 0),
+			trees: map.createStaticLayer("trees", tileset, 0, 0),
+			bushes: map.createStaticLayer("bushes", tileset, 0, 0),
+			ore: map.createStaticLayer("ore", tileset, 0, 0),
+			details: map.createStaticLayer("details", tileset, 0, 0)
+		}
+		this.mapset.trees.setCollisionByProperty({ collides: true });
+		this.mapset.bushes.setCollisionByProperty({ collides: true });
+		this.mapset.ore.setCollisionByProperty({ collides: true });
+		this.mapset.details.setCollisionByProperty({ collides: true });
+
+		// const debugGraphics = this.add.graphics().setAlpha(0.75);
+		// mapset.trees.renderDebug(debugGraphics, {
+		// 	tileColor: null, // Color of non-colliding tiles
+		// 	collidingTileColor: new Display.Color(243, 134, 48, 255), // Color of colliding tiles
+		// 	faceColor: new Display.Color(40, 39, 37, 255) // Color of colliding face edges
+		// });
+
+		// Camera
+		const camera = this.cameras.main;
+		camera.setBounds(0, 0, map.widthInPixels, map.heightInPixels);
+		camera.startFollow(this.player);
+
+		this.physics.add.collider(this.player, this.mapset.trees);
+		this.physics.add.collider(this.player, this.mapset.bushes);
+		this.physics.add.collider(this.player, this.mapset.ore);
+		this.physics.add.collider(this.player, this.mapset.details);
 
 		// Resume physics if we load the scene post game over.
 		this.physics.resume();
@@ -104,7 +133,7 @@ export default class GameScene extends Scene {
 		// this.events.emit('increment:wave');
 		// this.level_complete.setVisible(false);
 		// this.level_complete.button.input.enabled = false;
-		this.startLevel(store.getState().wave);
+		this.startLevel(store.getState().game.wave);
 	}
 
 	startLevel(wave = 1){
@@ -116,8 +145,8 @@ export default class GameScene extends Scene {
 			// Spawn the list of predefined enemies from the wave json
 			this.spawnEnemies(enemies);
 		}else{
-			const wave_set = Math.floor(store.getState().wave / 10);
-			const wave_sub = store.getState().wave % 10;
+			const wave_set = Math.floor(store.getState().game.wave / 10);
+			const wave_sub = store.getState().game.wave % 10;
 			const boss_wave = wave_sub === 0 ? true : false;
 			if(boss_wave) {
 				// If the wave is a multiple of 10 it's a boss!
@@ -230,7 +259,7 @@ export default class GameScene extends Scene {
 
 		// TODO: Make the timings smarter
 		const time_scale = 5000;
-		const n_wave = store.getState().wave+1;
+		const n_wave = store.getState().game.wave+1;
 		const min_delay = n_wave * this.global_spawn_time;
 		const wave_offset = n_wave * time_scale;
 		const time_limit = min_delay + wave_offset + time_scale;

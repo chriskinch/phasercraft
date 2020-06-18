@@ -1,6 +1,6 @@
 import React, { useState } from "react"
 import { connect } from "react-redux"
-import { switchUi, toggleUi } from "@store/gameReducer";
+import { switchUi, toggleUi } from "@store/reducers/gameReducer";
 import Button from "@atoms/Button"
 import Dialog from "@organisms/Dialog"
 import { dialog_overlay } from "@UI/themes"
@@ -39,7 +39,7 @@ const System = ({state, saveSlot, switchUi, toggleUi}) => {
 }
 
 const mapStateToProps = (state) => {
-    const { saveSlot } = state;
+    const { saveSlot } = state.game;
     return { state, saveSlot }
 };
 

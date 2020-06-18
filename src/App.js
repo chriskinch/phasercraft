@@ -6,7 +6,7 @@ import Game from "./Game"
 import UI from "@UI/UI";
 import { Provider } from "react-redux";
 
-import store from "@store";
+import store from "@store"
 
 // import HTML5Backend from 'react-dnd-html5-backend'
 import TouchBackend from 'react-dnd-touch-backend';

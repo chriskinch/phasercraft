@@ -1,7 +1,7 @@
 import React, { createContext } from "react"
 import { connect } from "react-redux"
 import { pixel_background } from "./themes"
-import { toggleUi } from "@store/gameReducer"
+import { toggleUi } from "@store/reducers/gameReducer"
 import Arcanum from "@templates/Arcanum"
 import Armory from "@templates/Armory"
 import Character from "@templates/Character"
@@ -109,7 +109,7 @@ const UI = ({ menu, showHUD, showUi, toggleUi }) => {
 }
 
 const mapStateToProps = (state) => {
-    const { menu, showUi, showHUD } = state;
+    const { menu, showUi, showHUD } = state.game;
     return { menu, showHUD, showUi }
 };
 

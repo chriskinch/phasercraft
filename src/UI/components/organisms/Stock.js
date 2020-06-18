@@ -10,7 +10,7 @@ const Stock = ({ loot }) => {
 }
 
 const mapStateToProps = (state) => {
-    const { loot } = state;
+    const { loot } = state.game;
     return { loot }
 };
 

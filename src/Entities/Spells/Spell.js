@@ -1,5 +1,7 @@
-import { GameObjects, Display } from "phaser"
+import { GameObjects } from "phaser"
+import mapStateToData from "@Helpers/mapStateToData"
 import store from "@store"
+import { disableSpell, enableSpell, clearSpell  } from "@store/reducers/spellReducer"
 
 class Spell extends GameObjects.Sprite {
 	constructor({scene, x, y, key, ...config} = {}) {
@@ -9,17 +11,17 @@ class Spell extends GameObjects.Sprite {
         this.typedCost = this.cost[this.player.resource.name];
         this.hasAnimation = true;
         this.enabled = false;
-        // Placeholder empty function for clearing last spell
-        this.player.clearLastPrimedSpell = () => {};
         
         this.setAnimation();
-        Object.assign(this, this.setIcon());
         // Initial state is assumed to be off so monitor spell.
         this.monitorSpell();
         
         this.scene.events.on('spell:disableall', this.killSpell, this);
         this.scene.events.on('spell:enableall', this.monitorSpell, this);
         this.scene.add.existing(this).setDepth(1000).setVisible(false);
+
+        mapStateToData("primed", primed => this.primeSpell(primed), {init:false, type:"spell"});
+        mapStateToData("disabled", disabled => this.primeSpell(disabled), {init:false, type:"spell"});
     }
 
     checkResource() {
@@ -40,9 +42,8 @@ class Spell extends GameObjects.Sprite {
 
     enableSpell() {
         if(!this.enabled) {
-            this.button.setAlpha(1);
-            this.setButtonEvents('on');
             this.enabled = true;
+            store.dispatch(enableSpell(this.name))
         }
     }
 
@@ -53,11 +54,9 @@ class Spell extends GameObjects.Sprite {
 
     disableSpell() {
         if(this.enabled) {
-            this.button.setAlpha(0.4);
-            this.setButtonEvents('off');
             this.setCastEvents('off');
-            this.out();
-            this.player.clearLastPrimedSpell = () => {};
+            store.dispatch(disableSpell(this.name))
+            // this.player.clearLastPrimedSpell = () => {};
             this.enabled = false;
         }
     }
@@ -68,10 +67,9 @@ class Spell extends GameObjects.Sprite {
     }
 
     clearSpell() {
-        this.out();
         this.setCastEvents('off');
-        this.setButtonEvents('on');
         this.scene.events.emit('spell:cleared', this);
+        store.dispatch(clearSpell(this.name))
     }
 
     setCooldown() {
@@ -80,17 +78,25 @@ class Spell extends GameObjects.Sprite {
 			to: this.cooldown,
 			duration: this.cooldown * 1000,
 			onStart: () => {
-                this.text.setVisible(true);
+                // this.text.setVisible(true);
 			},
 			onUpdate: () => {
                 const time = this.cooldown - Math.floor(this.cooldownTimer.getValue());
-                this.text.setText(time);
+                // this.text.setText(time);
             },
 			onComplete: () => {
-                this.text.setVisible(false);
+                // this.text.setVisible(false);
                 this.onResourceChangeHandler();
             }
         });
+    }
+
+    primeSpell(primed) {
+        // this.disableSpell();
+        // this.enableSpell();
+        const onoff = this === primed ? "on" : "off";
+        console.log(this, primed, onoff)
+        this.setCastEvents(onoff);
     }
     
     castSpell(target) {
@@ -112,56 +118,6 @@ class Spell extends GameObjects.Sprite {
         }
 		this.scene.events.emit('spell:cast', this);
 	}
-	
-	clearLastPrimedSpell() {
-		this.player.clearLastPrimedSpell();
-		this.player.clearLastPrimedSpell = () => this.clearSpell(this.name);
-	}
-    
-    setPrimed() {
-		this.clearLastPrimedSpell();
-        this.scene.events.emit('spell:primed', this);
-        this.setButtonEvents('off');
-        this.setCastEvents('on');
-		this.button.setTint(0xff9955);
-    }
-
-    over() {
-		this.button.setTint(0x55ff55);
-	}
-
-	out() {
-        // For some reason this doesn work as this.button.setTint(); ???
-		// this.scene.time.delayedCall(0, () => this.button.setTint(), [], this);
-		this.button.setTint();
-    }
-
-    setButtonEvents(state) {
-        this.button[state]('pointerover', this.over, this);
-        this.button[state]('pointerout', this.out, this);
-        this.button[state]('pointerdown', this.setPrimed, this);
-        this.button.scene.input.keyboard[state](`keydown-${this.hotkey}`, this.setPrimed, this);
-    }
-
-    setIcon() {
-        const button = this.scene.add.sprite(0, 0, 'icon', this.icon_name)
-            .setInteractive()
-            .setDepth(this.scene.depth_group.UI)
-            .setAlpha(0.4)
-            .setScale(1.5);
-
-		let styles = {
-			font: '16px monospace',
-			fill: '#ffffff',
-			align: 'center'
-		};
-		const text = this.scene.add.text(-2, -2, this.cooldown, styles).setOrigin(0.5).setDepth(this.scene.depth_group.UI).setVisible(false);
-
-		Display.Align.In.BottomLeft(button, this.scene.UI.frames[this.slot]);
-        Display.Align.In.Center(text, button, 0, 0);
-        
-        return {button: button, text: text};
-    }
 
     setAnimation() {
         this.scene.anims.create({
@@ -187,7 +143,7 @@ class Spell extends GameObjects.Sprite {
     }
     
     setValue({base, key, reducer=(v)=>v }){
-        const power = store.getState().stats[key];
+        const power = store.getState().game.stats[key];
 		// Value based on base + scaled percentage of base from power + flat percent of power
 		const scaled = base + (base * (power/100)) + power/10;
 		// Check for crit

@@ -1,6 +1,6 @@
 import { GameObjects } from 'phaser';
 import store from "@store"
-import { addCoins } from "@store/gameReducer"
+import { addCoins } from "@store/reducers/gameReducer"
 import getRandomVelocity from "@Helpers/getRandomVelocity"
 
 class Coin extends GameObjects.Sprite {

@@ -1,6 +1,6 @@
-import { GameObjects, Display, Actions } from 'phaser';
-import { toggleHUD, toggleUi, addLoot, loadGame } from "@store/gameReducer";
-import store from '@store';
+import { GameObjects, Display, Actions } from "phaser"
+import { toggleHUD, toggleUi, addLoot, loadGame } from "@store/reducers/gameReducer"
+import store from "@store"
 import mapStateToData from "@Helpers/mapStateToData"
 
 const styles = {
@@ -12,11 +12,9 @@ class UI extends GameObjects.Container {
 	constructor(scene) {
 		super(scene, 0, 0);
 		
-		this.spells = 5;
 		this.spacing = 60;
 		this.frames = [];
 
-		this.setSpellFrames();
 		this.setCoinCount();
 		this.setWaveCount();
 		this.buttons = [
@@ -41,9 +39,9 @@ class UI extends GameObjects.Container {
 		scene.input.keyboard.on('keyup-R', () => store.dispatch(addLoot(Math.floor(Math.random() * 100))), this);
 
 		// Saving
-		const slot = store.getState().saveSlot;
+		const slot = store.getState().game.saveSlot;
 		scene.input.keyboard.on('keyup-S', () => {
-			localStorage.setItem(slot, JSON.stringify(store.getState()))
+			localStorage.setItem(slot, JSON.stringify(store.getState().game))
 		}, this);
 		scene.input.keyboard.on('keyup-D', () => {
 			["slot_a", "slot_b", "slot_c"].forEach(slot => {localStorage.removeItem(slot)});
@@ -54,16 +52,6 @@ class UI extends GameObjects.Container {
 		}, this);
 
 		this.scene.add.existing(this).setDepth(this.scene.depth_group.UI);
-	}
-
-	setSpellFrames(){
-		let x = Display.Bounds.GetLeft(this.scene.zone);
-		let y = Display.Bounds.GetBottom(this.scene.zone);
-		for(let i=0; i<this.spells; i++) {
-			let frame = this.scene.add.sprite(x + (this.spacing*i), y, 'icon', 'icon_blank').setAlpha(0.3).setScale(1.5);
-			this.add(frame);
-			this.frames.push(frame);
-		}
 	}
 
 	setCoinCount(){

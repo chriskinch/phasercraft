@@ -4,7 +4,7 @@ import "styled-components/macro"
 import { pixel_emboss } from "@UI/themes"
 import Button from "@atoms/Button"
 import Stock from "@organisms/Stock"
-import { buyLoot, generateLootTable, toggleFilter, sortLoot } from "@store/gameReducer"
+import { buyLoot, generateLootTable, toggleFilter, sortLoot } from "@store/reducers/gameReducer"
 import store from "@store"
 
 const Armory = ({coins, buyLoot, filters, sortLoot, toggleFilter, generateLootTable}) => {
@@ -22,9 +22,9 @@ const Armory = ({coins, buyLoot, filters, sortLoot, toggleFilter, generateLootTa
                 <Button text="Stats" onClick={() => sortLoot("stat_pool", "decending")} />
                 <h3>Action</h3>
                 <Button text="Buy" onClick={() => {
-                    const selected = store.getState().selected;
+                    const selected = store.getState().game.selected;
                     if(selected?.cost <= coins) {
-                        buyLoot(store.getState().selected);
+                        buyLoot(store.getState().game.selected);
                     }else{
                         console.log("CANNOT AFFORD")
                     }
@@ -63,7 +63,7 @@ const Armory = ({coins, buyLoot, filters, sortLoot, toggleFilter, generateLootTa
 }
 
 const mapStateToProps = (state) => {
-    const { coins, filters} = state;
+    const { coins, filters} = state.game;
     return { coins, filters }
 };
 

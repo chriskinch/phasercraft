@@ -1,6 +1,6 @@
 import { GameObjects } from "phaser"
 import store from "@store"
-import { setStats, setBaseStats } from "@store/gameReducer"
+import { setStats, setBaseStats } from "@store/reducers/gameReducer"
 import pick from "lodash/pick"
 import mapStateToData from "@Helpers/mapStateToData"
 
@@ -27,8 +27,7 @@ class Resource extends GameObjects.Sprite {
 		if(this.container.name === "player") {
 			store.dispatch(setStats(this.resources));
 			store.dispatch(setBaseStats(this.resources));
-
-			// console.log(this.selectKeys(this.category))
+			
 			this.selectKeys(this.category).forEach(key => {
 				mapStateToData(
 					`stats.${key}`,
