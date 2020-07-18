@@ -12,7 +12,7 @@
     "craco-alias": "^2.1.0",
     "craco-babel-loader": "^0.1.4",
     "jest-canvas-mock": "^2.1.2",
-    "lodash": "^4.17.15",
+    "lodash": "^4.17.19",
     "phaser": "3.21.0",
     "polished": "^3.4.1",
     "react": "^16.8.6",
