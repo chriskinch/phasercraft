@@ -8,7 +8,7 @@ class Smite extends Spell {
 			cooldown: 3,
 			cost: {
 				rage: 30,
-				mana: 50,
+				mana: 150,
 				energy: 40
 			},
 			type: 'magic'

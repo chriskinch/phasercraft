@@ -1,7 +1,7 @@
 import { GameObjects } from "phaser"
 import mapStateToData from "@Helpers/mapStateToData"
 import store from "@store"
-import { disableSpell, enableSpell, clearSpell  } from "@store/reducers/spellReducer"
+import { disableAllSpells, disableSpell, enableSpell, clearSpell, listSpell, removeCooldown, setCooldown  } from "@store/reducers/spellReducer"
 
 class Spell extends GameObjects.Sprite {
 	constructor({scene, x, y, key, ...config} = {}) {
@@ -10,18 +10,23 @@ class Spell extends GameObjects.Sprite {
         
         this.typedCost = this.cost[this.player.resource.name];
         this.hasAnimation = true;
-        this.enabled = false;
         
+        store.dispatch(listSpell(this.name));
+
         this.setAnimation();
         // Initial state is assumed to be off so monitor spell.
         this.monitorSpell();
         
-        this.scene.events.on('spell:disableall', this.killSpell, this);
+        // this.scene.events.on('spell:disableall', this.killSpell, this);
         this.scene.events.on('spell:enableall', this.monitorSpell, this);
         this.scene.add.existing(this).setDepth(1000).setVisible(false);
 
-        mapStateToData("primed", primed => this.primeSpell(primed), {init:false, type:"spell"});
-        mapStateToData("disabled", disabled => this.primeSpell(disabled), {init:false, type:"spell"});
+        // mapStateToData("primed", primed => this.primeSpell(primed), {init:false, type:"spell"});
+        // mapStateToData("disabled", disabled => this.primeSpell(disabled), {init:false, type:"spell"});
+
+        mapStateToData(`list[${this.name}].primed`, primed => this.onPrimedHandler(primed), {init:false, type:"spell"});
+        mapStateToData(`list[${this.name}].disabled`, disabled => this.onDisabledHandler(disabled), {init:false, type:"spell"});
+
     }
 
     checkResource() {
@@ -37,33 +42,25 @@ class Spell extends GameObjects.Sprite {
     }
 
     onResourceChangeHandler() {
-        this.checkReady() ? this.enableSpell() : this.disableSpell();
-    }
-
-    enableSpell() {
-        if(!this.enabled) {
-            this.enabled = true;
-            store.dispatch(enableSpell(this.name))
-        }
+        this.checkReady() && store.dispatch(enableSpell(this.name));
     }
 
     monitorSpell() {
+        if(this.checkReady()) store.dispatch(enableSpell(this.name));
         this.player.resource.on('change', this.onResourceChangeHandler, this);
-        if(this.checkReady()) this.enableSpell();
     }
 
-    disableSpell() {
-        if(this.enabled) {
-            this.setCastEvents('off');
-            store.dispatch(disableSpell(this.name))
-            // this.player.clearLastPrimedSpell = () => {};
-            this.enabled = false;
-        }
+    onDisabledHandler(disabled) {
+        // const events = disabled ? "off" : "on";
+        const change = disabled ? 'on' : 'off';
+        
+        // this.setCastEvents(events);
+        this.player.resource[change]('change', this.onResourceChangeHandler, this);
     }
 
     killSpell() {
         this.player.resource.off('change', this.onResourceChangeHandler, this);
-        this.disableSpell();
+        store.dispatch(disableSpell(this.name))
     }
 
     clearSpell() {
@@ -79,6 +76,9 @@ class Spell extends GameObjects.Sprite {
 			duration: this.cooldown * 1000,
 			onStart: () => {
                 // this.text.setVisible(true);
+                // this.killSpell();
+                store.dispatch(disableAllSpells());
+                store.dispatch(setCooldown(this.name, this.cooldown * 1000));
 			},
 			onUpdate: () => {
                 const time = this.cooldown - Math.floor(this.cooldownTimer.getValue());
@@ -86,17 +86,14 @@ class Spell extends GameObjects.Sprite {
             },
 			onComplete: () => {
                 // this.text.setVisible(false);
-                this.onResourceChangeHandler();
+                store.dispatch(removeCooldown(this.name));
+                this.monitorSpell();
             }
         });
     }
 
-    primeSpell(primed) {
-        // this.disableSpell();
-        // this.enableSpell();
-        const onoff = this === primed ? "on" : "off";
-        console.log(this, primed, onoff)
-        this.setCastEvents(onoff);
+    onPrimedHandler(primed) {
+        this.setCastEvents(primed ? "on" : "off");
     }
     
     castSpell(target) {
@@ -114,9 +111,8 @@ class Spell extends GameObjects.Sprite {
                 this.killSpell();
             }
         }else{
-            this.scene.events.emit('spell:disableall', this);
+            store.dispatch(disableAllSpells());
         }
-		this.scene.events.emit('spell:cast', this);
 	}
 
     setAnimation() {
@@ -150,7 +146,11 @@ class Spell extends GameObjects.Sprite {
 		const crit = this.player.isCritical();
 		const total = reducer(crit ? scaled * 1.5 : scaled);
 		return { crit: crit, amount: total };
-	}
+    }
+    
+    onSpellChange(spell) {
+
+    }
 }
 
 export default Spell;
