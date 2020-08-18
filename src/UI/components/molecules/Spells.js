@@ -6,6 +6,7 @@ import { v4 as uuid } from 'uuid';
 import 'styled-components/macro'
 
 const Spells = ({disabled, primeSpell, spells}) => {
+    console.log("Hello: ", spells)
     return (
         <div 
             css={`

@@ -95,7 +95,6 @@ class Spell extends GameObjects.Sprite {
         // this.disableSpell();
         // this.enableSpell();
         const onoff = this === primed ? "on" : "off";
-        console.log(this, primed, onoff)
         this.setCastEvents(onoff);
     }
     
