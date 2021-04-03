@@ -7,11 +7,10 @@ import { connect } from "react-redux"
 import { equipLoot, selectLoot, unequipLoot } from "@store/gameReducer"
 import store from "@store"
 
-const Inventory = ({cols=6, name, selected, equipLoot, selectLoot, unequipLoot}) => {
+const Inventory = ({cols=6, name, selected, equipLoot, selectLoot, unequipLoot, inventory}) => {
     // This must go here rather then inside the Loot component due to this bug:
     // https://github.com/react-dnd/react-dnd/issues/1589
     // Wraps the Loot component instead. Means some duplication of code. :(
-    const list = store.getState().inventory;
     const LootDrag = (props) => {
         const { loot } = props;
         const { category, color, icon, set, uuid } = loot;
@@ -71,8 +70,8 @@ const Inventory = ({cols=6, name, selected, equipLoot, selectLoot, unequipLoot})
                 overflow-y: scroll;
             `}
         >
-            { list &&
-                list.map((loot, i) => {
+            { inventory &&
+                inventory.map((loot, i) => {
                     // Check for matching selected uuid
                     console.log(selected, loot)
                     const isSelected = selected ? selected.uuid === loot.uuid : null;
@@ -86,8 +85,8 @@ const Inventory = ({cols=6, name, selected, equipLoot, selectLoot, unequipLoot})
 }
 
 const mapStateToProps = (state) => {
-    const { selected } = state;
-    return { selected }
+    const { selected, inventory } = state;
+    return { selected, inventory }
 };
 
 export default connect(mapStateToProps, {equipLoot, selectLoot, unequipLoot})(Inventory);
