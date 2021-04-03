@@ -1,6 +1,8 @@
 const { ApolloServer, MockList } = require('apollo-server');
 const typeDefs = require('./schema');
 const casual = require('casual');
+const ItemAPI = require('./datasources/items');
+const resolvers = require('./resolvers');
 
 const categories = {amulet: 3, armor: 30, axe: 40, bow: 6, gem: 10, helmet: 50, misc: 12, staff: 3, sword: 24};
 const qualities = {common: [15,30], fine: [25,50], rare: [40, 80], epic: [65, 130], legendary: [110, 220]};
@@ -38,7 +40,15 @@ const mocks = {
   })
 };
 
-const server = new ApolloServer({ typeDefs, mocks });
+const server = new ApolloServer({
+  typeDefs,
+  resolvers,
+  mocks,
+  mockEntireSchema: false,
+  dataSources: () =>({
+    itemAPI: new ItemAPI(),
+  })
+});
 
 server.listen().then(() => {
   console.log(`

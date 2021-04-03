@@ -17,7 +17,7 @@ import { DndProvider } from 'react-dnd';
 
 const client = new ApolloClient({
     uri: 'http://localhost:4000',
-    cache: new InMemoryCache(),
+    cache: new InMemoryCache({resultCaching: false}),
 })
 
 document.body.setAttribute("style", "margin:0;");
