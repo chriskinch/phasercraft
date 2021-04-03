@@ -7,7 +7,7 @@ import Stock from "@organisms/Stock"
 import { buyLoot, generateLootTable, toggleFilter, sortLoot } from "@store/gameReducer"
 import store from "@store"
 
-const Armory = ({coins, buyLoot, filters, sortLoot, toggleFilter, generateLootTable}) => {
+const Armory = ({loot, coins, buyLoot, filters, sortLoot, toggleFilter, generateLootTable}) => {
     const filterOn = filter => filters.includes(filter);
     return (
         <div css={`
@@ -56,15 +56,15 @@ const Armory = ({coins, buyLoot, filters, sortLoot, toggleFilter, generateLootTa
                 ${ pixel_emboss }
                 padding: 0.5em;
             `}>
-                <Stock />
+                <Stock list={loot} name={"stock"} cols={9} />
             </section>
         </div>
     );
 }
 
 const mapStateToProps = (state) => {
-    const { coins, filters} = state;
-    return { coins, filters }
+    const { coins, filters, loot} = state;
+    return { coins, filters, loot }
 };
 
 export default connect(mapStateToProps, { buyLoot, sortLoot, toggleFilter, generateLootTable })(Armory);
