@@ -1,0 +1,98 @@
+org: chriskinch
+app: armory-items
+service: items
+
+frameworkVersion: ">=2"
+
+plugins:
+  - serverless-dynamodb-local
+  - serverless-offline
+
+custom:
+  dynamodb:
+    stages:
+      - dev
+    start:
+      port: 8000
+      inMemory: true
+      migrate: true
+    # Comment if you don't have a DynamoDB running locally
+      # noStart: true
+    migration:
+      dir: offline/migrations
+  serverless-offline:
+    httpPort: 3001
+
+provider:
+  name: aws
+  runtime: nodejs12.x
+  environment:
+    DYNAMODB_TABLE: ${self:service}-${opt:stage, self:provider.stage}
+  iamRoleStatements:
+    - Effect: Allow
+      Action:
+        - dynamodb:Query
+        - dynamodb:Scan
+        - dynamodb:GetItem
+        - dynamodb:PutItem
+        - dynamodb:UpdateItem
+        - dynamodb:DeleteItem
+      Resource: "arn:aws:dynamodb:${opt:region, self:provider.region}:*:table/${self:provider.environment.DYNAMODB_TABLE}"
+
+functions:
+  create:
+    handler: items/create.create
+    events:
+      - http:
+          path: items
+          method: post
+          cors: true
+
+  list:
+    handler: items/list.list
+    events:
+      - http:
+          path: items
+          method: get
+          cors: true
+
+  get:
+    handler: items/get.get
+    events:
+      - http:
+          path: items/{id}
+          method: get
+          cors: true
+
+  update:
+    handler: items/update.update
+    events:
+      - http:
+          path: items/{id}
+          method: put
+          cors: true
+
+  delete:
+    handler: items/delete.delete
+    events:
+      - http:
+          path: items/{id}
+          method: delete
+          cors: true
+
+resources:
+  Resources:
+    ItemsDynamoDbTable:
+      Type: 'AWS::DynamoDB::Table'
+      DeletionPolicy: Retain
+      Properties:
+        AttributeDefinitions:
+          -
+            AttributeName: id
+            AttributeType: S
+        KeySchema:
+          -
+            AttributeName: id
+            KeyType: HASH
+        BillingMode: PAY_PER_REQUEST
+        TableName: ${self:provider.environment.DYNAMODB_TABLE}
