@@ -10,21 +10,14 @@ const stats = ["attack_power", "attack_speed", "magic_power", "critical_chance",
 
 casual.define('item', () => {
   const category = casual.random_key(categories);
+  const quality = casual.random_key(qualities);
   const icon = `${category}_${casual.integer(1, categories[category])}`;
   return {
       name: casual.title,
       category,
+      quality,
       icon,
       stats: () => new MockList([1,4]),
-  };
-});
-
-casual.define('quality', () => {
-  const quality = casual.random_key(qualities);
-  
-  return {
-      name: quality,
-      pool: casual.integer(qualities[quality][0], qualities[quality][1])
   };
 });
 
@@ -33,7 +26,6 @@ const mocks = {
     items: () => new MockList(100),
   }),
   Item: () => casual.item,
-  Quality: () => casual.quality,
   Stat: () => ({
     name: () => casual.random_element(stats),
     value: () => casual.integer(1, 50),
@@ -43,8 +35,8 @@ const mocks = {
 const server = new ApolloServer({
   typeDefs,
   resolvers,
-  mocks,
-  mockEntireSchema: false,
+  // mocks,
+  // mockEntireSchema: false,
   dataSources: () =>({
     itemAPI: new ItemAPI(),
   })

@@ -8,7 +8,7 @@ import map from "lodash/map"
 const initState = {
     character: null,
     showHUD: false,
-    showUi: false,
+    showUi: true,
     menu: "save",
     base_stats: {},
     stats: {},

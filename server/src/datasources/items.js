@@ -1,5 +1,10 @@
 const { RESTDataSource } = require('apollo-datasource-rest');
 
+const sortKeys = Object.freeze({
+  pool: 'pool',
+  quality: 'qualitySort',
+});
+
 class ItemAPI extends RESTDataSource {
   constructor() {
     super();
@@ -7,8 +12,19 @@ class ItemAPI extends RESTDataSource {
     // this.baseURL = 'https://sro42uvs8l.execute-api.us-east-1.amazonaws.com/dev';
   }
 
-  async getAllItems() {
+  async getAllItems({orderBy}) {
     const response = await this.get('items');
+    
+    if(orderBy) {
+      const key = Object.keys(orderBy)[0];
+      const sortKey = sortKeys[Object.keys(orderBy)[0]];
+      if(orderBy[key] === "asc") response.sort((a, b) => a[sortKey] - b[sortKey]);
+      if(orderBy[key] === "desc") response.sort((a, b) => b[sortKey] - a[sortKey]);
+      console.log(response, key)
+    }
+    
+    
+
     return Array.isArray(response)
       ? response.map(item => this.itemReducer(item))
       : [];
@@ -19,24 +35,24 @@ class ItemAPI extends RESTDataSource {
     return this.itemReducer(response);
   }
 
-  itemReducer({id, name, category, icon, quality, pool, stats}) {
-    if(!id) throw new Error('ID does not exist!');
+  async postItem(item) {
+    const response = await this.post('items', item);
+    return this.itemReducer(response);
+  }
 
-    const statsArray = Object.entries(stats).map(stat => ({ 
-      name: stat[0],
-      value: stat[1]
-    }));
+  itemReducer({id, name, category, set, icon, quality, cost, pool, stats}) {
+    if(!id) throw new Error('ID does not exist!');
 
     return {
       id,
       name,
       category,
+      set,
       icon,
-      quality: {
-        name: quality,
-        pool,
-      },
-      stats: statsArray,
+      quality,
+      cost,
+      pool,
+      stats,
     };
   }
 

@@ -6,8 +6,13 @@ import Price from "@atoms/Price"
 import { connect } from "react-redux"
 
 const Tooltip = ({ id, loot, equipment }) => {
-    const { color, stats, cost } = loot;
+    const { color, cost } = loot;
+    const sstats = loot.stats;
+    const stats = {};
+    sstats.forEach(s => stats[s.name] = s.value);
     const [compare, setCompare] = useState(null);
+
+
     const afterShowHandler = () => {
         loot && equipment[loot.set] && loot !== equipment[loot.set] ? setCompare(compareStats(loot, equipment[loot.set])) : setCompare(null);
     }

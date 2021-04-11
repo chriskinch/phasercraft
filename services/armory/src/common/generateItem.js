@@ -1,38 +1,52 @@
+import uuid from 'uuid';
 import { statNames, itemCategories } from './constants'
 import random from 'lodash/random'
 import sampleSize from 'lodash/sampleSize'
 import sample from 'lodash/sample'
+import findKey from 'lodash/findKey'
 
 const FCG = require('fantasy-content-generator');
 
 const getRandomStatNames = (number = 1) => sampleSize(statNames, number);
 
-const qualityMap = {
+const getQualityMap = () => ({
   common: {
     keys: getRandomStatNames(random(1, 2)),
-    pool: random(15,30)
+    pool: random(15,30),
+    qualitySort: 1,
+    cost: 5,
   },
   fine: {
     keys: getRandomStatNames(random(1, 3)),
-    pool: random(25,50)
+    pool: random(25,50),
+    qualitySort: 2,
+    cost: 15,
   },
   rare: {
     keys: getRandomStatNames(random(2, 3)),
-    pool: random(40,80)
+    pool: random(40,80),
+    qualitySort: 3,
+    cost: 40,
   },
   epic: {
     keys: getRandomStatNames(random(2, 3)),
-    pool: random(65,130)
+    pool: random(65,130),
+    qualitySort: 4,
+    cost: 90,
   },
   legendary: {
     keys: getRandomStatNames(random(3, 4)),
-    pool: random(110,220)
+    pool: random(110,220),
+    qualitySort: 5,
+    cost: 200,
   }
-}
+});
 
 const getRandomCategory = () => sample(itemCategories);
 const getIcon = category => `${category}_${random(1, { amulet: 3, armor: 30, axe: 40, bow: 6, gem: 10, helmet: 50, misc: 12, staff: 3, sword: 24 }[category])}`;
 const getQuality = (roll = Math.random()) => (roll < 0.01) ? "legendary" : (roll < 0.1) ? "epic" : (roll < 0.3) ? "rare" : (roll < 0.6) ? "fine" : "common";
+const getSet = category => findKey({ amulet: ["amulet", "gem", "misc"], body: ["armor"], helm: ["helmet"], weapon: ["axe", "bow", "staff", "sword"] }, c => c.includes(category));
+
 
 const allocateStatIterator = (pool, length) => {
   let count = 0;
@@ -51,19 +65,30 @@ const allocateStatIterator = (pool, length) => {
   return statIterator;
 }
 
-const getStats = quality => {
-  const {pool, keys} = qualityMap[quality];
+const getStats = map => {
+  const {pool, keys} = map;
   const it = allocateStatIterator(pool, keys.length);
-  return keys.map(key => ({ name: key, value: it.next(key).value }))
+  return keys.map(key => ({
+    id: uuid(),
+    name: key,
+    value: it.next(key).value
+  }))
 }
 
 export const generateItem = data => {
+  const qualityMap = getQualityMap();
   const generated = FCG.MagicItems.generate();
   const name = data?.name || generated.formattedData.title;
   const category = data?.category || getRandomCategory();
+  const set = data?.set || getSet(category);
   const quality = data?.quality || getQuality();
+  const qualitySort = data?.qualitySort || qualityMap[quality].qualitySort;
+  const cost = data?.cost || qualityMap[quality].cost;
+  const pool = data?.pool || qualityMap[quality].pool;
   const icon = data?.icon || getIcon(category);
-  const stats = data?.stats || getStats(quality);
+  const stats = data?.stats.map(s => ({...s, id: uuid()})) || getStats(qualityMap[quality]);
+
+  console.log(set)
   
-  return {...data, name, category, quality, icon, stats};
+  return {...data, name, category, set, quality, qualitySort, cost, pool, icon, stats};
 }

@@ -60,7 +60,6 @@ export default class LoadScene extends Scene {
 
 	create(){
 		createAnimations(this);
-		store.dispatch(toggleUi("save"));
 		this.scene.start('SelectScene');
 		//console.log(localStorage.getItem('itemname','contents'));
 	}

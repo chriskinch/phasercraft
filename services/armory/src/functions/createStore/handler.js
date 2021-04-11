@@ -4,7 +4,8 @@ import { generateItem } from '../../common/generateItem'
 import { marshall } from '@aws-sdk/util-dynamodb';
 
 const handler = async event => {
-	const requests = Array.from({length: 45}, () => ({
+	const amount = event?.body?.amount || 1;
+	const requests = Array.from({length: amount}, () => ({
 		PutRequest: {
 			Item: marshall({
 				id: uuid(),

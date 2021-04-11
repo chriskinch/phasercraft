@@ -13,6 +13,8 @@ const handler = async event => {
     }),
     ReturnValues: 'ALL_OLD',
   };
+
+  console.log("CHECK: ", params.Item.stats.L[0])
   
   try {
     await dynamodb.putItem(params);

@@ -11,11 +11,10 @@ const ITEMS = gql`
             id
             name
             category
+            set
             icon
-            quality {
-                name
-                pool
-            }
+            quality
+            cost
             stats {
                 id
                 name
@@ -25,24 +24,37 @@ const ITEMS = gql`
     }
 `;
 
+export const qualityColors = Object.freeze({
+    COMMON: "#bbbbbb",
+    FINE: "#00dd00",
+    RARE: "#0077ff",
+    EPIC: "#9900ff",
+    LEGENDARY: "#ff9900",
+});
+
 const Stock = ({cols=4, selected, selectLoot, loot}) => {
     const { loading, error, data } = useQuery(ITEMS);
 
     if(loading) return 'Loading...';
 
     if(error) return `ERROR: ${error.message}`;
+    const lootn = data.items;
+    const decorated = lootn.map(l => ({
+        ...l,
+        color: qualityColors[l.quality.toUpperCase()]
+    }));
 
-    console.log("DATA:", data)
+    console.log("DATA:", decorated, loot)
 
     const items = [];
-    for(const item of loot){
+    for(const item of decorated){
         // Check for matching selected uuid
-        const isSelected = selected ? selected.uuid === item.uuid : null;
+        const isSelected = selected ? selected.id === item.id : null;
         items.push(<Loot 
             loot={item}
             isSelected={isSelected}
             setSelected={() => { selectLoot(item) }}
-            key={item.uuid}
+            key={item.id}
         />);
     }
 
@@ -56,7 +68,7 @@ const Stock = ({cols=4, selected, selectLoot, loot}) => {
                 overflow-y: scroll;
             `}
         >
-            { loot && items }
+            { data && items }
         </div>
     );
 }
