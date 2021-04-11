@@ -5,10 +5,15 @@ service: items
 frameworkVersion: ">=2"
 
 plugins:
+  - serverless-webpack
   - serverless-dynamodb-local
   - serverless-offline
 
 custom:
+  webpack: 
+    webpackConfig: ./webpack.config.js
+    includeModules: true
+    packager: yarn
   dynamodb:
     stages:
       - dev
@@ -40,8 +45,24 @@ provider:
       Resource: "arn:aws:dynamodb:${opt:region, self:provider.region}:*:table/${self:provider.environment.DYNAMODB_TABLE}"
 
 functions:
+  createStore:
+    handler: src/functions/createStore/index.default
+    events:
+      - http:
+          path: createStore
+          method: post
+          cors: true
+
+  clearStore:
+    handler: src/functions/clearStore/index.default
+    events:
+      - http:
+          path: clearStore
+          method: post
+          cors: true
+          
   create:
-    handler: items/create.create
+    handler: src/functions/create/index.default
     events:
       - http:
           path: items
@@ -49,7 +70,7 @@ functions:
           cors: true
 
   list:
-    handler: items/list.list
+    handler: src/functions/list/index.default
     events:
       - http:
           path: items
@@ -57,23 +78,15 @@ functions:
           cors: true
 
   get:
-    handler: items/get.get
+    handler: src/functions/get/index.default
     events:
       - http:
           path: items/{id}
           method: get
           cors: true
 
-  update:
-    handler: items/update.update
-    events:
-      - http:
-          path: items/{id}
-          method: put
-          cors: true
-
   delete:
-    handler: items/delete.delete
+    handler: src/functions/delete/index.default
     events:
       - http:
           path: items/{id}
