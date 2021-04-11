@@ -49,7 +49,7 @@ const handler = async event => {
     return {
       statusCode: err.statusCode || 501,
       headers: { 'Content-Type': 'text/plain' },
-      body: 'Couldn\'t create the item.',
+      body: 'Couldn\'t create the items.',
     };
   }
 };

@@ -22,7 +22,7 @@ const handler = async () => {
     return {
       statusCode: err.statusCode || 501,
       headers: { 'Content-Type': 'text/plain' },
-      body: 'Couldn\'t create the item.',
+      body: 'Couldn\'t list the items.',
     };
   }
 };

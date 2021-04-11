@@ -15,8 +15,7 @@ const handler = async event => {
   };
   
   try {
-    const data = await dynamodb.putItem(params);
-    console.log("Success: ", data)
+    await dynamodb.putItem(params);
     return {
           statusCode: 200,
           headers: {

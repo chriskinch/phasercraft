@@ -1,7 +1,6 @@
 'use strict';
 
 const { DynamoDB } = require("@aws-sdk/client-dynamodb");
-const { DynamoDBClient } = require("@aws-sdk/client-dynamodb");
 
 let options = {};
 
@@ -11,11 +10,12 @@ if (process.env.IS_OFFLINE) {
     region: 'localhost',
     endpoint: 'http://localhost:8000',
   };
+}else{
+  options = {
+    region: 'us-east-1'
+  }
 }
 
-const client = new DynamoDB({
-  region: 'localhost',
-  endpoint: 'http://localhost:8000',
-});
+const client = new DynamoDB(options);
 
 module.exports = client;
