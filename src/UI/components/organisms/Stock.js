@@ -44,7 +44,7 @@ const Stock = ({cols=4, selected, selectLoot, loot}) => {
         color: qualityColors[l.quality.toUpperCase()]
     }));
 
-    console.log("DATA:", decorated, loot)
+    // console.log("DATA:", decorated, loot)
 
     const items = [];
     for(const item of decorated){

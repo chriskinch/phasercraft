@@ -20,11 +20,8 @@ class ItemAPI extends RESTDataSource {
       const sortKey = sortKeys[Object.keys(orderBy)[0]];
       if(orderBy[key] === "asc") response.sort((a, b) => a[sortKey] - b[sortKey]);
       if(orderBy[key] === "desc") response.sort((a, b) => b[sortKey] - a[sortKey]);
-      console.log(response, key)
     }
     
-    
-
     return Array.isArray(response)
       ? response.map(item => this.itemReducer(item))
       : [];

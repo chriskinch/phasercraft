@@ -6,38 +6,8 @@ import Legendary from "./Legendary";
 
 class LootTable {
 	constructor(quantity) {
-
-		this.loot = Array.from({length: quantity}, () => this.qualityRoll());
-		// this.getLoot().then(result => {
-		// 	if(result.length === 0) {
-		// 		this.createLootTable(quantity).then(r => console.log("CREATE LOOT: ", r));
-		// 	}else{
-		// 		console.log("NEW LOOT: ", result)
-		// 	}
-		// });
+		this.loot = Array.from({length: quantity}, () => this.qualityRoll());	
 	}
-
-	// async getLoot() {
-	// 	const loot = fetch('http://localhost:3001/dev/items')
-	// 	.then(response => response.json())
-	// 	.then(data => data);
-	// 	return loot;
-	// }
-
-	// async createLootTable(quantity) {
-	// 	const loot = Array.from({length: quantity}, () => {
-	// 		fetch('http://localhost:3001/dev/items', {
-	// 			method: 'POST',
-	// 			headers: {
-	// 				'Content-Type': 'application/json'
-	// 			}
-	// 		})
-	// 		.then(response => response.json())
-	// 		.then(data => data)
-	// 	});
-	// 	const resolved = await Promise.all(loot);
-	// 	return resolved;
-	// } 
 
 	qualityRoll(roll = Math.random()) {
 		return (

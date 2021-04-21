@@ -26,6 +26,7 @@ const Inventory = ({cols=6, name, selected, equipLoot, selectLoot, unequipLoot, 
                         case "body":
                         case "helm":
                         case "weapon":
+                            // console.log("EQUIP: ", store.getState().stats)
                             if(equipment[set]) unequipLoot(equipment[set]);
                             equipLoot(loot);
                             break;
@@ -73,7 +74,6 @@ const Inventory = ({cols=6, name, selected, equipLoot, selectLoot, unequipLoot, 
             { inventory &&
                 inventory.map((loot, i) => {
                     // Check for matching selected uuid
-                    console.log(selected, loot)
                     const isSelected = selected ? selected.uuid === loot.uuid : null;
                     return <LootDrag loot={loot} isSelected={isSelected} setSelected={() => {
                         selectLoot(loot)

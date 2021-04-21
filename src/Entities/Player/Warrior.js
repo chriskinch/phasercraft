@@ -5,18 +5,18 @@ class Warrior extends Player {
         const defaults = {
             classification: "warrior",
             stats: {
-                attack_power: 50,
-                attack_speed: 1,
-                magic_power: 10,
-                critical_chance: 10,
+                attack_power: 100,
+                attack_speed: 60,
+                magic_power: 20,
+                critical_chance: 120,
                 speed: 100,
                 range: 40,
                 knockback: 100,
-                defence: 60,
-                health_max: 1300,
-                health_value: 1300,
-                health_regen_value: 15,
-                health_regen_rate: 0.75
+                defence: 120,
+                health_max: 130,
+                health_value: 130,
+                health_regen_value: 150,
+                health_regen_rate: 130
             },
             resource_type: "Rage",
             abilities: ["Whirlwind", "Enrage"]

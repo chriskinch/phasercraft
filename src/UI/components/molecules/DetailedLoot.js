@@ -14,7 +14,7 @@ const DetailedLoot = ({id, loot, compare}) => {
             border-radius: 0.25em;
         `}>
             <LootIcon {...loot} id={id} styles={{width:16, override:'margin-right:0.5em;'}} />
-            <Stats info={loot.info} compare={compare} styles={{width:'100%'}}>{ loot.stats }</Stats>
+            <Stats info={loot.info} stats={loot.stats} compare={compare} styles={{width:'100%'}} />
         </div>
     );
 };

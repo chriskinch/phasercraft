@@ -1,37 +1,34 @@
+import { v4 as uuid } from 'uuid';
 import React, { useState } from "react"
 import ReactTooltip from "react-tooltip"
 import "styled-components/macro"
 import Stats from "./Stats"
 import Price from "@atoms/Price"
 import { connect } from "react-redux"
+import find from "lodash/find"
 
 const Tooltip = ({ id, loot, equipment }) => {
-    const { color, cost } = loot;
-    const sstats = loot.stats;
-    const stats = {};
-    sstats.forEach(s => stats[s.name] = s.value);
+    const { color, cost, stats } = loot;
     const [compare, setCompare] = useState(null);
 
-
     const afterShowHandler = () => {
-        loot && equipment[loot.set] && loot !== equipment[loot.set] ? setCompare(compareStats(loot, equipment[loot.set])) : setCompare(null);
+        loot && equipment[loot.set] && loot !== equipment[loot.set] ? setCompare(compareStats(stats, equipment?.[loot.set]?.stats)) : setCompare(null);
     }
-    const compareStats = (l, e) => {
-        const merged = {};
-        Object.keys({...l.stats, ...e.stats}).forEach(key =>{
-            const ls = l.stats[key] ? l.stats[key] : { adjusted: 0, rounded: 0, value: 0 };
-            const es = e.stats[key] ? e.stats[key] : { adjusted: 0, rounded: 0, value: 0 };
-            merged[key] = {
-                ...ls,
-                ...es,
-                adjusted: ls.adjusted - es.adjusted,
-                rounded: ls.rounded - es.rounded,
-                value: ls.value - es.value,
-                polarity: Math.sign(Math.abs(ls.rounded)  - Math.abs(es.rounded))
-            }; 
-        })
-        return merged;
+    
+    const compareStats = (lootStats = [], equipStats = []) => {
+        const list = [...lootStats, ...equipStats];
+        const unique = [...new Set(list.map(l => l.name))];
+        return unique.map(key =>{
+            const diff = (find(lootStats, ['name', key])?.value || 0) - (find(equipStats, ['name', key])?.value || 0);
+            return {
+                id: uuid(),
+                name: key,
+                value: diff,
+                polarity: Math.sign(diff),
+            }
+        });
     }
+
     const styles = `
         border-style: solid;
         border-width: 5px;
@@ -61,13 +58,13 @@ const Tooltip = ({ id, loot, equipment }) => {
                 grid-gap: 0.5em;
             `}>
                 <div css={`${styles}`}>
-                    <Stats>{ stats }</Stats>
+                    <Stats stats={stats} />
                 </div>
                 <Price cost={cost} color={color} />
                 { compare && 
                     <div css={`${styles} border-color: grey;`}>
                         <h4>Stat comparison</h4>
-                        <Stats>{ compare }</Stats>
+                        <Stats stats={compare} />
                     </div>
                 }
             </div>

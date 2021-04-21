@@ -28,7 +28,6 @@ class Resource extends GameObjects.Sprite {
 			store.dispatch(setStats(this.resources));
 			store.dispatch(setBaseStats(this.resources));
 
-			// console.log(this.selectKeys(this.category))
 			this.selectKeys(this.category).forEach(key => {
 				mapStateToData(
 					`stats.${key}`,

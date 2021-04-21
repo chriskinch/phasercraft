@@ -11,6 +11,7 @@ import { addXP, setBaseStats, setLevel, setStats } from "@store/gameReducer"
 import isEmpty from "lodash/isEmpty"
 import mapStateToData from "@Helpers/mapStateToData"
 import CombatText from "../UI/CombatText"
+import { makeVar } from '@apollo/client';
 
 const converter = require('number-to-words');
 
@@ -117,10 +118,11 @@ class Player extends GameObjects.Container {
 		scene.events.on('spell:cleared', () => this.spellPrimed = false, this);
 
 		// mapStateToData("stats", s => this.stats = s);
-	}
 
-	temp(s) {
-		console.log("CHANGED: ", s, this)
+		const cartItemsVar = makeVar([]);
+		console.log("TEST: ", cartItemsVar());
+		cartItemsVar([100, 101, 102]);
+		console.log("TEST2: ", cartItemsVar());
 	}
 
 	drawBar(opt) {

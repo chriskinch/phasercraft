@@ -12,7 +12,7 @@ const handler = async event => {
 
   try {
     const data = await dynamodb.deleteItem(params);
-    const item = unmarshall(data.Item);
+    const item = unmarshall(data.Attributes);
     return {
           statusCode: 200,
           headers: {

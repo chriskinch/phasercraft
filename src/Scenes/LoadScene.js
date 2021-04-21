@@ -61,6 +61,5 @@ export default class LoadScene extends Scene {
 	create(){
 		createAnimations(this);
 		this.scene.start('SelectScene');
-		//console.log(localStorage.getItem('itemname','contents'));
 	}
 }

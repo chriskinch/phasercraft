@@ -6,8 +6,24 @@ import Button from "@atoms/Button"
 import Stock from "@organisms/Stock"
 import { buyLoot, generateLootTable, toggleFilter, sortLoot } from "@store/gameReducer"
 import store from "@store"
+import { useMutation, gql } from '@apollo/client';
 
-const Armory = ({loot, coins, buyLoot, filters, sortLoot, toggleFilter, generateLootTable}) => {
+const REMOVE_ITEM = gql`
+    mutation Mutation($removeItemId: ID!) {
+        removeItem(id: $removeItemId) {
+            __typename
+            id
+        }
+    }
+`;
+
+const Armory = ({loot, coins, filters, buyLoot, sortLoot, toggleFilter, generateLootTable}) => {
+    const [removeItem] = useMutation(REMOVE_ITEM, {
+        update(cache, { data: { removeItem } }) {
+            const key = cache.identify(removeItem);
+            cache.data.delete(key)
+        }
+    });
     const filterOn = filter => filters.includes(filter);
     return (
         <div css={`
@@ -24,6 +40,7 @@ const Armory = ({loot, coins, buyLoot, filters, sortLoot, toggleFilter, generate
                 <Button text="Buy" onClick={() => {
                     const selected = store.getState().selected;
                     if(selected?.cost <= coins) {
+                        removeItem({ variables: { removeItemId: store.getState().selected.id } });
                         buyLoot(store.getState().selected);
                     }else{
                         console.log("CANNOT AFFORD")
