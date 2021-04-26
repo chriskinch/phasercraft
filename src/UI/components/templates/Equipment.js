@@ -9,17 +9,21 @@ import Inventory from "@organisms/Inventory"
 import DroppableSlot from "@atoms/DroppableSlot"
 import GroupedStats from "@organisms/GroupedStats"
 import StatBar from "@molecules/StatBar"
+import { useReactiveVar, useQuery, gql } from "@apollo/client";
+import { equippedVar, statsVar } from "@root/cache"
+import { GET_ITEMS } from "@queries/getItems"
 
-const Equipment = ({
-    character,
-    equipment,
-    equipment: { amulet, body, helm, weapon },
-    stats,
-    stats: { resource_type },
-    level,
-    selected,
-    sellLoot
-}) => {
+const Equipment = ({ character, level, sellLoot }) => {
+    const { loading, error, data } = useQuery(GET_ITEMS);
+    const { amulet, body, helm, weapon } = useReactiveVar(equippedVar);
+    const stats = useReactiveVar(statsVar);
+    const { resource_type } = stats;
+
+    if(loading) return 'Loading...';
+    if(error) return `ERROR: ${error.message}`;
+    
+    const items = data.items.filter(i => i.isInInventory);
+
     return (
         <div css={`
             display: grid;
@@ -64,7 +68,7 @@ const Equipment = ({
                 ${ pixel_emboss }
                 padding: 0.5em;
             `}>
-                <Inventory />
+                <Inventory items={items} />
             </section>
             <section css={`
                 grid-area: act;
@@ -82,8 +86,8 @@ const Equipment = ({
 }
 
 const mapStateToProps = (state) => {
-    const { character, equipment, stats, level, selected } = state;
-    return { character, equipment, stats, level, selected }
+    const { character, level } = state;
+    return { character, level }
 };
 
 export default connect(mapStateToProps, { sellLoot })(Equipment);

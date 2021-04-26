@@ -30,6 +30,8 @@ module.exports = {
             "@store": "./src/store",
             // React
             "@UI": "./src/UI",
+            "@mutations": "./src/UI/operations/mutations",
+            "@queries": "./src/UI/operations/queries",
             "@components": "./src/UI/components",
             "@protons": "./src/UI/components/protons",
             "@atoms": "./src/UI/components/atoms",

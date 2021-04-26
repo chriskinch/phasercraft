@@ -3,6 +3,7 @@ import store from "@store"
 import { setStats, setBaseStats } from "@store/gameReducer"
 import pick from "lodash/pick"
 import mapStateToData from "@Helpers/mapStateToData"
+import { baseStatsVar, statsVar } from "@root/cache"
 
 class Resource extends GameObjects.Sprite {
 
@@ -27,6 +28,8 @@ class Resource extends GameObjects.Sprite {
 		if(this.container.name === "player") {
 			store.dispatch(setStats(this.resources));
 			store.dispatch(setBaseStats(this.resources));
+			statsVar({...statsVar(), ...this.resources});
+			baseStatsVar({...baseStatsVar(), ...this.resources});
 
 			this.selectKeys(this.category).forEach(key => {
 				mapStateToData(

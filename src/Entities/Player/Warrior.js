@@ -13,8 +13,8 @@ class Warrior extends Player {
                 range: 40,
                 knockback: 100,
                 defence: 120,
-                health_max: 130,
-                health_value: 130,
+                health_max: 1300,
+                health_value: 1300,
                 health_regen_value: 150,
                 health_regen_rate: 130
             },

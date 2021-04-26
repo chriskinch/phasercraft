@@ -60,7 +60,7 @@ export const selectCharacter = createAction("SELECT_CHARACTER", character => ({
     payload: { character }
 }));
 
-export const selectLoot = createAction("SELECT_LOOT", (id) => ({
+export const selectLoot = createAction("SELECT_LOOT", id => ({
     payload: { id }
 }));
 
@@ -130,7 +130,6 @@ const sortAscending = key => (a, b) => a[key] > b[key] ? 1 : -1;
 const sortDecending = key => (a, b) => a[key] < b[key] ? 1 : -1;
 
 // Reducers
-
 export const gameReducer = createReducer(initState, {
     [addCoins]: (state, action) => { state.coins += action.payload.value },
     [addLoot]: (state, action) => {
@@ -156,7 +155,10 @@ export const gameReducer = createReducer(initState, {
     },
     [loadGame]: (state, action) => action.payload.state,
     [nextWave]: state => { state.wave++ },
-    [selectLoot]: (state, action) => { state.selected = action.payload.id },
+    [selectLoot]: (state, action) => { 
+        console.log("SELECT: ", action.payload.id) 
+        state.selected = action.payload.id
+    },
     [selectCharacter]: (state, action) => ({ ...state, showUi: false, ...action.payload }),
     [sellLoot]: (state, action) => {
         const { loot } = action.payload;
@@ -191,7 +193,8 @@ export const gameReducer = createReducer(initState, {
         removeStats(state.base_stats, stats);
         syncStats(state);
     },
-    [updateStats]: (state, action) => { 
+    [updateStats]: (state, action) => {
+        console.log(action)
         console.log("HELLO")
         mergeWith(state.stats, action.payload.stats, (o,s) => o+s) },
     [generateLootTable]: (state, action) => { state.loot = new LootTable(action.payload.quantity).loot }

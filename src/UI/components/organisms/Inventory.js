@@ -3,32 +3,33 @@ import "styled-components/macro"
 import { useDrop, useDrag } from "react-dnd"
 import { getEmptyImage } from "react-dnd-html5-backend"
 import Loot from "@molecules/Loot"
-import { connect } from "react-redux"
-import { equipLoot, selectLoot, unequipLoot } from "@store/gameReducer"
-import store from "@store"
+import { selectLootVar, equippedVar } from "@root/cache"
+import { lootMutations } from "@mutations"
 
-const Inventory = ({cols=6, name, selected, equipLoot, selectLoot, unequipLoot, inventory}) => {
+const Inventory = ({cols=6, name, items}) => {
+    const equipment = equippedVar();
+    const equipped = Object.keys(equipment).map(slot => equipment[slot]?.id);
+    const inventory = items.filter(item => !equipped.includes(item.id));
+    
     // This must go here rather then inside the Loot component due to this bug:
     // https://github.com/react-dnd/react-dnd/issues/1589
     // Wraps the Loot component instead. Means some duplication of code. :(
     const LootDrag = (props) => {
         const { loot } = props;
-        const { category, color, icon, set, uuid } = loot;
-    
+        const { category, color, icon, set, id } = loot;
+        console.log(props)
         let [{ isDragging }, drag, preview] = useDrag({
-            item: { type: set, category, color, icon, uuid },
+            item: { type: set, category, color, icon, id },
             end: (item, monitor) => {
                 const dropResult = monitor.getDropResult();
                 if (item && dropResult) {
-                    const equipment = store.getState().equipment;
                     switch(dropResult.slot) {
                         case "amulet":
                         case "body":
                         case "helm":
                         case "weapon":
-                            // console.log("EQUIP: ", store.getState().stats)
-                            if(equipment[set]) unequipLoot(equipment[set]);
-                            equipLoot(loot);
+                            if(equipment[set]) lootMutations.unequipLoot(equipment[set]);
+                            lootMutations.equipLoot(loot);
                             break;
                         default:
                             console.log("Unrecognized slot!");
@@ -74,19 +75,13 @@ const Inventory = ({cols=6, name, selected, equipLoot, selectLoot, unequipLoot, 
             { inventory &&
                 inventory.map((loot, i) => {
                     // Check for matching selected uuid
-                    const isSelected = selected ? selected.uuid === loot.uuid : null;
-                    return <LootDrag loot={loot} isSelected={isSelected} setSelected={() => {
-                        selectLoot(loot)
-                    }} key={loot.uuid} id={i.toString()} />
+                    return <LootDrag loot={loot} setSelected={() => {
+                        selectLootVar(loot)
+                    }} key={loot.id} id={i.toString()} />
                 })
             }
         </div>
     );
 }
 
-const mapStateToProps = (state) => {
-    const { selected, inventory } = state;
-    return { selected, inventory }
-};
-
-export default connect(mapStateToProps, {equipLoot, selectLoot, unequipLoot})(Inventory);
+export default Inventory;

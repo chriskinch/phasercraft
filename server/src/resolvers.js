@@ -1,6 +1,6 @@
 module.exports = {
     Query: {
-        items: (_, { orderBy }, { dataSources }) => dataSources.itemAPI.getAllItems({ orderBy }),
+        items: (_, { orderBy, filter }, { dataSources }) => dataSources.itemAPI.getAllItems({ orderBy }),
         item: (_, { id }, { dataSources }) => dataSources.itemAPI.getItemById({ itemId: id }),
     },
     Mutation: {

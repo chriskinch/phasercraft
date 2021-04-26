@@ -8,16 +8,17 @@ import { Provider } from "react-redux";
 
 import store from "@store";
 
-import { ApolloProvider, ApolloClient, InMemoryCache } from '@apollo/client';
+import { ApolloProvider, ApolloClient } from "@apollo/client"
+import { cache } from "./cache"
 
 // import HTML5Backend from 'react-dnd-html5-backend'
 import TouchBackend from 'react-dnd-touch-backend';
 import { DndProvider } from 'react-dnd';
 
-
 const client = new ApolloClient({
     uri: 'http://localhost:4000',
-    cache: new InMemoryCache({resultCaching: false}),
+    // typeDefs,
+    cache,
 })
 
 document.body.setAttribute("style", "margin:0;");

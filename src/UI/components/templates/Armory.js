@@ -4,26 +4,18 @@ import "styled-components/macro"
 import { pixel_emboss } from "@UI/themes"
 import Button from "@atoms/Button"
 import Stock from "@organisms/Stock"
-import { buyLoot, generateLootTable, toggleFilter, sortLoot } from "@store/gameReducer"
-import store from "@store"
-import { useMutation, gql } from '@apollo/client';
+import { generateLootTable, toggleFilter, sortLoot } from "@store/gameReducer"
+import { useQuery, gql } from '@apollo/client';
+import { inventoryVar, selectLootVar } from "@root/cache"
+import { GET_ITEMS } from "@queries/getItems"
 
-const REMOVE_ITEM = gql`
-    mutation Mutation($removeItemId: ID!) {
-        removeItem(id: $removeItemId) {
-            __typename
-            id
-        }
-    }
-`;
+const Armory = ({coins, filters, sortLoot, toggleFilter, generateLootTable}) => {
+    const { loading, error, data } = useQuery(GET_ITEMS);
+    if(loading) return 'Loading...';
+    if(error) return `ERROR: ${error.message}`;
+    
+    const items = data.items.filter(i => !i.isInInventory);
 
-const Armory = ({loot, coins, filters, buyLoot, sortLoot, toggleFilter, generateLootTable}) => {
-    const [removeItem] = useMutation(REMOVE_ITEM, {
-        update(cache, { data: { removeItem } }) {
-            const key = cache.identify(removeItem);
-            cache.data.delete(key)
-        }
-    });
     const filterOn = filter => filters.includes(filter);
     return (
         <div css={`
@@ -38,10 +30,9 @@ const Armory = ({loot, coins, filters, buyLoot, sortLoot, toggleFilter, generate
                 <Button text="Stats" onClick={() => sortLoot("stat_pool", "decending")} />
                 <h3>Action</h3>
                 <Button text="Buy" onClick={() => {
-                    const selected = store.getState().selected;
-                    if(selected?.cost <= coins) {
-                        removeItem({ variables: { removeItemId: store.getState().selected.id } });
-                        buyLoot(store.getState().selected);
+                    if(selectLootVar()?.cost <= coins) {
+                        inventoryVar([...inventoryVar(), selectLootVar()]);
+                        selectLootVar(null)
                     }else{
                         console.log("CANNOT AFFORD")
                     }
@@ -73,15 +64,15 @@ const Armory = ({loot, coins, filters, buyLoot, sortLoot, toggleFilter, generate
                 ${ pixel_emboss }
                 padding: 0.5em;
             `}>
-                <Stock list={loot} name={"stock"} cols={9} />
+                <Stock list={items} name={"stock"} cols={9} />
             </section>
         </div>
     );
 }
 
 const mapStateToProps = (state) => {
-    const { coins, filters, loot} = state;
-    return { coins, filters, loot }
+    const { coins, filters} = state;
+    return { coins, filters }
 };
 
-export default connect(mapStateToProps, { buyLoot, sortLoot, toggleFilter, generateLootTable })(Armory);
+export default connect(mapStateToProps, { sortLoot, toggleFilter, generateLootTable })(Armory);

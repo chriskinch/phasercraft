@@ -3,7 +3,7 @@ const { gql } = require('apollo-server');
 
 const typeDefs = gql`
     type Query {
-        items(orderBy: ItemOrderByInput): [Item!]!
+        items(filter: ItemFilters, orderBy: ItemInputs): [Item!]!
         item(id: ID!): Item!
     }
 
@@ -44,9 +44,14 @@ const typeDefs = gql`
         value: Int
     }
 
-    input ItemOrderByInput {
+    
+    input ItemInputs {
         quality: Sort
         pool: Sort
+    }
+
+    input ItemFilters {
+        isInInventory: Boolean
     }
       
     enum Sort {
