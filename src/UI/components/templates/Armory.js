@@ -5,8 +5,8 @@ import { pixel_emboss } from "@UI/themes"
 import Button from "@atoms/Button"
 import Stock from "@organisms/Stock"
 import { generateLootTable, toggleFilter, sortLoot } from "@store/gameReducer"
-import { useQuery, gql } from '@apollo/client';
-import { inventoryVar, selectLootVar } from "@root/cache"
+import { useQuery } from "@apollo/client"
+import { lootMutations } from "@mutations"
 import { GET_ITEMS } from "@queries/getItems"
 
 const Armory = ({coins, filters, sortLoot, toggleFilter, generateLootTable}) => {
@@ -29,14 +29,7 @@ const Armory = ({coins, filters, sortLoot, toggleFilter, generateLootTable}) => 
                 <Button text="Quality" onClick={() => sortLoot("quality_sort", "ascending")} />
                 <Button text="Stats" onClick={() => sortLoot("stat_pool", "decending")} />
                 <h3>Action</h3>
-                <Button text="Buy" onClick={() => {
-                    if(selectLootVar()?.cost <= coins) {
-                        inventoryVar([...inventoryVar(), selectLootVar()]);
-                        selectLootVar(null)
-                    }else{
-                        console.log("CANNOT AFFORD")
-                    }
-                }} />
+                <Button text="Buy" onClick={() => { lootMutations.buyLoot() }} />
                 <Button text="Restock" onClick={() => {
                     generateLootTable(99);
                     toggleFilter();

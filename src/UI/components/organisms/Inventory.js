@@ -17,7 +17,6 @@ const Inventory = ({cols=6, name, items}) => {
     const LootDrag = (props) => {
         const { loot } = props;
         const { category, color, icon, set, id } = loot;
-        console.log(props)
         let [{ isDragging }, drag, preview] = useDrag({
             item: { type: set, category, color, icon, id },
             end: (item, monitor) => {

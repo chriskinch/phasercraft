@@ -10,6 +10,7 @@ export const equippedVar = makeVar({
 export const selectLootVar = makeVar(null);
 export const baseStatsVar = makeVar({});
 export const statsVar = makeVar({});
+export const coinsVar = makeVar(8888);
 
 const qualityColors = Object.freeze({
     common: "#bbbbbb",

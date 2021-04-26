@@ -1,8 +1,8 @@
 import { gql } from "@apollo/client"
 
 export const GET_ITEMS = gql`
-    query getItems {
-        items {
+    query getItems($itemsOrderBy: ItemInputs) {
+        items(orderBy: $itemsOrderBy) {
             id
             name
             category

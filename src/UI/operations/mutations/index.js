@@ -1,14 +1,22 @@
 import createEquipLoot from "./equipLoot";
 import createUnequipLoot from "./unequipLoot";
-import { equippedVar, statsVar, baseStatsVar } from "@root/cache"
+import createBuyLoot from "./buyLoot";
+import { inventoryVar, selectLootVar, equippedVar, statsVar, baseStatsVar, coinsVar } from "@root/cache"
 
-const lootActions = {
+const equipUnequipActions = {
   equippedVar,
   statsVar,
   baseStatsVar
 }
 
+const buySellActions = {
+  inventoryVar,
+  selectLootVar,
+  coinsVar
+}
+
 export const lootMutations = {
-  equipLoot: createEquipLoot(lootActions),
-  unequipLoot: createUnequipLoot(lootActions),
+  buyLoot: createBuyLoot(buySellActions),
+  equipLoot: createEquipLoot(equipUnequipActions),
+  unequipLoot: createUnequipLoot(equipUnequipActions),
 }

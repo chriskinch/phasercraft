@@ -10,7 +10,7 @@ const Loot = ({loot, loot: {id, isSelected}, setSelected}) => {
             <div
                 data-tip
                 data-for={id}
-                onClick={setSelected ? () => {console.log(loot); return setSelected()} : null}
+                onClick={setSelected ? () => setSelected() : null}
                 onContextMenu={(e)=> e.preventDefault()}
                 css={'line-height: 0;'}
             >

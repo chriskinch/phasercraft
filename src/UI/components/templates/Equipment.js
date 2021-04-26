@@ -9,7 +9,7 @@ import Inventory from "@organisms/Inventory"
 import DroppableSlot from "@atoms/DroppableSlot"
 import GroupedStats from "@organisms/GroupedStats"
 import StatBar from "@molecules/StatBar"
-import { useReactiveVar, useQuery, gql } from "@apollo/client";
+import { useReactiveVar, useQuery } from "@apollo/client";
 import { equippedVar, statsVar } from "@root/cache"
 import { GET_ITEMS } from "@queries/getItems"
 
