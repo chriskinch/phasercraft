@@ -1,7 +1,7 @@
 import uuid from 'uuid'
 import dynamodb from '../../common/dynamodb'
 import { generateItem } from '../../common/generateItem'
-import { marshall } from '@aws-sdk/util-dynamodb';
+import { marshall, unmarshall } from '@aws-sdk/util-dynamodb';
 
 const handler = async event => {
 	const amount = event?.body?.amount || 1;
@@ -31,26 +31,23 @@ const handler = async event => {
 	const batches = batchRequests(requests, 25);
 
   try {
-    // const data = await dynamodb.send(new BatchWriteItemCommand(params));
 
-		await Promise.all(batches.map(async (batch) => {
-			await dynamodb.batchWriteItem(batch);
-		}));
-
+	await Promise.all(batches.map(async (batch) => await dynamodb.batchWriteItem(batch)))
+	const result = requests.map(request => unmarshall(request.PutRequest.Item));
     return {
-      statusCode: 200,
-      headers: {
-        'Access-Control-Allow-Origin': '*',
-        'Access-Control-Allow-Credentials': true,
-      },
-      body: JSON.stringify(requests),
-    }
+		statusCode: 200,
+		headers: {
+            'Access-Control-Allow-Origin': '*',
+            'Access-Control-Allow-Credentials': true,
+        },
+		body: JSON.stringify(result)
+	}
   } catch(err) {
-    console.error(err);
+    console.log("Error", err);
     return {
       statusCode: err.statusCode || 501,
       headers: { 'Content-Type': 'text/plain' },
-      body: 'Couldn\'t create the items.',
+      body: 'Couldn\'t create store.',
     };
   }
 };

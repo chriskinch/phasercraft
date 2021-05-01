@@ -19,6 +19,16 @@ const typeDefs = gql`
         removeItem(
             id: ID!
         ): Item!
+
+        clearStore: String!
+
+        stockStore(
+            amount: Int
+        ): [Item!]!
+
+        restockStore(
+            amount: Int
+        ): [Item!]!
     }
 
     type Item {
@@ -28,6 +38,7 @@ const typeDefs = gql`
         set: String!
         icon: String!
         quality: String!
+        qualitySort: Int
         cost: Int!
         pool: Int!
         stats: [Stat!]!

@@ -3,12 +3,10 @@ import dynamodb from '../../common/dynamodb'
 const handler = async () => {
 	const params = {
 		TableName: process.env.DYNAMODB_TABLE,
-		AttributeDefinitions: [
-      {
-        AttributeName: "id",
-        AttributeType: "S"
-			},
-		],
+		AttributeDefinitions: [{
+			AttributeName: "id",
+			AttributeType: "S"
+		}],
 		KeySchema: [
 			{
 				AttributeName: "id",
@@ -21,13 +19,22 @@ const handler = async () => {
 		},
 	}
 
-  try {
-    await dynamodb.deleteTable(params);
+	try {
+		await dynamodb.deleteTable(params);
 		await dynamodb.createTable(params);
-		console.log("Success, table cleared");
-  } catch(err) {
+		return {
+			statusCode: 200,
+			headers: { 'Content-Type': 'text/plain' },
+			body: "Success, store cleared!"
+		}
+	} catch(err) {
 		console.log("Error", err);
-  }
+		return {
+			statusCode: err.statusCode || 501,
+			headers: { 'Content-Type': 'text/plain' },
+			body: 'Couldn\'t clear store.',
+		}
+	}
 };
 
 export default handler;

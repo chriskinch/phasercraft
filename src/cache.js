@@ -22,6 +22,16 @@ const qualityColors = Object.freeze({
 
 export const cache = new InMemoryCache({
     typePolicies: {
+        // Query: {
+        //     fields: {
+        //         items: {
+        //             merge(existing, incoming){
+        //                 console.log(existing, incoming)
+        //                 return incoming;
+        //             }
+        //         }
+        //     }
+        // },
         Item: {
             fields: {
                 color: {

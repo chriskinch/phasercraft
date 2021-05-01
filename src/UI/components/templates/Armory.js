@@ -1,20 +1,33 @@
-import React from "react"
+import React, { useState } from "react"
 import { connect } from "react-redux"
 import "styled-components/macro"
 import { pixel_emboss } from "@UI/themes"
 import Button from "@atoms/Button"
 import Stock from "@organisms/Stock"
-import { generateLootTable, toggleFilter, sortLoot } from "@store/gameReducer"
-import { useQuery } from "@apollo/client"
+import { toggleFilter } from "@store/gameReducer"
+import { useQuery, useMutation, useApolloClient } from "@apollo/client"
 import { lootMutations } from "@mutations"
 import { GET_ITEMS } from "@queries/getItems"
+import { RESTOCK_STORE } from "@mutations/restockStore"
+import { sortBy } from "@UI/operations/helpers"
 
-const Armory = ({coins, filters, sortLoot, toggleFilter, generateLootTable}) => {
+const Armory = ({filters, toggleFilter}) => {
+    const client = useApolloClient();
     const { loading, error, data } = useQuery(GET_ITEMS);
+    const [restockStore] = useMutation(RESTOCK_STORE, {
+        update(cache, {data}) {
+            const itemsToKeep = cache.readQuery({ query: GET_ITEMS }).items.filter(i => i.isInInventory);
+            cache.reset();
+            cache.writeQuery({
+                query: GET_ITEMS,
+                data: {items: [...itemsToKeep, ...data.restockStore]}
+            });
+        }
+    });
     if(loading) return 'Loading...';
     if(error) return `ERROR: ${error.message}`;
-    
-    const items = data.items.filter(i => !i.isInInventory);
+
+    let filteredItems = data.items.filter(i => !i.isInInventory);
 
     const filterOn = filter => filters.includes(filter);
     return (
@@ -26,12 +39,28 @@ const Armory = ({coins, filters, sortLoot, toggleFilter, generateLootTable}) => 
         `}>
             <section>
                 <h3>Sort</h3>
-                <Button text="Quality" onClick={() => sortLoot("quality_sort", "ascending")} />
-                <Button text="Stats" onClick={() => sortLoot("stat_pool", "decending")} />
+                <Button text="Quality" onClick={() => {
+                    const { items } = client.readQuery({ query: GET_ITEMS });
+                    client.writeQuery({
+                        query: GET_ITEMS,
+                        data: {
+                            items: sortBy(items, {key: "qualitySort", order: "desc"}),
+                        }
+                    });
+                }} />
+                <Button text="Stats" onClick={() => {
+                    const { items } = client.cache.readQuery({ query: GET_ITEMS });
+                    client.writeQuery({
+                        query: GET_ITEMS,
+                        data: {
+                            items: sortBy(items, {key: "pool", order: "desc"}),
+                        }
+                    });
+                }} />
                 <h3>Action</h3>
                 <Button text="Buy" onClick={() => { lootMutations.buyLoot() }} />
                 <Button text="Restock" onClick={() => {
-                    generateLootTable(99);
+                    restockStore({ variables: {restockStoreAmount: 45} });
                     toggleFilter();
                 }} />
             </section>
@@ -57,15 +86,15 @@ const Armory = ({coins, filters, sortLoot, toggleFilter, generateLootTable}) => 
                 ${ pixel_emboss }
                 padding: 0.5em;
             `}>
-                <Stock list={items} name={"stock"} cols={9} />
+                <Stock list={filteredItems} name={"stock"} cols={9} />
             </section>
         </div>
     );
 }
 
 const mapStateToProps = (state) => {
-    const { coins, filters} = state;
-    return { coins, filters }
+    const { filters} = state;
+    return { filters }
 };
 
-export default connect(mapStateToProps, { sortLoot, toggleFilter, generateLootTable })(Armory);
+export default connect(mapStateToProps, { toggleFilter })(Armory);

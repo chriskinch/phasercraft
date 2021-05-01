@@ -14,7 +14,6 @@ class ItemAPI extends RESTDataSource {
 
   async getAllItems({orderBy}) {
     const response = await this.get('items');
-    
     if(orderBy) {
       const key = Object.keys(orderBy)[0];
       const sortKey = sortKeys[Object.keys(orderBy)[0]];
@@ -37,7 +36,18 @@ class ItemAPI extends RESTDataSource {
     return this.itemReducer(response);
   }
 
-  itemReducer({id, name, category, set, icon, quality, cost, pool, stats}) {
+  async clearStore() {
+    return await this.post('clearStore');
+  }
+
+  async stockStore(amount) {
+    const response = await this.post('createStore', amount);
+    return Array.isArray(response)
+      ? response.map(item => this.itemReducer(item))
+      : [];
+  }
+
+  itemReducer({id, name, category, set, icon, quality, qualitySort, cost, pool, stats}) {
     if(!id) throw new Error('ID does not exist!');
 
     return {
@@ -47,6 +57,7 @@ class ItemAPI extends RESTDataSource {
       set,
       icon,
       quality,
+      qualitySort,
       cost,
       pool,
       stats,

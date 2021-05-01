@@ -15,6 +15,7 @@
     "graphql": "^15.5.0",
     "jest-canvas-mock": "^2.1.2",
     "lodash": "^4.17.15",
+    "npm-run-all": "^4.1.5",
     "phaser": "3.21.0",
     "polished": "^3.4.1",
     "react": "^16.8.6",
@@ -34,6 +35,9 @@
   },
   "scripts": {
     "start": "craco start",
+    "dev": "npm-run-all -p gateway service:* start",
+    "gateway": "cd server && yarn start",
+    "service:armory": "cd services/armory && sls offline start",
     "build": "craco build",
     "test": "craco test --setupFiles ./node_modules/jest-canvas-mock",
     "eject": "react-scripts eject"

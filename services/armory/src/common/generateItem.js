@@ -88,7 +88,5 @@ export const generateItem = data => {
   const icon = data?.icon || getIcon(category);
   const stats = data?.stats.map(s => ({...s, id: uuid()})) || getStats(qualityMap[quality]);
 
-  console.log(set)
-  
   return {...data, name, category, set, quality, qualitySort, cost, pool, icon, stats};
 }
