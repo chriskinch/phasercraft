@@ -6,8 +6,14 @@ import Button from "@atoms/Button"
 import Stock from "@organisms/Stock"
 import { buyLoot, generateLootTable, toggleFilter, sortLoot } from "@store/gameReducer"
 import store from "@store"
+import { useQuery } from "@apollo/client"
+import { GET_ITEMS } from "@queries/getItems"
 
 const Armory = ({coins, buyLoot, filters, sortLoot, toggleFilter, generateLootTable}) => {
+    const { loading, error, data } = useQuery(GET_ITEMS);
+    if(loading) return 'Loading...';
+    if(error) return `ERROR: ${error.message}`;
+    console.log(loading, error, data)
     const filterOn = filter => filters.includes(filter);
     return (
         <div css={`
@@ -56,7 +62,7 @@ const Armory = ({coins, buyLoot, filters, sortLoot, toggleFilter, generateLootTa
                 ${ pixel_emboss }
                 padding: 0.5em;
             `}>
-                <Stock />
+                <Stock items={data.items} />
             </section>
         </div>
     );

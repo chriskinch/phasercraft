@@ -3,9 +3,9 @@ import { connect } from "react-redux"
 import LootList from "@molecules/LootList"
 import "styled-components/macro"
 
-const Stock = ({ loot }) => {
+const Stock = ({items, loot }) => {
     return (
-        <LootList list={loot} name={"stock"} cols={9} />
+        <LootList list={items} name={"stock"} cols={9} />
     );
 }
 
