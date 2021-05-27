@@ -1,7 +1,16 @@
-import createEquipLoot from "./equipLoot";
-import createUnequipLoot from "./unequipLoot";
-import createBuyLoot from "./buyLoot";
-import { inventoryVar, selectLootVar, equippedVar, statsVar, baseStatsVar, coinsVar } from "@root/cache"
+import createEquipLoot from "./equipLoot"
+import createUnequipLoot from "./unequipLoot"
+import createBuyLoot from "./buyLoot"
+import createToggleFilter from "./toggleFilter"
+import {
+  inventoryVar,
+  selectLootVar,
+  equippedVar,
+  statsVar,
+  baseStatsVar,
+  coinsVar,
+  filtersVar,
+} from "@root/cache"
 
 const equipUnequipActions = {
   equippedVar,
@@ -19,4 +28,5 @@ export const lootMutations = {
   buyLoot: createBuyLoot(buySellActions),
   equipLoot: createEquipLoot(equipUnequipActions),
   unequipLoot: createUnequipLoot(equipUnequipActions),
+  toggleFilter: createToggleFilter({filtersVar}),
 }

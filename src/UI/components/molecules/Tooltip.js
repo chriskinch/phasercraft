@@ -4,15 +4,16 @@ import ReactTooltip from "react-tooltip"
 import "styled-components/macro"
 import Stats from "./Stats"
 import Price from "@atoms/Price"
-import { connect } from "react-redux"
 import find from "lodash/find"
+import { equippedVar } from "@root/cache"
 
-const Tooltip = ({ id, loot, equipment }) => {
+const Tooltip = ({ id, loot }) => {
+    const { equipment } = equippedVar();
     const { color, cost, stats } = loot;
     const [compare, setCompare] = useState(null);
 
     const afterShowHandler = () => {
-        loot && equipment[loot.set] && loot !== equipment[loot.set] ? setCompare(compareStats(stats, equipment?.[loot.set]?.stats)) : setCompare(null);
+        loot && equipment?.[loot.set] && loot !== equipment?.[loot.set] ? setCompare(compareStats(stats, equipment?.[loot.set]?.stats)) : setCompare(null);
     }
     
     const compareStats = (lootStats = [], equipStats = []) => {
@@ -73,9 +74,4 @@ const Tooltip = ({ id, loot, equipment }) => {
     );
 }
 
-const mapStateToProps = (state) => {
-    const { equipment } = state;
-    return { equipment }
-};
-
-export default connect(mapStateToProps)(Tooltip);
+export default Tooltip;

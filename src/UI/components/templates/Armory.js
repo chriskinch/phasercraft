@@ -1,17 +1,16 @@
-import React, { useState } from "react"
-import { connect } from "react-redux"
+import React from "react"
 import "styled-components/macro"
 import { pixel_emboss } from "@UI/themes"
 import Button from "@atoms/Button"
 import Stock from "@organisms/Stock"
-import { toggleFilter } from "@store/gameReducer"
-import { useQuery, useMutation, useApolloClient } from "@apollo/client"
+import { useQuery, useMutation, useReactiveVar, useApolloClient } from "@apollo/client"
 import { lootMutations } from "@mutations"
 import { GET_ITEMS } from "@queries/getItems"
 import { RESTOCK_STORE } from "@mutations/restockStore"
-import { sortBy } from "@UI/operations/helpers"
+import { filtersVar } from "@root/cache"
+import { sortBy, filterStats } from "@UI/operations/helpers"
 
-const Armory = ({filters, toggleFilter}) => {
+const Armory = () => {
     const client = useApolloClient();
     const { loading, error, data } = useQuery(GET_ITEMS);
     const [restockStore] = useMutation(RESTOCK_STORE, {
@@ -24,12 +23,16 @@ const Armory = ({filters, toggleFilter}) => {
             });
         }
     });
+    const filters = useReactiveVar(filtersVar);
+
     if(loading) return 'Loading...';
     if(error) return `ERROR: ${error.message}`;
 
-    let filteredItems = data.items.filter(i => !i.isInInventory);
+    const inArmory = data.items.filter(i => !i.isInInventory);
+    const filteredItems = filterStats(inArmory, { filter: filters});
 
     const filterOn = filter => filters.includes(filter);
+
     return (
         <div css={`
             display: grid;
@@ -61,7 +64,7 @@ const Armory = ({filters, toggleFilter}) => {
                 <Button text="Buy" onClick={() => { lootMutations.buyLoot() }} />
                 <Button text="Restock" onClick={() => {
                     restockStore({ variables: {restockStoreAmount: 45} });
-                    toggleFilter();
+                    // toggleFilter();
                 }} />
             </section>
             <section>
@@ -71,15 +74,15 @@ const Armory = ({filters, toggleFilter}) => {
                     grid-template-columns: 1fr 1fr;
                     column-gap: 0.5em;
                 `}>                
-                    <Button text="AP" on={filterOn("attack_power")} onClick={() => toggleFilter("attack_power")} />
-                    <Button text="MP" on={filterOn("magic_power")} onClick={() => toggleFilter("magic_power") } />
-                    <Button text="AS" on={filterOn("attack_speed")} onClick={() => toggleFilter("attack_speed")} />
-                    <Button text="CC" on={filterOn("critical_chance")} onClick={() => toggleFilter("critical_chance")} />
-                    <Button text="HM" on={filterOn("health_max")} onClick={() => toggleFilter("health_max") } />
-                    <Button text="HR" on={filterOn("health_regen_rate")} onClick={() => toggleFilter("health_regen_rate")} />
-                    <Button text="HV" on={filterOn("health_regen_value")} onClick={() => toggleFilter("health_regen_value") } />
-                    <Button text="DF" on={filterOn("defence")} onClick={() => toggleFilter("defence")} />
-                    <Button text="SP" on={filterOn("speed")} onClick={() => toggleFilter("speed")} />
+                    <Button text="AP" on={filterOn("attack_power")} onClick={() => { lootMutations.toggleFilter("attack_power") }} />
+                    <Button text="MP" on={filterOn("magic_power")} onClick={() => { lootMutations.toggleFilter("magic_power") }} />
+                    <Button text="AS" on={filterOn("attack_speed")} onClick={() => lootMutations.toggleFilter("attack_speed")} />
+                    <Button text="CC" on={filterOn("critical_chance")} onClick={() => lootMutations.toggleFilter("critical_chance")} />
+                    <Button text="HM" on={filterOn("health_max")} onClick={() => lootMutations.toggleFilter("health_max") } />
+                    <Button text="HR" on={filterOn("health_regen_rate")} onClick={() => lootMutations.toggleFilter("health_regen_rate")} />
+                    <Button text="HV" on={filterOn("health_regen_value")} onClick={() => lootMutations.toggleFilter("health_regen_value") } />
+                    <Button text="DF" on={filterOn("defence")} onClick={() => lootMutations.toggleFilter("defence")} />
+                    <Button text="SP" on={filterOn("speed")} onClick={() => lootMutations.toggleFilter("speed")} />
                 </div>
             </section>
             <section css={`
@@ -92,9 +95,4 @@ const Armory = ({filters, toggleFilter}) => {
     );
 }
 
-const mapStateToProps = (state) => {
-    const { filters} = state;
-    return { filters }
-};
-
-export default connect(mapStateToProps, { toggleFilter })(Armory);
+export default Armory;

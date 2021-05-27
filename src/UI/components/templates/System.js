@@ -1,12 +1,12 @@
 import React, { useState } from "react"
 import { connect } from "react-redux"
-import { switchUi, toggleUi } from "@store/gameReducer";
+import { toggleUi } from "@store/gameReducer";
 import Button from "@atoms/Button"
 import Dialog from "@organisms/Dialog"
 import { dialog_overlay } from "@UI/themes"
 import "styled-components/macro"
 
-const System = ({state, saveSlot, switchUi, toggleUi}) => {
+const System = ({state, saveSlot, toggleUi}) => {
     const [showDialog, setShowDialog] = useState(false);
 
     const save_dialog = showDialog ? (
@@ -26,10 +26,6 @@ const System = ({state, saveSlot, switchUi, toggleUi}) => {
     return (
         <>
             <Button text="Save" onClick={() => setShowDialog(true)} />
-            {/* <Button text="Load" onClick={e => {
-                console.log("LOAD")
-                switchUi("load");
-            }} /> */}
             <Button text="Quit" onClick={e => {
                 window.location.reload()
             }} />
@@ -43,4 +39,4 @@ const mapStateToProps = (state) => {
     return { state, saveSlot }
 };
 
-export default connect(mapStateToProps, {switchUi, toggleUi})(System);
+export default connect(mapStateToProps, {toggleUi})(System);

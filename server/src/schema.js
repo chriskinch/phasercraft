@@ -63,6 +63,7 @@ const typeDefs = gql`
 
     input ItemFilters {
         isInInventory: Boolean
+        stats: [String]
     }
       
     enum Sort {

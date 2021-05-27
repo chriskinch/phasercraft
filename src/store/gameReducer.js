@@ -9,7 +9,7 @@ const initState = {
     character: null,
     showHUD: false,
     showUi: true,
-    menu: "save",
+    menu: null,
     base_stats: {},
     stats: {},
     level: {},

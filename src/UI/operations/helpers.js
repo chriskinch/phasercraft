@@ -22,3 +22,10 @@ export const sortBy = (array, { key, order = "asc" }) => {
     array.slice().sort(sortAscending(key)) :
     array.slice().sort(sortDecending(key))
 }
+
+export const filterStats = (array, { filter }) => {
+    return array.filter(item => {
+      const stats = item.stats.map(stat => stat.name);
+      return filter.every(name => stats.includes(name));
+    });
+  }

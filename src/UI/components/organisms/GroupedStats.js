@@ -1,8 +1,6 @@
 import { v4 as uuid } from "uuid"
 import React from "react"
 import Stats from "@molecules/Stats"
-import pick from "lodash/pick"
-
 
 const GroupedStats = ({ stats }) => {
     const statArray = Object.entries(stats).map(stat => ({id: uuid(), name: stat[0], value: stat[1]}));

@@ -1,9 +1,3 @@
-// const { loot } = action.payload;
-// remove(state.loot, (l) => l.uuid === loot.uuid);
-// state.inventory.push(loot);
-// state.coins -= loot.cost
-// state.selected = null;
-
 const createBuyLoot = ({inventoryVar, selectLootVar, coinsVar}) => {
     return () => {
         const selected = selectLootVar();

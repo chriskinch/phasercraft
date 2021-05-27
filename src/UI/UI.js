@@ -12,11 +12,14 @@ import HUD from "@templates/HUD"
 import Save from "@templates/Save"
 import System from "@templates/System"
 import CustomDragLayer from "@protons/CustomDragLayer"
+import { useReactiveVar } from "@apollo/client"
+import { menuVar } from "@root/cache"
 import "styled-components/macro"
 
 export const MenuContext = createContext('character');
 
-const UI = ({ menu, showHUD, showUi, toggleUi }) => {
+const UI = ({ showHUD, toggleUi }) => {
+    const menu = useReactiveVar(menuVar);
     const config = {
         arcanum: {
             component: Arcanum,
@@ -72,7 +75,7 @@ const UI = ({ menu, showHUD, showUi, toggleUi }) => {
             {showHUD &&
                 <HUD />
             }
-            {showUi &&
+            {menu &&
                 <div css={`
                     box-sizing: border-box;
                     height: 100%;
@@ -109,8 +112,8 @@ const UI = ({ menu, showHUD, showUi, toggleUi }) => {
 }
 
 const mapStateToProps = (state) => {
-    const { menu, showUi, showHUD } = state;
-    return { menu, showHUD, showUi }
+    const { showUi, showHUD } = state;
+    return { showHUD, showUi }
 };
 
 export default connect(mapStateToProps, { toggleUi })(UI);

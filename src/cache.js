@@ -1,5 +1,7 @@
 import { InMemoryCache, makeVar } from '@apollo/client';
 
+export const characterVar = makeVar();
+export const menuVar = makeVar("save");
 export const inventoryVar = makeVar([]);
 export const equippedVar = makeVar({
     amulet: null,
@@ -11,6 +13,7 @@ export const selectLootVar = makeVar(null);
 export const baseStatsVar = makeVar({});
 export const statsVar = makeVar({});
 export const coinsVar = makeVar(8888);
+export const filtersVar = makeVar([]);
 
 const qualityColors = Object.freeze({
     common: "#bbbbbb",
@@ -22,16 +25,15 @@ const qualityColors = Object.freeze({
 
 export const cache = new InMemoryCache({
     typePolicies: {
-        // Query: {
-        //     fields: {
-        //         items: {
-        //             merge(existing, incoming){
-        //                 console.log(existing, incoming)
-        //                 return incoming;
-        //             }
-        //         }
-        //     }
-        // },
+        Query: {
+            fields: {
+                items: {
+                    merge(existing, incoming){
+                        return incoming;
+                    }
+                }
+            }
+        },
         Item: {
             fields: {
                 color: {

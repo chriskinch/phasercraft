@@ -1,10 +1,12 @@
-import React from "react";
-import { selectCharacter } from "@store/gameReducer";
-import { connect } from 'react-redux';
-import 'styled-components/macro';
-import Button from '../atoms/Button'
+import React from "react"
+import { selectCharacter } from "@store/gameReducer"
+import { connect } from "react-redux"
+import "styled-components/macro"
+import Button from "../atoms/Button"
+import { characterVar } from "@root/cache"
 
 const CharacterCard = ({ selectCharacter, type }) => {
+    console.log(selectCharacter, characterVar)
     return (
         <li css={`
             padding: 0.5em;
@@ -24,7 +26,10 @@ const CharacterCard = ({ selectCharacter, type }) => {
             <Button 
                 className="character-select-button"
                 text={ type }
-                onClick={() => selectCharacter(type) } />
+                onClick={() => {
+                    characterVar(type)
+                    
+                }} />
         </li>
     );
 }

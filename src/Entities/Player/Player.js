@@ -7,11 +7,10 @@ import AssignResource from "@Entities/Resources/AssignResource"
 import targetVector from "@Helpers/targetVector"
 import Boons from "@Entities/UI/Boons"
 import store from "@store"
-import { addXP, setBaseStats, setLevel, setStats } from "@store/gameReducer"
-import isEmpty from "lodash/isEmpty"
+import { addXP, setLevel } from "@store/gameReducer"
 import mapStateToData from "@Helpers/mapStateToData"
 import CombatText from "../UI/CombatText"
-import { baseStatsVar, statsVar, equippedVar } from "@root/cache"
+import { baseStatsVar, statsVar } from "@root/cache"
 
 const converter = require('number-to-words');
 

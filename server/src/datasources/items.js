@@ -12,17 +12,27 @@ class ItemAPI extends RESTDataSource {
     // this.baseURL = 'https://sro42uvs8l.execute-api.us-east-1.amazonaws.com/dev';
   }
 
-  async getAllItems({orderBy}) {
+  async getAllItems({orderBy, filter}) {
     const response = await this.get('items');
+
     if(orderBy) {
       const key = Object.keys(orderBy)[0];
       const sortKey = sortKeys[Object.keys(orderBy)[0]];
       if(orderBy[key] === "asc") response.sort((a, b) => a[sortKey] - b[sortKey]);
       if(orderBy[key] === "desc") response.sort((a, b) => b[sortKey] - a[sortKey]);
     }
+
+    const filtered = () => {
+      return response.filter(item => {
+        const stats = item.stats.map(stat => stat.name);
+        return filter.stats.every(name => stats.includes(name));
+      });
+    }
+
+    const result = filter ? filtered() : response;
     
-    return Array.isArray(response)
-      ? response.map(item => this.itemReducer(item))
+    return Array.isArray(result)
+      ? result.map(item => this.itemReducer(item))
       : [];
   }
 

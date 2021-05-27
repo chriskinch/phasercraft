@@ -6,8 +6,13 @@ import DetailedLoot from "@molecules/DetailedLoot"
 import GroupedStats from "@organisms/GroupedStats"
 import StatBar from "@molecules/StatBar"
 import { pixel_emboss } from "@UI/themes"
+import { equippedVar, characterVar, statsVar } from "@root/cache"
 
-const Character = ({ character, equipment: { amulet, body, helm, weapon }, stats, stats: { resource_type }, level }) => {
+const Character = ({ level }) => {
+    const { amulet, body, helm, weapon } = equippedVar();
+    const character = characterVar()
+    const stats = statsVar();
+    const { resource_type } = stats;
     return (
         <div css={`
             display: grid;
@@ -57,8 +62,8 @@ const Character = ({ character, equipment: { amulet, body, helm, weapon }, stats
 }
 
 const mapStateToProps = (state) => {
-    const { character, equipment, stats, level } = state;
-    return { character, equipment, stats, level }
+    const { level } = state;
+    return { level }
 };
 
 export default connect(mapStateToProps)(Character);

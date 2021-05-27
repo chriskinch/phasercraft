@@ -1,6 +1,7 @@
 import React, { useState } from "react"
 import { connect } from "react-redux"
 import { loadGame, selectCharacter, setSaveSlot, switchUi, toggleHUD } from "@store/gameReducer"
+import { characterVar, menuVar } from "@root/cache"
 import Button from "@atoms/Button"
 import Dialog from "@organisms/Dialog"
 import { dialog_overlay } from "@UI/themes"
@@ -10,7 +11,7 @@ const getSaveGames = function(slots) {
     return slots.map(slot => JSON.parse(localStorage.getItem(slot)))
 }
 
-const Save = ({loadGame, selectCharacter, setSaveSlot, switchUi, toggleHUD, load}) => {
+const Save = ({loadGame, setSaveSlot, toggleHUD, load}) => {
     const slots = ["slot_a", "slot_b", "slot_c"];
     const [saveGames, setSaveGames] = useState(getSaveGames(slots))
     const [showDialog, setShowDialog] = useState(false);
@@ -74,11 +75,11 @@ const Save = ({loadGame, selectCharacter, setSaveSlot, switchUi, toggleHUD, load
                                 {save ?
                                     <Button text={"Load"} onClick={e => {
                                         loadGame(save)
-                                        selectCharacter(character)
+                                        characterVar(character)
                                     }}/> :
                                     <Button text={"Select"} onClick={e => {
                                         setSaveSlot(slots[i])
-                                        switchUi("select")
+                                        menuVar("select")
                                     }}/>
                                 }
                                 <Button text="Delete" disabled={save ? false : true} onClick={() => {
@@ -100,4 +101,4 @@ const mapStateToProps = (state) => {
     return { saveSlot }
 };
 
-export default connect(mapStateToProps, { loadGame, selectCharacter, setSaveSlot, switchUi, toggleHUD })(Save);
+export default connect(mapStateToProps, { loadGame, setSaveSlot, toggleHUD })(Save);
