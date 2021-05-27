@@ -1,17 +1,30 @@
 import React from "react"
-import { connect } from "react-redux"
-import LootList from "@molecules/LootList"
 import "styled-components/macro"
+import Loot from "@molecules/Loot"
+import { selectLootVar } from "@root/cache"
 
-const Stock = ({ loot }) => {
+const Stock = ({cols=4, list}) => {
+    const items = list.map(item => 
+        <Loot 
+            loot={item}
+            setSelected={() => { selectLootVar(item) }}
+            key={item.id}
+        />
+    );
+
     return (
-        <LootList list={loot} name={"stock"} cols={9} />
+        <div 
+            css={`
+                display: grid;
+                grid-template-columns: repeat(${cols}, 1fr);
+                grid-gap: 0.5em;
+                height: calc(100vh - 158px);
+                overflow-y: scroll;
+            `}
+        >
+            { items }
+        </div>
     );
 }
 
-const mapStateToProps = (state) => {
-    const { loot } = state;
-    return { loot }
-};
-
-export default connect(mapStateToProps)(Stock);
+export default Stock;

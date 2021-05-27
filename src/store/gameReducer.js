@@ -8,7 +8,7 @@ import map from "lodash/map"
 const initState = {
     character: null,
     showHUD: false,
-    showUi: false,
+    showUi: true,
     menu: "save",
     base_stats: {},
     stats: {},
@@ -22,7 +22,7 @@ const initState = {
         helm: null,
         weapon: null
     },
-    coins: 0,
+    coins: 9999,
     selected: null,
     saveSlot: null,
     wave: 1,
@@ -60,7 +60,7 @@ export const selectCharacter = createAction("SELECT_CHARACTER", character => ({
     payload: { character }
 }));
 
-export const selectLoot = createAction("SELECT_LOOT", (id) => ({
+export const selectLoot = createAction("SELECT_LOOT", id => ({
     payload: { id }
 }));
 
@@ -123,14 +123,13 @@ export const generateLootTable = createAction("UPDATE_LOOT_TABLE", quantity => (
 
 // Helpers
 
-const addStats = (stats, add) => mergeWith(stats, add, (o,s) => o+s.rounded);
-const removeStats = (stats, add) => mergeWith(stats, add, (o,s) => o-s.rounded);
+const addStats = (stats, add) => mergeWith(stats, add, (o,s) => o+s);
+const removeStats = (stats, add) => mergeWith(stats, add, (o,s) => o-s);
 const syncStats = (state) => state.stats = state.base_stats;
 const sortAscending = key => (a, b) => a[key] > b[key] ? 1 : -1;
 const sortDecending = key => (a, b) => a[key] < b[key] ? 1 : -1;
 
 // Reducers
-
 export const gameReducer = createReducer(initState, {
     [addCoins]: (state, action) => { state.coins += action.payload.value },
     [addLoot]: (state, action) => {
@@ -148,13 +147,18 @@ export const gameReducer = createReducer(initState, {
     [equipLoot]: (state, action) => {
         const { loot } = action.payload;
         state.equipment[action.payload.loot.set] = loot;
-        remove(state.inventory, (l) => l.uuid === loot.uuid);
-        addStats(state.base_stats, loot.stats);
+        remove(state.inventory, (l) => l.id === loot.id);
+        const stats = {}
+        loot.stats.forEach(stat => stats[stat.name] = stat.value);
+        addStats(state.base_stats, stats);
         syncStats(state);
     },
     [loadGame]: (state, action) => action.payload.state,
     [nextWave]: state => { state.wave++ },
-    [selectLoot]: (state, action) => { state.selected = action.payload.id },
+    [selectLoot]: (state, action) => { 
+        console.log("SELECT: ", action.payload.id) 
+        state.selected = action.payload.id
+    },
     [selectCharacter]: (state, action) => ({ ...state, showUi: false, ...action.payload }),
     [sellLoot]: (state, action) => {
         const { loot } = action.payload;
@@ -166,7 +170,7 @@ export const gameReducer = createReducer(initState, {
     [setBaseStats]: (state, action) => {state.base_stats = {...state.base_stats, ...action.payload.base_stats}},
     [setLevel]: (state, action) => ({ ...state, ...action.payload }),
     [setSaveSlot]: (state, action) => {state.saveSlot = action.payload.saveSlot},
-    [setStats]: (state, action) => {state.stats = {...state.stats, ...action.payload.stats}},
+    [setStats]: (state, action) => { state.stats = {...state.stats, ...action.payload.stats}},
     [sortLoot]: (state, action) => {
         const func = (action.payload.order === "ascending") ? sortAscending : sortDecending;
         const sorted = state.loot.slice().sort(func(action.payload.key));
@@ -184,9 +188,14 @@ export const gameReducer = createReducer(initState, {
     [unequipLoot]: (state, action) => {
         state.equipment[action.payload.loot.set] = null;
         state.inventory.push(action.payload.loot);
-        removeStats(state.base_stats, action.payload.loot.stats);
+        const stats = {}
+        action.payload.loot.stats.forEach(stat => stats[stat.name] = stat.value);
+        removeStats(state.base_stats, stats);
         syncStats(state);
     },
-    [updateStats]: (state, action) => { mergeWith(state.stats, action.payload.stats, (o,s) => o+s) },
+    [updateStats]: (state, action) => {
+        console.log(action)
+        console.log("HELLO")
+        mergeWith(state.stats, action.payload.stats, (o,s) => o+s) },
     [generateLootTable]: (state, action) => { state.loot = new LootTable(action.payload.quantity).loot }
 });

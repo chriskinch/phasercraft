@@ -6,7 +6,7 @@ import Legendary from "./Legendary";
 
 class LootTable {
 	constructor(quantity) {
-		this.loot = Array.from({length: quantity}, () => this.qualityRoll());
+		this.loot = Array.from({length: quantity}, () => this.qualityRoll());	
 	}
 
 	qualityRoll(roll = Math.random()) {

@@ -3,10 +3,9 @@ import "styled-components/macro"
 import Loot from "@molecules/Loot"
 import { pixel_emboss } from "@UI/themes"
 import { useDrop } from "react-dnd"
-import { connect } from "react-redux"
-import { unequipLoot } from "@store/gameReducer"
+import { lootMutations } from "@mutations"
 
-const DroppableSlot = ({loot, slot, unequipLoot}) => {
+const DroppableSlot = ({loot, slot}) => {
     const [{ canDrop, isOver }, drop] = useDrop({
         accept: slot,
         drop: () => ({ slot: slot }),
@@ -26,11 +25,11 @@ const DroppableSlot = ({loot, slot, unequipLoot}) => {
                 ${pixel_emboss({rgb: rgb, a: a})}
                 text-transform: capitalize;
             `}
-            onClick={() => unequipLoot(loot)}
+            onClick={() => { lootMutations.unequipLoot(loot) }}
         >
             { loot && <Loot loot={loot} /> }
         </div>
     );
 }
 
-export default connect(null, {unequipLoot})(DroppableSlot);
+export default DroppableSlot;

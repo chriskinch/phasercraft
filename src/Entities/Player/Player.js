@@ -11,6 +11,7 @@ import { addXP, setBaseStats, setLevel, setStats } from "@store/gameReducer"
 import isEmpty from "lodash/isEmpty"
 import mapStateToData from "@Helpers/mapStateToData"
 import CombatText from "../UI/CombatText"
+import { baseStatsVar, statsVar, equippedVar } from "@root/cache"
 
 const converter = require('number-to-words');
 
@@ -21,9 +22,9 @@ class Player extends GameObjects.Container {
 		this.name = "player";
 		this.uuid = uuid();
 		const base_stats = {...stats, resource_type}; // Add resource type into to base stats.
-		// Adding this in place for when there is a stats state when resuming from gameover or a save.
-		if(isEmpty(store.getState().base_stats)) store.dispatch(setBaseStats(base_stats));
-		if(isEmpty(store.getState().stats)) store.dispatch(setStats(base_stats));
+		baseStatsVar(base_stats);
+		statsVar(base_stats);
+		this.stats = statsVar();
 
 		this.hero = new Hero({
 			scene: scene,
@@ -84,7 +85,7 @@ class Player extends GameObjects.Container {
 
 		// This maps the stats section of the store to this.stats.
 		// Updates on store change using RxJS.
-		mapStateToData("stats", stats => this.stats = stats);
+		// mapStateToData("stats", stats => this.stats = stats);
 		mapStateToData("level.currentLevel", this.LevelUp.bind(this));
 
 		scene.events.once('player:dead', this.death, this);
@@ -117,10 +118,6 @@ class Player extends GameObjects.Container {
 		scene.events.on('spell:cleared', () => this.spellPrimed = false, this);
 
 		// mapStateToData("stats", s => this.stats = s);
-	}
-
-	temp(s) {
-		console.log("CHANGED: ", s, this)
 	}
 
 	drawBar(opt) {
