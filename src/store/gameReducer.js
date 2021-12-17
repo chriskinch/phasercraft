@@ -22,7 +22,7 @@ const initState = {
         helm: null,
         weapon: null
     },
-    coins: 0,
+    coins: 9998,
     selected: null,
     saveSlot: null,
     wave: 1,
@@ -123,8 +123,6 @@ export const generateLootTable = createAction("UPDATE_LOOT_TABLE", quantity => (
 
 // Helpers
 
-const addStats = (stats, add) => mergeWith(stats, add, (o,s) => o+s.rounded);
-const removeStats = (stats, add) => mergeWith(stats, add, (o,s) => o-s.rounded);
 const syncStats = (state) => state.stats = state.base_stats;
 const sortAscending = key => (a, b) => a[key] > b[key] ? 1 : -1;
 const sortDecending = key => (a, b) => a[key] < b[key] ? 1 : -1;
@@ -146,10 +144,11 @@ export const gameReducer = createReducer(initState, {
         state.selected = null;
     },
     [equipLoot]: (state, action) => {
-        const { loot } = action.payload;
+        const { loot, loot:{ stats } } = action.payload;
         state.equipment[action.payload.loot.set] = loot;
+        console.log("LOOT: ", loot)
         remove(state.inventory, (l) => l.uuid === loot.uuid);
-        addStats(state.base_stats, loot.stats);
+        stats.map(s => state.base_stats[s.name] += s.value);
         syncStats(state);
     },
     [loadGame]: (state, action) => action.payload.state,
@@ -182,9 +181,10 @@ export const gameReducer = createReducer(initState, {
     [toggleHUD]: (state, action) => ({ ...state, ...action.payload }),
     [toggleUi]: (state, action) => ({ ...state, showUi: !state.showUi, ...action.payload }),
     [unequipLoot]: (state, action) => {
-        state.equipment[action.payload.loot.set] = null;
-        state.inventory.push(action.payload.loot);
-        removeStats(state.base_stats, action.payload.loot.stats);
+        const { loot, loot:{ stats } } = action.payload;
+        state.equipment[loot.set] = null;
+        state.inventory.push(loot);
+        stats.map(s => state.base_stats[s.name] -= s.value);
         syncStats(state);
     },
     [updateStats]: (state, action) => { mergeWith(state.stats, action.payload.stats, (o,s) => o+s) },
