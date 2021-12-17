@@ -138,7 +138,7 @@ export const gameReducer = createReducer(initState, {
     [addXP]: (state, action) => { state.xp += action.payload.value },
     [buyLoot]: (state, action) => {
         const { loot } = action.payload;
-        remove(state.loot, (l) => l.uuid === loot.uuid);
+        remove(state.loot, l => l.id === loot.id);
         state.inventory.push(loot);
         state.coins -= loot.cost
         state.selected = null;
@@ -147,7 +147,7 @@ export const gameReducer = createReducer(initState, {
         const { loot, loot:{ stats } } = action.payload;
         state.equipment[action.payload.loot.set] = loot;
         console.log("LOOT: ", loot)
-        remove(state.inventory, (l) => l.uuid === loot.uuid);
+        remove(state.inventory, l => l.id === loot.id);
         stats.map(s => state.base_stats[s.name] += s.value);
         syncStats(state);
     },
@@ -157,7 +157,7 @@ export const gameReducer = createReducer(initState, {
     [selectCharacter]: (state, action) => ({ ...state, showUi: false, ...action.payload }),
     [sellLoot]: (state, action) => {
         const { loot } = action.payload;
-        remove(state.inventory, (l) => l.uuid === loot.uuid);
+        remove(state.inventory, l => l.id === loot.id);
         state.loot.push(loot);
         state.coins += Math.round(loot.cost/3);
         state.selected = null;
