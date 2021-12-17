@@ -146,7 +146,6 @@ export const gameReducer = createReducer(initState, {
     [equipLoot]: (state, action) => {
         const { loot, loot:{ stats } } = action.payload;
         state.equipment[action.payload.loot.set] = loot;
-        console.log("LOOT: ", loot)
         remove(state.inventory, l => l.id === loot.id);
         stats.map(s => state.base_stats[s.name] += s.value);
         syncStats(state);

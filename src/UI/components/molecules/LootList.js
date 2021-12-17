@@ -7,13 +7,13 @@ import { selectLoot } from "@store/gameReducer"
 const LootList = ({cols=4, list, selected, selectLoot}) => {
     const items = [];
     for(const loot of list){
-        // Check for matching selected uuid
-        const isSelected = selected ? selected.uuid === loot.uuid : null;
+        // Check for matching selected id
+        const isSelected = selected ? selected.id === loot.id : null;
         items.push(<Loot 
             loot={loot}
             isSelected={isSelected}
             setSelected={() => { selectLoot(loot) }}
-            key={loot.uuid}
+            key={loot.id}
         />);
     }
     return ( 
