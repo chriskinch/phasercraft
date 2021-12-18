@@ -1,8 +1,9 @@
-import { createAction, createReducer } from "redux-starter-kit"
+import { createAction, createReducer, current } from "@reduxjs/toolkit"
 import LootTable from "@Entities/Loot/LootTable"
 import mergeWith from "lodash/mergeWith"
 import remove from "lodash/remove"
-import map from "lodash/map"
+import pull from "lodash/pull"
+import orderBy from "lodash/orderBy"
 
 // Init
 const initState = {
@@ -22,7 +23,7 @@ const initState = {
         helm: null,
         weapon: null
     },
-    coins: 0,
+    coins: 9998,
     selected: null,
     saveSlot: null,
     wave: 1,
@@ -84,10 +85,6 @@ export const setStats = createAction("SET_STATS", stats => ({
     payload: { stats }
 }));
 
-export const sortLoot = createAction("SORT_LOOT", (key, order) => ({
-    payload: { key, order }
-}));
-
 export const switchUi = createAction("SWITCH_UI", menu => ({
     payload: { menu }
 }));
@@ -116,18 +113,10 @@ export const updateStats = createAction("UPDATE_BASE_STATS", stats => ({
     payload: { stats }
 }));
 
-export const generateLootTable = createAction("UPDATE_LOOT_TABLE", quantity => ({
-    payload: { quantity }
-}));
-
 
 // Helpers
 
-const addStats = (stats, add) => mergeWith(stats, add, (o,s) => o+s.rounded);
-const removeStats = (stats, add) => mergeWith(stats, add, (o,s) => o-s.rounded);
 const syncStats = (state) => state.stats = state.base_stats;
-const sortAscending = key => (a, b) => a[key] > b[key] ? 1 : -1;
-const sortDecending = key => (a, b) => a[key] < b[key] ? 1 : -1;
 
 // Reducers
 
@@ -140,16 +129,16 @@ export const gameReducer = createReducer(initState, {
     [addXP]: (state, action) => { state.xp += action.payload.value },
     [buyLoot]: (state, action) => {
         const { loot } = action.payload;
-        remove(state.loot, (l) => l.uuid === loot.uuid);
+        remove(state.loot, l => l.id === loot.id);
         state.inventory.push(loot);
         state.coins -= loot.cost
         state.selected = null;
     },
     [equipLoot]: (state, action) => {
-        const { loot } = action.payload;
+        const { loot, loot:{ stats } } = action.payload;
         state.equipment[action.payload.loot.set] = loot;
-        remove(state.inventory, (l) => l.uuid === loot.uuid);
-        addStats(state.base_stats, loot.stats);
+        remove(state.inventory, l => l.id === loot.id);
+        stats.map(s => state.base_stats[s.name] += s.value);
         syncStats(state);
     },
     [loadGame]: (state, action) => action.payload.state,
@@ -158,7 +147,7 @@ export const gameReducer = createReducer(initState, {
     [selectCharacter]: (state, action) => ({ ...state, showUi: false, ...action.payload }),
     [sellLoot]: (state, action) => {
         const { loot } = action.payload;
-        remove(state.inventory, (l) => l.uuid === loot.uuid);
+        remove(state.inventory, l => l.id === loot.id);
         state.loot.push(loot);
         state.coins += Math.round(loot.cost/3);
         state.selected = null;
@@ -167,26 +156,21 @@ export const gameReducer = createReducer(initState, {
     [setLevel]: (state, action) => ({ ...state, ...action.payload }),
     [setSaveSlot]: (state, action) => {state.saveSlot = action.payload.saveSlot},
     [setStats]: (state, action) => {state.stats = {...state.stats, ...action.payload.stats}},
-    [sortLoot]: (state, action) => {
-        const func = (action.payload.order === "ascending") ? sortAscending : sortDecending;
-        const sorted = state.loot.slice().sort(func(action.payload.key));
-        state.loot = sorted;
-    },
     [switchUi]: (state, action) => ({ ...state, ...action.payload }),
     [toggleFilter]: (state, action) => {
-        if(action.payload.key) state.filters.includes(action.payload.key) ? remove(state.filters, i => i === action.payload.key) : state.filters.push(action.payload.key);
-        state.loot = map(state.loot, l => 
-            state.filters.every(r => Object.keys(l.stats).includes(r)) ? {...l, isHidden: false} : {...l, isHidden: true}
-        );
+        const { key } = action.payload;
+        key ?
+            state.filters.includes(key) ? pull(state.filters, key) : state.filters.push(key) :
+            state.filters = [];
     },
     [toggleHUD]: (state, action) => ({ ...state, ...action.payload }),
     [toggleUi]: (state, action) => ({ ...state, showUi: !state.showUi, ...action.payload }),
     [unequipLoot]: (state, action) => {
-        state.equipment[action.payload.loot.set] = null;
-        state.inventory.push(action.payload.loot);
-        removeStats(state.base_stats, action.payload.loot.stats);
+        const { loot, loot:{ stats } } = action.payload;
+        state.equipment[loot.set] = null;
+        state.inventory.push(loot);
+        stats.map(s => state.base_stats[s.name] -= s.value);
         syncStats(state);
     },
-    [updateStats]: (state, action) => { mergeWith(state.stats, action.payload.stats, (o,s) => o+s) },
-    [generateLootTable]: (state, action) => { state.loot = new LootTable(action.payload.quantity).loot }
+    [updateStats]: (state, action) => { mergeWith(state.stats, action.payload.stats, (o,s) => o+s) }
 });

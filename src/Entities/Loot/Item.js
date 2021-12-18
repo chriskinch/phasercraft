@@ -37,7 +37,6 @@ class Item {
 		this.set = this.getSet(this.category);
 
 		this.uuid = uuid();
-		// console.log(this.quality, this, this.stat_pool)
 	}
 
 	round(stat) {

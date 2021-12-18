@@ -8,7 +8,7 @@ import enemyTypes from "@Config/enemies.json"
 import bossTypes from "@Config/bosses.json"
 import sample from "lodash/sample"
 
-import { generateLootTable, nextWave, toggleHUD } from "@store/gameReducer"
+import { nextWave, toggleHUD } from "@store/gameReducer"
 import store from "@store"
 
 export default class GameScene extends Scene {
@@ -29,7 +29,7 @@ export default class GameScene extends Scene {
 			TOP: 99999
 		}
 
-		store.dispatch(generateLootTable(45));
+		// store.dispatch(generateLootTable(45));
 	}
 
 	init(config) {
