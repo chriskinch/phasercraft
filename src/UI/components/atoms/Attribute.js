@@ -2,7 +2,8 @@ import React from "react";
 import 'styled-components/macro';
 import round from "lodash/round"
 
-const Stat = ({delimeter=":", label, value, polarity}) => {
+const Attribute = ({delimeter=":", label, value, polarity}) => {
+
     const colour = polarity > 0 ? 'green' : polarity < 0 ? 'red' : 'grey';
 
     return (
@@ -27,4 +28,4 @@ const Stat = ({delimeter=":", label, value, polarity}) => {
     )
 }
 
-export default Stat;
+export default Attribute;

@@ -3,7 +3,7 @@ import { connect } from "react-redux"
 import "styled-components/macro"
 import Slot from "@atoms/Slot"
 import DetailedLoot from "@molecules/DetailedLoot"
-import GroupedStats from "@organisms/GroupedStats"
+import GroupedAttributes from "@organisms/GroupedAttributes"
 import StatBar from "@molecules/StatBar"
 import { pixel_emboss } from "@UI/themes"
 
@@ -37,7 +37,7 @@ const Character = ({ character, equipment: { amulet, body, helm, weapon }, stats
                     <StatBar type={"health"} label={"HP"} value={stats.health_max} />
                     <StatBar type={resource_type} label={"RP"} value={stats.resource_max} />
                 </div>
-                <GroupedStats stats={stats} />
+                <GroupedAttributes stats={stats} />
             </section>
             <section css={`
                 ${ pixel_emboss }
