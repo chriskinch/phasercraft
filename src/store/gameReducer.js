@@ -1,8 +1,9 @@
-import { createAction, createReducer } from "redux-starter-kit"
+import { createAction, createReducer, current } from "@reduxjs/toolkit"
 import LootTable from "@Entities/Loot/LootTable"
 import mergeWith from "lodash/mergeWith"
 import remove from "lodash/remove"
-import map from "lodash/map"
+import pull from "lodash/pull"
+import orderBy from "lodash/orderBy"
 
 // Init
 const initState = {
@@ -124,8 +125,6 @@ export const generateLootTable = createAction("UPDATE_LOOT_TABLE", quantity => (
 // Helpers
 
 const syncStats = (state) => state.stats = state.base_stats;
-const sortAscending = key => (a, b) => a[key] > b[key] ? 1 : -1;
-const sortDecending = key => (a, b) => a[key] < b[key] ? 1 : -1;
 
 // Reducers
 
@@ -166,16 +165,17 @@ export const gameReducer = createReducer(initState, {
     [setSaveSlot]: (state, action) => {state.saveSlot = action.payload.saveSlot},
     [setStats]: (state, action) => {state.stats = {...state.stats, ...action.payload.stats}},
     [sortLoot]: (state, action) => {
-        const func = (action.payload.order === "ascending") ? sortAscending : sortDecending;
-        const sorted = state.loot.slice().sort(func(action.payload.key));
-        state.loot = sorted;
+        // const func = (action.payload.order === "ascending") ? sortAscending : sortDecending;
+        // const sorted = state.loot.slice().sort(func(action.payload.key));
+        console.log("SORTING: ", action.payload.key, action.payload.order, orderBy(current(state.loot), [action.payload.key], [action.payload.order]))
+        state.loot = orderBy(current(state.loot), [action.payload.key], [action.payload.order]);
     },
     [switchUi]: (state, action) => ({ ...state, ...action.payload }),
     [toggleFilter]: (state, action) => {
-        if(action.payload.key) state.filters.includes(action.payload.key) ? remove(state.filters, i => i === action.payload.key) : state.filters.push(action.payload.key);
-        state.loot = map(state.loot, l => 
-            state.filters.every(r => Object.keys(l.stats).includes(r)) ? {...l, isHidden: false} : {...l, isHidden: true}
-        );
+        const { key } = action.payload;
+        key ?
+            state.filters.includes(key) ? pull(state.filters, key) : state.filters.push(key) :
+            state.filters = [];
     },
     [toggleHUD]: (state, action) => ({ ...state, ...action.payload }),
     [toggleUi]: (state, action) => ({ ...state, showUi: !state.showUi, ...action.payload }),

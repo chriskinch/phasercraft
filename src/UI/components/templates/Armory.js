@@ -1,4 +1,4 @@
-import React from "react"
+import React, { useState } from "react"
 import { connect } from "react-redux"
 import "styled-components/macro"
 import { pixel_emboss } from "@UI/themes"
@@ -6,15 +6,33 @@ import Button from "@atoms/Button"
 import Stock from "@organisms/Stock"
 import { buyLoot, generateLootTable, toggleFilter, sortLoot } from "@store/gameReducer"
 import store from "@store"
-import { useQuery } from "@apollo/client"
+import { useQuery, useMutation, useApolloClient } from "@apollo/client"
 import { GET_ITEMS } from "@queries/getItems"
+import { RESTOCK_STORE } from "@mutations/restockStore"
+import { sortBy } from "@UI/operations/helpers"
 
 const Armory = ({coins, buyLoot, filters, sortLoot, toggleFilter, generateLootTable}) => {
-    const { loading, error, data } = useQuery(GET_ITEMS);
+    const client = useApolloClient();
+    const { loading, error, data, refetch } = useQuery(GET_ITEMS);
+    const [restockStore] = useMutation(RESTOCK_STORE, {
+        update(cache) {
+            cache.reset();
+        }
+    });
+
     if(loading) return 'Loading...';
     if(error) return `ERROR: ${error.message}`;
-    console.log(loading, error, data)
+
     const filterOn = filter => filters.includes(filter);
+    const filterAndRefetch = key => {
+        toggleFilter(key)
+        refetch({
+            filter: {
+                stats: store.getState().filters
+            }
+        })
+    }
+
     return (
         <div css={`
             display: grid;
@@ -24,8 +42,24 @@ const Armory = ({coins, buyLoot, filters, sortLoot, toggleFilter, generateLootTa
         `}>
             <section>
                 <h3>Sort</h3>
-                <Button text="Quality" onClick={() => sortLoot("quality_sort", "ascending")} />
-                <Button text="Stats" onClick={() => sortLoot("stat_pool", "decending")} />
+                <Button text="Quality" onClick={() => {
+                    const { items } = client.readQuery({ query: GET_ITEMS, });
+                    client.writeQuery({
+                        query: GET_ITEMS,
+                        data: {
+                            items: sortBy(items, {key: "qualitySort", order: "desc"}),
+                        }
+                    });
+                }} />
+                <Button text="Stats" onClick={() => {
+                    const { items } = client.cache.readQuery({ query: GET_ITEMS });
+                    client.writeQuery({
+                        query: GET_ITEMS,
+                        data: {
+                            items: sortBy(items, {key: "pool", order: "desc"}),
+                        }
+                    });
+                }} />
                 <h3>Action</h3>
                 <Button text="Buy" onClick={() => {
                     const selected = store.getState().selected;
@@ -36,8 +70,7 @@ const Armory = ({coins, buyLoot, filters, sortLoot, toggleFilter, generateLootTa
                     }
                 }} />
                 <Button text="Restock" onClick={() => {
-                    generateLootTable(99);
-                    toggleFilter();
+                    restockStore({ variables: {restockStoreAmount: 45} });
                 }} />
             </section>
             <section>
@@ -47,15 +80,15 @@ const Armory = ({coins, buyLoot, filters, sortLoot, toggleFilter, generateLootTa
                     grid-template-columns: 1fr 1fr;
                     column-gap: 0.5em;
                 `}>                
-                    <Button text="AP" on={filterOn("attack_power")} onClick={() => toggleFilter("attack_power")} />
-                    <Button text="MP" on={filterOn("magic_power")} onClick={() => toggleFilter("magic_power") } />
-                    <Button text="AS" on={filterOn("attack_speed")} onClick={() => toggleFilter("attack_speed")} />
-                    <Button text="CC" on={filterOn("critical_chance")} onClick={() => toggleFilter("critical_chance")} />
-                    <Button text="HM" on={filterOn("health_max")} onClick={() => toggleFilter("health_max") } />
-                    <Button text="HR" on={filterOn("health_regen_rate")} onClick={() => toggleFilter("health_regen_rate")} />
-                    <Button text="HV" on={filterOn("health_regen_value")} onClick={() => toggleFilter("health_regen_value") } />
-                    <Button text="DF" on={filterOn("defence")} onClick={() => toggleFilter("defence")} />
-                    <Button text="SP" on={filterOn("speed")} onClick={() => toggleFilter("speed")} />
+                    <Button text="AP" on={filterOn("attack_power")} onClick={() => filterAndRefetch("attack_power")} />
+                    <Button text="MP" on={filterOn("magic_power")} onClick={() => filterAndRefetch("magic_power")} />
+                    <Button text="AS" on={filterOn("attack_speed")} onClick={() => filterAndRefetch("attack_speed")} />
+                    <Button text="CC" on={filterOn("critical_chance")} onClick={() => filterAndRefetch("critical_chance")} />
+                    <Button text="HM" on={filterOn("health_max")} onClick={() => filterAndRefetch("health_max")} />
+                    <Button text="HR" on={filterOn("health_regen_rate")} onClick={() => filterAndRefetch("health_regen_rate")} />
+                    <Button text="HV" on={filterOn("health_regen_value")} onClick={() => filterAndRefetch("health_regen_value")} />
+                    <Button text="DF" on={filterOn("defence")} onClick={() => filterAndRefetch("defence")} />
+                    <Button text="SP" on={filterOn("speed")} onClick={() => filterAndRefetch("speed")} />
                 </div>
             </section>
             <section css={`

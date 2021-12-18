@@ -18,6 +18,11 @@ import { DndProvider } from 'react-dnd';
 const client = new ApolloClient({
     uri: 'http://localhost:4000',
     cache,
+    defaultOptions: {
+        query: {
+            fetchPolicy: 'cache-first',
+        },
+    },
 })
 
 document.body.setAttribute("style", "margin:0;");
