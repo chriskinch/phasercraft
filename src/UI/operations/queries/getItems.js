@@ -16,7 +16,7 @@ export const GET_ITEMS = gql`
                 id
                 name
                 value
-                converted @client
+                adjusted @client
                 formatted @client
                 abbreviation @client
             }

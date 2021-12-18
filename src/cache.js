@@ -64,7 +64,7 @@ export const cache = new InMemoryCache({
         },
         Stat: {
             fields: {
-                converted: {
+                adjusted: {
                     read(_, {readField}) { 
                         return adjusted(readField('name'), readField('value'))
                     }
