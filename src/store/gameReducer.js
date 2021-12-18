@@ -85,10 +85,6 @@ export const setStats = createAction("SET_STATS", stats => ({
     payload: { stats }
 }));
 
-export const sortLoot = createAction("SORT_LOOT", (key, order) => ({
-    payload: { key, order }
-}));
-
 export const switchUi = createAction("SWITCH_UI", menu => ({
     payload: { menu }
 }));
@@ -115,10 +111,6 @@ export const updateBaseStats = createAction("UPDATE_BASE_STATS", base_stats => (
 
 export const updateStats = createAction("UPDATE_BASE_STATS", stats => ({
     payload: { stats }
-}));
-
-export const generateLootTable = createAction("UPDATE_LOOT_TABLE", quantity => ({
-    payload: { quantity }
 }));
 
 
@@ -164,12 +156,6 @@ export const gameReducer = createReducer(initState, {
     [setLevel]: (state, action) => ({ ...state, ...action.payload }),
     [setSaveSlot]: (state, action) => {state.saveSlot = action.payload.saveSlot},
     [setStats]: (state, action) => {state.stats = {...state.stats, ...action.payload.stats}},
-    [sortLoot]: (state, action) => {
-        // const func = (action.payload.order === "ascending") ? sortAscending : sortDecending;
-        // const sorted = state.loot.slice().sort(func(action.payload.key));
-        console.log("SORTING: ", action.payload.key, action.payload.order, orderBy(current(state.loot), [action.payload.key], [action.payload.order]))
-        state.loot = orderBy(current(state.loot), [action.payload.key], [action.payload.order]);
-    },
     [switchUi]: (state, action) => ({ ...state, ...action.payload }),
     [toggleFilter]: (state, action) => {
         const { key } = action.payload;
@@ -186,6 +172,5 @@ export const gameReducer = createReducer(initState, {
         stats.map(s => state.base_stats[s.name] -= s.value);
         syncStats(state);
     },
-    [updateStats]: (state, action) => { mergeWith(state.stats, action.payload.stats, (o,s) => o+s) },
-    [generateLootTable]: (state, action) => { state.loot = new LootTable(action.payload.quantity).loot }
+    [updateStats]: (state, action) => { mergeWith(state.stats, action.payload.stats, (o,s) => o+s) }
 });

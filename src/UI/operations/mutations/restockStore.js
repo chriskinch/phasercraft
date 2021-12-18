@@ -1,6 +1,6 @@
 import { gql } from "@apollo/client"
 
-export const RESTOCK_STORE = gql`
+const RESTOCK_STORE = gql`
     mutation RestockStoreMutation($restockStoreAmount: Int) {
         restockStore(amount: $restockStoreAmount) {
             id
@@ -23,3 +23,5 @@ export const RESTOCK_STORE = gql`
         }
     }
 `;
+
+export default RESTOCK_STORE;

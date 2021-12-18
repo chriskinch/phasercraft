@@ -4,17 +4,22 @@ import "styled-components/macro"
 import { pixel_emboss } from "@UI/themes"
 import Button from "@atoms/Button"
 import Stock from "@organisms/Stock"
-import { buyLoot, generateLootTable, toggleFilter, sortLoot } from "@store/gameReducer"
+import { buyLoot, toggleFilter } from "@store/gameReducer"
 import store from "@store"
 import { useQuery, useMutation, useApolloClient } from "@apollo/client"
 import { GET_ITEMS } from "@queries/getItems"
-import { RESTOCK_STORE } from "@mutations/restockStore"
+import { RESTOCK_STORE, REMOVE_ITEM } from "@mutations"
 import { sortBy } from "@UI/operations/helpers"
 
-const Armory = ({coins, buyLoot, filters, sortLoot, toggleFilter, generateLootTable}) => {
+const Armory = ({coins, buyLoot, filters, toggleFilter}) => {
     const client = useApolloClient();
     const { loading, error, data, refetch } = useQuery(GET_ITEMS);
     const [restockStore] = useMutation(RESTOCK_STORE, {
+        update(cache) {
+            cache.reset();
+        }
+    });
+    const [removeItem] = useMutation(REMOVE_ITEM, {
         update(cache) {
             cache.reset();
         }
@@ -64,7 +69,12 @@ const Armory = ({coins, buyLoot, filters, sortLoot, toggleFilter, generateLootTa
                 <Button text="Buy" onClick={() => {
                     const selected = store.getState().selected;
                     if(selected?.cost <= coins) {
-                        buyLoot(store.getState().selected);
+                        buyLoot(selected);
+                        removeItem({
+                            variables: {
+                                removeItemId: selected.id
+                            }
+                        })
                     }else{
                         console.log("CANNOT AFFORD")
                     }
@@ -106,4 +116,4 @@ const mapStateToProps = (state) => {
     return { coins, filters }
 };
 
-export default connect(mapStateToProps, { buyLoot, sortLoot, toggleFilter, generateLootTable })(Armory);
+export default connect(mapStateToProps, { buyLoot, toggleFilter })(Armory);
