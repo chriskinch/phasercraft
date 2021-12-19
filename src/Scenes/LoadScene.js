@@ -56,6 +56,9 @@ export default class LoadScene extends Scene {
 		this.load.spritesheet('multishot-effect', 'spritesheets/swoosh.png', { frameWidth: 32, frameHeight: 32 });
 		this.load.spritesheet('whirlwind-effect', 'spritesheets/spells/whirlwind.png', { frameWidth: 32, frameHeight: 32 });
 		this.load.image('consecration', 'spritesheets/spells/consecration.png', { frameWidth: 200, frameHeight: 200 });
+		// Maps
+		this.load.image("tiles", "tilesets/tileset_organic_extruded.png");
+		this.load.tilemapTiledJSON('map', 'tilesets/enchanted_forrest_map.json');
 	}
 
 	create(){

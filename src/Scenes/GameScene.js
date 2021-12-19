@@ -81,6 +81,39 @@ export default class GameScene extends Scene {
 
 		this.events.once('player:dead', this.gameOver, this);
 
+		// When loading from an array, make sure to specify the tileWidth and tileHeight
+		const map = this.make.tilemap({ key: "map"});
+		// const tileset = map.addTilesetImage("tileset_organic", "tiles");
+		const tileset = map.addTilesetImage("tileset_organic", "tiles", 16, 16, 1, 2);
+		this.mapset = {
+			base: map.createStaticLayer("base", tileset, 0, 0),
+			trees: map.createStaticLayer("trees", tileset, 0, 0),
+			bushes: map.createStaticLayer("bushes", tileset, 0, 0),
+			ore: map.createStaticLayer("ore", tileset, 0, 0),
+			details: map.createStaticLayer("details", tileset, 0, 0)
+		}
+		this.mapset.trees.setCollisionByProperty({ collides: true });
+		this.mapset.bushes.setCollisionByProperty({ collides: true });
+		this.mapset.ore.setCollisionByProperty({ collides: true });
+		this.mapset.details.setCollisionByProperty({ collides: true });
+
+		// const debugGraphics = this.add.graphics().setAlpha(0.75);
+		// mapset.trees.renderDebug(debugGraphics, {
+		// 	tileColor: null, // Color of non-colliding tiles
+		// 	collidingTileColor: new Display.Color(243, 134, 48, 255), // Color of colliding tiles
+		// 	faceColor: new Display.Color(40, 39, 37, 255) // Color of colliding face edges
+		// });
+
+		// Camera
+		const camera = this.cameras.main;
+		camera.setBounds(0, 0, map.widthInPixels, map.heightInPixels);
+		// camera.startFollow(this.player);
+
+		this.physics.add.collider(this.player, this.mapset.trees);
+		this.physics.add.collider(this.player, this.mapset.bushes);
+		this.physics.add.collider(this.player, this.mapset.ore);
+		this.physics.add.collider(this.player, this.mapset.details);
+
 		// Resume physics if we load the scene post game over.
 		this.physics.resume();
 	}
