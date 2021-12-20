@@ -16,7 +16,7 @@ import TouchBackend from 'react-dnd-touch-backend';
 import { DndProvider } from 'react-dnd';
 
 const client = new ApolloClient({
-    uri: 'http://localhost:4000',
+    uri: '.netlify/functions/apollo-graphql-rest',
     cache,
     defaultOptions: {
         query: {
