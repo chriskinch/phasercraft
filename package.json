@@ -21,7 +21,7 @@
     "casual": "^1.6.2",
     "craco-alias": "^2.1.0",
     "craco-babel-loader": "^0.1.4",
-    "graphql": "^16.2.0",
+    "graphql": "15",
     "graphql-tools": "^4.0.8",
     "jest-canvas-mock": "^2.1.2",
     "lodash": "^4.17.15",
