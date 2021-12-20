@@ -1,5 +1,5 @@
 {
-  "name": "apollo-graphql-rest",
+  "name": "castronauts-server-complete",
   "version": "1.0.0",
   "description": "back-end demo app for Apollo's lift-off course",
   "main": "src/index.js",
@@ -8,7 +8,7 @@
   },
   "dependencies": {
     "apollo-datasource-rest": "0.9.6",
-    "apollo-server": "^2.19.1",
+    "apollo-server": "^3.5.0",
     "casual": "^1.6.2",
     "graphql": "^15.4.0"
   },

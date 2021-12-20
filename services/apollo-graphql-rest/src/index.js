@@ -1,4 +1,4 @@
-const { ApolloServer, MockList } = require('apollo-server');
+const { ApolloServer, MockList } = require('apollo-server-lambda');
 const typeDefs = require('./schema');
 const casual = require('casual');
 const ItemAPI = require('./datasources/items');
@@ -42,10 +42,6 @@ const server = new ApolloServer({
   })
 });
 
-server.listen().then(() => {
-  console.log(`
-    🚀 Server is running!
-    🔊 Listening on port 4000
-    📭 Query at https://studio.apollographql.com/dev
-  `)
-})
+const handler = server.createHandler()
+
+module.exports = { handler }
