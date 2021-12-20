@@ -1,9 +1,7 @@
-import { createAction, createReducer, current } from "@reduxjs/toolkit"
-import LootTable from "@Entities/Loot/LootTable"
+import { createAction, createReducer } from "@reduxjs/toolkit"
 import mergeWith from "lodash/mergeWith"
 import remove from "lodash/remove"
 import pull from "lodash/pull"
-import orderBy from "lodash/orderBy"
 
 // Init
 const initState = {
