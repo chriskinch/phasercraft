@@ -56,11 +56,19 @@ functions:
           method: post
           cors: true
 
-  clearStore:
-    handler: src/functions/clearStore/index.default
+  createTable:
+    handler: src/functions/createTable/index.default
     events:
       - http:
-          path: clearStore
+          path: createTable
+          method: post
+          cors: true
+
+  deleteTable:
+    handler: src/functions/deleteTable/index.default
+    events:
+      - http:
+          path: deleteTable
           method: post
           cors: true
           
