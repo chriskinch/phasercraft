@@ -8,8 +8,8 @@ const sortKeys = Object.freeze({
 class ItemAPI extends RESTDataSource {
   constructor() {
     super();
-    this.baseURL = 'http://localhost:3001/dev';
-    // this.baseURL = 'https://sro42uvs8l.execute-api.us-east-1.amazonaws.com/dev';
+    // this.baseURL = 'http://localhost:3001/dev';
+    this.baseURL = 'https://v8z4x819qk.execute-api.us-east-1.amazonaws.com/dev';
   }
 
   async getAllItems({orderBy, filter}) {
@@ -47,7 +47,8 @@ class ItemAPI extends RESTDataSource {
   }
 
   async clearStore() {
-    return await this.post('clearStore');
+    await this.post('deleteTable');
+    return await this.post('createTable');
   }
 
   async stockStore(amount) {
@@ -55,6 +56,12 @@ class ItemAPI extends RESTDataSource {
     return Array.isArray(response)
       ? response.map(item => this.itemReducer(item))
       : [];
+  }
+
+  async restockStore(amount) {
+    await this.post('deleteTable');
+    await this.post('createTable');
+    return await this.stockStore(amount);
   }
 
   itemReducer({id, name, category, set, icon, quality, qualitySort, cost, pool, stats}) {
