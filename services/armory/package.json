@@ -6,12 +6,14 @@
   "author": "Christoph Gysin <christoph.gysin@gmail.com>",
   "license": "MIT",
   "scripts": {
-    "lint": "tslint '*.ts'"
+    "watch": "tsc -w",
+    "lint": "tslint '*.ts'",
+    "pretty": "tsc --pretty"
   },
   "dependencies": {
     "@aws-sdk/client-dynamodb": "^3.12.0",
     "@aws-sdk/util-dynamodb": "^3.12.0",
-    "@middy/core": "^2.0.1",
+    "@middy/core": "^3.3.4",
     "@middy/http-error-handler": "^2.0.1",
     "@middy/http-json-body-parser": "^2.0.1",
     "fantasy-content-generator": "^4.6.7",
@@ -20,8 +22,10 @@
   },
   "devDependencies": {
     "@babel/plugin-proposal-optional-chaining": "^7.13.12",
+    "@types/aws-lambda": "^8.10.104",
     "@types/aws-sdk": "^2.7.0",
     "@types/node": "^18.7.18",
+    "aws-lambda": "^1.0.7",
     "serverless-dynamodb-local": "^0.2.40",
     "serverless-offline": "^10.1.0",
     "serverless-webpack": "^5.9.1",

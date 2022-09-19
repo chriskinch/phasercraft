@@ -4,7 +4,9 @@
         "allowJs": true,
         "target": "es6",
         "module": "commonjs",
-        "esModuleInterop": true
+        "esModuleInterop": true,
+        "skipLibCheck": true,
+        "noImplicitAny": true
     },
     "include": [
         "./src/**/*"
