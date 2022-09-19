@@ -10,8 +10,31 @@ module.exports = {
     path: path.resolve(__dirname, 'dist'),
     filename: '[name].js',
   },
+  devtool: "source-map",
+  resolve: {
+    // Add '.ts' and '.tsx' as resolvable extensions.
+    extensions: [".webpack.js", ".web.js", ".ts", ".tsx", ".js"],
+  },
   module: {
     rules: [
+      { 
+        test: /\.tsx?$/,
+        exclude: /node_modules/,
+        use: [
+          {
+            loader: "ts-loader"
+          },
+        ]
+      },
+      {
+        test: /\.js$/,
+        exclude: /node_modules/,
+        use: [
+          {
+            loader: "source-map-loader"
+          },
+        ]
+      },
       {
         test: /\.js$/,
         exclude: /node_modules/,

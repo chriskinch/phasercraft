@@ -1,4 +1,4 @@
-import dynamodb from '../../common/dynamodb'
+import * as dynamodb from '../../common/dynamodb'
 import { marshall, unmarshall } from '@aws-sdk/util-dynamodb';
 
 const handler = async event => {
