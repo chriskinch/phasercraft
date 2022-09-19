@@ -1,4 +1,4 @@
-import uuid from 'uuid';
+import { v4 as uuidv4 } from 'uuid';
 import { statNames, itemCategories } from './constants'
 import random from 'lodash/random'
 import sampleSize from 'lodash/sampleSize'
@@ -69,7 +69,7 @@ const getStats = map => {
   const {pool, keys} = map;
   const it = allocateStatIterator(pool, keys.length);
   return keys.map(key => ({
-    id: uuid(),
+    id: uuidv4(),
     name: key,
     value: it.next(key).value
   }))
@@ -86,7 +86,7 @@ export const generateItem = data => {
   const cost = data?.cost || qualityMap[quality].cost;
   const pool = data?.pool || qualityMap[quality].pool;
   const icon = data?.icon || getIcon(category);
-  const stats = data?.stats.map(s => ({...s, id: uuid()})) || getStats(qualityMap[quality]);
+  const stats = data?.stats.map(s => ({...s, id: uuidv4()})) || getStats(qualityMap[quality]);
 
   return {...data, name, category, set, quality, qualitySort, cost, pool, icon, stats};
 }

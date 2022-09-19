@@ -53,7 +53,7 @@ provider:
 
 functions:
   createStore:
-    handler: src/functions/createStore/index.default
+    handler: src/functions/createStore/handler.default
     events:
       - http:
           path: createStore
@@ -61,7 +61,7 @@ functions:
           cors: true
 
   clearStore:
-    handler: src/functions/clearStore/index.default
+    handler: src/functions/clearStore/handler.default
     events:
       - http:
           path: clearStore
@@ -69,7 +69,7 @@ functions:
           cors: true
           
   create:
-    handler: src/functions/create/index.default
+    handler: src/functions/create/handler.default
     events:
       - http:
           path: items
@@ -77,7 +77,7 @@ functions:
           cors: true
 
   list:
-    handler: src/functions/list/index.default
+    handler: src/functions/list/handler.default
     events:
       - http:
           path: items
@@ -85,7 +85,7 @@ functions:
           cors: true
 
   get:
-    handler: src/functions/get/index.default
+    handler: src/functions/get/handler.default
     events:
       - http:
           path: items/{id}
@@ -93,7 +93,7 @@ functions:
           cors: true
 
   delete:
-    handler: src/functions/delete/index.default
+    handler: src/functions/delete/handler.default
     events:
       - http:
           path: items/{id}

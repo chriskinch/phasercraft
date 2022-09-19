@@ -6,7 +6,7 @@ export const statNames = Object.freeze({
     SPEED: 'speed',
     DEFENCE: 'defence',
     HEALTH_MAX: 'health_max',
-    HEALTH_MAX_RATE: 'health_regen_rate',
+    HEALTH_MAX_RATE: 'health_max_rate',
     HEALTH_REGEN_RATE: 'health_regen_rate',
     HEALTH_REGEN_VALUE: 'health_regen_value',
 });
