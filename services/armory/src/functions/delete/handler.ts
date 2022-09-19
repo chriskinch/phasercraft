@@ -1,7 +1,6 @@
 import dynamodb from '../../common/dynamodb'
 import { marshall, unmarshall } from '@aws-sdk/util-dynamodb';
 import { Handler, middyfy } from '../../common/middyfy';
-import * as createError from 'http-errors';
 
 const handler:Handler = async (event) => {
   const params = {
@@ -9,13 +8,11 @@ const handler:Handler = async (event) => {
     Key: marshall({
       id: event.pathParameters.id,
     }),
+    ReturnValues: 'ALL_OLD',
   };
 
-  const data = await dynamodb.getItem(params);
-
-  if(!data.Item) throw new createError.BadRequest("No item found with that ID.");
-
-  const item = unmarshall(data.Item);
+  const data = await dynamodb.deleteItem(params);
+  const item = unmarshall(data.Attributes);
   return {
     statusCode: 200,
     body: JSON.stringify(item),
