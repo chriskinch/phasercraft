@@ -18,4 +18,4 @@ if (process.env.IS_OFFLINE) {
 
 const client = new DynamoDB(options);
 
-module.exports = client;
+export default client;

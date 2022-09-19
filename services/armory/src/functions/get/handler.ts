@@ -1,7 +1,8 @@
 import dynamodb from '../../common/dynamodb'
 import { marshall, unmarshall } from '@aws-sdk/util-dynamodb';
+import { APIGatewayProxyEvent } from 'aws-lambda';
 
-const handler = async event => {
+const handler = async (event:APIGatewayProxyEvent) => {
   const params = {
     TableName: process.env.DYNAMODB_TABLE,
     Key: marshall({
