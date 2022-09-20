@@ -1130,6 +1130,11 @@
   dependencies:
     "@types/node" "*"
 
+"@types/lodash@^4.14.185":
+  version "4.14.185"
+  resolved "https://registry.yarnpkg.com/@types/lodash/-/lodash-4.14.185.tgz#c9843f5a40703a8f5edfd53358a58ae729816908"
+  integrity sha512-evMDG1bC4rgQg4ku9tKpuMh5iBNEwNa3tf9zRHdP1qlv+1WUg44xat4IxCE14gIpZRGUUWAx2VhItCZc25NfMA==
+
 "@types/node@*", "@types/node@^18.7.18":
   version "18.7.18"
   resolved "https://registry.yarnpkg.com/@types/node/-/node-18.7.18.tgz#633184f55c322e4fb08612307c274ee6d5ed3154"
@@ -2413,10 +2418,10 @@ external-editor@^3.0.3:
     iconv-lite "^0.4.24"
     tmp "^0.0.33"
 
-fantasy-content-generator@^4.6.7:
-  version "4.6.7"
-  resolved "https://registry.yarnpkg.com/fantasy-content-generator/-/fantasy-content-generator-4.6.7.tgz#5186507c036c5539a92a6de8a5942eb2c10f2d09"
-  integrity sha512-xU/wKiJkApA2pKejiawAKR44MOzN6/u3g6Nlpc8z4vwnQRZYYKMPfnaGV827tEoPjQWjb80oCtu6mTka+qZDyg==
+fantasy-content-generator@^4.9.1:
+  version "4.9.1"
+  resolved "https://registry.yarnpkg.com/fantasy-content-generator/-/fantasy-content-generator-4.9.1.tgz#09525ffdaf6664b970847d0c58a161e0d70b95a4"
+  integrity sha512-VGi+amKGNgntiBBpkLpKRG8Q3Z45QiomNgzb9GYfbSTFH6z7YosvAiRyFNujB0AkZvRDa1OQYDm1+CjPjII5tQ==
   dependencies:
     seedrandom "^3.0.5"
 

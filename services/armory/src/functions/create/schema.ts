@@ -1,8 +1,30 @@
 export const bodySchema = {
   type: "object",
-  required: ["stats"],
   properties: {
+    category: { 
+      type: "string",
+      enum: ["amulet", "armor", "axe", "bow", "gem", "helmet", "misc", "staff", "sword"]
+    },
+    cost: { 
+      type: "number"
+    },
+    icon: { 
+      type: "string"
+    },
     name: { 
+      type: "string"
+    },
+    pool: { 
+      type: "number"
+    },
+    quality: { 
+      type: "string",
+      enum: ["common", "fine", "rare", "epic", "legendary"],
+    },
+    qualitySort: { 
+      type: "number"
+    },
+    set: { 
       type: "string"
     },
     stats: {
