@@ -18,7 +18,7 @@
     "@middy/http-header-normalizer": "^3.3.4",
     "@middy/http-json-body-parser": "^3.3.4",
     "@middy/validator": "^3.3.4",
-    "fantasy-content-generator": "^4.6.7",
+    "fantasy-content-generator": "^4.9.1",
     "http-errors": "^2.0.0",
     "lodash": "^4.17.21",
     "uuid": "^9.0.0"
@@ -29,6 +29,7 @@
     "@types/aws-lambda": "^8.10.104",
     "@types/aws-sdk": "^2.7.0",
     "@types/http-errors": "^1.8.2",
+    "@types/lodash": "^4.14.185",
     "@types/node": "^18.7.18",
     "@types/uuid": "^8.3.4",
     "aws-lambda": "^1.0.7",
