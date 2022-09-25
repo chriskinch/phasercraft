@@ -4,10 +4,13 @@ import { Handler, middyfy } from '../../common/middyfy';
 import * as createError from 'http-errors';
 
 const handler:Handler = async (event) => {
+  const { pathParameters } = event;
+  if(!pathParameters) throw new createError.BadRequest("Missing a valid path.");
+  
   const params = {
     TableName: process.env.DYNAMODB_TABLE,
     Key: marshall({
-      id: event.pathParameters.id,
+      id: pathParameters.id,
     }),
   };
 

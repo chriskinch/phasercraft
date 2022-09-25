@@ -975,6 +975,11 @@
   dependencies:
     "@middy/util" "3.3.4"
 
+"@middy/http-event-normalizer@^3.4.0":
+  version "3.4.0"
+  resolved "https://registry.yarnpkg.com/@middy/http-event-normalizer/-/http-event-normalizer-3.4.0.tgz#38b8f30d7d6859ed421e2d76ac2a09e1ebfd9221"
+  integrity sha512-vTfGJWZWPp4ngBOEs+EqIyf2/Nc1NydnejVuJomSDxB/6tkO70hYcBh+eaAtN/QvfDjQZNcClDNJa+1dNg7BBQ==
+
 "@middy/http-header-normalizer@^3.3.4":
   version "3.3.4"
   resolved "https://registry.yarnpkg.com/@middy/http-header-normalizer/-/http-header-normalizer-3.3.4.tgz#c493f1f92bf988de6a82358839881dddb9d7457e"

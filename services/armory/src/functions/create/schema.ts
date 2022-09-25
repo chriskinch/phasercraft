@@ -28,11 +28,69 @@ export const bodySchema = {
       type: "string"
     },
     stats: {
-      type: "array",
-      items: { $ref: "#/$defs/stats" },
-      minItems: 1,
-      maxItems: 10,
-      uniqueItems: true
+      type: "object",
+      anyOf: [
+        {
+          properties: {
+            attack_power: { type: "number" }
+          },
+          required: ["attack_power"]
+        },
+        {
+          properties: {
+            attack_speed: { type: "number" }
+          },
+          required: ["attack_speed"]
+        },
+        {
+          properties: {
+            magic_power: { type: "number" }
+          },
+          required: ["magic_power"]
+        },
+        {
+          properties: {
+            critical_chance: { type: "number" }
+          },
+          required: ["critical_chance"]
+        },
+        {
+          properties: {
+            speed: { type: "number" }
+          },
+          required: ["speed"]
+        },
+        {
+          properties: {
+            defence: { type: "number" }
+          },
+          required: ["defence"]
+        },
+        {
+          properties: {
+            health_max: { type: "number" }
+          },
+          required: ["health_max"]
+        },
+        {
+          properties: {
+            health_max_rate: { type: "number" }
+          },
+          required: ["health_max_rate"]
+        },
+        {
+          properties: {
+            health_regen_rate: { type: "number" }
+          },
+          required: ["health_regen_rate"]
+        },
+        {
+          properties: {
+            health_regen_value: { type: "number" }
+          },
+          required: ["health_regen_value"]
+        }
+      ]
     }
   }
 } as const;
@@ -45,38 +103,68 @@ export const schema = {
   $defs: {
     stats: {
       type: "object",
-      properties: {
-        attack_power: {
-          type: "number"
+      anyOf: [
+        {
+          properties: {
+            attack_power: { type: "number" }
+          },
+          required: ["attack_power"]
         },
-        attack_speed: {
-          type: "number"
+        {
+          properties: {
+            attack_speed: { type: "number" }
+          },
+          required: ["attack_speed"]
         },
-        magic_power: {
-          type: "number"
+        {
+          properties: {
+            magic_power: { type: "number" }
+          },
+          required: ["magic_power"]
         },
-        critical_chance: {
-          type: "number"
+        {
+          properties: {
+            critical_chance: { type: "number" }
+          },
+          required: ["critical_chance"]
         },
-        speed: {
-          type: "number"
+        {
+          properties: {
+            speed: { type: "number" }
+          },
+          required: ["speed"]
         },
-        defence: {
-          type: "number"
+        {
+          properties: {
+            defence: { type: "number" }
+          },
+          required: ["defence"]
         },
-        health_max: {
-          type: "number"
+        {
+          properties: {
+            health_max: { type: "number" }
+          },
+          required: ["health_max"]
         },
-        health_max_rate: {
-          type: "number"
+        {
+          properties: {
+            health_max_rate: { type: "number" }
+          },
+          required: ["health_max_rate"]
         },
-        health_regen_rate: {
-          type: "number"
+        {
+          properties: {
+            health_regen_rate: { type: "number" }
+          },
+          required: ["health_regen_rate"]
         },
-        health_regen_value: {
-          type: "number"
-        },
-      }
+        {
+          properties: {
+            health_regen_value: { type: "number" }
+          },
+          required: ["health_regen_value"]
+        }
+      ]
     }
   }
 } as const;
