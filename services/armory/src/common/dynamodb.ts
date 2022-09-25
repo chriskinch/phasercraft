@@ -1,6 +1,6 @@
 'use strict';
 
-const { DynamoDB } = require("@aws-sdk/client-dynamodb");
+import  { DynamoDB } from '@aws-sdk/client-dynamodb';
 
 let options = {};
 

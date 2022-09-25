@@ -26,6 +26,7 @@
   "devDependencies": {
     "@babel/plugin-proposal-optional-chaining": "^7.13.12",
     "@middy/http-cors": "^3.3.4",
+    "@middy/http-event-normalizer": "^3.4.0",
     "@types/aws-lambda": "^8.10.104",
     "@types/aws-sdk": "^2.7.0",
     "@types/http-errors": "^1.8.2",

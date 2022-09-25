@@ -25,7 +25,7 @@ const handler:Handler<FromSchema<typeof bodySchema>> = async (event) => {
       let chunk = array.slice(i, i + size)
       result.push({
         RequestItems: {
-          [process.env.DYNAMODB_TABLE]: chunk
+          [process.env.DYNAMODB_TABLE as string]: chunk
         },
       })
     }
@@ -36,7 +36,8 @@ const handler:Handler<FromSchema<typeof bodySchema>> = async (event) => {
 
   await Promise.all(batches.map(async (batch) => await dynamodb.batchWriteItem(batch)))
   const result = requests.map(request => unmarshall(request.PutRequest.Item));
-    return {
+  
+  return {
     statusCode: 200,
     body: JSON.stringify(result)
   }

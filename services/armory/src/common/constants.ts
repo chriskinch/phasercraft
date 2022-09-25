@@ -24,16 +24,16 @@ export const itemCategories = Object.freeze({
 });
 
 export enum Stats {
-    AttackPower = "attack_power",
-    AttackSpeed = "attack_speed",
-    MagicPower = "magic_power",
-    CriticalChance = "critical_chance",
-    Speed = "speed",
-    Defence = "defence",
-    HealthMax = "health_max",
-    HealthMaxRate = "health_max_rate",
-    HealthRegenRate = "health_regen_rate",
-    HealthRegenValue = "health_regen_value",
+    attack_power = "attack_power",
+    attack_speed = "attack_speed",
+    magic_power = "magic_power",
+    critical_chance = "critical_chance",
+    speed = "speed",
+    defence = "defence",
+    health_max = "health_max",
+    health_max_rate = "health_max_rate",
+    health_regen_rate = "health_regen_rate",
+    health_regen_value = "health_regen_value",
 };
 
 export enum Categories {

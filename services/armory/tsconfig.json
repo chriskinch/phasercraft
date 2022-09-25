@@ -2,11 +2,15 @@
     "compilerOptions": {
         "outDir": "./dist",
         "allowJs": true,
-        "target": "es6",
+        "lib": ["es2020"],
+        "target": "es2020",
         "module": "commonjs",
         "esModuleInterop": true,
         "skipLibCheck": true,
-        "noImplicitAny": true
+        "noImplicitAny": true,
+        "strict": true,
+        "strictNullChecks": true,
+        "forceConsistentCasingInFileNames": true
     },
     "include": [
         "./src/**/*"

@@ -40,59 +40,46 @@ serverless offline start
 
 ## Usage
 
-You can create, retrieve, update, or delete todos with the following commands:
+You can clearStore, createStore, create, delete, get or list items with the following commands:
 
-### Create a Todo
+### Clear store of all items
 
 ```bash
-curl -X POST -H "Content-Type:application/json" http://localhost:3000/todos --data '{ "text": "Learn Serverless" }'
+curl -X POST -H "Content-Type:application/json" http://localhost:3001/dev/clearStore
 ```
 
-Example Result:
+### Create a store with an amount of items
+
 ```bash
-{"text":"Learn Serverless","id":"ee6490d0-aa11e6-9ede-afdfa051af86","createdAt":1479138570824,"checked":false,"updatedAt":1479138570824}%
+# Replace the <amount> (Default: 45) with a number to create that many random items.
+curl -X POST -H "Content-Type:application/json" -d '{ "amount": 45}' http://localhost:3001/dev/createStore
 ```
 
-### List all Todos
-
+### Create an item with either random or defined attributes
+[Schema](./src/functions/create/schema.ts)
 ```bash
-curl -H "Content-Type:application/json" http://localhost:3000/todos
+# Attributes are created at random. See the schema for a list of customisable keys.
+curl -X POST -H "Content-Type:application/json" -d '{ "name": "Pick of Destiny"}' http://localhost:3001/dev/items
 ```
 
-Example output:
+### Create an item
+
 ```bash
-[{"text":"Deploy my first service","id":"ac90feaa11e6-9ede-afdfa051af86","checked":true,"updatedAt":1479139961304},{"text":"Learn Serverless","id":"206793aa11e6-9ede-afdfa051af86","createdAt":1479139943241,"checked":false,"updatedAt":1479139943241}]%
+# Replace <id> with an item ID
+curl -X DELETE -H "Content-Type:application/json" http://localhost:3001/dev/items/<id>
 ```
 
-### Get one Todo
+### Get an item
 
 ```bash
-# Replace the <id> part with a real id from your todos table
-curl -H "Content-Type:application/json" http://localhost:3000/todos/<id>
+# Replace <id> with an item ID
+curl -X GET -H "Content-Type:application/json" http://localhost:3001/dev/items/<id>
 ```
 
-Example Result:
-```bash
-{"text":"Learn Serverless","id":"ee6490d0-aa11e6-9ede-afdfa051af86","createdAt":1479138570824,"checked":false,"updatedAt":1479138570824}%
-```
-
-### Update a Todo
+### List all items in the store
 
 ```bash
-# Replace the <id> part with a real id from your todos table
-curl -X PUT -H "Content-Type:application/json" http://localhost:3000/todos/<id> --data '{ "text": "Learn Serverless", "checked": true }'
-```
-
-Example Result:
-```bash
-{"text":"Learn Serverless","id":"ee6490d0-aa11e6-9ede-afdfa051af86","createdAt":1479138570824,"checked":true,"updatedAt":1479138570824}%
-```
-
-### Delete a Todo
-
-```bash
-# Replace the <id> part with a real id from your todos table
-curl -X DELETE -H "Content-Type:application/json" http://localhost:3000/todos/<id>
+curl -X GET -H "Content-Type:application/json" http://localhost:3001/dev/items
 ```
 
 No output
