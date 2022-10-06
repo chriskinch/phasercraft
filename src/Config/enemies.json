@@ -1,6 +1,7 @@
 {
 	"baby-ghoul": {
-		"damage": 30,
+		"type": "Melee",
+		"damage": 50,
 		"speed": 50,
 		"range": 40,
 		"attack_speed": 1.5,
@@ -9,6 +10,7 @@
 		"loot_multiplier": 1
 	},
 	"egbert": {
+		"type": "Healer",
 		"damage": 75,
 		"speed": 30,
 		"range": 40,
@@ -18,6 +20,7 @@
 		"loot_multiplier": 2
 	},
 	"ghoul": {
+		"type": "Melee",
 		"damage": 50,
 		"speed": 40,
 		"range": 40,
@@ -27,15 +30,17 @@
 		"loot_multiplier": 1.5
 	},
 	"imp": {
+		"type": "Ranged",
 		"damage": 25,
 		"speed": 70,
-		"range": 40,
+		"range": 200,
 		"attack_speed": 1,
 		"health_max": 80,
 		"health_regen_rate": 0,
 		"loot_multiplier": 1.2
 	},
 	"satyr": {
+		"type": "Melee",
 		"damage": 120,
 		"speed": 40,
 		"range": 40,
@@ -45,6 +50,7 @@
 		"loot_multiplier": 2.5
 	},
 	"slime": {
+		"type": "Melee",
 		"damage": 250,
 		"speed": 20,
 		"range": 40,

@@ -11,7 +11,8 @@ class Gem extends GameObjects.Sprite {
 		config.scene.physics.world.enable(this);
 		config.scene.add.existing(this).setDepth(this.scene.depth_group.UI);
 
-		this.anims.delayedPlay(random(1000,2000), 'gem');
+		// this.anims.delayedPlay(random(1000,2000), 'gem');
+		this.anims.playAfterDelay('gem', random(1000, 2000))
 		this.body.setVelocity(getRandomVelocity(35, 70), getRandomVelocity(35, 70)).setDrag(100);
 		this.body.immovable = true;
 

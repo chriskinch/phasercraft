@@ -32,8 +32,12 @@ export default function createAnimations(scene){
 		types:[{
 			frame: 'baby-ghoul',
 			frameWidth: 24,
-			frameHeight: 26,
+			frameHeight: 30,
 			animations:[{
+				key: "baby-ghoul-idle",
+				frames: { start: 12, end: 17 },
+				repeat: -1
+			},{
 				key: 'baby-ghoul-right-up',
 			 	frames: { start: 0, end: 5 },
 			 	repeat: -1
@@ -43,7 +47,7 @@ export default function createAnimations(scene){
 			 	repeat: -1
 			},{
 				key: "baby-ghoul-death",
-				frames: { start: 12, end: 15 },
+				frames: { start: 18, end: 21 },
 				repeat: 0
 			}]
 		},{
@@ -58,6 +62,10 @@ export default function createAnimations(scene){
 				key: 'imp-left-down',
 			 	frames: { start: 6, end: 11 },
 			 	repeat: -1
+			},{
+				key: "imp-idle",
+				frames: { start: 0, end: 5 },
+				repeat: -1
 			},{
 				key: "imp-death",
 				frames: { start: 12, end: 15 },
@@ -76,6 +84,10 @@ export default function createAnimations(scene){
 			 	frames: { start: 6, end: 11 },
 			 	repeat: -1
 			},{
+				key: "ghoul-idle",
+				frames: { start: 0, end: 5 },
+				repeat: -1
+			},{
 				key: "ghoul-death",
 				frames: { start: 12, end: 16 },
 				repeat: 0
@@ -92,6 +104,10 @@ export default function createAnimations(scene){
 				key: 'satyr-left-down',
 			 	frames: { start: 6, end: 11 },
 			 	repeat: -1
+			},{
+				key: "satyr-idle",
+				frames: { start: 0, end: 5 },
+				repeat: -1
 			},{
 				key: "satyr-death",
 				frames: { start: 12, end: 16 },
@@ -110,6 +126,10 @@ export default function createAnimations(scene){
 			 	frames: { start: 6, end: 11 },
 			 	repeat: -1
 			},{
+				key: "egbert-idle",
+				frames: { start: 0, end: 5 },
+				repeat: -1
+			},{
 				key: "egbert-death",
 				frames: { start: 12, end: 15 },
 				repeat: 0
@@ -127,6 +147,10 @@ export default function createAnimations(scene){
 			 	frames: { start: 4, end: 7 },
 			 	repeat: -1
 			},{
+				key: "slime-idle",
+				frames: { start: 0, end: 3 },
+				repeat: -1
+			},{
 				key: "slime-death",
 				frames: { start: 8, end: 11 },
 				repeat: 0
@@ -141,11 +165,10 @@ export default function createAnimations(scene){
 			frameWidth: enemy.frameWidth,
 			frameHeight: enemy.frameHeight
 		});
-
 		enemy.animations.forEach(animation => {
 			scene.anims.create({
 				key: animation.key,
-				frames: scene.anims.generateFrameNumbers(enemy.frame, animation.frames),
+				frames: scene.anims.generateFrameNames(enemy.frame, animation.frames),
 				frameRate: 12,
 				repeat: animation.repeat
 			});
