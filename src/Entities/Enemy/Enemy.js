@@ -3,10 +3,9 @@ import { v4 as uuid } from 'uuid';
 import AssignResource from "@Entities/Resources/AssignResource"
 import Monster from "./Monster"
 import Coin from "@Entities/Loot/Coin"
+import Crafting from "@Entities/Loot/Crafting"
 import Gem from "@Entities/Loot/Gem"
 import Banes from "@Entities/UI/Banes"
-// import { of } from "zen-observable";
-
 class Enemy extends GameObjects.Container {
 
 	constructor(config) {
@@ -35,7 +34,7 @@ class Enemy extends GameObjects.Container {
 		this.aggro_radius = config.aggro_radius || 250;
 		this.circling_radius = config.circling_radius || 30;
 		this.loot_chance = 0.75;
-		this.loot_multiplier = config.loot_multiplier;
+		this.coin_multiplier = config.coin_multiplier;
 		this.active_group = config.active_group;
 		this.alive = true;
 
@@ -232,7 +231,7 @@ class Enemy extends GameObjects.Container {
 		new_stats.damage = Math.round(stats.damage * (set/5 + 1));
 		new_stats.health_max = stats.health_max * (set + 1);
 		new_stats.attack_speed = stats.attack_speed - (set/50);
-		new_stats.loot_multiplier = stats.loot_multiplier * (set/5 + 1);
+		new_stats.coin_multiplier = stats.coin_multiplier * (set/5 + 1);
 		
 		return {...stats, ...new_stats};
 	}
@@ -301,15 +300,30 @@ class Enemy extends GameObjects.Container {
 	}
 
 	dropLoot(){
-		const drop_amount = Math.ceil(Math.random() * this.stats.loot_multiplier);
-		for(let i = 0; i < drop_amount; i++){
-			const drop_type = Math.random();
-			if(drop_type < this.loot_chance) {
-				new Coin({scene:this.scene, x:this.x, y:this.y});
-			}else{
-				new Gem({scene:this.scene, x:this.x, y:this.y});
+		if(!this.stats.loot_table) return null;
+
+		const loot = this.stats.loot_table.map(item => {
+			const whole = Math.floor(item.rate / 100);
+			const isChance = item.rate % 100 / 100 > Math.random();
+			
+			const isBonus = Math.random() < 0.25 && (whole > 0 || isChance);
+			const bonus = Math.round(Math.random() * item.bonus);
+			
+			const drop = whole + (isChance ? 1 : 0) + (isBonus ? bonus : 0);
+
+			return Array(drop).fill(item.name);
+		}).flat();
+
+		loot.forEach(name => {
+			switch(name) {
+				case "coin":
+					return new Coin({scene:this.scene, x:this.x, y:this.y});
+				case "gem":
+					return new Gem({scene:this.scene, x:this.x, y:this.y});
+				default:
+					return new Crafting({scene:this.scene, x:this.x, y:this.y, key: name});
 			}
-		}
+		});
 	}
 
 	attack(){
