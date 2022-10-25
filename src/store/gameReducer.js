@@ -21,7 +21,8 @@ const initState = {
         helm: null,
         weapon: null
     },
-    coins: 9998,
+    coins: 999,
+    crafting: [],
     selected: null,
     saveSlot: null,
     wave: 1,
@@ -31,6 +32,10 @@ const initState = {
 // Actions
 export const addCoins = createAction("ADD_COIN", value => ({
     payload: { value }
+}));
+
+export const addCrafting = createAction("ADD_CRAFTING", key => ({
+    payload: { key }
 }));
 
 export const addLoot = createAction("ADD_LOOT", id => ({
@@ -120,6 +125,21 @@ const syncStats = (state) => state.stats = state.base_stats;
 
 export const gameReducer = createReducer(initState, {
     [addCoins]: (state, action) => { state.coins += action.payload.value },
+    [addCrafting]: (state, action) => { 
+        const { key } = action.payload;
+        state.inventory.push({
+            __typename: 'Item',
+            id: Math.random().toString(),
+            category: "crafting",
+            color: "#bbbbbb",
+            icon: key,
+            set: "crafting",
+            uuid: Math.random().toString(),
+            stats: [],
+            cost: 5,
+            name: key
+        })
+    },
     [addLoot]: (state, action) => {
         const loot = state.loot[action.payload.id];
         state.inventory.push(loot);
