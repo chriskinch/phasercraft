@@ -7,16 +7,20 @@ class Monster extends GameObjects.Sprite {
 		config.scene.physics.world.enable(this);
 		config.scene.add.existing(this);
 
-    this.key = config.key;
+    	this.key = config.key;
 	}
 
 	walk(anim){
 		this.anims.play(anim, true);
 	}
+	
+	idle(){
+		this.anims.play(this.key + '-idle', true);
+	}
 
-  death(){
-    this.anims.play(this.key + '-death');
-  }
+	death(){
+		this.anims.play(this.key + '-death');
+	}
 }
 
 export default Monster;
