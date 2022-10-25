@@ -18,7 +18,7 @@
     "craco-babel-loader": "^0.1.4",
     "graphql": "^15.5.0",
     "jest-canvas-mock": "^2.1.2",
-    "lodash": "^4.17.15",
+    "lodash": "^4.17.21",
     "phaser": "^3.55.2",
     "polished": "^3.4.1",
     "react": "^16.8.6",
