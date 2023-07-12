@@ -136,6 +136,10 @@ class Player extends GameObjects.Container {
 		this.mouse = mouse;
 		this.setDepth(this.y);
 
+		this.point = new Phaser.Math.Vector2();
+		this.point.x = this.x;
+		this.point.y = this.y;
+
 		let arrived = this.atDestination(this, this.destination);
 		if(arrived && this.body.speed > 0) {
 			this.idle();
@@ -225,7 +229,7 @@ class Player extends GameObjects.Container {
 		let target = this.scene.selected;
 		this.moveTo(target);
 		let distance = Phaser.Math.Distance.Between(target.x,target.y, this.x, this.y);
-		let hit_distance = distance - target.hit_radius;
+		let hit_distance = distance - 15 // TODO not 15;
 
 		if(hit_distance <= this.stats.range) {
 			this.idle();

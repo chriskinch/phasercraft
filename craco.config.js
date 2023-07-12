@@ -36,6 +36,8 @@ module.exports = {
             "@molecules": "./src/UI/components/molecules",
             "@organisms": "./src/UI/components/organisms",
             "@templates": "./src/UI/components/templates",
+            "@mutations": "./src/UI/operations/mutations",
+            "@queries": "./src/UI/operations/queries",
         }
       }
     }

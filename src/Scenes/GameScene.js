@@ -1,6 +1,6 @@
 import { Scene, Input, GameObjects, Display } from "phaser"
 import AssignClass from "@Entities/Player/AssignClass"
-import Enemy from "@Entities/Enemy/Enemy"
+import AssignType from "@Entities/Enemy/AssignType"
 import Boss from "@Entities/Enemy/Boss"
 import UI from "@Entities/UI/HUD"
 import waveConfig from "@Config/waves.json"
@@ -8,7 +8,7 @@ import enemyTypes from "@Config/enemies.json"
 import bossTypes from "@Config/bosses.json"
 import sample from "lodash/sample"
 
-import { generateLootTable, nextWave, toggleHUD } from "@store/gameReducer"
+import { nextWave, toggleHUD } from "@store/gameReducer"
 import store from "@store"
 
 export default class GameScene extends Scene {
@@ -29,7 +29,7 @@ export default class GameScene extends Scene {
 			TOP: 99999
 		}
 
-		store.dispatch(generateLootTable(45));
+		// store.dispatch(generateLootTable(45));
 	}
 
 	init(config) {
@@ -80,6 +80,38 @@ export default class GameScene extends Scene {
 		this.physics.add.collider(this.player.hero, this);
 
 		this.events.once('player:dead', this.gameOver, this);
+
+		// When loading from an array, make sure to specify the tileWidth and tileHeight
+		// const map = this.make.tilemap({ key: "map"});
+		// const tileset = map.addTilesetImage("tileset_organic", "tiles", 16, 16, 1, 2);
+		// this.mapset = {
+		// 	base: map.createStaticLayer("base", tileset, 0, 0),
+		// 	trees: map.createStaticLayer("trees", tileset, 0, 0),
+		// 	bushes: map.createStaticLayer("bushes", tileset, 0, 0),
+		// 	ore: map.createStaticLayer("ore", tileset, 0, 0),
+		// 	details: map.createStaticLayer("details", tileset, 0, 0)
+		// }
+		// this.mapset.trees.setCollisionByProperty({ collides: true });
+		// this.mapset.bushes.setCollisionByProperty({ collides: true });
+		// this.mapset.ore.setCollisionByProperty({ collides: true });
+		// this.mapset.details.setCollisionByProperty({ collides: true });
+
+		// const debugGraphics = this.add.graphics().setAlpha(0.75);
+		// mapset.trees.renderDebug(debugGraphics, {
+		// 	tileColor: null, // Color of non-colliding tiles
+		// 	collidingTileColor: new Display.Color(243, 134, 48, 255), // Color of colliding tiles
+		// 	faceColor: new Display.Color(40, 39, 37, 255) // Color of colliding face edges
+		// });
+
+		// Camera
+		// const camera = this.cameras.main;
+		// camera.setBounds(0, 0, map.widthInPixels, map.heightInPixels);
+		// camera.startFollow(this.player);
+
+		// this.physics.add.collider(this.player, this.mapset.trees);
+		// this.physics.add.collider(this.player, this.mapset.bushes);
+		// this.physics.add.collider(this.player, this.mapset.ore);
+		// this.physics.add.collider(this.player, this.mapset.details);
 
 		// Resume physics if we load the scene post game over.
 		this.physics.resume();
@@ -187,13 +219,13 @@ export default class GameScene extends Scene {
 	}
 
 	spawnEnemy(enemy, set){
-		this.enemies.add(new Enemy({
+		this.enemies.add(new AssignType(enemyTypes[enemy].type, {
 			scene: this,
 			key: enemy,
 			x: Math.random() * this.global_game_width,
 			y: Math.random() * this.global_game_height,
-			types: enemyTypes,
-			target: this.player,
+			attributes: enemyTypes[enemy],
+			target: null, //this.player,
 			active_group: this.active_enemies,
 			set: set
 		}));
@@ -208,7 +240,6 @@ export default class GameScene extends Scene {
 			x: Math.random() * this.global_game_width,
 			y: Math.random() * this.global_game_height,
 			types: bossTypes,
-			hit_radius: 15,
 			target: this.player,
 			active_group: this.active_enemies
 		}));

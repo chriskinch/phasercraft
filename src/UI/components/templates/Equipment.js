@@ -7,7 +7,7 @@ import { sellLoot } from "@store/gameReducer"
 import Button from "@atoms/Button"
 import Inventory from "@organisms/Inventory"
 import DroppableSlot from "@atoms/DroppableSlot"
-import GroupedStats from "@organisms/GroupedStats"
+import GroupedAttributes from "@organisms/GroupedAttributes"
 import StatBar from "@molecules/StatBar"
 
 const Equipment = ({
@@ -47,7 +47,7 @@ const Equipment = ({
                     <StatBar type={"health"} label={"HP"} value={stats.health_max} />
                     <StatBar type={resource_type} label={"RP"} value={stats.resource_max} />
                 </div>
-                <GroupedStats stats={stats} />
+                <GroupedAttributes stats={stats} />
             </section>
             <section css={`
                 grid-area: eq;

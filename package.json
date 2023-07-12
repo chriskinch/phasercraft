@@ -2,18 +2,24 @@
   "name": "phasercraft",
   "version": "1.1.0",
   "private": true,
+  "homepage": "https://chriskinch.github.io/phasercraft/build",
   "devDependencies": {
     "babel-loader": "8.0.5",
+    "nodemon": "^2.0.20",
+    "npm-run-all": "^4.1.5",
     "number-to-words": "^1.2.4"
   },
   "dependencies": {
+    "@apollo/client": "^3.3.19",
     "@babel/plugin-proposal-optional-chaining": "^7.9.0",
     "@craco/craco": "^5.6.3",
+    "@reduxjs/toolkit": "^1.7.1",
     "craco-alias": "^2.1.0",
     "craco-babel-loader": "^0.1.4",
+    "graphql": "^15.5.0",
     "jest-canvas-mock": "^2.1.2",
     "lodash": "^4.17.15",
-    "phaser": "3.21.0",
+    "phaser": "^3.55.2",
     "polished": "^3.4.1",
     "react": "^16.8.6",
     "react-dnd": "^9.4.0",
@@ -25,16 +31,19 @@
     "react-tooltip": "^3.11.1",
     "redux": "^4.0.1",
     "redux-logger": "^3.0.6",
-    "redux-starter-kit": "^0.9.1",
     "rxjs": "^6.5.3",
     "styled-components": "^4.4.0",
+    "typescript": "^5.1.6",
     "uuid": "^8.1.0"
   },
   "scripts": {
     "start": "craco start",
     "build": "craco build",
     "test": "craco test --setupFiles ./node_modules/jest-canvas-mock",
-    "eject": "react-scripts eject"
+    "eject": "react-scripts eject",
+    "dev": "npm-run-all -p gateway service:* start",
+    "gateway": "cd server && yarn start",
+    "service:armory": "cd services/armory && sls offline start"
   },
   "eslintConfig": {
     "extends": "react-app"

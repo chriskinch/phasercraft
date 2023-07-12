@@ -1,0 +1,118 @@
+org: chriskinch
+app: armory-items
+service: items-api
+
+frameworkVersion: ">=2"
+
+plugins:
+  - serverless-webpack
+  - serverless-dynamodb-local
+  - serverless-offline
+
+custom:
+  webpack: 
+    webpackConfig: ./webpack.config.js
+    includeModules: true
+    packager: yarn
+  dynamodb:
+    stages:
+      - dev
+    start:
+      port: 8000
+      inMemory: true
+      migrate: true
+    # Comment if you don't have a DynamoDB running locally
+      noStart: true
+    migration:
+      dir: offline/migrations
+  serverless-offline:
+    httpPort: 3001
+
+provider:
+  name: aws
+  runtime: nodejs12.x
+  stage: dev
+  region: us-east-1
+  environment:
+    DYNAMODB_TABLE: ${self:service}-${opt:stage, self:provider.stage}
+  iam:
+    role:
+      statements:
+        - Effect: Allow
+          Action:
+            - dynamodb:Query
+            - dynamodb:Scan
+            - dynamodb:GetItem
+            - dynamodb:PutItem
+            - dynamodb:UpdateItem
+            - dynamodb:DeleteItem
+            - dynamodb:BatchWriteItem
+            - dynamodb:DeleteTable
+            - dynamodb:CreateTable
+          Resource: "arn:aws:dynamodb:${opt:region, self:provider.region}:*:table/${self:provider.environment.DYNAMODB_TABLE}"
+
+functions:
+  createStore:
+    handler: src/functions/createStore/handler.default
+    events:
+      - http:
+          path: createStore
+          method: post
+          cors: true
+
+  clearStore:
+    handler: src/functions/clearStore/handler.default
+    events:
+      - http:
+          path: clearStore
+          method: post
+          cors: true
+          
+  create:
+    handler: src/functions/create/handler.default
+    events:
+      - http:
+          path: items
+          method: post
+          cors: true
+
+  list:
+    handler: src/functions/list/handler.default
+    events:
+      - http:
+          path: items
+          method: get
+          cors: true
+
+  get:
+    handler: src/functions/get/handler.default
+    events:
+      - http:
+          path: items/{id}
+          method: get
+          cors: true
+
+  delete:
+    handler: src/functions/delete/handler.default
+    events:
+      - http:
+          path: items/{id}
+          method: delete
+          cors: true
+
+resources:
+  Resources:
+    ItemsDynamoDbTable:
+      Type: 'AWS::DynamoDB::Table'
+      DeletionPolicy: Retain
+      Properties:
+        AttributeDefinitions:
+          -
+            AttributeName: id
+            AttributeType: S
+        KeySchema:
+          -
+            AttributeName: id
+            KeyType: HASH
+        BillingMode: PAY_PER_REQUEST
+        TableName: ${self:provider.environment.DYNAMODB_TABLE}

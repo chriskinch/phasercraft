@@ -50,7 +50,7 @@ class Faith extends Spell {
     }
 
     clearEffect() {
-		this.timer.remove();
+		if(this.timer) this.timer.remove();
 	}
 
 	animationUpdate(){
