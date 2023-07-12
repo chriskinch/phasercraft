@@ -13,12 +13,6 @@ jobs:
     runs-on: ubuntu-latest
     #if: ${{ github.actor == 'dependabot[bot]' }}
     steps:
-      - name: Dependabot metadata
-        id: metadata
-        uses: dependabot/fetch-metadata@v1
-        with:
-          github-token: "${{ secrets.GITHUB_TOKEN }}"
-          skip-verification: true
       - name: Wait for tests to succeed
         uses: lewagon/wait-on-check-action@v1.3.1
         with:
@@ -26,6 +20,12 @@ jobs:
           check-name: 'github-pages'
           repo-token: ${{ secrets.GITHUB_TOKEN }}
           wait-interval: 10
+      - name: Dependabot metadata
+        id: metadata
+        uses: dependabot/fetch-metadata@v1
+        with:
+          github-token: "${{ secrets.GITHUB_TOKEN }}"
+          skip-verification: true
       - name: Enable auto-merge for Dependabot PRs
         run: gh pr merge --auto --merge "$PR_URL"
         env:
