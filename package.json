@@ -2,6 +2,7 @@
   "name": "phasercraft",
   "version": "1.1.0",
   "private": true,
+  "homepage": "https://chriskinch.github.io/phasercraft/build",
   "devDependencies": {
     "babel-loader": "8.0.5",
     "nodemon": "^2.0.20",
