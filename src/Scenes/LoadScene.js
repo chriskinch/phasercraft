@@ -43,6 +43,7 @@ export default class LoadScene extends Scene {
 		this.load.atlas('dungeon', 'atlas/atlas-dungeon.png', 'atlas/atlas-dungeon.json');
 		this.load.atlas('enemy', 'atlas/atlas-enemy.png', 'atlas/atlas-enemy.json');
 		this.load.atlas('icon', 'atlas/atlas-icons.png', 'atlas/atlas-icons.json');
+		this.load.atlas('crafting', 'atlas/crafting.png', 'atlas/crafting.json');
 		this.load.spritesheet('heal-effect', 'spritesheets/spells/heal.png', { frameWidth: 192, frameHeight: 192 });
 		this.load.spritesheet('faith-effect', 'spritesheets/spells/heal.png', { frameWidth: 192, frameHeight: 192 });
 		this.load.spritesheet('siphonsoul-effect', 'spritesheets/spells/heal.png', { frameWidth: 192, frameHeight: 192 });
@@ -56,6 +57,9 @@ export default class LoadScene extends Scene {
 		this.load.spritesheet('multishot-effect', 'spritesheets/swoosh.png', { frameWidth: 32, frameHeight: 32 });
 		this.load.spritesheet('whirlwind-effect', 'spritesheets/spells/whirlwind.png', { frameWidth: 32, frameHeight: 32 });
 		this.load.image('consecration', 'spritesheets/spells/consecration.png', { frameWidth: 200, frameHeight: 200 });
+		// Maps
+		this.load.image("tiles", "tilesets/tileset_organic_extruded.png");
+		this.load.tilemapTiledJSON('map', 'tilesets/enchanted_forrest_map.json');
 	}
 
 	create(){

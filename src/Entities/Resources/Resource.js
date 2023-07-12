@@ -79,6 +79,9 @@ class Resource extends GameObjects.Sprite {
 			this.stats.value = Math.ceil(new_value);
 		}
 		this.graphics.current.scaleX = this.resourcePercent();
+
+		this.stats.missing = this.stats.max - this.stats.value;
+
 		this.emit('change', this);
 	}
 
