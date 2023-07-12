@@ -1,5 +1,5 @@
-import { createLogger } from "redux-logger"
-import { applyMiddleware, createStore } from "redux";
+// import { createLogger } from "redux-logger"
+import { /*applyMiddleware,*/ createStore } from "redux";
 import { gameReducer } from "./gameReducer";
 
 export default createStore(

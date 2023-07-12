@@ -2,7 +2,7 @@ import { GameObjects } from 'phaser';
 import store from "@store"
 import { addCrafting } from "@store/gameReducer"
 import getRandomVelocity from "@Helpers/getRandomVelocity"
-import { config } from 'rxjs';
+// import { config } from 'rxjs';
 
 class Crafting extends GameObjects.Sprite {
 
