@@ -19,7 +19,7 @@ jobs:
           ref: ${{ github.ref }}
           check-name: 'github-pages'
           repo-token: ${{ secrets.GITHUB_TOKEN }}
-          wait-interval: 10
+          wait-interval: 600
       - name: Dependabot metadata
         id: metadata
         uses: dependabot/fetch-metadata@v1
