@@ -42,7 +42,7 @@ jobs:
           node-version: 16.x
 
       - name: Install and Build
-      - run: |
+        run: |
           yarn install
           yarn build
 
