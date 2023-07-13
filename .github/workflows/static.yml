@@ -2,9 +2,6 @@
 name: Deploy static content to Pages
 
 on:
-  # Runs on pushes targeting the default branch
-  push:
-    branches: ["main"]
   pull_request:
     branches:
       - main
@@ -35,19 +32,31 @@ jobs:
     steps:
       - name: Checkout
         uses: actions/checkout@v3
+
       - name: Setup Pages
         uses: actions/configure-pages@v3
+
       - name: Setup Node.js environment
         uses: actions/setup-node@v3.7.0
         with:
           node-version: 16.x
-      - run: yarn install
-      - run: yarn build
+
+      - name: Install and Build
+      - run: |
+          yarn install
+          yarn build
+
+      - name: Deploy preview
+        uses: rossjrw/pr-preview-action@v1
+        with:
+          source-dir: ./build/
+
       - name: Upload artifact
         uses: actions/upload-pages-artifact@v1
         with:
           # Upload entire repository
           path: '.'
+
       - name: Deploy to GitHub Pages
         id: deployment
         uses: actions/deploy-pages@v2
