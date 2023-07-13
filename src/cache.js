@@ -21,18 +21,29 @@ const statShortNames = Object.freeze({
 });
 
 const adjusted = (key, value) => {
-    return {
-        attack_power: (v) => v/2,
-        attack_speed: (v) => -v/1000,
-        critical_chance: (v) => v/10,
-        defence: (v) => v/2,
-        health_max: (v) => v*4,
-        health_regen_rate: (v) => -v/1000,
-        health_regen_value: (v) => v/10,
-        magic_power: (v) => v/2,
-        speed: (v) => v/10,
-        default: (v) => v
-    }[key](value);
+    switch (key) {
+        case "attack_power":
+            return value/2;
+        case "attack_speed":
+            return -value/1000;
+        case "critical_chance":
+            return value/10;
+        case "defence":
+            return value/2;
+        case "health_max":
+            return value*4;
+        case "health_regen_rate":
+            return -value/1000;
+        case "health_regen_value":
+            return value/10;
+        case "magic_power":
+            return value/2;
+        case "speed":
+            return value/10;
+        default:
+            console.log(`No adjustment for [${key}] found.`)
+            return value;
+    }
 }
 
 const formatted = (key, value) => {
