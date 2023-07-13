@@ -1,0 +1,146 @@
+{
+	"textures": [
+		{
+			"image": "atlas-enemy.png",
+			"format": "RGBA8888",
+			"size": {
+				"w": 432,
+				"h": 216
+			},
+			"scale": 1,
+			"frames": [
+				{
+					"filename": "baby-ghoul",
+					"rotated": false,
+					"trimmed": false,
+					"sourceSize": {
+						"w": 144,
+						"h": 120
+					},
+					"spriteSourceSize": {
+						"x": 0,
+						"y": 0,
+						"w": 144,
+						"h": 120
+					},
+					"frame": {
+						"x": 0,
+						"y": 0,
+						"w": 144,
+						"h": 120
+					}
+				},
+				{
+					"filename": "egbert",
+					"rotated": false,
+					"trimmed": false,
+					"sourceSize": {
+						"w": 144,
+						"h": 90
+					},
+					"spriteSourceSize": {
+						"x": 0,
+						"y": 0,
+						"w": 144,
+						"h": 90
+					},
+					"frame": {
+						"x": 144,
+						"y": 0,
+						"w": 144,
+						"h": 90
+					}
+				},
+				{
+					"filename": "ghoul",
+					"rotated": false,
+					"trimmed": false,
+					"sourceSize": {
+						"w": 144,
+						"h": 96
+					},
+					"spriteSourceSize": {
+						"x": 0,
+						"y": 0,
+						"w": 144,
+						"h": 96
+					},
+					"frame": {
+						"x": 288,
+						"y": 0,
+						"w": 144,
+						"h": 96
+					}
+				},
+				{
+					"filename": "imp",
+					"rotated": false,
+					"trimmed": false,
+					"sourceSize": {
+						"w": 144,
+						"h": 90
+					},
+					"spriteSourceSize": {
+						"x": 0,
+						"y": 0,
+						"w": 144,
+						"h": 90
+					},
+					"frame": {
+						"x": 0,
+						"y": 120,
+						"w": 144,
+						"h": 90
+					}
+				},
+				{
+					"filename": "satyr",
+					"rotated": false,
+					"trimmed": false,
+					"sourceSize": {
+						"w": 144,
+						"h": 96
+					},
+					"spriteSourceSize": {
+						"x": 0,
+						"y": 0,
+						"w": 144,
+						"h": 96
+					},
+					"frame": {
+						"x": 144,
+						"y": 120,
+						"w": 144,
+						"h": 96
+					}
+				},
+				{
+					"filename": "slime",
+					"rotated": false,
+					"trimmed": false,
+					"sourceSize": {
+						"w": 120,
+						"h": 96
+					},
+					"spriteSourceSize": {
+						"x": 0,
+						"y": 0,
+						"w": 120,
+						"h": 96
+					},
+					"frame": {
+						"x": 288,
+						"y": 120,
+						"w": 120,
+						"h": 96
+					}
+				}
+			]
+		}
+	],
+	"meta": {
+		"app": "https://www.codeandweb.com/texturepacker",
+		"version": "3.0",
+		"smartupdate": "$TexturePacker:SmartUpdate:7be64904ce23c51ff9616c6b00bd917d:729b4f6f8860c48963f3a48630942230:ae7f81ec16473473f7132549121c0a45$"
+	}
+}
