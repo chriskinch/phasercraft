@@ -17,7 +17,7 @@ export default class Canvas extends React.Component {
 			physics: {
 				default: 'arcade',
 				arcade: {
-					debug: false,
+					debug: true,
 					gravity: { y: 0 }
 				}
 			},
@@ -29,7 +29,7 @@ export default class Canvas extends React.Component {
 			],
 			pixelArt: true,
 			antialias: false,
-			fullscreen: true
+			fullscreen: true,
 		}
 
     	new Phaser.Game(config);

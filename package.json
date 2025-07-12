@@ -37,8 +37,8 @@
     "uuid": "^8.1.0"
   },
   "scripts": {
-    "start": "craco start",
-    "build": "craco build",
+    "start": "NODE_OPTIONS=--openssl-legacy-provider craco start",
+    "build": "NODE_OPTIONS=--openssl-legacy-provider craco build",
     "test": "craco test --setupFiles ./node_modules/jest-canvas-mock",
     "eject": "react-scripts eject",
     "dev": "npm-run-all -p gateway service:* start",
