@@ -1,5 +1,5 @@
 import Spell from './Spell';
-import targetVector from '../../Helpers/targetVector';
+import targetVector from '@helpers/targetVector';
 
 class Multishot extends Spell {
 	constructor(config) {

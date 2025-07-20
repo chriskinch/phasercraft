@@ -1,5 +1,5 @@
 import { GameObjects } from 'phaser';
-import { dropIn } from '../../Helpers/spawnStyle';
+import { dropIn } from '@helpers/spawnStyle';
 
 class Trap extends GameObjects.Sprite {
 	constructor(scene, x, y, lifespan) {
