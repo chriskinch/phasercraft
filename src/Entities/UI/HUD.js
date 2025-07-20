@@ -1,7 +1,7 @@
 import { GameObjects, Display, Actions } from 'phaser';
 import { toggleHUD, toggleUi, addLoot, loadGame } from "@store/gameReducer";
 import store from '@store';
-import mapStateToData from "@Helpers/mapStateToData"
+import mapStateToData from "@helpers/mapStateToData"
 
 const styles = {
 	font: '12px monospace',
@@ -41,7 +41,7 @@ class UI extends GameObjects.Container {
 		scene.input.keyboard.on('keyup-R', () => store.dispatch(addLoot(Math.floor(Math.random() * 100))), this);
 
 		// Saving
-		const slot = store.getState().saveSlot;
+		const slot = store.getState().game.saveSlot;
 		scene.input.keyboard.on('keyup-S', () => {
 			localStorage.setItem(slot, JSON.stringify(store.getState()))
 		}, this);

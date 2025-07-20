@@ -1,8 +1,8 @@
 import React, { useEffect } from "react"
-import "styled-components/macro"
+
 import { useDrop, useDrag } from "react-dnd"
 import { getEmptyImage } from "react-dnd-html5-backend"
-import Loot from "@molecules/Loot"
+import Loot from "@components/Loot"
 import { connect } from "react-redux"
 import { equipLoot, selectLoot, unequipLoot } from "@store/gameReducer"
 import store from "@store"
@@ -16,11 +16,12 @@ const LootListDrag = ({cols=6, list, name, selected, equipLoot, selectLoot, uneq
         const { category, color, icon, set, uuid } = loot;
     
         let [{ isDragging }, drag, preview] = useDrag({
-            item: { type: set, category, color, icon, uuid },
+            type: set,
+            item: { category, color, icon, uuid },
             end: (item, monitor) => {
                 const dropResult = monitor.getDropResult();
                 if (item && dropResult) {
-                    const equipment = store.getState().equipment;
+                    const equipment = store.getState().game.equipment;
                     switch(dropResult.slot) {
                         case "amulet":
                         case "body":
@@ -39,18 +40,19 @@ const LootListDrag = ({cols=6, list, name, selected, equipLoot, selectLoot, uneq
             })
         })
 
-        const draggingCSS = isDragging ? `
-            opacity: 0.1;
-            filter: grayscale(100%);
-        ` : null
-
         useEffect(() => {
             preview(getEmptyImage(), { captureDraggingState: true })
         });
 
         return (
-            <div ref={drag} css={draggingCSS}>
+            <div ref={drag} className={isDragging ? 'dragging' : ''}>
                 <Loot {...props} />
+                <style jsx>{`
+                    .dragging {
+                        opacity: 0.1;
+                        filter: grayscale(100%);
+                    }
+                `}</style>
             </div>
         );
     };
@@ -63,12 +65,7 @@ const LootListDrag = ({cols=6, list, name, selected, equipLoot, selectLoot, uneq
     return (
         <div 
             ref={drop}
-            css={`
-                display: grid;
-                grid-template-columns: repeat(${cols}, 1fr);
-                grid-gap: 1em;
-                overflow-y: scroll;
-            `}
+            className="loot-grid"
         >
             { list &&
                 list.map((loot, i) => {
@@ -79,12 +76,20 @@ const LootListDrag = ({cols=6, list, name, selected, equipLoot, selectLoot, uneq
                     }} key={loot.id} id={i.toString()} />
                 })
             }
+            <style jsx>{`
+                .loot-grid {
+                    display: grid;
+                    gap: 1rem;
+                    overflow-y: scroll;
+                    grid-template-columns: repeat(${cols}, 1fr);
+                }
+            `}</style>
         </div>
     );
 }
 
 const mapStateToProps = (state) => {
-    const { selected } = state;
+    const { selected } = state.game;
     return { selected }
 };
 

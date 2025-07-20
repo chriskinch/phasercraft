@@ -1,8 +1,8 @@
 import React from "react"
-import Button from "@atoms/Button"
-import Navigation from "@molecules/Navigation"
-import Title from "@atoms/Title"
-import "styled-components/macro"
+import Button from "@components/Button"
+import Navigation from "@components/Navigation"
+import Title from "@components/Title"
+
 
 const Header = ({config, toggleUi}) => {
     const { navigation, title, close } = config || {};
@@ -10,24 +10,30 @@ const Header = ({config, toggleUi}) => {
         return (
             <>
                 <Navigation />
-                <div css={`
-                    float: right;
-                `}>
+                <div className="close-button">
                     <Button text="X" onClick={ () => toggleUi() } type="square" />
                 </div>
+                <style jsx>{`
+                    .close-button {
+                        float: right;
+                    }
+                `}</style>
             </>            
         );
     }else{ 
         return (
             <>
                 <Title text={ title } />
-                <div css={`
-                    float: right;
-                `}>
+                <div className="close-button">
                     {close &&
                         <Button text="X" onClick={ () => toggleUi() } type="square" />
                     }
                 </div>
+                <style jsx>{`
+                    .close-button {
+                        float: right;
+                    }
+                `}</style>
             </>
         )
     }

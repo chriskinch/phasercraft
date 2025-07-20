@@ -1,21 +1,26 @@
-import { useEffect } from "react"
+import { useEffect, useState } from "react"
 import { createPortal } from "react-dom"
-import "styled-components/macro"
 
 const Dialog = ({children}) => {
-    const root = document.querySelector('#root');
-    const el = document.createElement('div');
+    const [modalRoot, setModalRoot] = useState(null);
     
     useEffect(() => {
-        root.appendChild(el);
-    });
+        const root = document.querySelector('#app');
+        const el = document.createElement('div');
+        
+        if (root) {
+            root.appendChild(el);
+            setModalRoot(el);
+            
+            return () => {
+                root.removeChild(el);
+            };
+        }
+    }, []);
 
-    return (
-        createPortal(
-            children,
-            root
-        )
-    );
+    if (!modalRoot) return null;
+
+    return createPortal(children, modalRoot);
 }
 
 export default Dialog;

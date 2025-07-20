@@ -1,11 +1,11 @@
 import { Scene, Input, GameObjects, Display } from "phaser"
-import AssignClass from "@Entities/Player/AssignClass"
-import AssignType from "@Entities/Enemy/AssignType"
-import Boss from "@Entities/Enemy/Boss"
-import UI from "@Entities/UI/HUD"
-import waveConfig from "@Config/waves.json"
-import enemyTypes from "@Config/enemies.json"
-import bossTypes from "@Config/bosses.json"
+import AssignClass from "@entities/Player/AssignClass"
+import AssignType from "@entities/Enemy/AssignType"
+import Boss from "@entities/Enemy/Boss"
+import UI from "@entities/UI/HUD"
+import waveConfig from "@/config/waves.json"
+import enemyTypes from "@/config/enemies.json"
+import bossTypes from "@/config/bosses.json"
 import sample from "lodash/sample"
 
 import { nextWave, toggleHUD } from "@store/gameReducer"
@@ -28,7 +28,6 @@ export default class GameScene extends Scene {
 			UI: 10000,
 			TOP: 99999
 		}
-
 		// store.dispatch(generateLootTable(45));
 	}
 
@@ -67,7 +66,7 @@ export default class GameScene extends Scene {
 		this.enemies = this.add.group();
 		this.enemies.runChildUpdate = true;
 		this.active_enemies = this.add.group();
-		this.startLevel(store.getState().wave);
+		this.startLevel(store.getState().game.wave);
 
 		this.setLevelCompleteUI();
 
@@ -136,7 +135,7 @@ export default class GameScene extends Scene {
 		// this.events.emit('increment:wave');
 		// this.level_complete.setVisible(false);
 		// this.level_complete.button.input.enabled = false;
-		this.startLevel(store.getState().wave);
+		this.startLevel(store.getState().game.wave);
 	}
 
 	startLevel(wave = 1){
@@ -148,8 +147,8 @@ export default class GameScene extends Scene {
 			// Spawn the list of predefined enemies from the wave json
 			this.spawnEnemies(enemies);
 		}else{
-			const wave_set = Math.floor(store.getState().wave / 10);
-			const wave_sub = store.getState().wave % 10;
+			const wave_set = Math.floor(store.getState().game.wave / 10);
+			const wave_sub = store.getState().game.wave % 10;
 			const boss_wave = wave_sub === 0 ? true : false;
 			if(boss_wave) {
 				// If the wave is a multiple of 10 it's a boss!
@@ -261,7 +260,7 @@ export default class GameScene extends Scene {
 
 		// TODO: Make the timings smarter
 		const time_scale = 5000;
-		const n_wave = store.getState().wave+1;
+		const n_wave = store.getState().game.wave+1;
 		const min_delay = n_wave * this.global_spawn_time;
 		const wave_offset = n_wave * time_scale;
 		const time_limit = min_delay + wave_offset + time_scale;

@@ -1,20 +1,28 @@
 import React from "react";
-import Stat from "@atoms/Stat";
-import 'styled-components/macro';
+import Stat from "@components/Stat";
+
 
 const Health = ({stats}) => {
     const { health_max, health_regen_value, health_regen_rate } = stats;
     const regen = health_regen_value * health_regen_rate;
     return (
         <>
-            <dl css={`
-                border: 4px solid black;
-                background-color: red;
-                margin-bottom: 0;
-                overflow: hidden;
-                padding: 0.25em;
-                position: relative;
-                &:after {
+            <dl className="health-bar">
+                <Stat label={ "HP" } value={ health_max } />
+            </dl>
+            <dl className="health-regen">
+                <Stat icon= { "./UI/icons/plus.gif" } delimeter={ " " } value={ `${regen} hp/s` } />
+            </dl>
+            <style jsx>{`
+                .health-bar {
+                    border: 4px solid black;
+                    background-color: red;
+                    margin-bottom: 0;
+                    overflow: hidden;
+                    padding: 0.25em;
+                    position: relative;
+                }
+                .health-bar:after {
                     position: absolute;
                     border-bottom: 2px solid rgba(0,0,0,0.2);
                     border-right: 2px solid rgba(0,0,0,0.2);
@@ -24,15 +32,11 @@ const Health = ({stats}) => {
                     right: 0;
                     top: 0;
                 }
-            `}>
-                <Stat label={ "HP" } value={ health_max } />
-            </dl>
-            <dl css={`
-                float: left;
-                margin-top: 0;  
-            `}>
-                <Stat icon= { "./UI/icons/plus.gif" } delimeter={ " " } value={ `${regen} hp/s` } />
-            </dl>
+                .health-regen {
+                    float: left;
+                    margin-top: 0;
+                }
+            `}</style>
         </>
     )
 }

@@ -1,6 +1,6 @@
 import React from "react"
-import "styled-components/macro"
-import Loot from "@molecules/Loot"
+
+import Loot from "@components/Loot"
 import { connect } from "react-redux"
 import { selectLoot } from "@store/gameReducer"
 
@@ -17,22 +17,23 @@ const LootList = ({cols=4, list, selected, selectLoot}) => {
         />);
     }
     return ( 
-        <div 
-            css={`
-                display: grid;
-                grid-template-columns: repeat(${cols}, 1fr);
-                grid-gap: 0.5em;
-                height: calc(100vh - 158px);
-                overflow-y: scroll;
-            `}
-        >
+        <div className="loot-list">
             { list && items }
+            <style jsx>{`
+                .loot-list {
+                    display: grid;
+                    gap: 0.5rem;
+                    overflow-y: scroll;
+                    grid-template-columns: repeat(${cols}, 1fr);
+                    height: calc(100vh - 158px);
+                }
+            `}</style>
         </div>
     );
 }
 
 const mapStateToProps = (state) => {
-    const { selected } = state;
+    const { selected } = state.game;
     return { selected }
 };
 

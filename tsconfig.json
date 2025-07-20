@@ -1,33 +1,72 @@
 {
   "compilerOptions": {
-    "outDir": "./build",
-    "allowJs": true,
     "lib": [
-      "es2020"
+      "dom",
+      "dom.iterable",
+      "esnext"
     ],
-    "target": "es2020",
-    "module": "esnext",
-    "esModuleInterop": true,
+    "allowJs": true,
     "skipLibCheck": true,
-    "noImplicitAny": true,
     "strict": true,
-    "strictNullChecks": true,
-    "forceConsistentCasingInFileNames": true,
-    "allowSyntheticDefaultImports": true,
-    "moduleResolution": "node",
+    "noEmit": true,
+    "esModuleInterop": true,
+    "module": "esnext",
+    "moduleResolution": "bundler",
     "resolveJsonModule": true,
     "isolatedModules": true,
-    "noEmit": true,
-    "jsx": "preserve"
+    "jsx": "preserve",
+    "incremental": true,
+    "strictPropertyInitialization": false,
+    "paths": {
+      "@/*": [
+        "./src/*"
+      ],
+      "@store": [
+        "./src/store"
+      ],
+      "@store/*": [
+        "./src/store/*"
+      ],
+      "@ui/*": [
+        "./src/ui/*"
+      ],
+      "@components/*": [
+        "./src/ui/components/protons/*",
+        "./src/ui/components/atoms/*",
+        "./src/ui/components/molecules/*",
+        "./src/ui/components/organisms/*",
+        "./src/ui/components/templates/*"
+      ],
+      "@queries/*": [
+        "./src/ui/operations/queries/*"
+      ],
+      "@mutations": [
+        "./src/ui/operations/mutations"
+      ],
+      "@mutations/*": [
+        "./src/ui/operations/mutations/*"
+      ],
+      "@helpers/*": [
+        "./src/helpers/*"
+      ],
+      "@scenes/*": [
+        "./src/Scenes/*"
+      ],
+      "@entities/*": [
+        "./src/entities/*"
+      ],
+      "@config/*": [
+        "./src/config/*"
+      ] 
+    },
+    "target": "ES2017"
   },
   "include": [
-    "./src/**/*"
+    "next-env.d.ts",
+    "**/*.ts",
+    "**/*.tsx"
   ],
   "exclude": [
     "node_modules"
-  ],
-  "types": [
-    "node",
-    "aws-sdk"
   ]
 }

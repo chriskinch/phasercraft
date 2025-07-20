@@ -1,7 +1,7 @@
 import React from "react"
 import { connect } from "react-redux"
-import LootList from "@molecules/LootList"
-import "styled-components/macro"
+import LootList from "@components/LootList"
+
 
 const Stock = ({items, loot }) => {
     return (
@@ -10,7 +10,7 @@ const Stock = ({items, loot }) => {
 }
 
 const mapStateToProps = (state) => {
-    const { loot } = state;
+    const { loot } = state.game;
     return { loot }
 };
 

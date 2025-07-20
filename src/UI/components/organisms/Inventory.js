@@ -1,10 +1,10 @@
 import React from "react"
 import store from "@store"
-import LootListDrag from "@molecules/LootListDrag"
-import "styled-components/macro"
+import LootListDrag from "@components/LootListDrag"
+
 
 const Inventory = () => {
-    const inventory = store.getState().inventory;
+    const inventory = store.getState().game.inventory;
     return (
         <LootListDrag list={inventory} name={"inventory"} />
     );

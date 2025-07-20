@@ -1,5 +1,4 @@
 import React from "react";
-import 'styled-components/macro';
 import { darken, grayscale } from 'polished';
 
 const Button = (props) => {
@@ -19,35 +18,42 @@ const Button = (props) => {
     return (
         <button 
             disabled={disabled}
-            css={`
-                display: inline-block;
-                padding: 0 12px;
-                height: 1.5em;
-                background: ${state_color};
-                border: none;
-                border-bottom: 2px solid ${darken(0.3, state_color)};
-                color: ${color};
-                outline: none;
-                font-weight: bold;
-                font-size: ${size}em;
-                border-radius: 3px;
-                box-shadow: 0 3px 0px ${darken(0.3, state_color)};
-                text-shadow: 0 1px ${text_shadow_color};
-                margin-bottom: 0.5em;
-                width: 100%;
-                &:active{
-                    transform:translateY(3px);
-                    border-bottom-width: 2px;
+            onClick={onClick}>
+            { text }
+            
+            <style jsx>{`
+                button {
+                    display: inline-block;
+                    padding: 0 0.75rem;
+                    height: 1.5em;
+                    border: none;
+                    outline: none;
+                    font-weight: bold;
+                    border-radius: 3px;
+                    margin-bottom: 0.5rem;
+                    width: 100%;
+                    background-color: ${state_color};
+                    border-bottom: 2px solid ${darken(0.3, state_color)};
+                    color: ${color};
+                    font-size: ${size}em;
+                    box-shadow: ${disabled 
+                        ? `0 3px 0px ${grayscale(darken(0.3, state_color))}` 
+                        : `0 3px 0px ${darken(0.3, state_color)}`};
+                    text-shadow: 0 1px ${text_shadow_color};
+                }
+                
+                button:active {
+                    transform: translateY(0.125rem);
                     box-shadow: none;
                 }
-                &:disabled {
-                    color: #333;
-                    background: grey;
+                
+                button:disabled {
+                    color: ${grayscale(darken(0.3, state_color))};
+                    background-color: grey;
                     border-color: ${grayscale(darken(0.3, state_color))};
-                    box-shadow: 0 3px 0px ${grayscale(darken(0.3, state_color))};
                 }
-            `}
-            onClick={onClick} className={text}>{ text }</button>
+            `}</style>
+        </button>
     );
 };
 

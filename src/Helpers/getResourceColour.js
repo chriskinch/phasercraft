@@ -1,4 +1,4 @@
-export default function getResourceColour(type){
+export function getResourceColour(type){
     const t = type.toLowerCase();
     return (
         t === "health" ? "green" :

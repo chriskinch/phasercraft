@@ -1,15 +1,15 @@
 import React from "react"
 import { connect } from "react-redux"
-import "styled-components/macro"
-import { pixel_emboss } from "@UI/themes"
-import Button from "@atoms/Button"
-import Stock from "@organisms/Stock"
+
+import { pixel_emboss } from "@ui/themes"
+import Button from "@components/Button"
+import Stock from "@components/Stock"
 import { buyLoot, toggleFilter } from "@store/gameReducer"
 import store from "@store"
 import { useQuery, useMutation, useApolloClient } from "@apollo/client"
 import { GET_ITEMS } from "@queries/getItems"
 import { RESTOCK_STORE, REMOVE_ITEM } from "@mutations"
-import { sortBy } from "@UI/operations/helpers"
+import { sortBy } from "@ui/operations/helpers"
 
 const Armory = ({coins, buyLoot, filters, toggleFilter}) => {
     const client = useApolloClient();
@@ -28,23 +28,18 @@ const Armory = ({coins, buyLoot, filters, toggleFilter}) => {
     if(loading) return 'Loading...';
     if(error) return `ERROR: ${error.message}`;
 
-    const filterOn = filter => filters.includes(filter);
+    const filterOn = filter => filters?.includes(filter);
     const filterAndRefetch = key => {
         toggleFilter(key)
         refetch({
             filter: {
-                stats: store.getState().filters
+                stats: store.getState().game.filters
             }
         })
     }
 
     return (
-        <div css={`
-            display: grid;
-            grid-template-columns: 90px 90px 1fr;
-            grid-gap: 1em;
-            height: 100%;
-        `}>
+        <div className="armory-container">
             <section>
                 <h3>Sort</h3>
                 <Button text="Quality" onClick={() => {
@@ -67,7 +62,7 @@ const Armory = ({coins, buyLoot, filters, toggleFilter}) => {
                 }} />
                 <h3>Action</h3>
                 <Button text="Buy" onClick={() => {
-                    const selected = store.getState().selected;
+                    const selected = store.getState().game.selected;
                     if(selected?.cost <= coins) {
                         buyLoot(selected);
                         removeItem({
@@ -85,11 +80,7 @@ const Armory = ({coins, buyLoot, filters, toggleFilter}) => {
             </section>
             <section>
                 <h3>Filter</h3>
-                <div  css={`
-                    display:grid;
-                    grid-template-columns: 1fr 1fr;
-                    column-gap: 0.5em;
-                `}>                
+                <div className="filter-grid">                
                     <Button text="AP" on={filterOn("attack_power")} onClick={() => filterAndRefetch("attack_power")} />
                     <Button text="MP" on={filterOn("magic_power")} onClick={() => filterAndRefetch("magic_power")} />
                     <Button text="AS" on={filterOn("attack_speed")} onClick={() => filterAndRefetch("attack_speed")} />
@@ -101,18 +92,32 @@ const Armory = ({coins, buyLoot, filters, toggleFilter}) => {
                     <Button text="SP" on={filterOn("speed")} onClick={() => filterAndRefetch("speed")} />
                 </div>
             </section>
-            <section css={`
-                ${ pixel_emboss }
-                padding: 0.5em;
-            `}>
+            <section className="stock-section">
                 <Stock items={data.items} />
             </section>
+            <style jsx>{`
+                .armory-container {
+                    display: grid;
+                    grid-template-columns: 90px 90px 1fr;
+                    grid-gap: 1em;
+                    height: 100%;
+                }
+                .filter-grid {
+                    display: grid;
+                    grid-template-columns: 1fr 1fr;
+                    column-gap: 0.5em;
+                }
+                .stock-section {
+                    ${pixel_emboss}
+                    padding: 0.5em;
+                }
+            `}</style>
         </div>
     );
 }
 
 const mapStateToProps = (state) => {
-    const { coins, filters} = state;
+    const { coins, filters} = state.game;
     return { coins, filters }
 };
 

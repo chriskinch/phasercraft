@@ -1,24 +1,27 @@
 import React from "react"
-import { connect } from "react-redux"
-import StatBar from "@molecules/StatBar"
-import 'styled-components/macro'
+import { useSelector } from "react-redux"
+import StatBar from "@components/StatBar"
 
-const HUD = ({level}) => {
+const HUD = () => {
+    const level = useSelector(state => state.game.level);
+
     return (
-        <div css={`
-            padding: 0.5em 1em;
-        `}>
-            <div css="width:100px">
-                <label>LV {level.currentLevel}</label>
+        <div className="hud-container">
+            <div className="level-info">
+                <label>LV {level?.currentLevel}</label>
                 <StatBar colour={"#eee"} value={level.xpRemaining} max={level.toNextLevel} />
             </div>
+            <style jsx>{`
+                .hud-container {
+                    padding: 0.5em 1em;
+                }
+                
+                .level-info {
+                    width: 100px;
+                }
+            `}</style>
         </div>
     );
 }
 
-const mapStateToProps = (state) => {
-    const { level } = state;
-    return { level }
-};
-
-export default connect(mapStateToProps)(HUD);
+export default HUD;

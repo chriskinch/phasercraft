@@ -27,7 +27,7 @@ class Spell extends GameObjects.Sprite {
     }
     
     checkCooldown() {
-		return (!this.cooldownTimer || this.cooldownTimer.getValue() === this.cooldown);
+		return (!this.cooldownTimer || !this.cooldownTimer?.getValue() || this.cooldownTimer.getValue() === this.cooldown);
     }
     
     checkReady() {
@@ -35,7 +35,7 @@ class Spell extends GameObjects.Sprite {
     }
 
     onResourceChangeHandler() {
-        this.checkReady() ? this.enableSpell() : this.disableSpell();
+        this.checkReady() ? this.enableSpell() : this.disableSpell("resource change");
     }
 
     enableSpell() {
@@ -51,7 +51,7 @@ class Spell extends GameObjects.Sprite {
         if(this.checkReady()) this.enableSpell();
     }
 
-    disableSpell() {
+    disableSpell(from) {
         if(this.enabled) {
             this.button.setAlpha(0.4);
             this.setButtonEvents('off');
@@ -64,7 +64,7 @@ class Spell extends GameObjects.Sprite {
 
     killSpell() {
         this.player.resource.off('change', this.onResourceChangeHandler, this);
-        this.disableSpell();
+        this.disableSpell("kill spell");
     }
 
     clearSpell() {
@@ -187,7 +187,7 @@ class Spell extends GameObjects.Sprite {
     }
     
     setValue({base, key, reducer=(v)=>v }){
-        const power = store.getState().stats[key];
+        const power = store.getState().game.stats[key];
 		// Value based on base + scaled percentage of base from power + flat percent of power
 		const scaled = base + (base * (power/100)) + power/10;
 		// Check for crit

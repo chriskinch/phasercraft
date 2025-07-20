@@ -1,5 +1,5 @@
 import React from "react"
-import Attributes from "@molecules/Attributes"
+import Attributes from "@components/Attributes"
 import pick from "lodash/pick"
 
 const GroupedAttributes = ({ stats }) => {

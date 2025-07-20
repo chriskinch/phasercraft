@@ -1,19 +1,18 @@
 import React from "react"
-import "styled-components/macro"
-import LootIcon from "@atoms/LootIcon"
-import Tooltip from "./Tooltip"
+
+import LootIcon from "@components/LootIcon"
+import ItemTooltip from "./ItemTooltip"
 
 const Loot = ({loot, loot: {id}, isSelected, setSelected}) => {
     if(loot.isHidden) return null;
     return (
         <>
-            <Tooltip id={id} loot={loot} />
+            <ItemTooltip id={id} loot={loot} />
             <div
-                data-tip
-                data-for={id}
+                data-tooltip-id={id}
                 onClick={setSelected ? () => setSelected() : null}
                 onContextMenu={(e)=> e.preventDefault()}
-                css={'line-height: 0;'}
+                className="leading-none"
             >
                 <LootIcon {...loot} selected={isSelected} />
             </div>

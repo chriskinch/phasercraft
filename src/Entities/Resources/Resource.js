@@ -2,7 +2,7 @@ import { GameObjects } from "phaser"
 import store from "@store"
 import { setStats, setBaseStats } from "@store/gameReducer"
 import pick from "lodash/pick"
-import mapStateToData from "@Helpers/mapStateToData"
+import mapStateToData from "@helpers/mapStateToData"
 
 class Resource extends GameObjects.Sprite {
 
@@ -139,11 +139,11 @@ class Resource extends GameObjects.Sprite {
 
 	setRegenerationRate(){
 		return this.scene.time.addEvent({
-			delay: this.stats.regen_rate * 1000, 
+			delay: 1 + this.stats.regen_rate * 1000, 
 			callback: this.doTick,
 			callbackScope: this,
 			loop: true,
-			paused: true
+			paused: true,
 		});
 	}
 

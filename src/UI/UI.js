@@ -1,22 +1,31 @@
-import React, { createContext } from "react"
-import { connect } from "react-redux"
-import { pixel_background } from "./themes"
+import { createContext } from "react"
+import { useSelector, useDispatch } from "react-redux"
+import { pixel_background } from "@ui/themes"
 import { toggleUi } from "@store/gameReducer"
-import Arcanum from "@templates/Arcanum"
-import Armory from "@templates/Armory"
-import Character from "@templates/Character"
-import CharacterSelect from "@templates/CharacterSelect"
-import Equipment from "@templates/Equipment"
-import Header from "@organisms/Header"
-import HUD from "@templates/HUD"
-import Save from "@templates/Save"
-import System from "@templates/System"
-import CustomDragLayer from "@protons/CustomDragLayer"
-import "styled-components/macro"
+import Arcanum from "@components/Arcanum"
+import Armory from "@components/Armory"
+import Character from "@components/Character"
+import CharacterSelect from "@components/CharacterSelect"
+import Equipment from "@components/Equipment"
+import Header from "@components/Header"
+import HUD from "@components/HUD"
+import Save from "@components/Save"
+import System from "@components/System"
+import CustomDragLayer from "@components/CustomDragLayer"
+
 
 export const MenuContext = createContext('character');
 
-const UI = ({ menu, showHUD, showUi, toggleUi }) => {
+const UI = () => {
+    const dispatch = useDispatch();
+    const menu = useSelector(state => state.game.menu);
+    const showHUD = useSelector(state => state.game.showHUD);
+    const showUi = useSelector(state => state.game.showUi);
+
+    const handleToggleUi = () => {
+        dispatch(toggleUi(menu));
+    };
+
     const config = {
         arcanum: {
             component: Arcanum,
@@ -63,39 +72,18 @@ const UI = ({ menu, showHUD, showUi, toggleUi }) => {
     const CurrentMenu = menu ? config[menu] : config.equipment;
 
     return (
-        <div css={`
-            position:absolute;
-            width:100vw;
-            height:100vh;
-            pointer-events: none;
-        `}>
+        <div className="ui-container">
             {showHUD &&
                 <HUD />
             }
             {showUi &&
-                <div css={`
-                    box-sizing: border-box;
-                    height: 100%;
-                    padding: 1em;
-                    width: "100%";
-                    pointer-events: all;
-                    background: rgba(0,0,0,0.5);
-                    display: flex;
-                    flex-direction: column;
-                `}>
-                    <div css={`
-                        margin-bottom: 14px;
-                    `}>
-                        <Header config={CurrentMenu} toggleUi={toggleUi} type={CurrentMenu.type}/>
+                <div className="ui-main">
+                    <div className="header-container">
+                        <Header config={CurrentMenu} toggleUi={handleToggleUi} type={CurrentMenu.type}/>
                     </div>
                     <div
                         id={ CurrentMenu.title.toLowerCase().replace(" ", "-") }
-                        css={`
-                            ${ menu === "system" ? null : pixel_background() }
-                            margin: 0 auto;
-                            padding: calc(1em + 6px) 1em 1em;
-                            width: ${ menu === "system" ? "200px" : "100%"};
-                        `}
+                        className="menu-container"
                     >
                         <CustomDragLayer />
                         <MenuContext.Provider value={menu}>
@@ -104,13 +92,38 @@ const UI = ({ menu, showHUD, showUi, toggleUi }) => {
                     </div>
                 </div>
             }
+            <style jsx>{`
+                .ui-container {
+                    position: absolute;
+                    width: 100vw;
+                    height: 100vh;
+                    pointer-events: none;
+                }
+                
+                .ui-main {
+                    box-sizing: border-box;
+                    height: 100%;
+                    padding: 1em;
+                    width: 100%;
+                    pointer-events: all;
+                    background: rgba(0,0,0,0.5);
+                    display: flex;
+                    flex-direction: column;
+                }
+                
+                .header-container {
+                    margin-bottom: 14px;
+                }
+                
+                .menu-container {
+                    ${menu === "system" ? '' : pixel_background()}
+                    margin: 0 auto;
+                    padding: calc(1em + 6px) 1em 1em;
+                    width: ${menu === "system" ? "200px" : "100%"};
+                }
+            `}</style>
         </div>
     );
 }
 
-const mapStateToProps = (state) => {
-    const { menu, showUi, showHUD } = state;
-    return { menu, showHUD, showUi }
-};
-
-export default connect(mapStateToProps, { toggleUi })(UI);
+export default UI;

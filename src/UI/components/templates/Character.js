@@ -1,64 +1,93 @@
 import React from "react"
-import { connect } from "react-redux"
-import "styled-components/macro"
-import Slot from "@atoms/Slot"
-import DetailedLoot from "@molecules/DetailedLoot"
-import GroupedAttributes from "@organisms/GroupedAttributes"
-import StatBar from "@molecules/StatBar"
-import { pixel_emboss } from "@UI/themes"
+import { useSelector } from "react-redux"
+import Slot from "@components/Slot"
+import DetailedLoot from "@components/DetailedLoot"
+import GroupedAttributes from "@components/GroupedAttributes"
+import StatBar from "@components/StatBar"
+import { pixel_emboss } from "@ui/themes"
 
-const Character = ({ character, equipment: { amulet, body, helm, weapon }, stats, stats: { resource_type }, level }) => {
+const Character = () => {
+    const {
+        character,
+        equipment: { amulet, body, helm, weapon },
+        stats,
+        stats: { resource_type },
+        level
+    } = useSelector(state => state.game);
+
     return (
-        <div css={`
-            display: grid;
-            grid-template-columns: 170px 1fr;
-            grid-gap: 1em;
-            height: 100%;
-        `}>
-            <section>
-                <div css="margin-bottom:0.5em">
-                    <h2 css={`
-                        float:left;
-                        margin-right:0.5em
-                    `}>Level {level.currentLevel}</h2>
+        <div className="character-container">
+            <section className="character-data">
+                <div className="character-level">
+                    <h2>Level {level.currentLevel}</h2>
                     <StatBar colour={"#eee"} label={"XP"} value={level.xpRemaining} max={level.toNextLevel} />
                 </div>
-                <div css="clear:both">
+                <div className="character-resources">
                     <img 
-                        src={`UI/player/${character}.gif`}
+                        src={`ui/player/${character}.gif`}
                         alt="This is you!"
-                        css={`
-                            float: left;
-                            height: 3em;
-                            margin-right: 1em;
-                            margin-bottom: 1em;
-                        `}
                     />
                     <StatBar type={"health"} label={"HP"} value={stats.health_max} />
                     <StatBar type={resource_type} label={"RP"} value={stats.resource_max} />
                 </div>
                 <GroupedAttributes stats={stats} />
             </section>
-            <section css={`
-                ${ pixel_emboss }
-                padding: 0.5em;
-                display: grid;
-                grid-template-columns: 1fr 1fr;
-                grid-template-rows: min-content min-content;
-                grid-gap: 1em;
-            `}>
+            <section className="equipment-display">
                 <Slot loot={helm} component={DetailedLoot} />
                 <Slot loot={body} component={DetailedLoot} />
                 <Slot loot={weapon} component={DetailedLoot} />
                 <Slot loot={amulet} component={DetailedLoot} />
             </section>
+            <style jsx>{`
+                .character-container {
+                    display: grid;
+                    gap: 1rem;
+                    height: 100%;
+                    grid-template-columns: 170px 1fr;
+                }
+
+                .character-level {
+                    margin-bottom: 0.5rem;
+                }
+
+                .character-level h2 {
+                    float: left;
+                    margin-right: 0.5rem;
+                }
+
+                .character-resources {
+                    clear: both;
+                }
+
+                .character-resources img {
+                    float: left;
+                    height: 3rem;
+                    margin-right: 1rem;
+                    margin-bottom: 1rem;
+                }
+                    
+                .equipment-display {
+                    ${ pixel_emboss() }
+                    padding: 0.5em;
+                    display: grid;
+                    grid-template-columns: 1fr 1fr;
+                    grid-template-rows: min-content min-content;
+                    grid-gap: 1em;
+                }
+            `}</style>
         </div>
     );
 }
 
-const mapStateToProps = (state) => {
-    const { character, equipment, stats, level } = state;
-    return { character, equipment, stats, level }
+const parsePixelEmboss = () => {
+    return {
+        background: 'rgba(0,0,0,0.1)',
+        borderTop: '6px solid rgba(0,0,0,0.1)',
+        boxShadow: '0 -6px 0 rgba(0,0,0,0.3)',
+        margin: '6px',
+        textAlign: 'center',
+        position: 'relative'
+    };
 };
 
-export default connect(mapStateToProps)(Character);
+export default Character;

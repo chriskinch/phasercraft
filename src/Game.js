@@ -1,12 +1,12 @@
 import Phaser from "phaser";
-import LoadScene from '@Scenes/LoadScene';
-import SelectScene from '@Scenes/SelectScene';
-import GameScene from '@Scenes/GameScene';
-import GameOverScene from '@Scenes/GameOverScene';
+import LoadScene from '@scenes/LoadScene';
+import SelectScene from '@scenes/SelectScene';
+import GameScene from '@scenes/GameScene';
+import GameOverScene from '@scenes/GameOverScene';
 
 import * as React from "react";
 
-export default class Canvas extends React.Component {
+export default function Game() {
 	componentDidMount() {
 		const config = {
 			type: Phaser.AUTO,

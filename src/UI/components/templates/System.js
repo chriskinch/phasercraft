@@ -1,17 +1,17 @@
 import React, { useState } from "react"
 import { connect } from "react-redux"
 import { switchUi, toggleUi } from "@store/gameReducer";
-import Button from "@atoms/Button"
-import Dialog from "@organisms/Dialog"
-import { dialog_overlay } from "@UI/themes"
-import "styled-components/macro"
+import Button from "@components/Button"
+import Dialog from "@components/Dialog"
+import { dialog_overlay } from "@ui/themes"
+
 
 const System = ({state, saveSlot, switchUi, toggleUi}) => {
     const [showDialog, setShowDialog] = useState(false);
 
     const save_dialog = showDialog ? (
         <Dialog>
-            <div css={ dialog_overlay() }>
+            <div className="dialog-overlay">
                 <p>Overwrite your existing save game?</p>
                 <Button text="Yes" onClick={() => {
                     localStorage.setItem(saveSlot, JSON.stringify(state))
@@ -19,6 +19,11 @@ const System = ({state, saveSlot, switchUi, toggleUi}) => {
                     setShowDialog(false)
                 }} />
                 <Button text="Cancel" onClick={() => setShowDialog(false)} />
+                <style jsx>{`
+                    .dialog-overlay {
+                        ${dialog_overlay()}
+                    }
+                `}</style>
             </div>
         </Dialog>
     ) : null;
@@ -39,7 +44,7 @@ const System = ({state, saveSlot, switchUi, toggleUi}) => {
 }
 
 const mapStateToProps = (state) => {
-    const { saveSlot } = state;
+    const { saveSlot } = state.game;
     return { state, saveSlot }
 };
 

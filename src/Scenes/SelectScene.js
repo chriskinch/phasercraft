@@ -14,7 +14,7 @@ export default class SelectScene extends Scene {
 		// Save the returned unsub function and call one first action.
 		// Looks like and infinite loop but actually acts like a "once" event.
 		const unsubscribe = store.subscribe(() => {
-			if(store.getState().character) {
+			if(store.getState().game.character) {
 				this.chooseCharacter()
 				unsubscribe();
 			}
@@ -22,7 +22,7 @@ export default class SelectScene extends Scene {
 	}
 
 	chooseCharacter(){
-		this.config.type = store.getState().character;
+		this.config.type = store.getState().game.character;
 		this.scene.start('GameScene', this.config);
 	}
 }

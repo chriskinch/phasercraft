@@ -1,7 +1,7 @@
 import React from "react"
-import "styled-components/macro"
-import Loot from "@molecules/Loot"
-import { pixel_emboss } from "@UI/themes"
+
+import Loot from "@components/Loot"
+import { pixel_emboss } from "@ui/themes"
 import { useDrop } from "react-dnd"
 import { connect } from "react-redux"
 import { unequipLoot } from "@store/gameReducer"
@@ -22,13 +22,17 @@ const DroppableSlot = ({loot, slot, unequipLoot}) => {
     return (
         <div 
             ref={drop}
-            css={`
-                ${pixel_emboss({rgb: rgb, a: a})}
-                text-transform: capitalize;
-            `}
+            className={"droppable-slot"}
             onClick={() => unequipLoot(loot)}
         >
             { loot && <Loot loot={loot} /> }
+
+            <style jsx>{`
+                .droppable-slot {
+                    ${pixel_emboss({rgb: rgb, a: a})}
+                    text-transform: capitalize;
+                }
+            `}</style>
         </div>
     );
 }

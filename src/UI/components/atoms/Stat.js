@@ -1,28 +1,38 @@
 import React from "react";
-import 'styled-components/macro';
 import round from "lodash/round"
 
 const Stat = ({delimeter=":", label, value, polarity}) => {
-    const colour = polarity > 0 ? 'green' : polarity < 0 ? 'red' : 'grey';
+    const getColor = () => {
+        if (!polarity) return 'black';
+        return polarity > 0 ? '#10b981' : '#ef4444';
+    };
 
     return (
         <>
-            <dt css={`
-                clear: left;
-                float: left;
-                margin-right: 0.5em;
-                text-align: left;
-                text-transform: capitalize;
-                white-space: nowrap;
-            `}>{ label }{delimeter}</dt>
-            <dd css={`
-                overflow: hidden;
-                text-align: right;
-                margin-left: 0;
-                color: ${polarity ? colour : 'black'};
-            `}>
+            <dt className="stat-label">
+                { label }{delimeter}
+            </dt>
+            <dd className="stat-value">
                 { round(value, 2) }
             </dd>
+            
+            <style jsx>{`
+                .stat-label {
+                    clear: left;
+                    float: left;
+                    margin-right: 0.5rem;
+                    text-align: left;
+                    text-transform: capitalize;
+                    white-space: nowrap;
+                }
+                
+                .stat-value {
+                    overflow: hidden;
+                    text-align: right;
+                    margin-left: 0;
+                    color: ${getColor()};
+                }
+            `}</style>
         </>
     )
 }

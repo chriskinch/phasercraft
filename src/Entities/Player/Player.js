@@ -1,15 +1,15 @@
 import Phaser, { GameObjects } from "phaser"
 import { v4 as uuid } from 'uuid';
 import Hero from "./Hero"
-import Weapon from "@Entities/Weapon"
-import AssignSpell from "@Entities/Spells/AssignSpell"
-import AssignResource from "@Entities/Resources/AssignResource"
-import targetVector from "@Helpers/targetVector"
-import Boons from "@Entities/UI/Boons"
+import Weapon from "@entities/Weapon"
+import AssignSpell from "@entities/Spells/AssignSpell"
+import AssignResource from "@entities/Resources/AssignResource"
+import targetVector from "@helpers/targetVector"
+import Boons from "@entities/UI/Boons"
 import store from "@store"
 import { addXP, setBaseStats, setLevel, setStats } from "@store/gameReducer"
 import isEmpty from "lodash/isEmpty"
-import mapStateToData from "@Helpers/mapStateToData"
+import mapStateToData from "@helpers/mapStateToData"
 import CombatText from "../UI/CombatText"
 
 const converter = require('number-to-words');
@@ -22,8 +22,8 @@ class Player extends GameObjects.Container {
 		this.uuid = uuid();
 		const base_stats = {...stats, resource_type}; // Add resource type into to base stats.
 		// Adding this in place for when there is a stats state when resuming from gameover or a save.
-		if(isEmpty(store.getState().base_stats)) store.dispatch(setBaseStats(base_stats));
-		if(isEmpty(store.getState().stats)) store.dispatch(setStats(base_stats));
+		if(isEmpty(store.getState().game.base_stats)) store.dispatch(setBaseStats(base_stats));
+		if(isEmpty(store.getState().game.stats)) store.dispatch(setStats(base_stats));
 
 		this.hero = new Hero({
 			scene: scene,
@@ -117,10 +117,6 @@ class Player extends GameObjects.Container {
 		scene.events.on('spell:cleared', () => this.spellPrimed = false, this);
 
 		// mapStateToData("stats", s => this.stats = s);
-	}
-
-	temp(s) {
-		console.log("CHANGED: ", s, this)
 	}
 
 	drawBar(opt) {
@@ -291,10 +287,11 @@ class Player extends GameObjects.Container {
 		if(!this.scene.selected) this.idle();
 	}
 
-	setExperience(exp = store.getState().xp, count = 1) {
+	setExperience(exp = store.getState().game.xp, count = 1) {
 		const xpCurve = l => (l*l) + (l*10);
 		const next = xpCurve(count);
 		const remainder = exp - next;
+		// console.log("Setting experience", next, store.getState(), remainder);
 		return (remainder < 0) ? store.dispatch(setLevel({
 			xpRemaining: exp,
 			toNextLevel: next,

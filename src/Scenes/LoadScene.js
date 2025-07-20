@@ -1,5 +1,5 @@
 import { Scene, GameObjects } from "phaser";
-import createAnimations from '../Config/animations';
+import createAnimations from '../config/animations';
 import store from "@store";
 import { toggleUi } from "@store/gameReducer";
 

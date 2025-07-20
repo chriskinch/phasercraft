@@ -1,11 +1,11 @@
 import Phaser, { GameObjects, Geom } from "phaser"
 import { v4 as uuid } from 'uuid';
-import AssignResource from "@Entities/Resources/AssignResource"
+import AssignResource from "@entities/Resources/AssignResource"
 import Monster from "./Monster"
-import Coin from "@Entities/Loot/Coin"
-import Crafting from "@Entities/Loot/Crafting"
-import Gem from "@Entities/Loot/Gem"
-import Banes from "@Entities/UI/Banes"
+import Coin from "@entities/Loot/Coin"
+import Crafting from "@entities/Loot/Crafting"
+import Gem from "@entities/Loot/Gem"
+import Banes from "@entities/UI/Banes"
 class Enemy extends GameObjects.Container {
 
 	constructor(config) {
@@ -86,7 +86,6 @@ class Enemy extends GameObjects.Container {
 	}
 
 	update(time, delta) {
-		// console.log("STATE: ", this.states);
 		this.setDepth(this.y);
 
 		if(this.state === "spawned"){

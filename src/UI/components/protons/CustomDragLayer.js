@@ -1,8 +1,10 @@
 import React from "react"
-import "styled-components/macro"
-import { useDragLayer } from "react-dnd"
-import LootIcon from "@atoms/LootIcon"
 
+import { useDragLayer } from "react-dnd"
+import LootIcon from "@components/LootIcon"
+
+// Keep inline styles for dynamic positioning - transform values change on every render
+// based on real-time mouse/drag position, making Styled JSX impractical here
 const getItemStyles = (initialOffset, currentOffset) => {
     if (!initialOffset || !currentOffset) {
         return {
@@ -32,18 +34,21 @@ const CustomDragLayer = () => {
         return null
     }
     return (
-        <div css={`
-            position: fixed;
-            pointer-events: none;
-            z-index: 100;
-            left: 0;
-            top: 0;
-            width: 100%;
-            height: 100%;
-        `}>
+        <div className="drag-layer">
             <div style={getItemStyles(initialOffset, currentOffset)}>
                 {renderItem()}
             </div>
+            <style jsx>{`
+                .drag-layer {
+                    position: fixed;
+                    pointer-events: none;
+                    z-index: 100;
+                    left: 0;
+                    top: 0;
+                    width: 100%;
+                    height: 100%;
+                }
+            `}</style>
         </div>
     )
 }

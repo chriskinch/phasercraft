@@ -1,14 +1,14 @@
-import React from "react";
-import 'styled-components/macro';
-
 const Arcanum = () => {
     return (
-        <div css={`
-            display: flex;
-        `}>
+        <div>
             <section>
                 <h2>Arcanum</h2>
             </section>
+            <style jsx>{`
+                div {
+                    display: flex;
+                }
+            `}</style>
         </div>
     );
 }
