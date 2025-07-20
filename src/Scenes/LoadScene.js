@@ -4,6 +4,11 @@ import store from "@store";
 import { toggleUi } from "@store/gameReducer";
 
 export default class LoadScene extends Scene {
+	constructor() {
+		super({
+			key: 'LoadScene'
+		});
+	}
 	preload(){
 		this.sys.game.font_config = {
 			image: 'wayne-3d',

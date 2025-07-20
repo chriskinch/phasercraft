@@ -1,86 +1,52 @@
-import { forwardRef, useEffect, useLayoutEffect, useRef } from 'react';
-import StartGame from './game/main';
-import { EventBus } from './game/EventBus';
+'use client'
 
-export interface IRefPhaserGame
-{
-    game: Phaser.Game | null;
-    scene: Phaser.Scene | null;
-}
+import { memo, useEffect, useRef } from "react";
+import { Game, AUTO } from 'phaser';
+import LoadScene from '@scenes/LoadScene';
+import SelectScene from '@scenes/SelectScene';
+import GameScene from '@scenes/GameScene';
+import GameOverScene from '@scenes/GameOverScene';
 
-interface IProps
-{
-    currentActiveScene?: (scene_instance: Phaser.Scene) => void
-}
+const PhaserGame = () => {
+    const gameRef = useRef<Game | null>(null);
 
-export const PhaserGame = forwardRef<IRefPhaserGame, IProps>(function PhaserGame({ currentActiveScene }, ref)
-{
-    const game = useRef<Phaser.Game | null>(null!);
-
-    useLayoutEffect(() =>
-    {
-        if (game.current === null)
-        {
-
-            game.current = StartGame("game-container");
-
-            if (typeof ref === 'function')
-            {
-                ref({ game: game.current, scene: null });
-            } else if (ref)
-            {
-                ref.current = { game: game.current, scene: null };
-            }
-
+    useEffect(() => {
+        if (gameRef.current) {
+            console.warn("Phaser game instance already exists, skipping creation.");
+            return;
         }
 
-        return () =>
-        {
-            if (game.current)
-            {
-                game.current.destroy(true);
-                if (game.current !== null)
-                {
-                    game.current = null;
+        const config = {
+            type: AUTO,
+            width: window.outerWidth,
+            height: window.outerHeight,
+            backgroundColor: '#6e9c48',
+            parent: "phaser-game",
+            physics: {
+                default: 'arcade',
+                arcade: {
+                    debug: true,
+                    gravity: { 
+                        x: 0,
+                        y: 0
+                    }
                 }
-            }
+            },
+            scene: [
+                LoadScene,
+                SelectScene,
+                GameScene,
+                GameOverScene
+            ],
+            pixelArt: true,
+            antialias: false,
+            fullscreen: true,
         }
-    }, [ref]);
 
-    useEffect(() =>
-    {
-        EventBus.on('current-scene-ready', (scene_instance: Phaser.Scene) =>
-        {
-            if (currentActiveScene && typeof currentActiveScene === 'function')
-            {
+        gameRef.current =  new Game(config);
+    }, []);
 
-                currentActiveScene(scene_instance);
+    return <div id="phaser-game" />;
+}
 
-            }
-
-            if (typeof ref === 'function')
-            {
-
-                ref({ game: game.current, scene: scene_instance });
-            
-            } else if (ref)
-            {
-
-                ref.current = { game: game.current, scene: scene_instance };
-
-            }
-            
-        });
-        return () =>
-        {
-
-            EventBus.removeListener('current-scene-ready');
-        
-        }
-    }, [currentActiveScene, ref]);
-
-    return (
-        <div id="game-container"></div>
-    );
-
-});
+export default memo(PhaserGame);

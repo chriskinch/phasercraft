@@ -1,4 +1,4 @@
-import Phaser, { GameObjects } from "phaser"
+import { Math as PhaserMath, GameObjects } from "phaser"
 import { v4 as uuid } from 'uuid';
 import Hero from "./Hero"
 import Weapon from "@entities/Weapon"
@@ -132,7 +132,7 @@ class Player extends GameObjects.Container {
 		this.mouse = mouse;
 		this.setDepth(this.y);
 
-		this.point = new Phaser.Math.Vector2();
+		this.point = new PhaserMath.Vector2();
 		this.point.x = this.x;
 		this.point.y = this.y;
 
@@ -224,7 +224,7 @@ class Player extends GameObjects.Container {
 	goToRange(){
 		let target = this.scene.selected;
 		this.moveTo(target);
-		let distance = Phaser.Math.Distance.Between(target.x,target.y, this.x, this.y);
+		let distance = PhaserMath.Distance.Between(target.x,target.y, this.x, this.y);
 		let hit_distance = distance - 15 // TODO not 15;
 
 		if(hit_distance <= this.stats.range) {

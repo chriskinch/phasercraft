@@ -2,7 +2,7 @@
     "name": "phasercraft",
     "version": "2.0.0",
     "private": true,
-    "homepage": "https://chriskinch.github.io/phasercraft",
+    "homepage": "https://chriskinch.github.io/phasercraft/dist",
     "description": "A Phaser 3 Next.js project template that demonstrates Next.js with React communication and uses Vite for bundling.",
     "repository": {
         "type": "git",
@@ -20,6 +20,7 @@
         "dev": "node log.js dev & next dev -p 8080",
         "build": "node log.js build & next build",
         "dev-nolog": "next dev -p 8080",
+        "lint": "next lint",
         "build-nolog": "next build",
         "gateway": "cd server && yarn start",
         "service:armory": "cd services/armory && sls offline start"
@@ -27,6 +28,7 @@
     "dependencies": {
         "@apollo/client": "^3.13.8",
         "@reduxjs/toolkit": "^2.8.2",
+        "eslint-config-next": "^15.4.2",
         "lodash": "^4.17.21",
         "next": "15.3.1",
         "number-to-words": "^1.2.4",

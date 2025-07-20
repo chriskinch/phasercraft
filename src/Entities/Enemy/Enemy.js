@@ -1,4 +1,4 @@
-import Phaser, { GameObjects, Geom } from "phaser"
+import { Math as PhaserMath, GameObjects, Geom } from "phaser"
 import { v4 as uuid } from 'uuid';
 import AssignResource from "@entities/Resources/AssignResource"
 import Monster from "./Monster"
@@ -91,16 +91,16 @@ class Enemy extends GameObjects.Container {
 		if(this.state === "spawned"){
 			this.health.update(this);
 
-			this.point = new Phaser.Math.Vector2();
+			this.point = new PhaserMath.Vector2();
 			this.point.x = this.x;
 			this.point.y = this.y;
-			this.distance_to_player = Phaser.Math.Distance.BetweenPoints(this, this.scene.player);
+			this.distance_to_player = PhaserMath.Distance.BetweenPoints(this, this.scene.player);
 
 			if(this.distance_to_player < this.attack_radius && this.states.attack === "primed") this.attack();
 
 			this.movementAnimationHandler();
 
-			if(this.destination && Phaser.Math.Distance.BetweenPoints(this, this.destination) < 10 && this.states.movement !== "idle"){
+			if(this.destination && PhaserMath.Distance.BetweenPoints(this, this.destination) < 10 && this.states.movement !== "idle"){
 				this.setIdle();
 			}
 
@@ -192,7 +192,7 @@ class Enemy extends GameObjects.Container {
 
 	wander() {
 		this.states.movement = "wandering";
-		const point = new Phaser.Math.Vector2();
+		const point = new PhaserMath.Vector2();
 		point.x = this.spawn_stop.x + Math.floor(Math.random() * 61) - 30;
 		point.y = this.spawn_stop.y + Math.floor(Math.random() * 61) - 30;
 		this.destination = point;
