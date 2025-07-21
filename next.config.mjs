@@ -9,8 +9,8 @@ const nextConfig = {
     images: {
         unoptimized: true, // Disable default image optimization
     },
-    assetPrefix: isProd ? '/phasercraft/' : '',
-    basePath: isProd ? '/phasercraft' : '',
+    assetPrefix: isProd ? '/phasercraft/dist/' : '',
+    basePath: isProd ? '/phasercraft/dist' : '',
     webpack: (config, { isServer }) => {
         if (!isServer) {
             config.resolve.fallback = {
