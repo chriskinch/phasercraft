@@ -43,7 +43,18 @@ jobs:
           node-version: 20.x
           cache: 'npm'
       - run: npm ci
-      - run: npm run build
+      - name: Build server
+        run: |
+          cd server
+          yarn install --frozen-lockfile
+          yarn build
+      - name: Build service/armory
+        run: |
+          cd service/armory
+          yarn install --frozen-lockfile
+          yarn build
+      - name: Build main application
+        run: npm run build
       - name: Upload artifact
         uses: actions/upload-pages-artifact@v3
         with:
