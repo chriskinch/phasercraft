@@ -50,7 +50,7 @@
         "./src/helpers/*"
       ],
       "@scenes/*": [
-        "./src/Scenes/*"
+        "./src/scenes/*"
       ],
       "@entities/*": [
         "./src/entities/*"
