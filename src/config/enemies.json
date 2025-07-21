@@ -1,0 +1,200 @@
+{
+	"baby-ghoul": {
+		"type": "Melee",
+		"damage": 50,
+		"speed": 50,
+		"range": 40,
+		"attack_speed": 1.5,
+		"health_max": 50,
+		"health_regen_rate": 0,
+		"coin_multiplier": 1,
+		"loot_table": [
+			{ 
+				"name": "coin",
+				"rate": 60,
+				"bonus": 2
+			},{ 
+				"name": "gem",
+				"rate": 15,
+				"bonus": 1
+			},{ 
+				"name": "scrap",
+				"rate": 30,
+				"bonus": 1
+			},{ 
+				"name": "cloth",
+				"rate": 135,
+				"bonus": 1
+			},{ 
+				"name": "ichor",
+				"rate": 10,
+				"bonus": 0
+			}
+		]
+	},
+	"egbert": {
+		"type": "Healer",
+		"damage": 75,
+		"speed": 30,
+		"range": 40,
+		"attack_speed": 1,
+		"health_max": 200,
+		"health_regen_rate": 0,
+		"coin_multiplier": 2,
+		"loot_table": [
+			{ 
+				"name": "coin",
+				"rate": 20,
+				"bonus": 2
+			},{ 
+				"name": "gem",
+				"rate": 90,
+				"bonus": 1
+			},{ 
+				"name": "scrap",
+				"rate": 30,
+				"bonus": 1
+			},{ 
+				"name": "cloth",
+				"rate": 35,
+				"bonus": 1
+			},{ 
+				"name": "ichor",
+				"rate": 10,
+				"bonus": 0
+			}
+		]
+	},
+	"ghoul": {
+		"type": "Melee",
+		"damage": 50,
+		"speed": 40,
+		"range": 40,
+		"attack_speed": 2,
+		"health_max": 100,
+		"health_regen_rate": 0,
+		"coin_multiplier": 1.5,
+		"loot_table": [
+			{ 
+				"name": "coin",
+				"rate": 50,
+				"bonus": 2
+			},{ 
+				"name": "gem",
+				"rate": 50,
+				"bonus": 1
+			},{ 
+				"name": "scrap",
+				"rate": 30,
+				"bonus": 1
+			},{ 
+				"name": "cloth",
+				"rate": 35,
+				"bonus": 1
+			},{ 
+				"name": "ichor",
+				"rate": 10,
+				"bonus": 0
+			}
+		]
+	},
+	"imp": {
+		"type": "Ranged",
+		"damage": 25,
+		"speed": 70,
+		"range": 200,
+		"attack_speed": 1,
+		"health_max": 80,
+		"health_regen_rate": 0,
+		"coin_multiplier": 1.2,
+		"loot_table": [
+			{ 
+				"name": "coin",
+				"rate": 60,
+				"bonus": 2
+			},{ 
+				"name": "gem",
+				"rate": 30,
+				"bonus": 1
+			},{ 
+				"name": "scrap",
+				"rate": 30,
+				"bonus": 1
+			},{ 
+				"name": "cloth",
+				"rate": 35,
+				"bonus": 1
+			},{ 
+				"name": "ichor",
+				"rate": 10,
+				"bonus": 0
+			}
+		]
+	},
+	"satyr": {
+		"type": "Melee",
+		"damage": 120,
+		"speed": 40,
+		"range": 40,
+		"attack_speed": 1,
+		"health_max": 150,
+		"health_regen_rate": 0,
+		"coin_multiplier": 2.5,
+		"loot_table": [
+			{ 
+				"name": "coin",
+				"rate": 220,
+				"bonus": 2
+			},{ 
+				"name": "gem",
+				"rate": 75,
+				"bonus": 1
+			},{ 
+				"name": "scrap",
+				"rate": 30,
+				"bonus": 1
+			},{ 
+				"name": "cloth",
+				"rate": 35,
+				"bonus": 1
+			},{ 
+				"name": "ichor",
+				"rate": 10,
+				"bonus": 0
+			}
+		]
+	},
+	"slime": {
+		"type": "Melee",
+		"damage": 250,
+		"speed": 20,
+		"range": 40,
+		"attack_speed": 3,
+		"health_max": 200,
+		"health_regen_rate": 0,
+		"coin_multiplier": 4,
+		"loot_table": [
+			{ 
+				"name": "coin",
+				"rate": 80,
+				"bonus": 2
+			},{ 
+				"name": "gem",
+				"rate": 150,
+				"bonus": 1
+			},{ 
+				"name": "scrap",
+				"rate": 30,
+				"bonus": 1
+			},{ 
+				"name": "cloth",
+				"rate": 35,
+				"bonus": 1
+			},{ 
+				"name": "ichor",
+				"rate": 10,
+				"bonus": 0
+			}
+		]
+	}
+}

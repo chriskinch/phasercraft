@@ -1,0 +1,11 @@
+[ 
+  ["baby-ghoul", "baby-ghoul", "baby-ghoul"],
+  ["baby-ghoul", "baby-ghoul", "imp"],
+  ["baby-ghoul", "imp", "imp", "ghoul"],
+  ["imp", "imp", "imp", "ghoul", "ghoul", "satyr"],
+  ["ghoul", "ghoul", "ghoul", "satyr", "satyr", "egbert"],
+  ["egbert", "egbert", "egbert", "slime"],
+  ["satyr", "satyr", "satyr", "slime", "slime", "slime"],
+  ["slime", "slime", "slime", "slime", "slime"],
+  ["satyr", "satyr", "egbert", "egbert", "slime", "slime", "ghoul"]
+]
