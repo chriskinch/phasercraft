@@ -47,12 +47,10 @@ jobs:
         run: |
           cd server
           yarn install --frozen-lockfile
-          yarn build
       - name: Build service/armory
         run: |
           cd service/armory
           yarn install --frozen-lockfile
-          yarn build
       - name: Build main application
         run: npm run build
       - name: Upload artifact
