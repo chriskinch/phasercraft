@@ -1,9 +1,9 @@
-// import { createLogger } from "redux-logger"
-import { /*applyMiddleware,*/ createStore } from "redux";
+import { configureStore } from "@reduxjs/toolkit";
 import { gameReducer } from "./gameReducer";
 
-export default createStore(
-    gameReducer, /* preloadedState, */
-    // applyMiddleware(createLogger()),
-    window.__REDUX_DEVTOOLS_EXTENSION__ && window.__REDUX_DEVTOOLS_EXTENSION__()
-);
+export default configureStore({
+    reducer: {
+        game: gameReducer
+    },
+    devTools: process.env.NODE_ENV !== 'production'
+});
