@@ -53,6 +53,8 @@ jobs:
           yarn install --frozen-lockfile
       - name: Build main application
         run: npm run build
+        env:
+          DEPLOY: production
       - name: Upload artifact
         uses: actions/upload-pages-artifact@v3
         with:

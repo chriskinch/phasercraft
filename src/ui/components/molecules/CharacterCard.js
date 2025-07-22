@@ -9,7 +9,7 @@ const CharacterCard = ({ selectCharacter, type }) => {
         <li className="character-list-item">
             <img 
                 className="character-image"
-                src={`ui/player/${type}.gif`}
+                src={`UI/player/${type}.gif`}
                 alt={`Choose the ${type} class.`} 
             />
             <Button 
