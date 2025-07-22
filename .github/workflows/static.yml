@@ -31,35 +31,46 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout
-        uses: actions/checkout@v3
-
+        uses: actions/checkout@v4
+        
       - name: Setup Pages
-        uses: actions/configure-pages@v3
+        uses: actions/configure-pages@v5
 
       - name: Setup Node.js environment
-        uses: actions/setup-node@v3.7.0
+        uses: actions/setup-node@v4
         with:
-          node-version: 16.x
-
-      - name: Install and Build
+          node-version: 20.x
+          cache: 'npm'
+      - run: npm ci
+      
+      - name: Build server
         run: |
-          yarn install
-          yarn build
-
+          cd server
+          yarn install --frozen-lockfile
+          
+      - name: Build service/armory
+        run: |
+          cd services/armory
+          yarn install --frozen-lockfile
+          
+      - name: Build main application
+        run: npm run build
+        env:
+          DEPLOY: production
+      
       - name: Deploy preview
         uses: rossjrw/pr-preview-action@v1
         with:
-          source-dir: ./build/
-
+          source-dir: ./dist/
+          
       - name: Upload artifact
-        uses: actions/upload-pages-artifact@v1
+        uses: actions/upload-pages-artifact@v3
         with:
-          # Upload entire repository
-          path: '.'
-
+          path: './dist'
+          
       - name: Deploy to GitHub Pages
         id: deployment
-        uses: actions/deploy-pages@v2
+        uses: actions/deploy-pages@v4
 
   dependabot:
     runs-on: ubuntu-latest
@@ -68,7 +79,7 @@ jobs:
     steps:
       - name: Dependabot metadata
         id: metadata
-        uses: dependabot/fetch-metadata@v1
+        uses: dependabot/fetch-metadata@v2
         with:
           github-token: "${{ secrets.GITHUB_TOKEN }}"
           skip-verification: true
