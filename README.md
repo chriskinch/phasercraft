@@ -4,8 +4,6 @@
 
 Phasercraft is an isometric action RPG featuring deep character customization, strategic spell-based combat, and a comprehensive loot system. Choose your class, master magical abilities, and survive increasingly challenging waves of enemies in this modern take on classic dungeon crawlers.
 
-![Game Screenshot](screenshot.png)
-
 ## 🎮 Game Features
 
 ### Five Unique Character Classes
