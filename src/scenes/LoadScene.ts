@@ -2,6 +2,7 @@ import { Scene, GameObjects } from "phaser";
 import createAnimations from '../config/animations';
 import store from "@store";
 import { toggleUi } from "@store/gameReducer";
+import { fontConfig } from '../config/fonts';
 
 export default class LoadScene extends Scene {
 	constructor() {
@@ -10,18 +11,10 @@ export default class LoadScene extends Scene {
 		});
 	}
 	preload(){
-		this.sys.game.font_config = {
-			image: 'wayne-3d',
-			width: 31,
-			height: 32,
-			chars: GameObjects.RetroFont.TEXT_SET1,
-			charsPerRow: 10,
-			spacing: { x: 1, y: 0 }
-		};
 
 		let progress = this.add.graphics();
 
-		this.load.on('progress', function (value) {
+		this.load.on('progress', function (value: number) {
 			progress.clear();
 			progress.fillStyle(0x00ff00, 1);
 			progress.fillRect(0, 0, window.outerWidth * value, 4);
@@ -61,7 +54,7 @@ export default class LoadScene extends Scene {
 		this.load.image('snare-trap', 'spritesheets/spells/snaretrap.gif');
 		this.load.spritesheet('multishot-effect', 'spritesheets/swoosh.png', { frameWidth: 32, frameHeight: 32 });
 		this.load.spritesheet('whirlwind-effect', 'spritesheets/spells/whirlwind.png', { frameWidth: 32, frameHeight: 32 });
-		this.load.image('consecration', 'spritesheets/spells/consecration.png', { frameWidth: 200, frameHeight: 200 });
+		this.load.image('consecration', 'spritesheets/spells/consecration.png');
 		// Maps
 		this.load.image("tiles", "tilesets/tileset_organic_extruded.png");
 		this.load.tilemapTiledJSON('map', 'tilesets/enchanted_forrest_map.json');
