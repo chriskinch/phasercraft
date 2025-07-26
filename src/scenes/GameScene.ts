@@ -3,9 +3,9 @@ import AssignClass from "@entities/Player/AssignClass"
 import AssignType from "@entities/Enemy/AssignType"
 import Boss from "@entities/Enemy/Boss"
 import UI from "@entities/UI/HUD"
-import waveConfig from "@/config/waves.json"
-import enemyTypes from "@/config/enemies.json"
-import bossTypes from "@/config/bosses.json"
+import waveConfig from "@config/waves.json"
+import enemyTypes from "@config/enemies.json"
+import bossTypes from "@config/bosses.json"
 import { sample } from "lodash"
 import { fontConfig } from "../config/fonts"
 
@@ -179,7 +179,7 @@ export default class GameScene extends Scene {
 		this.physics.pause();
 		this.enemies.runChildUpdate = false;
 		this.time.delayedCall(1500, () => {
-			store.dispatch(toggleHUD());
+			store.dispatch(toggleHUD(false));
 			this.scene.start('GameOverScene');
 		}, [], this);
 	}
@@ -241,6 +241,7 @@ export default class GameScene extends Scene {
 			attributes: (enemyTypes as any)[enemy],
 			target: null, //this.player,
 			active_group: this.active_enemies,
+			coin_multiplier: (enemyTypes as any)[enemy].coin_multiplier || 1,
 			set: set
 		}) as any);
 	}
@@ -250,7 +251,7 @@ export default class GameScene extends Scene {
 
 		this.enemies.add(new Boss({
 			scene: this,
-			key: sample(types),
+			key: sample(types) || types[0],
 			x: Math.random() * this.global_game_width,
 			y: Math.random() * this.global_game_height,
 			types: bossTypes,

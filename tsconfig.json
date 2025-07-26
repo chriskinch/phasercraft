@@ -57,6 +57,9 @@
       ],
       "@config/*": [
         "./src/config/*"
+      ],
+      "@types/*": [
+        "./src/types/*"
       ]
     },
     "target": "ES2017",
