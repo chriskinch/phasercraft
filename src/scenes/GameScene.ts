@@ -5,12 +5,15 @@ import Boss from "@entities/Enemy/Boss"
 import UI from "@entities/UI/HUD"
 import waveConfig from "@config/waves.json"
 import enemyTypes from "@config/enemies.json"
+import type { EnemyType } from "@/types/game"
 import bossTypes from "@config/bosses.json"
 import { sample } from "lodash"
 import { fontConfig } from "../config/fonts"
 
 import { nextWave, toggleHUD } from "@store/gameReducer"
 import store from "@store"
+
+import type { EnemyConfig } from "@/types/game"
 
 export default class GameScene extends Scene {
 	private global_tick: number = 42;
@@ -153,23 +156,22 @@ export default class GameScene extends Scene {
 
 	startLevel(wave: number = 1): void {
 		// this.time.paused = false;
-		const enemies = waveConfig[wave - 1];
-		const types = Object.keys(enemyTypes);
+		const enemies = waveConfig[wave - 1] as EnemyType[];
+		const types = Object.keys(bossTypes) as EnemyType[];
 
 		if(typeof enemies === "object") {
 			// Spawn the list of predefined enemies from the wave json
 			this.spawnEnemies(enemies);
 		}else{
-			const wave_set = Math.floor(store.getState().game.wave / 10);
-			const wave_sub = store.getState().game.wave % 10;
-			const boss_wave = wave_sub === 0 ? true : false;
+			const wave_multiplier = Math.floor(store.getState().game.wave / 10);
+			const boss_wave = store.getState().game.wave % 10 === 0 ? true : false;
 			if(boss_wave) {
 				// If the wave is a multiple of 10 it's a boss!
 				this.spawnBoss(types);
 			}else{
 				// Other wise spawn x random enemies scaling every 10 levels
-				const sampleEnemies = Array.from({length: wave_set + 2 }, () => sample(types)).filter((enemy): enemy is string => enemy !== undefined);
-				this.spawnEnemies(sampleEnemies, wave_set);
+				const sampleEnemies = Array.from({length: wave_multiplier + 2 }, () => sample(types)).filter((enemy): enemy is EnemyType => enemy !== undefined);
+				this.spawnEnemies(sampleEnemies, wave_multiplier);
 			}
 		}
 	}
@@ -218,13 +220,13 @@ export default class GameScene extends Scene {
 		setTimeout(() => { this.increaseLevel() }, 4000);
 	}
 
-	spawnEnemies(list: string[], set?: number): void {
+	spawnEnemies(list: EnemyType[], wave_multiplier?: number): void {
 		// Remove exsiting instances of this event so that it does trigger multiple times
 		this.events.off('enemies:dead');
 		
 		list.forEach((enemy, i) => {
 			this.time.delayedCall(this.global_spawn_time * i, () => {
-				this.spawnEnemy(enemy, set);
+				this.spawnEnemy(enemy, wave_multiplier);
 			});
 		});
 
@@ -232,31 +234,44 @@ export default class GameScene extends Scene {
 		// this.setNextLevelTimer();
 	}
 
-	spawnEnemy(enemy: string, set?: number): void {
-		this.enemies.add(new AssignType((enemyTypes as any)[enemy].type, {
+	spawnEnemy(enemyId: EnemyType, wave_multiplier?: number): void {
+		const enemy = enemyTypes[enemyId] as EnemyConfig;
+		const { damage, speed, range, attack_speed, health_max, health_regen_rate } = enemy;
+		console.log('Spawning enemy', enemy, 'with wave multiplier', wave_multiplier);
+		this.enemies.add(new AssignType((enemyTypes as any)[enemyId].type, {
 			scene: this,
-			key: enemy,
+			key: enemyId,
+			attributes: { damage, speed, range, attack_speed, health_max, health_regen_rate },
+			type: enemy.type,
 			x: Math.random() * this.global_game_width,
 			y: Math.random() * this.global_game_height,
-			attributes: (enemyTypes as any)[enemy],
 			target: null, //this.player,
 			active_group: this.active_enemies,
-			coin_multiplier: (enemyTypes as any)[enemy].coin_multiplier || 1,
-			set: set
+			loot_table: enemy.loot_table,
+			wave_multiplier: wave_multiplier || 1,
+			coin_multiplier: enemy.coin_multiplier,
 		}) as any);
 	}
 
-	spawnBoss(types: string[]): void {
+	spawnBoss(types: EnemyType[]): void {
 		this.events.off('enemies:dead');
+		const bossId = sample(types) || "baby-ghoul"
+		const boss = bossTypes[bossId as keyof typeof bossTypes] as EnemyConfig;
+		console.log('Spawning boss', bossId, 'with config', boss);
+		const { damage, speed, range, attack_speed, health_max, health_regen_rate } = boss;
 
 		this.enemies.add(new Boss({
 			scene: this,
-			key: sample(types) || types[0],
+			key: bossId,
+			attributes: { damage, speed, range, attack_speed, health_max, health_regen_rate },
+			type: boss.type,
 			x: Math.random() * this.global_game_width,
 			y: Math.random() * this.global_game_height,
-			types: bossTypes,
 			target: this.player,
-			active_group: this.active_enemies
+			loot_table: boss.loot_table,
+			active_group: this.active_enemies,
+			coin_multiplier: 10,
+			aggro_radius: boss.aggro_radius
 		}) as any);
 
 		this.events.once('enemies:dead', this.waveComplete, this);

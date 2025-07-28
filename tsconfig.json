@@ -9,6 +9,7 @@
     "skipLibCheck": true,
     "strict": true,
     "noEmit": true,
+    "noImplicitAny": true,
     "esModuleInterop": true,
     "module": "esnext",
     "moduleResolution": "bundler",
@@ -18,17 +19,11 @@
     "incremental": true,
     "strictPropertyInitialization": false,
     "paths": {
-      "@/*": [
-        "./src/*"
-      ],
-      "@store": [
-        "./src/store"
-      ],
       "@store/*": [
         "./src/store/*"
       ],
-      "@ui/*": [
-        "./src/ui/*"
+      "@store": [
+        "./src/store"
       ],
       "@components/*": [
         "./src/ui/components/protons/*",
@@ -46,6 +41,9 @@
       "@mutations/*": [
         "./src/ui/operations/mutations/*"
       ],
+      "@ui/*": [
+        "./src/ui/*"
+      ],
       "@helpers/*": [
         "./src/helpers/*"
       ],
@@ -60,7 +58,10 @@
       ],
       "@types/*": [
         "./src/types/*"
-      ]
+      ],
+      "@/*": [
+        "./src/*"
+      ],
     },
     "target": "ES2017",
     "plugins": [

@@ -3,16 +3,8 @@ import Mage from './Mage';
 import Occultist from './Occultist';
 import Ranger from './Ranger';
 import Warrior from './Warrior';
-
-interface ClassConstructorOptions {
-	scene: any;
-	x: number;
-	y: number;
-	abilities?: string[];
-	classification?: string;
-	stats?: any;
-	resource_type?: string;
-}
+import type { PlayerClassConfig } from '@/types/game';
+import { ClassType } from '@config/classes';
 
 const classes = {
 	Cleric,
@@ -21,11 +13,8 @@ const classes = {
 	Ranger,
 	Warrior
 };
-
-type ClassName = keyof typeof classes;
-
 class AssignClass {
-	constructor(className: ClassName, opts: ClassConstructorOptions) {
+	constructor(className: Capitalize<ClassType>, opts: PlayerClassConfig) {
 		return new classes[className](opts);
 	}
 }

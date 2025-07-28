@@ -1,4 +1,5 @@
-type ClassType = "warrior" | "cleric" | "mage" | "occultist" | "ranger";
+export type ClassType = "warrior" | "cleric" | "mage" | "occultist" | "ranger";
+export type CombatType = "melee" | "ranged" | "healer";
 type SchoolType = "arcane" | "fire" | "light" | "frost" | "earth" | "dark";
 type AscendedClassType = "knight" | "paladin" | "enchanter" | "death knight" | "warden" | 
   "priest" | "elementalist" | "monk" | "druid" | "wizard" | "warlock" | "conjurer" | 

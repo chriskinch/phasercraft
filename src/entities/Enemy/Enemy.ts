@@ -6,41 +6,11 @@ import Coin from "@entities/Loot/Coin";
 import Crafting from "@entities/Loot/Crafting";
 // import Gem from "@entities/Loot/Gem"; // TODO: Create TypeScript version
 import Banes from "@entities/UI/Banes";
-
-interface EnemyConfig {
-	scene: Scene;
-	x: number;
-	y: number;
-	key: string;
-	target: any;
-	attributes: EnemyAttributes;
-	aggro_radius?: number;
-	circling_radius?: number;
-	coin_multiplier: number;
-	active_group: GameObjects.Group;
-	set?: number;
-}
-
-interface EnemyAttributes {
-	range?: number;
-	damage: number;
-	health_max: number;
-	attack_speed: number;
-	coin_multiplier: number;
-	speed: number;
-	loot_table?: LootItem[];
-}
-
-interface LootItem {
-	name: string;
-	rate: number;
-	bonus: number;
-}
+import { EnemyClassConfig, EnemyAttributes, LootTable } from "@/types/game";
 
 interface EnemyStats extends EnemyAttributes {
-	health_value: number;
+	health_value?: number;
 }
-
 interface EnemyStates {
 	movement: string;
 	attack: string;
@@ -79,9 +49,10 @@ class Enemy extends GameObjects.Container {
 	public coin_multiplier: number;
 	public active_group: GameObjects.Group;
 	public alive: boolean;
-	public set: number;
+	public wave_multiplier: number;
 	public base_stats: EnemyStats;
 	public stats: EnemyStats;
+	public loot_table: LootTable;
 	public xp: number;
 	public state: string;
 	public states: EnemyStates;
@@ -100,7 +71,9 @@ class Enemy extends GameObjects.Container {
 	public collider: Physics.Arcade.Collider;
 	public body: Physics.Arcade.Body;
 
-	constructor(config: EnemyConfig) {
+	constructor(config: EnemyClassConfig) {
+
+		console.log('Creating Enemy', config);
 		super(config.scene, config.x, config.y - 300);
 
 		this.uuid = uuid();
@@ -130,12 +103,13 @@ class Enemy extends GameObjects.Container {
 		this.active_group = config.active_group;
 		this.alive = true;
 
-		this.set = config.set || 0;
-		this.base_stats = this.setStats(config.attributes, this.set);
+		this.wave_multiplier = config.wave_multiplier || 0;
+		this.base_stats = this.setStats(config.attributes, this.wave_multiplier);
+		this.loot_table = config.loot_table || [];
 		this.stats = { ...this.base_stats };
 		this.stats.health_value = this.stats.health_max;
 
-		this.xp = this.stats.health_value / 10;
+		this.xp = this.stats.health_max / 10;
 
 		this.state = "spawning";
 		this.states = {
@@ -173,7 +147,7 @@ class Enemy extends GameObjects.Container {
 		this.once('enemy:dead', this.death, this);
 
 		this.active_group.add(this);
-
+		console.log("Enemy added to active group:", this);
 		this.showDebugInfo();
 	}
 
@@ -318,15 +292,14 @@ class Enemy extends GameObjects.Container {
 		is_moving ? this.monster.walk(`${this.key}-${direction}`) : this.monster.idle();
 	}
 
-	setStats(stats: EnemyAttributes, set: number): EnemyStats {
+	setStats(attributes: EnemyAttributes, wave_multiplier: number): EnemyStats {
 		// Stats get adjusted individually as wave go on.
-		const new_stats: Partial<EnemyStats> = {};
-		new_stats.damage = Math.round(stats.damage * (set/5 + 1));
-		new_stats.health_max = stats.health_max * (set + 1);
-		new_stats.attack_speed = stats.attack_speed - (set/50);
-		new_stats.coin_multiplier = stats.coin_multiplier * (set/5 + 1);
-		
-		return {...stats, ...new_stats} as EnemyStats;
+		const stats: Partial<EnemyAttributes> = {};
+		stats.damage = Math.round(attributes.damage * (wave_multiplier/5 + 1));
+		stats.health_max = attributes.health_max * (wave_multiplier + 1);
+		stats.attack_speed = attributes.attack_speed - (wave_multiplier/50);
+
+		return {...attributes, ...stats} as EnemyAttributes;
 	}
 
 	drawSelected(): GameObjects.Graphics {
@@ -393,9 +366,9 @@ class Enemy extends GameObjects.Container {
 	}
 
 	dropLoot(): void {
-		if(!this.stats.loot_table) return;
+		if(!this.loot_table) return;
 
-		const loot = this.stats.loot_table.map(item => {
+		const loot = this.loot_table.map(item => {
 			const whole = Math.floor(item.rate / 100);
 			const isChance = item.rate % 100 / 100 > Math.random();
 			

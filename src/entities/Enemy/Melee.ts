@@ -1,12 +1,12 @@
 import Enemy from "./Enemy";
-
+import type { EnemyClassConfig } from '@/types/game';
 interface MeleeConfig {
 	scene: any;
 	x: number;
 	y: number;
 	key: string;
 	target: any;
-	attributes: any;
+	attributes?: any;
 	aggro_radius?: number;
 	circling_radius?: number;
 	coin_multiplier: number;
@@ -15,7 +15,7 @@ interface MeleeConfig {
 }
 
 class Melee extends Enemy {
-	constructor(config: MeleeConfig) {
+	constructor(config: EnemyClassConfig) {
 		const defaults = {
 			circling_radius: 100
 		}

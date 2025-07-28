@@ -7,7 +7,7 @@ interface WeaponConfig {
 
 class Weapon extends GameObjects.Sprite {
 
-	constructor(config: WeaponConfig, options: Record<string, any> = {}) {
+	constructor(config: WeaponConfig) {
 		super(config.scene, 0, 0, config.key);
 		config.scene.add.existing(this);
 

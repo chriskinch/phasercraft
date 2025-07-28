@@ -5,7 +5,6 @@ import DetailedLoot from "@components/DetailedLoot";
 import GroupedAttributes from "@components/GroupedAttributes";
 import StatBar from "@components/StatBar";
 import { pixel_emboss } from "@ui/themes";
-import type { GameState } from "@/store/gameReducer";
 import type { RootState } from "@store";
 
 const Character: React.FC = () => {

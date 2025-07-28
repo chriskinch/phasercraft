@@ -1,21 +1,7 @@
 import Enemy from "./Enemy";
-
-interface RangedConfig {
-	scene: any;
-	x: number;
-	y: number;
-	key: string;
-	target: any;
-	attributes: any;
-	aggro_radius?: number;
-	circling_radius?: number;
-	coin_multiplier: number;
-	active_group: any;
-	set?: number;
-}
-
+import type { EnemyClassConfig } from '@/types/game';
 class Ranged extends Enemy {
-	constructor(config: RangedConfig) {
+	constructor(config: EnemyClassConfig) {
 		const defaults = {
 			circling_radius: 170,
 		}

@@ -1,14 +1,12 @@
 import React from "react";
 import { useSelector, useDispatch } from "react-redux";
 import { pixel_emboss } from "@ui/themes";
-import store from "@store";
 import { sellLoot } from "@store/gameReducer";
 import Button from "@components/Button";
 import Inventory from "@components/Inventory";
 import DroppableSlot from "@components/DroppableSlot";
 import GroupedAttributes from "@components/GroupedAttributes";
 import StatBar from "@components/StatBar";
-import type { GameState } from "@/store/gameReducer";
 import type { RootState } from "@store";
 
 

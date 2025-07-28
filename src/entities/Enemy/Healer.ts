@@ -1,22 +1,8 @@
 import Enemy from "./Enemy";
 import { maxBy } from "lodash";
-
-interface HealerConfig {
-	scene: any;
-	x: number;
-	y: number;
-	key: string;
-	target: any;
-	attributes: any;
-	aggro_radius?: number;
-	circling_radius?: number;
-	coin_multiplier: number;
-	active_group: any;
-	set?: number;
-}
-
+import type { EnemyClassConfig } from '@/types/game';
 class Healer extends Enemy {
-	constructor(config: HealerConfig) {
+	constructor(config: EnemyClassConfig) {
 		const defaults = {
 			circling_radius: 70,
 			aggro_radius: 40

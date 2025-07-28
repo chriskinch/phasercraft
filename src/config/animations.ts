@@ -1,3 +1,5 @@
+import type { Game } from "phaser";
+
 interface AnimationConfig {
   key: string;
   frames: { start: number; end: number };
@@ -17,9 +19,6 @@ interface EnemyConfig {
 }
 
 export default function createAnimations(scene: Phaser.Scene): void {
-  if ((scene.sys.game as any).init) return;
-  (scene.sys.game as any).init = true;
-
   scene.anims.create({
     key: 'attack',
     frames: scene.anims.generateFrameNumbers('attack-swoosh', { start: 0, end: 3 }),
