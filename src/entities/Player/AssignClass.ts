@@ -8,8 +8,8 @@ import type { PlayerOptions } from '@/types/game';
 
 type PlayerConfig = {
 	scene: Scene;
-	x: 100;
-	y: 100;
+	x: number;
+	y: number;
 }
 
 const classes = {
