@@ -1,26 +1,10 @@
 import Spell from './Spell';
-
-interface ManaShieldConfig {
-	scene: any;
-	x: number;
-	y: number;
-	key: string;
-	player: any;
-	cost: { [key: string]: number };
-	cooldown: number;
-	name: string;
-	icon_name: string;
-	hotkey: string;
-	slot: number;
-	loop?: boolean;
-	cooldownDelay?: boolean;
-	cooldownDelayAll?: boolean;
-}
+import type { SpellOptions } from '@/types/game';
 
 class ManaShield extends Spell {
 	public type: string;
 
-	constructor(config: ManaShieldConfig) {
+	constructor(config: SpellOptions) {
 		const defaults = {
 			name: "manashield",
 			icon_name: 'icon_0011_freeze',

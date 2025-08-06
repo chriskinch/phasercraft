@@ -62,7 +62,7 @@ const Save: React.FC<SaveProps> = ({ load = false }) => {
           return (
             <li key={i}>
               <h2>{"Slot " + Number(i + 1)}</h2>
-              {save &&
+              {save && character &&
                 <>
                   <img 
                     src={`ui/player/${character.toLowerCase()}.gif`}

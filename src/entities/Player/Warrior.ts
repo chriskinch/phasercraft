@@ -1,17 +1,8 @@
 import Player from './Player';
-
-interface WarriorConfig {
-	scene: any;
-	x: number;
-	y: number;
-	abilities?: string[];
-	classification?: string;
-	stats?: any;
-	resource_type?: string;
-}
+import { PlayerOptions } from '@/types/game';
 
 class Warrior extends Player {
-	constructor(config: WarriorConfig) {
+	constructor(config: PlayerOptions) {
 		const defaults = {
 			classification: "warrior",
 			stats: {

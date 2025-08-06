@@ -1,21 +1,5 @@
 import Boon from './Boon';
-
-interface EnrageConfig {
-	scene: any;
-	x: number;
-	y: number;
-	key: string;
-	player: any;
-	cost: { [key: string]: number };
-	cooldown: number;
-	name: string;
-	icon_name: string;
-	hotkey: string;
-	slot: number;
-	loop?: boolean;
-	cooldownDelay?: boolean;
-	cooldownDelayAll?: boolean;
-}
+import type { SpellOptions } from '@/types/game';
 
 interface EnrageValue {
 	critical_chance: number;
@@ -30,7 +14,7 @@ class Enrage extends Boon {
 	public value: EnrageValue;
 	public timer: Phaser.Time.TimerEvent;
 
-	constructor(config: EnrageConfig) {
+	constructor(config: SpellOptions) {
 		const defaults = {
 			name: "enrage",
 			icon_name: "icon_0019_fire-wall",

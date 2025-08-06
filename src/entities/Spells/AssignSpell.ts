@@ -13,10 +13,9 @@ import SiphonSoul from "./SiphonSoul";
 import Smite from "./Smite";
 import SnareTrap from "./SnareTrap";
 import Whirlwind from "./Whirlwind";
+import type { SpellOptions } from "@/types/game";
 
-type SpellConstructor = new (opts: any) => any;
-
-const classes: { [key: string]: SpellConstructor } = {
+const classes = {
   Consecration,
   EarthShield,
   Enrage,
@@ -34,10 +33,11 @@ const classes: { [key: string]: SpellConstructor } = {
   Whirlwind
 };
 
+export type SpellType = keyof typeof classes
 class AssignSpell {
-	constructor(className: string, opts: any) {
-		return new classes[className](opts);
-	}
+  constructor(className: SpellType, opts: SpellOptions) {
+    return new classes[className](opts);
+  }
 }
 
 export default AssignSpell;

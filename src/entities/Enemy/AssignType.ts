@@ -1,8 +1,7 @@
 import Melee from './Melee';
 import Ranged from './Ranged';
 import Healer from './Healer';
-import type { EnemyClassConfig } from '@/types/game';
-import type { CombatType } from '@/config/classes';
+import type { EnemyOptions } from '@/types/game';
 
 const classes = {
 	Melee,
@@ -10,7 +9,7 @@ const classes = {
 	Healer
 };
 class AssignType {
-	constructor(className: Capitalize<CombatType>, opts: EnemyClassConfig) {
+	constructor(className: keyof typeof classes, opts: EnemyOptions) {
 		return new classes[className](opts);
 	}
 }

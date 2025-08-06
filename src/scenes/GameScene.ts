@@ -13,8 +13,9 @@ import { fontConfig } from "../config/fonts"
 import { nextWave, toggleHUD } from "@store/gameReducer"
 import store from "@store"
 
-import type { EnemyConfig } from "@/types/game"
-
+import type { EnemyConfig, EnemyOptions } from "@/types/game"
+import type { PlayerType } from "@entities/Player/AssignClass"
+import type { GameSceneConfig } from "@/scenes/SelectScene"
 export default class GameScene extends Scene {
 	private global_tick: number = 42;
 	private global_attack_speed: number = 1;
@@ -33,7 +34,7 @@ export default class GameScene extends Scene {
 		TOP: 99999
 	};
 	private level_complete!: Phaser.GameObjects.Container & { button?: Phaser.GameObjects.Image };
-	private config: any;
+	private config: GameSceneConfig;
 	private cursors!: Phaser.Types.Input.Keyboard.CursorKeys & { esc?: Phaser.Input.Keyboard.Key };
 	private next_level_timer: Phaser.Time.TimerEvent | undefined;
 	private UI!: UI;
@@ -42,7 +43,7 @@ export default class GameScene extends Scene {
 		super({ key: 'GameScene' });
 	}
 
-	init(config: any): void {
+	init(config: GameSceneConfig): void {
 		this.config = config;
 	}
 
@@ -67,8 +68,7 @@ export default class GameScene extends Scene {
 			this.events.emit('pointerup:game', this)
 		});
 
-		const typeClass = this.config.type.charAt(0).toUpperCase() + this.config.type.substring(1);
-		this.player = new AssignClass(typeClass, {
+		this.player = new AssignClass(this.config.type || "Warrior", {
 			scene:this,
 			x: 100,
 			y: 100
@@ -237,8 +237,8 @@ export default class GameScene extends Scene {
 	spawnEnemy(enemyId: EnemyType, wave_multiplier?: number): void {
 		const enemy = enemyTypes[enemyId] as EnemyConfig;
 		const { damage, speed, range, attack_speed, health_max, health_regen_rate } = enemy;
-		console.log('Spawning enemy', enemy, 'with wave multiplier', wave_multiplier);
-		this.enemies.add(new AssignType((enemyTypes as any)[enemyId].type, {
+
+		this.enemies.add(new AssignType(enemy.type, {
 			scene: this,
 			key: enemyId,
 			attributes: { damage, speed, range, attack_speed, health_max, health_regen_rate },
@@ -250,14 +250,13 @@ export default class GameScene extends Scene {
 			loot_table: enemy.loot_table,
 			wave_multiplier: wave_multiplier || 1,
 			coin_multiplier: enemy.coin_multiplier,
-		}) as any);
+		}) as GameObjects.Container);
 	}
 
 	spawnBoss(types: EnemyType[]): void {
 		this.events.off('enemies:dead');
 		const bossId = sample(types) || "baby-ghoul"
 		const boss = bossTypes[bossId as keyof typeof bossTypes] as EnemyConfig;
-		console.log('Spawning boss', bossId, 'with config', boss);
 		const { damage, speed, range, attack_speed, health_max, health_regen_rate } = boss;
 
 		this.enemies.add(new Boss({

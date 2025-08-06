@@ -1,21 +1,15 @@
 import Resource from './Resource';
+import type { ResourceOptions } from './Resource';
 
-interface RageConfig {
-	scene: any;
-	x: number;
-	y: number;
-	name?: string;
-	colour?: number;
-	container: any;
+interface RageOptions extends ResourceOptions {
 	resource_max?: number;
 	resource_value?: number;
 	resource_regen_rate?: number;
 	resource_regen_value?: number;
-	[key: string]: any;
 }
 
 class Rage extends Resource {
-	constructor(config: RageConfig) {
+	constructor(config: RageOptions) {
 		const defaults = {
 			name: "rage",
 			resource_max: 100,

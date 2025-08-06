@@ -1,22 +1,6 @@
 import Spell from './Spell';
 import Trap from '../Weapons/Trap';
-
-interface SnareTrapConfig {
-	scene: any;
-	x: number;
-	y: number;
-	key: string;
-	player: any;
-	cost: { [key: string]: number };
-	cooldown: number;
-	name: string;
-	icon_name: string;
-	hotkey: string;
-	slot: number;
-	loop?: boolean;
-	cooldownDelay?: boolean;
-	cooldownDelayAll?: boolean;
-}
+import type { SpellOptions } from '@/types/game';
 
 class SnareTrap extends Spell {
 	public type: string;
@@ -24,7 +8,7 @@ class SnareTrap extends Spell {
 	public lifespan: number;
 	public item: Trap;
 
-	constructor(config: SnareTrapConfig) {
+	constructor(config: SpellOptions) {
 		const defaults = {
 			name: "snaretrap",
 			icon_name: 'icon_0020_shackle',

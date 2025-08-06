@@ -1,21 +1,5 @@
 import Spell from './Spell';
-
-interface FrostboltConfig {
-	scene: any;
-	x: number;
-	y: number;
-	key: string;
-	player: any;
-	cost: { [key: string]: number };
-	cooldown: number;
-	name: string;
-	icon_name: string;
-	hotkey: string;
-	slot: number;
-	loop?: boolean;
-	cooldownDelay?: boolean;
-	cooldownDelayAll?: boolean;
-}
+import type { SpellOptions } from '@/types/game';
 
 interface FrostboltValue {
 	speed: (baseSpeed: number) => number;
@@ -27,7 +11,7 @@ class Frostbolt extends Spell {
 	public value: FrostboltValue;
 	public timer: Phaser.Time.TimerEvent;
 
-	constructor(config: FrostboltConfig) {
+	constructor(config: SpellOptions) {
 		const defaults = {
 			name: "frostbolt",
 			icon_name: 'icon_0012_beam',

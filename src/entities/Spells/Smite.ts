@@ -1,26 +1,10 @@
 import Spell from './Spell';
-
-interface SmiteConfig {
-	scene: any;
-	x: number;
-	y: number;
-	key: string;
-	player: any;
-	cost: { [key: string]: number };
-	cooldown: number;
-	name: string;
-	icon_name: string;
-	hotkey: string;
-	slot: number;
-	loop?: boolean;
-	cooldownDelay?: boolean;
-	cooldownDelayAll?: boolean;
-}
+import type { SpellOptions } from '@/types/game';
 
 class Smite extends Spell {
 	public type: string;
 
-	constructor(config: SmiteConfig) {
+	constructor(config: SpellOptions) {
 		const defaults = {
 			name: "smite",
 			icon_name: 'icon_0007_bolt',

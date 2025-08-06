@@ -1,23 +1,17 @@
 import Resource from './Resource';
 import CombatText from '../UI/CombatText';
+import type { ResourceOptions } from './Resource';
 
-interface HealthConfig {
-	scene: any;
-	x: number;
-	y: number;
-	name?: string;
-	colour?: number;
-	container: any;
+interface HealthOptions extends ResourceOptions {
 	health_max?: number;
 	health_value?: number;
 	health_regen_rate?: number;
 	health_regen_value?: number;
 	shield_value?: number;
-	[key: string]: any;
 }
 
 class Health extends Resource {
-	constructor(config: HealthConfig) {
+	constructor(config: HealthOptions) {
 		const defaults = {
 			name: "health",
 			health_max: 1000,

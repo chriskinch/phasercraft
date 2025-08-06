@@ -1,12 +1,13 @@
 import { Scene } from 'phaser';
 import store from "@store";
+import type { PlayerType } from "@entities/Player/AssignClass";
 
-interface Config {
-	type?: string | null;
+export interface GameSceneConfig {
+	type?: PlayerType;
 }
 
 export default class SelectScene extends Scene {
-	private config: Config;
+	private config: GameSceneConfig;
 
 	constructor() {
 		super({
@@ -28,7 +29,9 @@ export default class SelectScene extends Scene {
 	}
 
 	chooseCharacter(): void {
-		this.config.type = store.getState().game.character;
+		const character = store.getState().game.character;
+		if(!character) throw Error("No character set!")
+		this.config.type = character;
 		this.scene.start('GameScene', this.config);
 	}
 }

@@ -1,22 +1,15 @@
 import Resource from './Resource';
+import type { ResourceOptions } from './Resource';
 
-interface ShieldConfig {
-	scene: any;
-	x: number;
-	y: number;
-	name?: string;
-	colour?: number;
-	container: any;
-	health_max: number;
+interface ShieldOptions extends ResourceOptions {
 	shield_max?: number;
 	shield_value?: number;
 	shield_regen_rate?: number;
 	shield_regen_value?: number;
-	[key: string]: any;
 }
 
 class Shield extends Resource {
-	constructor(config: ShieldConfig) {
+	constructor(config: ShieldOptions) {
 		const defaults = {
 			name: "shield",
 			shield_max: config.health_max,

@@ -1,6 +1,7 @@
-import type { Scene } from "phaser";
+import type { Scene, GameObjects , Math as PhaserMath} from "phaser";
 import type Player from "@entities/Player/Player";
 import type Enemy from "@entities/Enemy/Enemy";
+import type { SpellType } from "@entities/Spells/AssignSpell";
 
 // Constants
 export const EQUIPMENT_SLOTS = {
@@ -205,11 +206,11 @@ export interface LootDropRate {
 }
 
 export interface LootTable extends Array<LootDropRate>{}
-export interface PlayerClassConfig {
+export interface PlayerOptions {
 	scene: Scene;
 	x: number;
 	y: number;
-	abilities?: string[];
+	abilities?: SpellType[];
 	classification?: string;
 	stats?: any;
 	resource_type?: string;
@@ -233,7 +234,7 @@ export interface EnemyConfig extends EnemyAttributes {
     aggro_radius?: number;
 }
 
-export interface EnemyClassConfig {
+export interface EnemyOptions {
 	scene: Scene;
     type: Capitalize<CombatType>;
 	x: number;
@@ -248,4 +249,32 @@ export interface EnemyClassConfig {
 	coin_multiplier: number;
 	active_group: any;
 	wave_multiplier?: number;
+    vector?: EntityWithVector;
+}
+
+export interface SpellOptions {
+    scene: Scene;
+	x: number;
+	y: number;
+	key: string;
+	player: Player | Enemy;
+	cost?: { [key: string]: number };
+	cooldown?: number;
+	name?: string;
+	icon_name?: string;
+	hotkey: string;
+	slot: number;
+	loop?: boolean;
+	cooldownDelay?: boolean;
+	cooldownDelayAll?: boolean;
+}
+
+interface AdjustValue {
+    adjustValue: (amount: number, type?: string, crit?: boolean) => void;
+}
+export interface EntityWithVector {
+    x?: number;
+    y?: number;
+    range?: number | undefined;
+    angle?: number | undefined;
 }

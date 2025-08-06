@@ -1,7 +1,8 @@
 import Enemy from "./Enemy";
-import type { EnemyClassConfig } from '@/types/game';
+import type { EnemyOptions } from '@/types/game';
+
 class Ranged extends Enemy {
-	constructor(config: EnemyClassConfig) {
+	constructor(config: EnemyOptions) {
 		const defaults = {
 			circling_radius: 170,
 		}

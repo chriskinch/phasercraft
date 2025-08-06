@@ -1,17 +1,8 @@
 import Player from './Player';
-
-interface ClericConfig {
-	scene: any;
-	x: number;
-	y: number;
-	abilities?: string[];
-	classification?: string;
-	stats?: any;
-	resource_type?: string;
-}
+import { PlayerOptions } from '@/types/game';
 
 class Cleric extends Player {
-	constructor(config: ClericConfig) {
+	constructor(config: PlayerOptions) {
 		const defaults = {
 			classification: "cleric",
 			stats: {

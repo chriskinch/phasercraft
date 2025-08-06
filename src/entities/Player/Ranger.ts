@@ -1,17 +1,8 @@
 import Player from './Player';
-
-interface RangerConfig {
-	scene: any;
-	x: number;
-	y: number;
-	abilities?: string[];
-	classification?: string;
-	stats?: any;
-	resource_type?: string;
-}
+import { PlayerOptions } from '@/types/game';
 
 class Ranger extends Player {
-	constructor(config: RangerConfig) {
+	constructor(config: PlayerOptions) {
 		const defaults = {
 			classification: "ranger",
 			stats: {

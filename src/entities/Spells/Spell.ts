@@ -1,22 +1,6 @@
 import { GameObjects, Display, Scene } from "phaser";
 import store from "@store";
-
-interface SpellConfig {
-	scene: Scene;
-	x: number;
-	y: number;
-	key: string;
-	player: any;
-	cost: { [key: string]: number };
-	cooldown: number;
-	name: string;
-	icon_name: string;
-	hotkey: string;
-	slot: number;
-	loop?: boolean;
-	cooldownDelay?: boolean;
-	cooldownDelayAll?: boolean;
-}
+import type { SpellOptions } from '@/types/game';
 
 interface SpellValue {
 	crit: boolean;
@@ -43,7 +27,7 @@ class Spell extends GameObjects.Sprite {
 	public target: any;
 	public animation: any;
 
-	constructor({scene, x, y, key, ...config}: SpellConfig) {
+	constructor({scene, x, y, key, ...config}: SpellOptions) {
 		super(scene, x, y, key);	
         Object.assign(this, config);
         
@@ -123,8 +107,8 @@ class Spell extends GameObjects.Sprite {
 			onStart: () => {
                 this.text.setVisible(true);
 			},
-			onUpdate: () => {
-                const time = this.cooldown - Math.floor(this.cooldownTimer.getValue() ?? 0);
+			onUpdate: (tween: Phaser.Tweens.Tween) => {
+                const time = this.cooldown - Math.floor(tween.getValue() ?? 0);
                 this.text.setText(time.toString());
             },
 			onComplete: () => {

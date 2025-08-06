@@ -11,19 +11,9 @@ import { addXP, setBaseStats, setLevel, setStats } from "@store/gameReducer";
 import isEmpty from "lodash/isEmpty";
 import mapStateToData from "@helpers/mapStateToData";
 import CombatText from "../UI/CombatText";
+import type { PlayerOptions } from "@/types/game";
 
 const converter = require('number-to-words');
-
-interface PlayerConstructorParams {
-	scene: Scene;
-	x: number;
-	y: number;
-	abilities: string[];
-	classification: string;
-	stats: PlayerStats;
-	resource_type: string;
-}
-
 interface PlayerStats {
 	health: number;
 	mana?: number;
@@ -93,10 +83,10 @@ class Player extends GameObjects.Container {
 	public spellPrimed: boolean;
 	public dragging: boolean;
 	public attack_delay: Phaser.Time.TimerEvent | null;
-	public swing: Phaser.Time.TimerEvent;
+	public swing: Phaser.Time.TimerEvent | null = null;
 	public body: Physics.Arcade.Body;
 
-	constructor({scene, x, y, abilities, classification, stats, resource_type}: PlayerConstructorParams) {
+	constructor({scene, x, y, abilities, classification, stats, resource_type}: PlayerOptions) {
 		super(scene, x, y);
 		this.classification = classification;
 		this.name = "player";
@@ -339,7 +329,9 @@ class Player extends GameObjects.Container {
 
 	attackReady(): void {
 		this.attack_ready = true;
-		this.swing.remove(false);
+		if (this.swing) {
+			this.swing.remove(false);
+		}
 	}
 
 	isCritical(): boolean {
@@ -374,7 +366,6 @@ class Player extends GameObjects.Container {
 		const xpCurve = (l: number) => (l*l) + (l*10);
 		const next = xpCurve(count);
 		const remainder = exp - next;
-		// console.log("Setting experience", next, store.getState(), remainder);
 		if (remainder < 0) {
 			store.dispatch(setLevel({
 				xpRemaining: exp,

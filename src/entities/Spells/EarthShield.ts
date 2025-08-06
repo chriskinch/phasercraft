@@ -1,21 +1,5 @@
 import Spell from './Spell';
-
-interface EarthShieldConfig {
-	scene: any;
-	x: number;
-	y: number;
-	key: string;
-	player: any;
-	cost: { [key: string]: number };
-	cooldown: number;
-	name: string;
-	icon_name: string;
-	hotkey: string;
-	slot: number;
-	loop?: boolean;
-	cooldownDelay?: boolean;
-	cooldownDelayAll?: boolean;
-}
+import type { SpellOptions } from '@/types/game';
 
 class EarthShield extends Spell {
 	public type: string;
@@ -30,7 +14,7 @@ class EarthShield extends Spell {
 	public throttleDelay: Phaser.Time.TimerEvent;
 	public body: Phaser.Physics.Arcade.Body;
 
-	constructor(config: EarthShieldConfig) {
+	constructor(config: SpellOptions) {
 		const defaults = {
 			name: "earthshield",
 			icon_name: 'icon_0008_ki',

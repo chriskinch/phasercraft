@@ -1,22 +1,6 @@
 import Spell from './Spell';
 import AreaEffect from '../Weapons/AreaEffect';
-
-interface ConsecrationConfig {
-	scene: any;
-	x: number;
-	y: number;
-	key: string;
-	player: any;
-	cost: { [key: string]: number };
-	cooldown: number;
-	name: string;
-	icon_name: string;
-	hotkey: string;
-	slot: number;
-	loop?: boolean;
-	cooldownDelay?: boolean;
-	cooldownDelayAll?: boolean;
-}
+import type { SpellOptions } from '@/types/game';
 
 class Consecration extends Spell {
 	public type: string;
@@ -25,7 +9,7 @@ class Consecration extends Spell {
 	public lifespan: number;
 	public item: AreaEffect;
 
-	constructor(config: ConsecrationConfig) {
+	constructor(config: SpellOptions) {
 		const defaults = {
 			name: "consecration",
 			icon_name: 'icon_0003_decay',

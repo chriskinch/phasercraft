@@ -1,21 +1,15 @@
 import Resource from './Resource';
+import type { ResourceOptions } from './Resource';
 
-interface ManaConfig {
-	scene: any;
-	x: number;
-	y: number;
-	name?: string;
-	colour?: number;
-	container: any;
+interface ManaOptions extends ResourceOptions {
 	resource_max?: number;
 	resource_value?: number;
 	resource_regen_rate?: number;
 	resource_regen_value?: number;
-	[key: string]: any;
 }
 
 class Mana extends Resource {
-	constructor(config: ManaConfig) {
+	constructor(config: ManaOptions) {
 		const defaults = {
 			name: "mana",
 			resource_max: 500,

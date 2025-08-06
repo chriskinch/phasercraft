@@ -4,13 +4,13 @@ import { setStats, setBaseStats } from "@store/gameReducer";
 import pick from "lodash/pick";
 import mapStateToData from "@helpers/mapStateToData";
 
-interface ResourceConfig {
+export interface ResourceOptions {
 	scene: Scene;
 	x: number;
 	y: number;
 	name: string;
 	colour: number;
-	container: any;
+	container: GameObjects.Container;
 	[key: string]: any;
 }
 
@@ -40,7 +40,7 @@ class Resource extends GameObjects.Sprite {
 	public graphics: { [key: string]: GameObjects.Graphics };
 	public tick: Phaser.Time.TimerEvent;
 
-	constructor(config: ResourceConfig) {
+	constructor(config: ResourceOptions) {
 		super(config.scene, config.x, config.y, 'resource-frame');
 		config.scene.add.existing(this);
 

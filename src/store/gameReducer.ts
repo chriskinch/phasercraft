@@ -3,6 +3,7 @@ import mergeWith from "lodash/mergeWith";
 import remove from "lodash/remove";
 import pull from "lodash/pull";
 import type { LootItem } from "@/types/game";
+import type { PlayerType } from "@entities/Player/AssignClass";
 
 // Types
 interface Equipment {
@@ -19,7 +20,7 @@ interface Level {
 }
 
 export interface GameState {
-    character: any;
+    character: PlayerType | null;
     showHUD: boolean;
     showUi: boolean;
     menu: string | undefined;
@@ -103,12 +104,9 @@ export const selectCharacter = createAction("SELECT_CHARACTER", (character: any)
     payload: { character }
 }));
 
-export const selectLoot = createAction("SELECT_LOOT", (loot: LootItem) => {
-    
-    console.log("selectLoot", loot);
-    return ({payload: { loot }})
-    
-});
+export const selectLoot = createAction("SELECT_LOOT", (loot: LootItem) => ({
+    payload: { loot }
+}));
 
 export const sellLoot = createAction("SELL_LOOT", (loot: LootItem) => ({
     payload: { loot }

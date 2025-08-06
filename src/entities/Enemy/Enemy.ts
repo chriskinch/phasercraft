@@ -6,7 +6,7 @@ import Coin from "@entities/Loot/Coin";
 import Crafting from "@entities/Loot/Crafting";
 // import Gem from "@entities/Loot/Gem"; // TODO: Create TypeScript version
 import Banes from "@entities/UI/Banes";
-import { EnemyClassConfig, EnemyAttributes, LootTable } from "@/types/game";
+import { EnemyOptions, EnemyAttributes, LootTable } from "@/types/game";
 
 interface EnemyStats extends EnemyAttributes {
 	health_value?: number;
@@ -65,15 +65,13 @@ class Enemy extends GameObjects.Container {
 	public destination: PhaserMath.Vector2 | null;
 	public caution: number;
 	public circling: Phaser.Tweens.Tween | null;
-	public wandering_looped_timer: Phaser.Time.TimerEvent;
+	public wandering_looped_timer: Phaser.Time.TimerEvent | null = null;
 	public selected: boolean;
-	public swing: Phaser.Time.TimerEvent;
+	public swing: Phaser.Time.TimerEvent | null = null;
 	public collider: Physics.Arcade.Collider;
 	public body: Physics.Arcade.Body;
 
-	constructor(config: EnemyClassConfig) {
-
-		console.log('Creating Enemy', config);
+	constructor(config: EnemyOptions) {
 		super(config.scene, config.x, config.y - 300);
 
 		this.uuid = uuid();
@@ -147,7 +145,6 @@ class Enemy extends GameObjects.Container {
 		this.once('enemy:dead', this.death, this);
 
 		this.active_group.add(this);
-		console.log("Enemy added to active group:", this);
 		this.showDebugInfo();
 	}
 
@@ -281,7 +278,9 @@ class Enemy extends GameObjects.Container {
 	setChasing(): void {
 		this.states.movement = "chasing";
 		this.body.setAcceleration(0);
-		this.wandering_looped_timer.remove();
+		if (this.wandering_looped_timer) {
+			this.wandering_looped_timer.remove();
+		}
 		this.target = (this.scene as any).player;
 		this.destination = null;
 	}
@@ -410,7 +409,9 @@ class Enemy extends GameObjects.Container {
 
 	attackReady(): void {
 		this.states.attack = "primed";
-		this.swing.remove(false);
+		if (this.swing) {
+			this.swing.remove(false);
+		}
 	}
 
 	showDebugInfo(): void {

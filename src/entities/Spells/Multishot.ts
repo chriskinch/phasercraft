@@ -1,36 +1,13 @@
 import Spell from './Spell';
 import targetVector from '@helpers/targetVector';
-
-interface MultishotConfig {
-	scene: any;
-	x: number;
-	y: number;
-	key: string;
-	player: any;
-	cost: { [key: string]: number };
-	cooldown: number;
-	name: string;
-	icon_name: string;
-	hotkey: string;
-	slot: number;
-	loop?: boolean;
-	cooldownDelay?: boolean;
-	cooldownDelayAll?: boolean;
-}
-
-interface EnemyWithVector {
-	x: number;
-	y: number;
-	health: any;
-	vector?: any;
-}
+import type { SpellOptions, EntityWithVector, EnemyOptions } from '@/types/game';
 
 class Multishot extends Spell {
 	public type: string;
 	public range: number;
 	public cap: number;
 
-	constructor(config: MultishotConfig) {
+	constructor(config: SpellOptions) {
 		const defaults = {
 			name: "multishot",
 			icon_name: 'icon_0004_corpse-explode',
@@ -66,18 +43,18 @@ class Multishot extends Spell {
 	}
 
 	startAnimation(): void {
-		const enemiesInRange = (this.scene as any).enemies.children.entries
-			.filter((enemy: EnemyWithVector) => {
+		const enemiesInRange:EnemyOptions[] = (this.scene as any).enemies.children.entries
+			.filter((enemy: EnemyOptions) => {
 				enemy.vector = targetVector(this.player as any, enemy as any);
-				if (enemy.vector.range < this.range) return enemy;
+				if ((enemy.vector?.range ?? 0) < this.range) return enemy;
 				return null;
 			})
-			.sort(function (a: EnemyWithVector, b: EnemyWithVector) {
-				return a.vector.range - b.vector.range;
+			.sort(function (a: EnemyOptions, b: EnemyOptions) {
+				return (a.vector?.range ?? 0) - (b.vector?.range ?? 0);
 			})
 			.slice(0, this.cap);
 			
-		enemiesInRange.forEach((enemy: EnemyWithVector) => {
+		enemiesInRange.forEach((enemy: EnemyOptions) => {
 			this.target = enemy;
 			this.effect(enemy);
 

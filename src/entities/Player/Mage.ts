@@ -1,17 +1,8 @@
 import Player from './Player';
-
-interface MageConfig {
-	scene: any;
-	x: number;
-	y: number;
-	abilities?: string[];
-	classification?: string;
-	stats?: any;
-	resource_type?: string;
-}
+import { PlayerOptions } from '@/types/game';
 
 class Mage extends Player {
-	constructor(config: MageConfig) {
+	constructor(config: PlayerOptions) {
 		const defaults = {
 			classification: "mage",
 			stats: {
