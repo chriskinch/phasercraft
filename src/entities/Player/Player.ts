@@ -86,7 +86,7 @@ class Player extends GameObjects.Container {
 	public swing: Phaser.Time.TimerEvent | null = null;
 	public body: Physics.Arcade.Body;
 
-	constructor({scene, x, y, abilities, classification, stats, resource_type}: PlayerOptions) {
+	constructor({scene, x, y, abilities = [], classification = "", stats, resource_type}: PlayerOptions) {
 		super(scene, x, y);
 		this.classification = classification;
 		this.name = "player";

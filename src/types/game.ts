@@ -210,8 +210,8 @@ export interface PlayerOptions {
 	scene: Scene;
 	x: number;
 	y: number;
-	abilities?: SpellType[];
-	classification?: string;
+	abilities: SpellType[];
+	classification: string;
 	stats?: any;
 	resource_type?: string;
 }

@@ -8,8 +8,6 @@ export interface ResourceOptions {
 	scene: Scene;
 	x: number;
 	y: number;
-	name: string;
-	colour: number;
 	container: GameObjects.Container;
 	[key: string]: any;
 }
