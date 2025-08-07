@@ -1,4 +1,4 @@
-import type { Scene, GameObjects , Math as PhaserMath} from "phaser";
+import type { Scene, GameObjects, Math as PhaserMath} from "phaser";
 import type Player from "@entities/Player/Player";
 import type Enemy from "@entities/Enemy/Enemy";
 import type { SpellType } from "@entities/Spells/AssignSpell";
@@ -218,7 +218,7 @@ export interface PlayerOptions {
 
 export type EnemyType = "baby-ghoul" | "egbert" | "ghoul" | "imp" | "satyr" | "slime";
 export type CombatType = "melee" | "ranged" | "healer";
-
+export type TargetType = Enemy | Player | GameObjects.GameObject | null;
 export interface EnemyAttributes {
     damage: number;
     speed: number;

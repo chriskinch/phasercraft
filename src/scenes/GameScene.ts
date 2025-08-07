@@ -26,7 +26,7 @@ export default class GameScene extends Scene {
 	private zone!: Phaser.GameObjects.Zone;
 	private player!: any; // Player instance from AssignClass factory
 	private enemies!: Phaser.GameObjects.Group;
-	private active_enemies!: Phaser.GameObjects.Group;
+	public active_enemies!: Phaser.GameObjects.Group;
 	private game_over: boolean = false;
 	private depth_group: Record<string, number> = {
 		BASE: 10,

@@ -1,5 +1,8 @@
 import Spell from './Spell';
 import type { SpellOptions } from '@/types/game';
+import type Enemy from '@entities/Enemy/Enemy';
+import type { Types, Physics } from 'phaser';
+import type GameScene from '@scenes/GameScene';
 
 class EarthShield extends Spell {
 	public type: string;
@@ -52,7 +55,7 @@ class EarthShield extends Spell {
 		this.scene.events[state]('pointerdown:enemy', this.clearSpell, this);
 	}
 
-	effect(target: any): void {
+	effect(): void {
 		this.setVisible(true);
 		this.scene.physics.world.enable(this);
 		// this.body.syncBounds = true;
@@ -60,7 +63,7 @@ class EarthShield extends Spell {
 		this.body.setCircle(30); //TODO: Must be a better way!?
 		this.body.setOffset(40, 20); //TODO: Must be a better way!?
 		this.body.immovable = true;
-		this.scene.physics.add.collider((this.scene as any).active_enemies, this, this.touch, undefined, this);
+		this.scene.physics.add.collider((this.scene as GameScene).active_enemies, this, this.touch, undefined, this);
 		this.lifespanTimer = this.scene.time.addEvent({
 			delay: this.lifespan * 1000,
 			callback: () => {

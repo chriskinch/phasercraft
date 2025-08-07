@@ -1,5 +1,6 @@
 import Resource from './Resource';
 import type { ResourceOptions } from './Resource';
+import type Player from '@entities/Player/Player';
 
 interface RageOptions extends ResourceOptions {
 	resource_max?: number;
@@ -23,7 +24,7 @@ class Rage extends Resource {
 		this.scene.events.on('player:attack', this.generate, this);
 	}
 
-	generate(player: any): void {
+	generate(): void {
 		super.adjustValue(5);
 	}
 }

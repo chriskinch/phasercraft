@@ -1,4 +1,4 @@
-import { Math as PhaserMath, GameObjects, Geom, Scene, Physics } from "phaser";
+import { Math as PhaserMath, GameObjects, Geom, Scene, Physics, Types } from "phaser";
 import { v4 as uuid } from 'uuid';
 import AssignResource, { AssignResourceType } from "@entities/Resources/AssignResource";
 import Monster from "./Monster";
@@ -6,7 +6,7 @@ import Coin from "@entities/Loot/Coin";
 import Crafting from "@entities/Loot/Crafting";
 // import Gem from "@entities/Loot/Gem"; // TODO: Create TypeScript version
 import Banes from "@entities/UI/Banes";
-import { EnemyOptions, EnemyAttributes, LootTable } from "@/types/game";
+import type { EnemyOptions, EnemyAttributes, LootTable, TargetType } from "@/types/game";
 
 interface EnemyStats extends EnemyAttributes {
 	health_value?: number;
@@ -26,7 +26,7 @@ interface CirclingConfig {
 }
 
 interface MoveOptions {
-	target?: any;
+	target?: TargetType;
 	bias?: number;
 }
 
@@ -40,7 +40,7 @@ class Enemy extends GameObjects.Container {
 	public uuid: string;
 	public monster: Monster;
 	public key: string;
-	public target: any;
+	public target: TargetType;
 	public attack_ready: boolean;
 	public attack_radius: number;
 	public aggro_radius: number;
@@ -226,6 +226,7 @@ class Enemy extends GameObjects.Container {
 	}
 
 	move({target = this.target, bias = 1}: MoveOptions = {}): void {
+		if (!target) return;
 		this.scene.physics.accelerateToObject(this, target, 200 * bias, this.stats.speed, this.stats.speed);
 	}
 
@@ -263,7 +264,7 @@ class Enemy extends GameObjects.Container {
 		this.destination = point;
 		// this.scene.physics.add.staticImage(point.x, point.y, 'blank-gif');
 
-		this.move({target: point});
+		this.move({target: point as any});
 	}
 
 	setWandering(): void {

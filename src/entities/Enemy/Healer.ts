@@ -17,7 +17,7 @@ class Healer extends Enemy {
 
 		if(this.active_group.children.entries.length === 1) this.emit('enemy:last', this);
 
-		if(this.getHealTarget().length > 0 && this.states.attack === "primed") this.healTarget();
+		if(this.getHealTarget() && this.states.attack === "primed") this.healTarget();
 
 		if(this.isInCirclingDistance()) {
 			if(!this.circling) this.setCircling({
@@ -31,15 +31,14 @@ class Healer extends Enemy {
 		}
 	}
 
-	getHealTarget(): any {
-		const targets = this.active_group.children.entries.filter((enemy: any) => {
+	getHealTarget(): Enemy | undefined {
+		const targets = this.active_group.children.entries.filter(enemy => {
 			return (
 				this.getMissingHealth(enemy) > 0 &&
 				enemy !== this
 			)
 		});
-
-		return (targets.length > 0) ? maxBy(targets, (enemy: any) => this.getMissingHealth(enemy)) : [];
+		return (targets.length > 0) ? maxBy(targets as Enemy[], (enemy: Enemy) => this.getMissingHealth(enemy)) : undefined
 	}
 
 	healTarget(): void {

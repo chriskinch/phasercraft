@@ -12,6 +12,7 @@ import isEmpty from "lodash/isEmpty";
 import mapStateToData from "@helpers/mapStateToData";
 import CombatText from "../UI/CombatText";
 import type { PlayerOptions } from "@/types/game";
+import type Enemy from "@entities/Enemy/Enemy";
 
 const converter = require('number-to-words');
 interface PlayerStats {
@@ -40,26 +41,6 @@ interface DrawBarOptions {
 	width: number;
 	height: number;
 	depth: number;
-}
-
-interface Target {
-	x: number;
-	y: number;
-	hit: (damage: { power: number; crit: boolean }) => void;
-	body?: {
-		position: {
-			clone(): { subtract(pos: any): { x: number; y: number } };
-			x: number;
-			y: number;
-		};
-		setVelocity: (x: number, y: number) => void;
-	};
-}
-
-interface LevelData {
-	xpRemaining: number;
-	toNextLevel: number;
-	currentLevel: number;
 }
 
 class Player extends GameObjects.Container {
@@ -311,7 +292,7 @@ class Player extends GameObjects.Container {
 		}
 	}
 
-	attack(target: Target): void {
+	attack(target: Enemy): void {
 		const { attack_power, attack_speed } = this.stats;
 		
 		this.weapon.swoosh();
@@ -339,7 +320,7 @@ class Player extends GameObjects.Container {
 		return (rng < this.stats.critical_chance);
 	}
 
-	positionWeapon(target: Target): void {
+	positionWeapon(target: Enemy): void {
 		const vector = targetVector(this as any, target as any);
 		// Normalised knockback values regardless of range
 		const knockback = { x: vector.delta.x/vector.range, y: vector.delta.y/vector.range };

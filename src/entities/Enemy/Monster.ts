@@ -1,11 +1,12 @@
 import { GameObjects, Scene, Physics } from 'phaser';
-
+import Player from '@entities/Player/Player';
+import Enemy from '@entities/Enemy/Enemy';
 interface MonsterConfig {
 	scene: Scene;
 	key: string;
 	x: number;
 	y: number;
-	target: any;
+	target: Player | Enemy | null;
 }
 
 class Monster extends GameObjects.Sprite {
