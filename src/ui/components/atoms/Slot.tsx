@@ -1,10 +1,17 @@
 import React from "react";
+import type { LootItem } from "@/types/game";
+
+interface SlotComponentProps {
+  loot: LootItem;
+  compare?: LootItem;
+  id?: string;
+}
 
 interface SlotProps {
-  loot?: any; // TODO: Type this properly based on loot type
-  component: React.ComponentType<any>;
+  loot?: LootItem | null;
+  component: React.ComponentType<SlotComponentProps>;
   background?: boolean;
-  compare?: any; // TODO: Type this properly
+  compare?: LootItem;
 }
 
 const Slot: React.FC<SlotProps> = ({ loot, component, background, compare }) => {

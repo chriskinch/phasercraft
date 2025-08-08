@@ -10,7 +10,7 @@ interface ItemConfig {
 		min: number;
 		max: number;
 	};
-	[key: string]: any;
+	[key: string]: unknown;
 }
 
 interface StatInfo {
@@ -39,7 +39,7 @@ class Item {
 	public keys: { min: number; max: number };
 	public stat_pool: number;
 	public stats: { [key: string]: AdjustedStat };
-	public info: any;
+	public info: Record<string, unknown>;
 	public category: string;
 	public icon: string;
 	public set: string;

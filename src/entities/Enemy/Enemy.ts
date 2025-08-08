@@ -1,4 +1,4 @@
-import { Math as PhaserMath, GameObjects, Geom, Scene, Physics, Types } from "phaser";
+import { Core, Math as PhaserMath, GameObjects, Geom, Scene, Physics, Types } from "phaser";
 import { v4 as uuid } from 'uuid';
 import AssignResource, { AssignResourceType } from "@entities/Resources/AssignResource";
 import Monster from "./Monster";
@@ -157,7 +157,7 @@ class Enemy extends GameObjects.Container {
 			this.point = new PhaserMath.Vector2();
 			this.point.x = this.x;
 			this.point.y = this.y;
-			this.distance_to_player = PhaserMath.Distance.BetweenPoints(this, (this.scene as any).player);
+			this.distance_to_player = PhaserMath.Distance.BetweenPoints(this, (this.scene as Scene & { player: { x: number; y: number } }).player);
 
 			if(this.distance_to_player < this.attack_radius && this.states.attack === "primed") this.attack();
 
@@ -171,7 +171,7 @@ class Enemy extends GameObjects.Container {
 				if(this.states.movement !== 'chasing') this.setChasing();
 				this.move({bias: this.caution});
 			}else{
-				if(this.target === (this.scene as any).player) {
+				if(this.target === (this.scene as Scene & { player: unknown }).player) {
 					this.target = null;
 					this.setIdle();
 					this.setWandering();
@@ -227,7 +227,9 @@ class Enemy extends GameObjects.Container {
 
 	move({target = this.target, bias = 1}: MoveOptions = {}): void {
 		if (!target) return;
-		this.scene.physics.accelerateToObject(this, target, 200 * bias, this.stats.speed, this.stats.speed);
+		// Ensure target has the correct interface for physics
+		const physicsTarget = target as GameObjects.GameObject;
+		this.scene.physics.accelerateToObject(this, physicsTarget, 200 * bias, this.stats.speed, this.stats.speed);
 	}
 
 	enemySpawned(): void {
@@ -235,8 +237,8 @@ class Enemy extends GameObjects.Container {
 		this.spawn_stop.destroy();
 		this.state = "spawned";
 
-		this.scene.physics.add.collider((this.scene as any).player.hero, this);
-		this.collider = this.scene.physics.add.collider((this.scene as any).active_enemies, (this.scene as any).active_enemies);
+		this.scene.physics.add.collider((this.scene as Scene & { player: { hero: Phaser.Physics.Arcade.Sprite } }).player.hero, this);
+		this.collider = this.scene.physics.add.collider((this.scene as Scene & { active_enemies: Phaser.GameObjects.Group }).active_enemies, (this.scene as Scene & { active_enemies: Phaser.GameObjects.Group }).active_enemies);
 
 		this.on('pointerdown', () => {
 			this.scene.events.emit('pointerdown:enemy', this);
@@ -264,7 +266,7 @@ class Enemy extends GameObjects.Container {
 		this.destination = point;
 		// this.scene.physics.add.staticImage(point.x, point.y, 'blank-gif');
 
-		this.move({target: point as any});
+		this.move({target: point});
 	}
 
 	setWandering(): void {
@@ -282,7 +284,7 @@ class Enemy extends GameObjects.Container {
 		if (this.wandering_looped_timer) {
 			this.wandering_looped_timer.remove();
 		}
-		this.target = (this.scene as any).player;
+		this.target = (this.scene as Scene & { player: TargetType }).player;
 		this.destination = null;
 	}
 
@@ -316,14 +318,14 @@ class Enemy extends GameObjects.Container {
 	select(): void {
 		this.graphics.selected.visible = true;
 		this.selected = true;
-		(this.scene as any).selected = this;
+		(this.scene as Scene & { selected?: Enemy }).selected = this;
 	}
 
 	deselect(): void {
 		if(this.selected){
 			this.graphics.selected.visible = false;
 			this.selected = false;
-			(this.scene as any).selected = null;
+			(this.scene as Scene & { selected?: Enemy | null }).selected = null;
 		}
 	}
 
@@ -345,8 +347,8 @@ class Enemy extends GameObjects.Container {
 		this.active = false;
 		if (this.input) this.input.enabled = false;
 		this.scene.physics.world.disable(this);
-		(this.scene as any).enemies.remove(this);
-		(this.scene as any).active_enemies.remove(this);
+		(this.scene as Scene & { enemies: Phaser.GameObjects.Group }).enemies.remove(this);
+		(this.scene as Scene & { active_enemies: Phaser.GameObjects.Group }).active_enemies.remove(this);
 		this.decompose();
 		this.dropLoot();
 	}
@@ -416,7 +418,7 @@ class Enemy extends GameObjects.Container {
 	}
 
 	showDebugInfo(): void {
-		if((this.scene.sys.game.config.physics as any).arcade.debug) {
+		if(this.scene.sys.game.config.physics.arcade && this.scene.sys.game.config.physics.arcade.debug) {
 			this.add([
 				this.scene.add.arc(0, 0, this.attack_radius).setStrokeStyle(1, 0x00ffff),
 				this.scene.add.arc(0, 0, this.aggro_radius).setStrokeStyle(1, 0xff1111),

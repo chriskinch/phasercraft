@@ -116,8 +116,10 @@ class EarthShield extends Spell {
 	}
 
 	animationStart(): void {
-		this.x = this.target.x + this.radius;
-		this.y = this.target.y;
+		if (this.target && typeof this.target === 'object' && 'x' in this.target && 'y' in this.target) {
+			this.x = (this.target.x as number) + this.radius;
+			this.y = this.target.y as number;
+		}
 	}
 
 	animationUpdate(): void {
@@ -138,15 +140,20 @@ class EarthShield extends Spell {
 			duration: 3000,
 			delay: 250,
 			onUpdate: () => {
+				if (!this.target || typeof this.target !== 'object' || !('x' in this.target) || !('y' in this.target)) return;
+				
+				const targetX = this.target.x as number;
+				const targetY = this.target.y as number;
+				
 				const time = Math.floor(this.motion?.getValue() ?? 0);
 				const angle = Math.PI/180 * time;
-				this.x = Math.cos(angle) * this.radius + this.target.x;
-				this.y = -Math.sin(angle) * (this.radius * 0.75) + this.target.y; // 0.75 to squash the radius for perspective.
+				this.x = Math.cos(angle) * this.radius + targetX;
+				this.y = -Math.sin(angle) * (this.radius * 0.75) + targetY; // 0.75 to squash the radius for perspective.
 				// Crazy depth sorting. If spell is south of target it must go over all entities.
 				// If it's north of target it need to go between the target and all entities hence 
 				// the sub pixel numbers.
-				const sub_depth = (this.y - this.target.y) / this.radius;
-				(this.y > this.target.y) ? this.setDepth(10000) : this.setDepth(this.target.y + sub_depth)
+				const sub_depth = (this.y - targetY) / this.radius;
+				(this.y > targetY) ? this.setDepth(10000) : this.setDepth(targetY + sub_depth)
 			}
 		});
 	}

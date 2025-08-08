@@ -25,9 +25,9 @@ export default class GameOverScene extends Scene {
 		this.cache.bitmapFont.add('wayne-3d', GameObjects.RetroFont.Parse(this, fontConfig));
 		this.game_over.add(this.add.bitmapText(0, 0, 'wayne-3d', 'GAME OVER').setOrigin(0.5));
 		this.game_over.add(this.add.bitmapText(0, 40, 'wayne-3d', 'RESTART').setOrigin(0.5).setScale(0.5));
-		(this.game_over as any).button = this.make.image({key:'blank-gif', x:0, y:60}).setScale(12, 4).setInteractive();
-		(this.game_over as any).button.on('pointerup', this.restartGame, this);
-		this.game_over.add((this.game_over as any).button);
+		(this.game_over as Phaser.GameObjects.Container & { button: Phaser.GameObjects.Image }).button = this.make.image({key:'blank-gif', x:0, y:60}).setScale(12, 4).setInteractive();
+		(this.game_over as Phaser.GameObjects.Container & { button: Phaser.GameObjects.Image }).button.on('pointerup', this.restartGame, this);
+		this.game_over.add((this.game_over as Phaser.GameObjects.Container & { button: Phaser.GameObjects.Image }).button);
 	}
 
 	restartGame(): void {

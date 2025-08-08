@@ -10,6 +10,7 @@ import { useQuery, useMutation, useApolloClient } from "@apollo/client";
 import { GET_ITEMS } from "@queries/getItems";
 import { RESTOCK_STORE, REMOVE_ITEM } from "@mutations";
 import { sortBy } from "@ui/operations/helpers";
+import type { LootItem } from "@/types/game";
 import type { RootState } from "@store";
 
 interface ArmoryProps {}
@@ -49,7 +50,7 @@ const Armory: React.FC<ArmoryProps> = () => {
       <section>
         <h3>Sort</h3>
         <Button text="Quality" onClick={() => {
-          const { items } = client.readQuery({ query: GET_ITEMS }) as { items: any[] };
+          const { items } = client.readQuery({ query: GET_ITEMS }) as { items: LootItem[] };
           client.writeQuery({
             query: GET_ITEMS,
             data: {
@@ -58,7 +59,7 @@ const Armory: React.FC<ArmoryProps> = () => {
           });
         }} />
         <Button text="Stats" onClick={() => {
-          const { items } = client.cache.readQuery({ query: GET_ITEMS }) as { items: any[] };
+          const { items } = client.cache.readQuery({ query: GET_ITEMS }) as { items: LootItem[] };
           client.writeQuery({
             query: GET_ITEMS,
             data: {
@@ -69,11 +70,11 @@ const Armory: React.FC<ArmoryProps> = () => {
         <h3>Action</h3>
         <Button text="Buy" onClick={() => {
           const selected = store.getState().game.selected;
-          if (selected && typeof selected === 'object' && 'cost' in selected && 'id' in selected && (selected as any).cost <= coins) {
+          if (selected && selected.cost <= coins) {
             dispatch(buyLoot(selected));
             removeItem({
               variables: {
-                removeItemId: (selected as any).id
+                removeItemId: selected.id
               }
             });
           } else {

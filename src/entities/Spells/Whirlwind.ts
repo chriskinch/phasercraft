@@ -1,6 +1,6 @@
 import Spell from './Spell';
 import targetVector from '@helpers/targetVector';
-import type { SpellOptions, EntityWithVector, EnemyOptions } from '@/types/game';
+import type { SpellOptions, EnemyOptions } from '@/types/game';
 class Whirlwind extends Spell {
 	public type: string;
 	public range: number;
@@ -35,7 +35,7 @@ class Whirlwind extends Spell {
 		if(state === 'on') this.castSpell(this.player);
 	}
 
-	effect(target?: EnemyOptions[]): void {
+	effect(target: any): void {
 		const enemiesInRange = (this.scene as any).enemies.children.entries
 			.filter((enemy: EnemyOptions) => {
 				enemy.vector = targetVector(this.player as any, enemy as any);
@@ -52,8 +52,10 @@ class Whirlwind extends Spell {
 		// Scales value bases on player stat.
 		const value = this.setValue({ base: 30, key: "attack_power" });
 
-		enemiesInRange.forEach((target: EnemyOptions) => {
-			target.health.adjustValue(-value.amount * mod, this.type, value.crit);
+		enemiesInRange.forEach((target: any) => {
+			if (target && target.health) {
+				target.health.adjustValue(-value.amount * mod, this.type, value.crit);
+			}
 		});
 	}
 

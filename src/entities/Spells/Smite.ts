@@ -39,8 +39,10 @@ class Smite extends Spell {
 	}
 
 	animationUpdate(): void {
-		this.x = this.target.x;
-		this.y = this.target.y - 40;
+		if (this.target && typeof this.target === 'object' && 'x' in this.target && 'y' in this.target) {
+			this.x = this.target.x as number;
+			this.y = (this.target.y as number) - 40;
+		}
 	}
 }
 

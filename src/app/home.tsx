@@ -1,6 +1,5 @@
 'use client'
  
-import { useRef, useState } from 'react';
 import dynamic from "next/dynamic";
 import { Provider } from 'react-redux';
 import store from '@store';

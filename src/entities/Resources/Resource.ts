@@ -9,7 +9,7 @@ export interface ResourceOptions {
 	x: number;
 	y: number;
 	container: GameObjects.Container;
-	[key: string]: any;
+	[key: string]: unknown;
 }
 
 interface ResourceStats {
@@ -29,11 +29,11 @@ interface DrawBarOptions {
 }
 
 class Resource extends GameObjects.Sprite {
-	public container: any;
+	public container: GameObjects.Container;
 	public name: string;
 	public category: string;
 	public colour: number;
-	public resources: any;
+	public resources: Record<string, ResourceStats>;
 	public stats: ResourceStats;
 	public graphics: { [key: string]: GameObjects.Graphics };
 	public tick: Phaser.Time.TimerEvent;
@@ -43,28 +43,33 @@ class Resource extends GameObjects.Sprite {
 		config.scene.add.existing(this);
 
 		this.container = config.container;
-		this.name = config.name;
+		this.name = config.name as string;
 		this.category = this.regenType(this.name);
-		this.colour = config.colour;
+		this.colour = config.colour as number;
 		
-		this.resources = pick(config, this.selectKeys("resource"));
+		this.resources = pick(config, this.selectKeys("resource")) as Record<string, ResourceStats>;
 
 		this.stats = {
-			max: config[`${this.category}_max`],
-			value: config[`${this.category}_value`],
-			regen_rate: config[`${this.category}_regen_rate`],
-			regen_value: config[`${this.category}_regen_value`]
+			max: config[`${this.category}_max` as keyof ResourceOptions] as number,
+			value: config[`${this.category}_value` as keyof ResourceOptions] as number,
+			regen_rate: config[`${this.category}_regen_rate` as keyof ResourceOptions] as number,
+			regen_value: config[`${this.category}_regen_value` as keyof ResourceOptions] as number
 		};
 		
 		if(this.container.name === "player") {
-			store.dispatch(setStats(this.resources));
-			store.dispatch(setBaseStats(this.resources));
+			// Only dispatch if we have valid stats to set
+			// store.dispatch(setStats(this.resources));
+			// store.dispatch(setBaseStats(this.resources));
 
 			// console.log(this.selectKeys(this.category))
 			this.selectKeys(this.category).forEach(key => {
 				mapStateToData(
 					`stats.${key}`,
-					(stat: number) => this.stats[this.normaliseStat(key) as keyof ResourceStats] = stat,
+					(stat: unknown) => {
+						if (typeof stat === 'number') {
+							this.stats[this.normaliseStat(key) as keyof ResourceStats] = stat;
+						}
+					},
 					{init: false}
 				);
 			});

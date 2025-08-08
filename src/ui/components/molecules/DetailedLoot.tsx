@@ -2,15 +2,12 @@ import React from "react";
 
 import LootIcon from "@components/LootIcon";
 import Stats from "@components/Stats";
+import type { LootItem } from "@/types/game";
 
 interface DetailedLootProps {
   id: string;
-  loot: {
-    info?: any;
-    stats?: any;
-    [key: string]: any; // TODO: Define proper loot type
-  };
-  compare?: any; // TODO: Define proper compare type
+  loot: LootItem;
+  compare?: LootItem;
 }
 
 const DetailedLoot: React.FC<DetailedLootProps> = ({ id, loot, compare }) => {

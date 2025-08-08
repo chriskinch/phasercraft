@@ -1,5 +1,5 @@
 import Spell from './Spell';
-import type { SpellOptions } from '@/types/game';
+import type { SpellOptions, TargetType } from '@/types/game';
 
 class Fireball extends Spell {
 	public type: string;
@@ -30,15 +30,18 @@ class Fireball extends Spell {
 		this.scene.events[state]('pointerdown:player', this.clearSpell, this);
 	}
 
-	effect(target: any): void {
+	effect(target:TargetType): void {
+		if (!target || !('health' in target)) return;
 		// Returns crit boolean and modified value using spell base value.
 		const value = this.setValue({ base: 45, key: "magic_power" });
 		target.health.adjustValue(-value.amount, this.type, value.crit);
 	}
 
 	animationUpdate(): void {
-		this.x = this.target.x;
-		this.y = this.target.y;
+		if (this.target && typeof this.target === 'object' && 'x' in this.target && 'y' in this.target) {
+			this.x = this.target.x as number;
+			this.y = this.target.y as number;
+		}
 	}
 }
 

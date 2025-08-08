@@ -32,10 +32,10 @@ const Equipment: React.FC = () => {
             src={`ui/player/${character}.gif`}
             alt="This is you!"
           />
-          <StatBar type={"health"} label={"HP"} value={stats.health_max} />
-          <StatBar type={resource_type} label={"RP"} value={stats.resource_max} />
+          <StatBar type={"health"} label={"HP"} value={stats.health_max || 0} />
+          <StatBar type={resource_type || 'mana'} label={"RP"} value={stats.resource_max || 0} />
         </div>
-        <GroupedAttributes stats={stats} />
+        <GroupedAttributes stats={stats as any} />
       </section>
       <section className="equipment-section">
         <DroppableSlot slot="helm" loot={helm} />

@@ -20,7 +20,7 @@ interface MenuConfig {
   component: React.ComponentType<any>;
   title: string;
   navigation?: boolean;
-  props?: Record<string, any>;
+  props?: Record<string, unknown>;
   close?: boolean;
   type?: string;
 }

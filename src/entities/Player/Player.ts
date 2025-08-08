@@ -3,7 +3,7 @@ import { v4 as uuid } from 'uuid';
 import Hero from "./Hero";
 import Weapon from "@entities/Weapon";
 import AssignSpell from "@entities/Spells/AssignSpell";
-import AssignResource, { AssignResourceType } from "@entities/Resources/AssignResource";
+import AssignResource, { AssignResourceType, AssignResourceName } from "@entities/Resources/AssignResource";
 import targetVector from "@helpers/targetVector";
 import Boons from "@entities/UI/Boons";
 import store from "@store";
@@ -11,26 +11,10 @@ import { addXP, setBaseStats, setLevel, setStats } from "@store/gameReducer";
 import isEmpty from "lodash/isEmpty";
 import mapStateToData from "@helpers/mapStateToData";
 import CombatText from "../UI/CombatText";
-import type { PlayerOptions } from "@/types/game";
+import type { PlayerOptions, PlayerStats } from "@/types/game";
 import type Enemy from "@entities/Enemy/Enemy";
 
 const converter = require('number-to-words');
-interface PlayerStats {
-	health: number;
-	mana?: number;
-	energy?: number;
-	rage?: number;
-	shield: number;
-	speed: number;
-	attack_power: number;
-	attack_speed: number;
-	range: number;
-	defence: number;
-	critical_chance: number;
-	knockback: number;
-	resource_type?: string;
-}
-
 interface Destination {
 	x: number | null;
 	y: number | null;
@@ -113,7 +97,7 @@ class Player extends GameObjects.Container {
 		});
 		this.add(this.health);
 
-		this.resource = AssignResource(resource_type as any, {
+		this.resource = AssignResource(resource_type as AssignResourceName, {
 			container: this,
 			scene: scene,
 			x: -14,
@@ -136,8 +120,15 @@ class Player extends GameObjects.Container {
 
 		// This maps the stats section of the store to this.stats.
 		// Updates on store change using RxJS.
-		mapStateToData("stats", (stats: PlayerStats) => this.stats = stats);
-		mapStateToData("level.currentLevel", this.LevelUp.bind(this));
+		mapStateToData("stats", (stats: unknown) => {
+			// Store stats might have different properties, so we handle the conversion
+			this.stats = stats as PlayerStats;
+		});
+		mapStateToData("level.currentLevel", (level: unknown) => {
+			if (typeof level === 'number') {
+				this.LevelUp(level);
+			}
+		});
 
 		scene.events.once('player:dead', this.death, this);
 		scene.events.on('enemy:attack', this.hit, this);
@@ -180,7 +171,7 @@ class Player extends GameObjects.Container {
 		return graphics;
 	}
 
-	update(mouse: Phaser.Input.Pointer, keys: any, time: number, delta: number): void {
+	update(mouse: Phaser.Input.Pointer, keys: Phaser.Types.Input.Keyboard.CursorKeys & Record<string, Phaser.Input.Keyboard.Key>, time: number, delta: number): void {
 		this.mouse = mouse;
 		this.setDepth(this.y);
 
@@ -193,7 +184,7 @@ class Player extends GameObjects.Container {
 			this.idle();
 		}
 
-		if((this.scene as any).selected) this.goToRange();
+		if((this.scene as Scene & { selected?: Enemy }).selected) this.goToRange();
 
 		// Self cast key
 		if(keys.space.isDown) {
@@ -242,7 +233,7 @@ class Player extends GameObjects.Container {
 		return false;
 	}
 
-	healthChanged(e: any): void {
+	healthChanged(e: { getValue(): number }): void {
 		if(e.getValue() <= 0) this.scene.events.emit('player:dead');
 	}
 
@@ -257,7 +248,7 @@ class Player extends GameObjects.Container {
 	}
 
 	hit(power: number): void {
-		const damage = Math.ceil(power * (100/(100+this.stats.defence)));
+		const damage = Math.ceil(power * (100/(100+(this.stats.defence || 0))));
 		this.scene.events.emit('player:attacked', this);
 		const hasShield = 'hasShield' in this.shield && this.shield.hasShield();
 		const pool = hasShield ? this.shield : this.health;
@@ -276,24 +267,26 @@ class Player extends GameObjects.Container {
 	}
 
 	goToRange(): void {
-		let target = (this.scene as any).selected;
+		let target = (this.scene as Scene & { selected?: Enemy }).selected;
+		if (!target) return;
 		this.moveToPosition(target);
 		let distance = PhaserMath.Distance.Between(target.x, target.y, this.x, this.y);
 		let hit_distance = distance - 15; // TODO not 15;
 
-		if(hit_distance <= this.stats.range) {
+		if(hit_distance <= (this.stats.range || 0)) {
 			this.idle();
 			this.attack_delay = null;
 			if(this.attack_ready) this.attack(target);
 		} else {
 			if(!this.attack_delay) {
-				this.attack_delay = this.scene.time.delayedCall((this.scene as any).global_attack_delay, this.walk, [], this);
+				this.attack_delay = this.scene.time.delayedCall((this.scene as Scene & { global_attack_delay: number }).global_attack_delay, this.walk, [], this);
 			}
 		}
 	}
 
 	attack(target: Enemy): void {
-		const { attack_power, attack_speed } = this.stats;
+		const attack_power = this.stats.attack_power || 0;
+		const attack_speed = this.stats.attack_speed || 1;
 		
 		this.weapon.swoosh();
 		this.positionWeapon(target);
@@ -317,16 +310,16 @@ class Player extends GameObjects.Container {
 
 	isCritical(): boolean {
 		const rng = Math.random() * 100; // Percentage roll up to 100.
-		return (rng < this.stats.critical_chance);
+		return (rng < (this.stats.critical_chance || 0));
 	}
 
 	positionWeapon(target: Enemy): void {
-		const vector = targetVector(this as any, target as any);
+		const vector = targetVector(this, target);
 		// Normalised knockback values regardless of range
 		const knockback = { x: vector.delta.x/vector.range, y: vector.delta.y/vector.range };
 		const angle = Math.atan2(vector.delta.y, vector.delta.x) * 180 / Math.PI;
 
-		if (target.body) target.body.setVelocity(knockback.x*this.stats.knockback, knockback.y*this.stats.knockback);
+		if (target.body && this.stats.knockback) target.body.setVelocity(knockback.x*this.stats.knockback, knockback.y*this.stats.knockback);
 		this.weapon.setAngle(angle);
 	}
 
@@ -340,7 +333,7 @@ class Player extends GameObjects.Container {
 		// 	wander: 0,
 		// 	gravity: 0
 		// }))
-		if(!(this.scene as any).selected) this.idle();
+		if(!(this.scene as Scene & { selected?: Enemy }).selected) this.idle();
 	}
 
 	setExperience(exp: number = store.getState().game.xp, count: number = 1): void {

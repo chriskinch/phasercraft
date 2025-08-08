@@ -1,9 +1,9 @@
 import { Scene } from 'phaser';
 import store from "@store";
-import type { PlayerType } from "@entities/Player/AssignClass";
+import type { PlayerName } from "@entities/Player/AssignClass";
 
 export interface GameSceneConfig {
-	type?: PlayerType;
+	type?: PlayerName;
 }
 
 export default class SelectScene extends Scene {

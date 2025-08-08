@@ -5,13 +5,10 @@ import Stats from "./Stats";
 import Price from "@components/Price";
 import { connect } from "react-redux";
 
-import type { LootItem } from "@/types/game";
+import type { LootItem, Equipment } from "@/types/game";
 import type { LootStat } from "@/types/game";
 import type { RootState } from "@store";
 
-interface Equipment {
-  [key: string]: any; // TODO: Define proper equipment type
-}
 
 interface ItemTooltipProps {
   id: string;
@@ -36,7 +33,10 @@ const ItemTooltip: React.FC<ItemTooltipProps> = ({ id, loot, equipment }) => {
   
   const afterShowHandler = () => {
     if (loot && equipment[loot.set] && loot !== equipment[loot.set]) {
-      setCompare(compareStats(loot, equipment[loot.set]));
+      const equippedItem = equipment[loot.set];
+      if (equippedItem) {
+        setCompare(compareStats(loot, equippedItem));
+      }
     } else {
       setCompare(null);
     }

@@ -7,7 +7,7 @@ import { dialog_overlay } from "@ui/themes";
 import type { RootState } from "@store";
 
 interface SystemProps {
-  state: any; // TODO: Define proper state type
+  state: RootState;
 }
 
 const System: React.FC<SystemProps> = ({ state }) => {

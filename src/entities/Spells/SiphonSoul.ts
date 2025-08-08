@@ -1,5 +1,6 @@
 import Spell from './Spell';
 import type { SpellOptions } from '@/types/game';
+import type Enemy from '@entities/Enemy/Enemy';
 
 class SiphonSoul extends Spell {
 	public type: string;
@@ -55,9 +56,11 @@ class SiphonSoul extends Spell {
 
 	clearEffect(): void {
 		// Set player and target stats back to normal.
-		this.target.body.setMaxVelocity(10000);
-		this.target.monster.anims.resume();
-		this.target.body.checkCollision.none = false;
+		if (this.target && typeof this.target === 'object' && 'body' in this.target && 'monster' in this.target) {
+			(this.target as Enemy).body.setMaxVelocity(10000);
+			(this.target as Enemy).monster.anims.resume();
+			(this.target as Enemy).body.checkCollision.none = false;
+		}
 
 		this.player.body.setMaxVelocity(10000);
 		this.emitter.stop();
@@ -73,7 +76,9 @@ class SiphonSoul extends Spell {
 		const value = this.setValue({ base: 10, key: "magic_power", reducer: v => v/5});
 		
 		// Modern Phaser 3.90+ particle system
-		this.emitter = this.scene.add.particles(this.target.x, this.target.y, 'siphon-soul', {
+		const targetX = (this.target && typeof this.target === 'object' && 'x' in this.target) ? this.target.x as number : 0;
+		const targetY = (this.target && typeof this.target === 'object' && 'y' in this.target) ? this.target.y as number : 0;
+		this.emitter = this.scene.add.particles(targetX, targetY, 'siphon-soul', {
 			frame: new Array(5).fill(null).map((a,i)=> `health_glob_00${i}`),
 			lifespan: 5000,
 			speed: 15,
@@ -106,8 +111,12 @@ class SiphonSoul extends Spell {
 
 		// Handle damage on emit
 		this.emitter.onParticleEmit((particle: any) => {
-			if(this.target && this.target.alive) {
-				this.target.health.adjustValue(-value.amount, this.type, false);
+			if(this.target && typeof this.target === 'object' && 'alive' in this.target && 'health' in this.target) {
+				if((this.target as Enemy).alive) {
+					(this.target as Enemy).health.adjustValue(-value.amount, this.type, false);
+				} else {
+					this.clearEffect();
+				}
 			} else {
 				this.clearEffect();
 			}

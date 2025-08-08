@@ -1,9 +1,16 @@
 import React from "react";
 import Stats from "@components/Stats";
 import pick from "lodash/pick";
+import type { PlayerStats } from "@/types/game";
+
+interface StatItem {
+  id: string;
+  name: string;
+  value: number;
+}
 
 interface GroupedStatsProps {
-  stats: Record<string, any>; // TODO: Define proper stats type
+  stats: Partial<PlayerStats>;
 }
 
 const GroupedStats: React.FC<GroupedStatsProps> = ({ stats }) => {
@@ -12,7 +19,7 @@ const GroupedStats: React.FC<GroupedStatsProps> = ({ stats }) => {
   const defence_stats = pick(stats, ["health_regen_rate", "health_regen_value", "defence", "speed"]);
   const support_stats = pick(stats, ["resource_regen_rate", "resource_regen_value"]);
 
-  const convertToStatItems = (statsObj: Record<string, any>) => {
+  const convertToStatItems = (statsObj: Record<string, number>): StatItem[] => {
     return Object.entries(statsObj).map(([key, value]) => ({
       id: key,
       name: key.replace(/_/g, ' '),
@@ -29,7 +36,7 @@ const GroupedStats: React.FC<GroupedStatsProps> = ({ stats }) => {
         {convertToStatItems(defence_stats)}
       </Stats>
       <Stats>
-        {convertToStatItems(support_stats)}
+        {convertToStatItems(support_stats as Record<string, number>)}
       </Stats>
     </>
   );

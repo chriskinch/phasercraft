@@ -5,6 +5,7 @@ import Ranger from './Ranger';
 import Warrior from './Warrior';
 import type { Scene } from 'phaser';
 import type { PlayerOptions } from '@/types/game';
+import type Player from '@entities/Player/Player';
 
 type PlayerConfig = {
 	scene: Scene;
@@ -19,10 +20,10 @@ const classes = {
 	Ranger,
 	Warrior
 };
-
-export type PlayerType = keyof typeof classes;
+export type PlayerType = Cleric | Mage | Occultist | Ranger | Warrior;
+export type PlayerName = keyof typeof classes;
 class AssignClass {
-	constructor(className: PlayerType, opts: PlayerConfig) {
+	constructor(className: PlayerName, opts: PlayerConfig) {
 		if (className === null || className === undefined || !(className in classes)) {
 			throw new Error(`Class "${className}" does not exist.`);
 		}

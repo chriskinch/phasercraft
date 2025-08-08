@@ -2,6 +2,7 @@ import { GameObjects, Scene, Physics } from 'phaser';
 import store from "@store";
 import { addCoins } from "@store/gameReducer";
 import getRandomVelocity from "@helpers/getRandomVelocity";
+import type GameScene from '@scenes/GameScene';
 
 interface CoinConfig {
 	scene: Scene;
@@ -15,7 +16,7 @@ class Coin extends GameObjects.Sprite {
 	constructor(config: CoinConfig) {
 		super(config.scene, config.x, config.y, 'coin-spin');
 		config.scene.physics.world.enable(this);
-		config.scene.add.existing(this).setDepth((this.scene as any).depth_group.UI);
+		config.scene.add.existing(this).setDepth((this.scene as GameScene).depth_group.UI);
 
 		this.anims.play('coin');
 		this.body.setVelocity(getRandomVelocity(25, 50), getRandomVelocity(25, 50)).setDrag(100);
@@ -26,7 +27,7 @@ class Coin extends GameObjects.Sprite {
 	}
 
 	activate(): void {
-		this.scene.physics.add.collider((this.scene as any).player, this, this.touch, undefined, this);
+		this.scene.physics.add.collider((this.scene as GameScene).player, this, this.touch, undefined, this);
 	}
 
 	touch(): void {

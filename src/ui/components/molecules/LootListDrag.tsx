@@ -63,7 +63,7 @@ const LootListDrag: React.FC<LootListDragProps> = ({
 
     return (
       <div ref={drag as any} className={isDragging ? 'dragging' : ''}>
-        <Loot loot={props.loot as any} isSelected={props.isSelected} setSelected={props.setSelected} />
+        <Loot loot={props.loot} isSelected={props.isSelected} setSelected={props.setSelected} />
         <style jsx>{`
           .dragging {
             opacity: 0.1;

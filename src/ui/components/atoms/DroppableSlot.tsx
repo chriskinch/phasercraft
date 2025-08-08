@@ -8,7 +8,7 @@ import { unequipLoot } from "@store/gameReducer";
 import type { LootItem } from "@/types/game";
 
 interface DroppableSlotProps {
-  loot?: any; // TODO: Type this properly based on loot type
+  loot?: LootItem | null;
   slot: string;
   unequipLoot: (loot: LootItem) => void;
 }
@@ -31,7 +31,7 @@ const DroppableSlot: React.FC<DroppableSlotProps> = ({ loot, slot, unequipLoot }
     <div 
       ref={drop as any}
       className={"droppable-slot"}
-      onClick={() => unequipLoot(loot)}
+      onClick={() => loot && unequipLoot(loot)}
     >
       {loot && <Loot loot={loot} />}
 

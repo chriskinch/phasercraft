@@ -5,7 +5,7 @@ import { connect } from 'react-redux';
 import Button from '../atoms/Button';
 
 interface CharacterCardProps {
-  selectCharacter: (type: string) => void;
+  selectCharacter: any;
   type: string;
 }
 

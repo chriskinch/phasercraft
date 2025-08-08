@@ -15,7 +15,7 @@ interface MapStateOptions {
     init?: boolean;
 }
 
-export default function mapStateToData(path: string, fn: (data: any) => void, {init = true}: MapStateOptions = {}): void {
+export default function mapStateToData(path: string, fn: (data: unknown) => void, {init = true}: MapStateOptions = {}): void {
     state$.pipe(
         map(state => get(state, path)),
         startWith(get(store.getState().game, path)),

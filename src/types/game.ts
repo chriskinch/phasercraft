@@ -206,19 +206,43 @@ export interface LootDropRate {
 }
 
 export interface LootTable extends Array<LootDropRate>{}
+export interface PlayerStats {
+    [STAT_NAMES.ATTACK_POWER]?: number;
+    [STAT_NAMES.ATTACK_SPEED]?: number;
+    [STAT_NAMES.MAGIC_POWER]?: number;
+    [STAT_NAMES.CRITICAL_CHANCE]?: number;
+    [STAT_NAMES.SPEED]?: number;
+    [STAT_NAMES.DEFENCE]?: number;
+    [STAT_NAMES.HEALTH_MAX]?: number;
+    [STAT_NAMES.HEALTH_REGEN_VALUE]?: number;
+    [STAT_NAMES.HEALTH_REGEN_RATE]?: number;
+    // Additional properties that may exist in local player stats
+    health?: number;
+    mana?: number;
+    energy?: number;
+    rage?: number;
+    shield?: number;
+    range?: number;
+    knockback?: number;
+    resource_type?: string;
+    resource_max?: number;
+    // Allow index signature for flexibility
+    [key: string]: number | string | undefined;
+}
+
 export interface PlayerOptions {
 	scene: Scene;
 	x: number;
 	y: number;
 	abilities: SpellType[];
 	classification: string;
-	stats?: any;
+	stats?: PlayerStats;
 	resource_type?: string;
 }
 
 export type EnemyType = "baby-ghoul" | "egbert" | "ghoul" | "imp" | "satyr" | "slime";
 export type CombatType = "melee" | "ranged" | "healer";
-export type TargetType = Enemy | Player | GameObjects.GameObject | null;
+export type TargetType = Enemy | Player | GameObjects.GameObject | { x: number; y: number } | null;
 export interface EnemyAttributes {
     damage: number;
     speed: number;
@@ -247,7 +271,7 @@ export interface EnemyOptions {
 	aggro_radius?: number;
 	circling_radius?: number;
 	coin_multiplier: number;
-	active_group: any;
+	active_group: Phaser.GameObjects.Group;
 	wave_multiplier?: number;
     vector?: EntityWithVector;
 }
@@ -272,9 +296,44 @@ export interface SpellOptions {
 interface AdjustValue {
     adjustValue: (amount: number, type?: string, crit?: boolean) => void;
 }
+
 export interface EntityWithVector {
     x?: number;
     y?: number;
     range?: number | undefined;
     angle?: number | undefined;
+}
+
+export interface Equipment {
+    amulet?: LootItem | null;
+    body?: LootItem | null;
+    helm?: LootItem | null;
+    weapon?: LootItem | null;
+    [key: string]: LootItem | null | undefined;
+}
+
+export interface CharacterData {
+    id: string;
+    name: string;
+    class: keyof typeof PLAYER_CLASSES;
+    level: number;
+    experience: number;
+    base_stats: PlayerStats;
+    stats: PlayerStats;
+    equipment: Equipment;
+    coins: number;
+    inventory: LootItem[];
+    crafting: LootItem[];
+}
+
+export interface GameState {
+    characters: Record<string, CharacterData>;
+    selected_character: string | null;
+    loot: Record<string, LootItem>;
+    coins: number;
+    base_stats: PlayerStats;
+    stats: PlayerStats;
+    equipment: Equipment;
+    inventory: LootItem[];
+    crafting: LootItem[];
 }

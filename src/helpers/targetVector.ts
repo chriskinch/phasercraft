@@ -1,7 +1,7 @@
 interface TargetWithBody {
     body: {
         position: {
-            clone(): { subtract(pos: any): { x: number; y: number } };
+            clone(): { subtract(pos: { x: number; y: number }): { x: number; y: number } };
             x: number;
             y: number;
         };

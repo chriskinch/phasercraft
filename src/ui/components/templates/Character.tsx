@@ -28,16 +28,16 @@ const Character: React.FC = () => {
             src={`ui/player/${character}.gif`}
             alt="This is you!"
           />
-          <StatBar type={"health"} label={"HP"} value={stats.health_max} />
-          <StatBar type={resource_type} label={"RP"} value={stats.resource_max} />
+          <StatBar type={"health"} label={"HP"} value={stats.health_max || 0} />
+          <StatBar type={resource_type || 'mana'} label={"RP"} value={stats.resource_max || 0} />
         </div>
-        <GroupedAttributes stats={stats} />
+        <GroupedAttributes stats={stats as any} />
       </section>
       <section className="equipment-display">
-        <Slot loot={helm} component={DetailedLoot} />
-        <Slot loot={body} component={DetailedLoot} />
-        <Slot loot={weapon} component={DetailedLoot} />
-        <Slot loot={amulet} component={DetailedLoot} />
+        <Slot loot={helm} component={({loot, compare}) => <DetailedLoot id="helm" loot={loot} compare={compare} />} />
+        <Slot loot={body} component={({loot, compare}) => <DetailedLoot id="body" loot={loot} compare={compare} />} />
+        <Slot loot={weapon} component={({loot, compare}) => <DetailedLoot id="weapon" loot={loot} compare={compare} />} />
+        <Slot loot={amulet} component={({loot, compare}) => <DetailedLoot id="amulet" loot={loot} compare={compare} />} />
       </section>
       <style jsx>{`
         .character-container {

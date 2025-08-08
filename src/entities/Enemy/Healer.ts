@@ -34,7 +34,7 @@ class Healer extends Enemy {
 	getHealTarget(): Enemy | undefined {
 		const targets = this.active_group.children.entries.filter(enemy => {
 			return (
-				this.getMissingHealth(enemy) > 0 &&
+				this.getMissingHealth(enemy as Enemy) > 0 &&
 				enemy !== this
 			)
 		});
@@ -46,15 +46,15 @@ class Healer extends Enemy {
 		const target = this.getHealTarget();
 		this.scene.time.addEvent({
 			delay: 3000,
-			callback: (t: any) => {
-				if(t && t.state !== "dead") t.health.adjustValue(50, "magic_power", 1);
+			callback: (t: Enemy) => {
+				if(t && t.state !== "dead") t.health.adjustValue(50, "magic_power", false);
 				this.states.attack = "primed";
 			},
 			args: [target]
 		});
 	}
 
-	getMissingHealth(enemy: any): number {
+	getMissingHealth(enemy: Enemy): number {
 		return enemy?.health.stats.max - enemy?.health.stats.value;
 	}
 

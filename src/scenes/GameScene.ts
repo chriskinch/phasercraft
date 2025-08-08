@@ -14,8 +14,11 @@ import { nextWave, toggleHUD } from "@store/gameReducer"
 import store from "@store"
 
 import type { EnemyConfig, EnemyOptions } from "@/types/game"
-import type { PlayerType } from "@entities/Player/AssignClass"
+import type Player from "@entities/Player/Player"
 import type { GameSceneConfig } from "@/scenes/SelectScene"
+import type { PlayerType } from "@entities/Player/AssignClass";
+import { throwError } from "rxjs"
+
 export default class GameScene extends Scene {
 	private global_tick: number = 42;
 	private global_attack_speed: number = 1;
@@ -24,11 +27,11 @@ export default class GameScene extends Scene {
 	private global_game_width!: number;
 	private global_game_height!: number;
 	private zone!: Phaser.GameObjects.Zone;
-	private player!: any; // Player instance from AssignClass factory
-	private enemies!: Phaser.GameObjects.Group;
+	public player!: PlayerType;
+	public enemies!: Phaser.GameObjects.Group;
 	public active_enemies!: Phaser.GameObjects.Group;
 	private game_over: boolean = false;
-	private depth_group: Record<string, number> = {
+	public depth_group: Record<string, number> = {
 		BASE: 10,
 		UI: 10000,
 		TOP: 99999
@@ -68,11 +71,13 @@ export default class GameScene extends Scene {
 			this.events.emit('pointerup:game', this)
 		});
 
-		this.player = new AssignClass(this.config.type || "Warrior", {
+		if(!this.config.type) throw Error("Player type is not defined");
+
+		this.player = new AssignClass(this.config.type, {
 			scene:this,
 			x: 100,
 			y: 100
-		});
+		}) as PlayerType;
 
 		this.enemies = this.add.group();
 		this.enemies.runChildUpdate = true;
@@ -85,7 +90,7 @@ export default class GameScene extends Scene {
 
 		// Mouse capture - using type assertion for Phaser property
 		if (this.input.mouse) {
-			(this.input.mouse as any).capture = true;
+			(this.input.mouse as Phaser.Input.Mouse.MouseManager & { capture: boolean }).capture = true;
 		}
 		if (this.input.keyboard) {
 			this.cursors = this.input.keyboard.createCursorKeys();
@@ -133,12 +138,7 @@ export default class GameScene extends Scene {
 	}
 
 	update(time: number, delta: number): void {
-		let mouse = {
-			pointer: this.input.activePointer,
-			left: { isDown: (this.input.activePointer.buttons === 1 && this.input.activePointer.isDown) },
-			middle: { isDown: (this.input.activePointer.buttons === 4 && this.input.activePointer.isDown) },
-			right: { isDown: (this.input.activePointer.buttons === 2 && this.input.activePointer.isDown) },
-		}
+		let mouse = this.input.activePointer;
 
 		if(this.enemies.getChildren().length === 0 && !this.game_over) this.events.emit('enemies:dead');
 
@@ -271,7 +271,7 @@ export default class GameScene extends Scene {
 			active_group: this.active_enemies,
 			coin_multiplier: 10,
 			aggro_radius: boss.aggro_radius
-		}) as any);
+		}));
 
 		this.events.once('enemies:dead', this.waveComplete, this);
 	}

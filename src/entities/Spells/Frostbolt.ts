@@ -1,5 +1,6 @@
 import Spell from './Spell';
 import type { SpellOptions } from '@/types/game';
+import type Enemy from '@entities/Enemy/Enemy';
 
 interface FrostboltValue {
 	speed: (baseSpeed: number) => number;
@@ -63,12 +64,16 @@ class Frostbolt extends Spell {
 
 	clearEffect(): void {
 		// Check to confirm spell is gone from boon group before removing tint
-		if(!this.target.banes.contains(this)) this.target.monster.clearTint();
+		if(this.target && typeof this.target === 'object' && 'banes' in this.target && 'monster' in this.target) {
+			if(!(this.target as Enemy).banes.contains(this)) (this.target as Enemy).monster.clearTint();
+		}
 	}
 
 	animationUpdate(): void {
-		this.x = this.target.x;
-		this.y = this.target.y;
+		if (this.target && typeof this.target === 'object' && 'x' in this.target && 'y' in this.target) {
+			this.x = this.target.x as number;
+			this.y = this.target.y as number;
+		}
 	}
 }
 

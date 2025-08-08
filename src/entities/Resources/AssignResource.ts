@@ -14,10 +14,12 @@ const classes = {
 };
 
 export type AssignResourceType = Health | Rage | Mana | Energy | Shield;
+export type AssignResourceName = keyof typeof classes;
+
 
 // Union type of all resource types
-function AssignResource(className: keyof typeof classes, opts: ResourceOptions) {
-	return new classes[className](opts as any);
+function AssignResource(className: AssignResourceName, opts: ResourceOptions) {
+	return new classes[className](opts);
 }
 
 export default AssignResource;

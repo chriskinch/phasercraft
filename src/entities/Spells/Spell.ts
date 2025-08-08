@@ -1,6 +1,7 @@
 import { GameObjects, Display, Scene } from "phaser";
 import store from "@store";
-import type { SpellOptions } from '@/types/game';
+import type { SpellOptions, TargetType } from '@/types/game';
+import type Player from '@entities/Player/Player';
 
 interface SpellValue {
 	crit: boolean;
@@ -8,7 +9,7 @@ interface SpellValue {
 }
 
 class Spell extends GameObjects.Sprite {
-	public player: any;
+	public player: any; // Player or Enemy with resource property
 	public cost: { [key: string]: number };
 	public typedCost: number;
 	public hasAnimation: boolean;
@@ -24,7 +25,7 @@ class Spell extends GameObjects.Sprite {
 	public button: GameObjects.Sprite;
 	public text: GameObjects.Text;
 	public cooldownTimer: Phaser.Tweens.Tween;
-	public target: any;
+	public target: TargetType;
 	public animation: any;
 
 	constructor({scene, x, y, key, ...config}: SpellOptions) {
@@ -118,7 +119,7 @@ class Spell extends GameObjects.Sprite {
         });
     }
     
-    castSpell(target: any): void {
+    castSpell(target: TargetType): void {
         this.target = target;
         this.effect(target);
         // Charge the player some resource
@@ -174,14 +175,14 @@ class Spell extends GameObjects.Sprite {
         // This method should be implemented by subclasses
     }
 
-    effect(target: any): void {
+    effect(target: TargetType): void {
         // This method should be implemented by subclasses
     }
 
     setIcon(): { button: GameObjects.Sprite; text: GameObjects.Text } {
         const button = this.scene.add.sprite(0, 0, 'icon', this.icon_name)
             .setInteractive()
-            .setDepth((this.scene as any).depth_group.UI)
+            .setDepth((this.scene as Scene & { depth_group: { UI: number } }).depth_group.UI)
             .setAlpha(0.4)
             .setScale(1.5);
 
@@ -190,9 +191,9 @@ class Spell extends GameObjects.Sprite {
 			fill: '#ffffff',
 			align: 'center'
 		};
-		const text = this.scene.add.text(-2, -2, this.cooldown.toString(), styles).setOrigin(0.5).setDepth((this.scene as any).depth_group.UI).setVisible(false);
+		const text = this.scene.add.text(-2, -2, this.cooldown.toString(), styles).setOrigin(0.5).setDepth((this.scene as Scene & { depth_group: { UI: number } }).depth_group.UI).setVisible(false);
 
-		Display.Align.In.BottomLeft(button, (this.scene as any).UI.frames[this.slot]);
+		Display.Align.In.BottomLeft(button, (this.scene as Scene & { UI: { frames: GameObjects.Sprite[] } }).UI.frames[this.slot]);
         Display.Align.In.Center(text, button, 0, 0);
         
         return {button: button, text: text};
@@ -222,7 +223,7 @@ class Spell extends GameObjects.Sprite {
     }
     
     setValue({base, key, reducer = (v: number) => v}: {base: number; key: string; reducer?: (v: number) => number}): SpellValue {
-        const power = store.getState().game.stats[key];
+        const power = (store.getState().game.stats as any)[key] || 0;
 		// Value based on base + scaled percentage of base from power + flat percent of power
 		const scaled = base + (base * (power/100)) + power/10;
 		// Check for crit
