@@ -1,0 +1,65 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<map version="1.10" tiledversion="1.11.2" orientation="orthogonal" renderorder="right-down" width="30" height="30" tilewidth="16" tileheight="16" infinite="0" nextlayerid="3" nextobjectid="1">
+ <tileset firstgid="1" name="forestVillageStructures_ [stallsWatchtower]" tilewidth="16" tileheight="16" tilecount="345" columns="15">
+  <image source="forestVillage_ [version 2.0]/forestVillageStructures_ [stallsWatchtower].png" width="240" height="368"/>
+ </tileset>
+ <tileset firstgid="346" name="forestVillageObjects_" tilewidth="16" tileheight="16" tilecount="98" columns="14">
+  <image source="forestVillage_ [version 2.0]/forestVillageObjects_.png" width="224" height="112"/>
+ </tileset>
+ <tileset firstgid="444" name="forestPath_" tilewidth="16" tileheight="16" tilecount="40" columns="8">
+  <image source="fantasy_ [version 2.0]/forest_/forestPath_.png" width="128" height="80"/>
+ </tileset>
+ <tileset firstgid="484" name="forest_ [resources]" tilewidth="16" tileheight="16" tilecount="120" columns="12">
+  <image source="fantasy_ [version 2.0]/forest_/forest_ [resources].png" width="192" height="160"/>
+ </tileset>
+ <tileset firstgid="604" name="forest_ [bridgeHorizontal]" tilewidth="16" tileheight="16" tilecount="72" columns="12">
+  <image source="fantasy_ [version 2.0]/forest_/forest_ [bridgeHorizontal].png" width="192" height="96"/>
+ </tileset>
+ <tileset firstgid="676" name="forest_ [bridgeVertical]" tilewidth="16" tileheight="16" tilecount="50" columns="5">
+  <image source="fantasy_ [version 2.0]/forest_/forest_ [bridgeVertical].png" width="80" height="160"/>
+ </tileset>
+ <tileset firstgid="726" name="forest_ [fencesAndWalls]" tilewidth="16" tileheight="16" tilecount="180" columns="15">
+  <image source="fantasy_ [version 2.0]/forest_/forest_ [fencesAndWalls].png" width="240" height="192"/>
+ </tileset>
+ <tileset firstgid="906" name="forest_ [fountain]" tilewidth="16" tileheight="16" tilecount="108" columns="18">
+  <image source="fantasy_ [version 2.0]/forest_/forest_ [fountain].png" width="288" height="96"/>
+ </tileset>
+ <tileset firstgid="1014" name="forest_" tilewidth="16" tileheight="16" tilecount="198" columns="22">
+  <image source="fantasy_ [version 2.0]/forest_/forest_.png" width="352" height="144"/>
+ </tileset>
+ <layer id="1" name="Tile Layer 1" width="30" height="30">
+  <data encoding="csv">
+0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
+0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
+0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
+0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
+0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
+0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
+0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
+0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
+0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
+0,0,0,0,0,0,0,0,0,0,0,0,0,0,470,470,457,0,0,0,0,0,0,0,0,0,0,0,0,0,
+0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,461,0,461,0,0,0,0,0,0,0,0,0,0,0,
+0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,461,0,461,0,0,0,0,0,0,0,0,0,0,0,
+0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,461,0,461,0,0,0,0,0,0,0,0,0,0,0,
+0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,461,461,0,0,0,0,0,0,0,0,0,0,
+0,0,0,0,0,0,0,0,0,0,0,0,463,0,0,0,0,0,461,461,0,0,0,0,0,0,0,0,0,0,
+0,0,0,0,0,0,0,0,0,0,0,0,463,0,0,0,0,0,461,461,0,0,0,0,0,0,0,0,0,0,
+1175,1175,1175,1175,1175,1175,1175,1175,1175,1175,1134,0,463,0,0,0,0,0,461,461,0,0,0,0,0,0,0,0,0,0,
+1177,1177,1177,1177,1177,1177,1177,1177,1177,1177,1147,0,463,0,0,0,0,0,461,0,0,0,0,0,0,0,0,0,0,0,
+1177,1177,1177,1177,1177,1177,1177,1177,1177,1177,1147,0,463,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
+1177,1177,1177,1177,1177,1177,1177,1177,1177,1177,1147,0,463,463,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
+1131,1131,1131,1131,1131,1132,1177,1177,1177,1177,1147,0,463,463,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
+0,0,0,0,0,1149,1177,1177,1177,1177,1147,0,463,463,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
+0,0,0,0,0,1149,1177,1177,1177,1177,1147,0,463,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
+0,0,0,0,0,1149,1177,1177,1177,1177,1147,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
+0,0,0,0,617,618,620,618,618,620,620,624,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
+0,0,0,0,629,630,631,632,631,631,635,636,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
+0,0,0,0,641,642,643,644,643,644,647,648,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
+0,0,0,0,653,654,655,656,657,658,659,660,661,662,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
+0,0,0,0,0,1149,1177,1177,1177,1177,1147,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
+0,0,0,0,0,1149,1177,1177,1177,1177,1147,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0
+</data>
+ </layer>
+ <objectgroup id="2" name="Object Layer 1"/>
+</map>
