@@ -32,6 +32,6 @@ export default class SelectScene extends Scene {
 		const character = store.getState().game.character;
 		if(!character) throw Error("No character set!")
 		this.config.type = character;
-		this.scene.start('GameScene', this.config);
+		this.scene.start('TownScene', this.config);
 	}
 }

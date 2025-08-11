@@ -31,6 +31,8 @@ export interface GameState {
     saveSlot: string | null;
     wave: number;
     xp: number;
+    currentArea: string;
+    playerPosition: { x: number; y: number };
 }
 
 // Init
@@ -61,6 +63,8 @@ const initState: GameState = {
     saveSlot: null,
     wave: 1,
     xp: 0,
+    currentArea: "town",
+    playerPosition: { x: 400, y: 300 },
 };
 
 // Actions
@@ -148,6 +152,14 @@ export const updateBaseStats = createAction("UPDATE_BASE_STATS", (base_stats: Pa
 
 export const updateStats = createAction("UPDATE_STATS", (stats: Partial<PlayerStats>) => ({
     payload: { stats }
+}));
+
+export const setCurrentArea = createAction("SET_CURRENT_AREA", (area: string) => ({
+    payload: { area }
+}));
+
+export const setPlayerPosition = createAction("SET_PLAYER_POSITION", (position: { x: number; y: number }) => ({
+    payload: { position }
 }));
 
 // Helpers
@@ -262,5 +274,11 @@ export const gameReducer = createReducer(initState, (builder) => {
         })
         .addCase(updateStats, (state, action: PayloadAction<{ stats: Partial<PlayerStats> }>) => { 
             mergeWith(state.stats, action.payload.stats, (o: number, s: number) => o + s);
+        })
+        .addCase(setCurrentArea, (state, action: PayloadAction<{ area: string }>) => {
+            state.currentArea = action.payload.area;
+        })
+        .addCase(setPlayerPosition, (state, action: PayloadAction<{ position: { x: number; y: number } }>) => {
+            state.playerPosition = action.payload.position;
         });
 });

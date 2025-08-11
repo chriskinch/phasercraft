@@ -10,7 +10,7 @@ import bossTypes from "@config/bosses.json"
 import { sample } from "lodash"
 import { fontConfig } from "../config/fonts"
 
-import { nextWave, toggleHUD } from "@store/gameReducer"
+import { nextWave, toggleHUD, setCurrentArea } from "@store/gameReducer"
 import store from "@store"
 
 import type { EnemyConfig, EnemyOptions } from "@/types/game"
@@ -143,6 +143,17 @@ export default class GameScene extends Scene {
 		if(this.enemies.getChildren().length === 0 && !this.game_over) this.events.emit('enemies:dead');
 
 		if(this.player.alive) this.player.update(mouse, this.cursors, time, delta);
+
+		// Allow ESC key to return to town
+		if (this.cursors.esc?.isDown) {
+			this.returnToTown();
+		}
+	}
+
+	private returnToTown(): void {
+		console.log('Returning to town...');
+		store.dispatch(setCurrentArea("town"));
+		this.scene.start('TownScene', this.config);
 	}
 
 	increaseLevel(): void {

@@ -31,6 +31,6 @@ export default class GameOverScene extends Scene {
 	}
 
 	restartGame(): void {
-		this.scene.start('GameScene');
+		this.scene.start('TownScene');
 	}
 }

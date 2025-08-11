@@ -4,6 +4,7 @@ import { memo, useEffect, useRef } from "react";
 import { Game, AUTO } from 'phaser';
 import LoadScene from '@scenes/LoadScene';
 import SelectScene from '@scenes/SelectScene';
+import TownScene from '@scenes/TownScene';
 import GameScene from '@scenes/GameScene';
 import GameOverScene from '@scenes/GameOverScene';
 
@@ -35,6 +36,7 @@ const PhaserGame = () => {
             scene: [
                 LoadScene,
                 SelectScene,
+                TownScene,
                 GameScene,
                 GameOverScene
             ],
