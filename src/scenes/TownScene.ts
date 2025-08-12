@@ -17,9 +17,6 @@ export default class TownScene extends Scene {
 	private groundLayer!: Phaser.Tilemaps.TilemapLayer;
 	private buildingsLayer!: Phaser.Tilemaps.TilemapLayer;
 	private interactionZones!: Phaser.GameObjects.Group;
-	private townText!: Phaser.GameObjects.BitmapText;
-	private welcomeText!: GameObjects.BitmapText;
-	private instructionsText!: GameObjects.BitmapText;
 	private zone!: Phaser.GameObjects.Zone;
 	public depth_group: Record<string, number> = {
 		BASE: 10,
@@ -38,9 +35,8 @@ export default class TownScene extends Scene {
 	}
 
 	preload(): void {
-		// Load town-specific assets (optional - fallback to simple graphics if not found)
-		// this.load.image("town-tiles", "graphics/tilesets/town_tileset.png");
-		// this.load.tilemapTiledJSON('town-map', 'graphics/tilesets/town_map.json');
+		// All town assets are now loaded in LoadScene
+		// This method can be empty or removed entirely
 	}
 
 	create(): void {
@@ -54,7 +50,24 @@ export default class TownScene extends Scene {
 		
 		this.UI = new UI(this);
 
-		// Create player
+		// Set up pointer input for click-to-move
+		this.input.on('pointerdown', (pointer: Phaser.Input.Pointer, gameObject: Phaser.GameObjects.GameObject[]) => {
+			// Only trigger this if there are no other game objects in the way.
+			if(gameObject.length === 0) {
+				this.events.emit('pointerdown:game', this, this.input.activePointer);
+			}
+		});
+		this.input.on('pointermove', () => {
+			this.events.emit('pointermove:game', this, this.input.activePointer)
+		});
+		this.input.on('pointerup', () => {
+			this.events.emit('pointerup:game', this)
+		});
+
+		// Create town map first to set up world bounds
+		this.createTownEnvironment();
+
+		// Create player after world bounds are set
 		const character = this.config.type || store.getState().game.character;
 		console.log('Character for town scene:', character);
 		
@@ -63,15 +76,11 @@ export default class TownScene extends Scene {
 			throw new Error("No character selected for town scene");
 		}
 
-		const gameState = store.getState().game;
-		const startPos = gameState.currentArea === "town" ? gameState.playerPosition : { x: 400, y: 300 };
-		console.log('Player starting position in town:', startPos);
-
 		try {
 			this.player = new AssignClass(character, {
 				scene: this,
-				x: startPos.x,
-				y: startPos.y
+				x: 400,
+				y: 300
 			}) as PlayerType;
 			console.log('Player created successfully');
 		} catch (error) {
@@ -80,15 +89,17 @@ export default class TownScene extends Scene {
 		}
 
 		// Setup controls
-		
-		this.cursors = this.input.keyboard!.createCursorKeys();
-		this.cursors.esc = this.input.keyboard!.addKey(Input.Keyboard.KeyCodes.ESC);
+		// Mouse capture - using type assertion for Phaser property
+		if (this.input.mouse) {
+			(this.input.mouse as Phaser.Input.Mouse.MouseManager & { capture: boolean }).capture = true;
+		}
+		if (this.input.keyboard) {
+			this.cursors = this.input.keyboard.createCursorKeys();
+			this.cursors.esc = this.input.keyboard.addKey(Input.Keyboard.KeyCodes.ESC);
+		}
 
-		// Create town map (fallback to simple background if tilemap doesn't exist)
-		this.createTownEnvironment();
-
-		// Create interaction zones
-		this.createInteractionZones();
+		// Set up collision detection and interaction zones from Tiled map
+		this.setupCollisionAndInteractions();
 
 		// Create UI elements
 		this.createTownUI();
@@ -104,7 +115,7 @@ export default class TownScene extends Scene {
 		// Set camera to follow player
 		try {
 			this.cameras.main.startFollow(this.player);
-			this.cameras.main.setBounds(0, 0, 800, 600);
+			// Camera bounds will be set in createTownEnvironment based on map size
 			console.log('Camera setup complete');
 		} catch (error) {
 			console.error('Error setting up camera:', error);
@@ -112,8 +123,194 @@ export default class TownScene extends Scene {
 	}
 
 	private createTownEnvironment(): void {
-		// Always use simple background for now since tilemap assets don't exist
-		this.createSimpleTownBackground();
+		try {
+			// Create tilemap from JSON file
+			this.townMap = this.make.tilemap({ key: 'town-map' });
+			
+			// Add all tilesets used in the map (matching what's loaded in LoadScene)
+			const tilesets = {
+				forestVillageStructures: this.townMap.addTilesetImage('forestVillageStructures_ [stallsWatchtower]', 'forestVillageStructures'),
+				forestVillageObjects: this.townMap.addTilesetImage('forestVillageObjects_', 'forestVillageObjects'),
+				forestPath: this.townMap.addTilesetImage('forestPath_', 'forestPath'),
+				forestBridgeHorizontal: this.townMap.addTilesetImage('forest_ [bridgeHorizontal]', 'forestBridgeHorizontal'),
+				forestBridgeVertical: this.townMap.addTilesetImage('forest_ [bridgeVertical]', 'forestBridgeVertical'),
+				forestFencesAndWalls: this.townMap.addTilesetImage('forest_ [fencesAndWalls]', 'forestFencesAndWalls'),
+				forestFountain: this.townMap.addTilesetImage('forest_ [fountain]', 'forestFountain'),
+				forestTerrain: this.townMap.addTilesetImage('forest_', 'forestTerrain'),
+				greenHouse0: this.townMap.addTilesetImage('greenHouse_0_0', 'greenHouse0'),
+				redHouse3: this.townMap.addTilesetImage('redHouse_3_0', 'redHouse3'),
+				tableObjects: this.townMap.addTilesetImage('tableObjects_', 'tableObjects'),
+				forestResources: this.townMap.addTilesetImage('forest_ [resources]-stash', 'forestResources'),
+				furnace: this.townMap.addTilesetImage('furnace_', 'furnace'),
+				stallObjects: this.townMap.addTilesetImage('stallObjects_', 'stallObjects')
+			};
+
+			// Create layers in the correct order
+			const allTilesets = Object.values(tilesets).filter(tileset => tileset !== null);
+			
+			// Define layer names in rendering order
+			const layerNames = [
+				'terrain',
+				'terrain props', 
+				'structure',
+				'structure props',
+				'buildings',
+				'building props',
+				'shop props'
+			];
+			
+			// Create and scale all layers (2x scaling)
+			layerNames.forEach((layerName, index) => {
+				const layer = this.townMap.createLayer(layerName, allTilesets);
+				if (layer) {
+					layer.setScale(2);
+					// Store the first layer as groundLayer for reference
+					if (index === 0) {
+						this.groundLayer = layer;
+					}
+				}
+			});
+			
+			// Set world bounds to match scaled map size (2x larger)
+			const originalMapWidth = this.townMap.widthInPixels;
+			const originalMapHeight = this.townMap.heightInPixels;
+			const mapWidth = originalMapWidth * 2;
+			const mapHeight = originalMapHeight * 2;
+			
+			console.log('Map dimensions - Original:', originalMapWidth, 'x', originalMapHeight, 'Scaled (2x):', mapWidth, 'x', mapHeight);
+			
+			this.physics.world.setBounds(0, 0, mapWidth, mapHeight);
+			
+			// Update camera bounds to match world bounds
+			this.cameras.main.setBounds(0, 0, mapWidth, mapHeight);
+			
+			// Verify bounds were set correctly
+			console.log('World bounds set to:', this.physics.world.bounds);
+			console.log('Camera bounds set to:', this.cameras.main.getBounds());
+			
+		} catch (error) {
+			console.error('Error loading Tiled map:', error);
+			// Fallback to simple background
+			this.createSimpleTownBackground();
+		}
+	}
+
+	private setupCollisionAndInteractions(): void {
+		if (!this.townMap) {
+			// Fallback to simple interaction zones
+			this.createInteractionZones();
+			return;
+		}
+
+		try {
+			// Set up collision with collision map object layer
+			const collisionLayer = this.townMap.getObjectLayer('collision map');
+			if (collisionLayer) {
+				// Create collision bodies from object layer (scaled 2x to match map)
+				collisionLayer.objects.forEach((obj: any) => {
+					const scaledX = obj.x * 2;
+					const scaledY = obj.y * 2;
+					const scaledWidth = obj.width * 2;
+					const scaledHeight = obj.height * 2;
+					
+					if (obj.polygon) {
+						// Handle polygon collision objects - scale polygon points
+						const scaledPolygon = obj.polygon.map((point: any) => ({ x: point.x * 2, y: point.y * 2 }));
+						const collisionBody = this.add.polygon(scaledX, scaledY, scaledPolygon);
+						this.physics.add.existing(collisionBody, true); // true = static body
+						this.physics.add.collider(this.player, collisionBody);
+					} else if (obj.ellipse) {
+						// Handle ellipse collision objects
+						const collisionBody = this.add.ellipse(scaledX + scaledWidth/2, scaledY + scaledHeight/2, scaledWidth, scaledHeight);
+						this.physics.add.existing(collisionBody, true);
+						this.physics.add.collider(this.player, collisionBody);
+					} else {
+						// Handle rectangle collision objects
+						const collisionBody = this.add.rectangle(scaledX + scaledWidth/2, scaledY + scaledHeight/2, scaledWidth, scaledHeight);
+						this.physics.add.existing(collisionBody, true);
+						this.physics.add.collider(this.player, collisionBody);
+					}
+				});
+				console.log(`Set up ${collisionLayer.objects.length} collision objects`);
+			}
+
+			// Set up interaction zones from POI layer
+			const poiLayer = this.townMap.getObjectLayer('POI');
+			if (poiLayer) {
+				this.interactionZones = this.add.group();
+				
+				poiLayer.objects.forEach((poi: any) => {
+					// Create interaction zone around each POI (scaled 2x to match map)
+					const scaledX = poi.x * 2;
+					const scaledY = poi.y * 2;
+					const zone = this.add.zone(scaledX, scaledY, 64, 64); // 64x64 pixel interaction area (2x scaled)
+					this.physics.world.enable(zone);
+					
+					// Map POI names to interaction types
+					let interactionType = 'unknown';
+					let displayName = poi.name;
+					
+					switch (poi.name) {
+						case 'home':
+							interactionType = 'inn';
+							displayName = 'Home';
+							break;
+						case 'stash':
+							interactionType = 'storage';
+							displayName = 'Storage';
+							break;
+						case 'greathall':
+							interactionType = 'inn';
+							displayName = 'Great Hall';
+							break;
+						case 'armory':
+							interactionType = 'shop';
+							displayName = 'Armory';
+							break;
+						case 'alchemist':
+							interactionType = 'shop';
+							displayName = 'Alchemist';
+							break;
+						case 'arcanum':
+							interactionType = 'shop';
+							displayName = 'Arcanum';
+							break;
+						case 'merchant':
+							interactionType = 'shop';
+							displayName = 'Merchant';
+							break;
+						case 'blacksmith':
+							interactionType = 'shop';
+							displayName = 'Blacksmith';
+							break;
+						case 'entrance':
+							interactionType = 'dungeon';
+							displayName = 'Enter Dungeon';
+							break;
+					}
+					
+					zone.setData('type', interactionType);
+					zone.setData('name', displayName);
+					zone.setData('poi', poi.name);
+					this.interactionZones.add(zone);
+					
+					// Add overlap detection
+					this.physics.add.overlap(this.player, zone as Phaser.GameObjects.Zone, (player, zoneObj) => {
+						this.handleZoneOverlap(player, zoneObj as Phaser.GameObjects.Zone);
+					}, undefined, this);
+				});
+				
+				console.log(`Set up ${poiLayer.objects.length} interaction zones from POI layer`);
+			} else {
+				// Fallback to simple interaction zones
+				this.createInteractionZones();
+			}
+			
+		} catch (error) {
+			console.error('Error setting up collisions and interactions:', error);
+			// Fallback to simple interaction zones
+			this.createInteractionZones();
+		}
 	}
 
 	private createSimpleTownBackground(): void {
@@ -185,18 +382,7 @@ export default class TownScene extends Scene {
 	}
 
 	private createTownUI(): void {
-		// Create bitmap font if not already exists
-		if (!this.cache.bitmapFont.exists('wayne-3d')) {
-			this.cache.bitmapFont.add('wayne-3d', GameObjects.RetroFont.Parse(this, fontConfig));
-		}
-
-		// Welcome message
-		this.welcomeText = this.add.bitmapText(400, 50, 'wayne-3d', 'Welcome to Millhaven').setOrigin(0.5);
-		this.welcomeText.setDepth(1000);
-
-		// Instructions
-		this.instructionsText = this.add.bitmapText(400, 550, 'wayne-3d', 'Use ARROW KEYS to move, SPACE to interact').setOrigin(0.5);
-		this.instructionsText.setDepth(1000);
+		// UI elements will be added later
 	}
 
 	private handleZoneOverlap(player: any, zone: Phaser.GameObjects.Zone): void {
@@ -211,9 +397,6 @@ export default class TownScene extends Scene {
 		// Show interaction prompt
 		if (this.cursors.space?.isDown) {
 			this.handleInteraction(zoneType, zoneName);
-		} else {
-			// Update instructions to show interaction is available
-			this.instructionsText.setText(`Press SPACE to interact with ${zoneName}`);
 		}
 	}
 
@@ -223,17 +406,24 @@ export default class TownScene extends Scene {
 
 		switch (type) {
 			case 'inn':
-				console.log('Entering inn...');
+				console.log(`Entering ${name}...`);
 				// Future: this.scene.start('InnScene', this.config);
 				break;
 			case 'shop':
-				console.log('Entering shop...');
-				// Future: this.scene.start('ShopScene', this.config);
+				console.log(`Visiting ${name}...`);
+				// Future: this.scene.start('ShopScene', { ...this.config, shopType: name });
+				break;
+			case 'storage':
+				console.log(`Accessing ${name}...`);
+				// Future: Open storage interface
 				break;
 			case 'dungeon':
 				console.log('Entering dungeon...');
 				store.dispatch(setCurrentArea("dungeon"));
 				this.scene.start('GameScene', this.config);
+				break;
+			default:
+				console.log(`Interacting with ${name}...`);
 				break;
 		}
 	}
@@ -246,19 +436,6 @@ export default class TownScene extends Scene {
 			this.player.update(this.input.activePointer, this.cursors, time, delta);
 		}
 
-		// Reset instruction text when not near any zone
-		let nearZone = false;
-		this.interactionZones.children.entries.forEach(zone => {
-			const playerBounds = this.player.getBounds();
-			const zoneBounds = (zone as Phaser.GameObjects.Zone).getBounds();
-			const distance = Phaser.Geom.Rectangle.Overlaps(playerBounds, zoneBounds);
-			if (distance) {
-				nearZone = true;
-			}
-		});
-
-		if (!nearZone) {
-			this.instructionsText.setText('Use ARROW KEYS to move, SPACE to interact');
-		}
+		// Interaction zone detection for future use
 	}
 }

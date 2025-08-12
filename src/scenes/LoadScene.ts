@@ -58,6 +58,25 @@ export default class LoadScene extends Scene {
 		// Maps
 		this.load.image("tiles", "tilesets/tileset_organic_extruded.png");
 		this.load.tilemapTiledJSON('map', 'tilesets/enchanted_forrest_map.json');
+		
+		// Town assets
+		this.load.tilemapTiledJSON('town-map', 'tilesets/town-tiled-project.tmj');
+		
+		// Town tilesets (only the ones actually used in TMJ file)
+		this.load.image('forestVillageStructures', 'tilesets/forestVillage/forestVillageStructures_ [stallsWatchtower].png');
+		this.load.image('forestVillageObjects', 'tilesets/forestVillage/forestVillageObjects_.png');
+		this.load.image('forestPath', 'tilesets/fantasy/forest_/forestPath_.png');
+		this.load.image('forestBridgeHorizontal', 'tilesets/fantasy/forest_/forest_ [bridgeHorizontal].png');
+		this.load.image('forestBridgeVertical', 'tilesets/fantasy/forest_/forest_ [bridgeVertical].png');
+		this.load.image('forestFencesAndWalls', 'tilesets/fantasy/forest_/forest_ [fencesAndWalls].png');
+		this.load.image('forestFountain', 'tilesets/fantasy/forest_/forest_ [fountain].png');
+		this.load.image('forestTerrain', 'tilesets/fantasy/forest_/forest_.png');
+		this.load.image('greenHouse0', 'tilesets/forestVillage/buildings_/greenHouse_0_0.png');
+		this.load.image('redHouse3', 'tilesets/forestVillage/buildings_/redHouse_3_0.png');
+		this.load.image('tableObjects', 'tilesets/forestVillage/interior_/tableObjects_.png');
+		this.load.image('forestResources', 'tilesets/fantasy/forest_/forest_ [resources].png');
+		this.load.image('furnace', 'tilesets/forestVillage/furnace_.png');
+		this.load.image('stallObjects', 'tilesets/forestVillage/stallObjects_.png');
 	}
 
 	create(){
