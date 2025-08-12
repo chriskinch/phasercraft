@@ -75,8 +75,20 @@ export default class LoadScene extends Scene {
 		this.load.image('redHouse3', 'tilesets/forestVillage/buildings_/redHouse_3_0.png');
 		this.load.image('tableObjects', 'tilesets/forestVillage/interior_/tableObjects_.png');
 		this.load.image('forestResources', 'tilesets/fantasy/forest_/forest_ [resources].png');
-		this.load.image('furnace', 'tilesets/forestVillage/furnace_.png');
+		this.load.spritesheet('furnace', 'spritesheets/furnace_lit.png', {
+			frameWidth: 32,
+			frameHeight: 48,
+			margin: 0, // Spritesheets typically don't have margins
+			spacing: 0
+		});
 		this.load.image('stallObjects', 'tilesets/forestVillage/stallObjects_.png');
+		// Tilesets with custom dimensions
+		this.load.spritesheet('fire', 'spritesheets/fire.png', {
+			frameWidth: 16,
+			frameHeight: 32,
+			margin: 0,
+			spacing: 0
+		});
 	}
 
 	create(){
