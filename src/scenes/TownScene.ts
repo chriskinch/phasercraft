@@ -79,8 +79,8 @@ export default class TownScene extends Scene {
 		try {
 			this.player = new AssignClass(character, {
 				scene: this,
-				x: 400,
-				y: 300
+				x: 90,
+				y: 210
 			}) as PlayerType;
 			console.log('Player created successfully');
 		} catch (error) {
@@ -174,8 +174,8 @@ export default class TownScene extends Scene {
 			// Set world bounds to match scaled map size (2x larger)
 			const originalMapWidth = this.townMap.widthInPixels;
 			const originalMapHeight = this.townMap.heightInPixels;
-			const mapWidth = originalMapWidth * 2;
-			const mapHeight = originalMapHeight * 2;
+			const mapWidth = originalMapWidth * 4;
+			const mapHeight = originalMapHeight * 4;
 			
 			console.log('Map dimensions - Original:', originalMapWidth, 'x', originalMapHeight, 'Scaled (2x):', mapWidth, 'x', mapHeight);
 			

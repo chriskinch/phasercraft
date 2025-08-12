@@ -211,11 +211,12 @@ class Player extends GameObjects.Container {
 		this.dragging = false;
 	}
 
-	moveToPosition(target: { x: number; y: number }): void {
-		this.destination = {
-			x: target.x,
-			y: target.y
-		};
+	getWorldPointer(targetOrPoint: Phaser.Input.Pointer | Enemy) {
+		return this.scene.cameras.main.getWorldPoint(targetOrPoint.x, targetOrPoint.y);
+	}
+
+	moveToPosition(targetOrPoint: Phaser.Input.Pointer | Enemy): void {
+		this.destination = this.getWorldPointer(targetOrPoint);
 		this.scene.physics.moveTo(this, this.destination.x!, this.destination.y!, this.stats.speed);
 		this.walk();
 	}
