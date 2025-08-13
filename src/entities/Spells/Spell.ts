@@ -184,7 +184,8 @@ class Spell extends GameObjects.Sprite {
             .setInteractive()
             .setDepth((this.scene as Scene & { depth_group: { UI: number } }).depth_group.UI)
             .setAlpha(0.4)
-            .setScale(1.5);
+            .setScale(1.5)
+            .setScrollFactor(0);
 
 		let styles = {
 			font: '16px monospace',
