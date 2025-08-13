@@ -107,9 +107,10 @@ export default class TownScene extends Scene {
 			redHouse3: this.townMap.addTilesetImage('redHouse_3_0', 'redHouse3'),
 			tableObjects: this.townMap.addTilesetImage('tableObjects_', 'tableObjects'),
 			forestResources: this.townMap.addTilesetImage('forest_ [resources]', 'forestResources'),
-			furnace: this.townMap.addTilesetImage('furnace_', 'furnace', 32, 48, 0, 0),
 			stallObjects: this.townMap.addTilesetImage('stallObjects_', 'stallObjects'),
-			fire: this.townMap.addTilesetImage('fire', 'fire', 16, 32, 0, 0)
+			furnace: this.townMap.addTilesetImage('furnace_', 'furnace', 32, 48, 0, 0),
+			fire: this.townMap.addTilesetImage('fire', 'fire', 16, 32, 0, 0),
+			fountain: this.townMap.addTilesetImage('fountain', 'fountain', 64, 80, 0, 0)
 		};
 
 		
@@ -216,6 +217,34 @@ export default class TownScene extends Scene {
 			});
 			
 			console.log(`Created ${furnaceLayer.objects.length} furnace objects`);
+		}
+		
+		// Create fountain objects from the fountain object layer
+		const fountainLayer = this.townMap.getObjectLayer('fountain');
+		if (fountainLayer) {
+			fountainLayer.objects.forEach((fountainObj: any) => {
+				const scaledX = fountainObj.x * 2;
+				const scaledY = fountainObj.y * 2;
+				
+				const fountainSprite = this.add.sprite(scaledX, scaledY, 'fountain');
+				fountainSprite.setScale(2);
+				fountainSprite.setOrigin(0, 1);
+				
+				// Create fountain animation if it doesn't exist
+				if (!this.anims.exists('fountain-anim')) {
+					this.anims.create({
+						key: 'fountain-anim',
+						frames: this.anims.generateFrameNumbers('fountain', { start: 0, end: -1 }), // Use all frames
+						frameRate: 6, // Slower animation for water flow
+						repeat: -1
+					});
+				}
+				
+				// Play the fountain animation
+				fountainSprite.play('fountain-anim');
+			});
+			
+			console.log(`Created ${fountainLayer.objects.length} fountain objects`);
 		}
 		
 		// Create stash objects from the stash object layer
