@@ -24,6 +24,9 @@ class UI extends GameObjects.Container {
 			this.setSystemIcon()
 		];
 
+		// Add buttons to this container
+		this.buttons.forEach(button => this.add(button));
+
 		// Position buttons in the bottom right
 		const {x, y, width, height} = this.scene.zone;
 		Actions.IncXY(this.buttons, x + width, y + height, -35);
@@ -54,9 +57,6 @@ class UI extends GameObjects.Container {
 		}, this);
 
 		this.scene.add.existing(this).setDepth(this.scene.depth_group.UI).setScrollFactor(0);
-		
-		// Ensure all children of the container are also camera-relative
-		this.setScrollFactor(0);
 	}
 
 	setSpellFrames(){
@@ -70,28 +70,30 @@ class UI extends GameObjects.Container {
 	}
 
 	setCoinCount(){
-		this.coins = this.scene.add.container(0, 0).setDepth(this.scene.depth_group.UI).setScrollFactor(0);
+		this.coins = this.scene.add.container(0, 0);
 		Display.Align.In.TopRight(this.coins, this.scene.zone, -80);
 
-		this.coins.add(this.scene.add.sprite(0, 0, 'coin-spin').setScrollFactor(0));
-		this.coins.text = this.scene.add.text(15, 0, 'Coins: ', styles).setOrigin(0, 0.5).setScrollFactor(0);
+		this.coins.add(this.scene.add.sprite(0, 0, 'coin-spin'));
+		this.coins.text = this.scene.add.text(15, 0, 'Coins: ', styles).setOrigin(0, 0.5);
 		this.coins.add(this.coins.text);
+		
+		this.add(this.coins);
 	}
 
 	setWaveCount(){
-		this.wave = this.scene.add.container(0, 0).setDepth(this.scene.depth_group.UI).setScrollFactor(0);
+		this.wave = this.scene.add.container(0, 0);
 		Display.Align.In.TopRight(this.wave, this.scene.zone, -190);
 
-		this.wave.add(this.scene.add.sprite(0, 0, 'dungeon', 'ghast_baby').setScrollFactor(0));
-		this.wave.text = this.scene.add.text(15, 0, 'Wave: ' + (this.scene.wave+1), styles).setOrigin(0, 0.5).setScrollFactor(0);
+		this.wave.add(this.scene.add.sprite(0, 0, 'dungeon', 'ghast_baby'));
+		this.wave.text = this.scene.add.text(15, 0, 'Wave: ' + (this.scene.wave+1), styles).setOrigin(0, 0.5);
 		this.wave.add(this.wave.text);
+		
+		this.add(this.wave);
 	}
 
 	setInvetoryIcon() {
 		const button = this.scene.add.sprite(0, 0, 'icon', 'icon_0021_charm')
-			.setInteractive()
-			.setDepth(this.scene.depth_group.UI)
-			.setScrollFactor(0);
+			.setInteractive();
 
 		button.on('pointerdown', () => store.dispatch(toggleUi("equipment")), this);
 		return button;
@@ -99,9 +101,7 @@ class UI extends GameObjects.Container {
 
 	setSystemIcon() {
 		const button = this.scene.add.sprite(0, 0, 'icon', 'icon_0006_golem')
-			.setInteractive()
-			.setDepth(this.scene.depth_group.UI)
-			.setScrollFactor(0);
+			.setInteractive();
 		
 		button.on('pointerdown', () => store.dispatch(toggleUi("system")), this);
 		return button;
