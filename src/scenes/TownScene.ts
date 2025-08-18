@@ -120,7 +120,7 @@ export default class TownScene extends Scene {
 			'terrain props', 
 			'structure',
 			'structure props',
-			'buildings',
+			'building tiles',
 			'building props',
 			'shop props'
 		];
@@ -251,6 +251,23 @@ export default class TownScene extends Scene {
 			
 			console.log(`Created ${stashLayer.objects.length} stash objects`);
 		}
+		
+		// Create buildings from the buildings object layer
+		const buildingsLayer = this.townMap.getObjectLayer('buildings');
+		if (buildingsLayer) {
+			buildingsLayer.objects.forEach((buildingObj: any) => {
+				const scaledX = buildingObj.x * 2;
+				const scaledY = buildingObj.y * 2;
+				
+				// Check if the building object has custom properties for tileset selection
+				const buildingSprite = this.add.sprite(scaledX, scaledY, buildingObj.name);
+				buildingSprite.setScale(2);
+				buildingSprite.setOrigin(0, 1);
+			});
+			
+			console.log(`Created ${buildingsLayer.objects.length} building objects`);
+		}
+		console.log("DISPLAY LIST: ", this.children);
 	}
 
 	private setupCollisions(): void {
@@ -285,13 +302,13 @@ export default class TownScene extends Scene {
 			}
 			
 			// Enable physics and set as static body
-			this.physics.add.existing(collisionBody, true);
+			// this.physics.add.existing(collisionBody, true);
 			
 			// Add collision detection - this will now properly block the player
-			this.physics.add.collider(this.player, collisionBody, () => {
-				// Debounced idle: only set to idle after 500ms of continuous collision
-				this.handleCollisionIdle();
-			});
+			// this.physics.add.collider(this.player, collisionBody, () => {
+			// 	// Debounced idle: only set to idle after 500ms of continuous collision
+			// 	this.handleCollisionIdle();
+			// });
 
 		});
 	}
