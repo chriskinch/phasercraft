@@ -1,8 +1,7 @@
-import { Scene, GameObjects, Input } from 'phaser';
+import { Scene, GameObjects, Input, Tilemaps } from 'phaser';
 import AssignClass from "@entities/Player/AssignClass";
 import store from "@store";
 import { toggleHUD, setCurrentArea, setPlayerPosition } from "@store/gameReducer";
-import { fontConfig } from '../config/fonts';
 import type { PlayerType } from "@entities/Player/AssignClass";
 import type { GameSceneConfig } from "@/scenes/SelectScene";
 import UI from "@entities/UI/HUD";
@@ -10,18 +9,19 @@ import UI from "@entities/UI/HUD";
 export default class TownScene extends Scene {
 	public player!: PlayerType;
 	private config: GameSceneConfig;
-	private cursors!: Phaser.Types.Input.Keyboard.CursorKeys & { esc?: Phaser.Input.Keyboard.Key };
+	private cursors!: Phaser.Types.Input.Keyboard.CursorKeys & { esc?: Input.Keyboard.Key };
 	private global_game_width!: number;
 	private global_game_height!: number;
-	private townMap!: Phaser.Tilemaps.Tilemap;
-	private interactionZones!: Phaser.GameObjects.Group;
-	private zone!: Phaser.GameObjects.Zone;
+	private townMap!: Tilemaps.Tilemap;
+	private interactionZones!: GameObjects.Group;
+	private zone!: GameObjects.Zone;
 	public depth_group: Record<string, number> = {
 		BASE: 10,
 		UI: 10000,
 		TOP: 99999
 	};
 	private UI!: UI;
+	private collisionIdleTimer?: Phaser.Time.TimerEvent;
 
 	constructor() {
 		super({ key: 'TownScene' });
@@ -30,11 +30,6 @@ export default class TownScene extends Scene {
 	init(config: GameSceneConfig): void {
 		this.config = config || {};
 		console.log('TownScene initialized with config:', this.config);
-	}
-
-	preload(): void {
-		// All town assets are now loaded in LoadScene
-		// This method can be empty or removed entirely
 	}
 
 	create(): void {
@@ -48,7 +43,7 @@ export default class TownScene extends Scene {
 		
 		this.UI = new UI(this);
 
-		this.input.on('pointerdown', (pointer: Phaser.Input.Pointer, gameObject: Phaser.GameObjects.GameObject[]) => {
+		this.input.on('pointerdown', (pointer: Input.Pointer, gameObject: GameObjects.GameObject[]) => {
 			// Only trigger this if there are no other game objects in the way.
 			if(gameObject.length === 0) {
 				this.events.emit('pointerdown:game', this, this.input.activePointer);
@@ -73,14 +68,15 @@ export default class TownScene extends Scene {
 		}) as PlayerType;
 
 		if (this.input.mouse) {
-			(this.input.mouse as Phaser.Input.Mouse.MouseManager & { capture: boolean }).capture = true;
+			(this.input.mouse as Input.Mouse.MouseManager & { capture: boolean }).capture = true;
 		}
 		if (this.input.keyboard) {
 			this.cursors = this.input.keyboard.createCursorKeys();
 			this.cursors.esc = this.input.keyboard.addKey(Input.Keyboard.KeyCodes.ESC);
 		}
 
-		// this.setupCollisionAndInteractions();
+		this.setupCollisions();
+		this.setupPOIInteractions();
 
 		this.createTownUI();
 
@@ -131,13 +127,7 @@ export default class TownScene extends Scene {
 		
 		// Create and scale all layers (2x scaling)
 		layerNames.forEach((layerName, index) => {
-			let layer;
-			if(layerName === 'structure props') {
-				layer = this.townMap.createLayer(layerName, allTilesets);
-			}else{
-				layer = this.townMap.createLayer(layerName, allTilesets);
-			}
-			console.log(`Created layer: `, layer);
+			const layer = this.townMap.createLayer(layerName, allTilesets);
 			if (layer) {
 				layer.setScale(2);
 			}
@@ -263,105 +253,120 @@ export default class TownScene extends Scene {
 		}
 	}
 
-	private setupCollisionAndInteractions(): void {
+	private setupCollisions(): void {
 		// Set up collision with collision map object layer
 		const collisionLayer = this.townMap.getObjectLayer('collision map');
-		if (!collisionLayer) throw Error("Collision layer failed to load!") 
-		
+		console.log("Collisions: ", collisionLayer?.objects);
+		if (!collisionLayer) throw Error("Collision layer failed to load!")
+
+		// Ensure player has physics body
+		if (!this.player.body) {
+			console.warn('Player physics body not ready, cannot set up collisions');
+			return;
+		}
+
 		// Create collision bodies from object layer (scaled 2x to match map)
-		collisionLayer.objects.forEach((obj: any) => {
+		collisionLayer.objects.forEach((obj: any, index: number) => {
 			const scaledX = obj.x * 2;
 			const scaledY = obj.y * 2;
 			const scaledWidth = obj.width * 2;
 			const scaledHeight = obj.height * 2;
 			
-			if (obj.polygon) {
-				// Handle polygon collision objects - scale polygon points
-				const scaledPolygon = obj.polygon.map((point: any) => ({ x: point.x * 2, y: point.y * 2 }));
-				const collisionBody = this.add.polygon(scaledX, scaledY, scaledPolygon);
-				this.physics.add.existing(collisionBody, true); // true = static body
-				this.physics.add.collider(this.player, collisionBody);
-			} else if (obj.ellipse) {
+			let collisionBody: GameObjects.GameObject;
+			
+			if (obj.ellipse) {
 				// Handle ellipse collision objects
-				const collisionBody = this.add.ellipse(scaledX + scaledWidth/2, scaledY + scaledHeight/2, scaledWidth, scaledHeight);
-				this.physics.add.existing(collisionBody, true);
-				this.physics.add.collider(this.player, collisionBody);
+				const ellipse = this.add.ellipse(scaledX + scaledWidth/2, scaledY + scaledHeight/2, scaledWidth, scaledHeight);
+				collisionBody = ellipse;
 			} else {
 				// Handle rectangle collision objects
-				const collisionBody = this.add.rectangle(scaledX + scaledWidth/2, scaledY + scaledHeight/2, scaledWidth, scaledHeight);
-				this.physics.add.existing(collisionBody, true);
-				this.physics.add.collider(this.player, collisionBody);
+				const rectangle = this.add.rectangle(scaledX + scaledWidth/2, scaledY + scaledHeight/2, scaledWidth, scaledHeight);
+				collisionBody = rectangle;
 			}
-		});
-		console.log(`Set up ${collisionLayer.objects.length} collision objects`);
+			
+			// Enable physics and set as static body
+			this.physics.add.existing(collisionBody, true);
+			
+			// Add collision detection - this will now properly block the player
+			this.physics.add.collider(this.player, collisionBody, () => {
+				// Debounced idle: only set to idle after 500ms of continuous collision
+				this.handleCollisionIdle();
+			});
 
+		});
+	}
+
+	private handleCollisionIdle(): void {
+		// Clear existing timer if it exists
+		if (this.collisionIdleTimer) {
+			this.collisionIdleTimer.destroy();
+		}
+
+		// Set new timer for 500ms delay
+		this.collisionIdleTimer = this.time.delayedCall(500, () => {
+			if (this.player && this.player.body && this.player.body.speed < 20) {
+				this.player.idle();
+			}
+			this.collisionIdleTimer = undefined;
+		});
+	}
+
+	private setupPOIInteractions(): void {
 		// Set up interaction zones from POI layer
 		const poiLayer = this.townMap.getObjectLayer('POI');
-		if (poiLayer) {
-			this.interactionZones = this.add.group();
+		if (!poiLayer) {
+			console.warn('No POI layer found in town map');
+			return;
+		}
+
+		this.interactionZones = this.add.group();
+		
+		poiLayer.objects.forEach((poi: any) => {
+			// Create interaction zone around each POI (scaled 2x to match map)
+			const scaledX = poi.x * 2;
+			const scaledY = poi.y * 2;
+			const zone = this.add.zone(scaledX, scaledY, 64, 64); // 64x64 pixel interaction area (2x scaled)
+			this.physics.world.enable(zone);
 			
-			poiLayer.objects.forEach((poi: any) => {
-				// Create interaction zone around each POI (scaled 2x to match map)
-				const scaledX = poi.x * 2;
-				const scaledY = poi.y * 2;
-				const zone = this.add.zone(scaledX, scaledY, 64, 64); // 64x64 pixel interaction area (2x scaled)
-				this.physics.world.enable(zone);
-				
-				// Map POI names to interaction types
-				let interactionType = 'unknown';
-				let displayName = poi.name;
-				
-				switch (poi.name) {
-					case 'home':
-						interactionType = 'inn';
-						displayName = 'Home';
-						break;
-					case 'stash':
-						interactionType = 'storage';
-						displayName = 'Storage';
-						break;
-					case 'greathall':
-						interactionType = 'inn';
-						displayName = 'Great Hall';
-						break;
-					case 'armory':
-						interactionType = 'shop';
-						displayName = 'Armory';
-						break;
-					case 'alchemist':
-						interactionType = 'shop';
-						displayName = 'Alchemist';
-						break;
-					case 'arcanum':
-						interactionType = 'shop';
-						displayName = 'Arcanum';
-						break;
-					case 'merchant':
-						interactionType = 'shop';
-						displayName = 'Merchant';
-						break;
-					case 'blacksmith':
-						interactionType = 'shop';
-						displayName = 'Blacksmith';
-						break;
-					case 'entrance':
-						interactionType = 'dungeon';
-						displayName = 'Enter Dungeon';
-						break;
-				}
-				
-				zone.setData('type', interactionType);
-				zone.setData('name', displayName);
-				zone.setData('poi', poi.name);
-				this.interactionZones.add(zone);
-				
-				// Add overlap detection
-				this.physics.add.overlap(this.player, zone as Phaser.GameObjects.Zone, (player, zoneObj) => {
-					this.handleZoneOverlap(player, zoneObj as Phaser.GameObjects.Zone);
-				}, undefined, this);
-			});
+			// Map POI names to interaction types
+			const { interactionType, displayName } = this.mapPOIToInteraction(poi.name);
 			
-			console.log(`Set up ${poiLayer.objects.length} interaction zones from POI layer`);
+			zone.setData('type', interactionType);
+			zone.setData('name', displayName);
+			zone.setData('poi', poi.name);
+			this.interactionZones.add(zone);
+			
+			// Add overlap detection
+			this.physics.add.overlap(this.player, zone as GameObjects.Zone, (player, zoneObj) => {
+				this.handleZoneOverlap(player, zoneObj as GameObjects.Zone);
+			}, undefined, this);
+		});
+		
+		console.log(`Set up ${poiLayer.objects.length} interaction zones from POI layer`);
+	}
+
+	private mapPOIToInteraction(poiName: string): { interactionType: string; displayName: string } {
+		switch (poiName) {
+			case 'home':
+				return { interactionType: 'inn', displayName: 'Home' };
+			case 'stash':
+				return { interactionType: 'storage', displayName: 'Storage' };
+			case 'greathall':
+				return { interactionType: 'inn', displayName: 'Great Hall' };
+			case 'armory':
+				return { interactionType: 'shop', displayName: 'Armory' };
+			case 'alchemist':
+				return { interactionType: 'shop', displayName: 'Alchemist' };
+			case 'arcanum':
+				return { interactionType: 'shop', displayName: 'Arcanum' };
+			case 'merchant':
+				return { interactionType: 'shop', displayName: 'Merchant' };
+			case 'blacksmith':
+				return { interactionType: 'shop', displayName: 'Blacksmith' };
+			case 'entrance':
+				return { interactionType: 'dungeon', displayName: 'Enter Dungeon' };
+			default:
+				return { interactionType: 'unknown', displayName: poiName };
 		}
 	}
 
@@ -369,7 +374,7 @@ export default class TownScene extends Scene {
 		// UI elements will be added later
 	}
 
-	private handleZoneOverlap(player: any, zone: Phaser.GameObjects.Zone): void {
+	private handleZoneOverlap(player: any, zone: GameObjects.Zone): void {
 		const zoneType = zone.getData('type');
 		const zoneName = zone.getData('name');
 

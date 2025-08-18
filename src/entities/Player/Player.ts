@@ -1,4 +1,4 @@
-import { Math as PhaserMath, GameObjects, Scene, Physics } from "phaser";
+import { Math as PhaserMath, GameObjects, Scene, Physics, Display } from "phaser";
 import { v4 as uuid } from 'uuid';
 import Hero from "./Hero";
 import Weapon from "@entities/Weapon";
@@ -66,14 +66,15 @@ class Player extends GameObjects.Container {
 			key: 'player',
 		});
 		this.add(this.hero);
-		
-		this.setSize(this.hero.getBounds().width, this.hero.getBounds().height);
+				
 		scene.physics.world.enable(this);
 		scene.add.existing(this);
-		
+
 		this.body.collideWorldBounds = true;
-		this.body.immovable = true;
+		this.body.immovable = false;
 		this.body.setFriction(0,0);
+
+		this.setCollisionBox();
 
 		this.boons = new Boons(this.scene, this);
 
@@ -365,6 +366,27 @@ class Player extends GameObjects.Container {
 			length: 2000,
 			gravity: 50
 		}));
+	}
+
+	/**
+	 * Adjusts the player's collision box size and position
+	 * Useful for fine-tuning collision detection for different player sprites
+	 */
+	setCollisionBox(height: number = 8): void {
+		if (!this.body) return;
+
+		this.body.debugBodyColor = 0x00ff00;
+
+		const heroHeight = this.hero.getBounds().height;
+		const heroWidth = this.hero.getBounds().width;
+		const collisionHeight = heroHeight / 4;
+
+		this.body.setSize(heroWidth, collisionHeight);
+
+		this.body.setOffset(
+			-(heroWidth / 2),
+			(heroHeight / 2) - collisionHeight
+		);
 	}
 
 	createAnimations(type: string): void {
