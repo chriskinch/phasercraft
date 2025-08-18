@@ -71,8 +71,18 @@ export default class LoadScene extends Scene {
 		this.load.image('forestFencesAndWalls', 'tilesets/fantasy/forest_/forest_ [fencesAndWalls].png');
 		this.load.image('forestFountain', 'tilesets/fantasy/forest_/forest_ [fountain].png');
 		this.load.image('forestTerrain', 'tilesets/fantasy/forest_/forest_.png');
-		this.load.image('greenHouse0', 'tilesets/forestVillage/buildings_/greenHouse_0_0.png');
-		this.load.image('redHouse3', 'tilesets/forestVillage/buildings_/redHouse_3_0.png');
+		this.load.spritesheet('greenHouse0', 'tilesets/forestVillage/buildings_/greenHouse_0_0.png', {
+			frameWidth: 96,
+			frameHeight: 96,
+			margin: 16,
+			spacing: 0
+		});
+		this.load.spritesheet('redHouse3', 'tilesets/forestVillage/buildings_/redHouse_3_0.png', {
+			frameWidth: 112,
+			frameHeight: 112,
+			margin: 16,
+			spacing: 0
+		});
 		this.load.image('tableObjects', 'tilesets/forestVillage/interior_/tableObjects_.png');
 		this.load.image('forestResources', 'tilesets/fantasy/forest_/forest_ [resources].png');
 		this.load.image('stallObjects', 'tilesets/forestVillage/stallObjects_.png');
