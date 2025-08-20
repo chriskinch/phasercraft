@@ -3,6 +3,7 @@ import AssignClass from "@entities/Player/AssignClass";
 import store from "@store";
 import { toggleHUD, setCurrentArea, setPlayerPosition } from "@store/gameReducer";
 import type { PlayerType } from "@entities/Player/AssignClass";
+import type Player from "@entities/Player/Player";
 import type { GameSceneConfig } from "@/scenes/SelectScene";
 import UI from "@entities/UI/HUD";
 
@@ -20,6 +21,11 @@ export default class TownScene extends Scene {
 		UI: 10000,
 		TOP: 99999
 	};
+	// Depth sorting function based on Y position
+	private setDepthByY(sprite: GameObjects.Sprite | Player, offset: number = 0): void {
+		const baseDepth = 1000;
+		sprite.setDepth(baseDepth + sprite.y + offset);
+	}
 	private UI!: UI;
 	private collisionIdleTimer?: Phaser.Time.TimerEvent;
 
@@ -99,7 +105,7 @@ export default class TownScene extends Scene {
 			forestFencesAndWalls: this.townMap.addTilesetImage('forest_ [fencesAndWalls]', 'forestFencesAndWalls'),
 			forestFountain: this.townMap.addTilesetImage('forest_ [fountain]', 'forestFountain'),
 			forestTerrain: this.townMap.addTilesetImage('forest_', 'forestTerrain'),
-			greenHouse0: this.townMap.addTilesetImage('greenHouse_0_0', 'greenHouse0'),
+			home: this.townMap.addTilesetImage('greenHouse_0_0', 'greenHouse0'),
 			redHouse3: this.townMap.addTilesetImage('redHouse_3_0', 'redHouse3'),
 			tableObjects: this.townMap.addTilesetImage('tableObjects_', 'tableObjects'),
 			forestResources: this.townMap.addTilesetImage('forest_ [resources]', 'forestResources'),
@@ -176,6 +182,9 @@ export default class TownScene extends Scene {
 				
 				// Play the fire animation
 				fireSprite.play('fire-anim');
+				
+				// Set depth based on Y position for proper rendering order
+				this.setDepthByY(fireSprite);
 			});
 			
 			console.log(`Created ${fireLayer.objects.length} fire objects`);
@@ -204,6 +213,9 @@ export default class TownScene extends Scene {
 				
 				// Play the furnace animation
 				furnaceSprite.play('furnace-anim');
+				
+				// Set depth based on Y position for proper rendering order
+				this.setDepthByY(furnaceSprite);
 			});
 			
 			console.log(`Created ${furnaceLayer.objects.length} furnace objects`);
@@ -232,6 +244,9 @@ export default class TownScene extends Scene {
 				
 				// Play the fountain animation
 				fountainSprite.play('fountain-anim');
+				
+				// Set depth based on Y position for proper rendering order
+				this.setDepthByY(fountainSprite);
 			});
 			
 			console.log(`Created ${fountainLayer.objects.length} fountain objects`);
@@ -247,6 +262,9 @@ export default class TownScene extends Scene {
 				const stashSprite = this.add.sprite(scaledX, scaledY, 'forestResources');
 				stashSprite.setScale(2);
 				stashSprite.setOrigin(0, 1);
+				
+				// Set depth based on Y position for proper rendering order
+				this.setDepthByY(stashSprite);
 			});
 			
 			console.log(`Created ${stashLayer.objects.length} stash objects`);
@@ -263,6 +281,9 @@ export default class TownScene extends Scene {
 				const buildingSprite = this.add.sprite(scaledX, scaledY, buildingObj.name);
 				buildingSprite.setScale(2);
 				buildingSprite.setOrigin(0, 1);
+				
+				// Set depth based on Y position for proper rendering order
+				this.setDepthByY(buildingSprite);
 			});
 			
 			console.log(`Created ${buildingsLayer.objects.length} building objects`);
@@ -302,13 +323,13 @@ export default class TownScene extends Scene {
 			}
 			
 			// Enable physics and set as static body
-			// this.physics.add.existing(collisionBody, true);
+			this.physics.add.existing(collisionBody, true);
 			
 			// Add collision detection - this will now properly block the player
-			// this.physics.add.collider(this.player, collisionBody, () => {
-			// 	// Debounced idle: only set to idle after 500ms of continuous collision
-			// 	this.handleCollisionIdle();
-			// });
+			this.physics.add.collider(this.player, collisionBody, () => {
+				// Debounced idle: only set to idle after 500ms of continuous collision
+				this.handleCollisionIdle();
+			});
 
 		});
 	}
@@ -441,6 +462,10 @@ export default class TownScene extends Scene {
 		if(this.player.alive) {
 			this.player.update(this.input.activePointer, this.cursors, time, delta);
 		}
+
+		// Update player depth based on Y position for proper sprite layering
+		// Use bottom position (feet) for more accurate depth sorting
+		this.setDepthByY(this.player, this.player.getBounds().height / 2);
 
 		// Interaction zone detection for future use
 	}
