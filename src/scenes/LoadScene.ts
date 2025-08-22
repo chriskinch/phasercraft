@@ -71,21 +71,34 @@ export default class LoadScene extends Scene {
 		this.load.image('forestFencesAndWalls', 'tilesets/fantasy/forest_/forest_ [fencesAndWalls].png');
 		this.load.image('forestFountain', 'tilesets/fantasy/forest_/forest_ [fountain].png');
 		this.load.image('forestTerrain', 'tilesets/fantasy/forest_/forest_.png');
-		this.load.spritesheet('greenHouse0', 'tilesets/forestVillage/buildings_/greenHouse_0_0.png', {
+		this.load.image('armory', 'tilesets/forestVillage/stalls_/stall_blue_long.png');
+		this.load.image('huntersLodge', 'tilesets/forestVillage/stalls_/tower_green.png');
+		this.load.image('alchemist', 'tilesets/forestVillage/stalls_/stall_green_short.png');
+		this.load.image('arcanum', 'tilesets/forestVillage/stalls_/stall_red_short.png');
+		this.load.image('tableObjects', 'tilesets/forestVillage/interior_/tableObjects_.png');
+		this.load.image('forestResources', 'tilesets/fantasy/forest_/forest_ [resources].png');
+		this.load.image('stallObjects', 'tilesets/forestVillage/stallObjects_.png');
+		this.load.image('stool', "tilesets/forestVillage/props_/forestVillageObjects_stool.png");
+		
+		// spritesheets
+		this.load.spritesheet('home', 'tilesets/forestVillage/buildings_/greenHouse_0_0.png', {
 			frameWidth: 96,
 			frameHeight: 96,
 			margin: 16,
 			spacing: 0
 		});
-		this.load.spritesheet('redHouse3', 'tilesets/forestVillage/buildings_/redHouse_3_0.png', {
+		this.load.spritesheet('greathall', 'tilesets/forestVillage/buildings_/redHouse_3_0.png', {
 			frameWidth: 112,
 			frameHeight: 112,
 			margin: 16,
 			spacing: 0
 		});
-		this.load.image('tableObjects', 'tilesets/forestVillage/interior_/tableObjects_.png');
-		this.load.image('forestResources', 'tilesets/fantasy/forest_/forest_ [resources].png');
-		this.load.image('stallObjects', 'tilesets/forestVillage/stallObjects_.png');
+		this.load.spritesheet('wells', 'tilesets/forestVillage/wells.png', {
+			frameWidth: 96,
+			frameHeight: 48,
+			margin: 0,
+			spacing: 0
+		});
 		this.load.spritesheet('furnace', 'spritesheets/furnace_lit.png', {
 			frameWidth: 32,
 			frameHeight: 48,
@@ -98,9 +111,27 @@ export default class LoadScene extends Scene {
 			margin: 0,
 			spacing: 0
 		});
-		this.load.spritesheet('fountain', 'spritesheets/fountain_flowing.png', {
+		this.load.spritesheet('fountain_flowing', 'spritesheets/fountain_flowing.png', {
 			frameWidth: 64,
 			frameHeight: 80,
+			margin: 0,
+			spacing: 0
+		});
+		this.load.spritesheet('container_stacks', 'tilesets/forestVillage/props_/forestVillageObjects_container_stacks.png', {
+			frameWidth: 32,
+			frameHeight: 32,
+			margin: 0,
+			spacing: 0
+		});
+		this.load.spritesheet('signs', 'tilesets/fantasy/forest_/forest_resources_signs.png', {
+			frameWidth: 16,
+			frameHeight: 32,
+			margin: 0,
+			spacing: 0
+		});
+		this.load.spritesheet('containers', 'tilesets/forestVillage/props_/forestVillageObjects_containers.png', {
+			frameWidth: 16,
+			frameHeight: 32,
 			margin: 0,
 			spacing: 0
 		});

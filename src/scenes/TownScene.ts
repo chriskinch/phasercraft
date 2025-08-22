@@ -25,6 +25,32 @@ export default class TownScene extends Scene {
 	private setDepthByY(sprite: GameObjects.Sprite | Player, offset: number = 0): void {
 		const baseDepth = 1000;
 		sprite.setDepth(baseDepth + sprite.y + offset);
+		// console.log("DEPTH: ", baseDepth + sprite.y + offset)
+	}
+	
+	// Abstracted animation creation function
+	private createAnimationForSprite(sprite: GameObjects.Sprite, animConfig: {
+		key: string;
+		frameStart: number;
+		frameEnd: number;
+		frameRate: number;
+		repeat?: number;
+	}): void {
+		// Create animation if it doesn't exist
+		if (!this.anims.exists(animConfig.key)) {
+			this.anims.create({
+				key: animConfig.key,
+				frames: this.anims.generateFrameNumbers(sprite.texture.key, { 
+					start: animConfig.frameStart, 
+					end: animConfig.frameEnd 
+				}),
+				frameRate: animConfig.frameRate,
+				repeat: animConfig.repeat ?? -1
+			});
+		}
+		
+		// Play the animation
+		sprite.play(animConfig.key);
 	}
 	private UI!: UI;
 	private collisionIdleTimer?: Phaser.Time.TimerEvent;
@@ -96,60 +122,72 @@ export default class TownScene extends Scene {
 		this.townMap = this.make.tilemap({ key: 'town-map' });
 		
 		// Add all tilesets used in the map (matching what's loaded in LoadScene)
+		// The first parameter must match the tileset name in the .tmj file exactly
+		// The second parameter must match the loaded image key from LoadScene
 		const tilesets = {
-			forestVillageStructures: this.townMap.addTilesetImage('forestVillageStructures_ [stallsWatchtower]', 'forestVillageStructures'),
 			forestVillageObjects: this.townMap.addTilesetImage('forestVillageObjects_', 'forestVillageObjects'),
 			forestPath: this.townMap.addTilesetImage('forestPath_', 'forestPath'),
+			forestResources: this.townMap.addTilesetImage('forest_ [resources]', 'forestResources'),
+			forestTerrain: this.townMap.addTilesetImage('forest_', 'forestTerrain'),
+			forestStructures: this.townMap.addTilesetImage('forestVillageStructures_ [stallsWatchtower]', 'forestVillageStructures'),
 			forestBridgeHorizontal: this.townMap.addTilesetImage('forest_ [bridgeHorizontal]', 'forestBridgeHorizontal'),
 			forestBridgeVertical: this.townMap.addTilesetImage('forest_ [bridgeVertical]', 'forestBridgeVertical'),
 			forestFencesAndWalls: this.townMap.addTilesetImage('forest_ [fencesAndWalls]', 'forestFencesAndWalls'),
 			forestFountain: this.townMap.addTilesetImage('forest_ [fountain]', 'forestFountain'),
-			forestTerrain: this.townMap.addTilesetImage('forest_', 'forestTerrain'),
-			home: this.townMap.addTilesetImage('greenHouse_0_0', 'greenHouse0'),
-			redHouse3: this.townMap.addTilesetImage('redHouse_3_0', 'redHouse3'),
-			tableObjects: this.townMap.addTilesetImage('tableObjects_', 'tableObjects'),
-			forestResources: this.townMap.addTilesetImage('forest_ [resources]', 'forestResources'),
-			stallObjects: this.townMap.addTilesetImage('stallObjects_', 'stallObjects'),
-			furnace: this.townMap.addTilesetImage('furnace_', 'furnace', 32, 48, 0, 0),
-			fire: this.townMap.addTilesetImage('fire', 'fire', 16, 32, 0, 0),
-			fountain: this.townMap.addTilesetImage('fountain', 'fountain', 64, 80, 0, 0)
+			home: this.townMap.addTilesetImage('greenHouse_0_0', 'home'),
+			greathall: this.townMap.addTilesetImage('redHouse_3_0', 'greathall'),
+			armory: this.townMap.addTilesetImage('forestVillage/stalls_/stall_blue_long.png', 'armory'),
+			huntersLodge: this.townMap.addTilesetImage('forestVillage/stalls_/tower_green.png', 'huntersLodge'),
+			alchemist: this.townMap.addTilesetImage('forestVillage/stalls_/stall_green_short.png', 'alchemist'),
+			arcanum: this.townMap.addTilesetImage('forestVillage/stalls_/stall_red_short.png', 'arcanum'),
+			wells: this.townMap.addTilesetImage('wells', 'wells'),
+			furnace_lit: this.townMap.addTilesetImage('furnace', 'furnace'),
+			container_stacks: this.townMap.addTilesetImage('forestVillageObjects_container_stacks', 'container_stacks'),
+			stool: this.townMap.addTilesetImage('forestVillage/props_/forestVillageObjects_stool.png', 'stool'),
+			signs: this.townMap.addTilesetImage('forest_resources_signs', 'signs'),
+			containers: this.townMap.addTilesetImage('forestVillageObjects_containers', 'containers'),
 		};
 
+		// Create tile layers (base terrain layers)
+		const terrainLayer = this.townMap.createLayer('terrain', [
+			tilesets.forestTerrain,
+			tilesets.forestPath,
+			tilesets.forestResources,
+			tilesets.forestBridgeHorizontal,
+			tilesets.forestBridgeVertical,
+			tilesets.forestFencesAndWalls,
+			tilesets.forestFountain
+		]);
 		
-
-		// Create layers in the correct order
-		const allTilesets = Object.values(tilesets).filter(tileset => tileset !== null);
+		const terrainPropsLayer = this.townMap.createLayer('terrain props', [
+			tilesets.forestVillageObjects,
+			tilesets.forestStructures,
+			tilesets.forestTerrain,
+			tilesets.forestPath,
+			tilesets.forestResources
+		]);
 		
-		// Define layer names in rendering order
-		const layerNames = [
-			'terrain',
-			'terrain props', 
-			'structure',
-			'structure props',
-			'building tiles',
-			'building props',
-			'shop props'
-		];
+		const structureLayer = this.townMap.createLayer('structure', [
+			tilesets.forestVillageStructures,
+			tilesets.forestVillageObjects,
+			tilesets.forestTerrain
+		]);
 		
-		// Create and scale all layers (2x scaling)
-		layerNames.forEach((layerName, index) => {
-			const layer = this.townMap.createLayer(layerName, allTilesets);
-			if (layer) {
-				layer.setScale(2);
-			}
-		});
+		// Scale all layers to 2x
+		if (terrainLayer) terrainLayer.setScale(2);
+		if (terrainPropsLayer) terrainPropsLayer.setScale(2);
+		if (structureLayer) structureLayer.setScale(2);
 		
-		// Create objects from object layers
+		// Create object layers for buildings and animated objects
 		this.createObjectLayers();
+		
 		
 		// Set world bounds to match scaled map size (2x larger)
 		const originalMapWidth = this.townMap.widthInPixels;
 		const originalMapHeight = this.townMap.heightInPixels;
 		const mapWidth = originalMapWidth * 2;
 		const mapHeight = originalMapHeight * 2;
-		
-		console.log('Map dimensions - Original:', originalMapWidth, 'x', originalMapHeight, 'Scaled (2x):', mapWidth, 'x', mapHeight);
-		
+				
 		this.physics.world.setBounds(0, 0, mapWidth, mapHeight);
 		
 		// Update camera bounds to match world bounds
@@ -157,144 +195,104 @@ export default class TownScene extends Scene {
 	}
 
 	private createObjectLayers(): void {
-		// Create fire objects from the fire object layer
-		const fireLayer = this.townMap.getObjectLayer('fire');
-		if (fireLayer) {
-			fireLayer.objects.forEach((fireObj: any) => {
-				// Scale position to match 2x scaled map
-				const scaledX = fireObj.x * 2;
-				const scaledY = fireObj.y * 2;
-				
-				// Create fire sprite using the tileset
-				const fireSprite = this.add.sprite(scaledX, scaledY, 'fire');
-				fireSprite.setScale(2); // Match map scaling
-				fireSprite.setOrigin(0, 1); // Align to bottom-left like Tiled objects
-				
-				// Create fire animation if it doesn't exist
-				if (!this.anims.exists('fire-anim')) {
-					this.anims.create({
-						key: 'fire-anim',
-						frames: this.anims.generateFrameNumbers('fire', { start: 0, end: 3 }),
-						frameRate: 10,
-						repeat: -1
-					});
-				}
-				
-				// Play the fire animation
-				fireSprite.play('fire-anim');
-				
-				// Set depth based on Y position for proper rendering order
-				this.setDepthByY(fireSprite);
-			});
-			
-			console.log(`Created ${fireLayer.objects.length} fire objects`);
-		}
+		// Use Phaser's built-in createFromObjects method for buildings layer
+		const buildingSprites = this.townMap.createFromObjects('buildings', {
+			classType: GameObjects.Sprite,
+			scene: this
+		});
+		console.log("SPRITES: ", buildingSprites)
+
+		// Scale and configure building sprites
+		buildingSprites.forEach((sprite: GameObjects.Sprite) => {
+			sprite.setScale(2);
+			// sprite.setOrigin(0, 0); // Bottom-left origin to match Tiled positioning
+			sprite.setX(sprite.x * 2);
+			sprite.setY(sprite.y * 2);
+			this.setDepthByY(sprite, sprite.getBounds().height);
+		});
 		
-		// Create furnace objects from the furnace object layer
-		const furnaceLayer = this.townMap.getObjectLayer('furnace');
-		if (furnaceLayer) {
-			furnaceLayer.objects.forEach((furnaceObj: any) => {
-				const scaledX = furnaceObj.x * 2;
-				const scaledY = furnaceObj.y * 2;
-				
-				const furnaceSprite = this.add.sprite(scaledX, scaledY, 'furnace');
-				furnaceSprite.setScale(2);
-				furnaceSprite.setOrigin(0, 1);
-				
-				// Create furnace animation if it doesn't exist
-				if (!this.anims.exists('furnace-anim')) {
-					this.anims.create({
-						key: 'furnace-anim',
-						frames: this.anims.generateFrameNumbers('furnace', { start: 0, end: 7 }), // 8 frame animation (frames 0-7)
-						frameRate: 8,
-						repeat: -1
-					});
-				}
-				
-				// Play the furnace animation
-				furnaceSprite.play('furnace-anim');
-				
-				// Set depth based on Y position for proper rendering order
-				this.setDepthByY(furnaceSprite);
-			});
-			
-			console.log(`Created ${furnaceLayer.objects.length} furnace objects`);
-		}
+		// Use createFromObjects for props layer
+		const propSprites = this.townMap.createFromObjects('props', {
+			classType: GameObjects.Sprite,
+			scene: this
+		});
 		
-		// Create fountain objects from the fountain object layer
-		const fountainLayer = this.townMap.getObjectLayer('fountain');
-		if (fountainLayer) {
-			fountainLayer.objects.forEach((fountainObj: any) => {
-				const scaledX = fountainObj.x * 2;
-				const scaledY = fountainObj.y * 2;
-				
-				const fountainSprite = this.add.sprite(scaledX, scaledY, 'fountain');
-				fountainSprite.setScale(2);
-				fountainSprite.setOrigin(0, 1);
-				
-				// Create fountain animation if it doesn't exist
-				if (!this.anims.exists('fountain-anim')) {
-					this.anims.create({
-						key: 'fountain-anim',
-						frames: this.anims.generateFrameNumbers('fountain', { start: 0, end: -1 }), // Use all frames
-						frameRate: 6, // Slower animation for water flow
-						repeat: -1
-					});
-				}
-				
-				// Play the fountain animation
-				fountainSprite.play('fountain-anim');
-				
-				// Set depth based on Y position for proper rendering order
-				this.setDepthByY(fountainSprite);
-			});
+		// Scale and configure prop sprites, add animations where needed
+		propSprites.forEach((sprite: GameObjects.Sprite) => {
+			sprite.setScale(2);
+			sprite.setX(sprite.x * 2);
+			sprite.setY(sprite.y * 2);
+			this.setDepthByY(sprite, sprite.getBounds().height);
 			
-			console.log(`Created ${fountainLayer.objects.length} fountain objects`);
-		}
+			// Add animations for specific animated props
+			this.addAnimationsToSprite(sprite);
+		});
+	}
+	
+	private addAnimationsToSprite(sprite: GameObjects.Sprite): void {
+		// Check the texture key to determine what animations to add
+		const textureKey = sprite.texture.key;
 		
-		// Create stash objects from the stash object layer
-		const stashLayer = this.townMap.getObjectLayer('stash');
-		if (stashLayer) {
-			stashLayer.objects.forEach((stashObj: any) => {
-				const scaledX = stashObj.x * 2;
-				const scaledY = stashObj.y * 2;
+		switch (textureKey) {
+			case 'home':
+				this.createAnimationForSprite(sprite, {
+					key: 'home-anim',
+					frameStart: 0,
+					frameEnd: 1,
+					frameRate: 2
+				});
+				break;
 				
-				const stashSprite = this.add.sprite(scaledX, scaledY, 'forestResources');
-				stashSprite.setScale(2);
-				stashSprite.setOrigin(0, 1);
+			case 'greathall':
+				this.createAnimationForSprite(sprite, {
+					key: 'greathall-anim',
+					frameStart: 0,
+					frameEnd: 1,
+					frameRate: 2
+				});
+				break;
 				
-				// Set depth based on Y position for proper rendering order
-				this.setDepthByY(stashSprite);
-			});
-			
-			console.log(`Created ${stashLayer.objects.length} stash objects`);
+			case 'furnace':
+				this.createAnimationForSprite(sprite, {
+					key: 'furnace-anim',
+					frameStart: 0,
+					frameEnd: 2,
+					frameRate: 6
+				});
+				break;
+				
+			case 'fire':
+				this.createAnimationForSprite(sprite, {
+					key: 'fire-anim',
+					frameStart: 0,
+					frameEnd: 3,
+					frameRate: 8
+				});
+				break;
+				
+			case 'fountain_flowing':
+				this.createAnimationForSprite(sprite, {
+					key: 'fountain-anim',
+					frameStart: 0,
+					frameEnd: 3,
+					frameRate: 4
+				});
+				break;
+				
+			case 'wells':
+				this.createAnimationForSprite(sprite, {
+					key: 'wells-anim',
+					frameStart: 0,
+					frameEnd: 1,
+					frameRate: 3
+				});
+				break;
 		}
-		
-		// Create buildings from the buildings object layer
-		const buildingsLayer = this.townMap.getObjectLayer('buildings');
-		if (buildingsLayer) {
-			buildingsLayer.objects.forEach((buildingObj: any) => {
-				const scaledX = buildingObj.x * 2;
-				const scaledY = buildingObj.y * 2;
-				
-				// Check if the building object has custom properties for tileset selection
-				const buildingSprite = this.add.sprite(scaledX, scaledY, buildingObj.name);
-				buildingSprite.setScale(2);
-				buildingSprite.setOrigin(0, 1);
-				
-				// Set depth based on Y position for proper rendering order
-				this.setDepthByY(buildingSprite);
-			});
-			
-			console.log(`Created ${buildingsLayer.objects.length} building objects`);
-		}
-		console.log("DISPLAY LIST: ", this.children);
 	}
 
 	private setupCollisions(): void {
 		// Set up collision with collision map object layer
 		const collisionLayer = this.townMap.getObjectLayer('collision map');
-		console.log("Collisions: ", collisionLayer?.objects);
 		if (!collisionLayer) throw Error("Collision layer failed to load!")
 
 		// Ensure player has physics body
