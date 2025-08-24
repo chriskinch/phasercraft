@@ -81,9 +81,6 @@ export default class LoadScene extends Scene {
 		this.load.image('stool', "tilesets/forestVillage/props_/forestVillageObjects_stool.png");
 		this.load.image('stalls', 'tilesets/forestVillage/stalls_/stalls.png');
 		this.load.image('outdoor_tables', 'tilesets/forestVillage/props_/forestVillageObjects_outdoor_tables.png');
-		this.load.image('forest_trees', 'tilesets/fantasy/forest_/forest_resources_trees.png');
-		this.load.image('forest_bushes_rocks', 'tilesets/fantasy/forest_/forest_resources_bushes_rocks_ores.png');
-		this.load.image('stash', 'tilesets/fantasy/forest_/stash.png');
 		this.load.image('sign_post', 'tilesets/fantasy/forest_/sign_post.png');
 		this.load.image('bench', 'tilesets/forestVillage/props_/forestVillageObjects_bench.png');
 		this.load.image('table', 'tilesets/forestVillage/props_/forestVillageObjects_table.png');
@@ -106,12 +103,12 @@ export default class LoadScene extends Scene {
 			spacing: 0
 		});
 		this.load.spritesheet('wells', 'tilesets/forestVillage/wells.png', {
-			frameWidth: 96,
+			frameWidth: 32,
 			frameHeight: 48,
 			margin: 0,
 			spacing: 0
 		});
-		this.load.spritesheet('furnace', 'spritesheets/furnace_lit.png', {
+		this.load.spritesheet('furnace_lit', 'spritesheets/furnace_lit.png', {
 			frameWidth: 32,
 			frameHeight: 48,
 			margin: 0,
@@ -142,6 +139,24 @@ export default class LoadScene extends Scene {
 			spacing: 0
 		});
 		this.load.spritesheet('containers', 'tilesets/forestVillage/props_/forestVillageObjects_containers.png', {
+			frameWidth: 16,
+			frameHeight: 32,
+			margin: 0,
+			spacing: 0
+		});
+		this.load.spritesheet('forest_bushes_rocks', 'tilesets/fantasy/forest_/forest_resources_bushes_rocks_ores.png', {
+			frameWidth: 16,
+			frameHeight: 16,
+			margin: 0,
+			spacing: 0
+		});
+		this.load.spritesheet('stash', 'tilesets/fantasy/forest_/stash.png', {
+			frameWidth: 32,
+			frameHeight: 32,
+			margin: 0,
+			spacing: 0
+		});
+		this.load.spritesheet('forest_trees', 'tilesets/fantasy/forest_/forest_resources_trees.png', {
 			frameWidth: 16,
 			frameHeight: 32,
 			margin: 0,

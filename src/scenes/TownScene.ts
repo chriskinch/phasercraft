@@ -23,9 +23,11 @@ export default class TownScene extends Scene {
 	};
 	// Depth sorting function based on Y position
 	private setDepthByY(sprite: GameObjects.Sprite | Player, offset: number = 0): void {
-		const baseDepth = 1000;
-		sprite.setDepth(baseDepth + sprite.y + offset);
-		// console.log("DEPTH: ", baseDepth + sprite.y + offset)
+		sprite.setDepth(sprite.y + (sprite.height/2) + offset);
+		// console.log("NAME: ", sprite.name)
+		// console.log("BASE DEPTH: ", baseDepth)
+		console.log("DEPTH: ", sprite.name, sprite.y, (sprite.height/2), offset)
+		// console.log("OFFSET: ", offset)
 	}
 	
 	// Abstracted animation creation function
@@ -141,7 +143,7 @@ export default class TownScene extends Scene {
 			alchemist: this.townMap.addTilesetImage('forestVillage/stalls_/stall_green_short.png', 'alchemist'),
 			arcanum: this.townMap.addTilesetImage('forestVillage/stalls_/stall_red_short.png', 'arcanum'),
 			wells: this.townMap.addTilesetImage('wells', 'wells'),
-			furnace_lit: this.townMap.addTilesetImage('furnace', 'furnace'),
+			furnace_lit: this.townMap.addTilesetImage('furnace_lit', 'furnace_lit'),
 			container_stacks: this.townMap.addTilesetImage('forestVillageObjects_container_stacks', 'container_stacks'),
 			stool: this.townMap.addTilesetImage('forestVillage/props_/forestVillageObjects_stool.png', 'stool'),
 			signs: this.townMap.addTilesetImage('forest_resources_signs', 'signs'),
@@ -164,35 +166,22 @@ export default class TownScene extends Scene {
 			arch: this.townMap.addTilesetImage('fantasy/forest_/forest_fencesAndWalls_arch.png', 'arch')
 		};
 
-		// Create tile layers (base terrain layers)
-		const terrainLayer = this.townMap.createLayer('terrain', [
-			tilesets.forestTerrain,
-			tilesets.forestPath,
-			tilesets.forestResources,
-			tilesets.forestBridgeHorizontal,
-			tilesets.forestBridgeVertical,
-			tilesets.forestFencesAndWalls,
-			tilesets.forestFountain
-		]);
-		
-		const terrainPropsLayer = this.townMap.createLayer('terrain props', [
-			tilesets.forestVillageObjects,
-			tilesets.forestStructures,
-			tilesets.forestTerrain,
-			tilesets.forestPath,
-			tilesets.forestResources
-		]);
-		
-		const structureLayer = this.townMap.createLayer('structure', [
-			tilesets.forestVillageStructures,
-			tilesets.forestVillageObjects,
-			tilesets.forestTerrain
-		]);
-		
-		// Scale all layers to 2x
-		if (terrainLayer) terrainLayer.setScale(2);
-		if (terrainPropsLayer) terrainPropsLayer.setScale(2);
-		if (structureLayer) structureLayer.setScale(2);
+		// Create layers in the correct order
+		const allTilesets = Object.values(tilesets).filter(tileset => tileset !== null);
+
+		const layerNames = [
+			'terrain',
+			'terrain props', 
+			'structure',
+			'flairs'
+		];
+		// Create and scale all layers (2x scaling)
+		layerNames.forEach((layerName, index) => {
+			const layer = this.townMap.createLayer(layerName, allTilesets);
+			if (layer) {
+				layer.setScale(2);
+			}
+		});
 		
 		// Create object layers for buildings and animated objects
 		this.createObjectLayers();
@@ -211,38 +200,27 @@ export default class TownScene extends Scene {
 	}
 
 	private createObjectLayers(): void {
-		// Use Phaser's built-in createFromObjects method for buildings layer
-		const buildingSprites = this.townMap.createFromObjects('buildings', {
-			classType: GameObjects.Sprite,
-			scene: this
-		});
-		console.log("BUILDING SPRITES: ", buildingSprites)
-		// Scale and configure building sprites
-		buildingSprites.forEach((sprite: GameObjects.Sprite) => {
-					console.log("SPRITES: ", sprite)
+		const layerNames = [
+			'buildings',
+			'props',
+			'trees',
+			'stash',
+			'fire',
+			'fountain',
+			'furnace'
+		];
 
-			sprite.setScale(2);
-			// sprite.setOrigin(0, 0); // Bottom-left origin to match Tiled positioning
-			sprite.setX(sprite.x * 2);
-			sprite.setY(sprite.y * 2);
-			this.setDepthByY(sprite, sprite.getBounds().height);
-		});
-		
-		// Use createFromObjects for props layer
-		const propSprites = this.townMap.createFromObjects('props', {
-			classType: GameObjects.Sprite,
-			scene: this
-		});
-		console.log("PROP SPRITES: ", propSprites)
-		// Scale and configure prop sprites, add animations where needed
-		propSprites.forEach((sprite: GameObjects.Sprite) => {
-			sprite.setScale(2);
-			sprite.setX(sprite.x * 2);
-			sprite.setY(sprite.y * 2);
-			this.setDepthByY(sprite, sprite.getBounds().height);
-			
-			// Add animations for specific animated props
-			this.addAnimationsToSprite(sprite);
+		layerNames.forEach(layerName => {
+			// Use Phaser's built-in createFromObjects method for buildings layer
+			const sprites = this.townMap.createFromObjects(layerName, {});
+
+			// Scale and configure building sprites
+			sprites.forEach((sprite: GameObjects.Sprite) => {
+				sprite.setScale(2);
+				sprite.setX(sprite.x * 2);
+				sprite.setY(sprite.y * 2);
+				this.setDepthByY(sprite);
+			});
 		});
 	}
 	
@@ -269,7 +247,7 @@ export default class TownScene extends Scene {
 				});
 				break;
 				
-			case 'furnace':
+			case 'furnace_lit':
 				this.createAnimationForSprite(sprite, {
 					key: 'furnace-anim',
 					frameStart: 0,
@@ -477,11 +455,9 @@ export default class TownScene extends Scene {
 		if(this.player.alive) {
 			this.player.update(this.input.activePointer, this.cursors, time, delta);
 		}
-
 		// Update player depth based on Y position for proper sprite layering
 		// Use bottom position (feet) for more accurate depth sorting
-		this.setDepthByY(this.player, this.player.getBounds().height / 2);
-
+		this.setDepthByY(this.player);
 		// Interaction zone detection for future use
 	}
 }
