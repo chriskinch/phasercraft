@@ -91,7 +91,7 @@ export default class TownScene extends Scene {
 		this.player = new AssignClass(character, {
 			scene: this,
 			x: 90,
-			y: 210
+			y: 220
 		}) as PlayerType;
 
 		// Create town map first to set up world bounds
@@ -332,9 +332,10 @@ export default class TownScene extends Scene {
 			// Create interaction zone around each POI (scaled 2x to match map)
 			const scaledX = poi.x * 2;
 			const scaledY = poi.y * 2;
-			const zone = this.add.zone(scaledX, scaledY, 64, 64); // 64x64 pixel interaction area (2x scaled)
+			const zone = this.add.zone(scaledX, scaledY, 32, 32); // 64x64 pixel interaction area (2x scaled)
 			this.physics.world.enable(zone);
-			
+
+			this.player.body.onOverlap = true;
 			// Map POI names to interaction types
 			const { interactionType, displayName } = this.mapPOIToInteraction(poi.name);
 			
@@ -344,9 +345,9 @@ export default class TownScene extends Scene {
 			this.interactionZones.add(zone);
 			
 			// Add overlap detection
-			this.physics.add.overlap(this.player, zone as GameObjects.Zone, (player, zoneObj) => {
+			this.physics.add.overlap(this.player.body, zone as GameObjects.Zone, (player, zoneObj) => {
 				this.handleZoneOverlap(player, zoneObj as GameObjects.Zone);
-			}, undefined, this);
+			});
 		});
 	}
 
@@ -382,22 +383,13 @@ export default class TownScene extends Scene {
 	private handleZoneOverlap(player: any, zone: GameObjects.Zone): void {
 		const zoneType = zone.getData('type');
 		const zoneName = zone.getData('name');
-
-		if (!zoneType || !zoneName) {
-			console.warn('Zone missing type or name data:', zone);
-			return;
-		}
-
-		// Show interaction prompt
-		if (this.cursors.space?.isDown) {
-			this.handleInteraction(zoneType, zoneName);
-		}
+		this.handleInteraction(zoneType, zoneName);
 	}
 
 	private handleInteraction(type: string, name: string): void {
 		// Save current position before leaving town
 		store.dispatch(setPlayerPosition({ x: this.player.x, y: this.player.y }));
-
+		console.log(`Interacting with ${name} of type ${type}`);
 		switch (type) {
 			case 'inn':
 				console.log(`Entering ${name}...`);
@@ -431,6 +423,5 @@ export default class TownScene extends Scene {
 		}
 		// Update player depth based on Y position for proper sprite layering
 		this.setDepthByY(this.player, this.player.hero.getBounds().height);
-		// Interaction zone detection for future use
 	}
 }
