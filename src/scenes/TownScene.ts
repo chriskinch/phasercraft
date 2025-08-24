@@ -146,6 +146,22 @@ export default class TownScene extends Scene {
 			stool: this.townMap.addTilesetImage('forestVillage/props_/forestVillageObjects_stool.png', 'stool'),
 			signs: this.townMap.addTilesetImage('forest_resources_signs', 'signs'),
 			containers: this.townMap.addTilesetImage('forestVillageObjects_containers', 'containers'),
+			tableObjects: this.townMap.addTilesetImage('tableObjects_', 'tableObjects'),
+			stallObjects: this.townMap.addTilesetImage('stallObjects_', 'stallObjects'),
+			fire: this.townMap.addTilesetImage('fire', 'fire'),
+			fountain_flowing: this.townMap.addTilesetImage('fountain_flowing', 'fountain_flowing'),
+			stalls: this.townMap.addTilesetImage('stalls', 'stalls'),
+			outdoor_tables: this.townMap.addTilesetImage('forestVillageObjects_outdoor_tables', 'outdoor_tables'),
+			forest_trees: this.townMap.addTilesetImage('forest_resources_trees', 'forest_trees'),
+			forest_bushes_rocks: this.townMap.addTilesetImage('forest_resources_bushes_rocks_ores', 'forest_bushes_rocks'),
+			stash: this.townMap.addTilesetImage('stash', 'stash'),
+			sign_post: this.townMap.addTilesetImage('fantasy/forest_/sign_post.png', 'sign_post'),
+			bench: this.townMap.addTilesetImage('forestVillage/props_/forestVillageObjects_bench.png', 'bench'),
+			table: this.townMap.addTilesetImage('forestVillage/props_/forestVillageObjects_table.png', 'table'),
+			bench_long: this.townMap.addTilesetImage('forestVillage/props_/forestVillageObjects_bench_long.png', 'bench_long'),
+			sign_post_flipped: this.townMap.addTilesetImage('fantasy/forest_/sign_post_flipped.png', 'sign_post_flipped'),
+			boulder: this.townMap.addTilesetImage('fantasy/forest_/forest_resources_boulder.png', 'boulder'),
+			arch: this.townMap.addTilesetImage('fantasy/forest_/forest_fencesAndWalls_arch.png', 'arch')
 		};
 
 		// Create tile layers (base terrain layers)
@@ -200,10 +216,11 @@ export default class TownScene extends Scene {
 			classType: GameObjects.Sprite,
 			scene: this
 		});
-		console.log("SPRITES: ", buildingSprites)
-
+		console.log("BUILDING SPRITES: ", buildingSprites)
 		// Scale and configure building sprites
 		buildingSprites.forEach((sprite: GameObjects.Sprite) => {
+					console.log("SPRITES: ", sprite)
+
 			sprite.setScale(2);
 			// sprite.setOrigin(0, 0); // Bottom-left origin to match Tiled positioning
 			sprite.setX(sprite.x * 2);
@@ -216,7 +233,7 @@ export default class TownScene extends Scene {
 			classType: GameObjects.Sprite,
 			scene: this
 		});
-		
+		console.log("PROP SPRITES: ", propSprites)
 		// Scale and configure prop sprites, add animations where needed
 		propSprites.forEach((sprite: GameObjects.Sprite) => {
 			sprite.setScale(2);
