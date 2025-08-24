@@ -77,9 +77,7 @@ export default class LoadScene extends Scene {
 		this.load.image('arcanum', 'tilesets/forestVillage/stalls_/stall_red_short.png');
 		this.load.image('tableObjects', 'tilesets/forestVillage/interior_/tableObjects_.png');
 		this.load.image('forestResources', 'tilesets/fantasy/forest_/forest_ [resources].png');
-		this.load.image('stallObjects', 'tilesets/forestVillage/stallObjects_.png');
 		this.load.image('stool', "tilesets/forestVillage/props_/forestVillageObjects_stool.png");
-		this.load.image('stalls', 'tilesets/forestVillage/stalls_/stalls.png');
 		this.load.image('outdoor_tables', 'tilesets/forestVillage/props_/forestVillageObjects_outdoor_tables.png');
 		this.load.image('sign_post', 'tilesets/fantasy/forest_/sign_post.png');
 		this.load.image('bench', 'tilesets/forestVillage/props_/forestVillageObjects_bench.png');
@@ -88,6 +86,7 @@ export default class LoadScene extends Scene {
 		this.load.image('sign_post_flipped', 'tilesets/fantasy/forest_/sign_post_flipped.png');
 		this.load.image('boulder', 'tilesets/fantasy/forest_/forest_resources_boulder.png');
 		this.load.image('arch', 'tilesets/fantasy/forest_/forest_fencesAndWalls_arch.png');
+		this.load.image('cloth_red', 'tilesets/forestVillage/stalls_/cloth_red.png');
 
 		// spritesheets
 		this.load.spritesheet('home', 'tilesets/forestVillage/buildings_/greenHouse_0_0.png', {
@@ -160,6 +159,12 @@ export default class LoadScene extends Scene {
 			frameWidth: 16,
 			frameHeight: 32,
 			margin: 0,
+			spacing: 0
+		});
+		this.load.spritesheet('stallObjects', 'tilesets/forestVillage/stallObjects_.png', {
+			frameWidth: 16,
+			frameHeight: 32,
+			margin: 16,
 			spacing: 0
 		});
 	}

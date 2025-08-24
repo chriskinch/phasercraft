@@ -86,9 +86,6 @@ export default class TownScene extends Scene {
 			this.events.emit('pointerup:game', this)
 		});
 
-		// Create town map first to set up world bounds
-		this.createTownEnvironment();
-
 		const character = this.config.type || store.getState().game.character;
 		if (!character) throw new Error("No character selected for town scene");
 		this.player = new AssignClass(character, {
@@ -96,6 +93,9 @@ export default class TownScene extends Scene {
 			x: 90,
 			y: 210
 		}) as PlayerType;
+
+		// Create town map first to set up world bounds
+		this.createTownEnvironment();
 
 		if (this.input.mouse) {
 			(this.input.mouse as Input.Mouse.MouseManager & { capture: boolean }).capture = true;
@@ -159,7 +159,8 @@ export default class TownScene extends Scene {
 			bench_long: this.townMap.addTilesetImage('forestVillage/props_/forestVillageObjects_bench_long.png', 'bench_long'),
 			sign_post_flipped: this.townMap.addTilesetImage('fantasy/forest_/sign_post_flipped.png', 'sign_post_flipped'),
 			boulder: this.townMap.addTilesetImage('fantasy/forest_/forest_resources_boulder.png', 'boulder'),
-			arch: this.townMap.addTilesetImage('fantasy/forest_/forest_fencesAndWalls_arch.png', 'arch')
+			arch: this.townMap.addTilesetImage('fantasy/forest_/forest_fencesAndWalls_arch.png', 'arch'),
+			cloth_red: this.townMap.addTilesetImage('forestVillage/stalls_/cloth_red.png', 'cloth_red')
 		};
 
 		// Create layers in the correct order
@@ -168,7 +169,8 @@ export default class TownScene extends Scene {
 		const layerNames = [
 			'terrain',
 			'terrain floor',
-			'terrain props', 
+			'terrain props',
+			'terrain flairs', 
 			'structure',
 			'structure foreground',
 			'flairs'
@@ -178,7 +180,7 @@ export default class TownScene extends Scene {
 			const layer = this.townMap.createLayer(layerName, allTilesets);
 			if (layer) {
 				layer.setScale(2);
-				if(layerName === 'structure foreground') this.setDepthByY(layer, 1000);
+				if(layerName === 'structure foreground') this.setDepthByY(layer, this.global_game_height);
 			}
 		});
 		
@@ -203,6 +205,7 @@ export default class TownScene extends Scene {
 			'buildings',
 			'props',
 			'trees',
+			'flairs',
 			'stash',
 			'fire',
 			'fountain',
@@ -219,6 +222,7 @@ export default class TownScene extends Scene {
 				sprite.setX(sprite.x * 2);
 				sprite.setY(sprite.y * 2);
 				this.setDepthByY(sprite);
+				this.addAnimationsToSprite(sprite);
 			});
 		});
 	}
@@ -228,30 +232,12 @@ export default class TownScene extends Scene {
 		const textureKey = sprite.texture.key;
 		
 		switch (textureKey) {
-			case 'home':
-				this.createAnimationForSprite(sprite, {
-					key: 'home-anim',
-					frameStart: 0,
-					frameEnd: 1,
-					frameRate: 2
-				});
-				break;
-				
-			case 'greathall':
-				this.createAnimationForSprite(sprite, {
-					key: 'greathall-anim',
-					frameStart: 0,
-					frameEnd: 1,
-					frameRate: 2
-				});
-				break;
-				
 			case 'furnace_lit':
 				this.createAnimationForSprite(sprite, {
 					key: 'furnace-anim',
 					frameStart: 0,
-					frameEnd: 2,
-					frameRate: 6
+					frameEnd: 7,
+					frameRate: 8
 				});
 				break;
 				
@@ -260,7 +246,7 @@ export default class TownScene extends Scene {
 					key: 'fire-anim',
 					frameStart: 0,
 					frameEnd: 3,
-					frameRate: 8
+					frameRate: 10
 				});
 				break;
 				
@@ -269,16 +255,7 @@ export default class TownScene extends Scene {
 					key: 'fountain-anim',
 					frameStart: 0,
 					frameEnd: 3,
-					frameRate: 4
-				});
-				break;
-				
-			case 'wells':
-				this.createAnimationForSprite(sprite, {
-					key: 'wells-anim',
-					frameStart: 0,
-					frameEnd: 1,
-					frameRate: 3
+					frameRate: 6
 				});
 				break;
 		}
