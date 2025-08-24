@@ -22,12 +22,9 @@ export default class TownScene extends Scene {
 		TOP: 99999
 	};
 	// Depth sorting function based on Y position
-	private setDepthByY(sprite: GameObjects.Sprite | Player, offset: number = 0): void {
-		sprite.setDepth(sprite.y + (sprite.height/2) + offset);
-		// console.log("NAME: ", sprite.name)
-		// console.log("BASE DEPTH: ", baseDepth)
-		console.log("DEPTH: ", sprite.name, sprite.y, (sprite.height/2), offset)
-		// console.log("OFFSET: ", offset)
+	private setDepthByY(sprite: GameObjects.Sprite | Player | Tilemaps.TilemapLayer, offset: number = 0): void {
+		const depth = sprite.y + sprite.height + offset;
+		sprite.setDepth(depth);
 	}
 	
 	// Abstracted animation creation function
@@ -63,7 +60,6 @@ export default class TownScene extends Scene {
 
 	init(config: GameSceneConfig): void {
 		this.config = config || {};
-		console.log('TownScene initialized with config:', this.config);
 	}
 
 	create(): void {
@@ -171,8 +167,10 @@ export default class TownScene extends Scene {
 
 		const layerNames = [
 			'terrain',
+			'terrain floor',
 			'terrain props', 
 			'structure',
+			'structure foreground',
 			'flairs'
 		];
 		// Create and scale all layers (2x scaling)
@@ -180,6 +178,7 @@ export default class TownScene extends Scene {
 			const layer = this.townMap.createLayer(layerName, allTilesets);
 			if (layer) {
 				layer.setScale(2);
+				if(layerName === 'structure foreground') this.setDepthByY(layer, 1000);
 			}
 		});
 		
@@ -372,8 +371,6 @@ export default class TownScene extends Scene {
 				this.handleZoneOverlap(player, zoneObj as GameObjects.Zone);
 			}, undefined, this);
 		});
-		
-		console.log(`Set up ${poiLayer.objects.length} interaction zones from POI layer`);
 	}
 
 	private mapPOIToInteraction(poiName: string): { interactionType: string; displayName: string } {
@@ -456,8 +453,7 @@ export default class TownScene extends Scene {
 			this.player.update(this.input.activePointer, this.cursors, time, delta);
 		}
 		// Update player depth based on Y position for proper sprite layering
-		// Use bottom position (feet) for more accurate depth sorting
-		this.setDepthByY(this.player);
+		this.setDepthByY(this.player, this.player.hero.getBounds().height);
 		// Interaction zone detection for future use
 	}
 }
