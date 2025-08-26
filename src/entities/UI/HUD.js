@@ -92,19 +92,17 @@ class UI extends GameObjects.Container {
 	}
 
 	setInvetoryIcon() {
-		const button = this.scene.add.sprite(0, 0, 'icon', 'icon_0021_charm')
-			.setInteractive();
-
-		button.on('pointerdown', () => store.dispatch(toggleUi("equipment")), this);
-		return button;
+		return this.scene.add.sprite(0, 0, 'icon', 'icon_0021_charm')
+			.setInteractive()
+			.setScrollFactor(0)
+			.on('pointerdown', () => store.dispatch(toggleUi("equipment")), this);
 	}
 
 	setSystemIcon() {
-		const button = this.scene.add.sprite(0, 0, 'icon', 'icon_0006_golem')
-			.setInteractive();
-		
-		button.on('pointerdown', () => store.dispatch(toggleUi("system")), this);
-		return button;
+		return this.scene.add.sprite(0, 0, 'icon', 'icon_0006_golem')
+			.setInteractive()
+			.setScrollFactor(0)
+			.on('pointerdown', () => store.dispatch(toggleUi("system")), this);
 	}
 }
 
