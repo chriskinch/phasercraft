@@ -25,8 +25,6 @@ const PhaserGame = () => {
             gameContainer.innerHTML = '';
         }
 
-        console.log("Creating new Phaser game instance...");
-
         // Add a small delay to ensure DOM is ready
         const createGame = () => {
             const config = {

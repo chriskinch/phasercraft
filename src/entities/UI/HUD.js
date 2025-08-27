@@ -15,6 +15,7 @@ class UI extends GameObjects.Container {
 		this.spells = 5;
 		this.spacing = 60;
 		this.frames = [];
+		this.subscriptions = [];
 
 		this.setSpellFrames();
 		this.setCoinCount();
@@ -32,12 +33,14 @@ class UI extends GameObjects.Container {
 		Actions.IncXY(this.buttons, x + width, y + height, -35);
 
 		// Maps coins, wave and showUi sections of the store to various functions.
-		mapStateToData("coins", coins => this.coins.text.setText('Coins: ' + coins));
-		mapStateToData("wave", wave => this.wave.text.setText('Wave: ' + wave));
-		mapStateToData("showUi", showUi => {
+		this.subscriptions.push(mapStateToData("coins", coins => {
+			this.coins.text.setText('Coins: ' + coins)
+		}));
+		this.subscriptions.push(mapStateToData("wave", wave => this.wave.text.setText('Wave: ' + wave)));
+		this.subscriptions.push(mapStateToData("showUi", showUi => {
 			store.dispatch(toggleHUD(!showUi));
 			(showUi) ? this.scene.scene.pause() : this.scene.scene.resume()
-		});
+		}));
 
 		scene.input.keyboard.on('keyup-P', () => store.dispatch(toggleUi("character")), this);
 		// TEMP KEYBINDS
@@ -103,6 +106,19 @@ class UI extends GameObjects.Container {
 			.setInteractive()
 			.setScrollFactor(0)
 			.on('pointerdown', () => store.dispatch(toggleUi("system")), this);
+	}
+
+	cleanup() {
+		// Unsubscribe from all store subscriptions
+		this.subscriptions.forEach(unsubscribe => unsubscribe());
+		this.subscriptions = [];
+		
+		// Clean up keyboard event listeners
+		this.scene.input.keyboard.off('keyup-P');
+		this.scene.input.keyboard.off('keyup-R');
+		this.scene.input.keyboard.off('keyup-S');
+		this.scene.input.keyboard.off('keyup-D');
+		this.scene.input.keyboard.off('keyup-L');
 	}
 }
 

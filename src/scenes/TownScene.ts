@@ -389,7 +389,8 @@ export default class TownScene extends Scene {
 	private handleInteraction(type: string, name: string): void {
 		// Save current position before leaving town
 		store.dispatch(setPlayerPosition({ x: this.player.x, y: this.player.y }));
-		console.log(`Interacting with ${name} of type ${type}`);
+
+		this.shutdown();
 		switch (type) {
 			case 'inn':
 				console.log(`Entering ${name}...`);
@@ -423,5 +424,28 @@ export default class TownScene extends Scene {
 		}
 		// Update player depth based on Y position for proper sprite layering
 		this.setDepthByY(this.player, this.player.hero.getBounds().height);
+	}
+
+	shutdown(): void {
+		// Clean up HUD subscriptions
+		if (this.UI && this.UI.cleanup) {
+			this.UI.cleanup(this);
+		}
+		
+		// Clean up player subscriptions
+		if (this.player && this.player.cleanup) {
+			this.player.cleanup();
+		}
+		
+		// Clean up input event listeners
+		this.input.off('pointerdown');
+		this.input.off('pointermove');
+		this.input.off('pointerup');
+		
+		// Clean up collision timer if it exists
+		if (this.collisionIdleTimer) {
+			this.collisionIdleTimer.destroy();
+			this.collisionIdleTimer = undefined;
+		}
 	}
 }

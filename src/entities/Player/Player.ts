@@ -31,6 +31,7 @@ class Player extends GameObjects.Container {
 	public classification: string;
 	public name: string;
 	public uuid: string;
+	private subscriptions: (() => void)[] = [];
 	public hero: Hero;
 	public boons: Boons;
 	public alive: boolean;
@@ -51,7 +52,7 @@ class Player extends GameObjects.Container {
 	public swing: Phaser.Time.TimerEvent | null = null;
 	public body: Physics.Arcade.Body;
 
-	constructor({scene, x, y, abilities = [], classification = "", stats, resource_type}: PlayerOptions) {
+	constructor({scene, x, y, abilities = [], classification = "", stats, resource_type, immovable = true}: PlayerOptions) {
 		super(scene, x, y);
 		this.classification = classification;
 		this.name = "player";
@@ -71,7 +72,7 @@ class Player extends GameObjects.Container {
 		scene.add.existing(this);
 
 		this.body.collideWorldBounds = true;
-		this.body.immovable = false;
+		this.body.immovable = immovable;
 		this.body.setFriction(0,0);
 
 		this.setCollisionBox();
@@ -121,15 +122,15 @@ class Player extends GameObjects.Container {
 
 		// This maps the stats section of the store to this.stats.
 		// Updates on store change using RxJS.
-		mapStateToData("stats", (stats: unknown) => {
+		this.subscriptions.push(mapStateToData("stats", (stats: unknown) => {
 			// Store stats might have different properties, so we handle the conversion
 			this.stats = stats as PlayerStats;
-		});
-		mapStateToData("level.currentLevel", (level: unknown) => {
+		}));
+		this.subscriptions.push(mapStateToData("level.currentLevel", (level: unknown) => {
 			if (typeof level === 'number') {
 				this.LevelUp(level);
 			}
-		});
+		}));
 
 		scene.events.once('player:dead', this.death, this);
 		scene.events.on('enemy:attack', this.hit, this);
@@ -405,6 +406,12 @@ class Player extends GameObjects.Container {
 				repeat: animation.repeat
 			});
 		});
+	}
+
+	cleanup(): void {
+		// Unsubscribe from all store subscriptions
+		this.subscriptions.forEach(unsubscribe => unsubscribe());
+		this.subscriptions = [];
 	}
 }
 

@@ -175,4 +175,10 @@ export default class LoadScene extends Scene {
 		this.scene.start('SelectScene');
 		//console.log(localStorage.getItem('itemname','contents'));
 	}
+
+	shutdown(): void {
+		// Clean up load event listeners
+		this.load.off('progress');
+		this.load.off('complete');
+	}
 }

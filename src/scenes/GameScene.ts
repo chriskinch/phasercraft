@@ -307,4 +307,29 @@ export default class GameScene extends Scene {
 		const time_limit = min_delay + wave_offset + time_scale;
 		this.next_level_timer = this.time.delayedCall(time_limit, this.increaseLevel, [], this);
 	}
+
+	shutdown(): void {
+		console.log("SHUTDOWN GAME: ", this.UI)
+		// Clean up HUD subscriptions
+		if (this.UI && this.UI.cleanup) {
+			this.UI.cleanup();
+		}
+		
+		// Clean up player subscriptions
+		if (this.player && this.player.cleanup) {
+			this.player.cleanup();
+		}
+		
+		// Clean up input event listeners
+		this.input.off('pointerdown');
+		this.input.off('pointermove');
+		this.input.off('pointerup');
+		
+		// Clean up scene event listeners
+		this.events.off('player:dead');
+		this.events.off('enemies:dead');
+		
+		// Clean up next level timer
+		this.removeNextLevelTimer();
+	}
 }

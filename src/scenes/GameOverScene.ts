@@ -33,4 +33,12 @@ export default class GameOverScene extends Scene {
 	restartGame(): void {
 		this.scene.start('TownScene');
 	}
+
+	shutdown(): void {
+		// Clean up button event listener
+		const buttonContainer = this.game_over as Phaser.GameObjects.Container & { button: Phaser.GameObjects.Image };
+		if (buttonContainer.button) {
+			buttonContainer.button.off('pointerup');
+		}
+	}
 }

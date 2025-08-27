@@ -37,6 +37,7 @@ class Resource extends GameObjects.Sprite {
 	public stats: ResourceStats;
 	public graphics: { [key: string]: GameObjects.Graphics };
 	public tick: Phaser.Time.TimerEvent;
+	private subscriptions: (() => void)[] = [];
 
 	constructor(config: ResourceOptions) {
 		super(config.scene, config.x, config.y, 'resource-frame');
@@ -63,7 +64,7 @@ class Resource extends GameObjects.Sprite {
 
 			// console.log(this.selectKeys(this.category))
 			this.selectKeys(this.category).forEach(key => {
-				mapStateToData(
+				this.subscriptions.push(mapStateToData(
 					`stats.${key}`,
 					(stat: unknown) => {
 						if (typeof stat === 'number') {
@@ -71,7 +72,7 @@ class Resource extends GameObjects.Sprite {
 						}
 					},
 					{init: false}
-				);
+				));
 			});
 		}
 

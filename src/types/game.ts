@@ -238,6 +238,7 @@ export interface PlayerOptions {
 	classification: string;
 	stats?: PlayerStats;
 	resource_type?: string;
+	immovable?: boolean;
 }
 
 export type EnemyType = "baby-ghoul" | "egbert" | "ghoul" | "imp" | "satyr" | "slime";
