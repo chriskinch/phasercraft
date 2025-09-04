@@ -67,7 +67,8 @@ class Player extends GameObjects.Container {
 			key: 'player',
 		});
 		this.add(this.hero);
-				
+		
+		this.setSize(this.hero.getBounds().width, this.hero.getBounds().height);
 		scene.physics.world.enable(this);
 		scene.add.existing(this);
 
@@ -385,8 +386,8 @@ class Player extends GameObjects.Container {
 		this.body.setSize(heroWidth, collisionHeight);
 
 		this.body.setOffset(
-			-(heroWidth / 2),
-			(heroHeight / 2) - collisionHeight
+			0,
+			this.hero.getBounds().height - collisionHeight
 		);
 	}
 
