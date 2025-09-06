@@ -25,7 +25,7 @@ class Spell extends GameObjects.Sprite {
 	public button: GameObjects.Sprite;
 	public text: GameObjects.Text;
 	public cooldownTimer: Phaser.Tweens.Tween;
-	public target: TargetType;
+	public target: TargetType | undefined;
 	public animation: any;
 
 	constructor({scene, x, y, key, ...config}: SpellOptions) {
@@ -119,7 +119,7 @@ class Spell extends GameObjects.Sprite {
         });
     }
     
-    castSpell(target: TargetType): void {
+    castSpell(target?: TargetType): void {
         this.target = target;
         this.effect(target);
         // Charge the player some resource
@@ -175,7 +175,7 @@ class Spell extends GameObjects.Sprite {
         // This method should be implemented by subclasses
     }
 
-    effect(target: TargetType): void {
+    effect(target: TargetType | undefined): void {
         // This method should be implemented by subclasses
     }
 
