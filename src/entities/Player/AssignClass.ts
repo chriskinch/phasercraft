@@ -11,6 +11,7 @@ type PlayerConfig = {
 	scene: Scene;
 	x: number;
 	y: number;
+	immovable?: boolean;
 }
 
 const classes = {

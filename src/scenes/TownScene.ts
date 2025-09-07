@@ -91,7 +91,8 @@ export default class TownScene extends Scene {
 		this.player = new AssignClass(character, {
 			scene: this,
 			x: 90,
-			y: 220
+			y: 220,
+			immovable: false
 		}) as PlayerType;
 
 		// Create town map first to set up world bounds
@@ -393,7 +394,8 @@ export default class TownScene extends Scene {
 		// Save current position before leaving town
 		store.dispatch(setPlayerPosition({ x: this.player.x, y: this.player.y }));
 
-		this.shutdown();
+		// Eventually this should universal on scene change. But... see fig.1
+		// this.shutdown(); 
 		switch (type) {
 			case 'inn':
 				console.log(`Entering ${name}...`);
@@ -409,6 +411,8 @@ export default class TownScene extends Scene {
 				break;
 			case 'dungeon':
 				console.log('Entering dungeon...');
+				// fig.1 For now only do this on actual scene change
+				this.shutdown(); 
 				store.dispatch(setCurrentArea("dungeon"));
 				this.scene.start('GameScene', this.config);
 				break;
@@ -426,7 +430,7 @@ export default class TownScene extends Scene {
 			this.player.update(this.input.activePointer, this.cursors, time, delta);
 		}
 		// Update player depth based on Y position for proper sprite layering
-		this.setDepthByY(this.player, this.player.hero.getBounds().height);
+		this.setDepthByY(this.player);
 	}
 
 	shutdown(): void {
