@@ -217,12 +217,15 @@ export default class TownScene extends Scene {
 			const sprites = this.townMap.createFromObjects(layerName, {});
 
 			// Scale and configure building sprites
-			sprites.forEach((sprite: GameObjects.Sprite) => {
-				sprite.setScale(2);
-				sprite.setX(sprite.x * 2);
-				sprite.setY(sprite.y * 2);
-				this.setDepthByY(sprite);
-				this.addAnimationsToSprite(sprite);
+			sprites.forEach((gameObject) => {
+				if (gameObject instanceof GameObjects.Sprite) {
+					const sprite = gameObject as GameObjects.Sprite;
+					sprite.setScale(2);
+					sprite.setX(sprite.x * 2);
+					sprite.setY(sprite.y * 2);
+					this.setDepthByY(sprite);
+					this.addAnimationsToSprite(sprite);
+				}
 			});
 		});
 	}
@@ -429,7 +432,7 @@ export default class TownScene extends Scene {
 	shutdown(): void {
 		// Clean up HUD subscriptions
 		if (this.UI && this.UI.cleanup) {
-			this.UI.cleanup(this);
+			this.UI.cleanup();
 		}
 		
 		// Clean up player subscriptions
