@@ -73,7 +73,6 @@ class Player extends GameObjects.Container {
 		scene.add.existing(this);
 
 		this.body.collideWorldBounds = true;
-		console.log("Immovable: ", immovable);
 		this.body.immovable = immovable;
 		this.body.setFriction(0,0);
 
