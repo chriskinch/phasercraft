@@ -5,10 +5,14 @@ import type Enemy from '@entities/Enemy/Enemy';
 class SiphonSoul extends Spell {
 	public type: string;
 	public duration: number;
+	public particleDuration: number;
 	public power: number;
-	public emitter: Phaser.GameObjects.Particles.ParticleEmitter;
-	public gravityWell: Phaser.GameObjects.Particles.GravityWell;
-	public customAnimationTimer: Phaser.Time.TimerEvent;
+	public emitter: Phaser.GameObjects.Particles.ParticleEmitter | undefined;
+	public gravityWell: Phaser.GameObjects.Particles.GravityWell | undefined;
+	public durationAnimationTimer: Phaser.Time.TimerEvent;
+	public particleAnimationTimer: Phaser.Time.TimerEvent;
+	public debugGraphics: Phaser.GameObjects.Graphics;
+	public deathZone: Phaser.Geom.Circle;
 
 	constructor(config: SpellOptions) {
 		const defaults = {
@@ -29,8 +33,8 @@ class SiphonSoul extends Spell {
 		
 		// This is what the spell scales from.
 		this.power = this.player.stats.magic_power / 10;
-		this.type = 'magic';
-		this.duration = 5;
+		this.deathZone = new Phaser.Geom.Circle(this.player.x, this.player.y, 20);
+		this.particleDuration = this.duration + this.cooldown;
 	}
 
 	setCastEvents(state: 'on' | 'off'): void {
@@ -45,7 +49,6 @@ class SiphonSoul extends Spell {
 	effect(target: any): void {
 		// Root the target in place.
 		target.body.setMaxVelocity(0, 0);
-		console.log("TARGET: ", target)
 		target.monster.anims.pause();
 		target.body.checkCollision.none = true;
 		// Also root the player until spell is over or click to move.
@@ -56,6 +59,63 @@ class SiphonSoul extends Spell {
 		this.scene.events.on('pointerdown:game', this.clearEffect, this);
 	}
 
+	setParticles(): void {
+		if(!this.target) return;
+		const value = this.setValue({ base: 10, key: "magic_power", reducer: v => v/5});
+		const target = this.target as Enemy;
+
+		this.emitter = this.scene.add.particles(target.x, target.y, 'siphon-soul', {
+			frame: new Array(5).fill(null).map((a,i)=> `health_glob_00${i}`),
+			lifespan: this.particleDuration * 1000,
+			speed: 15,
+			frequency: 300,
+			scale: 0.75,
+			emitting: true,
+			deathZone: [{
+				type: 'onEnter',
+				source: this.deathZone
+			}]
+		});
+
+		const relativePlayerX = this.player.x - target.x;
+		const relativePlayerY = this.player.y - target.y;
+		this.gravityWell = this.emitter.createGravityWell({
+			x: relativePlayerX,
+			y: relativePlayerY,
+			power: 20, 
+			epsilon: 500,
+			gravity: 10
+		});
+
+		this.scene.events.on('update', this.updateGravityWellPosition, this);
+
+		this.emitter.onParticleEmit(() => {
+			if((this.target as Enemy).alive) {
+				(this.target as Enemy).health.adjustValue(-value.amount, this.type, false);
+			}
+		});
+
+		this.emitter.onParticleDeath((particle: Phaser.GameObjects.Particles.Particle) => {
+			this.player.health.adjustValue(value.amount, 'heal', false);
+		});
+	}
+
+	// Update gravity well position to follow the player
+	updateGravityWellPosition(): void {
+		if (this.gravityWell && this.player && this.target) {
+			// Update gravity well position relative to emitter
+			const newRelativeX = this.player.x - (this.target as Enemy).x;
+			const newRelativeY = this.player.y - (this.target as Enemy).y;
+			this.gravityWell.x = newRelativeX;
+			this.gravityWell.y = newRelativeY;
+		}
+
+		if (this.deathZone) {
+			this.deathZone.x = this.player.x;
+			this.deathZone.y = this.player.y;
+		}
+	};
+
 	clearEffect(): void {
 		// Set player and target stats back to normal.
 		if (this.target && typeof this.target === 'object' && 'body' in this.target && 'monster' in this.target) {
@@ -65,61 +125,42 @@ class SiphonSoul extends Spell {
 		}
 
 		this.player.body.setMaxVelocity(10000, 10000);
-		this.emitter.stop();
-
-		// Clean up GravityWell
-		if (this.gravityWell) {
-			this.gravityWell.destroy();
+		
+		if (this.emitter) {
+			this.emitter.stop();
 		}
 
-		// Clean up the gravity well update event listener
-		this.scene.events.off('preupdate');
-
 		// We handle when to start the cooldown. Goes with cooldownDelayAll = true.
-		this.customAnimationTimer.remove();
+		this.durationAnimationTimer.remove();
 		this.cooldownTimer = this.setCooldown();
 		this.scene.events.emit('spell:enableall', this);
 		this.scene.events.off('pointerdown:game', this.clearEffect, this);
 	}
 
-	setParticles(): void {
-		if(!this.target) return;
-		const value = this.setValue({ base: 10, key: "magic_power", reducer: v => v/5});
-		const target = this.target as Enemy;
-
-		// Create particle system with emitter config
-		this.emitter = this.scene.add.particles(target.x, target.y, 'siphon-soul', {
-			frame: new Array(5).fill(null).map((a,i)=> `health_glob_00${i}`),
-			lifespan: 30000,
-			speed: 15,
-			frequency: 300,
-			scale: 0.75,
-			emitting: true
-		});
-
-		// Create a GravityWell at the player's position to attract particles
-		console.log("TARGET: ", target.x, target.y)
-		console.log("PLAYER: ", this.player.x, this.player.y)
-		this.gravityWell = this.emitter.createGravityWell({
-			x: this.player.x,
-			y: this.player.y,
-			power: 5, 
-			epsilon: 10,
-			gravity: 10
-		});
-
-		this.emitter.onParticleEmit(() => {
-			if((this.target as Enemy).alive) {
-				(this.target as Enemy).health.adjustValue(-value.amount, this.type, false);
-			}
-		});
+	clearParticleEffect(): void {		
+		// Stop emitter but let existing particles live out their lifespan
+		if (this.emitter && this.gravityWell) {
+			this.emitter.destroy();
+			this.emitter = undefined;
+			this.gravityWell.destroy();
+			this.gravityWell = undefined;
+		}
+		this.scene.events.off('update', this.updateGravityWellPosition, this);
+		this.particleAnimationTimer.remove();
 	}
 
 	startAnimation(): void {
-		this.customAnimationTimer = this.scene.time.addEvent({
+		this.durationAnimationTimer = this.scene.time.addEvent({
 			delay: this.duration * 1000,
 			callback: () => {
 				if(!this.enabled) this.clearEffect();
+			},
+			callbackScope: this,
+		});
+		this.particleAnimationTimer = this.scene.time.addEvent({
+			delay: this.particleDuration * 1000,
+			callback: () => {
+				this.clearParticleEffect();
 			},
 			callbackScope: this,
 		});
