@@ -7,6 +7,7 @@ class SiphonSoul extends Spell {
 	public duration: number;
 	public power: number;
 	public emitter: Phaser.GameObjects.Particles.ParticleEmitter;
+	public gravityWell: Phaser.GameObjects.Particles.GravityWell;
 	public customAnimationTimer: Phaser.Time.TimerEvent;
 
 	constructor(config: SpellOptions) {
@@ -66,6 +67,14 @@ class SiphonSoul extends Spell {
 		this.player.body.setMaxVelocity(10000, 10000);
 		this.emitter.stop();
 
+		// Clean up GravityWell
+		if (this.gravityWell) {
+			this.gravityWell.destroy();
+		}
+
+		// Clean up the gravity well update event listener
+		this.scene.events.off('preupdate');
+
 		// We handle when to start the cooldown. Goes with cooldownDelayAll = true.
 		this.customAnimationTimer.remove();
 		this.cooldownTimer = this.setCooldown();
@@ -78,16 +87,26 @@ class SiphonSoul extends Spell {
 		const value = this.setValue({ base: 10, key: "magic_power", reducer: v => v/5});
 		const target = this.target as Enemy;
 
+		// Create particle system with emitter config
 		this.emitter = this.scene.add.particles(target.x, target.y, 'siphon-soul', {
 			frame: new Array(5).fill(null).map((a,i)=> `health_glob_00${i}`),
-			lifespan: 5000,
+			lifespan: 30000,
 			speed: 15,
 			frequency: 300,
 			scale: 0.75,
 			emitting: true
 		});
 
-		//HERE
+		// Create a GravityWell at the player's position to attract particles
+		console.log("TARGET: ", target.x, target.y)
+		console.log("PLAYER: ", this.player.x, this.player.y)
+		this.gravityWell = this.emitter.createGravityWell({
+			x: this.player.x,
+			y: this.player.y,
+			power: 5, 
+			epsilon: 10,
+			gravity: 10
+		});
 
 		this.emitter.onParticleEmit(() => {
 			if((this.target as Enemy).alive) {
