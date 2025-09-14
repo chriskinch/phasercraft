@@ -43,11 +43,12 @@ class SiphonSoul extends Spell {
 
 	effect(target: any): void {
 		// Root the target in place.
-		target.body.setMaxVelocity(0);
+		target.body.setMaxVelocity(0, 0);
+		console.log("TARGET: ", target)
 		target.monster.anims.pause();
 		target.body.checkCollision.none = true;
 		// Also root the player until spell is over or click to move.
-		this.player.body.setMaxVelocity(0);
+		this.player.body.setMaxVelocity(0, 0);
 		this.player.idle();
 
 		this.target = target;
@@ -57,12 +58,12 @@ class SiphonSoul extends Spell {
 	clearEffect(): void {
 		// Set player and target stats back to normal.
 		if (this.target && typeof this.target === 'object' && 'body' in this.target && 'monster' in this.target) {
-			(this.target as Enemy).body.setMaxVelocity(10000);
+			(this.target as Enemy).body.setMaxVelocity(10000, 10000);
 			(this.target as Enemy).monster.anims.resume();
 			(this.target as Enemy).body.checkCollision.none = false;
 		}
 
-		this.player.body.setMaxVelocity(10000);
+		this.player.body.setMaxVelocity(10000, 10000);
 		this.emitter.stop();
 
 		// We handle when to start the cooldown. Goes with cooldownDelayAll = true.
@@ -73,12 +74,11 @@ class SiphonSoul extends Spell {
 	}
 
 	setParticles(): void {
+		if(!this.target) return;
 		const value = this.setValue({ base: 10, key: "magic_power", reducer: v => v/5});
-		
-		// Modern Phaser 3.90+ particle system
-		const targetX = (this.target && typeof this.target === 'object' && 'x' in this.target) ? this.target.x as number : 0;
-		const targetY = (this.target && typeof this.target === 'object' && 'y' in this.target) ? this.target.y as number : 0;
-		this.emitter = this.scene.add.particles(targetX, targetY, 'siphon-soul', {
+		const target = this.target as Enemy;
+
+		this.emitter = this.scene.add.particles(target.x, target.y, 'siphon-soul', {
 			frame: new Array(5).fill(null).map((a,i)=> `health_glob_00${i}`),
 			lifespan: 5000,
 			speed: 15,
@@ -87,38 +87,11 @@ class SiphonSoul extends Spell {
 			emitting: true
 		});
 
-		// Add custom gravity behavior using the processor system
-		this.emitter.addParticleProcessor(((particle: any, delta: number) => {
-			// Calculate direction and distance to player
-			const dx = this.player.x - particle.x;
-			const dy = this.player.y - particle.y;
-			const distance = Math.sqrt(dx * dx + dy * dy);
-			
-			if (distance > 32) {
-				// Apply gravity force toward player
-				const force = 100 / Math.max(distance, 50);
-				const normalizedDx = dx / distance;
-				const normalizedDy = dy / distance;
-				
-				particle.velocityX += normalizedDx * force * (delta / 16);
-				particle.velocityY += normalizedDy * force * (delta / 16);
-			} else {
-				// Particle reached player - heal and remove
-				this.player.health.adjustValue(value.amount, 'heal', false);
-				particle.kill();
-			}
-		}) as any);
+		//HERE
 
-		// Handle damage on emit
-		this.emitter.onParticleEmit((particle: any) => {
-			if(this.target && typeof this.target === 'object' && 'alive' in this.target && 'health' in this.target) {
-				if((this.target as Enemy).alive) {
-					(this.target as Enemy).health.adjustValue(-value.amount, this.type, false);
-				} else {
-					this.clearEffect();
-				}
-			} else {
-				this.clearEffect();
+		this.emitter.onParticleEmit(() => {
+			if((this.target as Enemy).alive) {
+				(this.target as Enemy).health.adjustValue(-value.amount, this.type, false);
 			}
 		});
 	}
