@@ -61,14 +61,14 @@ class SiphonSoul extends Spell {
 
 	setParticles(): void {
 		if(!this.target) return;
-		const value = this.setValue({ base: 10, key: "magic_power", reducer: v => v/5});
+		const value = this.setValue({ base: 10, key: "magic_power", reducer: v => v/10});
 		const target = this.target as Enemy;
 
 		this.emitter = this.scene.add.particles(target.x, target.y, 'siphon-soul', {
 			frame: new Array(5).fill(null).map((a,i)=> `health_glob_00${i}`),
 			lifespan: this.particleDuration * 1000,
 			speed: 15,
-			frequency: 300,
+			frequency: 150,
 			scale: 0.75,
 			emitting: true,
 			deathZone: [{
@@ -82,9 +82,9 @@ class SiphonSoul extends Spell {
 		this.gravityWell = this.emitter.createGravityWell({
 			x: relativePlayerX,
 			y: relativePlayerY,
-			power: 20, 
-			epsilon: 500,
-			gravity: 10
+			power: 1, 
+			epsilon: 50,
+			gravity: 20
 		});
 
 		this.scene.events.on('update', this.updateGravityWellPosition, this);
@@ -95,7 +95,7 @@ class SiphonSoul extends Spell {
 			}
 		});
 
-		this.emitter.onParticleDeath((particle: Phaser.GameObjects.Particles.Particle) => {
+		this.emitter.onParticleDeath(() => {
 			this.player.health.adjustValue(value.amount, 'heal', false);
 		});
 	}
