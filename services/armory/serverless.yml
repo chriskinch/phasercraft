@@ -2,7 +2,10 @@ org: chriskinch
 app: armory-items
 service: items-api
 
-frameworkVersion: ">=2"
+frameworkVersion: ">=4"
+
+build:
+  esbuild: false
 
 plugins:
   - serverless-webpack
@@ -13,7 +16,7 @@ custom:
   webpack: 
     webpackConfig: ./webpack.config.js
     includeModules: true
-    packager: yarn
+    packager: npm
   dynamodb:
     stages:
       - dev
@@ -30,7 +33,7 @@ custom:
 
 provider:
   name: aws
-  runtime: nodejs12.x
+  runtime: nodejs20.x
   stage: dev
   region: us-east-1
   environment:

@@ -45,7 +45,7 @@ jobs:
       - name: Build service/armory
         run: |
           cd services/armory
-          yarn install --frozen-lockfile
+          npm ci
       - name: Build main application
         run: npm run build
         env:

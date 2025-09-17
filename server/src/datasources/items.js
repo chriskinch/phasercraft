@@ -8,8 +8,9 @@ const sortKeys = Object.freeze({
 class ItemAPI extends RESTDataSource {
   constructor() {
     super();
-    // this.baseURL = 'http://localhost:3001/dev';
-    this.baseURL = 'https://v8z4x819qk.execute-api.us-east-1.amazonaws.com/dev';
+    this.baseURL = process.env.NODE_ENV === 'production' 
+      ? 'https://v8z4x819qk.execute-api.us-east-1.amazonaws.com/dev'
+      : 'http://localhost:3001/dev';
   }
 
   async getAllItems({orderBy, filter}) {
