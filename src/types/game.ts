@@ -226,6 +226,8 @@ export interface PlayerStats {
     knockback?: number;
     resource_type?: string;
     resource_max?: number;
+    resource_regen_value?: number;
+    resource_regen_rate?: number;
     // Allow index signature for flexibility
     [key: string]: number | string | undefined;
 }
@@ -238,6 +240,15 @@ export interface PlayerOptions {
 	classification: string;
 	stats?: PlayerStats;
 	resource_type?: string;
+	immovable?: boolean;
+}
+
+export interface ResourceStats {
+	max: number;
+	value: number;
+	regen_rate: number;
+	regen_value: number;
+	missing?: number;
 }
 
 export type EnemyType = "baby-ghoul" | "egbert" | "ghoul" | "imp" | "satyr" | "slime";

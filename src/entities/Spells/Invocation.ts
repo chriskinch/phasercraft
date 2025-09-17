@@ -32,12 +32,6 @@ class Invocation extends Boon {
 
 		super({ ...defaults, ...config });
 		this.hasAnimation = false;
-		this.type = "magic";
-		this.duration = 5;
-		this.value = {
-			resource_regen_value: (bs: number) => bs * 4,
-			resource_regen_rate: -0.1
-		};
 	}
 
 	effect(): void {
@@ -52,7 +46,7 @@ class Invocation extends Boon {
 		this.timer = this.scene.time.addEvent(timer_config);
 		
 		// Also root the player until spell is over or click to move.
-		this.player.body.setMaxVelocity(0);
+		this.player.body.setMaxVelocity(10);
 		this.player.root();
 
 		this.scene.events.once('player:hit', this.clearEffect, this);

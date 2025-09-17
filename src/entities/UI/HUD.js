@@ -15,6 +15,7 @@ class UI extends GameObjects.Container {
 		this.spells = 5;
 		this.spacing = 60;
 		this.frames = [];
+		this.subscriptions = [];
 
 		this.setSpellFrames();
 		this.setCoinCount();
@@ -24,17 +25,22 @@ class UI extends GameObjects.Container {
 			this.setSystemIcon()
 		];
 
+		// Add buttons to this container
+		this.buttons.forEach(button => this.add(button));
+
 		// Position buttons in the bottom right
 		const {x, y, width, height} = this.scene.zone;
 		Actions.IncXY(this.buttons, x + width, y + height, -35);
 
 		// Maps coins, wave and showUi sections of the store to various functions.
-		mapStateToData("coins", coins => this.coins.text.setText('Coins: ' + coins));
-		mapStateToData("wave", wave => this.wave.text.setText('Wave: ' + wave));
-		mapStateToData("showUi", showUi => {
+		this.subscriptions.push(mapStateToData("coins", coins => {
+			this.coins.text.setText('Coins: ' + coins)
+		}));
+		this.subscriptions.push(mapStateToData("wave", wave => this.wave.text.setText('Wave: ' + wave)));
+		this.subscriptions.push(mapStateToData("showUi", showUi => {
 			store.dispatch(toggleHUD(!showUi));
 			(showUi) ? this.scene.scene.pause() : this.scene.scene.resume()
-		});
+		}));
 
 		scene.input.keyboard.on('keyup-P', () => store.dispatch(toggleUi("character")), this);
 		// TEMP KEYBINDS
@@ -53,7 +59,7 @@ class UI extends GameObjects.Container {
 			save_data ? store.dispatch(loadGame(save_data)) : console.log("NO DATA TO LOAD");
 		}, this);
 
-		this.scene.add.existing(this).setDepth(this.scene.depth_group.UI);
+		this.scene.add.existing(this).setDepth(this.scene.depth_group.UI).setScrollFactor(0);
 	}
 
 	setSpellFrames(){
@@ -67,39 +73,52 @@ class UI extends GameObjects.Container {
 	}
 
 	setCoinCount(){
-		this.coins = this.scene.add.container(0, 0).setDepth(this.scene.depth_group.UI);
+		this.coins = this.scene.add.container(0, 0);
 		Display.Align.In.TopRight(this.coins, this.scene.zone, -80);
 
 		this.coins.add(this.scene.add.sprite(0, 0, 'coin-spin'));
 		this.coins.text = this.scene.add.text(15, 0, 'Coins: ', styles).setOrigin(0, 0.5);
 		this.coins.add(this.coins.text);
+		
+		this.add(this.coins);
 	}
 
 	setWaveCount(){
-		this.wave = this.scene.add.container(0, 0).setDepth(this.scene.depth_group.UI);
+		this.wave = this.scene.add.container(0, 0);
 		Display.Align.In.TopRight(this.wave, this.scene.zone, -190);
 
 		this.wave.add(this.scene.add.sprite(0, 0, 'dungeon', 'ghast_baby'));
 		this.wave.text = this.scene.add.text(15, 0, 'Wave: ' + (this.scene.wave+1), styles).setOrigin(0, 0.5);
 		this.wave.add(this.wave.text);
+		
+		this.add(this.wave);
 	}
 
 	setInvetoryIcon() {
-		const button = this.scene.add.sprite(0, 0, 'icon', 'icon_0021_charm')
+		return this.scene.add.sprite(0, 0, 'icon', 'icon_0021_charm')
 			.setInteractive()
-			.setDepth(this.scene.depth_group.UI);
-
-		button.on('pointerdown', () => store.dispatch(toggleUi("equipment")), this);
-		return button;
+			.setScrollFactor(0)
+			.on('pointerdown', () => store.dispatch(toggleUi("equipment")), this);
 	}
 
 	setSystemIcon() {
-		const button = this.scene.add.sprite(0, 0, 'icon', 'icon_0006_golem')
+		return this.scene.add.sprite(0, 0, 'icon', 'icon_0006_golem')
 			.setInteractive()
-			.setDepth(this.scene.depth_group.UI);
+			.setScrollFactor(0)
+			.on('pointerdown', () => store.dispatch(toggleUi("system")), this);
+	}
+
+	cleanup() {
+		// Unsubscribe from all store subscriptions
+		this.subscriptions.forEach(unsubscribe => unsubscribe());
+		this.subscriptions = [];
 		
-		button.on('pointerdown', () => store.dispatch(toggleUi("system")), this);
-		return button;
+		// Clean up keyboard event listeners
+		this.scene.input.keyboard.off('keyup-P');
+		this.scene.input.keyboard.off('keyup-R');
+		this.scene.input.keyboard.off('keyup-S');
+		this.scene.input.keyboard.off('keyup-D');
+		this.scene.input.keyboard.off('keyup-L');
 	}
 }
 

@@ -37,7 +37,7 @@ class Consecration extends Spell {
 	setCastEvents(state: 'on' | 'off'): void {
 		// Call as it we click the spell to trigger effect().
 		// Acts like an instant cast.
-		if(state === 'on') this.castSpell(this.player);
+		if(state === 'on') this.castSpell();
 	}
 
 	areaEffect(): void {
