@@ -78,6 +78,15 @@
     ".next/types/**/*.ts"
   ],
   "exclude": [
-    "node_modules"
+    "node_modules",
+    "assets/**/*.tsx",
+    "assets/**/*.tmx",
+    "assets/**/*.tmj",
+    "public/**/*.tsx",
+    "public/**/*.tmx",
+    "public/**/*.tmj",
+    "dist/**/*.tsx",
+    "dist/**/*.tmx",
+    "dist/**/*.tmj"
   ]
 }

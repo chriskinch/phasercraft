@@ -1,4 +1,4 @@
-import { Math as PhaserMath, GameObjects, Scene, Physics } from "phaser";
+import { Math as PhaserMath, GameObjects, Scene, Physics, Display } from "phaser";
 import { v4 as uuid } from 'uuid';
 import Hero from "./Hero";
 import Weapon from "@entities/Weapon";
@@ -31,6 +31,7 @@ class Player extends GameObjects.Container {
 	public classification: string;
 	public name: string;
 	public uuid: string;
+	private subscriptions: (() => void)[] = [];
 	public hero: Hero;
 	public boons: Boons;
 	public alive: boolean;
@@ -51,7 +52,7 @@ class Player extends GameObjects.Container {
 	public swing: Phaser.Time.TimerEvent | null = null;
 	public body: Physics.Arcade.Body;
 
-	constructor({scene, x, y, abilities = [], classification = "", stats, resource_type}: PlayerOptions) {
+	constructor({scene, x, y, abilities = [], classification = "", stats, resource_type, immovable = true}: PlayerOptions) {
 		super(scene, x, y);
 		this.classification = classification;
 		this.name = "player";
@@ -70,10 +71,12 @@ class Player extends GameObjects.Container {
 		this.setSize(this.hero.getBounds().width, this.hero.getBounds().height);
 		scene.physics.world.enable(this);
 		scene.add.existing(this);
-		
+
 		this.body.collideWorldBounds = true;
-		this.body.immovable = true;
+		this.body.immovable = immovable;
 		this.body.setFriction(0,0);
+
+		this.setCollisionBox();
 
 		this.boons = new Boons(this.scene, this);
 
@@ -120,15 +123,15 @@ class Player extends GameObjects.Container {
 
 		// This maps the stats section of the store to this.stats.
 		// Updates on store change using RxJS.
-		mapStateToData("stats", (stats: unknown) => {
+		this.subscriptions.push(mapStateToData("stats", (stats: unknown) => {
 			// Store stats might have different properties, so we handle the conversion
 			this.stats = stats as PlayerStats;
-		});
-		mapStateToData("level.currentLevel", (level: unknown) => {
+		}));
+		this.subscriptions.push(mapStateToData("level.currentLevel", (level: unknown) => {
 			if (typeof level === 'number') {
 				this.LevelUp(level);
 			}
-		});
+		}));
 
 		scene.events.once('player:dead', this.death, this);
 		scene.events.on('enemy:attack', this.hit, this);
@@ -211,11 +214,12 @@ class Player extends GameObjects.Container {
 		this.dragging = false;
 	}
 
-	moveToPosition(target: { x: number; y: number }): void {
-		this.destination = {
-			x: target.x,
-			y: target.y
-		};
+	getWorldPointer(targetOrPoint: Phaser.Input.Pointer | Enemy) {
+		return this.scene.cameras.main.getWorldPoint(targetOrPoint.x, targetOrPoint.y);
+	}
+
+	moveToPosition(targetOrPoint: Phaser.Input.Pointer | Enemy): void {
+		this.destination = this.getWorldPointer(targetOrPoint);
 		this.scene.physics.moveTo(this, this.destination.x!, this.destination.y!, this.stats.speed);
 		this.walk();
 	}
@@ -366,6 +370,27 @@ class Player extends GameObjects.Container {
 		}));
 	}
 
+	/**
+	 * Adjusts the player's collision box size and position
+	 * Useful for fine-tuning collision detection for different player sprites
+	 */
+	setCollisionBox(height: number = 8): void {
+		if (!this.body) return;
+
+		this.body.debugBodyColor = 0x00ff00;
+
+		const heroHeight = this.hero.getBounds().height;
+		const heroWidth = this.hero.getBounds().width;
+		const collisionHeight = heroHeight / 4;
+
+		this.body.setSize(heroWidth, collisionHeight);
+
+		this.body.setOffset(
+			0,
+			this.hero.getBounds().height - collisionHeight
+		);
+	}
+
 	createAnimations(type: string): void {
 		const player_animations = [
 			{key: "player-idle", frames: { start: 12, end: 17 }, repeat: -1},
@@ -382,6 +407,12 @@ class Player extends GameObjects.Container {
 				repeat: animation.repeat
 			});
 		});
+	}
+
+	cleanup(): void {
+		// Unsubscribe from all store subscriptions
+		this.subscriptions.forEach(unsubscribe => unsubscribe());
+		this.subscriptions = [];
 	}
 }
 

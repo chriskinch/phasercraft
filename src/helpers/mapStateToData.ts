@@ -15,11 +15,13 @@ interface MapStateOptions {
     init?: boolean;
 }
 
-export default function mapStateToData(path: string, fn: (data: unknown) => void, {init = true}: MapStateOptions = {}): void {
-    state$.pipe(
+export default function mapStateToData(path: string, fn: (data: unknown) => void, {init = true}: MapStateOptions = {}): () => void {
+    const subscription = state$.pipe(
         map(state => get(state, path)),
         startWith(get(store.getState().game, path)),
         distinctUntilChanged(isEqual),
         skip(init ? 0 : 1)
     ).subscribe(d => fn(d));
+    
+    return () => subscription.unsubscribe();
 }
