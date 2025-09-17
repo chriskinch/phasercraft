@@ -10,7 +10,7 @@ import bossTypes from "@config/bosses.json"
 import { sample } from "lodash"
 import { fontConfig } from "../config/fonts"
 
-import { nextWave, toggleHUD } from "@store/gameReducer"
+import { nextWave, toggleHUD, setCurrentArea } from "@store/gameReducer"
 import store from "@store"
 
 import type { EnemyConfig, EnemyOptions } from "@/types/game"
@@ -143,6 +143,17 @@ export default class GameScene extends Scene {
 		if(this.enemies.getChildren().length === 0 && !this.game_over) this.events.emit('enemies:dead');
 
 		if(this.player.alive) this.player.update(mouse, this.cursors, time, delta);
+
+		// Allow ESC key to return to town
+		if (this.cursors.esc?.isDown) {
+			this.returnToTown();
+		}
+	}
+
+	private returnToTown(): void {
+		console.log('Returning to town...');
+		store.dispatch(setCurrentArea("town"));
+		this.scene.start('TownScene', this.config);
 	}
 
 	increaseLevel(): void {
@@ -295,5 +306,30 @@ export default class GameScene extends Scene {
 		const wave_offset = n_wave * time_scale;
 		const time_limit = min_delay + wave_offset + time_scale;
 		this.next_level_timer = this.time.delayedCall(time_limit, this.increaseLevel, [], this);
+	}
+
+	shutdown(): void {
+		console.log("SHUTDOWN GAME: ", this.UI)
+		// Clean up HUD subscriptions
+		if (this.UI && this.UI.cleanup) {
+			this.UI.cleanup();
+		}
+		
+		// Clean up player subscriptions
+		if (this.player && this.player.cleanup) {
+			this.player.cleanup();
+		}
+		
+		// Clean up input event listeners
+		this.input.off('pointerdown');
+		this.input.off('pointermove');
+		this.input.off('pointerup');
+		
+		// Clean up scene event listeners
+		this.events.off('player:dead');
+		this.events.off('enemies:dead');
+		
+		// Clean up next level timer
+		this.removeNextLevelTimer();
 	}
 }

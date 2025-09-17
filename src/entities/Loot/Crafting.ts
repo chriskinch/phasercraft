@@ -40,7 +40,7 @@ class Crafting extends GameObjects.Sprite {
 
 	collect(): void {
 		store.dispatch(addCrafting(this.name));
-		console.log(store.getState().game.inventory)
+
 		this.scene.tweens.add({
 				targets: this,
 				y: {

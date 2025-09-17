@@ -2,7 +2,7 @@ import { createAction, createReducer, PayloadAction } from "@reduxjs/toolkit";
 import mergeWith from "lodash/mergeWith";
 import remove from "lodash/remove";
 import pull from "lodash/pull";
-import type { LootItem, PlayerStats, Equipment as GameEquipment } from "@/types/game";
+import type { LootItem, PlayerStats, ResourceStats, Equipment as GameEquipment } from "@/types/game";
 import type { PlayerName } from "@entities/Player/AssignClass";
 
 // Types
@@ -31,6 +31,8 @@ export interface GameState {
     saveSlot: string | null;
     wave: number;
     xp: number;
+    currentArea: string;
+    playerPosition: { x: number; y: number };
 }
 
 // Init
@@ -61,6 +63,8 @@ const initState: GameState = {
     saveSlot: null,
     wave: 1,
     xp: 0,
+    currentArea: "town",
+    playerPosition: { x: 400, y: 300 },
 };
 
 // Actions
@@ -106,7 +110,7 @@ export const sellLoot = createAction("SELL_LOOT", (loot: LootItem) => ({
     payload: { loot }
 }));
 
-export const setBaseStats = createAction("SET_BASE_STATS", (base_stats: PlayerStats) => ({
+export const setBaseStats = createAction("SET_BASE_STATS", (base_stats: PlayerStats | Record<string, ResourceStats>) => ({
     payload: { base_stats }
 }));
 
@@ -118,7 +122,7 @@ export const setSaveSlot = createAction("SET_SAVE_SLOT", (saveSlot: string) => (
     payload: { saveSlot }
 }));
 
-export const setStats = createAction("SET_STATS", (stats: PlayerStats) => ({
+export const setStats = createAction("SET_STATS", (stats: PlayerStats | Record<string, ResourceStats>) => ({
     payload: { stats }
 }));
 
@@ -148,6 +152,14 @@ export const updateBaseStats = createAction("UPDATE_BASE_STATS", (base_stats: Pa
 
 export const updateStats = createAction("UPDATE_STATS", (stats: Partial<PlayerStats>) => ({
     payload: { stats }
+}));
+
+export const setCurrentArea = createAction("SET_CURRENT_AREA", (area: string) => ({
+    payload: { area }
+}));
+
+export const setPlayerPosition = createAction("SET_PLAYER_POSITION", (position: { x: number; y: number }) => ({
+    payload: { position }
 }));
 
 // Helpers
@@ -221,8 +233,8 @@ export const gameReducer = createReducer(initState, (builder) => {
             state.coins += Math.round(loot.cost/3);
             state.selected = null;
         })
-        .addCase(setBaseStats, (state, action: PayloadAction<{ base_stats: PlayerStats }>) => {
-            state.base_stats = {...state.base_stats, ...action.payload.base_stats};
+        .addCase(setBaseStats, (state, action: PayloadAction<{ base_stats: PlayerStats | Record<string, ResourceStats> }>) => {
+            state.base_stats = {...state.base_stats, ...action.payload.base_stats as Partial<PlayerStats>};
         })
         .addCase(setLevel, (state, action: PayloadAction<{ level: Level }>) => {
             return { ...state, ...action.payload };
@@ -230,8 +242,8 @@ export const gameReducer = createReducer(initState, (builder) => {
         .addCase(setSaveSlot, (state, action: PayloadAction<{ saveSlot: string }>) => {
             state.saveSlot = action.payload.saveSlot;
         })
-        .addCase(setStats, (state, action: PayloadAction<{ stats: PlayerStats }>) => {
-            state.stats = {...state.stats, ...action.payload.stats};
+        .addCase(setStats, (state, action: PayloadAction<{ stats: PlayerStats | Record<string, ResourceStats> }>) => {
+            state.stats = {...state.stats, ...action.payload.stats as Partial<PlayerStats>};
         })
         .addCase(switchUi, (state, action: PayloadAction<{ menu: string }>) => {
             return { ...state, ...action.payload };
@@ -262,5 +274,11 @@ export const gameReducer = createReducer(initState, (builder) => {
         })
         .addCase(updateStats, (state, action: PayloadAction<{ stats: Partial<PlayerStats> }>) => { 
             mergeWith(state.stats, action.payload.stats, (o: number, s: number) => o + s);
+        })
+        .addCase(setCurrentArea, (state, action: PayloadAction<{ area: string }>) => {
+            state.currentArea = action.payload.area;
+        })
+        .addCase(setPlayerPosition, (state, action: PayloadAction<{ position: { x: number; y: number } }>) => {
+            state.playerPosition = action.payload.position;
         });
 });

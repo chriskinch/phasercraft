@@ -3,6 +3,7 @@ import store from "@store";
 import { setStats, setBaseStats } from "@store/gameReducer";
 import pick from "lodash/pick";
 import mapStateToData from "@helpers/mapStateToData";
+import type { ResourceStats } from "@/types/game";
 
 export interface ResourceOptions {
 	scene: Scene;
@@ -10,14 +11,6 @@ export interface ResourceOptions {
 	y: number;
 	container: GameObjects.Container;
 	[key: string]: unknown;
-}
-
-interface ResourceStats {
-	max: number;
-	value: number;
-	regen_rate: number;
-	regen_value: number;
-	missing?: number;
 }
 
 interface DrawBarOptions {
@@ -37,6 +30,7 @@ class Resource extends GameObjects.Sprite {
 	public stats: ResourceStats;
 	public graphics: { [key: string]: GameObjects.Graphics };
 	public tick: Phaser.Time.TimerEvent;
+	private subscriptions: (() => void)[] = [];
 
 	constructor(config: ResourceOptions) {
 		super(config.scene, config.x, config.y, 'resource-frame');
@@ -58,12 +52,12 @@ class Resource extends GameObjects.Sprite {
 		
 		if(this.container.name === "player") {
 			// Only dispatch if we have valid stats to set
-			// store.dispatch(setStats(this.resources));
-			// store.dispatch(setBaseStats(this.resources));
+			store.dispatch(setStats(this.resources));
+			store.dispatch(setBaseStats(this.resources));
 
 			// console.log(this.selectKeys(this.category))
 			this.selectKeys(this.category).forEach(key => {
-				mapStateToData(
+				this.subscriptions.push(mapStateToData(
 					`stats.${key}`,
 					(stat: unknown) => {
 						if (typeof stat === 'number') {
@@ -71,7 +65,7 @@ class Resource extends GameObjects.Sprite {
 						}
 					},
 					{init: false}
-				);
+				));
 			});
 		}
 

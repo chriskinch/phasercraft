@@ -227,9 +227,9 @@ class Enemy extends GameObjects.Container {
 
 	move({target = this.target, bias = 1}: MoveOptions = {}): void {
 		if (!target) return;
-		// Ensure target has the correct interface for physics
 		const physicsTarget = target as GameObjects.GameObject;
-		this.scene.physics.accelerateToObject(this, physicsTarget, 200 * bias, this.stats.speed, this.stats.speed);
+		const speed = Math.min(this.body.maxVelocity.x, this.stats.speed);
+		this.scene.physics.accelerateToObject(this, physicsTarget, 200 * bias, speed, speed);
 	}
 
 	enemySpawned(): void {
