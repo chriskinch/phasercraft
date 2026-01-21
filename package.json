@@ -29,7 +29,7 @@
         "@apollo/client": "^3.13.8",
         "@reduxjs/toolkit": "^2.8.2",
         "eslint-config-next": "^15.4.2",
-        "lodash": "^4.17.21",
+        "lodash": "^4.17.23",
         "next": "15.4.10",
         "number-to-words": "^1.2.4",
         "phaser": "^3.90.0",
