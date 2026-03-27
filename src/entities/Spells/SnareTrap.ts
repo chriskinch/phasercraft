@@ -1,6 +1,7 @@
 import Spell from './Spell';
 import Trap from '../Weapons/Trap';
-import type { SpellOptions } from '@/types/game';
+import type { SpellOptions, TargetType } from '@/types/game';
+import type Enemy from '@entities/Enemy/Enemy';
 
 class SnareTrap extends Spell {
 	public type: string;
@@ -42,7 +43,7 @@ class SnareTrap extends Spell {
 		this.scene.events[state]('pointerdown:player', this.clearSpell, this);
 	}
 
-	triggerTrap(target: any): void {
+	triggerTrap(target: Enemy): void {
 		target.body.setMaxVelocity(0);
 		target.monster.anims.pause();
 		target.body.checkCollision.none = true;
@@ -62,10 +63,14 @@ class SnareTrap extends Spell {
 		this.item.once('trap:collide', this.effect, this);
 	}
 
-	effect(target: any): void {
+	effect(target: TargetType): void {
 		// Only trigger if the target have a body.
 		// Game scene does not so lay the trap rather then trigger the trap.
-		(target.body) ? this.triggerTrap(target) : this.layTrap();
+		if (target && typeof target === 'object' && 'body' in target && 'monster' in target && 'health' in target) {
+			this.triggerTrap(target as Enemy);
+		} else {
+			this.layTrap();
+		}
 		this.clearSpell();
 	}
 }

@@ -99,7 +99,7 @@ class EarthShield extends Spell {
 		this.setScale(1);
 	}
 
-	touch(enemy: any): void {
+	touch(enemy: Enemy): void {
 		if(this.ready) {
 			// The actual hit.
 			const value = this.setValue({ base: 10, key: "magic_power" });

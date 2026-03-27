@@ -277,11 +277,11 @@ export default class TownScene extends Scene {
 		}
 
 		// Create collision bodies from object layer (scaled 2x to match map)
-		collisionLayer.objects.forEach((obj: any, index: number) => {
-			const scaledX = obj.x * 2;
-			const scaledY = obj.y * 2;
-			const scaledWidth = obj.width * 2;
-			const scaledHeight = obj.height * 2;
+		collisionLayer.objects.forEach((obj: Phaser.Types.Tilemaps.TiledObject, index: number) => {
+			const scaledX = obj.x! * 2;
+			const scaledY = obj.y! * 2;
+			const scaledWidth = obj.width! * 2;
+			const scaledHeight = obj.height! * 2;
 			
 			let collisionBody: GameObjects.GameObject;
 			
@@ -332,10 +332,10 @@ export default class TownScene extends Scene {
 
 		this.interactionZones = this.add.group();
 		
-		poiLayer.objects.forEach((poi: any) => {
+		poiLayer.objects.forEach((poi: Phaser.Types.Tilemaps.TiledObject) => {
 			// Create interaction zone around each POI (scaled 2x to match map)
-			const scaledX = poi.x * 2;
-			const scaledY = poi.y * 2;
+			const scaledX = poi.x! * 2;
+			const scaledY = poi.y! * 2;
 			const zone = this.add.zone(scaledX, scaledY, 32, 32); // 64x64 pixel interaction area (2x scaled)
 			this.physics.world.enable(zone);
 
@@ -384,7 +384,7 @@ export default class TownScene extends Scene {
 		// UI elements will be added later
 	}
 
-	private handleZoneOverlap(player: any, zone: GameObjects.Zone): void {
+	private handleZoneOverlap(player: Player | Phaser.Types.Physics.Arcade.GameObjectWithBody, zone: GameObjects.Zone): void {
 		const zoneType = zone.getData('type');
 		const zoneName = zone.getData('name');
 		this.handleInteraction(zoneType, zoneName);

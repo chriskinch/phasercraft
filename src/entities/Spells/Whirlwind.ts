@@ -1,6 +1,8 @@
 import Spell from './Spell';
 import targetVector from '@helpers/targetVector';
-import type { SpellOptions, EnemyOptions } from '@/types/game';
+import type { SpellOptions, EnemyOptions, TargetType } from '@/types/game';
+import type Enemy from '@entities/Enemy/Enemy';
+
 class Whirlwind extends Spell {
 	public type: string;
 	public range: number;
@@ -35,14 +37,16 @@ class Whirlwind extends Spell {
 		if(state === 'on') this.castSpell(this.player);
 	}
 
-	effect(target: any): void {
-		const enemiesInRange = (this.scene as any).enemies.children.entries
-			.filter((enemy: EnemyOptions) => {
-				enemy.vector = targetVector(this.player as any, enemy as any);
-				if (enemy?.vector?.range && enemy.vector.range < this.range) return enemy;
-				return null;
+	effect(target: TargetType): void {
+		const scene = this.scene as Phaser.Scene & { enemies: Phaser.GameObjects.Group };
+		const enemiesInRange = scene.enemies.children.entries
+			.filter((enemy): enemy is Enemy => {
+				if (typeof enemy !== 'object' || !enemy) return false;
+				const enemyObj = enemy as Enemy;
+				enemyObj.vector = targetVector(this.player, enemyObj);
+				return enemyObj.vector?.range !== undefined && enemyObj.vector.range < this.range;
 			})
-			.sort(function (a: EnemyOptions, b: EnemyOptions) {
+			.sort((a, b) => {
 				return (a.vector?.range ?? 0) - (b.vector?.range ?? 0);
 			});
 
@@ -52,14 +56,14 @@ class Whirlwind extends Spell {
 		// Scales value bases on player stat.
 		const value = this.setValue({ base: 30, key: "attack_power" });
 
-		enemiesInRange.forEach((target: any) => {
-			if (target && target.health) {
-				target.health.adjustValue(-value.amount * mod, this.type, value.crit);
+		enemiesInRange.forEach((enemy) => {
+			if (enemy && enemy.health) {
+				enemy.health.adjustValue(-value.amount * mod, this.type, value.crit);
 			}
 		});
 	}
 
-	powerCap(enemies: EnemyOptions[]): number {
+	powerCap(enemies: Enemy[]): number {
 		const split = (enemies.length < this.cap) ? this.cap : enemies.length;
 		const spread = this.cap / split;
 		return spread;

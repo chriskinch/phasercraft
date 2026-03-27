@@ -2,6 +2,7 @@ import { GameObjects, Display, Scene } from "phaser";
 import store from "@store";
 import type { SpellOptions, TargetType } from '@/types/game';
 import type Player from '@entities/Player/Player';
+import type { SpellCaster } from '@/types/spell-targets';
 
 interface SpellValue {
 	crit: boolean;
@@ -9,7 +10,7 @@ interface SpellValue {
 }
 
 class Spell extends GameObjects.Sprite {
-	public player: any; // Player or Enemy with resource property
+	public player: SpellCaster;
 	public cost: { [key: string]: number };
 	public typedCost: number;
 	public hasAnimation: boolean;
@@ -26,7 +27,7 @@ class Spell extends GameObjects.Sprite {
 	public text: GameObjects.Text;
 	public cooldownTimer: Phaser.Tweens.Tween;
 	public target: TargetType | undefined;
-	public animation: any;
+	public animation: Phaser.Animations.Animation | null;
 
 	constructor({scene, x, y, key, ...config}: SpellOptions) {
 		super(scene, x, y, key);	

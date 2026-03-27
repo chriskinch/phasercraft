@@ -1,0 +1,31 @@
+{
+  "unknown": {
+    "versionFramework": "4.19.1",
+    "dashboard": {
+      "isEnabledForService": false,
+      "requiredAuthentication": false,
+      "orgFeaturesInUse": null,
+      "orgObservabilityIntegrations": null,
+      "serviceAppId": null,
+      "serviceProvider": null,
+      "instanceParameters": null
+    },
+    "error": {
+      "message": "Failed to resolve AWS account ID: The security token included in the request is invalid",
+      "code": "AWS_ACCOUNT_ID_RESOLUTION_FAILED"
+    },
+    "command": [
+      "reconcile"
+    ],
+    "options": {},
+    "orgId": "cae07279-f587-4c25-8ce8-7d75eb903517",
+    "orgName": "chriskinch",
+    "userId": "CkYylLGXXmrPTGd135",
+    "userName": "chriskinch",
+    "serviceProviderAwsCfStackId": null,
+    "serviceProviderAwsCfStackCreated": null,
+    "serviceProviderAwsCfStackUpdated": null,
+    "serviceProviderAwsCfStackStatus": null,
+    "serviceProviderAwsCfStackOutputs": null
+  }
+}

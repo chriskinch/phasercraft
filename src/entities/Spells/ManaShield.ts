@@ -32,7 +32,8 @@ class ManaShield extends Spell {
 		this.scene.events[state]('pointerdown:enemy', this.clearSpell, this);
 	}
 
-	effect(target: any): void {
+	effect(target: TargetType): void {
+		if (!target || typeof target !== 'object' || !('shield' in target)) return;
 		this.setVisible(true);
 		// Scales value bases on player stat
 		const value = this.setValue({ base: 130, key: "magic_power" });

@@ -46,7 +46,8 @@ class Frostbolt extends Spell {
 		this.scene.events[state]('pointerdown:player', this.clearSpell, this);
 	}
 
-	effect(target: any): void {
+	effect(target: TargetType): void {
+		if (!target || typeof target !== 'object' || !('health' in target) || !('banes' in target) || !('monster' in target)) return;
 		// Returns crit boolean and modified value using spell base value.
 		const value = this.setValue({ base: 35, key: "magic_power" });
 		target.health.adjustValue(-value.amount, this.type, value.crit);

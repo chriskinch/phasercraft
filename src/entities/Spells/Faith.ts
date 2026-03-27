@@ -40,7 +40,8 @@ class Faith extends Spell {
 		this.scene.events[state]('pointerdown:enemy', this.clearSpell, this);
 	}
 
-	effect(target: any): void {
+	effect(target: TargetType): void {
+		if (!target || typeof target !== 'object' || !('health' in target)) return;
 		const timer_config = {
 			delay: this.frequency * 1000,
 			repeat: Math.round(this.duration/this.frequency) - 1,
@@ -52,8 +53,9 @@ class Faith extends Spell {
 		const value = this.setValue({ base: 20, key: "magic_power" });
 		target.health.adjustValue(value.amount, this.type, false);
 	}
-	
-	overTimeEffect(target: any): void {
+
+	overTimeEffect(target: TargetType): void {
+		if (!target || typeof target !== 'object' || !('health' in target)) return;
 		// Scales value bases on player stat
 		const value = this.setValue({ base: 20, key: "magic_power" });
 		target.health.adjustValue(value.amount, this.type, value.crit);

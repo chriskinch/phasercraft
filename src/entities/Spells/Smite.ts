@@ -30,7 +30,8 @@ class Smite extends Spell {
 		this.scene.events[state]('pointerdown:player', this.clearSpell, this);
 	}
 
-	effect(target: any): void {
+	effect(target: TargetType): void {
+		if (!target || typeof target !== 'object' || !('health' in target)) return;
 		// Returns crit boolean and modified value using spell base value.
 		const value = this.setValue({ base: 30, key: "magic_power" });
 		const heal = this.setValue({ base: 15, key: "magic_power" });

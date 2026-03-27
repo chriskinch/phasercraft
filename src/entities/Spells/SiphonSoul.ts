@@ -46,16 +46,18 @@ class SiphonSoul extends Spell {
 		this.scene.events[state]('pointerdown:player', this.clearSpell, this);
 	}
 
-	effect(target: any): void {
+	effect(target: TargetType): void {
+		if (!target || typeof target !== 'object' || !('body' in target) || !('monster' in target) || !('health' in target)) return;
+		const enemy = target as Enemy;
 		// Root the target in place.
-		target.body.setMaxVelocity(0, 0);
-		target.monster.anims.pause();
-		target.body.checkCollision.none = true;
+		enemy.body.setMaxVelocity(0, 0);
+		enemy.monster.anims.pause();
+		enemy.body.checkCollision.none = true;
 		// Also root the player until spell is over or click to move.
 		this.player.body.setMaxVelocity(0, 0);
 		this.player.idle();
 
-		this.target = target;
+		this.target = enemy;
 		this.scene.events.on('pointerdown:game', this.clearEffect, this);
 	}
 

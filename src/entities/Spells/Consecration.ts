@@ -46,8 +46,8 @@ class Consecration extends Spell {
 		this.item.on('player:area:overlap', this.playerEffect, this);
 	}
 
-	effect(target?: any): void {
-		if(target?.body) {
+	effect(target?: TargetType): void {
+		if(target && typeof target === 'object' && 'body' in target && 'health' in target) {
 			// Scales value bases on player stat.
 			const value = this.setValue({ base: 3, key: "magic_power" });
 			target.health.adjustValue(-value.amount * 0.5, this.type);
