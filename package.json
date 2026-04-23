@@ -42,7 +42,7 @@
         "react-redux": "^9.2.0",
         "react-tooltip": "^5.29.1",
         "rxjs": "^7.8.2",
-        "uuid": "^11.1.0"
+        "uuid": "^14.0.0"
     },
     "devDependencies": {
         "@types/lodash": "^4.17.20",
