@@ -7,21 +7,24 @@ Phasercraft is an isometric action RPG featuring deep character customization, s
 ## 🎮 Game Features
 
 ### Five Unique Character Classes
+
 Each class offers distinct playstyles, resource management, and combat approaches:
 
 - **⚔️ Warrior** - Melee tank with Rage resource. High health and defense, specializes in area damage (Whirlwind) and self-buffs (Enrage)
-- **✨ Cleric** - Holy support with Mana resource. Balanced stats with powerful healing (Heal, Faith) and divine damage (Smite, Consecration)  
+- **✨ Cleric** - Holy support with Mana resource. Balanced stats with powerful healing (Heal, Faith) and divine damage (Smite, Consecration)
 - **🔥 Mage** - Elemental caster with Mana resource. Glass cannon with devastating spells (Fireball, Frostbolt) and magical shields
 - **🌙 Occultist** - Dark magic user with Mana resource. Life-draining abilities (Siphon Soul) and frost magic
 - **🏹 Ranger** - Ranged fighter with Energy resource. High critical chance, trap setting (Snare Trap), and multi-target attacks (Multishot)
 
 ### Advanced Magic System
+
 - **6 Magic Schools**: Light, Fire, Frost, Arcane, Earth, Dark
 - **15 Ascended Classes**: Combine base classes to unlock advanced specializations (Knight, Paladin, Wizard, Necromancer, etc.)
 - **Dynamic Spell Combinations**: Access to 20+ unique spells with varied targeting, cooldowns, and effects
 - **Resource Management**: Balance Rage/Mana/Energy consumption with spell power and timing
 
 ### Strategic Combat
+
 - **Real-time Action**: Click-to-move controls with precise spell targeting
 - **Wave-Based Progression**: Survive 9 increasingly difficult enemy waves
 - **Diverse Enemy Types**: Face Melee bruisers, Ranged attackers, and Support healers
@@ -29,6 +32,7 @@ Each class offers distinct playstyles, resource management, and combat approache
 - **Status Effects**: Apply and manage buffs, debuffs, and damage-over-time effects
 
 ### Deep Loot & Progression
+
 - **5-Tier Rarity System**: Common → Fine → Rare → Epic → Legendary equipment
 - **Dynamic Item Stats**: 9 different stats with randomized allocation per item
 - **Comprehensive Equipment**: 24+ weapons, 50+ helmets, armor sets, and accessories
@@ -36,6 +40,7 @@ Each class offers distinct playstyles, resource management, and combat approache
 - **Equipment Management**: Drag-and-drop inventory with multiple save slots
 
 ### Rich UI & Quality of Life
+
 - **Multiple Game Screens**: Character selection, inventory management, armory storage
 - **Save System**: Three save slots (A/B/C) with quick-save hotkeys
 - **Combat Feedback**: Floating damage numbers, status indicators, and spell cooldown timers
@@ -44,6 +49,7 @@ Each class offers distinct playstyles, resource management, and combat approache
 ## 🎯 Gameplay Guide
 
 ### Getting Started
+
 1. **Choose Your Class**: Select from 5 base classes, each with unique abilities and playstyles
 2. **Learn Your Spells**: Master your class's spell rotation and resource management
 3. **Survive the Waves**: Face 9 progressively challenging enemy encounters
@@ -51,6 +57,7 @@ Each class offers distinct playstyles, resource management, and combat approache
 5. **Manage Inventory**: Equip better gear and store valuable items in your armory
 
 ### Combat Tips
+
 - **Target Priority**: Focus fire on Healers (Egbert) first, then Ranged (Imp), then Melee
 - **Resource Management**: Don't waste Mana/Energy on weak enemies - save for tough fights
 - **Positioning**: Use click-to-move to maintain optimal range and avoid enemy attacks
@@ -58,6 +65,7 @@ Each class offers distinct playstyles, resource management, and combat approache
 - **Critical Builds**: Rangers excel with high critical chance - build around crit stats
 
 ### Progression Strategy
+
 - **Equipment Focus**: Prioritize items that boost your class's primary stats
 - **Spell School Synergy**: Understand your class's magic schools for optimal spell selection
 - **Save Management**: Use multiple save slots to experiment with different builds
@@ -78,6 +86,7 @@ This project uses the Phaser-Next.js template with a React-Phaser bridge for sea
 ## 🚀 Quick Start
 
 ### Development Setup
+
 ```bash
 # Install dependencies
 npm install
@@ -92,6 +101,7 @@ npm run dev-nolog
 Game runs at `http://localhost:8080`
 
 ### Production Build
+
 ```bash
 # Build for production
 npm run build
@@ -110,7 +120,7 @@ npm run build
 ```
 src/
 ├── entities/          # Game objects (Player, Enemy, Spells, Loot, UI)
-├── scenes/           # Phaser scenes (Game, Load, Select, GameOver)  
+├── scenes/           # Phaser scenes (Game, Load, Select, GameOver)
 ├── config/           # Game data (classes, enemies, waves, bosses)
 ├── helpers/          # Utility functions
 ├── store/            # Redux state management
@@ -119,11 +129,26 @@ src/
 ```
 
 ### Available Commands
+
 - `npm run dev` - Development server with logging
-- `npm run build` - Production build  
-- `npm run lint` - Code linting
+- `npm run build` - Production build
+- `npm run lint` - Code linting (ESLint via Next.js)
+- `npm run typecheck` - TypeScript type checking (`tsc --noEmit`)
+- `npm test` - Run the test suite once (Vitest)
+- `npm run test:watch` - Run tests in watch mode
+- `npm run test:ui` - Run tests with the Vitest UI
+- `npm run format` - Format the codebase with Prettier
+- `npm run format:check` - Check formatting without writing changes
 - `npm run gateway` - Start GraphQL server
 - `npm run service:armory` - Start armory microservice
+
+### Code Quality
+
+- **Prettier** handles formatting (configured in `.prettierrc.json`).
+- **ESLint** extends `next` + `prettier` (so the two never conflict).
+- A **pre-commit hook** (via `simple-git-hooks` + `lint-staged`) automatically
+  runs Prettier and ESLint `--fix` on staged files. The hook is installed
+  automatically after `npm install` via the `prepare` script.
 
 ## 📜 License
 

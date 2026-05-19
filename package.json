@@ -22,6 +22,13 @@
         "dev-nolog": "next dev -p 8080",
         "lint": "next lint",
         "build-nolog": "next build",
+        "typecheck": "tsc --noEmit",
+        "test": "vitest run",
+        "test:watch": "vitest",
+        "test:ui": "vitest --ui",
+        "format": "prettier --write .",
+        "format:check": "prettier --check .",
+        "prepare": "simple-git-hooks",
         "gateway": "cd server && yarn start",
         "service:armory": "cd services/armory && sls offline start"
     },
@@ -45,13 +52,34 @@
         "uuid": "^14.0.0"
     },
     "devDependencies": {
+        "@testing-library/jest-dom": "^6.9.1",
+        "@testing-library/react": "^16.3.2",
         "@types/lodash": "^4.17.20",
         "@types/node": "^20",
         "@types/react": "^19",
         "@types/react-dom": "^19",
+        "@vitest/ui": "^4.1.6",
         "eslint": "^9.31.0",
+        "eslint-config-prettier": "^10.1.8",
         "gh-pages": "^6.3.0",
+        "jsdom": "^29.1.1",
+        "lint-staged": "^16.4.0",
         "postcss": "^8.5.10",
-        "typescript": "^5"
+        "prettier": "^3.8.3",
+        "simple-git-hooks": "^2.13.1",
+        "typescript": "^5",
+        "vitest": "^4.1.6"
+    },
+    "simple-git-hooks": {
+        "pre-commit": "npx lint-staged"
+    },
+    "lint-staged": {
+        "*.{ts,tsx,js,jsx,mjs}": [
+            "prettier --write",
+            "eslint --fix"
+        ],
+        "*.{json,md,css,yml,yaml}": [
+            "prettier --write"
+        ]
     }
 }

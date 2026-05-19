@@ -1,0 +1,25 @@
+# Build output
+.next
+dist
+out
+
+# Dependencies
+node_modules
+
+# Generated / vendored
+package-lock.json
+yarn.lock
+*.min.js
+*.min.css
+
+# Game assets and binary data
+assets
+public
+screenshot.png
+
+# Disconnected sub-projects (handled separately)
+server
+services
+
+# Misc
+log.js
