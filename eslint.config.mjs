@@ -1,17 +1,29 @@
-import { FlatCompat } from '@eslint/eslintrc'
- 
+import { FlatCompat } from "@eslint/eslintrc";
+
 const compat = new FlatCompat({
-  // import.meta.dirname is available after Node.js v20.11.0
-  baseDirectory: import.meta.dirname,
-})
- 
+    // import.meta.dirname is available after Node.js v20.11.0
+    baseDirectory: import.meta.dirname,
+});
+
 const eslintConfig = [
-  ...compat.config({
-    extends: ['next'],
-    rules: {
-      '@next/next/no-img-element': 'off',
+    ...compat.config({
+        extends: ["next", "prettier"],
+        rules: {
+            "@next/next/no-img-element": "off",
+        },
+    }),
+    {
+        ignores: [
+            ".next/**",
+            "dist/**",
+            "out/**",
+            "node_modules/**",
+            "server/**",
+            "services/**",
+            "assets/**",
+            "public/**",
+        ],
     },
-  }),
-]
- 
-export default eslintConfig
+];
+
+export default eslintConfig;
