@@ -2,8 +2,9 @@
 
 Goal: make Phasercraft stable, fully typed, well-tested, and protected by CI so that
 agentic feature development can proceed safely. This document is the source of truth
-for the phased plan. Each phase has a tracking GitHub issue; every PR links to its
-phase issue and checks items off here.
+for the phased plan. Each phase has a tracking GitHub issue under the
+[Reforge milestone](https://github.com/chriskinch/phasercraft/milestone/10)
+(#306–#312); every PR links to its phase issue and checks items off here.
 
 Status legend: `[ ]` todo · `[~]` in progress · `[x]` done
 
