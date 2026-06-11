@@ -36,10 +36,10 @@ Status legend: `[ ]` todo · `[~]` in progress · `[x]` done
 
 Do this first so every later PR is protected.
 
-- [ ] New `ci.yml` workflow on every PR: `typecheck`, `lint`, `format:check`, `test`, `build` (Node 22)
-- [ ] Make Pages deploy and Dependabot auto-merge depend on the quality job, not build alone
-- [ ] Pin Node 22: `.nvmrc`, `package.json#engines`, CI `node-version`
-- [ ] Batch minor/patch dependency updates for the main app; clear `npm audit` where fixes exist
+- [x] New `ci.yml` workflow on every PR: `typecheck`, `lint`, `format:check`, `test`, `build` (Node 22)
+- [x] Make Pages deploy and Dependabot auto-merge depend on the quality job, not build alone
+- [x] Pin Node 22: `.nvmrc`, `package.json#engines`, CI `node-version`
+- [x] Batch minor/patch dependency updates for the main app; 0 `npm audit` vulnerabilities (postcss override pending Next 16)
 - [ ] Maintainer action: enable branch protection on `main` requiring the CI checks
 
 ## Phase 2 — Stability fixes (known bugs)
