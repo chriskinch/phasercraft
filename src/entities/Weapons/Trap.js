@@ -1,26 +1,31 @@
-import { GameObjects } from 'phaser';
-import { dropIn } from '@helpers/spawnStyle';
+import { GameObjects } from "phaser";
+import { dropIn } from "@helpers/spawnStyle";
 
 class Trap extends GameObjects.Sprite {
-	constructor(scene, x, y, lifespan) {
-		super(scene, x, y - 20, 'snare-trap');
-		scene.physics.world.enable(this);
-		scene.add.existing(this);
+    constructor(scene, x, y, lifespan) {
+        super(scene, x, y - 20, "snare-trap");
+        scene.physics.world.enable(this);
+        scene.add.existing(this);
 
         this.body.isCircle = true;
 
-        dropIn('trap', this, y+20, { gravity: 500, bounce: 0.4 } );
+        dropIn("trap", this, y + 20, { gravity: 500, bounce: 0.4 });
 
-        this.on('trap:spawned', this.spawnedHandler, this);
+        this.on("trap:spawned", this.spawnedHandler, this);
 
-        this.scene.time.delayedCall(lifespan * 1000, () => {
-            this.destroy()
-        }, [], this);
+        this.scene.time.delayedCall(
+            lifespan * 1000,
+            () => {
+                this.destroy();
+            },
+            [],
+            this
+        );
     }
-    
+
     collide(target) {
-        if(target.spawned) {
-            this.emit('trap:collide', target);
+        if (target.spawned) {
+            this.emit("trap:collide", target);
             this.destroy();
         }
     }

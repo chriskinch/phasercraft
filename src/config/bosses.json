@@ -1,69 +1,77 @@
 {
-	"baby-ghoul": {
-		"type": "Melee",
-		"damage": 150,
-		"speed": 30,
-		"range": 60,
-		"attack_speed": 0.8,
-		"health_max": 500,
-		"health_regen_rate": 0,
-		"coin_multiplier": 10,
-		"aggro_radius": 80,
-		"loot_table": [
-			{ 
-				"name": "coin",
-				"rate": 60,
-				"bonus": 2
-			},{ 
-				"name": "gem",
-				"rate": 15,
-				"bonus": 1
-			},{ 
-				"name": "scrap",
-				"rate": 30,
-				"bonus": 1
-			},{ 
-				"name": "cloth",
-				"rate": 135,
-				"bonus": 1
-			},{ 
-				"name": "ichor",
-				"rate": 10,
-				"bonus": 0
-			}
-		]
-	},
-	"imp": {
-		"type": "Melee",
-		"damage": 95,
-		"speed": 40,
-		"range": 70,
-		"attack_speed": 1,
-		"health_max": 300,
-		"health_regen_rate": 0.1,
-		"coin_multiplier": 10,
-		"loot_table": [
-			{ 
-				"name": "coin",
-				"rate": 60,
-				"bonus": 2
-			},{ 
-				"name": "gem",
-				"rate": 30,
-				"bonus": 1
-			},{ 
-				"name": "scrap",
-				"rate": 30,
-				"bonus": 1
-			},{ 
-				"name": "cloth",
-				"rate": 35,
-				"bonus": 1
-			},{ 
-				"name": "ichor",
-				"rate": 10,
-				"bonus": 0
-			}
-		]
-	}
+    "baby-ghoul": {
+        "type": "Melee",
+        "damage": 150,
+        "speed": 30,
+        "range": 60,
+        "attack_speed": 0.8,
+        "health_max": 500,
+        "health_regen_rate": 0,
+        "coin_multiplier": 10,
+        "aggro_radius": 80,
+        "loot_table": [
+            {
+                "name": "coin",
+                "rate": 60,
+                "bonus": 2
+            },
+            {
+                "name": "gem",
+                "rate": 15,
+                "bonus": 1
+            },
+            {
+                "name": "scrap",
+                "rate": 30,
+                "bonus": 1
+            },
+            {
+                "name": "cloth",
+                "rate": 135,
+                "bonus": 1
+            },
+            {
+                "name": "ichor",
+                "rate": 10,
+                "bonus": 0
+            }
+        ]
+    },
+    "imp": {
+        "type": "Melee",
+        "damage": 95,
+        "speed": 40,
+        "range": 70,
+        "attack_speed": 1,
+        "health_max": 300,
+        "health_regen_rate": 0.1,
+        "coin_multiplier": 10,
+        "loot_table": [
+            {
+                "name": "coin",
+                "rate": 60,
+                "bonus": 2
+            },
+            {
+                "name": "gem",
+                "rate": 30,
+                "bonus": 1
+            },
+            {
+                "name": "scrap",
+                "rate": 30,
+                "bonus": 1
+            },
+            {
+                "name": "cloth",
+                "rate": 35,
+                "bonus": 1
+            },
+            {
+                "name": "ichor",
+                "rate": 10,
+                "bonus": 0
+            }
+        ]
+    }
 }

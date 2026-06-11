@@ -4,7 +4,7 @@ import get from "lodash/get";
 import { Observable } from "rxjs";
 import { map, skip, distinctUntilChanged, startWith } from "rxjs/operators";
 
-const state$ = new Observable(subscriber => {
+const state$ = new Observable((subscriber) => {
     const unsubscribe = store.subscribe(() => {
         subscriber.next(store.getState().game);
     });
@@ -15,13 +15,19 @@ interface MapStateOptions {
     init?: boolean;
 }
 
-export default function mapStateToData(path: string, fn: (data: unknown) => void, {init = true}: MapStateOptions = {}): () => void {
-    const subscription = state$.pipe(
-        map(state => get(state, path)),
-        startWith(get(store.getState().game, path)),
-        distinctUntilChanged(isEqual),
-        skip(init ? 0 : 1)
-    ).subscribe(d => fn(d));
-    
+export default function mapStateToData(
+    path: string,
+    fn: (data: unknown) => void,
+    { init = true }: MapStateOptions = {}
+): () => void {
+    const subscription = state$
+        .pipe(
+            map((state) => get(state, path)),
+            startWith(get(store.getState().game, path)),
+            distinctUntilChanged(isEqual),
+            skip(init ? 0 : 1)
+        )
+        .subscribe((d) => fn(d));
+
     return () => subscription.unsubscribe();
 }
