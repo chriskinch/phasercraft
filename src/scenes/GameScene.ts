@@ -1,4 +1,4 @@
-import { Scene, Input, GameObjects, Display } from "phaser";
+import { Scene, Input, GameObjects, Display, Scenes } from "phaser";
 import AssignClass from "@entities/Player/AssignClass";
 import AssignType from "@entities/Enemy/AssignType";
 import Boss from "@entities/Enemy/Boss";
@@ -112,6 +112,10 @@ export default class GameScene extends Scene {
 
         this.events.once("player:dead", this.gameOver, this);
 
+        // Phaser does not call shutdown() automatically — wire it to the
+        // scene lifecycle event so cleanup runs on every scene transition.
+        this.events.once(Scenes.Events.SHUTDOWN, this.shutdown, this);
+
         // When loading from an array, make sure to specify the tileWidth and tileHeight
         // const map = this.make.tilemap({ key: "map"});
         // const tileset = map.addTilesetImage("tileset_organic", "tiles", 16, 16, 1, 2);
@@ -203,6 +207,9 @@ export default class GameScene extends Scene {
 
     gameOver(): void {
         this.game_over = true;
+        // Dying inside the post-wave window must cancel the pending next-wave
+        // timer, or it would spawn a wave during the game-over transition.
+        this.removeNextLevelTimer();
         this.physics.pause();
         this.enemies.runChildUpdate = false;
         this.time.delayedCall(
@@ -253,16 +260,11 @@ export default class GameScene extends Scene {
     }
 
     waveComplete(): void {
-        // this.removeNextLevelTimer();
-        // Pause time after a short delay so that loot has a change to animate and activate
-        // this.time.delayedCall(1000, () => {
-        // 	this.time.paused = true;
-        // }, [], this);
         // Give the player time to collect loot and cast spells.
-        // We use a regular setTimeout here as the game timers are paused.
-        setTimeout(() => {
-            this.increaseLevel();
-        }, 4000);
+        // Scene clock timer (not setTimeout): pause-aware, and removed by the
+        // clock on scene shutdown so it can't fire after leaving the scene.
+        this.removeNextLevelTimer();
+        this.next_level_timer = this.time.delayedCall(4000, this.increaseLevel, [], this);
     }
 
     spawnEnemies(list: EnemyType[], wave_multiplier?: number): void {
@@ -347,7 +349,6 @@ export default class GameScene extends Scene {
     }
 
     shutdown(): void {
-        console.log("SHUTDOWN GAME: ", this.UI);
         // Clean up HUD subscriptions
         if (this.UI && this.UI.cleanup) {
             this.UI.cleanup();
