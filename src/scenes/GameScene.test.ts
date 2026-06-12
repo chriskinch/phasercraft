@@ -17,29 +17,40 @@ interface FakeTimer {
 interface SceneUnderTest {
     time: { delayedCall: ReturnType<typeof vi.fn> };
     next_level_timer?: FakeTimer;
+    pending_spawns: number;
     increaseLevel(): void;
     waveComplete(): void;
     removeNextLevelTimer(): void;
     gameOver(): void;
     shutdown(): void;
+    update(time: number, delta: number): void;
+    spawnEnemies(list: string[]): void;
+    spawnEnemy: ReturnType<typeof vi.fn>;
     physics: { pause: ReturnType<typeof vi.fn> };
-    enemies: { runChildUpdate: boolean };
+    enemies: { runChildUpdate: boolean; getChildren: ReturnType<typeof vi.fn> };
     UI: { cleanup: ReturnType<typeof vi.fn> };
-    player: { cleanup: ReturnType<typeof vi.fn> };
-    input: { off: ReturnType<typeof vi.fn> };
-    events: { off: ReturnType<typeof vi.fn> };
+    player: { cleanup: ReturnType<typeof vi.fn>; alive: boolean };
+    input: { off: ReturnType<typeof vi.fn>; activePointer: object };
+    cursors: { esc: { isDown: boolean } };
+    events: {
+        off: ReturnType<typeof vi.fn>;
+        once: ReturnType<typeof vi.fn>;
+        emit: ReturnType<typeof vi.fn>;
+    };
 }
 
 function makeScene(): { scene: SceneUnderTest; pending: FakeTimer } {
     const pending: FakeTimer = { remove: vi.fn() };
     const scene = Object.create(GameScene.prototype) as SceneUnderTest;
     scene.time = { delayedCall: vi.fn(() => pending) };
+    scene.pending_spawns = 0;
     scene.physics = { pause: vi.fn() };
-    scene.enemies = { runChildUpdate: true };
+    scene.enemies = { runChildUpdate: true, getChildren: vi.fn(() => []) };
     scene.UI = { cleanup: vi.fn() };
-    scene.player = { cleanup: vi.fn() };
-    scene.input = { off: vi.fn() };
-    scene.events = { off: vi.fn() };
+    scene.player = { cleanup: vi.fn(), alive: false };
+    scene.input = { off: vi.fn(), activePointer: {} };
+    scene.cursors = { esc: { isDown: false } };
+    scene.events = { off: vi.fn(), once: vi.fn(), emit: vi.fn() };
     return { scene, pending };
 }
 
@@ -96,6 +107,42 @@ describe("GameScene.gameOver", () => {
         expect(pending.remove).toHaveBeenCalledWith(false);
         expect(scene.next_level_timer).toBeUndefined();
         expect(scene.physics.pause).toHaveBeenCalled();
+    });
+});
+
+describe("GameScene wave-clear detection", () => {
+    it("does not emit enemies:dead while scheduled spawns have not landed", () => {
+        const { scene } = makeScene();
+        scene.pending_spawns = 2;
+
+        scene.update(0, 16);
+
+        expect(scene.events.emit).not.toHaveBeenCalledWith("enemies:dead");
+    });
+
+    it("emits enemies:dead once the group is empty and no spawns are pending", () => {
+        const { scene } = makeScene();
+
+        scene.update(0, 16);
+
+        expect(scene.events.emit).toHaveBeenCalledWith("enemies:dead");
+    });
+
+    it("counts scheduled spawns as pending until each one lands", () => {
+        const { scene, pending } = makeScene();
+        const spawnCallbacks: Array<() => void> = [];
+        scene.time.delayedCall = vi.fn((_delay: number, callback: () => void) => {
+            spawnCallbacks.push(callback);
+            return pending;
+        });
+        scene.spawnEnemy = vi.fn();
+
+        scene.spawnEnemies(["baby-ghoul", "baby-ghoul"]);
+        expect(scene.pending_spawns).toBe(2);
+
+        spawnCallbacks.forEach((callback) => callback());
+        expect(scene.pending_spawns).toBe(0);
+        expect(scene.spawnEnemy).toHaveBeenCalledTimes(2);
     });
 });
 
