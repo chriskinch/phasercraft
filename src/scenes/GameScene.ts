@@ -31,6 +31,7 @@ export default class GameScene extends Scene {
     public enemies!: Phaser.GameObjects.Group;
     public active_enemies!: Phaser.GameObjects.Group;
     private game_over: boolean = false;
+    private pending_spawns: number = 0;
     public depth_group: Record<string, number> = {
         BASE: 10,
         UI: 10000,
@@ -51,6 +52,10 @@ export default class GameScene extends Scene {
     }
 
     create(): void {
+        // Scene instances are reused across scene.start(), so field
+        // initializers do not re-run — reset per-run state here.
+        this.pending_spawns = 0;
+
         const scene_padding = 40;
         this.global_game_width = Number(this.sys.game.config.width);
         this.global_game_height = Number(this.sys.game.config.height);
@@ -155,7 +160,10 @@ export default class GameScene extends Scene {
     update(time: number, delta: number): void {
         let mouse = this.input.activePointer;
 
-        if (this.enemies.getChildren().length === 0 && !this.game_over)
+        // Spawn delayedCalls land a frame after they are scheduled (the clock
+        // updates before scene.update), so an empty group only means the wave
+        // is cleared once no spawns are still pending.
+        if (this.enemies.getChildren().length === 0 && this.pending_spawns === 0 && !this.game_over)
             this.events.emit("enemies:dead");
 
         if (this.player.alive) this.player.update(mouse, this.cursors, time, delta);
@@ -271,9 +279,11 @@ export default class GameScene extends Scene {
         // Remove exsiting instances of this event so that it does trigger multiple times
         this.events.off("enemies:dead");
 
+        this.pending_spawns += list.length;
         list.forEach((enemy, i) => {
             this.time.delayedCall(this.global_spawn_time * i, () => {
                 this.spawnEnemy(enemy, wave_multiplier);
+                this.pending_spawns--;
             });
         });
 
