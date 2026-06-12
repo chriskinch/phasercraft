@@ -47,7 +47,7 @@ Do this first so every later PR is protected.
 Consult the pinned Phaser 3.90 docs (scene lifecycle, events, time) before each change.
 Each bullet is one small PR unless trivially related.
 
-- [ ] `GameScene.ts:231` — replace raw `setTimeout` with a pause-aware, scene-owned timer cleaned up on shutdown
+- [x] `GameScene.ts:231` — replace raw `setTimeout` with a pause-aware, scene-owned timer cleaned up on shutdown
 - [ ] `HUD.js` — remove keyboard listeners on shutdown; guard `JSON.parse(localStorage.getItem(...))`
 - [ ] Introduce a typed, error-handled save/storage service wrapping all `localStorage` access (`HUD.js`, `Save.tsx`, `System.tsx`, `LoadScene.ts`) — with unit tests
 - [ ] `Resource.ts` — add cleanup; unsubscribe RxJS subscriptions on shutdown

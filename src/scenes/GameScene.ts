@@ -253,16 +253,11 @@ export default class GameScene extends Scene {
     }
 
     waveComplete(): void {
-        // this.removeNextLevelTimer();
-        // Pause time after a short delay so that loot has a change to animate and activate
-        // this.time.delayedCall(1000, () => {
-        // 	this.time.paused = true;
-        // }, [], this);
         // Give the player time to collect loot and cast spells.
-        // We use a regular setTimeout here as the game timers are paused.
-        setTimeout(() => {
-            this.increaseLevel();
-        }, 4000);
+        // Scene clock timer (not setTimeout): pause-aware, and removed by the
+        // clock on scene shutdown so it can't fire after leaving the scene.
+        this.removeNextLevelTimer();
+        this.next_level_timer = this.time.delayedCall(4000, this.increaseLevel, [], this);
     }
 
     spawnEnemies(list: EnemyType[], wave_multiplier?: number): void {

@@ -12,6 +12,10 @@ export default defineConfig({
     },
     resolve: {
         alias: {
+            // Phaser's package "main" is its raw src build, which requires the
+            // dev-only phaser3spectorjs package. Use the bundled dist (what the
+            // app build uses) so tests can import Phaser-dependent modules.
+            phaser: path.resolve(__dirname, "./node_modules/phaser/dist/phaser.esm.js"),
             "@store": path.resolve(__dirname, "./src/store"),
             "@ui": path.resolve(__dirname, "./src/ui"),
             "@helpers": path.resolve(__dirname, "./src/helpers"),
