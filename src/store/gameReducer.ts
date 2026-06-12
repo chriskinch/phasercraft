@@ -2,7 +2,12 @@ import { createAction, createReducer, PayloadAction } from "@reduxjs/toolkit";
 import mergeWith from "lodash/mergeWith";
 import remove from "lodash/remove";
 import pull from "lodash/pull";
-import type { LootItem, PlayerStats, ResourceStats, Equipment as GameEquipment } from "@/types/game";
+import type {
+    LootItem,
+    PlayerStats,
+    ResourceStats,
+    Equipment as GameEquipment,
+} from "@/types/game";
 import type { PlayerName } from "@entities/Player/AssignClass";
 
 // Types
@@ -46,7 +51,7 @@ const initState: GameState = {
     level: {
         xpRemaining: 0,
         toNextLevel: 0,
-        currentLevel: 1
+        currentLevel: 1,
     },
     loot: [],
     filters: [],
@@ -55,7 +60,7 @@ const initState: GameState = {
         amulet: null,
         body: null,
         helm: null,
-        weapon: null
+        weapon: null,
     },
     coins: 999,
     crafting: [],
@@ -69,112 +74,124 @@ const initState: GameState = {
 
 // Actions
 export const addCoins = createAction("ADD_COIN", (value: number) => ({
-    payload: { value }
+    payload: { value },
 }));
 
 export const addCrafting = createAction("ADD_CRAFTING", (key: string) => ({
-    payload: { key }
+    payload: { key },
 }));
 
 export const addLoot = createAction("ADD_LOOT", (id: string) => ({
-    payload: { id }
+    payload: { id },
 }));
 
 export const addXP = createAction("ADD_XP", (value: number) => ({
-    payload: { value }
+    payload: { value },
 }));
 
 export const buyLoot = createAction("BUY_LOOT", (loot: LootItem) => ({
-    payload: { loot }
+    payload: { loot },
 }));
 
 export const equipLoot = createAction("EQUIP_LOOT", (loot: LootItem) => ({
-    payload: { loot }
+    payload: { loot },
 }));
 
 export const loadGame = createAction("LOAD_GAME", (state: Partial<GameState>) => ({
-    payload: { state }
+    payload: { state },
 }));
 
 export const nextWave = createAction("NEXT_WAVE");
 
 export const selectCharacter = createAction("SELECT_CHARACTER", (character: PlayerName) => ({
-    payload: { character }
+    payload: { character },
 }));
 
 export const selectLoot = createAction("SELECT_LOOT", (loot: LootItem) => ({
-    payload: { loot }
+    payload: { loot },
 }));
 
 export const sellLoot = createAction("SELL_LOOT", (loot: LootItem) => ({
-    payload: { loot }
+    payload: { loot },
 }));
 
-export const setBaseStats = createAction("SET_BASE_STATS", (base_stats: PlayerStats | Record<string, ResourceStats>) => ({
-    payload: { base_stats }
-}));
+export const setBaseStats = createAction(
+    "SET_BASE_STATS",
+    (base_stats: PlayerStats | Record<string, ResourceStats>) => ({
+        payload: { base_stats },
+    })
+);
 
 export const setLevel = createAction("SET_LEVEL", (level: Level) => ({
-    payload: { level }
+    payload: { level },
 }));
 
 export const setSaveSlot = createAction("SET_SAVE_SLOT", (saveSlot: string) => ({
-    payload: { saveSlot }
+    payload: { saveSlot },
 }));
 
-export const setStats = createAction("SET_STATS", (stats: PlayerStats | Record<string, ResourceStats>) => ({
-    payload: { stats }
-}));
+export const setStats = createAction(
+    "SET_STATS",
+    (stats: PlayerStats | Record<string, ResourceStats>) => ({
+        payload: { stats },
+    })
+);
 
 export const switchUi = createAction("SWITCH_UI", (menu: string) => ({
-    payload: { menu }
+    payload: { menu },
 }));
 
 export const toggleFilter = createAction("TOGGLE_FILTER", (key: string) => ({
-    payload: { key }
+    payload: { key },
 }));
 
 export const toggleHUD = createAction("TOGGLE_HUD", (showHUD: boolean) => ({
-    payload: { showHUD }
+    payload: { showHUD },
 }));
 
 export const toggleUi = createAction("TOGGLE_UI", (menu: string | undefined) => ({
-    payload: { menu }
+    payload: { menu },
 }));
 
 export const unequipLoot = createAction("UNEQUIP_LOOT", (loot: LootItem) => ({
-    payload: { loot }
+    payload: { loot },
 }));
 
-export const updateBaseStats = createAction("UPDATE_BASE_STATS", (base_stats: Partial<PlayerStats>) => ({
-    payload: { base_stats }
-}));
+export const updateBaseStats = createAction(
+    "UPDATE_BASE_STATS",
+    (base_stats: Partial<PlayerStats>) => ({
+        payload: { base_stats },
+    })
+);
 
 export const updateStats = createAction("UPDATE_STATS", (stats: Partial<PlayerStats>) => ({
-    payload: { stats }
+    payload: { stats },
 }));
 
 export const setCurrentArea = createAction("SET_CURRENT_AREA", (area: string) => ({
-    payload: { area }
+    payload: { area },
 }));
 
-export const setPlayerPosition = createAction("SET_PLAYER_POSITION", (position: { x: number; y: number }) => ({
-    payload: { position }
-}));
+export const setPlayerPosition = createAction(
+    "SET_PLAYER_POSITION",
+    (position: { x: number; y: number }) => ({
+        payload: { position },
+    })
+);
 
 // Helpers
-const syncStats = (state: GameState) => state.stats = state.base_stats;
+const syncStats = (state: GameState) => (state.stats = state.base_stats);
 
 // Reducers
 export const gameReducer = createReducer(initState, (builder) => {
     builder
-        .addCase(addCoins, (state, action: PayloadAction<{ value: number }>) => { 
+        .addCase(addCoins, (state, action: PayloadAction<{ value: number }>) => {
             state.coins += action.payload.value;
         })
-        .addCase(addCrafting, (state, action: PayloadAction<{ key: string }>) => { 
+        .addCase(addCrafting, (state, action: PayloadAction<{ key: string }>) => {
             const { key } = action.payload;
             state.inventory.push({
-                __typename: 'Item',
+                __typename: "Item",
                 id: Math.random().toString(),
                 category: "crafting",
                 color: "#bbbbbb",
@@ -183,32 +200,35 @@ export const gameReducer = createReducer(initState, (builder) => {
                 uuid: Math.random().toString(),
                 stats: [],
                 cost: 5,
-                name: key
+                name: key,
             });
         })
         .addCase(addLoot, (state, action: PayloadAction<{ id: string }>) => {
-            const loot = state.loot.find(l => l.id === action.payload.id);
+            const loot = state.loot.find((l) => l.id === action.payload.id);
             if (loot) {
                 state.inventory.push(loot);
             }
         })
-        .addCase(addXP, (state, action: PayloadAction<{ value: number }>) => { 
+        .addCase(addXP, (state, action: PayloadAction<{ value: number }>) => {
             state.xp += action.payload.value;
         })
         .addCase(buyLoot, (state, action: PayloadAction<{ loot: LootItem }>) => {
             const { loot } = action.payload;
-            remove(state.loot, l => l.id === loot.id);
+            remove(state.loot, (l) => l.id === loot.id);
             state.inventory.push(loot);
             state.coins -= loot.cost;
             state.selected = null;
         })
         .addCase(equipLoot, (state, action: PayloadAction<{ loot: LootItem }>) => {
-            const { loot, loot: { stats } } = action.payload;
+            const {
+                loot,
+                loot: { stats },
+            } = action.payload;
             (state.equipment as Record<string, LootItem | null>)[action.payload.loot.set] = loot;
-            remove(state.inventory, l => l.id === loot.id);
-            stats.map(s => {
+            remove(state.inventory, (l) => l.id === loot.id);
+            stats.map((s) => {
                 const current = state.base_stats[s.name];
-                if (typeof current === 'number') {
+                if (typeof current === "number") {
                     state.base_stats[s.name] = current + s.value;
                 }
             });
@@ -217,10 +237,10 @@ export const gameReducer = createReducer(initState, (builder) => {
         .addCase(loadGame, (state, action: PayloadAction<{ state: Partial<GameState> }>) => {
             return action.payload.state as GameState;
         })
-        .addCase(nextWave, state => { 
+        .addCase(nextWave, (state) => {
             state.wave++;
         })
-        .addCase(selectLoot, (state, action: PayloadAction<{ loot: LootItem }>) => { 
+        .addCase(selectLoot, (state, action: PayloadAction<{ loot: LootItem }>) => {
             state.selected = action.payload.loot;
         })
         .addCase(selectCharacter, (state, action: PayloadAction<{ character: PlayerName }>) => {
@@ -228,31 +248,48 @@ export const gameReducer = createReducer(initState, (builder) => {
         })
         .addCase(sellLoot, (state, action: PayloadAction<{ loot: LootItem }>) => {
             const { loot } = action.payload;
-            remove(state.inventory, l => l.id === loot.id);
+            remove(state.inventory, (l) => l.id === loot.id);
             state.loot.push(loot);
-            state.coins += Math.round(loot.cost/3);
+            state.coins += Math.round(loot.cost / 3);
             state.selected = null;
         })
-        .addCase(setBaseStats, (state, action: PayloadAction<{ base_stats: PlayerStats | Record<string, ResourceStats> }>) => {
-            state.base_stats = {...state.base_stats, ...action.payload.base_stats as Partial<PlayerStats>};
-        })
+        .addCase(
+            setBaseStats,
+            (
+                state,
+                action: PayloadAction<{ base_stats: PlayerStats | Record<string, ResourceStats> }>
+            ) => {
+                state.base_stats = {
+                    ...state.base_stats,
+                    ...(action.payload.base_stats as Partial<PlayerStats>),
+                };
+            }
+        )
         .addCase(setLevel, (state, action: PayloadAction<{ level: Level }>) => {
             return { ...state, ...action.payload };
         })
         .addCase(setSaveSlot, (state, action: PayloadAction<{ saveSlot: string }>) => {
             state.saveSlot = action.payload.saveSlot;
         })
-        .addCase(setStats, (state, action: PayloadAction<{ stats: PlayerStats | Record<string, ResourceStats> }>) => {
-            state.stats = {...state.stats, ...action.payload.stats as Partial<PlayerStats>};
-        })
+        .addCase(
+            setStats,
+            (
+                state,
+                action: PayloadAction<{ stats: PlayerStats | Record<string, ResourceStats> }>
+            ) => {
+                state.stats = { ...state.stats, ...(action.payload.stats as Partial<PlayerStats>) };
+            }
+        )
         .addCase(switchUi, (state, action: PayloadAction<{ menu: string }>) => {
             return { ...state, ...action.payload };
         })
         .addCase(toggleFilter, (state, action: PayloadAction<{ key: string }>) => {
             const { key } = action.payload;
-            key ?
-                state.filters.includes(key) ? pull(state.filters, key) : state.filters.push(key) :
-                state.filters = [];
+            key
+                ? state.filters.includes(key)
+                    ? pull(state.filters, key)
+                    : state.filters.push(key)
+                : (state.filters = []);
         })
         .addCase(toggleHUD, (state, action: PayloadAction<{ showHUD: boolean }>) => {
             return { ...state, ...action.payload };
@@ -261,24 +298,30 @@ export const gameReducer = createReducer(initState, (builder) => {
             return { ...state, showUi: !state.showUi, ...action.payload };
         })
         .addCase(unequipLoot, (state, action: PayloadAction<{ loot: LootItem }>) => {
-            const { loot, loot: { stats } } = action.payload;
+            const {
+                loot,
+                loot: { stats },
+            } = action.payload;
             (state.equipment as Record<string, LootItem | null>)[loot.set] = null;
             state.inventory.push(loot);
-            stats.map(s => {
+            stats.map((s) => {
                 const current = state.base_stats[s.name];
-                if (typeof current === 'number') {
+                if (typeof current === "number") {
                     state.base_stats[s.name] = current - s.value;
                 }
             });
             syncStats(state);
         })
-        .addCase(updateStats, (state, action: PayloadAction<{ stats: Partial<PlayerStats> }>) => { 
+        .addCase(updateStats, (state, action: PayloadAction<{ stats: Partial<PlayerStats> }>) => {
             mergeWith(state.stats, action.payload.stats, (o: number, s: number) => o + s);
         })
         .addCase(setCurrentArea, (state, action: PayloadAction<{ area: string }>) => {
             state.currentArea = action.payload.area;
         })
-        .addCase(setPlayerPosition, (state, action: PayloadAction<{ position: { x: number; y: number } }>) => {
-            state.playerPosition = action.payload.position;
-        });
+        .addCase(
+            setPlayerPosition,
+            (state, action: PayloadAction<{ position: { x: number; y: number } }>) => {
+                state.playerPosition = action.payload.position;
+            }
+        );
 });

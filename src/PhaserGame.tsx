@@ -1,12 +1,12 @@
-'use client'
+"use client";
 
 import { memo, useEffect, useRef } from "react";
-import { Game, AUTO } from 'phaser';
-import LoadScene from '@scenes/LoadScene';
-import SelectScene from '@scenes/SelectScene';
-import TownScene from '@scenes/TownScene';
-import GameScene from '@scenes/GameScene';
-import GameOverScene from '@scenes/GameOverScene';
+import { Game, AUTO } from "phaser";
+import LoadScene from "@scenes/LoadScene";
+import SelectScene from "@scenes/SelectScene";
+import TownScene from "@scenes/TownScene";
+import GameScene from "@scenes/GameScene";
+import GameOverScene from "@scenes/GameOverScene";
 
 const PhaserGame = () => {
     const gameRef = useRef<Game | null>(null);
@@ -22,7 +22,7 @@ const PhaserGame = () => {
         // Clear the game container
         const gameContainer = document.getElementById("phaser-game");
         if (gameContainer) {
-            gameContainer.innerHTML = '';
+            gameContainer.innerHTML = "";
         }
 
         // Add a small delay to ensure DOM is ready
@@ -31,25 +31,19 @@ const PhaserGame = () => {
                 type: AUTO,
                 width: window.outerWidth,
                 height: window.outerHeight,
-                backgroundColor: '#6e9c48',
+                backgroundColor: "#6e9c48",
                 parent: "phaser-game",
                 physics: {
-                    default: 'arcade',
+                    default: "arcade",
                     arcade: {
                         debug: true,
-                        gravity: { 
+                        gravity: {
                             x: 0,
-                            y: 0
-                        }
-                    }
+                            y: 0,
+                        },
+                    },
                 },
-                scene: [
-                    LoadScene,
-                    SelectScene,
-                    TownScene,
-                    GameScene,
-                    GameOverScene
-                ],
+                scene: [LoadScene, SelectScene, TownScene, GameScene, GameOverScene],
                 pixelArt: true,
                 antialias: false,
                 fullscreen: true,
@@ -73,6 +67,6 @@ const PhaserGame = () => {
     }, []);
 
     return <div id="phaser-game" />;
-}
+};
 
 export default memo(PhaserGame);

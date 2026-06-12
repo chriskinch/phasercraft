@@ -16,28 +16,28 @@ import Whirlwind from "./Whirlwind";
 import type { SpellOptions } from "@/types/game";
 
 const classes = {
-  Consecration,
-  EarthShield,
-  Enrage,
-  Faith,
-  Fireball,
-  Frostbolt,
-  Heal,
-  Invocation,
-  ManaShield,
-  Multishot,
-  PowerInfusion,
-  SiphonSoul,
-  Smite,
-  SnareTrap,
-  Whirlwind
+    Consecration,
+    EarthShield,
+    Enrage,
+    Faith,
+    Fireball,
+    Frostbolt,
+    Heal,
+    Invocation,
+    ManaShield,
+    Multishot,
+    PowerInfusion,
+    SiphonSoul,
+    Smite,
+    SnareTrap,
+    Whirlwind,
 };
 
-export type SpellType = keyof typeof classes
+export type SpellType = keyof typeof classes;
 class AssignSpell {
-  constructor(className: SpellType, opts: SpellOptions) {
-    return new classes[className](opts);
-  }
+    constructor(className: SpellType, opts: SpellOptions) {
+        return new classes[className](opts);
+    }
 }
 
 export default AssignSpell;

@@ -1,69 +1,69 @@
-import type { Scene, GameObjects, Math as PhaserMath} from "phaser";
+import type { Scene, GameObjects, Math as PhaserMath } from "phaser";
 import type Player from "@entities/Player/Player";
 import type Enemy from "@entities/Enemy/Enemy";
 import type { SpellType } from "@entities/Spells/AssignSpell";
 
 // Constants
 export const EQUIPMENT_SLOTS = {
-    AMULET: 'amulet',
-    BODY: 'body', 
-    HELM: 'helm',
-    WEAPON: 'weapon'
+    AMULET: "amulet",
+    BODY: "body",
+    HELM: "helm",
+    WEAPON: "weapon",
 } as const;
 
 export const ITEM_CATEGORIES = {
-    AMULET: 'amulet',
-    ARMOR: 'armor',
-    AXE: 'axe',
-    BOW: 'bow',
-    GEM: 'gem',
-    HELMET: 'helmet',
-    MISC: 'misc',
-    STAFF: 'staff',
-    SWORD: 'sword'
+    AMULET: "amulet",
+    ARMOR: "armor",
+    AXE: "axe",
+    BOW: "bow",
+    GEM: "gem",
+    HELMET: "helmet",
+    MISC: "misc",
+    STAFF: "staff",
+    SWORD: "sword",
 } as const;
 
 export const STAT_NAMES = {
-    ATTACK_POWER: 'attack_power',
-    ATTACK_SPEED: 'attack_speed', 
-    MAGIC_POWER: 'magic_power',
-    CRITICAL_CHANCE: 'critical_chance',
-    SPEED: 'speed',
-    DEFENCE: 'defence',
-    HEALTH_MAX: 'health_max',
-    HEALTH_REGEN_RATE: 'health_regen_rate',
-    HEALTH_REGEN_VALUE: 'health_regen_value'
+    ATTACK_POWER: "attack_power",
+    ATTACK_SPEED: "attack_speed",
+    MAGIC_POWER: "magic_power",
+    CRITICAL_CHANCE: "critical_chance",
+    SPEED: "speed",
+    DEFENCE: "defence",
+    HEALTH_MAX: "health_max",
+    HEALTH_REGEN_RATE: "health_regen_rate",
+    HEALTH_REGEN_VALUE: "health_regen_value",
 } as const;
 
 export const UI_MENUS = {
-    ARCANUM: 'arcanum',
-    ARMORY: 'armory',
-    CHARACTER: 'character',
-    EQUIPMENT: 'equipment',
-    LOAD: 'load',
-    SAVE: 'save',
-    SELECT: 'select',
-    SYSTEM: 'system'
+    ARCANUM: "arcanum",
+    ARMORY: "armory",
+    CHARACTER: "character",
+    EQUIPMENT: "equipment",
+    LOAD: "load",
+    SAVE: "save",
+    SELECT: "select",
+    SYSTEM: "system",
 } as const;
 
 export const COMBAT_TYPES = {
-    MELEE: 'melee',
-    RANGED: 'ranged', 
-    HEALER: 'healer',
+    MELEE: "melee",
+    RANGED: "ranged",
+    HEALER: "healer",
 } as const;
 
 export const PLAYER_CLASSES = {
-    CLERIC: 'cleric',
-    MAGE: 'mage',
-    OCCULTIST: 'occultist',
-    RANGER: 'ranger',
-    WARRIOR: 'warrior'
+    CLERIC: "cleric",
+    MAGE: "mage",
+    OCCULTIST: "occultist",
+    RANGER: "ranger",
+    WARRIOR: "warrior",
 } as const;
 
 export const SAVE_SLOTS = {
-    SLOT_A: 'slot_a',
-    SLOT_B: 'slot_b', 
-    SLOT_C: 'slot_c'
+    SLOT_A: "slot_a",
+    SLOT_B: "slot_b",
+    SLOT_C: "slot_c",
 } as const;
 
 export const GAME_BALANCE = {
@@ -88,7 +88,7 @@ export const GAME_BALANCE = {
         EARTH_SHIELD: 10,
         SIPHON_SOUL: 10,
         FAITH: 20,
-        MANA_SHIELD: 130
+        MANA_SHIELD: 130,
     },
     SPELL_BUFFS: {
         ENRAGE_CRIT_BONUS: 10,
@@ -99,8 +99,8 @@ export const GAME_BALANCE = {
         POWER_INFUSION_ATTACK_BONUS: 0.2,
         POWER_INFUSION_MAGIC_BONUS: 0.2,
         POWER_INFUSION_SPEED_BONUS: 0.1,
-        FROSTBOLT_SLOW: -0.5
-    }
+        FROSTBOLT_SLOW: -0.5,
+    },
 } as const;
 
 export const ITEM_QUALITY_WEIGHTS = {
@@ -112,7 +112,7 @@ export const ITEM_QUALITY_WEIGHTS = {
     HELMET: 50,
     MISC: 12,
     STAFF: 3,
-    SWORD: 24
+    SWORD: 24,
 } as const;
 
 export const CHARACTER_BASE_STATS = {
@@ -125,7 +125,7 @@ export const CHARACTER_BASE_STATS = {
         [STAT_NAMES.DEFENCE]: 25,
         [STAT_NAMES.HEALTH_MAX]: 800,
         [STAT_NAMES.HEALTH_REGEN_VALUE]: 10,
-        [STAT_NAMES.HEALTH_REGEN_RATE]: 1
+        [STAT_NAMES.HEALTH_REGEN_RATE]: 1,
     },
     [PLAYER_CLASSES.MAGE]: {
         [STAT_NAMES.ATTACK_POWER]: 35,
@@ -136,7 +136,7 @@ export const CHARACTER_BASE_STATS = {
         [STAT_NAMES.DEFENCE]: 20,
         [STAT_NAMES.HEALTH_MAX]: 800,
         [STAT_NAMES.HEALTH_REGEN_VALUE]: 10,
-        [STAT_NAMES.HEALTH_REGEN_RATE]: 1
+        [STAT_NAMES.HEALTH_REGEN_RATE]: 1,
     },
     [PLAYER_CLASSES.OCCULTIST]: {
         [STAT_NAMES.ATTACK_POWER]: 30,
@@ -147,7 +147,7 @@ export const CHARACTER_BASE_STATS = {
         [STAT_NAMES.DEFENCE]: 30,
         [STAT_NAMES.HEALTH_MAX]: 1000,
         [STAT_NAMES.HEALTH_REGEN_VALUE]: 12,
-        [STAT_NAMES.HEALTH_REGEN_RATE]: 0.9
+        [STAT_NAMES.HEALTH_REGEN_RATE]: 0.9,
     },
     [PLAYER_CLASSES.RANGER]: {
         [STAT_NAMES.ATTACK_POWER]: 40,
@@ -158,7 +158,7 @@ export const CHARACTER_BASE_STATS = {
         [STAT_NAMES.DEFENCE]: 15,
         [STAT_NAMES.HEALTH_MAX]: 1000,
         [STAT_NAMES.HEALTH_REGEN_VALUE]: 10,
-        [STAT_NAMES.HEALTH_REGEN_RATE]: 1
+        [STAT_NAMES.HEALTH_REGEN_RATE]: 1,
     },
     [PLAYER_CLASSES.WARRIOR]: {
         [STAT_NAMES.ATTACK_POWER]: 50,
@@ -169,8 +169,8 @@ export const CHARACTER_BASE_STATS = {
         [STAT_NAMES.DEFENCE]: 60,
         [STAT_NAMES.HEALTH_MAX]: 1300,
         [STAT_NAMES.HEALTH_REGEN_VALUE]: 15,
-        [STAT_NAMES.HEALTH_REGEN_RATE]: 0.75
-    }
+        [STAT_NAMES.HEALTH_REGEN_RATE]: 0.75,
+    },
 } as const;
 
 // Types
@@ -205,7 +205,7 @@ export interface LootDropRate {
     bonus: number;
 }
 
-export interface LootTable extends Array<LootDropRate>{}
+export interface LootTable extends Array<LootDropRate> {}
 export interface PlayerStats {
     [STAT_NAMES.ATTACK_POWER]?: number;
     [STAT_NAMES.ATTACK_SPEED]?: number;
@@ -233,22 +233,22 @@ export interface PlayerStats {
 }
 
 export interface PlayerOptions {
-	scene: Scene;
-	x: number;
-	y: number;
-	abilities: SpellType[];
-	classification: string;
-	stats?: PlayerStats;
-	resource_type?: string;
-	immovable?: boolean;
+    scene: Scene;
+    x: number;
+    y: number;
+    abilities: SpellType[];
+    classification: string;
+    stats?: PlayerStats;
+    resource_type?: string;
+    immovable?: boolean;
 }
 
 export interface ResourceStats {
-	max: number;
-	value: number;
-	regen_rate: number;
-	regen_value: number;
-	missing?: number;
+    max: number;
+    value: number;
+    regen_rate: number;
+    regen_value: number;
+    missing?: number;
 }
 
 export type EnemyType = "baby-ghoul" | "egbert" | "ghoul" | "imp" | "satyr" | "slime";
@@ -263,45 +263,45 @@ export interface EnemyAttributes {
     health_regen_rate: number;
 }
 export interface EnemyConfig extends EnemyAttributes {
-    type: Capitalize<CombatType>,
-    coin_multiplier: 10,
-    loot_table: LootTable
+    type: Capitalize<CombatType>;
+    coin_multiplier: 10;
+    loot_table: LootTable;
     aggro_radius?: number;
 }
 
 export interface EnemyOptions {
-	scene: Scene;
+    scene: Scene;
     type: Capitalize<CombatType>;
-	x: number;
-	y: number;
-	key: EnemyType;
-	target: Player | Enemy| null;
+    x: number;
+    y: number;
+    key: EnemyType;
+    target: Player | Enemy | null;
     types?: Record<string, EnemyAttributes>;
-	attributes: EnemyAttributes;
+    attributes: EnemyAttributes;
     loot_table: LootTable;
-	aggro_radius?: number;
-	circling_radius?: number;
-	coin_multiplier: number;
-	active_group: Phaser.GameObjects.Group;
-	wave_multiplier?: number;
+    aggro_radius?: number;
+    circling_radius?: number;
+    coin_multiplier: number;
+    active_group: Phaser.GameObjects.Group;
+    wave_multiplier?: number;
     vector?: EntityWithVector;
 }
 
 export interface SpellOptions {
     scene: Scene;
-	x: number;
-	y: number;
-	key: string;
-	player: Player | Enemy;
-	cost?: { [key: string]: number };
-	cooldown?: number;
-	name?: string;
-	icon_name?: string;
-	hotkey: string;
-	slot: number;
-	loop?: boolean;
-	cooldownDelay?: boolean;
-	cooldownDelayAll?: boolean;
+    x: number;
+    y: number;
+    key: string;
+    player: Player | Enemy;
+    cost?: { [key: string]: number };
+    cooldown?: number;
+    name?: string;
+    icon_name?: string;
+    hotkey: string;
+    slot: number;
+    loop?: boolean;
+    cooldownDelay?: boolean;
+    cooldownDelayAll?: boolean;
 }
 
 interface AdjustValue {

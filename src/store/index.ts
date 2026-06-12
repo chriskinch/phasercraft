@@ -8,7 +8,7 @@ export interface RootState {
 
 export default configureStore({
     reducer: {
-        game: gameReducer
+        game: gameReducer,
     },
-    devTools: process.env.NODE_ENV !== 'production'
+    devTools: process.env.NODE_ENV !== "production",
 });
