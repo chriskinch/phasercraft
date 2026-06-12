@@ -20,12 +20,26 @@ interface SceneUnderTest {
     increaseLevel(): void;
     waveComplete(): void;
     removeNextLevelTimer(): void;
+    gameOver(): void;
+    shutdown(): void;
+    physics: { pause: ReturnType<typeof vi.fn> };
+    enemies: { runChildUpdate: boolean };
+    UI: { cleanup: ReturnType<typeof vi.fn> };
+    player: { cleanup: ReturnType<typeof vi.fn> };
+    input: { off: ReturnType<typeof vi.fn> };
+    events: { off: ReturnType<typeof vi.fn> };
 }
 
 function makeScene(): { scene: SceneUnderTest; pending: FakeTimer } {
     const pending: FakeTimer = { remove: vi.fn() };
     const scene = Object.create(GameScene.prototype) as SceneUnderTest;
     scene.time = { delayedCall: vi.fn(() => pending) };
+    scene.physics = { pause: vi.fn() };
+    scene.enemies = { runChildUpdate: true };
+    scene.UI = { cleanup: vi.fn() };
+    scene.player = { cleanup: vi.fn() };
+    scene.input = { off: vi.fn() };
+    scene.events = { off: vi.fn() };
     return { scene, pending };
 }
 
@@ -69,5 +83,32 @@ describe("GameScene.waveComplete", () => {
 
         expect(stale.remove).toHaveBeenCalledWith(false);
         expect(scene.time.delayedCall).toHaveBeenCalledTimes(1);
+    });
+});
+
+describe("GameScene.gameOver", () => {
+    it("cancels a pending next-wave timer so no wave spawns mid game-over", () => {
+        const { scene, pending } = makeScene();
+        scene.waveComplete();
+
+        scene.gameOver();
+
+        expect(pending.remove).toHaveBeenCalledWith(false);
+        expect(scene.next_level_timer).toBeUndefined();
+        expect(scene.physics.pause).toHaveBeenCalled();
+    });
+});
+
+describe("GameScene.shutdown", () => {
+    it("cancels the pending next-wave timer and runs entity cleanup", () => {
+        const { scene, pending } = makeScene();
+        scene.waveComplete();
+
+        scene.shutdown();
+
+        expect(pending.remove).toHaveBeenCalledWith(false);
+        expect(scene.next_level_timer).toBeUndefined();
+        expect(scene.UI.cleanup).toHaveBeenCalled();
+        expect(scene.player.cleanup).toHaveBeenCalled();
     });
 });
