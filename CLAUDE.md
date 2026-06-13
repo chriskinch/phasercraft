@@ -42,7 +42,7 @@ before starting work; link PRs to the relevant phase issue.
 - **QA gate (agent-authored PRs only):** after pushing a branch and opening a PR, every
   agent must run `/qa-review <pr-number>` before the PR is considered ready for the
   maintainer. The QA agent operates with minimal context (linked issue + diff only) and
-  posts a formal GitHub APPROVE or REQUEST\_CHANGES review. If REQUEST\_CHANGES: address
+  posts a formal GitHub APPROVE or REQUEST_CHANGES review. If REQUEST_CHANGES: address
   every comment, push fixes, then invoke `/qa-review` again. Only request maintainer
   review after QA posts APPROVE. Do not pass the QA agent conversation history or
   broader codebase context — this keeps it honest and scope-focused.
