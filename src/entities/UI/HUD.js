@@ -2,6 +2,7 @@ import { GameObjects, Display, Actions } from "phaser";
 import { toggleHUD, toggleUi, addLoot, loadGame } from "@store/gameReducer";
 import store from "@store";
 import mapStateToData from "@helpers/mapStateToData";
+import { readSave, writeSave, removeSave, SAVE_SLOTS } from "@services/saveStorage";
 
 const styles = {
     font: "12px monospace",
@@ -119,30 +120,22 @@ class UI extends GameObjects.Container {
     }
 
     saveGame() {
-        // localStorage.setItem can throw (quota, privacy mode); a key handler
-        // must not crash the game over a failed save.
-        try {
-            localStorage.setItem(this.save_slot, JSON.stringify(store.getState()));
-        } catch (error) {
-            console.warn("Failed to save game to slot", this.save_slot, error);
-        }
+        // The save/storage service swallows quota/privacy-mode write failures so
+        // a key handler never crashes the game over a failed save.
+        writeSave(this.save_slot, store.getState());
     }
 
     deleteSaves() {
-        ["slot_a", "slot_b", "slot_c"].forEach((slot) => {
-            localStorage.removeItem(slot);
-        });
+        SAVE_SLOTS.forEach((slot) => removeSave(slot));
     }
 
     loadSavedGame() {
-        // Corrupt save data must not throw out of a key handler.
-        let save_data = null;
-        try {
-            save_data = JSON.parse(localStorage.getItem(this.save_slot));
-        } catch (error) {
-            console.warn("Ignoring corrupt save data in slot", this.save_slot, error);
-        }
-        save_data ? store.dispatch(loadGame(save_data)) : console.log("NO DATA TO LOAD");
+        // Saves persist the root state ({ game: {...} }); loadGame expects the
+        // inner game slice, so unwrap .game (matching the Save menu's Load).
+        const save_data = readSave(this.save_slot);
+        save_data && save_data.game
+            ? store.dispatch(loadGame(save_data.game))
+            : console.log("NO DATA TO LOAD");
     }
 
     cleanup() {

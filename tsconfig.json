@@ -31,6 +31,7 @@
             "@helpers/*": ["./src/helpers/*"],
             "@scenes/*": ["./src/scenes/*"],
             "@entities/*": ["./src/entities/*"],
+            "@services/*": ["./src/services/*"],
             "@config/*": ["./src/config/*"],
             "@types/*": ["./src/types/*"],
             "@/*": ["./src/*"]
