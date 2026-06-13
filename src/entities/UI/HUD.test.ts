@@ -44,6 +44,13 @@ describe("UI.loadSavedGame", () => {
     });
 
     it("dispatches loadGame with the parsed save data", () => {
+        // loadSavedGame is a shape-agnostic passthrough: it dispatches whatever
+        // it parses, which is what this pins. The fixture is a flat GameState
+        // slice purely to satisfy loadGame's Partial<GameState> type — the real
+        // keyup-S save writes the *root* { game: {...} } shape, which loadGame
+        // does not type-accept. That save-shape mismatch is the pre-existing bug
+        // flagged in the PR, deferred to the typed storage service; this test
+        // deliberately does not assert that (buggy) round-trip.
         const save_data = { coins: 42, wave: 3 };
         localStorage.setItem("slot_a", JSON.stringify(save_data));
 
