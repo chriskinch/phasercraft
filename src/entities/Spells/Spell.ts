@@ -1,4 +1,4 @@
-import { GameObjects, Display, Scene } from "phaser";
+import { GameObjects, Display, Scene, Scenes } from "phaser";
 import store from "@store";
 import type { SpellOptions, TargetType } from "@/types/game";
 import type Player from "@entities/Player/Player";
@@ -46,6 +46,27 @@ class Spell extends GameObjects.Sprite {
         this.scene.events.on("spell:disableall", this.killSpell, this);
         this.scene.events.on("spell:enableall", this.monitorSpell, this);
         this.scene.add.existing(this).setDepth(1000).setVisible(false);
+
+        // Lifecycle: the spell registers listeners on external emitters
+        // (scene.events, the player resource, its button + the keyboard) that
+        // Phaser does not remove for us. The spell GameObject is not destroyed on
+        // scene SHUTDOWN (a shut-down scene may reactivate), so its scene.events
+        // listeners would otherwise accumulate across runs — clean up on both
+        // SHUTDOWN and an individual destroy.
+        this.scene.events.once(Scenes.Events.SHUTDOWN, this.cleanup, this);
+        this.once(GameObjects.Events.DESTROY, this.cleanup, this);
+    }
+
+    cleanup(): void {
+        // Remove listeners registered on external emitters (the spell's own
+        // listeners are removed by Phaser's destroy()). Idempotent: off() is a
+        // no-op when the listener is already gone, so the overlapping SHUTDOWN
+        // and DESTROY paths can both run safely.
+        this.scene.events.off("spell:disableall", this.killSpell, this);
+        this.scene.events.off("spell:enableall", this.monitorSpell, this);
+        this.scene.events.off(Scenes.Events.SHUTDOWN, this.cleanup, this);
+        this.player.resource.off("change", this.onResourceChangeHandler, this);
+        this.setButtonEvents("off");
     }
 
     checkResource(): boolean {

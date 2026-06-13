@@ -13,7 +13,7 @@ class Trap extends GameObjects.Sprite {
 
         this.on("trap:spawned", this.spawnedHandler, this);
 
-        this.scene.time.delayedCall(
+        this.lifespanTimer = this.scene.time.delayedCall(
             lifespan * 1000,
             () => {
                 this.destroy();
@@ -21,6 +21,12 @@ class Trap extends GameObjects.Sprite {
             [],
             this
         );
+
+        // Lifecycle: the lifespan timer and the two colliders outlive a plain
+        // destroy (the trap's own "trap:spawned" listener is removed by Phaser).
+        // Release them when the trap is destroyed (on collide, expiry, or
+        // shutdown) so stale colliders don't accumulate during a run.
+        this.once(GameObjects.Events.DESTROY, this.cleanup, this);
     }
 
     collide(target) {
@@ -31,8 +37,26 @@ class Trap extends GameObjects.Sprite {
     }
 
     spawnedHandler() {
-        this.scene.physics.add.collider(this.scene.active_enemies, this, this.collide, null, this);
-        this.scene.physics.add.collider(this.scene.player, this, this.destroy, null, this);
+        this.enemyCollider = this.scene.physics.add.collider(
+            this.scene.active_enemies,
+            this,
+            this.collide,
+            null,
+            this
+        );
+        this.playerCollider = this.scene.physics.add.collider(
+            this.scene.player,
+            this,
+            this.destroy,
+            null,
+            this
+        );
+    }
+
+    cleanup() {
+        if (this.lifespanTimer) this.lifespanTimer.remove();
+        if (this.enemyCollider) this.scene.physics.world.removeCollider(this.enemyCollider);
+        if (this.playerCollider) this.scene.physics.world.removeCollider(this.playerCollider);
     }
 }
 
