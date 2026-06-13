@@ -46,6 +46,12 @@ before starting work; link PRs to the relevant phase issue.
   every comment, push fixes, then invoke `/qa-review` again. Only request maintainer
   review after QA posts APPROVE. Do not pass the QA agent conversation history or
   broader codebase context — this keeps it honest and scope-focused.
+- **Watch every PR you open (agent-authored PRs only):** the moment you open a PR,
+  subscribe to its activity (`subscribe_pr_activity`) and keep monitoring it for review
+  comments and CI status until it is merged or closed. Address actionable review/CI
+  events as they arrive (fix when confident and small; ask the maintainer when
+  ambiguous or architecturally significant). This is an action only the agent can take,
+  so it cannot be a settings hook.
 - Dependency majors are individual PRs, never bundled with feature work.
 
 ## Code conventions
