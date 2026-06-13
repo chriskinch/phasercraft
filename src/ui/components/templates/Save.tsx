@@ -3,23 +3,17 @@ import { useDispatch } from "react-redux";
 import { loadGame, selectCharacter, setSaveSlot, switchUi } from "@store/gameReducer";
 import Button from "@components/Button";
 import Dialog from "@components/Dialog";
+import { readAllSaves, removeSave, SAVE_SLOTS } from "@services/saveStorage";
 import type { RootState } from "@store";
 
 interface SaveProps {
     load?: boolean;
 }
 
-const getSaveGames = (slots: string[]): (RootState | null)[] => {
-    return slots.map((slot) => {
-        const saved = localStorage.getItem(slot);
-        return saved ? JSON.parse(saved) : null;
-    });
-};
-
 const Save: React.FC<SaveProps> = ({ load = false }) => {
     const dispatch = useDispatch();
-    const slots = ["slot_a", "slot_b", "slot_c"];
-    const [saveGames, setSaveGames] = useState<(RootState | null)[]>(getSaveGames(slots));
+    const slots = [...SAVE_SLOTS];
+    const [saveGames, setSaveGames] = useState<(RootState | null)[]>(() => readAllSaves(slots));
     const [showDialog, setShowDialog] = useState(false);
     const [currentSaveSlot, setCurrentSaveSlot] = useState<string | false>(false);
     const otherGames = load ? saveGames.filter((save) => save !== null) : saveGames;
@@ -32,8 +26,8 @@ const Save: React.FC<SaveProps> = ({ load = false }) => {
                     text="Confirm"
                     onClick={() => {
                         if (currentSaveSlot) {
-                            localStorage.removeItem(currentSaveSlot);
-                            setSaveGames(getSaveGames(slots));
+                            removeSave(currentSaveSlot);
+                            setSaveGames(readAllSaves(slots));
                             setShowDialog(false);
                         }
                     }}

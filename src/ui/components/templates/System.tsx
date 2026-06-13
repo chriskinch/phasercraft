@@ -4,6 +4,7 @@ import { switchUi, toggleUi } from "@store/gameReducer";
 import Button from "@components/Button";
 import Dialog from "@components/Dialog";
 import { dialog_overlay } from "@ui/themes";
+import { writeSave } from "@services/saveStorage";
 import type { RootState } from "@store";
 
 interface SystemProps {
@@ -23,7 +24,7 @@ const System: React.FC<SystemProps> = ({ state }) => {
                     text="Yes"
                     onClick={() => {
                         if (saveSlot) {
-                            localStorage.setItem(saveSlot, JSON.stringify(state));
+                            writeSave(saveSlot, state);
                         }
                         dispatch(toggleUi("system"));
                         setShowDialog(false);

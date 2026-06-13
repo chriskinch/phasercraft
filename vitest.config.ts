@@ -26,6 +26,7 @@ export default defineConfig({
             { find: "@helpers", replacement: path.resolve(__dirname, "./src/helpers") },
             { find: "@scenes", replacement: path.resolve(__dirname, "./src/scenes") },
             { find: "@entities", replacement: path.resolve(__dirname, "./src/entities") },
+            { find: "@services", replacement: path.resolve(__dirname, "./src/services") },
             { find: "@config", replacement: path.resolve(__dirname, "./src/config") },
             {
                 find: "@queries",
