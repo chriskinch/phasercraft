@@ -60,10 +60,34 @@ before starting work; link PRs to the relevant phase issue.
   type the seam properly or ask. No `@ts-ignore`/`@ts-expect-error` without a comment
   explaining why and an issue reference.
 - **Lifecycle discipline (the historical source of bugs here):** every Phaser entity
-  that registers event listeners, timers, or store subscriptions must clean them up
-  on scene `SHUTDOWN`/destroy. Use `scene.time` (pause-aware) instead of raw
-  `setTimeout`/`setInterval`. RxJS/Redux subscriptions (`mapStateToData`) return an
-  unsubscribe function — store it and call it in cleanup.
+  that registers event listeners, timers, store subscriptions, or physics colliders
+  must release them when it goes away. Conventions established in Phase 2:
+    - **Give the entity a `cleanup()` method** that releases everything it registered, and
+      make it **idempotent** — the destroy and shutdown paths below can both fire for the
+      same entity.
+    - **Wire `cleanup()` to the right lifecycle event.** For entities destroyed during play
+      (loot, traps, projectiles), register it on the object's own destroy event:
+      `this.once(GameObjects.Events.DESTROY, this.cleanup, this)`. Phaser does **not**
+      destroy GameObjects on scene `SHUTDOWN` (a shut-down scene may reactivate), so
+      entities that outlive a wave/run must _also_ be cleaned on `SHUTDOWN` — either
+      self-subscribe (`scene.events.once(Scenes.Events.SHUTDOWN, this.cleanup, this)`) or
+      have the owner propagate it: `Player.cleanup()` calls `health/resource/shield.cleanup()`,
+      and a scene's `shutdown()` calls `player.cleanup()` / `UI.cleanup()`.
+    - **Only _external_ listeners need manual removal.** `destroy()` emits `DESTROY` then
+      calls `removeAllListeners()`, so an entity's own `this.on(...)` listeners are cleaned
+      automatically; listeners added to _other_ emitters (`scene.events`,
+      `scene.input.keyboard`, `player.resource`, a `button`) are not — `off()` them in
+      `cleanup()` with the same `(event, fn, context)` you registered.
+    - **Timers:** use `scene.time` (pause-aware) instead of raw `setTimeout`/`setInterval`;
+      store the `TimerEvent` and `.remove()` it in `cleanup()`.
+    - **Store subscriptions:** `mapStateToData` (RxJS) returns an unsubscribe function —
+      store it and call it in `cleanup()`.
+    - **Physics colliders:** store the `Collider` returned by `scene.physics.add.collider(...)`
+      and `scene.physics.world.removeCollider(...)` it in `cleanup()` (stale colliders are
+      guarded no-ops in Arcade but accumulate within a run).
+    - Mock entities at this seam in tests: build a constructor-free fake with
+      `Object.create(Entity.prototype)`, stub the emitters/timers, and assert `cleanup()`
+      releases them (see the HUD/Resource/Spell lifecycle tests).
 - All `localStorage` access goes through the typed save/storage service (Phase 2);
   never call `JSON.parse(localStorage.getItem(...))` directly.
 - Redux is the single source of truth for game state shared with the React UI; the

@@ -53,7 +53,7 @@ Each bullet is one small PR unless trivially related.
 - [ ] `Resource.ts` — add cleanup; unsubscribe RxJS subscriptions on shutdown
 - [ ] `Gem.js`, `Trap.js`, `Spell.ts` — unregister event listeners on destroy/shutdown
 - [ ] `PhaserGame.tsx` — remove the `setTimeout(createGame, 100)` boot race; turn off arcade `debug: true` (behavior-visible: flag in PR)
-- [ ] Document the resulting lifecycle conventions in `CLAUDE.md` (every entity cleans up on `SHUTDOWN`)
+- [x] Document the resulting lifecycle conventions in `CLAUDE.md` (every entity cleans up on `SHUTDOWN`)
 
 ## Phase 3 — TypeScript completion
 
