@@ -43,6 +43,14 @@ describe("Resource.cleanup", () => {
         expect(resource.tick.remove).toHaveBeenCalledTimes(1);
     });
 
+    it("does not throw when there is no regen timer", () => {
+        const resource = makeResource();
+        (resource as { tick?: unknown }).tick = undefined;
+        resource.subscriptions = [vi.fn()];
+
+        expect(() => resource.cleanup()).not.toThrow();
+    });
+
     it("is idempotent: a second call does not unsubscribe again", () => {
         const resource = makeResource();
         const unsubscribe = vi.fn();
