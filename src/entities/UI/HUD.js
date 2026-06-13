@@ -45,40 +45,22 @@ class UI extends GameObjects.Container {
             })
         );
 
-        scene.input.keyboard.on("keyup-P", () => store.dispatch(toggleUi("character")), this);
-        // TEMP KEYBINDS
-        scene.input.keyboard.on(
-            "keyup-R",
-            () => store.dispatch(addLoot(Math.floor(Math.random() * 100))),
-            this
-        );
+        this.save_slot = store.getState().game.saveSlot;
 
-        // Saving
-        const slot = store.getState().game.saveSlot;
-        scene.input.keyboard.on(
-            "keyup-S",
-            () => {
-                localStorage.setItem(slot, JSON.stringify(store.getState()));
-            },
-            this
-        );
-        scene.input.keyboard.on(
-            "keyup-D",
-            () => {
-                ["slot_a", "slot_b", "slot_c"].forEach((slot) => {
-                    localStorage.removeItem(slot);
-                });
-            },
-            this
-        );
-        scene.input.keyboard.on(
-            "keyup-L",
-            () => {
-                const save_data = JSON.parse(localStorage.getItem(slot));
-                save_data ? store.dispatch(loadGame(save_data)) : console.log("NO DATA TO LOAD");
-            },
-            this
-        );
+        // Keep handler references so cleanup() can remove exactly these
+        // listeners rather than every listener bound to the event.
+        this.key_handlers = {
+            "keyup-P": () => store.dispatch(toggleUi("character")),
+            // TEMP KEYBINDS
+            "keyup-R": () => store.dispatch(addLoot(Math.floor(Math.random() * 100))),
+            // Saving
+            "keyup-S": () => this.saveGame(),
+            "keyup-D": () => this.deleteSaves(),
+            "keyup-L": () => this.loadSavedGame(),
+        };
+        Object.entries(this.key_handlers).forEach(([event, handler]) => {
+            scene.input.keyboard.on(event, handler, this);
+        });
 
         this.scene.add.existing(this).setDepth(this.scene.depth_group.UI).setScrollFactor(0);
     }
@@ -136,17 +118,42 @@ class UI extends GameObjects.Container {
             .on("pointerdown", () => store.dispatch(toggleUi("system")), this);
     }
 
+    saveGame() {
+        // localStorage.setItem can throw (quota, privacy mode); a key handler
+        // must not crash the game over a failed save.
+        try {
+            localStorage.setItem(this.save_slot, JSON.stringify(store.getState()));
+        } catch (error) {
+            console.warn("Failed to save game to slot", this.save_slot, error);
+        }
+    }
+
+    deleteSaves() {
+        ["slot_a", "slot_b", "slot_c"].forEach((slot) => {
+            localStorage.removeItem(slot);
+        });
+    }
+
+    loadSavedGame() {
+        // Corrupt save data must not throw out of a key handler.
+        let save_data = null;
+        try {
+            save_data = JSON.parse(localStorage.getItem(this.save_slot));
+        } catch (error) {
+            console.warn("Ignoring corrupt save data in slot", this.save_slot, error);
+        }
+        save_data ? store.dispatch(loadGame(save_data)) : console.log("NO DATA TO LOAD");
+    }
+
     cleanup() {
         // Unsubscribe from all store subscriptions
         this.subscriptions.forEach((unsubscribe) => unsubscribe());
         this.subscriptions = [];
 
-        // Clean up keyboard event listeners
-        this.scene.input.keyboard.off("keyup-P");
-        this.scene.input.keyboard.off("keyup-R");
-        this.scene.input.keyboard.off("keyup-S");
-        this.scene.input.keyboard.off("keyup-D");
-        this.scene.input.keyboard.off("keyup-L");
+        // Remove exactly the keyboard listeners registered in the constructor
+        Object.entries(this.key_handlers).forEach(([event, handler]) => {
+            this.scene.input.keyboard.off(event, handler, this);
+        });
     }
 }
 

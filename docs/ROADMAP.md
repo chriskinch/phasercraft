@@ -48,7 +48,7 @@ Consult the pinned Phaser 3.90 docs (scene lifecycle, events, time) before each 
 Each bullet is one small PR unless trivially related.
 
 - [x] `GameScene.ts:231` — replace raw `setTimeout` with a pause-aware, scene-owned timer cleaned up on shutdown
-- [ ] `HUD.js` — remove keyboard listeners on shutdown; guard `JSON.parse(localStorage.getItem(...))`
+- [x] `HUD.js` — remove keyboard listeners on shutdown; guard `JSON.parse(localStorage.getItem(...))`
 - [ ] Introduce a typed, error-handled save/storage service wrapping all `localStorage` access (`HUD.js`, `Save.tsx`, `System.tsx`, `LoadScene.ts`) — with unit tests
 - [ ] `Resource.ts` — add cleanup; unsubscribe RxJS subscriptions on shutdown
 - [ ] `Gem.js`, `Trap.js`, `Spell.ts` — unregister event listeners on destroy/shutdown
