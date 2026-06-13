@@ -97,6 +97,12 @@ class Resource extends GameObjects.Sprite {
         this.tick = this.setRegenerationRate();
         // If regen_rate is 0 delay is 0 (very fast) but timer won't unpause.
         if (this.stats.regen_rate > 0) this.tick.paused = false;
+
+        // Lifecycle: store subscriptions (RxJS) and the regen timer outlive a
+        // plain GameObject destroy, so clean them up when this resource (or its
+        // parent container, e.g. an enemy on death) is destroyed. Scene SHUTDOWN
+        // for the player goes through Player.cleanup(), which also calls this.
+        this.once(GameObjects.Events.DESTROY, this.cleanup, this);
     }
 
     selectKeys(prefix: string): string[] {
@@ -182,6 +188,16 @@ class Resource extends GameObjects.Sprite {
 
     doTick(): void {
         this.regenerate();
+    }
+
+    cleanup(): void {
+        // Unsubscribe RxJS/store subscriptions (player resources only register
+        // them, but this is a no-op otherwise) and stop the regen timer so it
+        // doesn't keep firing against a destroyed sprite. Idempotent: safe to
+        // call from both the DESTROY handler and a parent's cleanup().
+        this.subscriptions.forEach((unsubscribe) => unsubscribe());
+        this.subscriptions = [];
+        if (this.tick) this.tick.remove();
     }
 
     remove(): void {

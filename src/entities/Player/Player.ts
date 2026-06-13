@@ -459,6 +459,13 @@ class Player extends GameObjects.Container {
         // Unsubscribe from all store subscriptions
         this.subscriptions.forEach((unsubscribe) => unsubscribe());
         this.subscriptions = [];
+
+        // On scene SHUTDOWN the player container is not destroyed, so its child
+        // resources' DESTROY handlers never fire — clean them up explicitly here
+        // to release their store subscriptions and regen timers.
+        this.health.cleanup();
+        this.resource.cleanup();
+        this.shield.cleanup();
     }
 }
 
