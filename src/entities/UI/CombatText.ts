@@ -1,11 +1,38 @@
-import { GameObjects } from "phaser";
+import { GameObjects, Scene, Physics } from "phaser";
+
+interface CombatTextConfig {
+    x: number;
+    y: number;
+    value: string | number;
+    // Combat type that produced the text; selects the fill colour and falls
+    // back to white when unset or unrecognised (callers pass a free-form
+    // string, e.g. Health.adjustValue's `type`).
+    type?: string;
+    crit?: boolean;
+    wander?: number;
+    length?: number;
+    speed?: number;
+    gravity?: number;
+}
 
 class CombatText extends GameObjects.Text {
+    public body: Physics.Arcade.Body;
+
     constructor(
-        scene,
-        { x, y, value, type, crit, wander = 1, length = 500, speed = 60, gravity = 200 }
+        scene: Scene,
+        {
+            x,
+            y,
+            value,
+            type,
+            crit,
+            wander = 1,
+            length = 500,
+            speed = 60,
+            gravity = 200,
+        }: CombatTextConfig
     ) {
-        const color = {
+        const color: Record<string, string> = {
             physical: "#fff",
             magic: "#ef0",
             burn: "#fa0",
@@ -16,7 +43,10 @@ class CombatText extends GameObjects.Text {
             level: "#8f0",
         };
 
-        super(scene, x, y - 25, value, {
+        // Phaser's Text constructor types `text` as string | string[]; numeric
+        // values were passed in the original JS and rely on Phaser's internal
+        // toString — preserve that by passing the value through unchanged.
+        super(scene, x, y - 25, value as unknown as string, {
             fontFamily: "VT323",
             fontSize: crit ? "21px" : "16px",
             stroke: crit ? "#800" : "#000",
@@ -53,7 +83,7 @@ class CombatText extends GameObjects.Text {
         });
     }
 
-    getRandomVelocity() {
+    getRandomVelocity(): number {
         let min = 50;
         let max = 100;
         let v = min + Math.random() * (max - min);

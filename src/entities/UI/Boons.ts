@@ -1,13 +1,14 @@
-import StatusEffects from "./StatusEffects";
+import StatusEffects, { StatusEffect } from "./StatusEffects";
 import store from "@store";
 import { setStats, updateStats } from "@store/gameReducer";
+import type Player from "@entities/Player/Player";
 
-class Boons extends StatusEffects {
-    addEffect(boon) {
+class Boons extends StatusEffects<Player> {
+    addEffect(boon: StatusEffect): void {
         super.addEffect(boon);
     }
 
-    calculate(boons) {
+    calculate(boons: StatusEffect[]): void {
         // Always start from base_stats when calculating boons.
         store.dispatch(setStats(store.getState().game.base_stats));
         // Loop through boons with an iterator to hit nested objects

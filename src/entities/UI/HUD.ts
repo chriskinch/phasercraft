@@ -1,4 +1,4 @@
-import { GameObjects, Display, Actions } from "phaser";
+import { GameObjects, Display, Actions, Scene } from "phaser";
 import { toggleHUD, toggleUi, addLoot, loadGame } from "@store/gameReducer";
 import store from "@store";
 import mapStateToData from "@helpers/mapStateToData";
@@ -9,8 +9,31 @@ const styles = {
     fill: "#ffffff",
 };
 
+// The HUD reads a few fields off the GameScene that are not part of the base
+// Phaser Scene (and some are private on GameScene). Scene-augmentation casts
+// are the established pattern here and are tracked for a separate cleanup PR.
+type HudScene = Scene & {
+    zone: GameObjects.Zone;
+    wave: number;
+    depth_group: Record<string, number>;
+};
+
+// The coin/wave readouts are plain containers with a `text` child stashed on
+// the instance so the store subscriptions can update it.
+type LabelledContainer = GameObjects.Container & { text: GameObjects.Text };
+
 class UI extends GameObjects.Container {
-    constructor(scene) {
+    public spells: number;
+    public spacing: number;
+    public frames: GameObjects.Sprite[];
+    public subscriptions: Array<() => void>;
+    public buttons: GameObjects.Sprite[];
+    public coins!: LabelledContainer;
+    public wave!: LabelledContainer;
+    public save_slot: string;
+    public key_handlers: Record<string, () => void>;
+
+    constructor(scene: Scene) {
         super(scene, 0, 0);
 
         this.spells = 5;
@@ -27,7 +50,7 @@ class UI extends GameObjects.Container {
         this.buttons.forEach((button) => this.add(button));
 
         // Position buttons in the bottom right
-        const { x, y, width, height } = this.scene.zone;
+        const { x, y, width, height } = (this.scene as HudScene).zone;
         Actions.IncXY(this.buttons, x + width, y + height, -35);
 
         // Maps coins, wave and showUi sections of the store to various functions.
@@ -46,29 +69,36 @@ class UI extends GameObjects.Container {
             })
         );
 
-        this.save_slot = store.getState().game.saveSlot;
+        this.save_slot = store.getState().game.saveSlot as string;
 
         // Keep handler references so cleanup() can remove exactly these
         // listeners rather than every listener bound to the event.
         this.key_handlers = {
             "keyup-P": () => store.dispatch(toggleUi("character")),
             // TEMP KEYBINDS
-            "keyup-R": () => store.dispatch(addLoot(Math.floor(Math.random() * 100))),
+            // addLoot's action creator types its arg as string, but this debug
+            // keybind has always passed a number (masked in the JS original).
+            // Preserve the runtime value; type-only cast, not a behaviour change.
+            "keyup-R": () =>
+                store.dispatch(addLoot(Math.floor(Math.random() * 100) as unknown as string)),
             // Saving
             "keyup-S": () => this.saveGame(),
             "keyup-D": () => this.deleteSaves(),
             "keyup-L": () => this.loadSavedGame(),
         };
         Object.entries(this.key_handlers).forEach(([event, handler]) => {
-            scene.input.keyboard.on(event, handler, this);
+            scene.input.keyboard!.on(event, handler, this);
         });
 
-        this.scene.add.existing(this).setDepth(this.scene.depth_group.UI).setScrollFactor(0);
+        this.scene.add
+            .existing(this)
+            .setDepth((this.scene as HudScene).depth_group.UI)
+            .setScrollFactor(0);
     }
 
-    setSpellFrames() {
-        let x = Display.Bounds.GetLeft(this.scene.zone);
-        let y = Display.Bounds.GetBottom(this.scene.zone);
+    setSpellFrames(): void {
+        let x = Display.Bounds.GetLeft((this.scene as HudScene).zone);
+        let y = Display.Bounds.GetBottom((this.scene as HudScene).zone);
         for (let i = 0; i < this.spells; i++) {
             let frame = this.scene.add
                 .sprite(x + this.spacing * i, y, "icon", "icon_blank")
@@ -79,9 +109,9 @@ class UI extends GameObjects.Container {
         }
     }
 
-    setCoinCount() {
-        this.coins = this.scene.add.container(0, 0);
-        Display.Align.In.TopRight(this.coins, this.scene.zone, -80);
+    setCoinCount(): void {
+        this.coins = this.scene.add.container(0, 0) as LabelledContainer;
+        Display.Align.In.TopRight(this.coins, (this.scene as HudScene).zone, -80);
 
         this.coins.add(this.scene.add.sprite(0, 0, "coin-spin"));
         this.coins.text = this.scene.add.text(15, 0, "Coins: ", styles).setOrigin(0, 0.5);
@@ -90,20 +120,20 @@ class UI extends GameObjects.Container {
         this.add(this.coins);
     }
 
-    setWaveCount() {
-        this.wave = this.scene.add.container(0, 0);
-        Display.Align.In.TopRight(this.wave, this.scene.zone, -190);
+    setWaveCount(): void {
+        this.wave = this.scene.add.container(0, 0) as LabelledContainer;
+        Display.Align.In.TopRight(this.wave, (this.scene as HudScene).zone, -190);
 
         this.wave.add(this.scene.add.sprite(0, 0, "dungeon", "ghast_baby"));
         this.wave.text = this.scene.add
-            .text(15, 0, "Wave: " + (this.scene.wave + 1), styles)
+            .text(15, 0, "Wave: " + ((this.scene as HudScene).wave + 1), styles)
             .setOrigin(0, 0.5);
         this.wave.add(this.wave.text);
 
         this.add(this.wave);
     }
 
-    setInvetoryIcon() {
+    setInvetoryIcon(): GameObjects.Sprite {
         return this.scene.add
             .sprite(0, 0, "icon", "icon_0021_charm")
             .setInteractive()
@@ -111,7 +141,7 @@ class UI extends GameObjects.Container {
             .on("pointerdown", () => store.dispatch(toggleUi("equipment")), this);
     }
 
-    setSystemIcon() {
+    setSystemIcon(): GameObjects.Sprite {
         return this.scene.add
             .sprite(0, 0, "icon", "icon_0006_golem")
             .setInteractive()
@@ -119,17 +149,17 @@ class UI extends GameObjects.Container {
             .on("pointerdown", () => store.dispatch(toggleUi("system")), this);
     }
 
-    saveGame() {
+    saveGame(): void {
         // The save/storage service swallows quota/privacy-mode write failures so
         // a key handler never crashes the game over a failed save.
         writeSave(this.save_slot, store.getState());
     }
 
-    deleteSaves() {
+    deleteSaves(): void {
         SAVE_SLOTS.forEach((slot) => removeSave(slot));
     }
 
-    loadSavedGame() {
+    loadSavedGame(): void {
         // Saves persist the root state ({ game: {...} }); loadGame expects the
         // inner game slice, so unwrap .game (matching the Save menu's Load).
         const save_data = readSave(this.save_slot);
@@ -138,14 +168,14 @@ class UI extends GameObjects.Container {
             : console.log("NO DATA TO LOAD");
     }
 
-    cleanup() {
+    cleanup(): void {
         // Unsubscribe from all store subscriptions
         this.subscriptions.forEach((unsubscribe) => unsubscribe());
         this.subscriptions = [];
 
         // Remove exactly the keyboard listeners registered in the constructor
         Object.entries(this.key_handlers).forEach(([event, handler]) => {
-            this.scene.input.keyboard.off(event, handler, this);
+            this.scene.input.keyboard!.off(event, handler, this);
         });
     }
 }
