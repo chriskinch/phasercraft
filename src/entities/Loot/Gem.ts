@@ -1,16 +1,26 @@
-import { GameObjects, Display } from "phaser";
+import { GameObjects, Scene, Physics, Display, Time } from "phaser";
 import store from "@store";
 import { addCoins } from "@store/gameReducer";
 import getRandomVelocity from "@helpers/getRandomVelocity";
 import random from "lodash/random";
+import type GameScene from "@scenes/GameScene";
+
+interface GemConfig {
+    scene: Scene;
+    x: number;
+    y: number;
+}
 
 class Gem extends GameObjects.Sprite {
-    constructor(config) {
+    public body: Physics.Arcade.Body;
+    public activateTimer?: Time.TimerEvent;
+    public collider?: Physics.Arcade.Collider;
+
+    constructor(config: GemConfig) {
         super(config.scene, config.x, config.y, "gem-shine");
         config.scene.physics.world.enable(this);
-        config.scene.add.existing(this).setDepth(this.scene.depth_group.UI);
+        config.scene.add.existing(this).setDepth((this.scene as GameScene).depth_group.UI);
 
-        // this.anims.delayedPlay(random(1000,2000), 'gem');
         this.anims.playAfterDelay("gem", random(1000, 2000));
         this.body.setVelocity(getRandomVelocity(35, 70), getRandomVelocity(35, 70)).setDrag(100);
         this.body.immovable = true;
@@ -28,26 +38,26 @@ class Gem extends GameObjects.Sprite {
         this.once(GameObjects.Events.DESTROY, this.cleanup, this);
     }
 
-    activate() {
+    activate(): void {
         this.collider = this.scene.physics.add.collider(
-            this.scene.player,
+            (this.scene as GameScene).player,
             this,
             this.touch,
-            null,
+            undefined,
             this
         );
     }
 
-    cleanup() {
+    cleanup(): void {
         if (this.activateTimer) this.activateTimer.remove();
         if (this.collider) this.scene.physics.world.removeCollider(this.collider);
     }
 
-    touch() {
+    touch(): void {
         this.emit("loot:collect", this);
     }
 
-    collect() {
+    collect(): void {
         store.dispatch(addCoins(5));
         this.scene.tweens.add({
             targets: this,
