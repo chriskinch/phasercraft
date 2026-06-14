@@ -55,16 +55,16 @@ Each bullet is one small PR unless trivially related.
 - [x] `PhaserGame.tsx` — remove the `setTimeout(createGame, 100)` boot race (arcade `debug` kept on per maintainer decision)
 - [x] Document the resulting lifecycle conventions in `CLAUDE.md` (every entity cleans up on `SHUTDOWN`)
 
-## Phase 3 — TypeScript completion
+## Phase 3 — TypeScript completion (done)
 
-- [ ] Convert trivial JS loot classes: `Fine.js`, `Rare.js`, `Legendary.js`, `Gem.js`
-- [ ] Convert UI entities: `HUD.js` (after Phase 2 fixes), `CombatText.js`, `StatusEffects.js`, `Banes.js`, `Boons.js`
-- [ ] Convert `Weapons/AreaEffect.js`, `Weapons/Trap.js`, `helpers/spawnStyle.js`
-- [ ] Convert `lib/cache.js` (typed field policies)
-- [ ] Replace scene-augmentation casts (`this.scene as Scene & {...}`) with explicit typed scene interfaces
-- [ ] Eliminate `any` across entities/spells/UI (notably `Spell.ts#player`, `CharacterCard.tsx`, TownScene handlers, react-dnd refs); add `@typescript-eslint` with `no-explicit-any`
-- [ ] Tighten `tsconfig`: enable `strictPropertyInitialization`, evaluate `noUncheckedIndexedAccess`
-- [ ] Gate: 0 JS files in `src/`, `any` count ≤ 5 (documented exceptions only)
+- [x] Convert trivial JS loot classes: `Fine.js`, `Rare.js`, `Legendary.js`, `Gem.js` (#324; re-enabled gem loot)
+- [x] Convert UI entities: `HUD.js`, `CombatText.js`, `StatusEffects.js`, `Banes.js`, `Boons.js` (#327)
+- [x] Convert `Weapons/AreaEffect.js`, `Weapons/Trap.js`, `helpers/spawnStyle.js` (#326)
+- [x] Convert `lib/cache.js` (typed field policies) (#325)
+- [x] Replace scene-augmentation casts with an explicit typed scene interface (`GameSceneLike`, `src/types/scene.ts`) (#330)
+- [x] Eliminate `any` across entities/spells/UI; add `@typescript-eslint` `no-explicit-any` (#331)
+- [x] Tighten `tsconfig`: enable `strictPropertyInitialization` (#332). `noUncheckedIndexedAccess` evaluated and deferred — see backlog (#333)
+- [x] Gate: 0 JS files in `src/`, `any` count = 0 (≤ 5 target met)
 
 ## Phase 4 — Test buildout
 
@@ -117,3 +117,5 @@ Frontend integration:
 - Gateway production hosting decision (Lambda merge, PaaS, or other)
 - AWS CDK migration (replaces Serverless v3; unlocks newest Lambda runtimes)
 - Coverage ratchet toward 80%+ on non-Phaser code
+- Enable `noUncheckedIndexedAccess` (deferred from Phase 3; 29 sites needing deliberate guard/fallback decisions) (#333)
+- Lifecycle cleanup for `AreaEffect` overlap colliders and `StatusEffects`/`Banes` timers (pre-existing leaks surfaced during Phase 3) (#328)
