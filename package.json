@@ -61,6 +61,7 @@
         "@types/node": "^22.19.21",
         "@types/react": "^19",
         "@types/react-dom": "^19",
+        "@vitejs/plugin-react": "^6.0.2",
         "@vitest/ui": "^4.1.6",
         "eslint": "^9.31.0",
         "eslint-config-prettier": "^10.1.8",
@@ -69,6 +70,7 @@
         "lint-staged": "^16.4.0",
         "postcss": "^8.5.10",
         "prettier": "^3.8.3",
+        "react-dnd-test-backend": "^16.0.1",
         "simple-git-hooks": "^2.13.1",
         "typescript": "^5",
         "vitest": "^4.1.6"

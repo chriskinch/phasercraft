@@ -1,7 +1,40 @@
 import { defineConfig } from "vitest/config";
+import react from "@vitejs/plugin-react";
 import path from "node:path";
+import fs from "node:fs";
+
+// `@components/X` maps to one of five atomic-design directories in tsconfig.json
+// ("paths"). A plain Vite string alias can only point at a single directory, so
+// resolve it here by probing each directory in the same precedence order the
+// tsconfig declares. Test-only: mirrors the existing build/typecheck resolution
+// so component tests can import siblings exactly as the components do.
+const COMPONENT_DIRS = ["protons", "atoms", "molecules", "organisms", "templates"].map((dir) =>
+    path.resolve(__dirname, "./src/ui/components", dir)
+);
+
+function componentsAliasPlugin() {
+    return {
+        name: "phasercraft-components-alias",
+        enforce: "pre" as const,
+        resolveId(source: string) {
+            if (!source.startsWith("@components/")) return null;
+            const subpath = source.slice("@components/".length);
+            for (const dir of COMPONENT_DIRS) {
+                for (const ext of [".tsx", ".ts", ".jsx", ".js", "/index.tsx", "/index.ts"]) {
+                    const candidate = path.join(dir, subpath + ext);
+                    if (fs.existsSync(candidate)) return candidate;
+                }
+            }
+            return null;
+        },
+    };
+}
 
 export default defineConfig({
+    // @vitejs/plugin-react owns the JSX transform for tests. tsconfig.json sets
+    // `jsx: "preserve"` for Next's own compiler, which Vite's default transformer
+    // can't parse; the React plugin uses the automatic runtime regardless.
+    plugins: [componentsAliasPlugin(), react()],
     test: {
         environment: "jsdom",
         globals: true,
