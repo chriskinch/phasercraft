@@ -52,7 +52,7 @@ Each bullet is one small PR unless trivially related.
 - [x] Introduce a typed, error-handled save/storage service wrapping all `localStorage` access (`HUD.js`, `Save.tsx`, `System.tsx`, `LoadScene.ts`) — with unit tests
 - [x] `Resource.ts` — add cleanup; unsubscribe RxJS subscriptions on shutdown
 - [x] `Gem.js`, `Trap.js`, `Spell.ts` — unregister event listeners on destroy/shutdown
-- [ ] `PhaserGame.tsx` — remove the `setTimeout(createGame, 100)` boot race; turn off arcade `debug: true` (behavior-visible: flag in PR)
+- [x] `PhaserGame.tsx` — remove the `setTimeout(createGame, 100)` boot race (arcade `debug` kept on per maintainer decision)
 - [x] Document the resulting lifecycle conventions in `CLAUDE.md` (every entity cleans up on `SHUTDOWN`)
 
 ## Phase 3 — TypeScript completion
