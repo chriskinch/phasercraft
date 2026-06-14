@@ -1,6 +1,6 @@
 import { GameObjects, Display, Scenes } from "phaser";
 import store from "@store";
-import type { SpellOptions, TargetType } from "@/types/game";
+import type { SpellOptions, TargetType, PlayerStats } from "@/types/game";
 import type Player from "@entities/Player/Player";
 import type { GameSceneLike } from "@/types/scene";
 
@@ -10,7 +10,10 @@ interface SpellValue {
 }
 
 class Spell extends GameObjects.Sprite {
-    public player: any; // Player or Enemy with resource property
+    // The owning combatant. Every ability in the game is created by the Player
+    // (see Player's `abilities.map(...)`), and the spell reads Player-only members
+    // (resource/shield/isCritical/clearLastPrimedSpell), so the seam is a Player.
+    public player: Player;
     public cost: { [key: string]: number };
     public typedCost: number;
     public hasAnimation: boolean;
@@ -27,7 +30,9 @@ class Spell extends GameObjects.Sprite {
     public text: GameObjects.Text;
     public cooldownTimer: Phaser.Tweens.Tween;
     public target: TargetType | undefined;
-    public animation: any;
+    // Holds whatever the (subclass-overridable) startAnimation() returns. The
+    // base returns void and the value is never read back, so it stays untyped.
+    public animation: unknown;
 
     constructor({ scene, x, y, key, ...config }: SpellOptions) {
         super(scene, x, y, key);
@@ -266,7 +271,9 @@ class Spell extends GameObjects.Sprite {
         key: string;
         reducer?: (v: number) => number;
     }): SpellValue {
-        const power = (store.getState().game.stats as any)[key] || 0;
+        const stats: PlayerStats = store.getState().game.stats;
+        const statValue = stats[key];
+        const power = typeof statValue === "number" ? statValue : 0;
         // Value based on base + scaled percentage of base from power + flat percent of power
         const scaled = base + base * (power / 100) + power / 10;
         // Check for crit

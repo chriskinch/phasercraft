@@ -1,5 +1,6 @@
 import Spell from "./Spell";
 import type { SpellOptions } from "@/types/game";
+import type Enemy from "@entities/Enemy/Enemy";
 
 class Smite extends Spell {
     public type: string;
@@ -30,7 +31,7 @@ class Smite extends Spell {
         this.scene.events[state]("pointerdown:player", this.clearSpell, this);
     }
 
-    effect(target: any): void {
+    effect(target: Enemy): void {
         // Returns crit boolean and modified value using spell base value.
         const value = this.setValue({ base: 30, key: "magic_power" });
         const heal = this.setValue({ base: 15, key: "magic_power" });

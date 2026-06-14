@@ -1,5 +1,12 @@
 import { GameObjects, Physics, Scene } from "phaser";
+import type Enemy from "@entities/Enemy/Enemy";
+import type Player from "@entities/Player/Player";
+import type { ArcadeCollisionObject } from "@/types/game";
 import type { GameSceneLike } from "@/types/scene";
+
+// The objects this area effect overlaps with: the player and active enemies.
+// Both carry a custom `uuid`; `name` is the Phaser GameObject name.
+type OverlapTarget = Player | Enemy;
 
 class AreaEffect extends GameObjects.Sprite {
     public body: Physics.Arcade.Body;
@@ -45,10 +52,10 @@ class AreaEffect extends GameObjects.Sprite {
         );
     }
 
-    // `target` is the Arcade overlap callback arg (a colliding GameObject with
-    // custom `name`/`uuid`); kept as `any` to match the established collider-
-    // callback house style. Typed uniformly in the #308 "eliminate any" pass.
-    overlap(target: any): void {
+    // Arcade overlap callback. The bodies registered above are the player and
+    // active enemies, so the colliding object is a Player or Enemy.
+    overlap(object: ArcadeCollisionObject): void {
+        const target = object as OverlapTarget;
         const type = target.name === "player" ? "player" : "enemy";
         // Non-null assertion preserves the JS behavior: timestamps is only
         // deleted immediately before destroy(), after which overlap() (a
@@ -57,9 +64,9 @@ class AreaEffect extends GameObjects.Sprite {
         this.emit(`${type}:area:overlap`, target);
     }
 
-    // `target`: Arcade overlap process-callback arg; `any` per the collider-
-    // callback house style, typed uniformly in the #308 "eliminate any" pass.
-    throttle(target: any): boolean {
+    // Arcade overlap process-callback. Same Player|Enemy target as overlap().
+    throttle(object: ArcadeCollisionObject): boolean {
+        const target = object as OverlapTarget;
         return this.timestamps![target.uuid]
             ? this.scene.game.getTime() - this.timestamps![target.uuid] > 1000
             : !this.timestamps![target.uuid];

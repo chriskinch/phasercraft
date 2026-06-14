@@ -64,7 +64,12 @@ const LootListDrag: React.FC<LootListDragProps> = ({ cols = 6, list, name }) => 
         });
 
         return (
-            <div ref={drag as any} className={isDragging ? "dragging" : ""}>
+            <div
+                ref={(node) => {
+                    drag(node);
+                }}
+                className={isDragging ? "dragging" : ""}
+            >
                 <Loot
                     loot={props.loot}
                     isSelected={props.isSelected}
@@ -86,7 +91,12 @@ const LootListDrag: React.FC<LootListDragProps> = ({ cols = 6, list, name }) => 
     });
 
     return (
-        <div ref={drop as any} className="loot-grid">
+        <div
+            ref={(node) => {
+                drop(node);
+            }}
+            className="loot-grid"
+        >
             {list &&
                 list.map((loot, i) => {
                     // Check for matching selected uuid

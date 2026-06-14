@@ -1,8 +1,12 @@
 import Spell from "./Spell";
 import type { SpellOptions } from "@/types/game";
 import type Enemy from "@entities/Enemy/Enemy";
+import type { EffectValue } from "@entities/UI/StatusEffects";
 
+// Index signature lets the concrete stat-modifier map satisfy the
+// `Record<string, EffectValue>` that StatusEffects (Boons/Banes) consumes.
 interface FrostboltValue {
+    [key: string]: EffectValue;
     speed: (baseSpeed: number) => number;
 }
 
@@ -46,7 +50,7 @@ class Frostbolt extends Spell {
         this.scene.events[state]("pointerdown:player", this.clearSpell, this);
     }
 
-    effect(target: any): void {
+    effect(target: Enemy): void {
         // Returns crit boolean and modified value using spell base value.
         const value = this.setValue({ base: 35, key: "magic_power" });
         target.health.adjustValue(-value.amount, this.type, value.crit);

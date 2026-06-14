@@ -1,6 +1,7 @@
 import Spell from "./Spell";
 import targetVector from "@helpers/targetVector";
-import type { SpellOptions, EnemyOptions } from "@/types/game";
+import type { SpellOptions } from "@/types/game";
+import type Enemy from "@entities/Enemy/Enemy";
 import type { GameSceneLike } from "@/types/scene";
 class Whirlwind extends Spell {
     public type: string;
@@ -36,16 +37,16 @@ class Whirlwind extends Spell {
         if (state === "on") this.castSpell(this.player);
     }
 
-    effect(target: any): void {
+    effect(target: Enemy): void {
         const enemiesInRange = (
-            (this.scene as GameSceneLike).enemies.children.entries as unknown as EnemyOptions[]
+            (this.scene as GameSceneLike).enemies.children.entries as unknown as Enemy[]
         )
-            .filter((enemy: EnemyOptions) => {
-                enemy.vector = targetVector(this.player as any, enemy as any);
+            .filter((enemy: Enemy) => {
+                enemy.vector = targetVector(this.player, enemy);
                 if (enemy?.vector?.range && enemy.vector.range < this.range) return enemy;
                 return null;
             })
-            .sort(function (a: EnemyOptions, b: EnemyOptions) {
+            .sort(function (a: Enemy, b: Enemy) {
                 return (a.vector?.range ?? 0) - (b.vector?.range ?? 0);
             });
 
@@ -55,14 +56,14 @@ class Whirlwind extends Spell {
         // Scales value bases on player stat.
         const value = this.setValue({ base: 30, key: "attack_power" });
 
-        enemiesInRange.forEach((target: any) => {
+        enemiesInRange.forEach((target: Enemy) => {
             if (target && target.health) {
                 target.health.adjustValue(-value.amount * mod, this.type, value.crit);
             }
         });
     }
 
-    powerCap(enemies: EnemyOptions[]): number {
+    powerCap(enemies: Enemy[]): number {
         const split = enemies.length < this.cap ? this.cap : enemies.length;
         const spread = this.cap / split;
         return spread;

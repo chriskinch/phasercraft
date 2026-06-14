@@ -1,6 +1,7 @@
 import Spell from "./Spell";
 import AreaEffect from "../Weapons/AreaEffect";
 import type { SpellOptions } from "@/types/game";
+import type Enemy from "@entities/Enemy/Enemy";
 
 class Consecration extends Spell {
     public type: string;
@@ -52,7 +53,7 @@ class Consecration extends Spell {
         this.item.on("player:area:overlap", this.playerEffect, this);
     }
 
-    effect(target?: any): void {
+    effect(target?: Enemy): void {
         if (target?.body) {
             // Scales value bases on player stat.
             const value = this.setValue({ base: 3, key: "magic_power" });

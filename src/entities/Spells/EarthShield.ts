@@ -1,5 +1,5 @@
 import Spell from "./Spell";
-import type { SpellOptions } from "@/types/game";
+import type { SpellOptions, ArcadeCollisionObject } from "@/types/game";
 import type Enemy from "@entities/Enemy/Enemy";
 import type { Types, Physics } from "phaser";
 import type { GameSceneLike } from "@/types/scene";
@@ -105,7 +105,9 @@ class EarthShield extends Spell {
         this.setScale(1);
     }
 
-    touch(enemy: any): void {
+    // Arcade collide callback against `active_enemies`, so the object is an Enemy.
+    touch(object: ArcadeCollisionObject): void {
+        const enemy = object as Enemy;
         if (this.ready) {
             // The actual hit.
             const value = this.setValue({ base: 10, key: "magic_power" });

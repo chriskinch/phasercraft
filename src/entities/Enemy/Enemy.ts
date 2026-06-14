@@ -6,7 +6,13 @@ import Coin from "@entities/Loot/Coin";
 import Crafting from "@entities/Loot/Crafting";
 import Gem from "@entities/Loot/Gem";
 import Banes from "@entities/UI/Banes";
-import type { EnemyOptions, EnemyAttributes, LootTable, TargetType } from "@/types/game";
+import type {
+    EnemyOptions,
+    EnemyAttributes,
+    LootTable,
+    TargetType,
+    EntityWithVector,
+} from "@/types/game";
 import type { GameSceneLike } from "@/types/scene";
 
 interface EnemyStats extends EnemyAttributes {
@@ -71,6 +77,8 @@ class Enemy extends GameObjects.Container {
     public swing: Phaser.Time.TimerEvent | null = null;
     public collider: Physics.Arcade.Collider;
     public body: Physics.Arcade.Body;
+    // Transient targeting vector cached by the Whirlwind/Multishot range scans.
+    public vector?: EntityWithVector;
 
     constructor(config: EnemyOptions) {
         super(config.scene, config.x, config.y - 300);

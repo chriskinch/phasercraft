@@ -29,7 +29,9 @@ const DroppableSlot: React.FC<DroppableSlotProps> = ({ loot, slot, unequipLoot }
 
     return (
         <div
-            ref={drop as any}
+            ref={(node) => {
+                drop(node);
+            }}
             className={"droppable-slot"}
             onClick={() => loot && unequipLoot(loot)}
         >

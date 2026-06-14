@@ -16,14 +16,24 @@ import type { RootState } from "@store";
 
 export const MenuContext = createContext<string>("character");
 
+// The menu registry stores components with differing prop contracts and renders
+// the active one by spreading its (optional) `props`. A common prop-erased
+// component type lets the heterogeneous components share one registry entry.
+type MenuComponent = React.ComponentType<Record<string, unknown>>;
+
 interface MenuConfig {
-    component: React.ComponentType<any>;
+    component: MenuComponent;
     title: string;
     navigation?: boolean;
     props?: Record<string, unknown>;
     close?: boolean;
     type?: string;
 }
+
+// The concrete components declare their own prop shapes; the registry treats
+// them uniformly, so each is widened to the shared MenuComponent type.
+const asMenuComponent = <P,>(component: React.ComponentType<P>): MenuComponent =>
+    component as unknown as MenuComponent;
 
 const UI: React.FC = () => {
     const dispatch = useDispatch();
@@ -37,41 +47,41 @@ const UI: React.FC = () => {
 
     const config: Record<string, MenuConfig> = {
         arcanum: {
-            component: Arcanum,
+            component: asMenuComponent(Arcanum),
             title: "Arcanum",
             navigation: true,
         },
         armory: {
-            component: Armory,
+            component: asMenuComponent(Armory),
             title: "Armory",
             navigation: true,
         },
         character: {
-            component: Character,
+            component: asMenuComponent(Character),
             title: "Character",
             navigation: true,
         },
         equipment: {
-            component: Equipment,
+            component: asMenuComponent(Equipment),
             title: "Equipment",
             navigation: true,
         },
         load: {
-            component: Save,
+            component: asMenuComponent(Save),
             title: "Load Game",
             props: { load: true },
             close: true,
         },
         save: {
-            component: Save,
+            component: asMenuComponent(Save),
             title: "Pick a Game Save",
         },
         select: {
-            component: CharacterSelect,
+            component: asMenuComponent(CharacterSelect),
             title: "Character Select",
         },
         system: {
-            component: System,
+            component: asMenuComponent(System),
             title: "System",
             close: true,
         },

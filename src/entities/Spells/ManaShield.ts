@@ -1,5 +1,6 @@
 import Spell from "./Spell";
 import type { SpellOptions } from "@/types/game";
+import type Player from "@entities/Player/Player";
 
 class ManaShield extends Spell {
     public type: string;
@@ -32,7 +33,7 @@ class ManaShield extends Spell {
         this.scene.events[state]("pointerdown:enemy", this.clearSpell, this);
     }
 
-    effect(target: any): void {
+    effect(target: Player): void {
         this.setVisible(true);
         // Scales value bases on player stat
         const value = this.setValue({ base: 130, key: "magic_power" });

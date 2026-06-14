@@ -35,7 +35,7 @@ const Equipment: React.FC = () => {
                         value={stats.resource_max || 0}
                     />
                 </div>
-                <GroupedAttributes stats={stats as any} />
+                <GroupedAttributes stats={stats} />
             </section>
             <section className="equipment-section">
                 <DroppableSlot slot="helm" loot={helm} />

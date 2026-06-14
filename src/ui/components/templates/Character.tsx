@@ -38,7 +38,7 @@ const Character: React.FC = () => {
                         value={stats.resource_max || 0}
                     />
                 </div>
-                <GroupedAttributes stats={stats as any} />
+                <GroupedAttributes stats={stats} />
             </section>
             <section className="equipment-display">
                 <Slot

@@ -1,5 +1,6 @@
 import { GameObjects, Physics, Scene, Time, Types } from "phaser";
 import { dropIn } from "@helpers/spawnStyle";
+import type { ArcadeCollisionObject } from "@/types/game";
 import type { GameSceneLike } from "@/types/scene";
 
 class Trap extends GameObjects.Sprite {
@@ -36,11 +37,13 @@ class Trap extends GameObjects.Sprite {
         this.once(GameObjects.Events.DESTROY, this.cleanup, this);
     }
 
-    // `target` is the Arcade collide callback arg (a colliding GameObject with
-    // a custom `spawned` flag); kept as `any` to match the established collider-
-    // callback house style. Typed uniformly in the #308 "eliminate any" pass.
-    collide(target: any): void {
-        if (target.spawned) {
+    // Arcade collide callback. Phaser types each colliding object as
+    // `GameObjectWithBody | Tile`. The original JS reads a `spawned` flag off the
+    // target before emitting; preserved exactly (no shipped colliding object
+    // actually sets `spawned`, so this guard is effectively always falsy — a
+    // pre-existing quirk left untouched per the "preserve & flag" rule).
+    collide(target: ArcadeCollisionObject): void {
+        if ((target as { spawned?: boolean }).spawned) {
             this.emit("trap:collide", target);
             this.destroy();
         }
