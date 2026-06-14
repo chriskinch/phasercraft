@@ -87,3 +87,134 @@ describe("Spell.cleanup", () => {
         );
     });
 });
+
+// Cooldown + resource affordability checks (issue #309). These are pure
+// predicate methods plus the enable/disable routing in onResourceChangeHandler.
+// Seam: a constructor-free fake whose player.resource.getValue() and
+// cooldownTimer.getValue() are stubbed. For onResourceChangeHandler we spy on
+// enableSpell/disableSpell to assert the routing without touching button render.
+interface CooldownTimerStub {
+    getValue: ReturnType<typeof vi.fn>;
+}
+
+interface SpellCheckUnderTest {
+    typedCost: number;
+    cooldown: number;
+    cooldownTimer?: CooldownTimerStub;
+    player: { resource: { getValue: ReturnType<typeof vi.fn> } };
+    enableSpell: ReturnType<typeof vi.fn>;
+    disableSpell: ReturnType<typeof vi.fn>;
+    checkResource(): boolean;
+    checkCooldown(): boolean;
+    checkReady(): boolean;
+    onResourceChangeHandler(): void;
+}
+
+function makeCheckSpell(
+    opts: { typedCost?: number; cooldown?: number; resourceValue?: number } = {}
+): SpellCheckUnderTest {
+    const spell = Object.create(Spell.prototype) as SpellCheckUnderTest;
+    spell.typedCost = opts.typedCost ?? 10;
+    spell.cooldown = opts.cooldown ?? 5;
+    spell.player = {
+        resource: { getValue: vi.fn(() => opts.resourceValue ?? 100) },
+    };
+    spell.enableSpell = vi.fn();
+    spell.disableSpell = vi.fn();
+    return spell;
+}
+
+describe("Spell.checkResource", () => {
+    it("is true when the resource covers the cost", () => {
+        const spell = makeCheckSpell({ typedCost: 20, resourceValue: 50 });
+
+        expect(spell.checkResource()).toBe(true);
+    });
+
+    it("is true when the resource exactly equals the cost", () => {
+        const spell = makeCheckSpell({ typedCost: 50, resourceValue: 50 });
+
+        expect(spell.checkResource()).toBe(true);
+    });
+
+    it("is false when the resource is below the cost", () => {
+        const spell = makeCheckSpell({ typedCost: 60, resourceValue: 50 });
+
+        expect(spell.checkResource()).toBe(false);
+    });
+});
+
+describe("Spell.checkCooldown", () => {
+    it("is ready when no cooldown timer has been created", () => {
+        const spell = makeCheckSpell();
+        spell.cooldownTimer = undefined;
+
+        expect(spell.checkCooldown()).toBe(true);
+    });
+
+    it("is ready when the timer value is falsy (counter at zero)", () => {
+        const spell = makeCheckSpell();
+        spell.cooldownTimer = { getValue: vi.fn(() => 0) };
+
+        expect(spell.checkCooldown()).toBe(true);
+    });
+
+    it("is ready when the counter has reached the full cooldown", () => {
+        const spell = makeCheckSpell({ cooldown: 5 });
+        spell.cooldownTimer = { getValue: vi.fn(() => 5) };
+
+        expect(spell.checkCooldown()).toBe(true);
+    });
+
+    it("is not ready while the counter is mid-cooldown", () => {
+        const spell = makeCheckSpell({ cooldown: 5 });
+        spell.cooldownTimer = { getValue: vi.fn(() => 2) };
+
+        expect(spell.checkCooldown()).toBe(false);
+    });
+});
+
+describe("Spell.checkReady", () => {
+    it("is ready only when resource and cooldown both pass", () => {
+        const spell = makeCheckSpell({ typedCost: 10, resourceValue: 50 });
+        spell.cooldownTimer = undefined;
+
+        expect(spell.checkReady()).toBe(true);
+    });
+
+    it("is not ready when the resource is insufficient even off cooldown", () => {
+        const spell = makeCheckSpell({ typedCost: 80, resourceValue: 50 });
+        spell.cooldownTimer = undefined;
+
+        expect(spell.checkReady()).toBe(false);
+    });
+
+    it("is not ready when affordable but still on cooldown", () => {
+        const spell = makeCheckSpell({ typedCost: 10, cooldown: 5, resourceValue: 50 });
+        spell.cooldownTimer = { getValue: vi.fn(() => 2) };
+
+        expect(spell.checkReady()).toBe(false);
+    });
+});
+
+describe("Spell.onResourceChangeHandler", () => {
+    it("enables the spell when it becomes ready", () => {
+        const spell = makeCheckSpell({ typedCost: 10, resourceValue: 50 });
+        spell.cooldownTimer = undefined;
+
+        spell.onResourceChangeHandler();
+
+        expect(spell.enableSpell).toHaveBeenCalledTimes(1);
+        expect(spell.disableSpell).not.toHaveBeenCalled();
+    });
+
+    it("disables the spell when it is not ready", () => {
+        const spell = makeCheckSpell({ typedCost: 80, resourceValue: 50 });
+        spell.cooldownTimer = undefined;
+
+        spell.onResourceChangeHandler();
+
+        expect(spell.disableSpell).toHaveBeenCalledWith("resource change");
+        expect(spell.enableSpell).not.toHaveBeenCalled();
+    });
+});
