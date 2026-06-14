@@ -45,6 +45,9 @@ class AreaEffect extends GameObjects.Sprite {
         );
     }
 
+    // `target` is the Arcade overlap callback arg (a colliding GameObject with
+    // custom `name`/`uuid`); kept as `any` to match the established collider-
+    // callback house style. Typed uniformly in the #308 "eliminate any" pass.
     overlap(target: any): void {
         const type = target.name === "player" ? "player" : "enemy";
         // Non-null assertion preserves the JS behavior: timestamps is only
@@ -54,6 +57,8 @@ class AreaEffect extends GameObjects.Sprite {
         this.emit(`${type}:area:overlap`, target);
     }
 
+    // `target`: Arcade overlap process-callback arg; `any` per the collider-
+    // callback house style, typed uniformly in the #308 "eliminate any" pass.
     throttle(target: any): boolean {
         return this.timestamps![target.uuid]
             ? this.scene.game.getTime() - this.timestamps![target.uuid] > 1000

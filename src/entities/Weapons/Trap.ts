@@ -36,6 +36,9 @@ class Trap extends GameObjects.Sprite {
         this.once(GameObjects.Events.DESTROY, this.cleanup, this);
     }
 
+    // `target` is the Arcade collide callback arg (a colliding GameObject with
+    // a custom `spawned` flag); kept as `any` to match the established collider-
+    // callback house style. Typed uniformly in the #308 "eliminate any" pass.
     collide(target: any): void {
         if (target.spawned) {
             this.emit("trap:collide", target);
