@@ -25,39 +25,35 @@ const PhaserGame = () => {
             gameContainer.innerHTML = "";
         }
 
-        // Add a small delay to ensure DOM is ready
-        const createGame = () => {
-            const config = {
-                type: AUTO,
-                width: window.outerWidth,
-                height: window.outerHeight,
-                backgroundColor: "#6e9c48",
-                parent: "phaser-game",
-                physics: {
-                    default: "arcade",
-                    arcade: {
-                        debug: true,
-                        gravity: {
-                            x: 0,
-                            y: 0,
-                        },
+        const config = {
+            type: AUTO,
+            width: window.outerWidth,
+            height: window.outerHeight,
+            backgroundColor: "#6e9c48",
+            parent: "phaser-game",
+            physics: {
+                default: "arcade",
+                arcade: {
+                    debug: true,
+                    gravity: {
+                        x: 0,
+                        y: 0,
                     },
                 },
-                scene: [LoadScene, SelectScene, TownScene, GameScene, GameOverScene],
-                pixelArt: true,
-                antialias: false,
-                fullscreen: true,
-            };
-
-            gameRef.current = new Game(config);
+            },
+            scene: [LoadScene, SelectScene, TownScene, GameScene, GameOverScene],
+            pixelArt: true,
+            antialias: false,
+            fullscreen: true,
         };
 
-        // Use a timeout to ensure DOM is fully ready
-        const timeoutId = setTimeout(createGame, 100);
+        // The #phaser-game parent is rendered by this component and useEffect runs
+        // after the DOM is committed, so the container already exists — create the
+        // game synchronously rather than racing it behind a setTimeout.
+        gameRef.current = new Game(config);
 
         // Cleanup function for when component unmounts or hot reloads
         return () => {
-            clearTimeout(timeoutId);
             if (gameRef.current) {
                 console.log("Cleaning up Phaser game instance...");
                 gameRef.current.destroy(true, false);
