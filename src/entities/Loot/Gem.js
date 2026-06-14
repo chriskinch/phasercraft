@@ -15,15 +15,32 @@ class Gem extends GameObjects.Sprite {
         this.body.setVelocity(getRandomVelocity(35, 70), getRandomVelocity(35, 70)).setDrag(100);
         this.body.immovable = true;
 
-        this.scene.time.delayedCall(500, this.activate, [], this);
+        this.activateTimer = this.scene.time.delayedCall(500, this.activate, [], this);
         this.once("loot:collect", this.collect, this);
 
         const color = new Display.Color().random(100);
         this.setScale(0.5).setTint(color.color);
+
+        // Lifecycle: the activate timer and the player collider outlive a plain
+        // destroy (the gem's own "loot:collect" listener is removed by Phaser).
+        // Stale colliders are harmless no-ops but accumulate during a run, so
+        // release both when the gem is destroyed (collected, or on shutdown).
+        this.once(GameObjects.Events.DESTROY, this.cleanup, this);
     }
 
     activate() {
-        this.scene.physics.add.collider(this.scene.player, this, this.touch, null, this);
+        this.collider = this.scene.physics.add.collider(
+            this.scene.player,
+            this,
+            this.touch,
+            null,
+            this
+        );
+    }
+
+    cleanup() {
+        if (this.activateTimer) this.activateTimer.remove();
+        if (this.collider) this.scene.physics.world.removeCollider(this.collider);
     }
 
     touch() {
