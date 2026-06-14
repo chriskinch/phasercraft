@@ -1,7 +1,11 @@
 import Boon from "./Boon";
 import type { SpellOptions } from "@/types/game";
+import type { EffectValue } from "@entities/UI/StatusEffects";
 
+// Index signature lets the concrete stat-modifier map satisfy the
+// `Record<string, EffectValue>` that StatusEffects (Boons/Banes) consumes.
 interface InvocationValue {
+    [key: string]: EffectValue;
     resource_regen_value: (baseRegenValue: number) => number;
     resource_regen_rate: number;
 }

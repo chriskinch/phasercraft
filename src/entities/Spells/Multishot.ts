@@ -1,6 +1,8 @@
+import { GameObjects } from "phaser";
 import Spell from "./Spell";
 import targetVector from "@helpers/targetVector";
-import type { SpellOptions, EntityWithVector, EnemyOptions } from "@/types/game";
+import type { SpellOptions } from "@/types/game";
+import type Enemy from "@entities/Enemy/Enemy";
 import type { GameSceneLike } from "@/types/scene";
 
 class Multishot extends Spell {
@@ -35,7 +37,7 @@ class Multishot extends Spell {
         if (state === "on") this.castSpell(this.player);
     }
 
-    effect(target?: any): void {
+    effect(target?: Enemy): void {
         // Scales value bases on player stat.
         if (target) {
             const value = this.setValue({ base: 30, key: "attack_power" });
@@ -44,20 +46,20 @@ class Multishot extends Spell {
     }
 
     startAnimation(): void {
-        const enemiesInRange: EnemyOptions[] = (
-            (this.scene as GameSceneLike).enemies.children.entries as unknown as EnemyOptions[]
+        const enemiesInRange: Enemy[] = (
+            (this.scene as GameSceneLike).enemies.children.entries as unknown as Enemy[]
         )
-            .filter((enemy: EnemyOptions) => {
-                enemy.vector = targetVector(this.player as any, enemy as any);
+            .filter((enemy: Enemy) => {
+                enemy.vector = targetVector(this.player, enemy);
                 if ((enemy.vector?.range ?? 0) < this.range) return enemy;
                 return null;
             })
-            .sort(function (a: EnemyOptions, b: EnemyOptions) {
+            .sort(function (a: Enemy, b: Enemy) {
                 return (a.vector?.range ?? 0) - (b.vector?.range ?? 0);
             })
             .slice(0, this.cap);
 
-        enemiesInRange.forEach((enemy: EnemyOptions) => {
+        enemiesInRange.forEach((enemy: Enemy) => {
             this.target = enemy;
             this.effect(enemy);
 
@@ -69,7 +71,7 @@ class Multishot extends Spell {
         });
     }
 
-    updateAnimation(effect: any, target: any): void {
+    updateAnimation(effect: GameObjects.Sprite, target: Enemy): void {
         effect.x = target.x;
         effect.y = target.y;
     }

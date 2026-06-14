@@ -1,5 +1,6 @@
 import Spell from "./Spell";
 import type { SpellOptions } from "@/types/game";
+import type Player from "@entities/Player/Player";
 
 class Faith extends Spell {
     public frequency: number;
@@ -40,7 +41,7 @@ class Faith extends Spell {
         this.scene.events[state]("pointerdown:enemy", this.clearSpell, this);
     }
 
-    effect(target: any): void {
+    effect(target: Player): void {
         const timer_config = {
             delay: this.frequency * 1000,
             repeat: Math.round(this.duration / this.frequency) - 1,
@@ -53,7 +54,7 @@ class Faith extends Spell {
         target.health.adjustValue(value.amount, this.type, false);
     }
 
-    overTimeEffect(target: any): void {
+    overTimeEffect(target: Player): void {
         // Scales value bases on player stat
         const value = this.setValue({ base: 20, key: "magic_power" });
         target.health.adjustValue(value.amount, this.type, value.crit);

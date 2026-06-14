@@ -31,8 +31,9 @@ class SiphonSoul extends Spell {
 
         super({ ...defaults, ...config });
 
-        // This is what the spell scales from.
-        this.power = this.player.stats.magic_power / 10;
+        // This is what the spell scales from. Player stats always include
+        // magic_power; the `?? 0` only satisfies the optional type.
+        this.power = (this.player.stats.magic_power ?? 0) / 10;
         this.deathZone = new Phaser.Geom.Circle(this.player.x, this.player.y, 20);
         this.particleDuration = this.duration + this.cooldown;
     }
@@ -46,7 +47,7 @@ class SiphonSoul extends Spell {
         this.scene.events[state]("pointerdown:player", this.clearSpell, this);
     }
 
-    effect(target: any): void {
+    effect(target: Enemy): void {
         // Root the target in place.
         target.body.setMaxVelocity(0, 0);
         target.monster.anims.pause();

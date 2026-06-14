@@ -1,12 +1,14 @@
 import React from "react";
 import { selectCharacter } from "@store/gameReducer";
 import { connect } from "react-redux";
+import type { PlayerName } from "@entities/Player/AssignClass";
 
 import Button from "../atoms/Button";
 
 interface CharacterCardProps {
-    selectCharacter: any;
-    type: string;
+    // Injected by `connect`'s mapDispatchToProps; dispatches the selectCharacter action.
+    selectCharacter: (character: PlayerName) => void;
+    type: PlayerName;
 }
 
 const CharacterCard: React.FC<CharacterCardProps> = ({ selectCharacter, type }) => {

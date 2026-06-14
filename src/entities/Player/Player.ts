@@ -55,6 +55,8 @@ class Player extends GameObjects.Container {
     public attack_delay: Phaser.Time.TimerEvent | null;
     public swing: Phaser.Time.TimerEvent | null = null;
     public body: Physics.Arcade.Body;
+    // Set/reset by each Spell to clear the previously primed spell (see Spell).
+    public clearLastPrimedSpell: () => void;
 
     constructor({
         scene,

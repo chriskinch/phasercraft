@@ -74,7 +74,7 @@ const Save: React.FC<SaveProps> = ({ load = false }) => {
                                     <Button
                                         text={"Load"}
                                         onClick={() => {
-                                            dispatch(loadGame(save.game as any));
+                                            dispatch(loadGame(save.game));
                                             if (character) dispatch(selectCharacter(character));
                                         }}
                                     />

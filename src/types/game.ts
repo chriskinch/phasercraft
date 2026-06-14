@@ -1,7 +1,16 @@
-import type { Scene, GameObjects, Math as PhaserMath } from "phaser";
+import type { Scene, GameObjects, Math as PhaserMath, Types, Physics, Tilemaps } from "phaser";
 import type Player from "@entities/Player/Player";
 import type Enemy from "@entities/Enemy/Enemy";
 import type { SpellType } from "@entities/Spells/AssignSpell";
+
+// The object Arcade physics passes to collide/overlap callbacks. Mirrors the
+// union in `Phaser.Types.Physics.Arcade.ArcadePhysicsCallback`; callbacks accept
+// this (so they satisfy the callback signature) then narrow to the real entity.
+export type ArcadeCollisionObject =
+    | Types.Physics.Arcade.GameObjectWithBody
+    | Physics.Arcade.Body
+    | Physics.Arcade.StaticBody
+    | Tilemaps.Tile;
 
 // Constants
 export const EQUIPMENT_SLOTS = {
@@ -292,7 +301,9 @@ export interface SpellOptions {
     x: number;
     y: number;
     key: string;
-    player: Player | Enemy;
+    // Every spell is created by the Player (see Player's ability map). The spell
+    // reads Player-only members, so the owner is modelled as a Player.
+    player: Player;
     cost?: { [key: string]: number };
     cooldown?: number;
     name?: string;
