@@ -1,4 +1,25 @@
-export function dropIn(name, item, offset, { gravity = 200, bounce = 0.3, immovable = true }) {
+import type { GameObjects, Physics } from "phaser";
+
+interface DropInOptions {
+    gravity?: number;
+    bounce?: number;
+    immovable?: boolean;
+}
+
+// The item dropped in is a physics-enabled Sprite that also tracks whether it
+// has settled (`spawned`). Typed structurally so the helper stays decoupled
+// from any specific entity (currently only Trap uses it).
+type DropInItem = GameObjects.Sprite & {
+    body: Physics.Arcade.Body;
+    spawned?: boolean;
+};
+
+export function dropIn(
+    name: string,
+    item: DropInItem,
+    offset: number,
+    { gravity = 200, bounce = 0.3, immovable = true }: DropInOptions
+): void {
     item.body.setFriction(0, 0).setDrag(0).setGravityY(gravity).setBounce(bounce);
 
     const spawn_stop = item.scene.physics.add.staticImage(item.x, offset, "blank-gif");
