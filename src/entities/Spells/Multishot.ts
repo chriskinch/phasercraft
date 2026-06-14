@@ -1,6 +1,7 @@
 import Spell from "./Spell";
 import targetVector from "@helpers/targetVector";
 import type { SpellOptions, EntityWithVector, EnemyOptions } from "@/types/game";
+import type { GameSceneLike } from "@/types/scene";
 
 class Multishot extends Spell {
     public type: string;
@@ -43,7 +44,9 @@ class Multishot extends Spell {
     }
 
     startAnimation(): void {
-        const enemiesInRange: EnemyOptions[] = (this.scene as any).enemies.children.entries
+        const enemiesInRange: EnemyOptions[] = (
+            (this.scene as GameSceneLike).enemies.children.entries as unknown as EnemyOptions[]
+        )
             .filter((enemy: EnemyOptions) => {
                 enemy.vector = targetVector(this.player as any, enemy as any);
                 if ((enemy.vector?.range ?? 0) < this.range) return enemy;

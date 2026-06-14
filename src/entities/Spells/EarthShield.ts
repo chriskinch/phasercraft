@@ -2,7 +2,7 @@ import Spell from "./Spell";
 import type { SpellOptions } from "@/types/game";
 import type Enemy from "@entities/Enemy/Enemy";
 import type { Types, Physics } from "phaser";
-import type GameScene from "@scenes/GameScene";
+import type { GameSceneLike } from "@/types/scene";
 
 class EarthShield extends Spell {
     public type: string;
@@ -64,7 +64,7 @@ class EarthShield extends Spell {
         this.body.setOffset(40, 20); //TODO: Must be a better way!?
         this.body.immovable = true;
         this.scene.physics.add.collider(
-            (this.scene as GameScene).active_enemies,
+            (this.scene as GameSceneLike).active_enemies,
             this,
             this.touch,
             undefined,

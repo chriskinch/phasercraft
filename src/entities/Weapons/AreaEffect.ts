@@ -1,5 +1,5 @@
 import { GameObjects, Physics, Scene } from "phaser";
-import type GameScene from "@scenes/GameScene";
+import type { GameSceneLike } from "@/types/scene";
 
 class AreaEffect extends GameObjects.Sprite {
     public body: Physics.Arcade.Body;
@@ -11,14 +11,14 @@ class AreaEffect extends GameObjects.Sprite {
         scene.add.existing(this);
 
         this.scene.physics.add.overlap(
-            (this.scene as GameScene).active_enemies,
+            (this.scene as GameSceneLike).active_enemies,
             this,
             this.overlap,
             this.throttle,
             this
         );
         this.scene.physics.add.overlap(
-            (this.scene as GameScene).player,
+            (this.scene as GameSceneLike).player,
             this,
             this.overlap,
             this.throttle,

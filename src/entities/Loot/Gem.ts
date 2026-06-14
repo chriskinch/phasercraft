@@ -3,7 +3,7 @@ import store from "@store";
 import { addCoins } from "@store/gameReducer";
 import getRandomVelocity from "@helpers/getRandomVelocity";
 import random from "lodash/random";
-import type GameScene from "@scenes/GameScene";
+import type { GameSceneLike } from "@/types/scene";
 
 interface GemConfig {
     scene: Scene;
@@ -19,7 +19,7 @@ class Gem extends GameObjects.Sprite {
     constructor(config: GemConfig) {
         super(config.scene, config.x, config.y, "gem-shine");
         config.scene.physics.world.enable(this);
-        config.scene.add.existing(this).setDepth((this.scene as GameScene).depth_group.UI);
+        config.scene.add.existing(this).setDepth((this.scene as GameSceneLike).depth_group.UI);
 
         this.anims.playAfterDelay("gem", random(1000, 2000));
         this.body.setVelocity(getRandomVelocity(35, 70), getRandomVelocity(35, 70)).setDrag(100);
@@ -40,7 +40,7 @@ class Gem extends GameObjects.Sprite {
 
     activate(): void {
         this.collider = this.scene.physics.add.collider(
-            (this.scene as GameScene).player,
+            (this.scene as GameSceneLike).player,
             this,
             this.touch,
             undefined,

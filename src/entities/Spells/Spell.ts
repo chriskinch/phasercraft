@@ -1,7 +1,8 @@
-import { GameObjects, Display, Scene, Scenes } from "phaser";
+import { GameObjects, Display, Scenes } from "phaser";
 import store from "@store";
 import type { SpellOptions, TargetType } from "@/types/game";
 import type Player from "@entities/Player/Player";
+import type { GameSceneLike } from "@/types/scene";
 
 interface SpellValue {
     crit: boolean;
@@ -208,7 +209,7 @@ class Spell extends GameObjects.Sprite {
         const button = this.scene.add
             .sprite(0, 0, "icon", this.icon_name)
             .setInteractive()
-            .setDepth((this.scene as Scene & { depth_group: { UI: number } }).depth_group.UI)
+            .setDepth((this.scene as GameSceneLike).depth_group.UI)
             .setAlpha(0.4)
             .setScale(1.5)
             .setScrollFactor(0);
@@ -221,13 +222,10 @@ class Spell extends GameObjects.Sprite {
         const text = this.scene.add
             .text(-2, -2, this.cooldown.toString(), styles)
             .setOrigin(0.5)
-            .setDepth((this.scene as Scene & { depth_group: { UI: number } }).depth_group.UI)
+            .setDepth((this.scene as GameSceneLike).depth_group.UI)
             .setVisible(false);
 
-        Display.Align.In.BottomLeft(
-            button,
-            (this.scene as Scene & { UI: { frames: GameObjects.Sprite[] } }).UI.frames[this.slot]
-        );
+        Display.Align.In.BottomLeft(button, (this.scene as GameSceneLike).UI.frames[this.slot]);
         Display.Align.In.Center(text, button, 0, 0);
 
         return { button: button, text: text };

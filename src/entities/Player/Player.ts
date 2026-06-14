@@ -16,6 +16,7 @@ import mapStateToData from "@helpers/mapStateToData";
 import CombatText from "../UI/CombatText";
 import type { PlayerOptions, PlayerStats } from "@/types/game";
 import type Enemy from "@entities/Enemy/Enemy";
+import type { GameSceneLike } from "@/types/scene";
 
 const converter = require("number-to-words");
 interface Destination {
@@ -208,7 +209,7 @@ class Player extends GameObjects.Container {
             this.idle();
         }
 
-        if ((this.scene as Scene & { selected?: Enemy }).selected) this.goToRange();
+        if ((this.scene as GameSceneLike).selected) this.goToRange();
 
         // Self cast key
         if (keys.space.isDown) {
@@ -302,7 +303,7 @@ class Player extends GameObjects.Container {
     }
 
     goToRange(): void {
-        let target = (this.scene as Scene & { selected?: Enemy }).selected;
+        let target = (this.scene as GameSceneLike).selected;
         if (!target) return;
         this.moveToPosition(target);
         let distance = PhaserMath.Distance.Between(target.x, target.y, this.x, this.y);
@@ -315,7 +316,7 @@ class Player extends GameObjects.Container {
         } else {
             if (!this.attack_delay) {
                 this.attack_delay = this.scene.time.delayedCall(
-                    (this.scene as Scene & { global_attack_delay: number }).global_attack_delay,
+                    (this.scene as GameSceneLike).global_attack_delay,
                     this.walk,
                     [],
                     this
@@ -382,7 +383,7 @@ class Player extends GameObjects.Container {
         // 	wander: 0,
         // 	gravity: 0
         // }))
-        if (!(this.scene as Scene & { selected?: Enemy }).selected) this.idle();
+        if (!(this.scene as GameSceneLike).selected) this.idle();
     }
 
     setExperience(exp: number = store.getState().game.xp, count: number = 1): void {
