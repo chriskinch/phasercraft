@@ -1,6 +1,6 @@
-import { InMemoryCache } from "@apollo/client";
+import { InMemoryCache, type FieldReadFunction, type TypePolicies } from "@apollo/client";
 
-const qualityColors = Object.freeze({
+const qualityColors: Record<string, string> = Object.freeze({
     common: "#bbbbbb",
     fine: "#00dd00",
     rare: "#0077ff",
@@ -8,7 +8,7 @@ const qualityColors = Object.freeze({
     legendary: "#ff9900",
 });
 
-const statShortNames = Object.freeze({
+const statShortNames: Record<string, string> = Object.freeze({
     attack_power: "AP",
     attack_speed: "AS",
     critical_chance: "C",
@@ -20,7 +20,7 @@ const statShortNames = Object.freeze({
     speed: "S",
 });
 
-const adjusted = (key, value) => {
+const adjusted = (key: string | undefined, value: number): number => {
     switch (key) {
         case "attack_power":
             return value / 2;
@@ -46,8 +46,8 @@ const adjusted = (key, value) => {
     }
 };
 
-const formatted = (key, value) => {
-    let format;
+const formatted = (key: string | undefined, value: number): string | number => {
+    let format: string | number;
     switch (key) {
         // These are rounded percentages (by the way... WTF is EPSILON???)
         case "attack_speed":
@@ -62,35 +62,41 @@ const formatted = (key, value) => {
     return format;
 };
 
-export const cache = new InMemoryCache({
-    typePolicies: {
-        Item: {
-            fields: {
-                color: {
-                    read(_, { readField }) {
-                        return qualityColors[readField("quality")];
-                    },
-                },
-            },
-        },
-        Stat: {
-            fields: {
-                adjusted: {
-                    read(_, { readField }) {
-                        return adjusted(readField("name"), readField("value"));
-                    },
-                },
-                formatted: {
-                    read(_, { readField }) {
-                        return formatted(readField("name"), readField("converted"));
-                    },
-                },
-                abbreviation: {
-                    read(_, { readField }) {
-                        return statShortNames[readField("name")];
-                    },
-                },
+const colorRead: FieldReadFunction<string> = (_, { readField }) =>
+    qualityColors[readField<string>("quality") as string];
+
+const adjustedRead: FieldReadFunction<number> = (_, { readField }) =>
+    adjusted(readField<string>("name"), readField<number>("value") as number);
+
+const formattedRead: FieldReadFunction<string | number> = (_, { readField }) =>
+    formatted(readField<string>("name"), readField<number>("converted") as number);
+
+const abbreviationRead: FieldReadFunction<string> = (_, { readField }) =>
+    statShortNames[readField<string>("name") as string];
+
+const typePolicies: TypePolicies = {
+    Item: {
+        fields: {
+            color: {
+                read: colorRead,
             },
         },
     },
+    Stat: {
+        fields: {
+            adjusted: {
+                read: adjustedRead,
+            },
+            formatted: {
+                read: formattedRead,
+            },
+            abbreviation: {
+                read: abbreviationRead,
+            },
+        },
+    },
+};
+
+export const cache = new InMemoryCache({
+    typePolicies,
 });
