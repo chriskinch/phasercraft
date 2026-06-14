@@ -17,6 +17,9 @@
 /build
 /dist
 
+# agent worktrees (ephemeral, created by Claude Code agent isolation)
+/.claude/worktrees/
+
 # misc
 .DS_Store
 *.pem
