@@ -50,8 +50,8 @@ Each bullet is one small PR unless trivially related.
 - [x] `GameScene.ts:231` — replace raw `setTimeout` with a pause-aware, scene-owned timer cleaned up on shutdown
 - [x] `HUD.js` — remove keyboard listeners on shutdown; guard `JSON.parse(localStorage.getItem(...))`
 - [x] Introduce a typed, error-handled save/storage service wrapping all `localStorage` access (`HUD.js`, `Save.tsx`, `System.tsx`, `LoadScene.ts`) — with unit tests
-- [ ] `Resource.ts` — add cleanup; unsubscribe RxJS subscriptions on shutdown
-- [ ] `Gem.js`, `Trap.js`, `Spell.ts` — unregister event listeners on destroy/shutdown
+- [x] `Resource.ts` — add cleanup; unsubscribe RxJS subscriptions on shutdown
+- [x] `Gem.js`, `Trap.js`, `Spell.ts` — unregister event listeners on destroy/shutdown
 - [ ] `PhaserGame.tsx` — remove the `setTimeout(createGame, 100)` boot race; turn off arcade `debug: true` (behavior-visible: flag in PR)
 - [x] Document the resulting lifecycle conventions in `CLAUDE.md` (every entity cleans up on `SHUTDOWN`)
 
