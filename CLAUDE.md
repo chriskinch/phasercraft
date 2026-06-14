@@ -29,6 +29,9 @@ before starting work; link PRs to the relevant phase issue.
 
 - **Small, focused PRs**: one concern per PR, from a feature branch. The maintainer
   reviews and merges every PR — never merge or push to `main` directly.
+- **Open PRs without asking when you're confident** nothing needs the maintainer's
+  input: routine mechanical work may go straight to a PR. This does not relax the next
+  bullet — behavior/balance/save-format/public-API changes still require asking first.
 - **Ask on behavior, decide on mechanics.** Anything that changes runtime behavior,
   game balance, save-data format, or public APIs: stop and ask the maintainer first.
   Pure mechanics (naming, file layout, test structure, type modeling): decide,
