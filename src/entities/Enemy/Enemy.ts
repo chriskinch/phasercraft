@@ -4,7 +4,7 @@ import AssignResource, { AssignResourceType } from "@entities/Resources/AssignRe
 import Monster from "./Monster";
 import Coin from "@entities/Loot/Coin";
 import Crafting from "@entities/Loot/Crafting";
-// import Gem from "@entities/Loot/Gem"; // TODO: Create TypeScript version
+import Gem from "@entities/Loot/Gem";
 import Banes from "@entities/UI/Banes";
 import type { EnemyOptions, EnemyAttributes, LootTable, TargetType } from "@/types/game";
 
@@ -405,9 +405,7 @@ class Enemy extends GameObjects.Container {
                 case "coin":
                     return new Coin({ scene: this.scene, x: this.x, y: this.y });
                 case "gem":
-                    // return new Gem({scene:this.scene, x:this.x, y:this.y}); // TODO: Create TypeScript version
-                    console.warn("Gem loot not implemented in TypeScript yet");
-                    break;
+                    return new Gem({ scene: this.scene, x: this.x, y: this.y });
                 default:
                     return new Crafting({ scene: this.scene, x: this.x, y: this.y, key: name });
             }
