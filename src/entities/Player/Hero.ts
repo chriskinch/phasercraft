@@ -6,7 +6,7 @@ interface HeroConfig {
 }
 
 class Hero extends GameObjects.Sprite {
-    public body: Physics.Arcade.Body;
+    public body!: Physics.Arcade.Body;
 
     constructor(config: HeroConfig) {
         super(config.scene, 0, 0, config.key);

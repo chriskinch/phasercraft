@@ -16,7 +16,7 @@ interface CombatTextConfig {
 }
 
 class CombatText extends GameObjects.Text {
-    public body: Physics.Arcade.Body;
+    public body!: Physics.Arcade.Body;
 
     constructor(
         scene: Scene,

@@ -3,15 +3,15 @@ import type { SpellOptions } from "@/types/game";
 import type Enemy from "@entities/Enemy/Enemy";
 
 class SiphonSoul extends Spell {
-    public type: string;
-    public duration: number;
+    public type!: string;
+    public duration!: number;
     public particleDuration: number;
     public power: number;
     public emitter: Phaser.GameObjects.Particles.ParticleEmitter | undefined;
     public gravityWell: Phaser.GameObjects.Particles.GravityWell | undefined;
-    public durationAnimationTimer: Phaser.Time.TimerEvent;
-    public particleAnimationTimer: Phaser.Time.TimerEvent;
-    public debugGraphics: Phaser.GameObjects.Graphics;
+    public durationAnimationTimer!: Phaser.Time.TimerEvent;
+    public particleAnimationTimer!: Phaser.Time.TimerEvent;
+    public debugGraphics!: Phaser.GameObjects.Graphics;
     public deathZone: Phaser.Geom.Circle;
 
     constructor(config: SpellOptions) {

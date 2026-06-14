@@ -12,7 +12,7 @@ interface GemConfig {
 }
 
 class Gem extends GameObjects.Sprite {
-    public body: Physics.Arcade.Body;
+    public body!: Physics.Arcade.Body;
     public activateTimer?: Time.TimerEvent;
     public collider?: Physics.Arcade.Collider;
 

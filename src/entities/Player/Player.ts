@@ -46,17 +46,17 @@ class Player extends GameObjects.Container {
     public resource: AssignResourceType;
     public shield: AssignResourceType;
     public weapon: Weapon;
-    public stats: PlayerStats;
+    public stats!: PlayerStats;
     public spells: AssignSpell[];
-    public mouse: Phaser.Input.Pointer;
-    public point: PhaserMath.Vector2;
-    public spellPrimed: boolean;
-    public dragging: boolean;
-    public attack_delay: Phaser.Time.TimerEvent | null;
+    public mouse!: Phaser.Input.Pointer;
+    public point!: PhaserMath.Vector2;
+    public spellPrimed!: boolean;
+    public dragging!: boolean;
+    public attack_delay!: Phaser.Time.TimerEvent | null;
     public swing: Phaser.Time.TimerEvent | null = null;
-    public body: Physics.Arcade.Body;
+    public body!: Physics.Arcade.Body;
     // Set/reset by each Spell to clear the previously primed spell (see Spell).
-    public clearLastPrimedSpell: () => void;
+    public clearLastPrimedSpell!: () => void;
 
     constructor({
         scene,

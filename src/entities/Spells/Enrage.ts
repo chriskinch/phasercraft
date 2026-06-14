@@ -16,7 +16,7 @@ class Enrage extends Boon {
     public type: string;
     public duration: number;
     public value: EnrageValue;
-    public timer: Phaser.Time.TimerEvent;
+    public timer!: Phaser.Time.TimerEvent;
 
     constructor(config: SpellOptions) {
         const defaults = {

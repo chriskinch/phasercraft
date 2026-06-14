@@ -6,7 +6,7 @@ class Faith extends Spell {
     public frequency: number;
     public duration: number;
     public type: string;
-    public timer: Phaser.Time.TimerEvent;
+    public timer!: Phaser.Time.TimerEvent;
 
     constructor(config: SpellOptions) {
         const defaults = {

@@ -13,7 +13,7 @@ interface CraftingConfig {
 
 class Crafting extends GameObjects.Sprite {
     public name: string;
-    public body: Phaser.Physics.Arcade.Body;
+    public body!: Phaser.Physics.Arcade.Body;
 
     constructor(config: CraftingConfig) {
         super(config.scene, config.x, config.y, "crafting", config.key);

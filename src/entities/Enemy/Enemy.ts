@@ -67,16 +67,16 @@ class Enemy extends GameObjects.Container {
     public health: AssignResourceType;
     public banes: Banes;
     public spawn_stop: Physics.Arcade.Image;
-    public point: PhaserMath.Vector2;
-    public distance_to_player: number;
-    public destination: PhaserMath.Vector2 | null;
-    public caution: number;
-    public circling: Phaser.Tweens.Tween | null;
+    public point!: PhaserMath.Vector2;
+    public distance_to_player!: number;
+    public destination!: PhaserMath.Vector2 | null;
+    public caution!: number;
+    public circling!: Phaser.Tweens.Tween | null;
     public wandering_looped_timer: Phaser.Time.TimerEvent | null = null;
-    public selected: boolean;
+    public selected!: boolean;
     public swing: Phaser.Time.TimerEvent | null = null;
-    public collider: Physics.Arcade.Collider;
-    public body: Physics.Arcade.Body;
+    public collider!: Physics.Arcade.Collider;
+    public body!: Physics.Arcade.Body;
     // Transient targeting vector cached by the Whirlwind/Multishot range scans.
     public vector?: EntityWithVector;
 

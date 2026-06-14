@@ -14,7 +14,7 @@ class Frostbolt extends Spell {
     public type: string;
     public duration: number;
     public value: FrostboltValue;
-    public timer: Phaser.Time.TimerEvent;
+    public timer!: Phaser.Time.TimerEvent;
 
     constructor(config: SpellOptions) {
         const defaults = {
