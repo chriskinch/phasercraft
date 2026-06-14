@@ -1,4 +1,4 @@
-import { Core, Math as PhaserMath, GameObjects, Geom, Scene, Physics, Types } from "phaser";
+import { Core, Math as PhaserMath, GameObjects, Geom, Physics, Types } from "phaser";
 import { v4 as uuid } from "uuid";
 import AssignResource, { AssignResourceType } from "@entities/Resources/AssignResource";
 import Monster from "./Monster";
@@ -7,6 +7,7 @@ import Crafting from "@entities/Loot/Crafting";
 import Gem from "@entities/Loot/Gem";
 import Banes from "@entities/UI/Banes";
 import type { EnemyOptions, EnemyAttributes, LootTable, TargetType } from "@/types/game";
+import type { GameSceneLike } from "@/types/scene";
 
 interface EnemyStats extends EnemyAttributes {
     health_value?: number;
@@ -159,7 +160,7 @@ class Enemy extends GameObjects.Container {
             this.point.y = this.y;
             this.distance_to_player = PhaserMath.Distance.BetweenPoints(
                 this,
-                (this.scene as Scene & { player: { x: number; y: number } }).player
+                (this.scene as GameSceneLike).player
             );
 
             if (this.distance_to_player < this.attack_radius && this.states.attack === "primed")
@@ -179,7 +180,7 @@ class Enemy extends GameObjects.Container {
                 if (this.states.movement !== "chasing") this.setChasing();
                 this.move({ bias: this.caution });
             } else {
-                if (this.target === (this.scene as Scene & { player: unknown }).player) {
+                if (this.target === (this.scene as GameSceneLike).player) {
                     this.target = null;
                     this.setIdle();
                     this.setWandering();
@@ -245,13 +246,10 @@ class Enemy extends GameObjects.Container {
         this.spawn_stop.destroy();
         this.state = "spawned";
 
-        this.scene.physics.add.collider(
-            (this.scene as Scene & { player: { hero: Phaser.Physics.Arcade.Sprite } }).player.hero,
-            this
-        );
+        this.scene.physics.add.collider((this.scene as GameSceneLike).player.hero, this);
         this.collider = this.scene.physics.add.collider(
-            (this.scene as Scene & { active_enemies: Phaser.GameObjects.Group }).active_enemies,
-            (this.scene as Scene & { active_enemies: Phaser.GameObjects.Group }).active_enemies
+            (this.scene as GameSceneLike).active_enemies,
+            (this.scene as GameSceneLike).active_enemies
         );
 
         this.on("pointerdown", () => {
@@ -298,7 +296,7 @@ class Enemy extends GameObjects.Container {
         if (this.wandering_looped_timer) {
             this.wandering_looped_timer.remove();
         }
-        this.target = (this.scene as Scene & { player: TargetType }).player;
+        this.target = (this.scene as GameSceneLike).player;
         this.destination = null;
     }
 
@@ -332,14 +330,14 @@ class Enemy extends GameObjects.Container {
     select(): void {
         this.graphics.selected.visible = true;
         this.selected = true;
-        (this.scene as Scene & { selected?: Enemy }).selected = this;
+        (this.scene as GameSceneLike).selected = this;
     }
 
     deselect(): void {
         if (this.selected) {
             this.graphics.selected.visible = false;
             this.selected = false;
-            (this.scene as Scene & { selected?: Enemy | null }).selected = null;
+            (this.scene as GameSceneLike).selected = null;
         }
     }
 
@@ -361,10 +359,8 @@ class Enemy extends GameObjects.Container {
         this.active = false;
         if (this.input) this.input.enabled = false;
         this.scene.physics.world.disable(this);
-        (this.scene as Scene & { enemies: Phaser.GameObjects.Group }).enemies.remove(this);
-        (this.scene as Scene & { active_enemies: Phaser.GameObjects.Group }).active_enemies.remove(
-            this
-        );
+        (this.scene as GameSceneLike).enemies.remove(this);
+        (this.scene as GameSceneLike).active_enemies.remove(this);
         this.decompose();
         this.dropLoot();
     }

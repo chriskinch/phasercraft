@@ -1,6 +1,7 @@
 import Spell from "./Spell";
 import targetVector from "@helpers/targetVector";
 import type { SpellOptions, EnemyOptions } from "@/types/game";
+import type { GameSceneLike } from "@/types/scene";
 class Whirlwind extends Spell {
     public type: string;
     public range: number;
@@ -36,7 +37,9 @@ class Whirlwind extends Spell {
     }
 
     effect(target: any): void {
-        const enemiesInRange = (this.scene as any).enemies.children.entries
+        const enemiesInRange = (
+            (this.scene as GameSceneLike).enemies.children.entries as unknown as EnemyOptions[]
+        )
             .filter((enemy: EnemyOptions) => {
                 enemy.vector = targetVector(this.player as any, enemy as any);
                 if (enemy?.vector?.range && enemy.vector.range < this.range) return enemy;

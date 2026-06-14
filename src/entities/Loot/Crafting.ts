@@ -2,7 +2,7 @@ import { GameObjects, Scene } from "phaser";
 import store from "@store";
 import { addCrafting } from "@store/gameReducer";
 import getRandomVelocity from "@helpers/getRandomVelocity";
-import type GameScene from "@scenes/GameScene";
+import type { GameSceneLike } from "@/types/scene";
 
 interface CraftingConfig {
     scene: Scene;
@@ -18,7 +18,7 @@ class Crafting extends GameObjects.Sprite {
     constructor(config: CraftingConfig) {
         super(config.scene, config.x, config.y, "crafting", config.key);
         config.scene.physics.world.enable(this);
-        config.scene.add.existing(this).setDepth((this.scene as GameScene).depth_group.UI);
+        config.scene.add.existing(this).setDepth((this.scene as GameSceneLike).depth_group.UI);
 
         this.name = config.key;
 
@@ -32,7 +32,7 @@ class Crafting extends GameObjects.Sprite {
 
     activate(): void {
         this.scene.physics.add.collider(
-            (this.scene as GameScene).player,
+            (this.scene as GameSceneLike).player,
             this,
             this.touch,
             undefined,

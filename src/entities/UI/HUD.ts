@@ -3,19 +3,11 @@ import { toggleHUD, toggleUi, addLoot, loadGame } from "@store/gameReducer";
 import store from "@store";
 import mapStateToData from "@helpers/mapStateToData";
 import { readSave, writeSave, removeSave, SAVE_SLOTS } from "@services/saveStorage";
+import type { GameSceneLike } from "@/types/scene";
 
 const styles = {
     font: "12px monospace",
     fill: "#ffffff",
-};
-
-// The HUD reads a few fields off the GameScene that are not part of the base
-// Phaser Scene (and some are private on GameScene). Scene-augmentation casts
-// are the established pattern here and are tracked for a separate cleanup PR.
-type HudScene = Scene & {
-    zone: GameObjects.Zone;
-    wave: number;
-    depth_group: Record<string, number>;
 };
 
 // The coin/wave readouts are plain containers with a `text` child stashed on
@@ -50,7 +42,7 @@ class UI extends GameObjects.Container {
         this.buttons.forEach((button) => this.add(button));
 
         // Position buttons in the bottom right
-        const { x, y, width, height } = (this.scene as HudScene).zone;
+        const { x, y, width, height } = (this.scene as GameSceneLike).zone;
         Actions.IncXY(this.buttons, x + width, y + height, -35);
 
         // Maps coins, wave and showUi sections of the store to various functions.
@@ -92,13 +84,13 @@ class UI extends GameObjects.Container {
 
         this.scene.add
             .existing(this)
-            .setDepth((this.scene as HudScene).depth_group.UI)
+            .setDepth((this.scene as GameSceneLike).depth_group.UI)
             .setScrollFactor(0);
     }
 
     setSpellFrames(): void {
-        let x = Display.Bounds.GetLeft((this.scene as HudScene).zone);
-        let y = Display.Bounds.GetBottom((this.scene as HudScene).zone);
+        let x = Display.Bounds.GetLeft((this.scene as GameSceneLike).zone);
+        let y = Display.Bounds.GetBottom((this.scene as GameSceneLike).zone);
         for (let i = 0; i < this.spells; i++) {
             let frame = this.scene.add
                 .sprite(x + this.spacing * i, y, "icon", "icon_blank")
@@ -111,7 +103,7 @@ class UI extends GameObjects.Container {
 
     setCoinCount(): void {
         this.coins = this.scene.add.container(0, 0) as LabelledContainer;
-        Display.Align.In.TopRight(this.coins, (this.scene as HudScene).zone, -80);
+        Display.Align.In.TopRight(this.coins, (this.scene as GameSceneLike).zone, -80);
 
         this.coins.add(this.scene.add.sprite(0, 0, "coin-spin"));
         this.coins.text = this.scene.add.text(15, 0, "Coins: ", styles).setOrigin(0, 0.5);
@@ -122,11 +114,11 @@ class UI extends GameObjects.Container {
 
     setWaveCount(): void {
         this.wave = this.scene.add.container(0, 0) as LabelledContainer;
-        Display.Align.In.TopRight(this.wave, (this.scene as HudScene).zone, -190);
+        Display.Align.In.TopRight(this.wave, (this.scene as GameSceneLike).zone, -190);
 
         this.wave.add(this.scene.add.sprite(0, 0, "dungeon", "ghast_baby"));
         this.wave.text = this.scene.add
-            .text(15, 0, "Wave: " + ((this.scene as HudScene).wave + 1), styles)
+            .text(15, 0, "Wave: " + ((this.scene as GameSceneLike).wave + 1), styles)
             .setOrigin(0, 0.5);
         this.wave.add(this.wave.text);
 

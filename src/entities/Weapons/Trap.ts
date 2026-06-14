@@ -1,6 +1,6 @@
 import { GameObjects, Physics, Scene, Time, Types } from "phaser";
 import { dropIn } from "@helpers/spawnStyle";
-import type GameScene from "@scenes/GameScene";
+import type { GameSceneLike } from "@/types/scene";
 
 class Trap extends GameObjects.Sprite {
     public body: Physics.Arcade.Body;
@@ -48,7 +48,7 @@ class Trap extends GameObjects.Sprite {
 
     spawnedHandler(): void {
         this.enemyCollider = this.scene.physics.add.collider(
-            (this.scene as GameScene).active_enemies,
+            (this.scene as GameSceneLike).active_enemies,
             this,
             this.collide,
             undefined,
@@ -59,7 +59,7 @@ class Trap extends GameObjects.Sprite {
         // (Phaser invokes it with the two colliding objects), so cast to preserve
         // the existing runtime behavior without altering the call.
         this.playerCollider = this.scene.physics.add.collider(
-            (this.scene as GameScene).player,
+            (this.scene as GameSceneLike).player,
             this,
             this.destroy as unknown as Types.Physics.Arcade.ArcadePhysicsCallback,
             undefined,
