@@ -11,7 +11,7 @@ interface CoinConfig {
 }
 
 class Coin extends GameObjects.Sprite {
-    public body: Physics.Arcade.Body;
+    public body!: Physics.Arcade.Body;
 
     constructor(config: CoinConfig) {
         super(config.scene, config.x, config.y, "coin-spin");

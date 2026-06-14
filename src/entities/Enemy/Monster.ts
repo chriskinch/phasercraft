@@ -11,7 +11,7 @@ interface MonsterConfig {
 
 class Monster extends GameObjects.Sprite {
     public key: string;
-    public body: Physics.Arcade.Body;
+    public body!: Physics.Arcade.Body;
 
     constructor(config: MonsterConfig) {
         super(config.scene, 0, 0, config.key);

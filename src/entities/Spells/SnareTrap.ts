@@ -7,7 +7,7 @@ class SnareTrap extends Spell {
     public type: string;
     public duration: number;
     public lifespan: number;
-    public item: Trap;
+    public item!: Trap;
 
     constructor(config: SpellOptions) {
         const defaults = {

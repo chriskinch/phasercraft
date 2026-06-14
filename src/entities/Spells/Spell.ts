@@ -13,22 +13,22 @@ class Spell extends GameObjects.Sprite {
     // The owning combatant. Every ability in the game is created by the Player
     // (see Player's `abilities.map(...)`), and the spell reads Player-only members
     // (resource/shield/isCritical/clearLastPrimedSpell), so the seam is a Player.
-    public player: Player;
-    public cost: { [key: string]: number };
+    public player!: Player;
+    public cost!: { [key: string]: number };
     public typedCost: number;
     public hasAnimation: boolean;
     public enabled: boolean;
-    public cooldown: number;
-    public name: string;
-    public icon_name: string;
-    public hotkey: string;
-    public slot: number;
-    public loop: boolean;
-    public cooldownDelay: boolean;
-    public cooldownDelayAll: boolean;
-    public button: GameObjects.Sprite;
-    public text: GameObjects.Text;
-    public cooldownTimer: Phaser.Tweens.Tween;
+    public cooldown!: number;
+    public name!: string;
+    public icon_name!: string;
+    public hotkey!: string;
+    public slot!: number;
+    public loop!: boolean;
+    public cooldownDelay!: boolean;
+    public cooldownDelayAll!: boolean;
+    public button!: GameObjects.Sprite;
+    public text!: GameObjects.Text;
+    public cooldownTimer!: Phaser.Tweens.Tween;
     public target: TargetType | undefined;
     // Holds whatever the (subclass-overridable) startAnimation() returns. The
     // base returns void and the value is never read back, so it stays untyped.

@@ -38,7 +38,7 @@ export default class GameScene extends Scene {
         TOP: 99999,
     };
     private level_complete!: Phaser.GameObjects.Container & { button?: Phaser.GameObjects.Image };
-    private config: GameSceneConfig;
+    private config!: GameSceneConfig;
     private cursors!: Phaser.Types.Input.Keyboard.CursorKeys & { esc?: Phaser.Input.Keyboard.Key };
     private next_level_timer: Phaser.Time.TimerEvent | undefined;
     private UI!: UI;

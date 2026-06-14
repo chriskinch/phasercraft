@@ -8,7 +8,7 @@ class Consecration extends Spell {
     public range: number;
     public cap: number;
     public lifespan: number;
-    public item: AreaEffect;
+    public item!: AreaEffect;
 
     constructor(config: SpellOptions) {
         const defaults = {

@@ -2,10 +2,10 @@ import { Scene, GameObjects, Display } from "phaser";
 import { fontConfig } from "../config/fonts";
 
 export default class GameOverScene extends Scene {
-    private global_game_width: number;
-    private global_game_height: number;
-    private zone: Phaser.GameObjects.Zone;
-    private game_over: Phaser.GameObjects.Container;
+    private global_game_width!: number;
+    private global_game_height!: number;
+    private zone!: Phaser.GameObjects.Zone;
+    private game_over!: Phaser.GameObjects.Container;
 
     constructor() {
         super({

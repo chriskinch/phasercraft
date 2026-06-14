@@ -4,7 +4,7 @@ import type { ArcadeCollisionObject } from "@/types/game";
 import type { GameSceneLike } from "@/types/scene";
 
 class Trap extends GameObjects.Sprite {
-    public body: Physics.Arcade.Body;
+    public body!: Physics.Arcade.Body;
     public spawned?: boolean;
     public lifespanTimer?: Time.TimerEvent;
     public enemyCollider?: Physics.Arcade.Collider;

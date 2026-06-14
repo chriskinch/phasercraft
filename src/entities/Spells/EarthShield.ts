@@ -14,8 +14,8 @@ class EarthShield extends Spell {
     public radius: number;
     public lifespanTimer: Phaser.Time.TimerEvent | null = null;
     public motion: Phaser.Tweens.Tween | null = null;
-    public throttleDelay: Phaser.Time.TimerEvent;
-    public body: Phaser.Physics.Arcade.Body;
+    public throttleDelay!: Phaser.Time.TimerEvent;
+    public body!: Phaser.Physics.Arcade.Body;
 
     constructor(config: SpellOptions) {
         const defaults = {

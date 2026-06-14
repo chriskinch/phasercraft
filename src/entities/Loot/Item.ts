@@ -34,9 +34,9 @@ interface StatIterator {
 }
 
 class Item {
-    public base: number;
-    public multiplier: number;
-    public keys: { min: number; max: number };
+    public base!: number;
+    public multiplier!: number;
+    public keys!: { min: number; max: number };
     public stat_pool: number;
     public stats: { [key: string]: AdjustedStat };
     public info: Record<string, unknown>;

@@ -10,7 +10,7 @@ import UI from "@entities/UI/HUD";
 
 export default class TownScene extends Scene {
     public player!: PlayerType;
-    private config: GameSceneConfig;
+    private config!: GameSceneConfig;
     private cursors!: Phaser.Types.Input.Keyboard.CursorKeys & { esc?: Input.Keyboard.Key };
     private global_game_width!: number;
     private global_game_height!: number;

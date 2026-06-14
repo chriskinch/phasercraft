@@ -9,7 +9,7 @@ import type { GameSceneLike } from "@/types/scene";
 type OverlapTarget = Player | Enemy;
 
 class AreaEffect extends GameObjects.Sprite {
-    public body: Physics.Arcade.Body;
+    public body!: Physics.Arcade.Body;
     public timestamps?: Record<string, number>;
 
     constructor(scene: Scene, x: number, y: number, lifespan: number, range: number) {

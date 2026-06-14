@@ -11,10 +11,10 @@ interface InvocationValue {
 }
 
 class Invocation extends Boon {
-    public type: string;
-    public duration: number;
-    public value: InvocationValue;
-    public timer: Phaser.Time.TimerEvent;
+    public type!: string;
+    public duration!: number;
+    public value!: InvocationValue;
+    public timer!: Phaser.Time.TimerEvent;
 
     constructor(config: SpellOptions) {
         const defaults = {
