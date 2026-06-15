@@ -1,0 +1,78 @@
+# Playwright E2E (Phase 4, #309).
+#
+# Strategy (per ROADMAP decisions log): smoke E2E on every PR, full E2E nightly.
+#   - `smoke`   : fast Chromium-only pack, runs on pull_request and push to main.
+#   - `full`    : the whole suite across browsers, on a nightly schedule and on
+#                 manual dispatch.
+# This workflow is additive and does NOT touch the existing quality gates in
+# ci.yml.
+name: E2E
+
+on:
+    pull_request:
+    push:
+        branches: ["main"]
+    schedule:
+        # 03:17 UTC daily — off the top of the hour to avoid Actions congestion.
+        - cron: "17 3 * * *"
+    workflow_dispatch:
+
+concurrency:
+    group: e2e-${{ github.event.pull_request.number || github.ref }}
+    cancel-in-progress: true
+
+jobs:
+    # Smoke pack on every PR and push to main. Skipped on the nightly schedule
+    # (the full job covers that run).
+    smoke:
+        if: github.event_name != 'schedule'
+        runs-on: ubuntu-latest
+        steps:
+            - name: Checkout
+              uses: actions/checkout@v4
+            - name: Setup Node.js environment
+              uses: actions/setup-node@v4
+              with:
+                  node-version-file: ".nvmrc"
+                  cache: "npm"
+            - run: npm ci
+            - name: Install Playwright browsers (Chromium)
+              run: npx playwright install --with-deps chromium
+            - name: Build static export
+              run: npm run build
+            - name: Run smoke E2E
+              run: npm run test:e2e
+            - name: Upload Playwright report
+              if: ${{ !cancelled() }}
+              uses: actions/upload-artifact@v4
+              with:
+                  name: playwright-report-smoke
+                  path: playwright-report/
+                  retention-days: 7
+
+    # Full suite across browsers, nightly and on manual dispatch only.
+    full:
+        if: github.event_name == 'schedule' || github.event_name == 'workflow_dispatch'
+        runs-on: ubuntu-latest
+        steps:
+            - name: Checkout
+              uses: actions/checkout@v4
+            - name: Setup Node.js environment
+              uses: actions/setup-node@v4
+              with:
+                  node-version-file: ".nvmrc"
+                  cache: "npm"
+            - run: npm ci
+            - name: Install Playwright browsers (all)
+              run: npx playwright install --with-deps
+            - name: Build static export
+              run: npm run build
+            - name: Run full E2E
+              run: npm run test:e2e:full
+            - name: Upload Playwright report
+              if: ${{ !cancelled() }}
+              uses: actions/upload-artifact@v4
+              with:
+                  name: playwright-report-full
+                  path: playwright-report/
+                  retention-days: 7
