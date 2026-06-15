@@ -8,6 +8,12 @@
 # ci.yml.
 name: E2E
 
+# Least-privilege GITHUB_TOKEN: the jobs only checkout and upload an artifact,
+# so `contents: read` suffices. Declared at the top level so both jobs inherit
+# it (resolves the CodeQL "workflow does not contain permissions" finding).
+permissions:
+    contents: read
+
 on:
     pull_request:
     push:
