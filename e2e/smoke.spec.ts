@@ -30,13 +30,14 @@ test.describe("Phasercraft smoke", () => {
         await expect(canvas).toBeAttached();
 
         // LoadScene.create() opens the "Pick a Game Save" overlay once the scene
-        // boots and preload completes. We key off the menu shell (.menu-container,
-        // rendered only while a menu is open) plus the save-slot headings rather
+        // boots and preload completes. We key off the menu shell
+        // ([data-testid="menu-container"], rendered only while a menu is open) plus
+        // the save-slot headings rather
         // than the menu's derived id: UI.tsx builds the id with
         // `title.toLowerCase().replace(" ", "-")`, and String.replace swaps only
         // the FIRST space, so "Pick a Game Save" yields the id "pick-a game save"
         // (a pre-existing quirk). Visible text / slot headings are the stable hook.
-        await expect(page.locator(".menu-container")).toBeVisible();
+        await expect(page.locator('[data-testid="menu-container"]')).toBeVisible();
         // Three save slots render with "Slot 1".."Slot 3" headings.
         await expect(page.getByRole("heading", { name: "Slot 1" })).toBeVisible();
     });
@@ -51,7 +52,7 @@ test.describe("Phasercraft smoke", () => {
         // From the save menu, an empty slot's "Select" button opens character select.
         // (The save menu's derived id contains a space — see Flow 1 — so key off the
         // menu shell and the Select button instead.)
-        await expect(page.locator(".menu-container")).toBeVisible();
+        await expect(page.locator('[data-testid="menu-container"]')).toBeVisible();
         await page.getByRole("button", { name: "Select" }).first().click();
 
         // The Character Select menu renders ("Character Select" has a single space,
@@ -66,7 +67,7 @@ test.describe("Phasercraft smoke", () => {
         // UI overlay (header + menu container) is torn down and the run view shows.
         await page.getByRole("button", { name: "Warrior", exact: true }).click();
         await expect(page.locator("#character-select")).toBeHidden();
-        await expect(page.locator(".menu-container")).toHaveCount(0);
+        await expect(page.locator('[data-testid="menu-container"]')).toHaveCount(0);
         // The game canvas is still present underneath — we're now in the run.
         await expect(page.locator("#phaser-game canvas")).toBeAttached();
     });
@@ -106,7 +107,7 @@ test.describe("Phasercraft smoke", () => {
         // slot renders the saved character plus a "Load" button (empty slots show
         // "Select"), so no extra navigation is needed. Key off the menu shell (the
         // save menu's derived id contains a space — see Flow 1).
-        await expect(page.locator(".menu-container")).toBeVisible();
+        await expect(page.locator('[data-testid="menu-container"]')).toBeVisible();
 
         // The seeded slot surfaces the persisted wave/coins straight from the
         // save service — proof the localStorage roundtrip survived a fresh load.
@@ -117,7 +118,7 @@ test.describe("Phasercraft smoke", () => {
         // overlay (showUi:false) and drops us into the restored run.
         await page.getByRole("button", { name: "Load" }).first().click();
         // The overlay tears down (showUi:false) — no menu shell remains.
-        await expect(page.locator(".menu-container")).toHaveCount(0);
+        await expect(page.locator('[data-testid="menu-container"]')).toHaveCount(0);
 
         // And the underlying localStorage save is unchanged after the roundtrip.
         const persisted = await page.evaluate((key) => window.localStorage.getItem(key), slot);

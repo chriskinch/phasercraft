@@ -103,6 +103,7 @@ const UI: React.FC = () => {
                     </div>
                     <div
                         id={CurrentMenu.title.toLowerCase().replace(" ", "-")}
+                        data-testid="menu-container"
                         className={isSystem ? undefined : theme.pixelBackground}
                         style={{
                             ...(isSystem ? {} : pixelBackgroundVars()),
