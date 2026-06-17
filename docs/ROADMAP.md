@@ -68,14 +68,14 @@ Each bullet is one small PR unless trivially related.
 - [x] Tighten `tsconfig`: enable `strictPropertyInitialization` (#332). `noUncheckedIndexedAccess` evaluated and deferred — see backlog (#333)
 - [x] Gate: 0 JS files in `src/`, `any` count = 0 (≤ 5 target met)
 
-## Phase 4 — Test buildout
+## Phase 4 — Test buildout (done)
 
-- [ ] Unit: Apollo cache field policies (`color`, `adjusted`, `formatted`, `abbreviation`) — skip if GraphQL removal (Phase 8) is imminent; these tests become moot when Apollo is deleted
-- [ ] Unit: `Item.ts` stat allocation/generation; `ui/operations/helpers.ts`; config factories
-- [ ] Unit (Phaser mocks): `Resource` regen/adjust flow; `Spell` cooldown/resource checks
-- [ ] Component (Testing Library): Inventory/Equipment drag-drop, Save slots, Armory loading/error/"unavailable" states
-- [ ] Coverage: enable V8 coverage in Vitest, add ratcheting threshold to CI
-- [ ] Playwright: smoke pack on PR (game boots, character select, wave starts, save/load roundtrip); full suite nightly via scheduled workflow
+- [x] Unit: Apollo cache field policies (`color`, `adjusted`, `formatted`, `abbreviation`) (#335) — note: become moot when Apollo is removed in Phase 8
+- [x] Unit: `Item.ts` stat allocation/generation; `ui/operations/helpers.ts`; config factories (#337)
+- [x] Unit (Phaser mocks): `Resource` regen/adjust flow; `Spell` cooldown/resource checks (#336)
+- [x] Component (Testing Library): Inventory/Equipment drag-drop, Save slots, Armory loading/error states (#338; "merchant unavailable" state test deferred until that graceful-unset state is implemented)
+- [x] Coverage: enable V8 coverage in Vitest, add ratcheting threshold to CI (#340; floor at the current high-water mark, ratchet upward toward ~80% non-Phaser)
+- [x] Playwright: smoke pack on PR (game boots, character select, save/load roundtrip; wave-start deferred — canvas-only readout) + nightly full suite via scheduled workflow (#339)
 
 ## Phase 5 — Vite migration (issue TBD)
 
