@@ -30,6 +30,8 @@
         "test:coverage": "vitest run --coverage",
         "test:watch": "vitest",
         "test:ui": "vitest --ui",
+        "test:e2e": "playwright test --project=smoke",
+        "test:e2e:full": "playwright test",
         "format": "prettier --write .",
         "format:check": "prettier --check .",
         "prepare": "simple-git-hooks",
@@ -56,6 +58,7 @@
         "uuid": "^14.0.0"
     },
     "devDependencies": {
+        "@playwright/test": "^1.60.0",
         "@testing-library/jest-dom": "^6.9.1",
         "@testing-library/react": "^16.3.2",
         "@types/lodash": "^4.17.20",
@@ -73,6 +76,7 @@
         "postcss": "^8.5.10",
         "prettier": "^3.8.3",
         "react-dnd-test-backend": "^16.0.1",
+        "serve": "^14.2.6",
         "simple-git-hooks": "^2.13.1",
         "typescript": "^5",
         "vitest": "^4.1.6"
