@@ -42,6 +42,46 @@ export default defineConfig({
         include: ["src/**/*.{test,spec}.{ts,tsx}"],
         exclude: ["node_modules", "dist", ".next", "server", "services"],
         css: false,
+        coverage: {
+            provider: "v8",
+            // Count untested source files too, not just files an executed test
+            // happened to import — otherwise the ratchet would ignore whole
+            // modules with zero coverage. In Vitest 4 the old `all: true` option
+            // was removed; an explicit `include` glob is now what pulls every
+            // matching source file into the report (covered or not).
+            include: ["src/**/*.{ts,tsx}"],
+            reporter: ["text", "text-summary", "json-summary", "html", "lcov"],
+            exclude: [
+                // Test files and their helpers.
+                "**/*.{test,spec}.{ts,tsx}",
+                // Type-only declarations carry no executable logic.
+                "src/types/**",
+                "**/*.d.ts",
+                // Static config/asset data (real logic in src/config/*.ts stays in scope).
+                "src/config/**/*.json",
+                "**/*.json",
+                // React/Phaser boot seam — wiring that can't be meaningfully unit-tested.
+                "src/app/**",
+                "**/PhaserGame.tsx",
+                "next-env.d.ts",
+                // E2E lives outside the unit suite (Playwright, separate workflow).
+                "e2e/**",
+            ],
+            // Ratcheting floor: set to the current measured coverage (floored to
+            // whole percents, with a small margin) so the suite passes today but
+            // ANY regression below these numbers fails CI. Bump these up as
+            // coverage improves — do not lower them. Aspirational target is
+            // ~80% on non-Phaser code. Do not enable autoUpdate (the ratchet
+            // must be a deliberate, reviewed change).
+            // Measured 2026-06-17: lines 21.52, functions 24.3, branches 22.66,
+            // statements 22.14. Floored to whole percents below.
+            thresholds: {
+                lines: 21,
+                functions: 24,
+                branches: 22,
+                statements: 22,
+            },
+        },
     },
     resolve: {
         alias: [
