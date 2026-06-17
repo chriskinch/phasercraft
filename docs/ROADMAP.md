@@ -4,8 +4,8 @@ Goal: make Phasercraft stable, fully typed, well-tested, and protected by CI so 
 agentic feature development can proceed safely. This document is the source of truth
 for the phased plan. Each phase has a tracking GitHub issue under the
 [Reforge milestone](https://github.com/chriskinch/phasercraft/milestone/10)
-(#306–#312 for original phases; Phases 5 and 6 need new issues); every PR links to its
-phase issue and checks items off here.
+(#306–#312 for original phases; Phases 5–8 need new issues when work starts); every PR
+links to its phase issue and checks items off here.
 
 Status legend: `[ ]` todo · `[~]` in progress · `[x]` done
 
@@ -13,21 +13,19 @@ Status legend: `[ ]` todo · `[~]` in progress · `[x]` done
 
 ## Decisions log (agreed 2026-06-17)
 
-| Topic                                   | Decision                                                                                                                                                            |
-| --------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| Backend (`server/`, `services/armory/`) | Keep and modernize both. Gateway remains a local-dev tool for now; production hosting decided later.                                                                |
-| Armory deployment                       | AWS account with CI deploys via GitHub Actions secrets (scoped IAM).                                                                                                |
-| Deployment tooling                      | Stay on Serverless Framework v3 for now; migrate to AWS CDK later (separate effort, not in this roadmap).                                                           |
-| Phaser                                  | Stabilize and test on 3.90 first. Migrate to Phaser 4 as the final phase, validated by the test suite and the official v3→v4 migration guide/skill.                 |
-| Dependencies                            | Minor/patch updates immediately. Major upgrades (Apollo Client 4, ESLint 10, TS 6) land as individual PRs after test coverage exists. Next 16 eliminated by Vite migration (Phase 5). |
-| Test strategy                           | Full pyramid: unit + React component tests + Playwright E2E. Smoke E2E on every PR; full E2E nightly.                                                               |
-| Coverage                                | Enforced ratcheting threshold in CI (fails on regression below high-water mark; target ~80% on non-Phaser code).                                                    |
-| Node                                    | Node 22 LTS for local dev and CI. Lambda runtime: highest version Serverless v3 validates (verify `nodejs22.x`; fall back to `nodejs20.x` until the CDK migration). |
-| Prod shop fallback                      | When no GraphQL endpoint is configured (production, until hosting exists), Armory/Stock UI shows a graceful "merchant unavailable" state.                           |
-| Workflow                                | Small focused PRs; the maintainer reviews every PR. Agents ask on behavior changes, decide on mechanics. See `CLAUDE.md`.                                           |
-| Build tooling                           | Replace Next.js with Vite (Phase 5). Next.js is unused as a framework — static export only, no SSR/API routes/image optimisation. Vite removes the framework layer entirely. |
-| Hosting                                 | Vercel (Phase 6). Free hobby tier; natively detects Vite static builds, no adapter needed. Production deploys on merge to `main`; preview deploys gated by Vercel's Ignored Build Step script (checks GitHub API for `deploy-preview` label — exits 0 to skip, 1 to build). GitHub Pages stays in parallel during transition, retired once Vercel production is confirmed. |
-| GraphQL layer                           | Direction: remove it. Apollo Client + the `server/` gateway over-complicate the stack for a single data source. A future phase will replace them with direct REST calls to the Armory Lambda. Phase 7 backend work is scoped accordingly — gateway stays local-dev; do not invest in production gateway hosting. |
+| Topic          | Decision                                                                                                                                                                                                                                                                                                                                                    |
+| -------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Phaser         | Stabilize and test on 3.90 first. Migrate to Phaser 4 as the final phase, validated by the test suite and the official v3→v4 migration guide/skill.                                                                                                                                                                                                         |
+| Build tooling  | Replace Next.js with Vite (Phase 5). Next.js is unused as a framework — static export only, no SSR/API routes/image optimisation. Vite removes the framework layer entirely.                                                                                                                                                                                |
+| Hosting        | All-in on Vercel — frontend and backend on one platform. Frontend (Phase 6): free hobby tier, Vite static build, no adapter needed; production on merge to `main`; previews gated by Ignored Build Step script checking GitHub API for `deploy-preview` label. GitHub Pages stays in parallel, retired once Vercel is confirmed.                            |
+| Backend        | Armory moves to Vercel (Phase 7): Lambda + DynamoDB → Vercel Functions + Vercel KV (Redis hash, `id` as field, JSON values). `generateItem` logic ports unchanged. Functions live in `/api/` in the monorepo. Gateway points at the new Vercel endpoint during transition. AWS infrastructure (Lambda, DynamoDB, IAM, Serverless Framework) retired entirely. |
+| GraphQL        | Remove it (Phase 8). Apollo Client + `server/` gateway over-complicate the stack for a single data source. Phase 8 replaces them with `fetch()` calls to the Vercel Functions REST API and deletes the gateway. Apollo Client 4 upgrade (Phase 9) is eliminated as a result.                                                                                |
+| Prod shop      | While GraphQL is still in place (Phases 1–7), show a graceful "merchant unavailable" state when `VITE_GRAPHQL_URL` is unset.                                                                                                                                                                                                                                |
+| Dependencies   | Minor/patch updates immediately. Major upgrades (ESLint 10, TS 6) land as individual PRs after test coverage exists. Next 16 and Apollo Client 4 both eliminated by earlier phases.                                                                                                                                                                         |
+| Test strategy  | Full pyramid: unit + React component tests + Playwright E2E. Smoke E2E on every PR; full E2E nightly.                                                                                                                                                                                                                                                       |
+| Coverage       | Enforced ratcheting threshold in CI (fails on regression below high-water mark; target ~80% on non-Phaser code).                                                                                                                                                                                                                                             |
+| Node           | Node 22 LTS for local dev and CI.                                                                                                                                                                                                                                                                                                                           |
+| Workflow       | Small focused PRs; the maintainer reviews every PR. Agents ask on behavior changes, decide on mechanics. See `CLAUDE.md`.                                                                                                                                                                                                                                   |
 
 ---
 
@@ -72,7 +70,7 @@ Each bullet is one small PR unless trivially related.
 
 ## Phase 4 — Test buildout
 
-- [ ] Unit: Apollo cache field policies (`color`, `adjusted`, `formatted`, `abbreviation`)
+- [ ] Unit: Apollo cache field policies (`color`, `adjusted`, `formatted`, `abbreviation`) — skip if GraphQL removal (Phase 8) is imminent; these tests become moot when Apollo is deleted
 - [ ] Unit: `Item.ts` stat allocation/generation; `ui/operations/helpers.ts`; config factories
 - [ ] Unit (Phaser mocks): `Resource` regen/adjust flow; `Spell` cooldown/resource checks
 - [ ] Component (Testing Library): Inventory/Equipment drag-drop, Save slots, Armory loading/error/"unavailable" states
@@ -84,9 +82,9 @@ Each bullet is one small PR unless trivially related.
 Next.js is unused as a framework here (static export, no SSR, no API routes, no image
 optimisation). Removing it eliminates framework overhead, browser-compatibility webpack
 hacks, and the pending Next 16 upgrade. Do this after Phase 4 so the test suite validates
-the build switch, and before Phase 6 so Cloudflare gets a clean Vite static deploy.
+the build switch, and before Phase 6 so Vercel gets a clean Vite static deploy.
 
-- [ ] Add `vite.config.ts`: carry over path aliases from `tsconfig.json`; add `resolve.alias` stubs for Node built-ins Phaser requires (`fs`, `crypto`, `path` → `false`); set `base` from `VITE_BASE_URL` env var (empty for Cloudflare, `/phasercraft/` for GitHub Pages during transition)
+- [ ] Add `vite.config.ts`: carry over path aliases from `tsconfig.json`; add `resolve.alias` stubs for Node built-ins Phaser requires (`fs`, `crypto`, `path` → `false`); set `base` from `VITE_BASE_URL` env var (empty for Vercel, `/phasercraft/` for GitHub Pages during transition)
 - [ ] Add `index.html` entry point; move page title/meta out of Next.js Metadata API into plain `<meta>` tags
 - [ ] Replace `next/font/google` (VT323) with a `<link>` tag in `index.html`
 - [ ] Replace `next/dynamic({ ssr: false })` with `React.lazy()` + `Suspense`
@@ -110,37 +108,45 @@ Vite static build.
 - [ ] Confirm production URL (`phasercraft.vercel.app`) is live and the game plays correctly
 - [ ] GitHub Pages workflow and `VITE_BASE_URL` transition shim stay in place during this phase; retire in the next PR once Vercel production is confirmed stable
 
-## Phase 7 — Backend modernization
+## Phase 7 — Armory migration to Vercel (issue TBD)
 
-`services/armory` (89 vulns today, Node 12 runtime):
+Replace AWS Lambda + DynamoDB with Vercel Functions + Vercel KV. The `server/` gateway
+stays in place pointing at the new Vercel endpoint — no frontend changes in this phase.
+AWS infrastructure is retired entirely once the new endpoints are confirmed working.
 
-- [ ] Runtime to Node 20/22 (per Serverless v3 validation), `.babelrc` and `tsconfig` aligned
-- [ ] AWS SDK v3 to current; middy to current major; TypeScript 5.x; replace tslint with ESLint
-- [ ] Vitest unit tests for handlers and `generateItem`; integration tests via serverless-offline + DynamoDB Local in CI
-- [ ] CI deploy workflow (AWS secrets, scoped IAM): deploy on merge to `main` or manual dispatch
-- [ ] Clear `yarn audit` highs/critical
+- [ ] Create Vercel KV store in the Vercel dashboard; define item storage as a Redis hash (`items`, field = `id`, value = JSON-stringified item)
+- [ ] Add `/api/items/index.ts` (GET all items — `HGETALL`; POST create item — `HSET`)
+- [ ] Add `/api/items/[id].ts` (GET item by id — `HGET`; DELETE item — `HDEL`)
+- [ ] Add `/api/store/create.ts` (POST — batch-generate N items via `generateItem`, bulk `HSET`)
+- [ ] Add `/api/store/clear.ts` (POST — `DEL items` then recreate empty hash)
+- [ ] Port `generateItem.ts` and constants/types into shared `api/_lib/` (no logic changes)
+- [ ] Add `VITE_ARMORY_URL` env var in Vercel dashboard; update `server/` gateway datasource base URL to use it
+- [ ] Vitest unit tests for `generateItem` and each handler (mock `@vercel/kv`)
+- [ ] One-time data migration: script to read all items from DynamoDB and write to Vercel KV
+- [ ] Retire `services/armory/` directory, `serverless.yml`, and all AWS GitHub Actions secrets
+- [ ] Gate: all existing GraphQL operations work through the gateway pointing at Vercel; CI passes
 
-`server/` gateway (22 vulns today, stays local-dev):
+## Phase 8 — Remove GraphQL layer (issue TBD)
 
-- [ ] Migrate Apollo Server 3 → 4, graphql 16, JS → TS
-- [ ] Replace `apollo-datasource-rest` (EOL) with the Apollo 4 datasource pattern; base URL from env var
-- [ ] Tests for resolvers/datasource (mocked REST); remove/replace abandoned `casual`
-- [ ] Clear `yarn audit` highs
+Replace Apollo Client + `server/` gateway with direct `fetch()` calls to the Vercel
+Functions REST API. The gateway and all GraphQL schema code are deleted.
 
-Frontend integration (may be superseded by GraphQL-removal phase — reassess before starting):
+- [ ] Define TypeScript types for the REST API responses (share or copy from `api/_lib/`)
+- [ ] Replace `ApolloProvider` and all `useQuery`/`useMutation` hooks with `fetch()` calls and React state (or a lightweight data-fetching hook)
+- [ ] Replace `VITE_GRAPHQL_URL` with `VITE_ARMORY_URL` in the frontend env var and Apollo Client setup
+- [ ] Remove `@apollo/client`, `graphql`, and `src/lib/cache.ts` (field policies); remove the Apollo cache field policy tests added in Phase 4 if present
+- [ ] Delete `server/` gateway entirely
+- [ ] Add component tests for Armory/Stock UI against the new fetch-based client (mock `fetch`)
+- [ ] Update "merchant unavailable" graceful state to check `VITE_ARMORY_URL` instead of `VITE_GRAPHQL_URL`
+- [ ] Gate: merchant UI works end-to-end; no Apollo or GraphQL imports remain in `src/`
 
-- [ ] Apollo Client URI from `VITE_GRAPHQL_URL`; add error link
-- [ ] Graceful "merchant unavailable" state when unset (with component tests)
-- [ ] Replace blanket `cache.reset()` after mutations with targeted cache updates
-
-## Phase 8 — Major upgrades (one PR each, in order)
+## Phase 9 — Major upgrades (one PR each, in order)
 
 - [ ] TypeScript 6
 - [ ] ESLint 10
-- [ ] Apollo Client 4 (or superseded by GraphQL-removal phase — revisit when that is scoped)
 - [ ] React 19.2.x, react-tooltip 6, lint-staged 17, remaining majors
 
-## Phase 9 — Phaser 4 migration (last, issue #312)
+## Phase 10 — Phaser 4 migration (last, issue #312)
 
 - [ ] Read the official migration guide and v3→v4 migration skill before starting
 - [ ] Migrate; validate via full unit/component/E2E suite and manual play-through
@@ -148,9 +154,7 @@ Frontend integration (may be superseded by GraphQL-removal phase — reassess be
 
 ## Deferred / backlog
 
-- **Remove GraphQL layer**: replace Apollo Client + `server/` gateway with direct REST calls to the Armory Lambda. Scope TBD — needs a design spike (REST shape, error handling, caching strategy). Likely fits between Phase 7 and Phase 8; will affect Phase 8's Apollo Client 4 upgrade (may become moot).
 - **Retire GitHub Pages**: remove the `gh-pages` deploy workflow and `VITE_BASE_URL` transition shim once Vercel production is confirmed stable (follow-up to Phase 6).
-- AWS CDK migration (replaces Serverless v3; unlocks newest Lambda runtimes)
 - Coverage ratchet toward 80%+ on non-Phaser code
 - Enable `noUncheckedIndexedAccess` (deferred from Phase 3; 29 sites needing deliberate guard/fallback decisions) (#333)
 - Lifecycle cleanup for `AreaEffect` overlap colliders and `StatusEffects`/`Banes` timers (pre-existing leaks surfaced during Phase 3) (#328)
