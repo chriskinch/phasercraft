@@ -1,5 +1,6 @@
 import React, { useContext } from "react";
 import { MenuContext } from "@ui/UI";
+import styles from "./Price.module.css";
 
 interface PriceProps {
     cost: number;
@@ -22,23 +23,12 @@ const Price: React.FC<PriceProps> = ({ cost }) => {
               };
 
     return (
-        <div className="price-container">
-            <img className="price-icon" src={`./UI/icons/${icon}.gif`} alt="Item cost:" /> {value}
-            <style jsx>{`
-                .price-container {
-                    background-color: rgba(255, 255, 255, 0.95);
-                    border: 4px solid ${color};
-                    border-radius: 0.125rem;
-                    font-size: 1.125rem;
-                    padding: 0.25rem 0.5rem;
-                    white-space: nowrap;
-                }
-
-                .price-icon {
-                    width: 0.5rem;
-                    display: inline-block;
-                }
-            `}</style>
+        <div
+            className={styles.priceContainer}
+            style={{ "--price-color": color } as React.CSSProperties}
+        >
+            <img className={styles.priceIcon} src={`./UI/icons/${icon}.gif`} alt="Item cost:" />{" "}
+            {value}
         </div>
     );
 };

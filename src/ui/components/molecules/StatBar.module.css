@@ -1,0 +1,42 @@
+.statBarContainer {
+    position: relative;
+    overflow: hidden;
+    margin-bottom: 0.125rem;
+    padding: 0.125rem 0.25rem;
+    border: var(--bar-border-w) solid black;
+    background-color: var(--bar-bg-dark);
+}
+
+.progressFill {
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background-color: var(--bar-fill);
+    transform-origin: left;
+    transform: scaleX(var(--bar-pct));
+}
+
+.innerShadow {
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    border-right: 1px solid rgba(0, 0, 0, 0.2);
+    border-bottom: 1px solid rgba(0, 0, 0, 0.2);
+}
+
+.label {
+    position: relative;
+}
+
+.value {
+    position: relative;
+}
+
+.maxValue {
+    position: relative;
+    float: right;
+}

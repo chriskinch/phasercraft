@@ -1,0 +1,28 @@
+.button {
+    display: inline-block;
+    padding: 0 0.75rem;
+    height: 1.5em;
+    border: none;
+    outline: none;
+    font-weight: bold;
+    border-radius: 3px;
+    margin-bottom: 0.5rem;
+    width: 100%;
+    background-color: var(--btn-bg);
+    border-bottom: 2px solid var(--btn-bg-dark);
+    color: var(--btn-fg);
+    font-size: var(--btn-size);
+    box-shadow: var(--btn-shadow);
+    text-shadow: 0 1px var(--btn-text-shadow);
+}
+
+.button:active {
+    transform: translateY(0.125rem);
+    box-shadow: none;
+}
+
+.button:disabled {
+    color: var(--btn-disabled-color);
+    background-color: grey;
+    border-color: var(--btn-disabled-color);
+}

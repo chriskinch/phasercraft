@@ -1,0 +1,104 @@
+/*
+ * Shared "pixel" styling mixins, ported from the JS string helpers that used to
+ * live in themes.ts and were interpolated into styled-jsx blocks. They are now
+ * plain CSS Module classes; the values that used to be computed per-render
+ * (background colour + its darkened shadow, emboss fill/shadow) are read from
+ * CSS custom properties set inline by the consumer (see themes.ts helpers).
+ */
+
+.pixelBackground {
+    background: var(--pb-bg);
+    border: none;
+    box-shadow:
+        0 6px 0 var(--pb-bg-dark),
+        0 10px 0 rgba(0, 0, 0, 0.25);
+    box-sizing: border-box;
+    display: inline-block;
+    outline: 0;
+    padding: 0.25em;
+    position: relative;
+    height: 100%;
+    margin: 0 6px;
+}
+
+.pixelBackground::before {
+    background: var(--pb-bg);
+    width: 6px;
+    content: "";
+    display: block;
+    top: 6px;
+    position: absolute;
+    bottom: 6px;
+    left: -6px;
+    box-shadow:
+        0 6px 0 var(--pb-bg-dark),
+        0 10px 0 rgba(0, 0, 0, 0.25);
+}
+
+.pixelBackground::after {
+    background: var(--pb-bg);
+    width: 6px;
+    content: "";
+    display: block;
+    top: 6px;
+    position: absolute;
+    bottom: 6px;
+    right: -6px;
+    box-shadow:
+        0 6px 0 var(--pb-bg-dark),
+        0 10px 0 rgba(0, 0, 0, 0.3);
+}
+
+/*
+ * Emboss defaults match the old pixel_emboss() call with no arguments
+ * (rgb = 0,0,0, a = 0.1 → fill rgba(0,0,0,0.1), shadow rgba(0,0,0,0.3)). Call
+ * sites that need other values (DroppableSlot) override --pe-fill / --pe-shadow.
+ */
+.pixelEmboss {
+    background: var(--pe-fill, rgba(0, 0, 0, 0.1));
+    border-top: 6px solid var(--pe-fill, rgba(0, 0, 0, 0.1));
+    box-shadow: 0 -6px 0 var(--pe-shadow, rgba(0, 0, 0, 0.3));
+    box-sizing: border-box;
+    position: relative;
+    margin: 6px;
+    text-align: center;
+}
+
+.pixelEmboss::before {
+    background: var(--pe-fill, rgba(0, 0, 0, 0.1));
+    border-top: 6px solid var(--pe-fill, rgba(0, 0, 0, 0.1));
+    bottom: 6px;
+    box-shadow: 0 -6px 0 var(--pe-shadow, rgba(0, 0, 0, 0.3));
+    content: "";
+    display: block;
+    left: -6px;
+    position: absolute;
+    top: 0;
+    width: 6px;
+}
+
+.pixelEmboss::after {
+    background: var(--pe-fill, rgba(0, 0, 0, 0.1));
+    border-top: 6px solid var(--pe-fill, rgba(0, 0, 0, 0.1));
+    bottom: 6px;
+    box-shadow: 0 -6px 0 var(--pe-shadow, rgba(0, 0, 0, 0.3));
+    content: "";
+    display: block;
+    right: -6px;
+    position: absolute;
+    top: 0;
+    width: 6px;
+}
+
+.dialogOverlay {
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background-color: rgba(0, 0, 0, 0.9);
+    padding: 10% 35%;
+    color: white;
+    font-size: 1.5em;
+    font-weight: bold;
+}

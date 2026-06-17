@@ -84,6 +84,16 @@ optimisation). Removing it eliminates framework overhead, browser-compatibility 
 hacks, and the pending Next 16 upgrade. Do this after Phase 4 so the test suite validates
 the build switch, and before Phase 6 so Vercel gets a clean Vite static deploy.
 
+Prerequisite (split out as its own PR, agreed 2026-06-17): the UI used `styled-jsx`
+(`<style jsx>`) in 30 components — a Next.js-coupled feature with no automatic transform
+under Vite + `@vitejs/plugin-react@6` (Rolldown/oxc dropped the `babel` option). Rather
+than add a Babel toolchain, `styled-jsx` was removed in favour of **CSS Modules** (Vite
+native, zero new deps): static rules in `*.module.css`, per-render values passed as CSS
+custom properties via inline `style`, shared `pixel_*` mixins ported to `themes.module.css`.
+Done on the current Next.js build first so visual parity is validated against a known-good
+stack; the Vite switch below then carries no styling risk.
+
+- [x] Remove `styled-jsx` → CSS Modules across all 30 UI components (prerequisite PR)
 - [ ] Add `vite.config.ts`: carry over path aliases from `tsconfig.json`; add `resolve.alias` stubs for Node built-ins Phaser requires (`fs`, `crypto`, `path` → `false`); set `base` from `VITE_BASE_URL` env var (empty for Vercel, `/phasercraft/` for GitHub Pages during transition)
 - [ ] Add `index.html` entry point; move page title/meta out of Next.js Metadata API into plain `<meta>` tags
 - [ ] Replace `next/font/google` (VT323) with a `<link>` tag in `index.html`

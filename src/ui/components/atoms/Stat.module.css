@@ -1,0 +1,15 @@
+.label {
+    clear: left;
+    float: left;
+    margin-right: 0.5rem;
+    text-align: left;
+    text-transform: capitalize;
+    white-space: nowrap;
+}
+
+.value {
+    overflow: hidden;
+    text-align: right;
+    margin-left: 0;
+    color: var(--stat-color);
+}

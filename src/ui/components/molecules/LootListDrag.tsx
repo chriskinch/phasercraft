@@ -7,6 +7,7 @@ import { useSelector, useDispatch } from "react-redux";
 import { equipLoot, selectLoot, unequipLoot } from "@store/gameReducer";
 import type { LootItem } from "@/types/game";
 import type { RootState } from "@store";
+import styles from "./LootListDrag.module.css";
 
 interface LootListDragProps {
     cols?: number;
@@ -68,19 +69,13 @@ const LootListDrag: React.FC<LootListDragProps> = ({ cols = 6, list, name }) => 
                 ref={(node) => {
                     drag(node);
                 }}
-                className={isDragging ? "dragging" : ""}
+                className={isDragging ? styles.dragging : ""}
             >
                 <Loot
                     loot={props.loot}
                     isSelected={props.isSelected}
                     setSelected={props.setSelected}
                 />
-                <style jsx>{`
-                    .dragging {
-                        opacity: 0.1;
-                        filter: grayscale(100%);
-                    }
-                `}</style>
             </div>
         );
     };
@@ -95,7 +90,9 @@ const LootListDrag: React.FC<LootListDragProps> = ({ cols = 6, list, name }) => 
             ref={(node) => {
                 drop(node);
             }}
-            className="loot-grid"
+            className={styles.lootGrid}
+            style={{ "--cols": cols } as React.CSSProperties}
+            data-testid="loot-grid"
         >
             {list &&
                 list.map((loot, i) => {
@@ -113,14 +110,6 @@ const LootListDrag: React.FC<LootListDragProps> = ({ cols = 6, list, name }) => 
                         />
                     );
                 })}
-            <style jsx>{`
-                .loot-grid {
-                    display: grid;
-                    gap: 1rem;
-                    overflow-y: scroll;
-                    grid-template-columns: repeat(${cols}, 1fr);
-                }
-            `}</style>
         </div>
     );
 };

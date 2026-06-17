@@ -1,4 +1,5 @@
 import React from "react";
+import iconStyles from "./LootIcon.module.css";
 
 interface LootIconStyles {
     width?: number;
@@ -14,29 +15,30 @@ interface LootIconProps {
 }
 
 const LootIcon: React.FC<LootIconProps> = ({ category, color, icon, selected, styles = {} }) => {
-    // Parse the override style if provided
-    const overrideProperty = styles.override?.split(":")[0];
-    const overrideValue = styles.override?.split(":")[1];
+    // The optional `override` is a raw "property: value" CSS declaration with a
+    // dynamic property *name*, so it can't be a CSS variable — parse it into an
+    // inline style entry (camel-casing the property for React).
+    const overrideStyle: React.CSSProperties = {};
+    if (styles.override) {
+        const [prop, ...rest] = styles.override.split(":");
+        const value = rest.join(":").replace(/;/g, "").trim();
+        const camel = prop.trim().replace(/-([a-z])/g, (_, c: string) => c.toUpperCase());
+        (overrideStyle as Record<string, string>)[camel] = value;
+    }
 
     return (
-        <>
-            <img
-                className="styled-loot-icon"
-                src={`graphics/images/loot/${category}/${icon}.png`}
-                alt="Loot!"
-            />
-
-            <style jsx>{`
-                .styled-loot-icon {
-                    border: 2px solid ${selected ? "red" : color};
-                    border-radius: 0.25rem;
-                    padding: 0.25rem;
-                    background-color: white;
-                    width: ${styles.width || 24}px;
-                    ${overrideProperty ? `${overrideProperty}: ${overrideValue};` : ""}
-                }
-            `}</style>
-        </>
+        <img
+            className={iconStyles.styledLootIcon}
+            src={`graphics/images/loot/${category}/${icon}.png`}
+            alt="Loot!"
+            style={
+                {
+                    "--loot-border": selected ? "red" : color,
+                    width: `${styles.width || 24}px`,
+                    ...overrideStyle,
+                } as React.CSSProperties
+            }
+        />
     );
 };
 

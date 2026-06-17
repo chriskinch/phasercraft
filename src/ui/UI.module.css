@@ -1,0 +1,21 @@
+.uiContainer {
+    position: absolute;
+    width: 100vw;
+    height: 100vh;
+    pointer-events: none;
+}
+
+.uiMain {
+    box-sizing: border-box;
+    height: 100%;
+    padding: 1em;
+    width: 100%;
+    pointer-events: all;
+    background: rgba(0, 0, 0, 0.5);
+    display: flex;
+    flex-direction: column;
+}
+
+.headerContainer {
+    margin-bottom: 14px;
+}

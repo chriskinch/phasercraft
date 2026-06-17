@@ -1,0 +1,8 @@
+.detailedLootContainer {
+    display: flex;
+    align-items: flex-start;
+    background-color: white;
+    padding: 0.25rem;
+    border: 2px solid #1f2937;
+    border-radius: 0.25rem;
+}

@@ -1,0 +1,6 @@
+.statsList {
+    clear: both;
+    overflow: hidden;
+    margin: 0;
+    width: var(--stats-width, auto);
+}

@@ -2,6 +2,7 @@ import React from "react";
 import Button from "@components/Button";
 import Navigation from "@components/Navigation";
 import Title from "@components/Title";
+import styles from "./Header.module.css";
 
 interface HeaderConfig {
     navigation?: boolean;
@@ -21,28 +22,18 @@ const Header: React.FC<HeaderProps> = ({ config, toggleUi }) => {
         return (
             <>
                 <Navigation />
-                <div className="close-button">
+                <div className={styles.closeButton}>
                     <Button text="X" onClick={() => toggleUi()} />
                 </div>
-                <style jsx>{`
-                    .close-button {
-                        float: right;
-                    }
-                `}</style>
             </>
         );
     } else {
         return (
             <>
                 <Title text={title || ""} />
-                <div className="close-button">
+                <div className={styles.closeButton}>
                     {close && <Button text="X" onClick={() => toggleUi()} />}
                 </div>
-                <style jsx>{`
-                    .close-button {
-                        float: right;
-                    }
-                `}</style>
             </>
         );
     }

@@ -1,5 +1,6 @@
 import React from "react";
 import round from "lodash/round";
+import styles from "./Attribute.module.css";
 
 interface AttributeProps {
     delimeter?: string;
@@ -16,29 +17,16 @@ const Attribute: React.FC<AttributeProps> = ({ delimeter = ":", label, value, po
 
     return (
         <>
-            <dt className="attribute-label">
+            <dt className={styles.label}>
                 {label}
                 {delimeter}
             </dt>
-            <dd className="attribute-value">{round(value, 2)}</dd>
-
-            <style jsx>{`
-                .attribute-label {
-                    clear: left;
-                    float: left;
-                    margin-right: 0.5rem;
-                    text-align: left;
-                    text-transform: capitalize;
-                    white-space: nowrap;
-                }
-
-                .attribute-value {
-                    overflow: hidden;
-                    text-align: right;
-                    margin-left: 0;
-                    color: ${getColor()};
-                }
-            `}</style>
+            <dd
+                className={styles.value}
+                style={{ "--attribute-color": getColor() } as React.CSSProperties}
+            >
+                {round(value, 2)}
+            </dd>
         </>
     );
 };

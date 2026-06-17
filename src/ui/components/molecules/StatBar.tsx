@@ -1,6 +1,7 @@
 import React from "react";
 import { darken } from "polished";
 import { getResourceColour } from "@helpers/getResourceColour";
+import styles from "./StatBar.module.css";
 
 interface StatBarProps {
     type: string;
@@ -16,62 +17,26 @@ const StatBar: React.FC<StatBarProps> = ({ type, colour, label, value, max }) =>
     const percentage = value / maxValue;
     const borderWidth = label ? 3 : 2;
 
+    // Custom properties are set on the container; the fill inherits them.
+    const style = {
+        "--bar-border-w": `${borderWidth}px`,
+        "--bar-bg-dark": darken(0.3, finalColour),
+        "--bar-fill": finalColour,
+        "--bar-pct": percentage,
+    } as React.CSSProperties;
+
     return (
-        <div className="stat-bar-container">
-            <div className="progress-fill" />
-            <div className="inner-shadow" />
+        <div className={styles.statBarContainer} style={style}>
+            <div className={styles.progressFill} />
+            <div className={styles.innerShadow} />
 
             {label && (
                 <>
-                    <label className="label">{label}</label>:<span className="value">{value}</span>
-                    <span className="max-value">{maxValue}</span>
+                    <label className={styles.label}>{label}</label>:
+                    <span className={styles.value}>{value}</span>
+                    <span className={styles.maxValue}>{maxValue}</span>
                 </>
             )}
-
-            <style jsx>{`
-                .stat-bar-container {
-                    position: relative;
-                    overflow: hidden;
-                    margin-bottom: 0.125rem;
-                    padding: 0.125rem 0.25rem;
-                    border: ${borderWidth}px solid black;
-                    background-color: ${darken(0.3, finalColour)};
-                }
-
-                .progress-fill {
-                    position: absolute;
-                    top: 0;
-                    left: 0;
-                    right: 0;
-                    bottom: 0;
-                    background-color: ${finalColour};
-                    transform-origin: left;
-                    transform: scaleX(${percentage});
-                }
-
-                .inner-shadow {
-                    position: absolute;
-                    top: 0;
-                    left: 0;
-                    right: 0;
-                    bottom: 0;
-                    border-right: 1px solid rgba(0, 0, 0, 0.2);
-                    border-bottom: 1px solid rgba(0, 0, 0, 0.2);
-                }
-
-                .label {
-                    position: relative;
-                }
-
-                .value {
-                    position: relative;
-                }
-
-                .max-value {
-                    position: relative;
-                    float: right;
-                }
-            `}</style>
         </div>
     );
 };

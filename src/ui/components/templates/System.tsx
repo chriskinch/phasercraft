@@ -3,7 +3,7 @@ import { useDispatch, useSelector } from "react-redux";
 import { switchUi, toggleUi } from "@store/gameReducer";
 import Button from "@components/Button";
 import Dialog from "@components/Dialog";
-import { dialog_overlay } from "@ui/themes";
+import theme from "@ui/themes.module.css";
 import { writeSave } from "@services/saveStorage";
 import type { RootState } from "@store";
 
@@ -18,7 +18,7 @@ const System: React.FC<SystemProps> = ({ state }) => {
 
     const save_dialog = showDialog ? (
         <Dialog>
-            <div className="dialog-overlay">
+            <div className={theme.dialogOverlay}>
                 <p>Overwrite your existing save game?</p>
                 <Button
                     text="Yes"
@@ -31,11 +31,6 @@ const System: React.FC<SystemProps> = ({ state }) => {
                     }}
                 />
                 <Button text="Cancel" onClick={() => setShowDialog(false)} />
-                <style jsx>{`
-                    .dialog-overlay {
-                        ${dialog_overlay()}
-                    }
-                `}</style>
             </div>
         </Dialog>
     ) : null;

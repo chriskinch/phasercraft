@@ -29,16 +29,16 @@ describe("LootListDrag (Inventory grid)", () => {
         ];
         const { container } = renderWithProviders(<LootListDrag list={list} name="inventory" />);
 
-        const grid = container.querySelector(".loot-grid");
+        const grid = container.querySelector(`[data-testid="loot-grid"]`);
         expect(grid).toBeInTheDocument();
         // Each item renders a LootIcon image; the grid wraps the draggable nodes.
-        expect(container.querySelectorAll(".styled-loot-icon")).toHaveLength(3);
+        expect(container.querySelectorAll(`img[alt="Loot!"]`)).toHaveLength(3);
     });
 
     it("renders nothing for an empty list but still mounts the drop grid", () => {
         const { container } = renderWithProviders(<LootListDrag list={[]} name="inventory" />);
-        expect(container.querySelector(".loot-grid")).toBeInTheDocument();
-        expect(container.querySelectorAll(".styled-loot-icon")).toHaveLength(0);
+        expect(container.querySelector(`[data-testid="loot-grid"]`)).toBeInTheDocument();
+        expect(container.querySelectorAll(`img[alt="Loot!"]`)).toHaveLength(0);
     });
 
     it("dispatches selectLoot with the clicked item", () => {
@@ -61,7 +61,7 @@ describe("LootListDrag (Inventory grid)", () => {
             preloadedGame: { selected: item },
         });
         // A selected icon renders with a red border (see LootIcon styling).
-        const icon = container.querySelector(".styled-loot-icon");
+        const icon = container.querySelector(`img[alt="Loot!"]`);
         expect(icon).toBeInTheDocument();
     });
 });

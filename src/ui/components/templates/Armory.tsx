@@ -1,7 +1,6 @@
 import React from "react";
 import { useSelector, useDispatch } from "react-redux";
 
-import { pixel_emboss } from "@ui/themes";
 import Button from "@components/Button";
 import Stock from "@components/Stock";
 import { buyLoot, toggleFilter } from "@store/gameReducer";
@@ -12,6 +11,7 @@ import { RESTOCK_STORE, REMOVE_ITEM } from "@mutations";
 import { sortBy } from "@ui/operations/helpers";
 import type { LootItem } from "@/types/game";
 import type { RootState } from "@store";
+import styles from "./Armory.module.css";
 
 interface ArmoryProps {}
 
@@ -46,7 +46,7 @@ const Armory: React.FC<ArmoryProps> = () => {
     };
 
     return (
-        <div className="armory-container">
+        <div className={styles.armoryContainer}>
             <section>
                 <h3>Sort</h3>
                 <Button
@@ -103,7 +103,7 @@ const Armory: React.FC<ArmoryProps> = () => {
             </section>
             <section>
                 <h3>Filter</h3>
-                <div className="filter-grid">
+                <div className={styles.filterGrid}>
                     <Button
                         text="AP"
                         on={filterOn("attack_power")}
@@ -151,26 +151,9 @@ const Armory: React.FC<ArmoryProps> = () => {
                     />
                 </div>
             </section>
-            <section className="stock-section">
+            <section className={styles.stockSection}>
                 <Stock items={data.items} />
             </section>
-            <style jsx>{`
-                .armory-container {
-                    display: grid;
-                    grid-template-columns: 90px 90px 1fr;
-                    grid-gap: 1em;
-                    height: 100%;
-                }
-                .filter-grid {
-                    display: grid;
-                    grid-template-columns: 1fr 1fr;
-                    column-gap: 0.5em;
-                }
-                .stock-section {
-                    ${pixel_emboss}
-                    padding: 0.5em;
-                }
-            `}</style>
         </div>
     );
 };

@@ -2,6 +2,7 @@ import React from "react";
 
 import { useDragLayer } from "react-dnd";
 import LootIcon from "@components/LootIcon";
+import styles from "./CustomDragLayer.module.css";
 
 interface Offset {
     x: number;
@@ -44,19 +45,8 @@ const CustomDragLayer: React.FC = () => {
     }
 
     return (
-        <div className="drag-layer">
+        <div className={styles.dragLayer}>
             <div style={getItemStyles(initialOffset, currentOffset)}>{renderItem()}</div>
-            <style jsx>{`
-                .drag-layer {
-                    position: fixed;
-                    pointer-events: none;
-                    z-index: 100;
-                    left: 0;
-                    top: 0;
-                    width: 100%;
-                    height: 100%;
-                }
-            `}</style>
         </div>
     );
 };

@@ -1,7 +1,8 @@
 import React from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { switchUi } from "@store/gameReducer";
-import { pixel_background } from "../../themes";
+import { pixelBackgroundVars } from "../../themes";
+import theme from "../../themes.module.css";
 import type { RootState } from "@store";
 
 const Navigation = () => {
@@ -11,29 +12,29 @@ const Navigation = () => {
     const items = ["Character", "Equipment", "Armory", "Arcanum"];
 
     return (
-        <nav className="nav-container">
+        <nav>
             {items &&
-                items.map((item, i) => (
-                    <React.Fragment key={i}>
+                items.map((item, i) => {
+                    const active = menu === item.toLowerCase();
+                    return (
                         <button
-                            className={`nav-button ${menu === item.toLowerCase() ? "active" : ""}`}
+                            key={i}
+                            className={theme.pixelBackground}
+                            style={{
+                                ...pixelBackgroundVars({
+                                    bg_color: active ? "#44bff7" : "#ffa53d",
+                                }),
+                                color: "white",
+                                float: "left",
+                                fontSize: "2em",
+                                marginRight: "0.5em",
+                            }}
                             onClick={() => dispatch(switchUi(item.toLowerCase()))}
                         >
                             {item}
                         </button>
-                        <style jsx>{`
-                            .nav-button {
-                                ${pixel_background({
-                                    bg_color: menu === item.toLowerCase() ? "#44bff7" : "#ffa53d",
-                                })}
-                                color: white;
-                                float: left;
-                                font-size: 2em;
-                                margin-right: 0.5em;
-                            }
-                        `}</style>
-                    </React.Fragment>
-                ))}
+                    );
+                })}
         </nav>
     );
 };

@@ -1,6 +1,8 @@
 import React, { createContext } from "react";
 import { useSelector, useDispatch } from "react-redux";
-import { pixel_background } from "@ui/themes";
+import { pixelBackgroundVars } from "@ui/themes";
+import theme from "@ui/themes.module.css";
+import styles from "./UI.module.css";
 import { toggleUi } from "@store/gameReducer";
 import Arcanum from "@components/Arcanum";
 import Armory from "@components/Armory";
@@ -89,18 +91,25 @@ const UI: React.FC = () => {
 
     // Use specified menu other use equipment as default
     const CurrentMenu = menu ? config[menu] : config.equipment;
+    const isSystem = menu === "system";
 
     return (
-        <div className="ui-container">
+        <div className={styles.uiContainer}>
             {showHUD && <HUD />}
             {showUi && (
-                <div className="ui-main">
-                    <div className="header-container">
+                <div className={styles.uiMain}>
+                    <div className={styles.headerContainer}>
                         <Header config={CurrentMenu} toggleUi={handleToggleUi} />
                     </div>
                     <div
                         id={CurrentMenu.title.toLowerCase().replace(" ", "-")}
-                        className="menu-container"
+                        className={isSystem ? undefined : theme.pixelBackground}
+                        style={{
+                            ...(isSystem ? {} : pixelBackgroundVars()),
+                            margin: "0 auto",
+                            padding: "calc(1em + 6px) 1em 1em",
+                            width: isSystem ? "200px" : "100%",
+                        }}
                     >
                         <CustomDragLayer />
                         <MenuContext.Provider value={menu || "equipment"}>
@@ -109,36 +118,6 @@ const UI: React.FC = () => {
                     </div>
                 </div>
             )}
-            <style jsx>{`
-                .ui-container {
-                    position: absolute;
-                    width: 100vw;
-                    height: 100vh;
-                    pointer-events: none;
-                }
-
-                .ui-main {
-                    box-sizing: border-box;
-                    height: 100%;
-                    padding: 1em;
-                    width: 100%;
-                    pointer-events: all;
-                    background: rgba(0, 0, 0, 0.5);
-                    display: flex;
-                    flex-direction: column;
-                }
-
-                .header-container {
-                    margin-bottom: 14px;
-                }
-
-                .menu-container {
-                    ${menu === "system" ? "" : pixel_background()}
-                    margin: 0 auto;
-                    padding: calc(1em + 6px) 1em 1em;
-                    width: ${menu === "system" ? "200px" : "100%"};
-                }
-            `}</style>
         </div>
     );
 };

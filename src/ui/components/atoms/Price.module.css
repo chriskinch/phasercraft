@@ -1,0 +1,13 @@
+.priceContainer {
+    background-color: rgba(255, 255, 255, 0.95);
+    border: 4px solid var(--price-color);
+    border-radius: 0.125rem;
+    font-size: 1.125rem;
+    padding: 0.25rem 0.5rem;
+    white-space: nowrap;
+}
+
+.priceIcon {
+    width: 0.5rem;
+    display: inline-block;
+}

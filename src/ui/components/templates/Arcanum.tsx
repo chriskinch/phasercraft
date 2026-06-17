@@ -1,16 +1,12 @@
 import React from "react";
+import styles from "./Arcanum.module.css";
 
 const Arcanum: React.FC = () => {
     return (
-        <div>
+        <div className={styles.container}>
             <section>
                 <h2>Arcanum</h2>
             </section>
-            <style jsx>{`
-                div {
-                    display: flex;
-                }
-            `}</style>
         </div>
     );
 };
