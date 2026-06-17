@@ -26,7 +26,7 @@ Status legend: `[ ]` todo · `[~]` in progress · `[x]` done
 | Prod shop fallback                      | When no GraphQL endpoint is configured (production, until hosting exists), Armory/Stock UI shows a graceful "merchant unavailable" state.                           |
 | Workflow                                | Small focused PRs; the maintainer reviews every PR. Agents ask on behavior changes, decide on mechanics. See `CLAUDE.md`.                                           |
 | Build tooling                           | Replace Next.js with Vite (Phase 5). Next.js is unused as a framework — static export only, no SSR/API routes/image optimisation. Vite removes the framework layer entirely. |
-| Hosting                                 | Cloudflare Pages (Phase 6). Free tier, unlimited bandwidth, suits a large-asset game. Production deploys on merge to `main`; preview deploys triggered by the `deploy-preview` PR label. GitHub Pages stays in parallel during transition, retired once Cloudflare production is confirmed. |
+| Hosting                                 | Vercel (Phase 6). Free hobby tier; natively detects Vite static builds, no adapter needed. Production deploys on merge to `main`; preview deploys gated by Vercel's Ignored Build Step script (checks GitHub API for `deploy-preview` label — exits 0 to skip, 1 to build). GitHub Pages stays in parallel during transition, retired once Vercel production is confirmed. |
 | GraphQL layer                           | Direction: remove it. Apollo Client + the `server/` gateway over-complicate the stack for a single data source. A future phase will replace them with direct REST calls to the Armory Lambda. Phase 7 backend work is scoped accordingly — gateway stays local-dev; do not invest in production gateway hosting. |
 
 ---
@@ -97,19 +97,18 @@ the build switch, and before Phase 6 so Cloudflare gets a clean Vite static depl
 - [ ] Update `dev`, `build`, `typecheck` scripts in `package.json` to use Vite CLI
 - [ ] Gate: all CI checks pass (`typecheck`, `lint`, `format:check`, `test`, `build`); app boots and plays identically
 
-## Phase 6 — Cloudflare Pages (issue TBD)
+## Phase 6 — Vercel deployment (issue TBD)
 
-Static deploy to Cloudflare Pages replacing GitHub Pages. Unlimited bandwidth on the free
-tier suits a game with large assets. Do this after Phase 5 so the deploy is a clean
-Vite static build with no adapter needed.
+Static deploy to Vercel replacing GitHub Pages. Vercel auto-detects Vite projects with
+no adapter or framework config required. Do this after Phase 5 so the deploy is a clean
+Vite static build.
 
-- [ ] Connect the GitHub repo to Cloudflare Pages (build command: `npm run build`, output directory: `dist/`)
-- [ ] Disable automatic preview deployments in Cloudflare Pages settings (production-only auto-deploy on `main`)
-- [ ] Add `VITE_GRAPHQL_URL` env var in the Cloudflare dashboard (production + preview environments)
-- [ ] Add GitHub Actions workflow `preview-deploy.yml`: triggers on `pull_request` `labeled` event when label is `deploy-preview`; calls the Cloudflare Pages API to deploy that branch; posts the preview URL as a PR comment
+- [ ] Connect the GitHub repo to Vercel (framework: Vite auto-detected; build command: `npm run build`; output directory: `dist/`)
+- [ ] Add `VITE_GRAPHQL_URL` env var in the Vercel dashboard (production + preview environments)
+- [ ] Configure Vercel's **Ignored Build Step**: add a shell script that exits `0` (skip) for preview environments unless the PR carries the `deploy-preview` label (checked via GitHub API using `VERCEL_GIT_PULL_REQUEST_ID`); exits `1` (build) for production
 - [ ] Create the `deploy-preview` label in the GitHub repo
-- [ ] Confirm production URL (`phasercraft.pages.dev`) is live and the game plays correctly
-- [ ] GitHub Pages workflow and `assetPrefix`/`basePath` config stay in place during this phase; retire in the next PR once Cloudflare production is confirmed stable
+- [ ] Confirm production URL (`phasercraft.vercel.app`) is live and the game plays correctly
+- [ ] GitHub Pages workflow and `VITE_BASE_URL` transition shim stay in place during this phase; retire in the next PR once Vercel production is confirmed stable
 
 ## Phase 7 — Backend modernization
 
@@ -150,7 +149,7 @@ Frontend integration (may be superseded by GraphQL-removal phase — reassess be
 ## Deferred / backlog
 
 - **Remove GraphQL layer**: replace Apollo Client + `server/` gateway with direct REST calls to the Armory Lambda. Scope TBD — needs a design spike (REST shape, error handling, caching strategy). Likely fits between Phase 7 and Phase 8; will affect Phase 8's Apollo Client 4 upgrade (may become moot).
-- **Retire GitHub Pages**: remove the `gh-pages` deploy workflow and `VITE_BASE_URL` transition shim once Cloudflare Pages production is confirmed stable (follow-up to Phase 6).
+- **Retire GitHub Pages**: remove the `gh-pages` deploy workflow and `VITE_BASE_URL` transition shim once Vercel production is confirmed stable (follow-up to Phase 6).
 - AWS CDK migration (replaces Serverless v3; unlocks newest Lambda runtimes)
 - Coverage ratchet toward 80%+ on non-Phaser code
 - Enable `noUncheckedIndexedAccess` (deferred from Phase 3; 29 sites needing deliberate guard/fallback decisions) (#333)
