@@ -1,5 +1,6 @@
 import React from "react";
 import round from "lodash/round";
+import styles from "./Stat.module.css";
 
 interface StatProps {
     delimeter?: string;
@@ -24,29 +25,16 @@ const Stat: React.FC<StatProps> = ({ delimeter = ":", label, value, polarity }) 
 
     return (
         <>
-            <dt className="stat-label">
+            <dt className={styles.label}>
                 {label}
                 {delimeter}
             </dt>
-            <dd className="stat-value">{formatValue()}</dd>
-
-            <style jsx>{`
-                .stat-label {
-                    clear: left;
-                    float: left;
-                    margin-right: 0.5rem;
-                    text-align: left;
-                    text-transform: capitalize;
-                    white-space: nowrap;
-                }
-
-                .stat-value {
-                    overflow: hidden;
-                    text-align: right;
-                    margin-left: 0;
-                    color: ${getColor()};
-                }
-            `}</style>
+            <dd
+                className={styles.value}
+                style={{ "--stat-color": getColor() } as React.CSSProperties}
+            >
+                {formatValue()}
+            </dd>
         </>
     );
 };

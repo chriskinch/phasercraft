@@ -1,5 +1,6 @@
 import React from "react";
 import { darken, grayscale } from "polished";
+import styles from "./Button.module.css";
 
 interface ButtonProps {
     disabled?: boolean;
@@ -25,43 +26,22 @@ const Button: React.FC<ButtonProps> = (props) => {
     } = props;
 
     const state_color = on ? "lime" : bg_color;
+    const dark = darken(0.3, state_color);
+    const grayDark = grayscale(dark);
+
+    const style = {
+        "--btn-bg": state_color,
+        "--btn-bg-dark": dark,
+        "--btn-fg": color,
+        "--btn-size": `${size}em`,
+        "--btn-shadow": disabled ? `0 3px 0px ${grayDark}` : `0 3px 0px ${dark}`,
+        "--btn-text-shadow": text_shadow_color,
+        "--btn-disabled-color": grayDark,
+    } as React.CSSProperties;
 
     return (
-        <button disabled={disabled} onClick={onClick}>
+        <button className={styles.button} style={style} disabled={disabled} onClick={onClick}>
             {text}
-
-            <style jsx>{`
-                button {
-                    display: inline-block;
-                    padding: 0 0.75rem;
-                    height: 1.5em;
-                    border: none;
-                    outline: none;
-                    font-weight: bold;
-                    border-radius: 3px;
-                    margin-bottom: 0.5rem;
-                    width: 100%;
-                    background-color: ${state_color};
-                    border-bottom: 2px solid ${darken(0.3, state_color)};
-                    color: ${color};
-                    font-size: ${size}em;
-                    box-shadow: ${disabled
-                        ? `0 3px 0px ${grayscale(darken(0.3, state_color))}`
-                        : `0 3px 0px ${darken(0.3, state_color)}`};
-                    text-shadow: 0 1px ${text_shadow_color};
-                }
-
-                button:active {
-                    transform: translateY(0.125rem);
-                    box-shadow: none;
-                }
-
-                button:disabled {
-                    color: ${grayscale(darken(0.3, state_color))};
-                    background-color: grey;
-                    border-color: ${grayscale(darken(0.3, state_color))};
-                }
-            `}</style>
         </button>
     );
 };

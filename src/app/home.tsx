@@ -28,43 +28,16 @@ const PhaserGameWithoutSSR = dynamic(() => import("../PhaserGame"), { ssr: false
 // prerendered on the server during the initial page load.
 export default function Home() {
     return (
-        <>
-            <ApolloProvider client={client}>
-                <Provider store={store}>
-                    <DndProvider
-                        backend={TouchBackend}
-                        options={{ enableMouseEvents: true, preview: true }}
-                    >
-                        <UI />
-                        <PhaserGameWithoutSSR />
-                    </DndProvider>
-                </Provider>
-            </ApolloProvider>
-
-            <style jsx global>{`
-                @import url("https://fonts.googleapis.com/css?family=VT323&display=swap");
-
-                body {
-                    margin: 0;
-                    font-size: 14px;
-                    font-family: "VT323", monospace;
-                }
-
-                button {
-                    font-family: "VT323", monospace;
-                    font-weight: bold;
-                }
-
-                h1,
-                h2,
-                h3,
-                h4,
-                h5,
-                h6 {
-                    margin-bottom: 0.5em;
-                    margin-top: 0;
-                }
-            `}</style>
-        </>
+        <ApolloProvider client={client}>
+            <Provider store={store}>
+                <DndProvider
+                    backend={TouchBackend}
+                    options={{ enableMouseEvents: true, preview: true }}
+                >
+                    <UI />
+                    <PhaserGameWithoutSSR />
+                </DndProvider>
+            </Provider>
+        </ApolloProvider>
     );
 }

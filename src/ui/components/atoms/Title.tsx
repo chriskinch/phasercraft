@@ -1,5 +1,6 @@
 import React from "react";
-import { pixel_background } from "../../themes";
+import { pixelBackgroundVars } from "@ui/themes";
+import theme from "@ui/themes.module.css";
 
 interface TitleProps {
     text: string;
@@ -7,17 +8,16 @@ interface TitleProps {
 
 const Title: React.FC<TitleProps> = ({ text }) => {
     return (
-        <h1 className="title">
+        <h1
+            className={theme.pixelBackground}
+            style={{
+                ...pixelBackgroundVars({ bg_color: "#44bff7" }),
+                color: "white",
+                float: "left",
+                marginRight: "1em",
+            }}
+        >
             {text}
-
-            <style jsx>{`
-                .title {
-                    ${pixel_background({ bg_color: "#44bff7" })}
-                    color: white;
-                    float: left;
-                    margin-right: 1em;
-                }
-            `}</style>
         </h1>
     );
 };

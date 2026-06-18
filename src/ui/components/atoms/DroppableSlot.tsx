@@ -1,11 +1,13 @@
 import React from "react";
 
 import Loot from "@components/Loot";
-import { pixel_emboss } from "@ui/themes";
+import { pixelEmbossVars } from "@ui/themes";
+import theme from "@ui/themes.module.css";
 import { useDrop } from "react-dnd";
 import { connect } from "react-redux";
 import { unequipLoot } from "@store/gameReducer";
 import type { LootItem } from "@/types/game";
+import styles from "./DroppableSlot.module.css";
 
 interface DroppableSlotProps {
     loot?: LootItem | null;
@@ -32,17 +34,12 @@ const DroppableSlot: React.FC<DroppableSlotProps> = ({ loot, slot, unequipLoot }
             ref={(node) => {
                 drop(node);
             }}
-            className={"droppable-slot"}
+            className={`${theme.pixelEmboss} ${styles.droppableSlot}`}
+            style={pixelEmbossVars({ rgb, a })}
+            data-testid="droppable-slot"
             onClick={() => loot && unequipLoot(loot)}
         >
             {loot && <Loot loot={loot} />}
-
-            <style jsx>{`
-                .droppable-slot {
-                    ${pixel_emboss({ rgb: rgb, a: a })}
-                    text-transform: capitalize;
-                }
-            `}</style>
         </div>
     );
 };

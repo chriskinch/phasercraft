@@ -1,0 +1,23 @@
+.armoryContainer {
+    display: grid;
+    grid-template-columns: 90px 90px 1fr;
+    grid-gap: 1em;
+    height: 100%;
+}
+
+.filterGrid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    column-gap: 0.5em;
+}
+
+/*
+ * NOTE: preserves a pre-existing bug. The original styled-jsx interpolated
+ * `${pixel_emboss}` — the function reference, not a call — so it emitted the
+ * function's source as invalid CSS which the browser dropped. The emboss never
+ * applied; only `padding` ever took effect. Behaviour is kept identical here
+ * (no emboss) rather than silently "fixing" it; see PR notes.
+ */
+.stockSection {
+    padding: 0.5em;
+}

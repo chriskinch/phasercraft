@@ -1,14 +1,19 @@
+/*
+ * Global app styles. These used to live in a `<style jsx global>` block in
+ * src/app/home.tsx; they are imported from src/app/layout.tsx now. The VT323
+ * @import is retained from that block so plain elements (e.g. <button>) keep the
+ * font — next/font applies VT323 via a className that only reaches <body>.
+ */
+@import url("https://fonts.googleapis.com/css?family=VT323&display=swap");
+
 body {
     margin: 0;
     font-size: 14px;
-}
-
-body,
-button {
     font-family: "VT323", monospace;
 }
 
 button {
+    font-family: "VT323", monospace;
     font-weight: bold;
 }
 

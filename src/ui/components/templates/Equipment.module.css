@@ -1,0 +1,38 @@
+.equipmentContainer {
+    display: grid;
+    gap: 0.5rem 1rem;
+    height: 100%;
+    grid-template-columns: 150px 56px 1fr 66px;
+    grid-template-areas: "stats eq inv com" "stats eq inv act";
+    grid-template-rows: 1fr min-content;
+}
+
+.characterData {
+    grid-area: stats;
+}
+
+.characterData h2 {
+    margin-bottom: 0.5rem;
+}
+
+.characterResources img {
+    float: left;
+    height: 3rem;
+    margin-right: 1rem;
+    margin-bottom: 1rem;
+}
+
+.equipmentSection {
+    grid-area: eq;
+    display: grid;
+    grid-template-rows: repeat(4, 1fr);
+}
+
+.inventorySection {
+    grid-area: inv;
+    padding: 0.5em;
+}
+
+.actionsSection {
+    grid-area: act;
+}

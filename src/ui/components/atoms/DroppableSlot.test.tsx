@@ -20,15 +20,15 @@ const helm: LootItem = {
 describe("DroppableSlot", () => {
     it("registers as a react-dnd drop target without an equipped item", () => {
         const { container } = renderWithProviders(<DroppableSlot slot="helm" loot={null} />);
-        const slot = container.querySelector(".droppable-slot");
+        const slot = container.querySelector(`[data-testid="droppable-slot"]`);
         expect(slot).toBeInTheDocument();
         // Empty slot renders no loot icon.
-        expect(container.querySelector(".styled-loot-icon")).not.toBeInTheDocument();
+        expect(container.querySelector(`img[alt="Loot!"]`)).not.toBeInTheDocument();
     });
 
     it("renders the equipped item's icon when a loot item is provided", () => {
         const { container } = renderWithProviders(<DroppableSlot slot="helm" loot={helm} />);
-        const icon = container.querySelector(".styled-loot-icon");
+        const icon = container.querySelector(`img[alt="Loot!"]`);
         expect(icon).toBeInTheDocument();
         expect(icon).toHaveAttribute("src", "graphics/images/loot/helmet/iron-helm.png");
     });
@@ -44,7 +44,7 @@ describe("DroppableSlot", () => {
             }
         );
 
-        const slot = container.querySelector(".droppable-slot") as HTMLElement;
+        const slot = container.querySelector(`[data-testid="droppable-slot"]`) as HTMLElement;
         fireEvent.click(slot);
 
         const state = store.getState().game;
@@ -56,7 +56,7 @@ describe("DroppableSlot", () => {
     it("does nothing when an empty slot is clicked", () => {
         const { store, container } = renderWithProviders(<DroppableSlot slot="helm" loot={null} />);
         const before = store.getState().game;
-        const slot = container.querySelector(".droppable-slot") as HTMLElement;
+        const slot = container.querySelector(`[data-testid="droppable-slot"]`) as HTMLElement;
         fireEvent.click(slot);
         expect(store.getState().game).toEqual(before);
         // Sanity: an unrelated query confirms nothing rendered/changed.

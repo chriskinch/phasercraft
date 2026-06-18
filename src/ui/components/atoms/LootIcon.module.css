@@ -1,0 +1,6 @@
+.styledLootIcon {
+    border: 2px solid var(--loot-border);
+    border-radius: 0.25rem;
+    padding: 0.25rem;
+    background-color: white;
+}

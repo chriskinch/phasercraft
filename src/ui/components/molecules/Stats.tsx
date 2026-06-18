@@ -1,5 +1,6 @@
 import React from "react";
 import Stat from "@components/Stat";
+import listStyles from "./Stats.module.css";
 
 interface StatItem {
     id: string;
@@ -19,7 +20,10 @@ interface StatsProps {
 
 const Stats: React.FC<StatsProps> = ({ children: stats, styles = {} }) => {
     return (
-        <dl className="stats-list">
+        <dl
+            className={listStyles.statsList}
+            style={{ "--stats-width": styles.width || "auto" } as React.CSSProperties}
+        >
             {stats.map((stat) => {
                 return (
                     <Stat
@@ -30,14 +34,6 @@ const Stats: React.FC<StatsProps> = ({ children: stats, styles = {} }) => {
                     />
                 );
             })}
-            <style jsx>{`
-                .stats-list {
-                    clear: both;
-                    overflow: hidden;
-                    margin: 0;
-                    width: ${styles.width || "auto"};
-                }
-            `}</style>
         </dl>
     );
 };

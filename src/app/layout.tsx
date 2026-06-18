@@ -1,4 +1,5 @@
 import { VT323 } from "next/font/google";
+import "../styles/globals.css";
 
 const vt323 = VT323({ weight: "400", subsets: ["latin"] });
 

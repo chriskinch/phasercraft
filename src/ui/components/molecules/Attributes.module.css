@@ -1,0 +1,6 @@
+.attributesList {
+    clear: both;
+    overflow: hidden;
+    margin: 0;
+    width: var(--attributes-width, auto);
+}

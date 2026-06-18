@@ -4,6 +4,7 @@ import { connect } from "react-redux";
 import type { PlayerName } from "@entities/Player/AssignClass";
 
 import Button from "../atoms/Button";
+import styles from "./CharacterCard.module.css";
 
 interface CharacterCardProps {
     // Injected by `connect`'s mapDispatchToProps; dispatches the selectCharacter action.
@@ -13,32 +14,13 @@ interface CharacterCardProps {
 
 const CharacterCard: React.FC<CharacterCardProps> = ({ selectCharacter, type }) => {
     return (
-        <li className="character-list-item">
+        <li className={styles.characterListItem}>
             <img
-                className="character-image"
+                className={styles.characterImage}
                 src={`UI/player/${type.toLowerCase()}.gif`}
                 alt={`Choose the ${type} class.`}
             />
             <Button text={type} onClick={() => selectCharacter(type)} />
-
-            <style jsx>{`
-                .character-list-item {
-                    padding: 0.5rem;
-                    text-align: center;
-                }
-
-                .character-list-item:first-child {
-                    padding-left: 0;
-                }
-
-                .character-list-item:last-child {
-                    padding-right: 0;
-                }
-
-                .character-image {
-                    padding-bottom: 0.5rem;
-                }
-            `}</style>
         </li>
     );
 };

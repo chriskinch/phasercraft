@@ -8,6 +8,7 @@ import { connect } from "react-redux";
 import type { LootItem, Equipment } from "@/types/game";
 import type { LootStat } from "@/types/game";
 import type { RootState } from "@store";
+import styles from "./ItemTooltip.module.css";
 
 interface ItemTooltipProps {
     id: string;
@@ -75,59 +76,29 @@ const ItemTooltip: React.FC<ItemTooltipProps> = ({ id, loot, equipment }) => {
 
     return (
         <Tooltip
-            className="tooltip"
+            className={styles.tooltip}
             id={id}
             variant="light"
             globalCloseEvents={{ clickOutsideAnchor: true }}
             afterShow={afterShowHandler}
         >
-            <div className="tooltip-content">
-                <div className="tooltip-main">
-                    <h3 className="tooltip-title">{name}</h3>
+            <div className={styles.tooltipContent}>
+                <div
+                    className={styles.tooltipMain}
+                    style={{ "--tooltip-border": color } as React.CSSProperties}
+                >
+                    <h3 className={styles.tooltipTitle}>{name}</h3>
                     <label>Type: </label> <span>{set}</span>
                     {stats.length > 0 && <Stats>{convertStatsToArray(stats)}</Stats>}
                 </div>
                 <Price cost={cost} />
                 {compare && (
-                    <div className="tooltip-compare">
+                    <div className={styles.tooltipCompare}>
                         <h4>Stat comparison</h4>
                         <Stats>{convertStatsToArray(compare, true)}</Stats>
                     </div>
                 )}
             </div>
-            <style jsx>{`
-                .tooltip {
-                    font-size: 1em;
-                    background-color: transparent !important;
-                    padding: 0;
-                    text-align: left;
-                }
-                .tooltip-content {
-                    display: grid;
-                    grid-template-columns: 1fr min-content;
-                    align-items: end;
-                    grid-gap: 0.5em;
-                }
-                .tooltip-main {
-                    border-style: solid;
-                    border-width: 5px;
-                    background: white;
-                    padding: 0.5em 1em;
-                    border-radius: 3px;
-                    border-color: ${color};
-                }
-                .tooltip-title {
-                    margin: 0;
-                }
-                .tooltip-compare {
-                    border-style: solid;
-                    border-width: 5px;
-                    background: white;
-                    padding: 0.5em 1em;
-                    border-radius: 3px;
-                    border-color: grey;
-                }
-            `}</style>
         </Tooltip>
     );
 };

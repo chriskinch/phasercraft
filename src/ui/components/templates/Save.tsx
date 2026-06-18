@@ -5,6 +5,7 @@ import Button from "@components/Button";
 import Dialog from "@components/Dialog";
 import { readAllSaves, removeSave, SAVE_SLOTS } from "@services/saveStorage";
 import type { RootState } from "@store";
+import styles from "./Save.module.css";
 
 interface SaveProps {
     load?: boolean;
@@ -20,7 +21,7 @@ const Save: React.FC<SaveProps> = ({ load = false }) => {
 
     const delete_dialog = showDialog ? (
         <Dialog>
-            <div>
+            <div className={styles.dialog}>
                 <p>Are you sure you want to delete this save game?</p>
                 <Button
                     text="Confirm"
@@ -33,27 +34,13 @@ const Save: React.FC<SaveProps> = ({ load = false }) => {
                     }}
                 />
                 <Button text="Cancel" onClick={() => setShowDialog(false)} />
-                <style jsx>{`
-                    div {
-                        position: absolute;
-                        top: 0;
-                        right: 0;
-                        bottom: 0;
-                        left: 0;
-                        background-color: rgba(0, 0, 0, 0.9);
-                        padding: 10% 35%;
-                        color: white;
-                        font-size: 1.25rem;
-                        font-weight: bold;
-                    }
-                `}</style>
             </div>
         </Dialog>
     ) : null;
 
     return (
         <>
-            <ol>
+            <ol className={styles.slots}>
                 {otherGames.map((save, i) => {
                     const { game: { saveSlot, character, coins, wave } = {} } = save || {};
                     return (
@@ -102,50 +89,6 @@ const Save: React.FC<SaveProps> = ({ load = false }) => {
                     );
                 })}
             </ol>
-            <style jsx>{`
-                ol {
-                    display: flex;
-                    list-style: none;
-                    margin: 0;
-                    padding: 0;
-                }
-
-                li {
-                    flex: 1;
-                    padding: 0.5rem;
-                    text-align: center;
-                }
-
-                li:first-child {
-                    padding-left: 0;
-                }
-
-                li:last-child {
-                    padding-right: 0;
-                }
-
-                h2 {
-                    text-transform: capitalize;
-                }
-
-                img {
-                    padding-bottom: 0.5rem;
-                }
-
-                p {
-                    margin: 0;
-                }
-
-                p:last-of-type {
-                    margin-bottom: 0.5rem;
-                }
-
-                li > div {
-                    display: grid;
-                    grid-template-columns: repeat(2, 1fr);
-                    gap: 0.5rem;
-                }
-            `}</style>
             {delete_dialog}
         </>
     );

@@ -42,8 +42,8 @@ describe("Equipment template", () => {
         seed({ character: "Warrior", inventory: [], stats: { health_max: 100 } as never });
         const { container } = renderWithProviders(<Equipment />, { store });
 
-        expect(container.querySelectorAll(".droppable-slot")).toHaveLength(4);
-        expect(container.querySelector(".loot-grid")).toBeInTheDocument();
+        expect(container.querySelectorAll(`[data-testid="droppable-slot"]`)).toHaveLength(4);
+        expect(container.querySelector(`[data-testid="loot-grid"]`)).toBeInTheDocument();
         expect(screen.getByRole("button", { name: "Sell" })).toBeInTheDocument();
         expect(screen.getByRole("button", { name: "Scrap" })).toBeInTheDocument();
     });
@@ -64,7 +64,7 @@ describe("Equipment template", () => {
         });
         const { container } = renderWithProviders(<Equipment />, { store });
 
-        const icons = Array.from(container.querySelectorAll(".styled-loot-icon")).map((n) =>
+        const icons = Array.from(container.querySelectorAll(`img[alt="Loot!"]`)).map((n) =>
             n.getAttribute("src")
         );
         expect(icons).toContain("graphics/images/loot/helmet/worn-helm.png");
