@@ -17,8 +17,8 @@ import CombatText from "../UI/CombatText";
 import type { PlayerOptions, PlayerStats } from "@/types/game";
 import type Enemy from "@entities/Enemy/Enemy";
 import type { GameSceneLike } from "@/types/scene";
+import * as converter from "number-to-words";
 
-const converter = require("number-to-words");
 interface Destination {
     x: number | null;
     y: number | null;

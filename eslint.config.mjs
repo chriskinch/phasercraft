@@ -1,36 +1,21 @@
-import { FlatCompat } from "@eslint/eslintrc";
+import tseslintParser from "@typescript-eslint/parser";
 import tseslint from "@typescript-eslint/eslint-plugin";
+import react from "eslint-plugin-react";
+import reactHooks from "eslint-plugin-react-hooks";
+import prettier from "eslint-config-prettier";
 
-const compat = new FlatCompat({
-    // import.meta.dirname is available after Node.js v20.11.0
-    baseDirectory: import.meta.dirname,
-});
-
+// Flat config. Replaced eslint-config-next (Phase 5 Vite migration) with the
+// react + react-hooks plugins it used to bundle, keeping the Phase 3 ban on
+// `any`. Prettier is applied last to switch off any formatting-related rules.
 const eslintConfig = [
-    ...compat.config({
-        extends: ["next", "prettier"],
-        rules: {
-            "@next/next/no-img-element": "off",
-        },
-    }),
-    {
-        // Phase 3 (#308): forbid `any` across the TypeScript sources. The
-        // @typescript-eslint plugin/parser ship transitively with
-        // eslint-config-next, so no new dependency is required; we register the
-        // plugin here so the rule resolves under flat config.
-        files: ["**/*.ts", "**/*.tsx"],
-        plugins: {
-            "@typescript-eslint": tseslint,
-        },
-        rules: {
-            "@typescript-eslint/no-explicit-any": "error",
-        },
-    },
     {
         ignores: [
             ".next/**",
             "dist/**",
             "out/**",
+            "coverage/**",
+            "playwright-report/**",
+            "test-results/**",
             "node_modules/**",
             "server/**",
             "services/**",
@@ -38,6 +23,35 @@ const eslintConfig = [
             "public/**",
         ],
     },
+    {
+        files: ["**/*.{ts,tsx}"],
+        languageOptions: {
+            parser: tseslintParser,
+            parserOptions: {
+                ecmaVersion: "latest",
+                sourceType: "module",
+                ecmaFeatures: { jsx: true },
+            },
+        },
+        plugins: {
+            "@typescript-eslint": tseslint,
+            react,
+            "react-hooks": reactHooks,
+        },
+        settings: {
+            react: { version: "detect" },
+        },
+        rules: {
+            ...reactHooks.configs.recommended.rules,
+            // Phase 3 (#308): forbid `any` across the TypeScript sources.
+            "@typescript-eslint/no-explicit-any": "error",
+            // The automatic JSX runtime (jsx: "react-jsx") means React need not
+            // be in scope.
+            "react/react-in-jsx-scope": "off",
+            "react/jsx-uses-react": "off",
+        },
+    },
+    prettier,
 ];
 
 export default eslintConfig;

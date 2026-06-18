@@ -1,5 +1,3 @@
-"use client";
-
 import { memo, useEffect, useRef } from "react";
 import { Game, AUTO } from "phaser";
 import LoadScene from "@scenes/LoadScene";
