@@ -2,7 +2,11 @@
     display: grid;
     gap: 0.5rem 1rem;
     height: 100%;
-    grid-template-columns: 150px 56px 1fr 66px;
+    /* Stats column is 170px to match the Character page (Character.module.css):
+       the resource block floats the player image left and each StatBar is its
+       own block formatting context, so a narrower column cramped/clipped the
+       HP/RP label + value. Equal width makes the two pages render identically. */
+    grid-template-columns: 170px 56px 1fr 66px;
     grid-template-areas: "stats eq inv com" "stats eq inv act";
     grid-template-rows: 1fr min-content;
 }
