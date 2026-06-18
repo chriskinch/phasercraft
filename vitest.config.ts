@@ -61,9 +61,8 @@ export default defineConfig({
                 "src/config/**/*.json",
                 "**/*.json",
                 // React/Phaser boot seam — wiring that can't be meaningfully unit-tested.
-                "src/app/**",
+                "src/main.tsx",
                 "**/PhaserGame.tsx",
-                "next-env.d.ts",
                 // E2E lives outside the unit suite (Playwright, separate workflow).
                 "e2e/**",
             ],

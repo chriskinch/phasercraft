@@ -37,7 +37,9 @@ jobs:
             - name: Build main application
               run: npm run build
               env:
-                  DEPLOY: production
+                  # Vite serves the Pages build under /phasercraft/ (was Next's
+                  # basePath, set via DEPLOY=production before the Vite migration).
+                  VITE_BASE_URL: /phasercraft/
             - name: Upload build artifact
               uses: actions/upload-artifact@v4
               with:

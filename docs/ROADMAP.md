@@ -93,17 +93,17 @@ custom properties via inline `style`, shared `pixel_*` mixins ported to `themes.
 Done on the current Next.js build first so visual parity is validated against a known-good
 stack; the Vite switch below then carries no styling risk.
 
-- [x] Remove `styled-jsx` → CSS Modules across all 30 UI components (prerequisite PR)
-- [ ] Add `vite.config.ts`: carry over path aliases from `tsconfig.json`; add `resolve.alias` stubs for Node built-ins Phaser requires (`fs`, `crypto`, `path` → `false`); set `base` from `VITE_BASE_URL` env var (empty for Vercel, `/phasercraft/` for GitHub Pages during transition)
-- [ ] Add `index.html` entry point; move page title/meta out of Next.js Metadata API into plain `<meta>` tags
-- [ ] Replace `next/font/google` (VT323) with a `<link>` tag in `index.html`
-- [ ] Replace `next/dynamic({ ssr: false })` with `React.lazy()` + `Suspense`
-- [ ] Remove `'use client'` directives (meaningless in a static build)
-- [ ] Remove `src/app/` App Router scaffolding; flatten to a single `src/main.tsx` entry
-- [ ] Rename `NEXT_PUBLIC_GRAPHQL_URL` → `VITE_GRAPHQL_URL` everywhere (env var, Apollo Client setup, CI secrets, docs)
-- [ ] Replace `eslint-config-next` with `eslint-plugin-react` + `eslint-plugin-react-hooks`; update `.eslintrc`
-- [ ] Update `dev`, `build`, `typecheck` scripts in `package.json` to use Vite CLI
-- [ ] Gate: all CI checks pass (`typecheck`, `lint`, `format:check`, `test`, `build`); app boots and plays identically
+- [x] Remove `styled-jsx` → CSS Modules across all 30 UI components (prerequisite PR, #343)
+- [x] Add `vite.config.ts`: carry over path aliases from `tsconfig.json` (incl. the `@components` multi-dir resolver shared with `vitest.config.ts`); set `base` from `VITE_BASE_URL` env var (empty for Vercel, `/phasercraft/` for GitHub Pages during transition). Node-builtin stubs proved unnecessary — no browser code imports `fs`/`path`/`crypto`; the one CJS `require("number-to-words")` in `Player.ts` was converted to an ESM import (the only build-time fix needed)
+- [x] Add `index.html` entry point; move page title/meta out of Next.js Metadata API into plain `<meta>` tags
+- [x] Replace `next/font/google` (VT323) with a `<link>` tag in `index.html`
+- [x] Replace `next/dynamic({ ssr: false })` with `React.lazy()` + `Suspense` (Phaser is now its own lazy chunk)
+- [x] Remove `'use client'` directives (meaningless in a static build)
+- [x] Remove `src/app/` App Router scaffolding; flatten to a single `src/main.tsx` entry
+- [x] Rename `NEXT_PUBLIC_GRAPHQL_URL` → `VITE_GRAPHQL_URL` (Apollo Client now reads `import.meta.env.VITE_GRAPHQL_URL`; only the ROADMAP referenced the old name — no CI secret used it)
+- [x] Replace `eslint-config-next` with `eslint-plugin-react` + `eslint-plugin-react-hooks`; rewrite `eslint.config.mjs` (flat config) keeping the Phase 3 `no-explicit-any` ban
+- [x] Update `dev`, `build` scripts in `package.json` to use the Vite CLI (`typecheck` stays `tsc --noEmit`); `static.yml` now sets `VITE_BASE_URL=/phasercraft/` instead of `DEPLOY=production`
+- [x] Gate: all CI checks pass (`typecheck`, `lint`, `format:check`, `test`, `build`); app boots and plays identically
 
 ## Phase 6 — Vercel deployment (issue TBD)
 

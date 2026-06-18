@@ -6,7 +6,7 @@
         "node": ">=22"
     },
     "homepage": "https://chriskinch.github.io/phasercraft/dist",
-    "description": "A Phaser 3 Next.js project template that demonstrates Next.js with React communication and uses Vite for bundling.",
+    "description": "A Phaser 3 + React/Redux browser RPG, bundled with Vite.",
     "repository": {
         "type": "git",
         "url": "git+https://github.com/chriskinch/phasercraft.git"
@@ -14,17 +14,17 @@
     "keywords": [
         "phaser",
         "phaser3",
-        "next",
-        "nextjs",
         "vite",
+        "react",
         "typescript"
     ],
     "scripts": {
-        "dev": "node log.js dev & next dev -p 8080",
-        "build": "node log.js build & next build",
-        "dev-nolog": "next dev -p 8080",
-        "lint": "next lint",
-        "build-nolog": "next build",
+        "dev": "node log.js dev & vite",
+        "build": "node log.js build & vite build",
+        "dev-nolog": "vite",
+        "lint": "eslint .",
+        "build-nolog": "vite build",
+        "preview": "vite preview",
         "typecheck": "tsc --noEmit",
         "test": "vitest run",
         "test:coverage": "vitest run --coverage",
@@ -41,9 +41,7 @@
     "dependencies": {
         "@apollo/client": "^3.13.8",
         "@reduxjs/toolkit": "^2.8.2",
-        "eslint-config-next": "^15.4.2",
         "lodash": "^4.18.1",
-        "next": "15.5.18",
         "number-to-words": "^1.2.4",
         "phaser": "^3.90.0",
         "polished": "^4.3.1",
@@ -65,26 +63,25 @@
         "@types/node": "^22.19.21",
         "@types/react": "^19",
         "@types/react-dom": "^19",
+        "@typescript-eslint/eslint-plugin": "^8.61.0",
+        "@typescript-eslint/parser": "^8.61.0",
         "@vitejs/plugin-react": "^6.0.2",
         "@vitest/coverage-v8": "^4.1.6",
         "@vitest/ui": "^4.1.6",
         "eslint": "^9.31.0",
         "eslint-config-prettier": "^10.1.8",
+        "eslint-plugin-react": "^7.37.5",
+        "eslint-plugin-react-hooks": "^5.2.0",
         "gh-pages": "^6.3.0",
         "jsdom": "^29.1.1",
         "lint-staged": "^16.4.0",
-        "postcss": "^8.5.10",
         "prettier": "^3.8.3",
         "react-dnd-test-backend": "^16.0.1",
         "serve": "^14.2.6",
         "simple-git-hooks": "^2.13.1",
         "typescript": "^5",
+        "vite": "^8.0.16",
         "vitest": "^4.1.6"
-    },
-    "overrides": {
-        "next": {
-            "postcss": "^8.5.10"
-        }
     },
     "simple-git-hooks": {
         "pre-commit": "npx lint-staged"
