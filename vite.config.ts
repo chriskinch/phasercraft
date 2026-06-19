@@ -30,7 +30,7 @@ function componentsAliasPlugin() {
     };
 }
 
-export default defineConfig(({ mode }) => ({
+export default defineConfig(() => ({
     plugins: [componentsAliasPlugin(), react()],
     // GitHub Pages serves the app under /phasercraft/ during the Vercel
     // transition (set via VITE_BASE_URL in the Pages workflow); Vercel and local
@@ -45,18 +45,6 @@ export default defineConfig(({ mode }) => ({
     },
     server: {
         port: 8080,
-    },
-    define: {
-        // Vercel Functions are co-deployed with the frontend. When VITE_ARMORY_URL
-        // is not set explicitly, fall back to the deployment URL so the API is
-        // reachable without manual dashboard configuration on every preview deploy.
-        ...(process.env.VITE_ARMORY_URL === undefined && process.env.VERCEL_URL
-            ? {
-                  "import.meta.env.VITE_ARMORY_URL": JSON.stringify(
-                      `https://${process.env.VERCEL_URL}`
-                  ),
-              }
-            : {}),
     },
     resolve: {
         alias: [

@@ -43,7 +43,7 @@ const Armory: React.FC<ArmoryProps> = () => {
     }, [armoryUrl]);
 
     useEffect(() => {
-        if (armoryUrl) {
+        if (armoryUrl !== undefined) {
             void fetchItems();
         }
     }, [armoryUrl, fetchItems]);
@@ -56,7 +56,7 @@ const Armory: React.FC<ArmoryProps> = () => {
         );
     }, [filters, allItems]);
 
-    if (!armoryUrl) return <div>Merchant unavailable</div>;
+    if (armoryUrl === undefined) return <div>Merchant unavailable</div>;
     if (loading) return <div>Loading...</div>;
     if (error) return <div>ERROR: {error}</div>;
 
