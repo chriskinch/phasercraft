@@ -111,11 +111,15 @@ Static deploy to Vercel replacing GitHub Pages. Vercel auto-detects Vite project
 no adapter or framework config required. Do this after Phase 5 so the deploy is a clean
 Vite static build.
 
-- [ ] Connect the GitHub repo to Vercel (framework: Vite auto-detected; build command: `npm run build`; output directory: `dist/`)
-- [ ] Add `VITE_GRAPHQL_URL` env var in the Vercel dashboard (production + preview environments)
-- [ ] Configure Vercel's **Ignored Build Step**: add a shell script that exits `0` (skip) for preview environments unless the PR carries the `deploy-preview` label (checked via GitHub API using `VERCEL_GIT_PULL_REQUEST_ID`); exits `1` (build) for production
-- [ ] Create the `deploy-preview` label in the GitHub repo
-- [ ] Confirm production URL (`phasercraft.vercel.app`) is live and the game plays correctly
+The repo-side config is captured as code in `vercel.json` + `scripts/vercel-ignore-build.sh`
+and documented in `docs/vercel-deployment.md`; the remaining items are Vercel-dashboard
+actions only the maintainer can do (account access).
+
+- [ ] **(maintainer)** Connect the GitHub repo to Vercel. Framework (`vite`), build command (`npm run build`) and output dir (`dist`) are pinned in `vercel.json`, so no dashboard overrides are needed.
+- [ ] **(maintainer)** Add `VITE_GRAPHQL_URL` env var in the Vercel dashboard — may be left **unset in Production** until Phase 7 (no public gateway yet → graceful "merchant unavailable"); set it once a reachable gateway exists.
+- [x] Configure Vercel's **Ignored Build Step** — done as code: `vercel.json#ignoreCommand` → `scripts/vercel-ignore-build.sh`, which exits `0` (skip) for previews unless the PR carries the `deploy-preview` label (checked via the GitHub API using `VERCEL_GIT_PULL_REQUEST_ID`) and `1` (build) for production
+- [ ] **(maintainer)** Create the `deploy-preview` label in the GitHub repo (trivial; the agent has no label-creation tool / `gh` access). The Ignored Build Step gate reads this label.
+- [ ] **(maintainer)** Confirm production URL (`phasercraft.vercel.app`) is live and the game plays correctly
 - [ ] GitHub Pages workflow and `VITE_BASE_URL` transition shim stay in place during this phase; retire in the next PR once Vercel production is confirmed stable
 
 ## Phase 7 — Armory migration to Vercel (issue TBD)
