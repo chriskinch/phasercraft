@@ -3,7 +3,7 @@
     "version": "2.0.0",
     "private": true,
     "engines": {
-        "node": ">=22"
+        "node": "22.x"
     },
     "homepage": "https://chriskinch.github.io/phasercraft/dist",
     "description": "A Phaser 3 + React/Redux browser RPG, bundled with Vite.",
