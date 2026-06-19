@@ -36,13 +36,16 @@ const LootListDrag: React.FC<LootListDragProps> = ({ cols = 6, list, name }) => 
     }> = (props) => {
         const { loot } = props;
         const { category, color, icon, set, uuid } = loot;
+        // Items without a set (unrecognized categories) cannot be equipped; use a
+        // placeholder type that no drop target accepts.
+        const dragType = set ?? "__unequippable__";
 
         const [{ isDragging }, drag, preview] = useDrag({
-            type: set,
+            type: dragType,
             item: { category, color, icon, uuid },
             end: (item, monitor) => {
                 const dropResult = monitor.getDropResult() as { slot: string } | null;
-                if (item && dropResult) {
+                if (item && dropResult && set) {
                     switch (dropResult.slot) {
                         case "amulet":
                         case "body":

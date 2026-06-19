@@ -1,51 +1,73 @@
-import { describe, it, expect } from "vitest";
+import { describe, it, expect, vi, beforeEach, afterEach } from "vitest";
 import { screen, waitFor } from "@testing-library/react";
-import { GraphQLError } from "graphql";
 import { renderWithProviders } from "@ui/test-utils/renderWithProviders";
-import { GET_ITEMS } from "@queries/getItems";
 import Armory from "@components/Armory";
+import type { Item as ApiItem } from "../../../../api/_lib/types";
 
-// Armory drives its UI off the GET_ITEMS Apollo query. This covers the two
-// states that exist today: the in-flight (loading) render and the GraphQL error
-// render. The "merchant unavailable" state (no endpoint configured) is a Phase 5
-// deliverable that is not implemented yet, so it is intentionally not tested here.
+const ARMORY_URL = "http://localhost:9000";
+
+const mockApiItem: ApiItem = {
+    id: "item-1",
+    createdAt: 0,
+    name: "Iron Sword",
+    category: "sword",
+    set: "weapon",
+    quality: "common",
+    qualitySort: 1,
+    cost: 5,
+    pool: 20,
+    icon: "sword_1",
+    stats: [{ id: "s1", name: "attack_power", value: 10 }],
+};
+
 describe("Armory template", () => {
-    it("renders the loading state while GET_ITEMS is in flight", () => {
-        // No matching mock result resolves synchronously, so the query stays loading.
-        renderWithProviders(<Armory />, {
-            mocks: [{ request: { query: GET_ITEMS }, delay: Infinity }],
-            preloadedGame: { coins: 100, filters: [] },
-        });
+    beforeEach(() => {
+        vi.stubEnv("VITE_ARMORY_URL", ARMORY_URL);
+    });
 
+    afterEach(() => {
+        vi.unstubAllEnvs();
+        vi.unstubAllGlobals();
+        vi.restoreAllMocks();
+    });
+
+    it("renders the loading state while fetch is in flight", () => {
+        vi.stubGlobal("fetch", vi.fn().mockReturnValue(new Promise(() => {})));
+        renderWithProviders(<Armory />, { preloadedGame: { coins: 100, filters: [] } });
         expect(screen.getByText("Loading...")).toBeInTheDocument();
     });
 
-    it("renders the error state when GET_ITEMS fails", async () => {
-        renderWithProviders(<Armory />, {
-            mocks: [
-                {
-                    request: { query: GET_ITEMS },
-                    result: { errors: [new GraphQLError("merchant exploded")] },
-                },
-            ],
-            preloadedGame: { coins: 100, filters: [] },
-        });
-
-        await waitFor(() => expect(screen.getByText(/^ERROR:/)).toBeInTheDocument());
-        expect(screen.getByText(/merchant exploded/)).toBeInTheDocument();
+    it("renders the error state when fetch throws a network error", async () => {
+        vi.stubGlobal("fetch", vi.fn().mockRejectedValue(new Error("network down")));
+        renderWithProviders(<Armory />, { preloadedGame: { coins: 100, filters: [] } });
+        await waitFor(() => expect(screen.getByText(/ERROR:/)).toBeInTheDocument());
+        expect(screen.getByText(/network down/)).toBeInTheDocument();
     });
 
-    it("surfaces a network error through the error branch", async () => {
-        renderWithProviders(<Armory />, {
-            mocks: [
-                {
-                    request: { query: GET_ITEMS },
-                    error: new Error("network down"),
-                },
-            ],
-            preloadedGame: { coins: 100, filters: [] },
-        });
-
+    it("renders the error state on a non-ok HTTP response", async () => {
+        vi.stubGlobal("fetch", vi.fn().mockResolvedValue({ ok: false, status: 500 } as Response));
+        renderWithProviders(<Armory />, { preloadedGame: { coins: 100, filters: [] } });
         await waitFor(() => expect(screen.getByText(/ERROR:/)).toBeInTheDocument());
+        expect(screen.getByText(/HTTP 500/)).toBeInTheDocument();
+    });
+
+    it("renders the merchant unavailable state when VITE_ARMORY_URL is unset", () => {
+        vi.unstubAllEnvs();
+        renderWithProviders(<Armory />, { preloadedGame: { coins: 100, filters: [] } });
+        expect(screen.getByText("Merchant unavailable")).toBeInTheDocument();
+    });
+
+    it("renders items when fetch succeeds", async () => {
+        vi.stubGlobal(
+            "fetch",
+            vi.fn().mockResolvedValue({
+                ok: true,
+                json: () => Promise.resolve([mockApiItem]),
+            } as unknown as Response)
+        );
+        renderWithProviders(<Armory />, { preloadedGame: { coins: 100, filters: [] } });
+        await waitFor(() => expect(screen.queryByText("Loading...")).not.toBeInTheDocument());
+        expect(screen.queryByText(/ERROR:/)).not.toBeInTheDocument();
+        expect(screen.queryByText("Merchant unavailable")).not.toBeInTheDocument();
     });
 });

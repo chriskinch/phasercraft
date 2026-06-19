@@ -32,7 +32,7 @@ const ItemTooltip: React.FC<ItemTooltipProps> = ({ id, loot, equipment }) => {
     };
 
     const afterShowHandler = () => {
-        if (loot && equipment[loot.set] && loot !== equipment[loot.set]) {
+        if (loot && loot.set && equipment[loot.set] && loot !== equipment[loot.set]) {
             const equippedItem = equipment[loot.set];
             if (equippedItem) {
                 setCompare(compareStats(loot, equippedItem));

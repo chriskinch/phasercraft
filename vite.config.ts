@@ -69,14 +69,6 @@ export default defineConfig(({ mode }) => ({
             { find: "@entities", replacement: path.resolve(__dirname, "./src/entities") },
             { find: "@services", replacement: path.resolve(__dirname, "./src/services") },
             { find: "@config", replacement: path.resolve(__dirname, "./src/config") },
-            {
-                find: "@queries",
-                replacement: path.resolve(__dirname, "./src/ui/operations/queries"),
-            },
-            {
-                find: "@mutations",
-                replacement: path.resolve(__dirname, "./src/ui/operations/mutations"),
-            },
             { find: "@", replacement: path.resolve(__dirname, "./src") },
         ],
     },

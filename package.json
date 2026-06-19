@@ -35,10 +35,9 @@
         "format": "prettier --write .",
         "format:check": "prettier --check .",
         "prepare": "simple-git-hooks",
-        "gateway": "cd server && yarn start"
+        "gateway": "echo 'GraphQL gateway removed in Phase 8 — use Vercel Functions directly'"
     },
     "dependencies": {
-        "@apollo/client": "^3.13.8",
         "@reduxjs/toolkit": "^2.8.2",
         "@vercel/kv": "^3.0.0",
         "fantasy-content-generator": "^4.9.1",

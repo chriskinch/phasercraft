@@ -224,7 +224,9 @@ export const gameReducer = createReducer(initState, (builder) => {
                 loot,
                 loot: { stats },
             } = action.payload;
-            (state.equipment as Record<string, LootItem | null>)[action.payload.loot.set] = loot;
+            if (loot.set) {
+                (state.equipment as Record<string, LootItem | null>)[loot.set] = loot;
+            }
             remove(state.inventory, (l) => l.id === loot.id);
             stats.map((s) => {
                 const current = state.base_stats[s.name];
@@ -302,7 +304,9 @@ export const gameReducer = createReducer(initState, (builder) => {
                 loot,
                 loot: { stats },
             } = action.payload;
-            (state.equipment as Record<string, LootItem | null>)[loot.set] = null;
+            if (loot.set) {
+                (state.equipment as Record<string, LootItem | null>)[loot.set] = null;
+            }
             state.inventory.push(loot);
             stats.map((s) => {
                 const current = state.base_stats[s.name];

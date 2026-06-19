@@ -24,9 +24,6 @@
                 "./src/ui/components/organisms/*",
                 "./src/ui/components/templates/*"
             ],
-            "@queries/*": ["./src/ui/operations/queries/*"],
-            "@mutations": ["./src/ui/operations/mutations"],
-            "@mutations/*": ["./src/ui/operations/mutations/*"],
             "@ui/*": ["./src/ui/*"],
             "@helpers/*": ["./src/helpers/*"],
             "@scenes/*": ["./src/scenes/*"],

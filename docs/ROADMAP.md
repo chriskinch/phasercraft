@@ -145,13 +145,13 @@ AWS infrastructure is retired entirely once the new endpoints are confirmed work
 Replace Apollo Client + `server/` gateway with direct `fetch()` calls to the Vercel
 Functions REST API. The gateway and all GraphQL schema code are deleted.
 
-- [ ] Define TypeScript types for the REST API responses (share or copy from `api/_lib/`)
-- [ ] Replace `ApolloProvider` and all `useQuery`/`useMutation` hooks with `fetch()` calls and React state (or a lightweight data-fetching hook)
-- [ ] Replace `VITE_GRAPHQL_URL` with `VITE_ARMORY_URL` in the frontend env var and Apollo Client setup
-- [ ] Remove `@apollo/client`, `graphql`, and `src/lib/cache.ts` (field policies); remove the Apollo cache field policy tests added in Phase 4 if present
-- [ ] Delete `server/` gateway entirely
-- [ ] Add component tests for Armory/Stock UI against the new fetch-based client (mock `fetch`)
-- [ ] Update "merchant unavailable" graceful state to check `VITE_ARMORY_URL` instead of `VITE_GRAPHQL_URL`
+- [x] Define TypeScript types for the REST API responses (share or copy from `api/_lib/`)
+- [x] Replace `ApolloProvider` and all `useQuery`/`useMutation` hooks with `fetch()` calls and React state (or a lightweight data-fetching hook)
+- [x] Replace `VITE_GRAPHQL_URL` with `VITE_ARMORY_URL` in the frontend env var and Apollo Client setup
+- [x] Remove `@apollo/client`, `graphql`, and `src/lib/cache.ts` (field policies); remove the Apollo cache field policy tests added in Phase 4 if present
+- [x] Delete `server/` gateway entirely
+- [x] Add component tests for Armory/Stock UI against the new fetch-based client (mock `fetch`)
+- [x] Update "merchant unavailable" graceful state to check `VITE_ARMORY_URL` instead of `VITE_GRAPHQL_URL`
 - [ ] Gate: merchant UI works end-to-end; no Apollo or GraphQL imports remain in `src/`
 
 ## Phase 9 — Major upgrades (one PR each, in order)

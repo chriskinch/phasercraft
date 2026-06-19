@@ -184,16 +184,20 @@ export const CHARACTER_BASE_STATS = {
 
 // Types
 export interface LootItem {
-    __typename: string;
     id: string;
+    name: string;
     category: string;
     color: string;
     icon: string;
-    set: string;
-    uuid: string;
+    set: string | undefined;
+    quality?: string;
+    qualitySort?: number;
+    pool?: number;
     stats: LootStat[];
     cost: number;
-    name: string;
+    // Legacy optional fields retained for saved-data compatibility and existing tests
+    __typename?: string;
+    uuid?: string;
 }
 
 export interface LootStat {
