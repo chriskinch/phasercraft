@@ -9,26 +9,31 @@ export default async function handler(req: VercelRequest, res: VercelResponse): 
         return;
     }
 
-    if (req.method === "GET") {
-        const item = await kv.hget<Item>("items", id);
-        if (!item) {
-            res.status(404).json({ error: "Item not found" });
+    try {
+        if (req.method === "GET") {
+            const item = await kv.hget<Item>("items", id);
+            if (!item) {
+                res.status(404).json({ error: "Item not found" });
+                return;
+            }
+            res.status(200).json(item);
             return;
         }
-        res.status(200).json(item);
-        return;
-    }
 
-    if (req.method === "DELETE") {
-        const item = await kv.hget<Item>("items", id);
-        if (!item) {
-            res.status(404).json({ error: "Item not found" });
+        if (req.method === "DELETE") {
+            const item = await kv.hget<Item>("items", id);
+            if (!item) {
+                res.status(404).json({ error: "Item not found" });
+                return;
+            }
+            await kv.hdel("items", id);
+            res.status(200).json(item);
             return;
         }
-        await kv.hdel("items", id);
-        res.status(200).json(item);
-        return;
-    }
 
-    res.status(405).json({ error: "Method not allowed" });
+        res.status(405).json({ error: "Method not allowed" });
+    } catch (e) {
+        console.error("[api/items/[id]] handler error:", e);
+        res.status(500).json({ error: e instanceof Error ? e.message : String(e) });
+    }
 }

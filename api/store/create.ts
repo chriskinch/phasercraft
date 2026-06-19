@@ -10,17 +10,22 @@ export default async function handler(req: VercelRequest, res: VercelResponse): 
         return;
     }
 
-    const amount: number = req.body?.amount ?? 1;
-    const items: Item[] = Array.from({ length: amount }, () => {
-        const id = uuidv4();
-        return { id, createdAt: Date.now(), ...generateItem() } as Item;
-    });
+    try {
+        const amount: number = req.body?.amount ?? 1;
+        const items: Item[] = Array.from({ length: amount }, () => {
+            const id = uuidv4();
+            return { id, createdAt: Date.now(), ...generateItem() } as Item;
+        });
 
-    const fields: Record<string, Item> = {};
-    for (const item of items) {
-        fields[item.id] = item;
+        const fields: Record<string, Item> = {};
+        for (const item of items) {
+            fields[item.id] = item;
+        }
+        await kv.hset("items", fields);
+
+        res.status(200).json(items);
+    } catch (e) {
+        console.error("[api/store/create] handler error:", e);
+        res.status(500).json({ error: e instanceof Error ? e.message : String(e) });
     }
-    await kv.hset("items", fields);
-
-    res.status(200).json(items);
 }
