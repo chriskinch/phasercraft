@@ -27,6 +27,10 @@ before starting work; link PRs to the relevant phase issue.
 
 ## Workflow rules
 
+- **Branch names** follow Conventional Commits types in kebab-case:
+  `<type>/<short-description>` — e.g. `feat/player-shield`, `fix/loot-cleanup`,
+  `chore/update-deps`, `docs/roadmap-phase-3`. Keep the description to 2–4 words.
+  Valid types: `feat`, `fix`, `refactor`, `test`, `chore`, `docs`, `perf`, `ci`.
 - **Small, focused PRs**: one concern per PR, from a feature branch. The maintainer
   reviews and merges every PR — never merge or push to `main` directly.
 - **Open PRs without asking when you're confident** nothing needs the maintainer's
