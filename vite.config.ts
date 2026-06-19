@@ -46,12 +46,17 @@ export default defineConfig(({ mode }) => ({
     server: {
         port: 8080,
     },
-    // Apollo Client and graphql read `process.env.NODE_ENV` at runtime; Vite
-    // does not expose `process` in the browser, so replace it statically.
     define: {
-        "process.env.NODE_ENV": JSON.stringify(
-            mode === "development" ? "development" : "production"
-        ),
+        // Vercel Functions are co-deployed with the frontend. When VITE_ARMORY_URL
+        // is not set explicitly, fall back to the deployment URL so the API is
+        // reachable without manual dashboard configuration on every preview deploy.
+        ...(process.env.VITE_ARMORY_URL === undefined && process.env.VERCEL_URL
+            ? {
+                  "import.meta.env.VITE_ARMORY_URL": JSON.stringify(
+                      `https://${process.env.VERCEL_URL}`
+                  ),
+              }
+            : {}),
     },
     resolve: {
         alias: [
