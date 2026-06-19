@@ -148,5 +148,5 @@ export const generateItem = (data?: ItemInput) => {
     const icon = data?.icon || getIcon(category, categoryMax);
     const stats = data?.stats ? addStatIds(data.stats as StatGroup) : getStats(qualityLevel);
 
-    return { ...data, name, category, set, quality, qualitySort, cost, pool, icon, stats };
+    return { name, category, set, quality, qualitySort, cost, pool, icon, stats };
 };
