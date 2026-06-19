@@ -8,13 +8,15 @@ const sortKeys = Object.freeze({
 class ItemAPI extends RESTDataSource {
   constructor() {
     super();
-    // this.baseURL = 'http://localhost:3001/dev';
-    this.baseURL = 'https://v8z4x819qk.execute-api.us-east-1.amazonaws.com/dev';
+    if (!process.env.ARMORY_URL) {
+      throw new Error('ARMORY_URL environment variable is required (set it to the Vercel Functions host, e.g. https://phasercraft.vercel.app)');
+    }
+    this.baseURL = process.env.ARMORY_URL;
   }
 
   async getAllItems({orderBy, filter}) {
     console.log('Fetching all items with orderBy:', orderBy, 'and filter:', filter);
-    const response = await this.get('items');
+    const response = await this.get('api/items');
 
     if(orderBy) {
       const key = Object.keys(orderBy)[0];
@@ -31,28 +33,28 @@ class ItemAPI extends RESTDataSource {
     }
 
     const result = filter ? filtered() : response;
-    
+
     return Array.isArray(result)
       ? result.map(item => this.itemReducer(item))
       : [];
   }
 
   async getItemById({itemId}) {
-    const response = await this.get(`items/${itemId}`);
+    const response = await this.get(`api/items/${itemId}`);
     return this.itemReducer(response);
   }
 
   async postItem(item) {
-    const response = await this.post('items', item);
+    const response = await this.post('api/items', item);
     return this.itemReducer(response);
   }
 
   async clearStore() {
-    return await this.post('clearStore');
+    return await this.post('api/store/clear');
   }
 
   async stockStore(amount) {
-    const response = await this.post('createStore', amount);
+    const response = await this.post('api/store/create', amount);
     return Array.isArray(response)
       ? response.map(item => this.itemReducer(item))
       : [];
@@ -76,7 +78,7 @@ class ItemAPI extends RESTDataSource {
   }
 
   async deleteItem({removeItemId}) {
-    const response = await this.delete(`items/${removeItemId}`);
+    const response = await this.delete(`api/items/${removeItemId}`);
     return this.itemReducer(response);
   }
 

@@ -50,7 +50,6 @@
         "dist/**/*.tsx",
         "dist/**/*.tmx",
         "dist/**/*.tmj",
-        "server/**/*",
-        "services/**/*"
+        "server/**/*"
     ]
 }

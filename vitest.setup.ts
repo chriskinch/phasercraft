@@ -13,5 +13,9 @@ const context2DStub = {
     putImageData: () => {},
 };
 
-HTMLCanvasElement.prototype.getContext = (() =>
-    context2DStub) as unknown as typeof HTMLCanvasElement.prototype.getContext;
+// Guard: HTMLCanvasElement only exists in jsdom, not in the node environment
+// used by api/ tests.
+if (typeof HTMLCanvasElement !== "undefined") {
+    HTMLCanvasElement.prototype.getContext = (() =>
+        context2DStub) as unknown as typeof HTMLCanvasElement.prototype.getContext;
+}

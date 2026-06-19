@@ -39,8 +39,8 @@ export default defineConfig({
         environment: "jsdom",
         globals: true,
         setupFiles: ["./vitest.setup.ts"],
-        include: ["src/**/*.{test,spec}.{ts,tsx}"],
-        exclude: ["node_modules", "dist", ".next", "server", "services"],
+        include: ["src/**/*.{test,spec}.{ts,tsx}", "api/**/*.{test,spec}.{ts,tsx}"],
+        exclude: ["node_modules", "dist", "server"],
         css: false,
         coverage: {
             provider: "v8",
@@ -49,7 +49,7 @@ export default defineConfig({
             // modules with zero coverage. In Vitest 4 the old `all: true` option
             // was removed; an explicit `include` glob is now what pulls every
             // matching source file into the report (covered or not).
-            include: ["src/**/*.{ts,tsx}"],
+            include: ["src/**/*.{ts,tsx}", "api/**/*.{ts,tsx}"],
             reporter: ["text", "text-summary", "json-summary", "html", "lcov"],
             exclude: [
                 // Test files and their helpers.
@@ -65,6 +65,8 @@ export default defineConfig({
                 "**/PhaserGame.tsx",
                 // E2E lives outside the unit suite (Playwright, separate workflow).
                 "e2e/**",
+                // Test files in api/ directory.
+                "api/**/*.{test,spec}.{ts,tsx}",
             ],
             // Ratcheting floor: set to the current measured coverage (floored to
             // whole percents, with a small margin) so the suite passes today but
