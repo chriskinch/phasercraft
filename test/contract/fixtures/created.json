@@ -1,0 +1,17 @@
+{
+    "id": "ab9636fd-3393-488f-9e31-987372213b99",
+    "createdAt": 1782030734093,
+    "name": "Light Hammer of Greater Illusion",
+    "category": "staff",
+    "set": "weapon",
+    "quality": "rare",
+    "qualitySort": 3,
+    "cost": 40,
+    "pool": 43,
+    "icon": "staff_1",
+    "stats": [
+        { "id": "ffada585-2cd3-4a19-806c-7e66fe6e4dea", "name": "attack_power", "value": 9 },
+        { "id": "f7d2c2f3-6033-46ea-b2af-ffa069d71eac", "name": "magic_power", "value": 14 },
+        { "id": "79e36429-6b04-448c-a69d-296ffead4ba1", "name": "speed", "value": 20 }
+    ]
+}
