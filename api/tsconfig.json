@@ -1,0 +1,15 @@
+{
+    // Vercel's Node function builder walks up from each `api/**` handler to find
+    // the nearest tsconfig. Without this it picks up the root config, whose
+    // `module: "esnext"` / `moduleResolution: "bundler"` (tuned for Vite) make it
+    // emit ESM into the CommonJS function runtime — which crashes at runtime with
+    // FUNCTION_INVOCATION_FAILED. Force CommonJS output for the functions only;
+    // the root config (and `npm run typecheck`) is unaffected.
+    "extends": "../tsconfig.json",
+    "compilerOptions": {
+        "module": "commonjs",
+        "moduleResolution": "node"
+    },
+    "include": ["**/*.ts"],
+    "exclude": ["**/*.test.ts"]
+}

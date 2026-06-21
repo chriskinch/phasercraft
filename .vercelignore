@@ -1,0 +1,7 @@
+# Keep test files out of the Vercel deployment. Vercel turns every non-underscore
+# file under api/ into a serverless function; a co-located *.test.ts would become
+# a broken function (it imports vitest, a dev-only dep). These files are not
+# needed at runtime or for the Vite build.
+**/*.test.ts
+**/*.test.tsx
+**/*.spec.ts
