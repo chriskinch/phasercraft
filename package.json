@@ -36,11 +36,14 @@
         "format:check": "prettier --check .",
         "prepare": "simple-git-hooks",
         "gateway": "cd server && yarn start",
-        "service:armory": "cd services/armory && sls offline start"
+        "service:armory": "cd services/armory && sls offline start",
+        "armory:smoke": "tsx scripts/armory-smoke.ts"
     },
     "dependencies": {
         "@apollo/client": "^3.13.8",
         "@reduxjs/toolkit": "^2.8.2",
+        "fantasy-content-generator": "^4.9.1",
+        "ioredis": "^5.11.1",
         "lodash": "^4.18.1",
         "number-to-words": "^1.2.4",
         "phaser": "^3.90.0",
