@@ -7,7 +7,7 @@
 // The factory picks Redis when `REDIS_URL` is present, otherwise falls back to
 // memory — so nothing breaks before the store is provisioned.
 
-import Redis from "ioredis";
+import type Redis from "ioredis";
 import type { StoredItem } from "./types";
 
 /** Redis hash key holding the whole shop, field = item id, value = item JSON. */
@@ -57,44 +57,56 @@ export class MemoryItemStore implements ItemStore {
     }
 }
 
-// One client per warm function instance. ioredis lazily connects on first
-// command, so constructing it at module scope is cheap and connection-safe.
+// One client per warm function instance. ioredis is loaded via dynamic import
+// (so a load/connection failure surfaces inside the request — catchable by
+// withErrors — rather than as an opaque module-load crash) and configured to
+// fail fast instead of retry-looping until the function times out.
 let redis: Redis | null = null;
-const client = (): Redis => (redis ??= new Redis(process.env.REDIS_URL as string));
+const client = async (): Promise<Redis> => {
+    if (redis) return redis;
+    const { default: RedisCtor } = await import("ioredis");
+    redis = new RedisCtor(process.env.REDIS_URL as string, {
+        connectTimeout: 5000,
+        maxRetriesPerRequest: 1,
+        enableOfflineQueue: false,
+        retryStrategy: () => null,
+    });
+    return redis;
+};
 
 const parse = (value: string | null): StoredItem | null =>
     value ? (JSON.parse(value) as StoredItem) : null;
 
 export class RedisItemStore implements ItemStore {
     async list(): Promise<StoredItem[]> {
-        const all = await client().hgetall(ITEMS_KEY);
+        const all = await (await client()).hgetall(ITEMS_KEY);
         return Object.values(all).map((v) => JSON.parse(v) as StoredItem);
     }
 
     async get(id: string): Promise<StoredItem | null> {
-        return parse(await client().hget(ITEMS_KEY, id));
+        return parse(await (await client()).hget(ITEMS_KEY, id));
     }
 
     async put(item: StoredItem): Promise<void> {
-        await client().hset(ITEMS_KEY, item.id, JSON.stringify(item));
+        await (await client()).hset(ITEMS_KEY, item.id, JSON.stringify(item));
     }
 
     async putMany(items: StoredItem[]): Promise<void> {
         if (items.length === 0) return;
         const pairs: Record<string, string> = {};
         for (const item of items) pairs[item.id] = JSON.stringify(item);
-        await client().hset(ITEMS_KEY, pairs);
+        await (await client()).hset(ITEMS_KEY, pairs);
     }
 
     async remove(id: string): Promise<StoredItem | null> {
         const existing = await this.get(id);
         if (!existing) return null;
-        await client().hdel(ITEMS_KEY, id);
+        await (await client()).hdel(ITEMS_KEY, id);
         return existing;
     }
 
     async clear(): Promise<void> {
-        await client().del(ITEMS_KEY);
+        await (await client()).del(ITEMS_KEY);
     }
 }
 
