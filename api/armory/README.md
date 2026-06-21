@@ -23,11 +23,11 @@ Items live in a single Redis hash (`armory:items`, field = item id, value = the
 item). The handlers depend only on the `ItemStore` interface (`_lib/itemStore.ts`):
 
 - **MemoryItemStore** — a `Map`, used by tests, the smoke harness, and local dev.
-- **KvItemStore** — Vercel KV (Upstash Redis).
+- **RedisItemStore** — a Redis client (`ioredis`) over the `REDIS_URL` connection
+  string injected by the Vercel KV / Upstash store.
 
-The factory uses Vercel KV when a binding is present (`KV_REST_API_URL` env var),
-otherwise falls back to the in-memory store, so nothing breaks before the store
-is provisioned.
+The factory uses Redis when `REDIS_URL` is present, otherwise falls back to the
+in-memory store, so nothing breaks before the store is provisioned.
 
 ## Verifying it standalone (no infra)
 
@@ -38,6 +38,6 @@ npm test               # api/armory/handlers.test.ts asserts the full flow + con
 
 ## Production (maintainer)
 
-1. Create a Vercel KV store and connect it to the project — Vercel injects
-   `KV_REST_API_URL` / `KV_REST_API_TOKEN` automatically.
+1. Create a Vercel KV / Upstash Redis store and connect it to the project —
+   Vercel injects `REDIS_URL` automatically.
 2. Deploy. The functions are picked up from `api/` with no extra config.

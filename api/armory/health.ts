@@ -27,8 +27,7 @@ async function handler(req: ApiRequest, res: ApiResponse): Promise<void> {
     sendJson(res, 200, {
         ok: true,
         node: process.version,
-        kvUrlPresent: Boolean(process.env.KV_REST_API_URL),
-        kvTokenPresent: Boolean(process.env.KV_REST_API_TOKEN),
+        redisUrlPresent: Boolean(process.env.REDIS_URL),
         storageEnvKeys,
     });
 }

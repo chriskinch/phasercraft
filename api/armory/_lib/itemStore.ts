@@ -2,13 +2,12 @@
 // interface; the implementation is chosen at runtime:
 //   - MemoryItemStore: a plain Map, used by tests, the standalone harness, and
 //     local dev (zero infra).
-//   - KvItemStore: Vercel KV (an Upstash Redis hash, field = item id, value =
-//     the item) for production.
-// The factory picks KV when a Vercel KV binding is present (`KV_REST_API_URL`),
-// otherwise falls back to memory — so nothing breaks before the maintainer
-// provisions the store.
+//   - RedisItemStore: a Redis hash (field = item id, value = JSON), backed by the
+//     `REDIS_URL` connection string that the Vercel KV / Upstash store injects.
+// The factory picks Redis when `REDIS_URL` is present, otherwise falls back to
+// memory — so nothing breaks before the store is provisioned.
 
-import { kv } from "@vercel/kv";
+import Redis from "ioredis";
 import type { StoredItem } from "./types";
 
 /** Redis hash key holding the whole shop, field = item id, value = item JSON. */
@@ -58,36 +57,44 @@ export class MemoryItemStore implements ItemStore {
     }
 }
 
-export class KvItemStore implements ItemStore {
+// One client per warm function instance. ioredis lazily connects on first
+// command, so constructing it at module scope is cheap and connection-safe.
+let redis: Redis | null = null;
+const client = (): Redis => (redis ??= new Redis(process.env.REDIS_URL as string));
+
+const parse = (value: string | null): StoredItem | null =>
+    value ? (JSON.parse(value) as StoredItem) : null;
+
+export class RedisItemStore implements ItemStore {
     async list(): Promise<StoredItem[]> {
-        const all = await kv.hgetall<Record<string, StoredItem>>(ITEMS_KEY);
-        return all ? Object.values(all) : [];
+        const all = await client().hgetall(ITEMS_KEY);
+        return Object.values(all).map((v) => JSON.parse(v) as StoredItem);
     }
 
     async get(id: string): Promise<StoredItem | null> {
-        return (await kv.hget<StoredItem>(ITEMS_KEY, id)) ?? null;
+        return parse(await client().hget(ITEMS_KEY, id));
     }
 
     async put(item: StoredItem): Promise<void> {
-        await kv.hset(ITEMS_KEY, { [item.id]: item });
+        await client().hset(ITEMS_KEY, item.id, JSON.stringify(item));
     }
 
     async putMany(items: StoredItem[]): Promise<void> {
         if (items.length === 0) return;
-        const entries: Record<string, StoredItem> = {};
-        for (const item of items) entries[item.id] = item;
-        await kv.hset(ITEMS_KEY, entries);
+        const pairs: Record<string, string> = {};
+        for (const item of items) pairs[item.id] = JSON.stringify(item);
+        await client().hset(ITEMS_KEY, pairs);
     }
 
     async remove(id: string): Promise<StoredItem | null> {
         const existing = await this.get(id);
         if (!existing) return null;
-        await kv.hdel(ITEMS_KEY, id);
+        await client().hdel(ITEMS_KEY, id);
         return existing;
     }
 
     async clear(): Promise<void> {
-        await kv.del(ITEMS_KEY);
+        await client().del(ITEMS_KEY);
     }
 }
 
@@ -102,4 +109,4 @@ export const setItemStore = (store: ItemStore | null): void => {
 };
 
 const createItemStore = (): ItemStore =>
-    process.env.KV_REST_API_URL ? new KvItemStore() : new MemoryItemStore();
+    process.env.REDIS_URL ? new RedisItemStore() : new MemoryItemStore();
