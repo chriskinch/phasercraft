@@ -65,11 +65,13 @@ let redis: Redis | null = null;
 const client = async (): Promise<Redis> => {
     if (redis) return redis;
     const { default: RedisCtor } = await import("ioredis");
+    // Serverless-friendly: the first command waits for the connection (offline
+    // queue left on), with a generous connect timeout and a bounded reconnect so
+    // a transient blip retries a few times but a real failure still surfaces.
     redis = new RedisCtor(process.env.REDIS_URL as string, {
-        connectTimeout: 5000,
-        maxRetriesPerRequest: 1,
-        enableOfflineQueue: false,
-        retryStrategy: () => null,
+        connectTimeout: 10000,
+        maxRetriesPerRequest: 5,
+        retryStrategy: (times: number) => (times > 5 ? null : Math.min(times * 200, 2000)),
     });
     return redis;
 };
