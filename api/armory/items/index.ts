@@ -9,12 +9,13 @@ import {
     methodNotAllowed,
     parseBody,
     sendJson,
+    withErrors,
 } from "../_lib/http";
 import { getItemStore } from "../_lib/itemStore";
 import { createStoredItem } from "../_lib/item";
 import type { ItemInput } from "../_lib/types";
 
-export default async function handler(req: ApiRequest, res: ApiResponse): Promise<void> {
+async function handler(req: ApiRequest, res: ApiResponse): Promise<void> {
     if (handlePreflight(req, res)) return;
     const store = getItemStore();
 
@@ -33,3 +34,5 @@ export default async function handler(req: ApiRequest, res: ApiResponse): Promis
 
     methodNotAllowed(res, "GET, POST, OPTIONS");
 }
+
+export default withErrors(handler);

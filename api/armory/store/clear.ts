@@ -8,10 +8,11 @@ import {
     handlePreflight,
     methodNotAllowed,
     sendText,
+    withErrors,
 } from "../_lib/http";
 import { getItemStore } from "../_lib/itemStore";
 
-export default async function handler(req: ApiRequest, res: ApiResponse): Promise<void> {
+async function handler(req: ApiRequest, res: ApiResponse): Promise<void> {
     if (handlePreflight(req, res)) return;
     if (req.method !== "POST") {
         methodNotAllowed(res, "POST, OPTIONS");
@@ -21,3 +22,5 @@ export default async function handler(req: ApiRequest, res: ApiResponse): Promis
     await getItemStore().clear();
     sendText(res, 200, "Success, store cleared!");
 }
+
+export default withErrors(handler);

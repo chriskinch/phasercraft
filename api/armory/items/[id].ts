@@ -9,10 +9,11 @@ import {
     handlePreflight,
     methodNotAllowed,
     sendJson,
+    withErrors,
 } from "../_lib/http";
 import { getItemStore } from "../_lib/itemStore";
 
-export default async function handler(req: ApiRequest, res: ApiResponse): Promise<void> {
+async function handler(req: ApiRequest, res: ApiResponse): Promise<void> {
     if (handlePreflight(req, res)) return;
 
     const id = firstQueryValue(req.query?.id);
@@ -45,3 +46,5 @@ export default async function handler(req: ApiRequest, res: ApiResponse): Promis
 
     methodNotAllowed(res, "GET, DELETE, OPTIONS");
 }
+
+export default withErrors(handler);

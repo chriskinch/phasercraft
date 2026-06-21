@@ -9,6 +9,7 @@ import {
     methodNotAllowed,
     parseBody,
     sendJson,
+    withErrors,
 } from "../_lib/http";
 import { getItemStore } from "../_lib/itemStore";
 import { createStoredItem } from "../_lib/item";
@@ -18,7 +19,7 @@ import { createStoredItem } from "../_lib/item";
 // asks for 45, well within it) so a single request can't generate unbounded items.
 const MAX_AMOUNT = 200;
 
-export default async function handler(req: ApiRequest, res: ApiResponse): Promise<void> {
+async function handler(req: ApiRequest, res: ApiResponse): Promise<void> {
     if (handlePreflight(req, res)) return;
     if (req.method !== "POST") {
         methodNotAllowed(res, "POST, OPTIONS");
@@ -38,3 +39,5 @@ export default async function handler(req: ApiRequest, res: ApiResponse): Promis
     await store.putMany(items);
     sendJson(res, 200, items);
 }
+
+export default withErrors(handler);

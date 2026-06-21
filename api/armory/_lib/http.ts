@@ -66,3 +66,22 @@ export const parseBody = (req: ApiRequest): unknown => {
 /** Reads a single path-param value (`req.query.id` may be string | string[]). */
 export const firstQueryValue = (value: string | string[] | undefined): string | undefined =>
     Array.isArray(value) ? value[0] : value;
+
+/**
+ * Wraps a handler so any thrown error becomes a JSON 500 (and a server log)
+ * instead of an opaque FUNCTION_INVOCATION_FAILED. `detail` surfaces the message
+ * to make misconfiguration (e.g. a missing KV binding) diagnosable.
+ */
+export const withErrors =
+    (handler: (req: ApiRequest, res: ApiResponse) => Promise<void>) =>
+    async (req: ApiRequest, res: ApiResponse): Promise<void> => {
+        try {
+            await handler(req, res);
+        } catch (err) {
+            console.error("[armory] handler error", err);
+            sendJson(res, 500, {
+                error: "Internal server error.",
+                detail: err instanceof Error ? err.message : String(err),
+            });
+        }
+    };
