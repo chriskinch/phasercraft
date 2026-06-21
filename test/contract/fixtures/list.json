@@ -1,0 +1,38 @@
+[
+    {
+        "stats": [
+            { "name": "magic_power", "value": 16, "id": "192fb7b2-73c1-4896-bb97-0e996f6424c5" }
+        ],
+        "cost": 5,
+        "set": "amulet",
+        "icon": "misc_5",
+        "category": "misc",
+        "createdAt": 1752934447979,
+        "id": "3c7d0e36-147b-4ee8-b4f8-54f2ca1407cf",
+        "name": "Greatclub of Lesser Transmutation",
+        "pool": 16,
+        "qualitySort": 1,
+        "quality": "common"
+    },
+    {
+        "stats": [
+            {
+                "name": "health_regen_rate",
+                "value": 12,
+                "id": "76a2145c-e3a3-44b7-990b-11f0825ff511"
+            },
+            { "name": "health_max", "value": 10, "id": "2d6fda2d-3674-49a9-8456-afae8b14e9cc" },
+            { "name": "critical_chance", "value": 10, "id": "05bbaee9-ff7d-4129-bd7d-461c68da4ae7" }
+        ],
+        "cost": 15,
+        "set": "amulet",
+        "icon": "gem_6",
+        "category": "gem",
+        "createdAt": 1752934447998,
+        "id": "048ce2a7-4fb3-49e6-90af-187440b2ef23",
+        "name": "War Pick of Greater Enchantment",
+        "pool": 32,
+        "qualitySort": 2,
+        "quality": "fine"
+    }
+]

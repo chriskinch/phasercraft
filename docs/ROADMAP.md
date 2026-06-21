@@ -27,6 +27,23 @@ Status legend: `[ ]` todo · `[~]` in progress · `[x]` done
 | Node          | Node 22 LTS for local dev and CI.                                                                                                                                                                                                                                                                                                                             |
 | Workflow      | Small focused PRs; the maintainer reviews every PR. Agents ask on behavior changes, decide on mechanics. See `CLAUDE.md`.                                                                                                                                                                                                                                     |
 
+### Decisions update (2026-06-21) — Phases 7–8 reworked (non-destructive)
+
+Re-approach to de-risk the armory/GraphQL migration. The original Phase 7 (repoint
+the gateway at Vercel) and Phase 8 (delete GraphQL) are replaced by an **additive,
+verify-at-each-gate** sequence on fresh branches from `main`. Old infrastructure is
+deleted **only after** the new path is proven.
+
+| Topic                   | Decision                                                                                                                                                                                                                                                                                              |
+| ----------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Sequencing              | Four small PRs, each branched from `main`, each merged before the next: (1) legacy contract tests, (2) new `/api/armory/*`, (3) frontend → REST swap, (4) teardown. Nothing old is removed until PRs 2 and 3 are verified.                                                                            |
+| Data path               | The frontend will call the REST API **directly** with `fetch()` (Apollo removed from the data path), **not** by repointing the gateway. The `server/` gateway stays deployed-but-unused until the teardown PR, so each step is reversible.                                                            |
+| API location            | New functions live under `api/armory/*` (the repo will host other APIs alongside it). Shared logic (`generateItem`, constants) is ported unchanged into `api/armory/_lib/`. The existing `services/armory/` is **not touched** until teardown.                                                        |
+| Storage                 | Vercel KV (Redis) via a small swappable adapter: an in-memory implementation for local/standalone tests, the real Vercel KV binding in production (maintainer provisions it in the dashboard). No agent access to live infra.                                                                         |
+| Sort / filter / derived | All move **client-side** into plain TS: sorting (already client-side via the Apollo cache), stat filtering (was in the gateway), and the `color`/`adjusted`/`formatted`/`abbreviation` display fields (were Apollo cache field policies in `src/lib/cache.ts`). The REST API stays a dumb CRUD store. |
+| Parity definition       | "Identical" = response **schema/contract** match (mandatory & optional fields + types); values may differ since items are randomly generated. Captured once as a shared contract (`test/contract/armoryContract.ts`) and asserted against both old and new.                                           |
+| Data migration          | None. The shop is randomly generated, transient stock — first deploy simply stocks fresh, so there is no DynamoDB → KV data copy.                                                                                                                                                                     |
+
 ---
 
 ## Phase 0 — Baseline (done, PR #305)
@@ -122,37 +139,51 @@ actions only the maintainer can do (account access).
 - [ ] **(maintainer)** Confirm production URL (`phasercraft.vercel.app`) is live and the game plays correctly
 - [ ] GitHub Pages workflow and `VITE_BASE_URL` transition shim stay in place during this phase; retire in the next PR once Vercel production is confirmed stable
 
-## Phase 7 — Armory migration to Vercel (issue TBD)
+## Phase 7 — Armory migration to Vercel (non-destructive; issue TBD)
 
-Replace AWS Lambda + DynamoDB with Vercel Functions + Vercel KV. The `server/` gateway
-stays in place pointing at the new Vercel endpoint — no frontend changes in this phase.
-AWS infrastructure is retired entirely once the new endpoints are confirmed working.
+Stand up the new armory on Vercel **alongside** the legacy AWS one. Nothing old is
+touched in this phase; the existing `services/armory/` and `server/` gateway keep
+running. See the 2026-06-21 decisions update above.
 
-- [ ] Create Vercel KV store in the Vercel dashboard; define item storage as a Redis hash (`items`, field = `id`, value = JSON-stringified item)
-- [ ] Add `/api/items/index.ts` (GET all items — `HGETALL`; POST create item — `HSET`)
-- [ ] Add `/api/items/[id].ts` (GET item by id — `HGET`; DELETE item — `HDEL`)
-- [ ] Add `/api/store/create.ts` (POST — batch-generate N items via `generateItem`, bulk `HSET`)
-- [ ] Add `/api/store/clear.ts` (POST — `DEL items` then recreate empty hash)
-- [ ] Port `generateItem.ts` and constants/types into shared `api/_lib/` (no logic changes)
-- [ ] Add `VITE_ARMORY_URL` env var in Vercel dashboard; update `server/` gateway datasource base URL to use it
-- [ ] Vitest unit tests for `generateItem` and each handler (mock `@vercel/kv`)
-- [ ] One-time data migration: script to read all items from DynamoDB and write to Vercel KV
-- [ ] Retire `services/armory/` directory, `serverless.yml`, and all AWS GitHub Actions secrets
-- [ ] Gate: all existing GraphQL operations work through the gateway pointing at Vercel; CI passes
+### PR1 — Legacy contract baseline (pre-step) ✅ this PR
 
-## Phase 8 — Remove GraphQL layer (issue TBD)
+Characterise the legacy armory response shape so we have a verified yardstick before
+building the replacement.
 
-Replace Apollo Client + `server/` gateway with direct `fetch()` calls to the Vercel
-Functions REST API. The gateway and all GraphQL schema code are deleted.
+- [x] Shared structural contract `test/contract/armoryContract.ts` (dependency-free; mandatory/optional fields + types, strict on unexpected fields)
+- [x] Recorded fixtures from the live legacy endpoint (`GET /items`, `GET /items/{id}`, `POST /items`, `DELETE /items/{id}`, `POST /createStore`); `POST /clearStore` documented from source (plain-text body, never called live — it is destructive)
+- [x] CI-safe contract test validating the fixtures + validator self-checks; opt-in **read-only** live check gated on `ARMORY_LIVE_URL`
+- [x] `vitest.config.ts` discovers `test/**` suites
 
-- [ ] Define TypeScript types for the REST API responses (share or copy from `api/_lib/`)
-- [ ] Replace `ApolloProvider` and all `useQuery`/`useMutation` hooks with `fetch()` calls and React state (or a lightweight data-fetching hook)
-- [ ] Replace `VITE_GRAPHQL_URL` with `VITE_ARMORY_URL` in the frontend env var and Apollo Client setup
-- [ ] Remove `@apollo/client`, `graphql`, and `src/lib/cache.ts` (field policies); remove the Apollo cache field policy tests added in Phase 4 if present
-- [ ] Delete `server/` gateway entirely
-- [ ] Add component tests for Armory/Stock UI against the new fetch-based client (mock `fetch`)
-- [ ] Update "merchant unavailable" graceful state to check `VITE_ARMORY_URL` instead of `VITE_GRAPHQL_URL`
-- [ ] Gate: merchant UI works end-to-end; no Apollo or GraphQL imports remain in `src/`
+### PR2 — New `/api/armory/*` on Vercel KV (gate: standalone verified)
+
+- [ ] Port `generateItem.ts` + constants into `api/armory/_lib/` (no logic changes)
+- [ ] KV adapter: in-memory implementation for tests/local, Vercel KV (Redis hash, field = `id`, value = JSON) in production
+- [ ] `api/armory/items/index.ts` (GET all; POST create one) and `api/armory/items/[id].ts` (GET by id; DELETE)
+- [ ] `api/armory/store/create.ts` (POST — batch-generate N) and `api/armory/store/clear.ts` (POST — clear)
+- [ ] Vitest unit tests for `generateItem` and every handler (in-memory KV); **contract parity test** asserting each handler satisfies `test/contract/armoryContract.ts`
+- [ ] Standalone harness proving generate → store → retrieve → delete locally (no live infra)
+- [ ] **(maintainer)** Create the Vercel KV store and bind it to the project
+- [ ] Gate: standalone CRUD + restock verified; contract parity green; legacy armory untouched; CI passes
+
+## Phase 8 — Frontend → REST, then teardown (issue TBD)
+
+### PR3 — Swap the frontend to the REST API (gate: merchant UI identical)
+
+The gateway stays deployed-but-unused so this step is reversible.
+
+- [ ] Replace `useQuery`/`useMutation`/`ApolloProvider` with `fetch()` calls to `/api/armory/*` (lightweight data hook + React state)
+- [ ] Move sort, stat filter, and the `color`/`adjusted`/`formatted`/`abbreviation` derived fields client-side into plain TS (out of `src/lib/cache.ts`)
+- [ ] Add `VITE_ARMORY_URL`; point the "merchant unavailable" graceful state at it instead of `VITE_GRAPHQL_URL`
+- [ ] Component tests for Armory/Stock against the fetch client (mock `fetch`)
+- [ ] Gate: merchant UI buys/restocks/sorts/filters identically end-to-end; CI passes
+
+### PR4 — Teardown (gate: only after PR2 + PR3 verified)
+
+- [ ] Remove `@apollo/client`, `graphql`, `src/lib/cache.ts` and its Phase-4 cache tests; remove `ApolloProvider`/GraphQL operations
+- [ ] Delete the `server/` gateway entirely
+- [ ] Retire `services/armory/`, `serverless.yml`, and all AWS GitHub Actions secrets
+- [ ] Gate: no Apollo/GraphQL/AWS references remain; merchant works end-to-end; CI passes
 
 ## Phase 9 — Major upgrades (one PR each, in order)
 

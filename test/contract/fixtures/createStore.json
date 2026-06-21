@@ -1,0 +1,22 @@
+[
+    {
+        "id": "9519c6ee-b9dc-4d91-ae26-33f090592452",
+        "createdAt": 1782034134836,
+        "name": "Greatclub of Greater Enchantment",
+        "category": "amulet",
+        "set": "amulet",
+        "quality": "common",
+        "qualitySort": 1,
+        "cost": 5,
+        "pool": 17,
+        "icon": "amulet_2",
+        "stats": [
+            { "id": "d25f98f0-160c-484a-883d-abf606ab43bc", "name": "defence", "value": 8 },
+            {
+                "id": "48073a52-9eb0-4d21-ac2f-6bfde94e55ab",
+                "name": "health_regen_rate",
+                "value": 9
+            }
+        ]
+    }
+]

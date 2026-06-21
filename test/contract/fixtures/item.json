@@ -1,0 +1,13 @@
+{
+    "stats": [{ "name": "magic_power", "value": 16, "id": "192fb7b2-73c1-4896-bb97-0e996f6424c5" }],
+    "cost": 5,
+    "set": "amulet",
+    "icon": "misc_5",
+    "category": "misc",
+    "createdAt": 1752934447979,
+    "id": "3c7d0e36-147b-4ee8-b4f8-54f2ca1407cf",
+    "name": "Greatclub of Lesser Transmutation",
+    "pool": 16,
+    "qualitySort": 1,
+    "quality": "common"
+}

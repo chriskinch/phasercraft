@@ -39,7 +39,9 @@ export default defineConfig({
         environment: "jsdom",
         globals: true,
         setupFiles: ["./vitest.setup.ts"],
-        include: ["src/**/*.{test,spec}.{ts,tsx}"],
+        // `src/**` is the app suite; `test/**` holds cross-cutting suites that
+        // aren't tied to a single source file (e.g. the armory REST contract).
+        include: ["src/**/*.{test,spec}.{ts,tsx}", "test/**/*.{test,spec}.{ts,tsx}"],
         exclude: ["node_modules", "dist", ".next", "server", "services"],
         css: false,
         coverage: {
