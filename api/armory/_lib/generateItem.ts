@@ -4,7 +4,7 @@
 // is the hand-written `ItemInput` (instead of `json-schema-to-ts`), constants
 // are imported locally, and the stray debug `console.log` was dropped.
 
-import { v4 as uuidv4 } from "uuid";
+import { randomUUID } from "node:crypto";
 import { findKey, random, sample, sampleSize } from "lodash";
 import * as FCG from "fantasy-content-generator";
 
@@ -117,7 +117,7 @@ const getStats = (qualityType: QualityLevel): Stat[] => {
     const pool = qualityType.pool;
     const it = allocateStatIterator(pool, keys.length);
     return keys.map((key) => ({
-        id: uuidv4(),
+        id: randomUUID(),
         name: key,
         value: it.next(key).value,
     }));
@@ -126,7 +126,7 @@ const getStats = (qualityType: QualityLevel): Stat[] => {
 const addStatIds = (stats: StatGroup): Stat[] => {
     const keys = Object.keys(stats) as StatKey[];
     return keys.map((key) => ({
-        id: uuidv4(),
+        id: randomUUID(),
         name: key,
         value: stats[key]!,
     }));
