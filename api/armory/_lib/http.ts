@@ -69,8 +69,8 @@ export const firstQueryValue = (value: string | string[] | undefined): string | 
 
 /**
  * Wraps a handler so any thrown error becomes a JSON 500 (and a server log)
- * instead of an opaque FUNCTION_INVOCATION_FAILED. `detail` surfaces the message
- * to make misconfiguration (e.g. a missing KV binding) diagnosable.
+ * instead of an opaque FUNCTION_INVOCATION_FAILED. The error detail is logged
+ * server-side only — never returned to the client.
  */
 export const withErrors =
     (handler: (req: ApiRequest, res: ApiResponse) => Promise<void>) =>
@@ -79,9 +79,6 @@ export const withErrors =
             await handler(req, res);
         } catch (err) {
             console.error("[armory] handler error", err);
-            sendJson(res, 500, {
-                error: "Internal server error.",
-                detail: err instanceof Error ? err.message : String(err),
-            });
+            sendJson(res, 500, { error: "Internal server error." });
         }
     };
