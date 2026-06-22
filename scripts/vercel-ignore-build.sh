@@ -9,9 +9,8 @@
 #
 # Policy (per docs/ROADMAP.md, Phase 6):
 #   - Production (merge to the production branch) always builds.
-#   - Preview builds are opt-in: a PR only builds a preview when it carries the
-#     `deploy-preview` label. This keeps the free hobby tier from building a
-#     preview for every push.
+#   - Preview builds trigger for all open, non-draft PRs.
+#   - Draft PRs and branch pushes without an associated open PR are skipped.
 #
 # Wired up via vercel.json -> "ignoreCommand". No dashboard setting required.
 
@@ -33,21 +32,27 @@ if [ -z "$PR_ID" ] || [ "$PR_ID" = "0" ]; then
     exit 0
 fi
 
-API="https://api.github.com/repos/${OWNER}/${SLUG}/issues/${PR_ID}/labels"
-echo "Checking labels for ${OWNER}/${SLUG} PR #${PR_ID}: ${API}"
+API="https://api.github.com/repos/${OWNER}/${SLUG}/pulls/${PR_ID}"
+echo "Checking PR state for ${OWNER}/${SLUG} PR #${PR_ID}: ${API}"
 
 # Phasercraft is a public repo, so an unauthenticated read works; pass a token
 # if one is available to avoid rate limits. Fail closed (skip the build) if the
-# label can't be confirmed.
+# PR state can't be confirmed.
 AUTH_HEADER=()
 if [ -n "${GITHUB_TOKEN:-}" ]; then
     AUTH_HEADER=(-H "Authorization: Bearer ${GITHUB_TOKEN}")
 fi
 
-if curl -fsS "${AUTH_HEADER[@]}" "$API" | grep -q '"name"[[:space:]]*:[[:space:]]*"deploy-preview"'; then
-    echo "✓ 'deploy-preview' label present — building preview."
-    exit 1
+PR_JSON=$(curl -fsS "${AUTH_HEADER[@]}" "$API" 2>/dev/null) || {
+    echo "✗ Could not fetch PR data — skipping preview build."
+    exit 0
+}
+
+# Skip draft PRs.
+if echo "$PR_JSON" | grep -q '"draft"[[:space:]]*:[[:space:]]*true'; then
+    echo "✗ PR #${PR_ID} is a draft — skipping preview build."
+    exit 0
 fi
 
-echo "✗ 'deploy-preview' label absent (or labels unreadable) — skipping preview build."
-exit 0
+echo "✓ PR #${PR_ID} is open and not a draft — building preview."
+exit 1
