@@ -200,7 +200,7 @@ PR4b — backend teardown:
 
 ## Phase 9 — Major upgrades (one PR each, in order)
 
-- [ ] TypeScript 6
+- [x] TypeScript 6
 - [ ] ESLint 10
 - [ ] React 19.2.x, react-tooltip 6, lint-staged 17, remaining majors
 

@@ -79,7 +79,7 @@
         "react-dnd-test-backend": "^16.0.1",
         "serve": "^14.2.6",
         "simple-git-hooks": "^2.13.1",
-        "typescript": "^5",
+        "typescript": "^6.0.3",
         "vite": "^8.0.16",
         "vitest": "^4.1.6"
     },
