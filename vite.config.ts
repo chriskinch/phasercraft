@@ -46,8 +46,9 @@ export default defineConfig(({ mode }) => ({
     server: {
         port: 8080,
     },
-    // Apollo Client and graphql read `process.env.NODE_ENV` at runtime; Vite
-    // does not expose `process` in the browser, so replace it statically.
+    // Redux Toolkit (and our store's devTools gate) reads `process.env.NODE_ENV`
+    // at runtime; Vite does not expose `process` in the browser, so replace it
+    // statically.
     define: {
         "process.env.NODE_ENV": JSON.stringify(
             mode === "development" ? "development" : "production"
