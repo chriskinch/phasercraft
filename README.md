@@ -139,8 +139,7 @@ src/
 - `npm run test:ui` - Run tests with the Vitest UI
 - `npm run format` - Format the codebase with Prettier
 - `npm run format:check` - Check formatting without writing changes
-- `npm run gateway` - Start GraphQL server
-- `npm run service:armory` - Start armory microservice
+- `npm run armory:smoke` - Run the local armory API CRUD smoke check
 
 ### Code Quality
 
