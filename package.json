@@ -40,7 +40,6 @@
         "armory:smoke": "tsx scripts/armory-smoke.ts"
     },
     "dependencies": {
-        "@apollo/client": "^3.13.8",
         "@reduxjs/toolkit": "^2.8.2",
         "fantasy-content-generator": "^4.9.1",
         "ioredis": "^5.11.1",

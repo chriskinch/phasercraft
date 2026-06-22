@@ -181,9 +181,19 @@ The gateway stays deployed-but-unused so this step is reversible. (Apollo deps,
 
 ### PR4 — Teardown (gate: only after PR2 + PR3 verified)
 
-- [ ] Remove `@apollo/client`, `graphql`, `src/lib/cache.ts` and its Phase-4 cache tests; remove `ApolloProvider`/GraphQL operations
+Split into two PRs (agreed 2026-06-22) for smaller, more reversible reviews:
+PR4a removes the now-dead frontend Apollo/GraphQL code (safe — the live merchant
+already runs on `fetch()` since PR3); PR4b removes the backend infra once the
+merchant is verified end-to-end on Vercel.
+
+PR4a — frontend Apollo/GraphQL removal:
+
+- [x] Remove `@apollo/client` (and its transitive `graphql`), `src/lib/cache.ts` and its Phase-4 cache tests, the GraphQL operations (`src/ui/operations/{queries,mutations}/*`), and the `MockedProvider` wrapper from the test harness; drop the dead `VITE_GRAPHQL_URL` env type
+
+PR4b — backend teardown:
+
 - [ ] Delete the `server/` gateway entirely
-- [ ] Retire `services/armory/`, `serverless.yml`, and all AWS GitHub Actions secrets
+- [ ] Retire `services/armory/`, `serverless.yml`, and all AWS GitHub Actions secrets; update `docs/vercel-deployment.md` (drop the `VITE_GRAPHQL_URL` step)
 - [ ] Gate: no Apollo/GraphQL/AWS references remain; merchant works end-to-end; CI passes
 
 ## Phase 9 — Major upgrades (one PR each, in order)

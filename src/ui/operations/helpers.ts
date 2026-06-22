@@ -23,7 +23,7 @@ export const statsArrayToObject = (stats: StatItem[]): StatObject =>
 
 // Objects are sorted by a single (string- or number-valued) property; the
 // comparison mirrors the original JS `>`/`<` semantics. The generic is left
-// unconstrained (callers pass GraphQL items whose runtime sort keys are not on
+// unconstrained (callers pass armory items whose runtime sort keys are not on
 // their declared type), reading the keyed value through a string-index view.
 type Comparable = number | string;
 
