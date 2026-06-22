@@ -49,8 +49,6 @@
         "public/**/*.tmj",
         "dist/**/*.tsx",
         "dist/**/*.tmx",
-        "dist/**/*.tmj",
-        "server/**/*",
-        "services/**/*"
+        "dist/**/*.tmj"
     ]
 }

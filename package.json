@@ -35,8 +35,6 @@
         "format": "prettier --write .",
         "format:check": "prettier --check .",
         "prepare": "simple-git-hooks",
-        "gateway": "cd server && yarn start",
-        "service:armory": "cd services/armory && sls offline start",
         "armory:smoke": "tsx scripts/armory-smoke.ts"
     },
     "dependencies": {

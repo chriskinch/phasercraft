@@ -47,7 +47,7 @@ export default defineConfig({
             "test/**/*.{test,spec}.{ts,tsx}",
             "api/**/*.{test,spec}.{ts,tsx}",
         ],
-        exclude: ["node_modules", "dist", ".next", "server", "services"],
+        exclude: ["node_modules", "dist", ".next"],
         css: false,
         coverage: {
             provider: "v8",

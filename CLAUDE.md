@@ -1,8 +1,10 @@
 # CLAUDE.md — Working agreement and project conventions
 
 Phasercraft is a browser action RPG: Phaser 3 game canvas + React/Redux UI overlay,
-built with Next.js (static export to GitHub Pages), with a local-dev GraphQL gateway
-(`server/`) proxying to an AWS Lambda item service (`services/armory/`).
+built with Vite (static export to Vercel, with GitHub Pages in parallel during the
+transition). The armory item service runs as Vercel Functions (`api/armory/`) backed
+by Vercel KV (Redis); the frontend talks to it directly over a typed `fetch` REST
+client.
 
 The phased improvement plan and decisions log live in `docs/ROADMAP.md`. Read it
 before starting work; link PRs to the relevant phase issue.
@@ -14,14 +16,15 @@ before starting work; link PRs to the relevant phase issue.
   for this version at https://docs.phaser.io — do not code Phaser APIs from memory.
   For the eventual v4 migration use the official guide and skill:
   https://github.com/phaserjs/phaser/blob/master/changelog/v4/4.0/MIGRATION-GUIDE.md
-- **Node 22 LTS** for local dev and CI (`.nvmrc`). Lambda runtime is governed by
-  Serverless v3 validation (see ROADMAP decisions log).
-- Main app: Next 15 (static export, `dist/`), React 19, Redux Toolkit, Apollo Client,
-  Vitest + Testing Library, Playwright (Phase 4+).
+- **Node 22 LTS** for local dev and CI (`.nvmrc`); the Vercel Functions run on the
+  Node runtime Vercel provides.
+- Main app: Vite (static export, `dist/`), React 19, Redux Toolkit, Vitest + Testing
+  Library, Playwright (Phase 4+). Armory data flows through a typed `fetch` REST client
+  to `api/armory/*` (no GraphQL/Apollo).
 
 ## Commands
 
-- `npm run dev` — dev server on :8080 · `npm run gateway` — GraphQL gateway on :4000
+- `npm run dev` — dev server on :8080 · `npm run armory:smoke` — local armory CRUD smoke
 - `npm run typecheck` · `npm run lint` · `npm test` · `npm run format:check`
 - `npm run build` — static export (CI runs all five)
 

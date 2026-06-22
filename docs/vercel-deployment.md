@@ -31,10 +31,11 @@ These need the Vercel account and can't be done from the repo:
 2. **Import the repo** — Vercel → Add New → Project → import `chriskinch/phasercraft`.
    Framework/build/output are picked up from `vercel.json`; no overrides needed.
 3. **Production branch** — confirm it's `main` (Project → Settings → Git).
-4. **Environment variable** `VITE_GRAPHQL_URL` (Project → Settings → Environment Variables):
-    - Until the Armory moves to Vercel (Phase 7) there is no public GraphQL gateway, so it's
-      fine to **leave this unset in Production** — the shop shows its "merchant unavailable"
-      state (decisions log). Set it for Preview/Production once a reachable gateway exists.
+4. **Environment variable** `VITE_ARMORY_URL` (Project → Settings → Environment Variables):
+    - Set to `/api/armory` for both **Preview** and **Production** (a same-origin path to the
+      armory Vercel Functions). Leave it unset and the shop shows its graceful "merchant
+      unavailable" state. It is read at **build time** (Vite inlines `import.meta.env`), so
+      changing it requires a redeploy.
 5. **Confirm production** — after the first deploy, check `phasercraft.vercel.app` loads and
    the game plays (boot → save picker → character select → run).
 

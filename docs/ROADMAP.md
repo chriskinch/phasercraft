@@ -192,9 +192,11 @@ PR4a — frontend Apollo/GraphQL removal:
 
 PR4b — backend teardown:
 
-- [ ] Delete the `server/` gateway entirely
-- [ ] Retire `services/armory/`, `serverless.yml`, and all AWS GitHub Actions secrets; update `docs/vercel-deployment.md` (drop the `VITE_GRAPHQL_URL` step)
-- [ ] Gate: no Apollo/GraphQL/AWS references remain; merchant works end-to-end; CI passes
+- [x] Delete the `server/` gateway entirely (and its CI `server` job)
+- [x] Retire `services/armory/` + `serverless.yml` (and its CI `armory` job); remove the `gateway`/`service:armory` npm scripts and the stale `server`/`services` tsconfig+vitest excludes; update `docs/vercel-deployment.md` (`VITE_GRAPHQL_URL` step → `VITE_ARMORY_URL`) and `CLAUDE.md`/`README.md` architecture notes
+- [x] Gate: no Apollo/GraphQL references remain; AWS references only survive as historical provenance in the recorded contract fixtures (`test/contract/*`), which are kept intentionally to guard the new API's response shape; merchant verified end-to-end on Vercel; CI passes
+- [ ] **(maintainer)** Delete any AWS secrets (`AWS_ACCESS_KEY_ID`, `AWS_SECRET_ACCESS_KEY`, etc.) from repo/Actions settings — none are referenced by any workflow, so this is cleanup only
+- [ ] **(maintainer)** Update branch-protection required checks on `main` to drop `server` and `armory` (now removed); keep `quality`
 
 ## Phase 9 — Major upgrades (one PR each, in order)
 
