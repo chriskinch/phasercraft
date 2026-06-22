@@ -170,13 +170,14 @@ building the replacement.
 
 ### PR3 — Swap the frontend to the REST API (gate: merchant UI identical)
 
-The gateway stays deployed-but-unused so this step is reversible.
+The gateway stays deployed-but-unused so this step is reversible. (Apollo deps,
+`src/lib/cache.ts`, the GraphQL operations, and `server/` are left in place for PR4.)
 
-- [ ] Replace `useQuery`/`useMutation`/`ApolloProvider` with `fetch()` calls to `/api/armory/*` (lightweight data hook + React state)
-- [ ] Move sort, stat filter, and the `color`/`adjusted`/`formatted`/`abbreviation` derived fields client-side into plain TS (out of `src/lib/cache.ts`)
-- [ ] Add `VITE_ARMORY_URL`; point the "merchant unavailable" graceful state at it instead of `VITE_GRAPHQL_URL`
-- [ ] Component tests for Armory/Stock against the fetch client (mock `fetch`)
-- [ ] Gate: merchant UI buys/restocks/sorts/filters identically end-to-end; CI passes
+- [x] Replace `useQuery`/`useMutation`/`ApolloProvider` with `fetch()` calls to `/api/armory/*` — `src/lib/armoryClient.ts` (typed REST client) + `src/ui/hooks/useArmory.ts` (data hook); `ApolloProvider` removed from `main.tsx`
+- [x] Move sort + stat filter client-side into plain TS (`Armory.tsx`); port the `color` derived field into `armoryClient.ts`. `adjusted`/`formatted`/`abbreviation` were **unused by the merchant UI** (a parallel impl lives in the Phaser loot entity; `formatted` was even reading a nonexistent `converted` field → `NaN`), so they are dropped rather than ported
+- [x] Add `VITE_ARMORY_URL` (`vite-env.d.ts`); unset or a failed fetch → graceful "merchant unavailable" state
+- [x] Component tests for Armory against the fetch client (mock `fetch`): loading / loaded / unavailable
+- [ ] Gate: merchant UI buys/restocks/sorts/filters identically end-to-end (maintainer verify); local `typecheck`/`lint`/`test`/`build` green. Note: restock = `POST /store/clear` then `POST /store/create` (no single restock endpoint), mirroring the old `restockStore` resolver
 
 ### PR4 — Teardown (gate: only after PR2 + PR3 verified)
 
