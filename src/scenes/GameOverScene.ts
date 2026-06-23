@@ -36,10 +36,7 @@ export default class GameOverScene extends Scene {
         );
         (
             this.game_over as Phaser.GameObjects.Container & { button: Phaser.GameObjects.Image }
-        ).button = this.make
-            .image({ key: "blank-gif", x: 0, y: 60 })
-            .setScale(12, 4)
-            .setInteractive();
+        ).button = this.add.image(0, 60, "blank-gif").setScale(12, 4).setInteractive();
         (
             this.game_over as Phaser.GameObjects.Container & { button: Phaser.GameObjects.Image }
         ).button.on("pointerup", this.restartGame, this);

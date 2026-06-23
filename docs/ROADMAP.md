@@ -206,9 +206,9 @@ PR4b — backend teardown:
 
 ## Phase 10 — Phaser 4 migration (last, issue #312)
 
-- [ ] Read the official migration guide and v3→v4 migration skill before starting
-- [ ] Migrate; validate via full unit/component/E2E suite and manual play-through
-- [ ] Update `CLAUDE.md` pinned docs version and lifecycle notes
+- [x] Read the official migration guide and v3→v4 migration skill before starting
+- [x] Migrate; validate via full unit/component/E2E suite and manual play-through
+- [x] Update `CLAUDE.md` pinned docs version and lifecycle notes
 
 ## Phase 11 — PWA installability & offline play (issue TBD)
 

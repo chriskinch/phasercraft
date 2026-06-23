@@ -24,7 +24,7 @@ export default class TownScene extends Scene {
     };
     // Depth sorting function based on Y position
     private setDepthByY(
-        sprite: GameObjects.Sprite | Player | Tilemaps.TilemapLayer,
+        sprite: GameObjects.Sprite | Player | Tilemaps.TilemapLayer | Tilemaps.TilemapGPULayer,
         offset: number = 0
     ): void {
         const depth = sprite.y + sprite.height + offset;

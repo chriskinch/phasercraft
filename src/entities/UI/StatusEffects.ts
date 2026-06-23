@@ -39,12 +39,12 @@ abstract class StatusEffects<TEntity = unknown> extends GameObjects.Group {
         this.timers[effect.name] = this.scene.time.addEvent(timer_config);
 
         this.add(effect);
-        this.calculate(this.children.entries as StatusEffect[]);
+        this.calculate(this.getChildren() as StatusEffect[]);
     }
 
     removeEffect(effect: StatusEffect): void {
         this.remove(effect);
-        this.calculate(this.children.entries as StatusEffect[]);
+        this.calculate(this.getChildren() as StatusEffect[]);
     }
 
     resolveStats(

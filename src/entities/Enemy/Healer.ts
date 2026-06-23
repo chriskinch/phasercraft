@@ -15,7 +15,7 @@ class Healer extends Enemy {
     update(time?: number, delta?: number): void {
         super.update(time ?? 0, delta ?? 0);
 
-        if (this.active_group.children.entries.length === 1) this.emit("enemy:last", this);
+        if (this.active_group.getChildren().length === 1) this.emit("enemy:last", this);
 
         if (this.getHealTarget() && this.states.attack === "primed") this.healTarget();
 
@@ -33,7 +33,7 @@ class Healer extends Enemy {
     }
 
     getHealTarget(): Enemy | undefined {
-        const targets = this.active_group.children.entries.filter((enemy) => {
+        const targets = this.active_group.getChildren().filter((enemy) => {
             return this.getMissingHealth(enemy as Enemy) > 0 && enemy !== this;
         });
         return targets.length > 0

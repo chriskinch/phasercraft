@@ -243,8 +243,8 @@ export default class GameScene extends Scene {
             this.add.bitmapText(0, 0, "wayne-3d", "LEVEL COMPLETE").setOrigin(0.5).setScale(2)
         );
         this.level_complete.add(this.add.bitmapText(0, 60, "wayne-3d", "NEXT").setOrigin(0.5));
-        this.level_complete.button = this.make
-            .image({ key: "blank-gif", x: 0, y: 60 })
+        this.level_complete.button = this.add
+            .image(0, 60, "blank-gif")
             .setScale(13, 4)
             .setInteractive();
         this.level_complete.add(this.level_complete.button);
