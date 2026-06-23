@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useMemo } from "react";
 import { createPortal } from "react-dom";
 
 interface DialogProps {
@@ -6,25 +6,19 @@ interface DialogProps {
 }
 
 const Dialog: React.FC<DialogProps> = ({ children }) => {
-    const [modalRoot, setModalRoot] = useState<HTMLElement | null>(null);
+    const el = useMemo(() => document.createElement("div"), []);
 
     useEffect(() => {
         const root = document.querySelector("#app");
-        const el = document.createElement("div");
+        if (!root) return;
+        root.appendChild(el);
+        return () => {
+            root.removeChild(el);
+        };
+    }, [el]);
 
-        if (root) {
-            root.appendChild(el);
-            setModalRoot(el);
-
-            return () => {
-                root.removeChild(el);
-            };
-        }
-    }, []);
-
-    if (!modalRoot) return null;
-
-    return createPortal(children, modalRoot);
+    const root = document.querySelector("#app");
+    return root ? createPortal(children, el) : null;
 };
 
 export default Dialog;

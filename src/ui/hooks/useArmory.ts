@@ -27,7 +27,9 @@ export interface UseArmory {
 
 export function useArmory(): UseArmory {
     const [items, setItems] = useState<StoreItem[]>([]);
-    const [status, setStatus] = useState<ArmoryStatus>("loading");
+    const [status, setStatus] = useState<ArmoryStatus>(() =>
+        isArmoryConfigured() ? "loading" : "unavailable"
+    );
     const [error, setError] = useState<string>();
 
     const load = useCallback(async () => {
@@ -46,9 +48,22 @@ export function useArmory(): UseArmory {
         }
     }, []);
 
+    // Initial fetch on mount. All setState calls happen in .then()/.catch()
+    // callbacks (not synchronously in the effect body) to satisfy
+    // react-hooks/set-state-in-effect. Subsequent loads go through `load`.
     useEffect(() => {
-        void load();
-    }, [load]);
+        if (!isArmoryConfigured()) return;
+        listItems().then(
+            (result) => {
+                setItems(result);
+                setStatus("ready");
+            },
+            (err: unknown) => {
+                setError(err instanceof Error ? err.message : String(err));
+                setStatus("unavailable");
+            }
+        );
+    }, []);
 
     const buy = useCallback(
         async (id: string) => {
