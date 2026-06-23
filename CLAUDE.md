@@ -1,6 +1,6 @@
 # CLAUDE.md — Working agreement and project conventions
 
-Phasercraft is a browser action RPG: Phaser 3 game canvas + React/Redux UI overlay,
+Phasercraft is a browser action RPG: Phaser 4 game canvas + React/Redux UI overlay,
 built with Vite (static export to Vercel, with GitHub Pages in parallel during the
 transition). The armory item service runs as Vercel Functions (`api/armory/`) backed
 by Vercel KV (Redis); the frontend talks to it directly over a typed `fetch` REST
@@ -11,11 +11,10 @@ before starting work; link PRs to the relevant phase issue.
 
 ## Versions and docs
 
-- **Phaser 3.90** (pinned until the Phase 7 migration). Before changing anything that
+- **Phaser 4.2** (migrated from 3.90 in Phase 10). Before changing anything that
   touches scenes, timers, events, physics, or game objects, consult the official docs
-  for this version at https://docs.phaser.io — do not code Phaser APIs from memory.
-  For the eventual v4 migration use the official guide and skill:
-  https://github.com/phaserjs/phaser/blob/master/changelog/v4/4.0/MIGRATION-GUIDE.md
+  at https://docs.phaser.io — do not code Phaser APIs from memory. For v3→v4 migration
+  reference: https://github.com/phaserjs/phaser/blob/master/changelog/v4/4.0/MIGRATION-GUIDE.md
 - **Node 22 LTS** for local dev and CI (`.nvmrc`); the Vercel Functions run on the
   Node runtime Vercel provides.
 - Main app: Vite (static export, `dist/`), React 19, Redux Toolkit, Vitest + Testing
