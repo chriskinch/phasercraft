@@ -210,6 +210,46 @@ PR4b — backend teardown:
 - [ ] Migrate; validate via full unit/component/E2E suite and manual play-through
 - [ ] Update `CLAUDE.md` pinned docs version and lifecycle notes
 
+## Phase 11 — PWA installability & offline play (issue TBD)
+
+Make Phasercraft installable on Android and iPhone, launching full-screen in
+landscape and behaving like a native app, with full offline play and silent
+updates on refresh. Single focused PR.
+
+- [ ] Add `vite-plugin-pwa` (Workbox): web manifest (`display: fullscreen`,
+      `orientation: landscape`, relative `start_url`/`scope` so both deploy bases
+      resolve) + service worker precaching the app shell and all game assets
+      (~4 MB) for full offline play; armory API left `NetworkOnly` (keeps its
+      existing graceful-unavailable state) — `vite.config.ts`
+- [ ] `registerType: 'autoUpdate'` (skipWaiting + clientsClaim): a new build
+      silently takes over on the next refresh, no prompt UI. Cache-Control headers
+      on `sw.js`/manifest/`index.html` in `vercel.json` so updates are detected
+- [ ] Self-host the VT323 pixel font (vendored woff2 under `src/styles/`) so text
+      renders offline; drop the Google Fonts `<link>`s from `index.html`
+- [ ] PWA + iOS meta tags and placeholder app icons (192/512/maskable +
+      apple-touch-icon) generated from existing art via
+      `scripts/generate-pwa-icons.mjs` — swap for real Phasercraft art later
+- [ ] Fix Phaser canvas sizing for standalone/landscape: `Scale.RESIZE` +
+      `innerWidth/innerHeight` (replacing `outerWidth/outerHeight` + the
+      `fullscreen` flag, which mis-measured a standalone PWA) + safe-area / `100dvh`
+      CSS — `src/PhaserGame.tsx`, `src/styles/globals.css`
+- [ ] Verify: Lighthouse "Installable"; offline boot/play; build A→B refresh picks
+      up the new build; Android "Add to Home Screen" full-screen; iOS Share-sheet
+      install (manual; Safari does not enforce the orientation lock)
+- [ ] **(follow-up)** iOS apple splash screens (device-specific; deferred from this
+      PR) and real square app icons
+
+### Decisions update (2026-06-23) — PWA installability (Phase 11)
+
+| Topic      | Decision                                                                                                                                                                                                               |
+| ---------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Offline    | Full offline play — Workbox precaches the shell + all game assets (~4 MB). First install costs that download on mobile data (accepted). The armory/merchant API stays `NetworkOnly` and keeps its graceful fallback.   |
+| Updates    | Silent auto-update on refresh (`autoUpdate` + skipWaiting + clientsClaim); no update-prompt UI. A tab held open across a deploy keeps old JS until a full reload.                                                      |
+| Install/UI | `display: fullscreen`, `orientation: landscape`, both Android + iPhone. iOS installs manually via the Share sheet (no `beforeinstallprompt`), ignores the orientation lock, and uses apple-meta tags; splash deferred. |
+| Canvas     | Approved runtime change: `Scale.RESIZE` + `innerWidth/innerHeight` replaces `outerWidth/outerHeight` + `fullscreen` so a standalone landscape install fills the screen. Scenes still read full-window pixel coords.    |
+| Font       | VT323 self-hosted (vendored woff2) — removes the Google Fonts runtime dependency so offline text renders.                                                                                                              |
+| Icons      | Placeholder icons generated from existing art; real Phasercraft square art is a follow-up.                                                                                                                             |
+
 ## Deferred / backlog
 
 - **Retire GitHub Pages**: remove the `gh-pages` deploy workflow and `VITE_BASE_URL` transition shim once Vercel production is confirmed stable (follow-up to Phase 6).

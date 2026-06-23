@@ -13,10 +13,10 @@ export default class LoadScene extends Scene {
     preload() {
         let progress = this.add.graphics();
 
-        this.load.on("progress", function (value: number) {
+        this.load.on("progress", (value: number) => {
             progress.clear();
             progress.fillStyle(0x00ff00, 1);
-            progress.fillRect(0, 0, window.outerWidth * value, 4);
+            progress.fillRect(0, 0, this.scale.width * value, 4);
         });
 
         this.load.on("complete", () => {

@@ -1,5 +1,5 @@
 import { memo, useEffect, useRef } from "react";
-import { Game, AUTO } from "phaser";
+import { Game, AUTO, Scale } from "phaser";
 import LoadScene from "@scenes/LoadScene";
 import SelectScene from "@scenes/SelectScene";
 import TownScene from "@scenes/TownScene";
@@ -25,10 +25,19 @@ const PhaserGame = () => {
 
         const config = {
             type: AUTO,
-            width: window.outerWidth,
-            height: window.outerHeight,
             backgroundColor: "#6e9c48",
-            parent: "phaser-game",
+            // Size to the real layout viewport and track resizes. RESIZE keeps the
+            // canvas matched to the window (and the safe-area-padded #phaser-game
+            // box) so an installed, landscape standalone PWA fills the screen
+            // correctly — unlike the old outerWidth/outerHeight + fullscreen flag,
+            // which mis-measured in standalone mode. Scenes read this.scale.width/
+            // height, so full-window pixel coordinates still hold.
+            scale: {
+                mode: Scale.RESIZE,
+                parent: "phaser-game",
+                width: window.innerWidth,
+                height: window.innerHeight,
+            },
             physics: {
                 default: "arcade",
                 arcade: {
@@ -42,7 +51,6 @@ const PhaserGame = () => {
             scene: [LoadScene, SelectScene, TownScene, GameScene, GameOverScene],
             pixelArt: true,
             antialias: false,
-            fullscreen: true,
         };
 
         // The #phaser-game parent is rendered by this component and useEffect runs

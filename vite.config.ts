@@ -1,5 +1,6 @@
 import { defineConfig } from "vite";
 import react from "@vitejs/plugin-react";
+import { VitePWA } from "vite-plugin-pwa";
 import path from "node:path";
 import fs from "node:fs";
 
@@ -31,7 +32,74 @@ function componentsAliasPlugin() {
 }
 
 export default defineConfig(({ mode }) => ({
-    plugins: [componentsAliasPlugin(), react()],
+    plugins: [
+        componentsAliasPlugin(),
+        react(),
+        // Installable PWA: vite-plugin-pwa (Workbox) generates the manifest and a
+        // service worker that precaches the app shell + every game asset for full
+        // offline play. The plugin reads Vite `base`, so the SW scope and manifest
+        // href resolve correctly under both "/" (Vercel) and "/phasercraft/" (Pages).
+        VitePWA({
+            // New build silently takes over on the next refresh — no update prompt.
+            registerType: "autoUpdate",
+            injectRegister: "auto",
+            includeAssets: ["favicon.png", "apple-touch-icon.png"],
+            manifest: {
+                name: "Phasercraft",
+                short_name: "Phasercraft",
+                description: "A Phaser 3 browser action RPG.",
+                theme_color: "#6e9c48",
+                background_color: "#6e9c48",
+                display: "fullscreen",
+                orientation: "landscape",
+                // Relative so they resolve under both deployment base paths.
+                start_url: ".",
+                scope: ".",
+                icons: [
+                    {
+                        src: "icons/pwa-192.png",
+                        sizes: "192x192",
+                        type: "image/png",
+                        purpose: "any",
+                    },
+                    {
+                        src: "icons/pwa-512.png",
+                        sizes: "512x512",
+                        type: "image/png",
+                        purpose: "any",
+                    },
+                    {
+                        src: "icons/pwa-maskable-512.png",
+                        sizes: "512x512",
+                        type: "image/png",
+                        purpose: "maskable",
+                    },
+                ],
+            },
+            workbox: {
+                // Precache the shell and all game assets (~4MB). Public assets are
+                // copied unhashed, so Workbox revisions them by content and only
+                // re-downloads what actually changed between builds.
+                globPatterns: ["**/*.{js,css,html,png,gif,json,tmj,csv,woff2,svg,ico}"],
+                maximumFileSizeToCacheInBytes: 4 * 1024 * 1024,
+                navigateFallback: "index.html",
+                navigateFallbackDenylist: [/^\/api\//],
+                cleanupOutdatedCaches: true,
+                clientsClaim: true,
+                skipWaiting: true,
+                runtimeCaching: [
+                    {
+                        // The armory/merchant API is online-only and already degrades
+                        // gracefully when unreachable; never cache it.
+                        urlPattern: ({ url }) => url.pathname.startsWith("/api/armory"),
+                        handler: "NetworkOnly",
+                    },
+                ],
+            },
+            // Service worker stays off in dev so it doesn't shadow Vite HMR.
+            devOptions: { enabled: false },
+        }),
+    ],
     // GitHub Pages serves the app under /phasercraft/ during the Vercel
     // transition (set via VITE_BASE_URL in the Pages workflow); Vercel and local
     // dev serve from the root.
