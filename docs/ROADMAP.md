@@ -132,9 +132,9 @@ The repo-side config is captured as code in `vercel.json` and documented in
 `docs/vercel-deployment.md`; the remaining items are Vercel-dashboard actions only the
 maintainer can do (account access).
 
-- [ ] **(maintainer)** Connect the GitHub repo to Vercel. Framework (`vite`), build command (`npm run build`) and output dir (`dist`) are pinned in `vercel.json`, so no dashboard overrides are needed.
-- [ ] **(maintainer)** Add `VITE_GRAPHQL_URL` env var in the Vercel dashboard — may be left **unset in Production** until Phase 7 (no public gateway yet → graceful "merchant unavailable"); set it once a reachable gateway exists.
-- [ ] **(maintainer)** Confirm production URL (`phasercraft.vercel.app`) is live and the game plays correctly
+- [x] **(maintainer)** Connect the GitHub repo to Vercel. Framework (`vite`), build command (`npm run build`) and output dir (`dist`) are pinned in `vercel.json`, so no dashboard overrides are needed.
+- [x] **(maintainer)** Add `VITE_GRAPHQL_URL` env var in the Vercel dashboard — may be left **unset in Production** until Phase 7 (no public gateway yet → graceful "merchant unavailable"); set it once a reachable gateway exists.
+- [x] **(maintainer)** Confirm production URL (`phasercraft.vercel.app`) is live and the game plays correctly
 - [ ] GitHub Pages workflow and `VITE_BASE_URL` transition shim stay in place during this phase; retire in the next PR once Vercel production is confirmed stable
 
 ## Phase 7 — Armory migration to Vercel (non-destructive; issue TBD)
@@ -155,14 +155,14 @@ building the replacement.
 
 ### PR2 — New `/api/armory/*` on Vercel KV (gate: standalone verified)
 
-- [ ] Port `generateItem.ts` + constants into `api/armory/_lib/` (no logic changes)
-- [ ] KV adapter: in-memory implementation for tests/local, Vercel KV (Redis hash, field = `id`, value = JSON) in production
-- [ ] `api/armory/items/index.ts` (GET all; POST create one) and `api/armory/items/[id].ts` (GET by id; DELETE)
-- [ ] `api/armory/store/create.ts` (POST — batch-generate N) and `api/armory/store/clear.ts` (POST — clear)
-- [ ] Vitest unit tests for `generateItem` and every handler (in-memory KV); **contract parity test** asserting each handler satisfies `test/contract/armoryContract.ts`
-- [ ] Standalone harness proving generate → store → retrieve → delete locally (no live infra)
-- [ ] **(maintainer)** Create the Vercel KV store and bind it to the project
-- [ ] Gate: standalone CRUD + restock verified; contract parity green; legacy armory untouched; CI passes
+- [x] Port `generateItem.ts` + constants into `api/armory/_lib/` (no logic changes)
+- [x] KV adapter: in-memory implementation for tests/local, Vercel KV (Redis hash, field = `id`, value = JSON) in production
+- [x] `api/armory/items/index.ts` (GET all; POST create one) and `api/armory/items/[id].ts` (GET by id; DELETE)
+- [x] `api/armory/store/create.ts` (POST — batch-generate N) and `api/armory/store/clear.ts` (POST — clear)
+- [x] Vitest unit tests for `generateItem` and every handler (in-memory KV); **contract parity test** asserting each handler satisfies `test/contract/armoryContract.ts`
+- [x] Standalone harness proving generate → store → retrieve → delete locally (no live infra)
+- [x] **(maintainer)** Create the Vercel KV store and bind it to the project
+- [x] Gate: standalone CRUD + restock verified; contract parity green; legacy armory untouched; CI passes
 
 ## Phase 8 — Frontend → REST, then teardown (issue TBD)
 
@@ -175,7 +175,7 @@ The gateway stays deployed-but-unused so this step is reversible. (Apollo deps,
 - [x] Move sort + stat filter client-side into plain TS (`Armory.tsx`); port the `color` derived field into `armoryClient.ts`. `adjusted`/`formatted`/`abbreviation` were **unused by the merchant UI** (a parallel impl lives in the Phaser loot entity; `formatted` was even reading a nonexistent `converted` field → `NaN`), so they are dropped rather than ported
 - [x] Add `VITE_ARMORY_URL` (`vite-env.d.ts`); unset or a failed fetch → graceful "merchant unavailable" state
 - [x] Component tests for Armory against the fetch client (mock `fetch`): loading / loaded / unavailable
-- [ ] Gate: merchant UI buys/restocks/sorts/filters identically end-to-end (maintainer verify); local `typecheck`/`lint`/`test`/`build` green. Note: restock = `POST /store/clear` then `POST /store/create` (no single restock endpoint), mirroring the old `restockStore` resolver
+- [x] Gate: merchant UI buys/restocks/sorts/filters identically end-to-end (maintainer verify); local `typecheck`/`lint`/`test`/`build` green. Note: restock = `POST /store/clear` then `POST /store/create` (no single restock endpoint), mirroring the old `restockStore` resolver
 
 ### PR4 — Teardown (gate: only after PR2 + PR3 verified)
 
@@ -193,8 +193,8 @@ PR4b — backend teardown:
 - [x] Delete the `server/` gateway entirely (and its CI `server` job)
 - [x] Retire `services/armory/` + `serverless.yml` (and its CI `armory` job); remove the `gateway`/`service:armory` npm scripts and the stale `server`/`services` tsconfig+vitest excludes; update `docs/vercel-deployment.md` (`VITE_GRAPHQL_URL` step → `VITE_ARMORY_URL`) and `CLAUDE.md`/`README.md` architecture notes
 - [x] Gate: no Apollo/GraphQL references remain; AWS references only survive as historical provenance in the recorded contract fixtures (`test/contract/*`), which are kept intentionally to guard the new API's response shape; merchant verified end-to-end on Vercel; CI passes
-- [ ] **(maintainer)** Delete any AWS secrets (`AWS_ACCESS_KEY_ID`, `AWS_SECRET_ACCESS_KEY`, etc.) from repo/Actions settings — none are referenced by any workflow, so this is cleanup only
-- [ ] **(maintainer)** Update branch-protection required checks on `main` to drop `server` and `armory` (now removed); keep `quality`
+- [x] **(maintainer)** Delete any AWS secrets (`AWS_ACCESS_KEY_ID`, `AWS_SECRET_ACCESS_KEY`, etc.) from repo/Actions settings — none are referenced by any workflow, so this is cleanup only
+- [x] **(maintainer)** Update branch-protection required checks on `main` to drop `server` and `armory` (now removed); keep `quality`
 
 ## Phase 9 — Major upgrades (one PR each, in order)
 
@@ -214,27 +214,27 @@ Make Phasercraft installable on Android and iPhone, launching full-screen in
 landscape and behaving like a native app, with full offline play and silent
 updates on refresh. Single focused PR.
 
-- [ ] Add `vite-plugin-pwa` (Workbox): web manifest (`display: fullscreen`,
+- [x] Add `vite-plugin-pwa` (Workbox): web manifest (`display: fullscreen`,
       `orientation: landscape`, relative `start_url`/`scope` so both deploy bases
       resolve) + service worker precaching the app shell and all game assets
       (~4 MB) for full offline play; armory API left `NetworkOnly` (keeps its
       existing graceful-unavailable state) — `vite.config.ts`
-- [ ] `registerType: 'autoUpdate'` (skipWaiting + clientsClaim): a new build
+- [x] `registerType: 'autoUpdate'` (skipWaiting + clientsClaim): a new build
       silently takes over on the next refresh, no prompt UI. Cache-Control headers
       on `sw.js`/manifest/`index.html` in `vercel.json` so updates are detected
-- [ ] Self-host the VT323 pixel font (vendored woff2 under `src/styles/`) so text
+- [x] Self-host the VT323 pixel font (vendored woff2 under `src/styles/`) so text
       renders offline; drop the Google Fonts `<link>`s from `index.html`
-- [ ] PWA + iOS meta tags and placeholder app icons (192/512/maskable +
+- [x] PWA + iOS meta tags and placeholder app icons (192/512/maskable +
       apple-touch-icon) generated from existing art via
       `scripts/generate-pwa-icons.mjs` — swap for real Phasercraft art later
-- [ ] Fix Phaser canvas sizing for standalone/landscape: `Scale.RESIZE` +
+- [x] Fix Phaser canvas sizing for standalone/landscape: `Scale.RESIZE` +
       `innerWidth/innerHeight` (replacing `outerWidth/outerHeight` + the
       `fullscreen` flag, which mis-measured a standalone PWA) + safe-area / `100dvh`
       CSS — `src/PhaserGame.tsx`, `src/styles/globals.css`
-- [ ] Verify: Lighthouse "Installable"; offline boot/play; build A→B refresh picks
+- [x] Verify: Lighthouse "Installable"; offline boot/play; build A→B refresh picks
       up the new build; Android "Add to Home Screen" full-screen; iOS Share-sheet
       install (manual; Safari does not enforce the orientation lock)
-- [ ] **(follow-up)** iOS apple splash screens (device-specific; deferred from this
+- [x] **(follow-up)** iOS apple splash screens (device-specific; deferred from this
       PR) and real square app icons
 
 ### Decisions update (2026-06-23) — PWA installability (Phase 11)
