@@ -2,12 +2,24 @@
 <html lang="en">
     <head>
         <meta charset="UTF-8" />
-        <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+        <meta
+            name="viewport"
+            content="width=device-width, initial-scale=1.0, viewport-fit=cover, user-scalable=no"
+        />
+        <meta name="description" content="A Phaser 3 browser action RPG." />
+        <meta name="theme-color" content="#6e9c48" />
         <link rel="icon" type="image/png" href="%BASE_URL%favicon.png" />
-        <!-- VT323 pixel font (previously loaded via next/font/google). -->
-        <link rel="preconnect" href="https://fonts.googleapis.com" />
-        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-        <link href="https://fonts.googleapis.com/css?family=VT323&display=swap" rel="stylesheet" />
+        <!--
+            PWA installability. The web manifest + service worker are injected by
+            vite-plugin-pwa at build time; these tags cover the iOS Safari path,
+            which ignores most of the manifest and installs via the Share sheet.
+            The VT323 pixel font is now self-hosted (see src/styles/globals.css).
+        -->
+        <link rel="apple-touch-icon" href="%BASE_URL%apple-touch-icon.png" />
+        <meta name="mobile-web-app-capable" content="yes" />
+        <meta name="apple-mobile-web-app-capable" content="yes" />
+        <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+        <meta name="apple-mobile-web-app-title" content="Phasercraft" />
         <title>Phasercraft</title>
     </head>
     <body>
