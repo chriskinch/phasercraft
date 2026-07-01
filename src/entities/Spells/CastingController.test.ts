@@ -496,6 +496,63 @@ describe("CastingController channels", () => {
     });
 });
 
+describe("CastingController ground reticle", () => {
+    interface ReticleStub {
+        show: ReturnType<typeof vi.fn>;
+        hide: ReturnType<typeof vi.fn>;
+        placeAt: ReturnType<typeof vi.fn>;
+        cleanup: ReturnType<typeof vi.fn>;
+    }
+
+    function withReticle(controller: ControllerUnderTest): ReticleStub {
+        const reticle = { show: vi.fn(), hide: vi.fn(), placeAt: vi.fn(), cleanup: vi.fn() };
+        (controller as unknown as { reticle: ReticleStub }).reticle = reticle;
+        return reticle;
+    }
+
+    it("shows the ring with the spell's radius while a ground spell is primed", () => {
+        const controller = makeController();
+        const reticle = withReticle(controller);
+        const spell = makeSpell("ground", { castRange: 1000, aoeRadius: 25 });
+
+        controller.request(spell);
+
+        expect(reticle.show).toHaveBeenCalledWith(25);
+    });
+
+    it("hides the ring when the prime clears", () => {
+        const controller = makeController();
+        const reticle = withReticle(controller);
+        const spell = makeSpell("ground", { castRange: 1000 });
+        controller.request(spell);
+
+        controller.request(spell); // toggle off
+
+        expect(reticle.hide).toHaveBeenCalled();
+    });
+
+    it("flashes the ring at the committed placement point", () => {
+        const controller = makeController();
+        const reticle = withReticle(controller);
+        const spell = makeSpell("ground", { castRange: 1000 });
+        controller.request(spell);
+
+        controller.onGroundTap({ x: 80, y: 60 });
+
+        expect(reticle.placeAt).toHaveBeenCalledWith({ x: 80, y: 60 });
+    });
+
+    it("does not show the ring for enemy-target primes", () => {
+        const controller = makeController();
+        const reticle = withReticle(controller);
+        const spell = makeSpell("enemy", { castRange: 100 });
+
+        controller.request(spell);
+
+        expect(reticle.show).not.toHaveBeenCalled();
+    });
+});
+
 describe("CastingController.notifyDisabled", () => {
     it("clears the prime when the primed spell is disabled", () => {
         const controller = makeController();

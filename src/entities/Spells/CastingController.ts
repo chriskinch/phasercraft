@@ -1,4 +1,5 @@
 import { Math as PhaserMath, Scenes } from "phaser";
+import TargetReticle from "@entities/UI/TargetReticle";
 import type { TargetKind, TargetType } from "@/types/game";
 import type { GameSceneLike } from "@/types/scene";
 
@@ -11,6 +12,7 @@ export interface CastableSpell {
     castRange?: number;
     castTime?: number;
     channelDuration?: number;
+    aoeRadius?: number;
     checkReady(): boolean;
     castSpell(target?: TargetType): void;
     // Visual hooks the owner maps to its button tints.
@@ -77,10 +79,14 @@ class CastingController {
     private primed: CastableSpell | null = null;
     private pending: PendingCast | null = null;
     private casting: ActiveCast | null = null;
+    // Placement ring for ground spells. Optional so the prototype-fake tests
+    // (which skip the constructor) exercise the flow without a display list.
+    private reticle?: TargetReticle;
 
     constructor({ scene, player }: CastingControllerOptions) {
         this.scene = scene;
         this.player = player;
+        this.reticle = new TargetReticle(scene);
 
         this.scene.events.on("pointerdown:enemy", this.onEnemyTap, this);
         this.scene.events.on("pointerdown:player", this.onPlayerTap, this);
@@ -160,6 +166,7 @@ class CastingController {
             // cast is still in flight and fire()/cancel restores visuals.
             this.primed = null;
             const point = this.scene.cameras.main.getWorldPoint(pointer.x, pointer.y);
+            this.reticle?.placeAt(point);
             this.commit(spell, { x: point.x, y: point.y });
         } else {
             // Tapping the floor with a primed targeted spell deselects it.
@@ -173,7 +180,9 @@ class CastingController {
         const spell = this.primed;
         if (spell.targetKind === "ground") {
             this.primed = null;
-            this.commit(spell, { x: this.player.x, y: this.player.y });
+            const point = { x: this.player.x, y: this.player.y };
+            this.reticle?.placeAt(point);
+            this.commit(spell, point);
         } else {
             this.clearPrime();
         }
@@ -187,7 +196,9 @@ class CastingController {
                 this.commit(spell, enemy);
             } else if (spell.targetKind === "ground") {
                 this.primed = null;
-                this.commit(spell, { x: enemy.x, y: enemy.y });
+                const point = { x: enemy.x, y: enemy.y };
+                this.reticle?.placeAt(point);
+                this.commit(spell, point);
             } else {
                 this.clearPrime();
             }
@@ -252,6 +263,7 @@ class CastingController {
 
     private prime(spell: CastableSpell): void {
         this.primed = spell;
+        if (spell.targetKind === "ground") this.reticle?.show(spell.aoeRadius);
         spell.onPrimed?.();
         this.scene.events.emit("spell:primed", spell);
     }
@@ -260,6 +272,7 @@ class CastingController {
         if (!this.primed) return;
         const spell = this.primed;
         this.primed = null;
+        this.reticle?.hide();
         spell.onPrimeCleared?.();
         this.scene.events.emit("spell:cleared", spell);
     }
@@ -375,6 +388,7 @@ class CastingController {
         }
         this.pending = null;
         this.primed = null;
+        this.reticle?.cleanup();
     }
 }
 
