@@ -15,6 +15,7 @@ import { addXP, setBaseStats, setLevel, setStats } from "@store/gameReducer";
 import isEmpty from "lodash/isEmpty";
 import mapStateToData from "@helpers/mapStateToData";
 import CombatText from "../UI/CombatText";
+import CastBar from "@entities/UI/CastBar";
 import Projectile from "@entities/Weapons/Projectile";
 import type { PlayerOptions, PlayerStats, SpellProjectileConfig } from "@/types/game";
 import type Enemy from "@entities/Enemy/Enemy";
@@ -63,6 +64,7 @@ class Player extends GameObjects.Container {
     // Ranged classes set this to fire their basic attack as a homing
     // projectile (damage on impact) instead of an instant melee swing.
     public attack_projectile?: SpellProjectileConfig;
+    public castBar!: CastBar;
     // Set/reset by each Spell to clear the previously primed spell (see Spell).
     // Legacy prime→click flow only; removed once all spells are migrated.
     public clearLastPrimedSpell!: () => void;
@@ -172,6 +174,7 @@ class Player extends GameObjects.Container {
             scene: scene as GameSceneLike,
             player: this,
         });
+        this.castBar = new CastBar(scene, this);
 
         this.spells = abilities.map((spell, i) => {
             return new AssignSpell(spell, {
@@ -513,6 +516,7 @@ class Player extends GameObjects.Container {
         // Release the casting controller's scene listeners and timers
         // (idempotent — it also self-cleans on scene SHUTDOWN).
         this.casting.cleanup();
+        this.castBar.cleanup();
 
         // On scene SHUTDOWN the player container is not destroyed, so its child
         // resources' DESTROY handlers never fire — clean them up explicitly here

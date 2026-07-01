@@ -16,6 +16,9 @@ class Heal extends Spell {
             },
             type: "heal",
             targetKind: "self" as const,
+            // Wind-up: interruptible by moving, taking a hit, or casting
+            // something else; the resource is only charged on completion.
+            castTime: 1,
         };
 
         super({ ...defaults, ...config });
