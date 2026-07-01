@@ -120,13 +120,13 @@ describe("CastingController.request — instant target kinds", () => {
         expect(controller.getState()).toBe("idle");
     });
 
-    it("casts a targetless (PBAoE) spell immediately", () => {
+    it("casts a targetless (PBAoE) spell immediately with no target", () => {
         const controller = makeController();
         const spell = makeSpell("none");
 
         controller.request(spell);
 
-        expect(spell.castSpell).toHaveBeenCalledWith(controller.player);
+        expect(spell.castSpell).toHaveBeenCalledWith(undefined);
     });
 
     it("refuses a spell that is not ready", () => {
@@ -145,7 +145,7 @@ describe("CastingController.request — enemy target kind", () => {
         const controller = makeController();
         const enemy = { x: 50, y: 0, alive: true };
         controller.scene.selected = enemy;
-        const spell = makeSpell("enemy", { range: 100 });
+        const spell = makeSpell("enemy", { castRange: 100 });
 
         controller.request(spell);
 
@@ -156,7 +156,7 @@ describe("CastingController.request — enemy target kind", () => {
         const controller = makeController();
         const enemy = { x: 500, y: 0, alive: true };
         controller.scene.selected = enemy;
-        const spell = makeSpell("enemy", { range: 100 });
+        const spell = makeSpell("enemy", { castRange: 100 });
 
         controller.request(spell);
 
@@ -166,7 +166,7 @@ describe("CastingController.request — enemy target kind", () => {
 
     it("primes when no enemy is selected", () => {
         const controller = makeController();
-        const spell = makeSpell("enemy", { range: 100 });
+        const spell = makeSpell("enemy", { castRange: 100 });
 
         controller.request(spell);
 
@@ -177,7 +177,7 @@ describe("CastingController.request — enemy target kind", () => {
 
     it("pressing the primed spell's button again cancels the prime", () => {
         const controller = makeController();
-        const spell = makeSpell("enemy", { range: 100 });
+        const spell = makeSpell("enemy", { castRange: 100 });
 
         controller.request(spell);
         controller.request(spell);
@@ -189,8 +189,8 @@ describe("CastingController.request — enemy target kind", () => {
 
     it("pressing a different button while primed switches the prime", () => {
         const controller = makeController();
-        const first = makeSpell("enemy", { range: 100, name: "first" });
-        const second = makeSpell("enemy", { range: 100, name: "second" });
+        const first = makeSpell("enemy", { castRange: 100, name: "first" });
+        const second = makeSpell("enemy", { castRange: 100, name: "second" });
 
         controller.request(first);
         controller.request(second);
@@ -204,7 +204,7 @@ describe("CastingController.request — enemy target kind", () => {
 describe("CastingController tap routing while primed", () => {
     it("commits a primed enemy spell on an enemy tap", () => {
         const controller = makeController();
-        const spell = makeSpell("enemy", { range: 100 });
+        const spell = makeSpell("enemy", { castRange: 100 });
         controller.request(spell);
         const enemy = { x: 10, y: 10, alive: true };
 
@@ -215,7 +215,7 @@ describe("CastingController tap routing while primed", () => {
 
     it("clears a primed enemy spell on a ground tap and consumes it", () => {
         const controller = makeController();
-        const spell = makeSpell("enemy", { range: 100 });
+        const spell = makeSpell("enemy", { castRange: 100 });
         controller.request(spell);
 
         const consumed = controller.onGroundTap({ x: 200, y: 200 });
@@ -227,7 +227,7 @@ describe("CastingController tap routing while primed", () => {
 
     it("clears a primed enemy spell when the player is tapped", () => {
         const controller = makeController();
-        const spell = makeSpell("enemy", { range: 100 });
+        const spell = makeSpell("enemy", { castRange: 100 });
         controller.request(spell);
 
         controller.onPlayerTap();
@@ -238,7 +238,7 @@ describe("CastingController tap routing while primed", () => {
 
     it("places a primed ground spell at the world tap point", () => {
         const controller = makeController();
-        const spell = makeSpell("ground", { range: 1000 });
+        const spell = makeSpell("ground", { castRange: 1000 });
         controller.request(spell);
 
         const consumed = controller.onGroundTap({ x: 80, y: 60 });
@@ -250,7 +250,7 @@ describe("CastingController tap routing while primed", () => {
 
     it("places a primed ground spell at a tapped enemy's position", () => {
         const controller = makeController();
-        const spell = makeSpell("ground", { range: 1000 });
+        const spell = makeSpell("ground", { castRange: 1000 });
         controller.request(spell);
 
         controller.onEnemyTap({ x: 30, y: 40, alive: true });
@@ -270,7 +270,7 @@ describe("CastingController approach (walk into range)", () => {
         const controller = makeController();
         const enemy = { x: 500, y: 0, alive: true };
         controller.scene.selected = enemy;
-        const spell = makeSpell("enemy", { range: 100 });
+        const spell = makeSpell("enemy", { castRange: 100 });
         controller.request(spell);
 
         controller.update();
@@ -288,7 +288,7 @@ describe("CastingController approach (walk into range)", () => {
         const controller = makeController();
         const enemy = { x: 500, y: 0, alive: true };
         controller.scene.selected = enemy;
-        const spell = makeSpell("enemy", { range: 100 });
+        const spell = makeSpell("enemy", { castRange: 100 });
         controller.request(spell);
 
         enemy.alive = false;
@@ -303,7 +303,7 @@ describe("CastingController approach (walk into range)", () => {
         const controller = makeController();
         const first = { x: 500, y: 0, alive: true };
         controller.scene.selected = first;
-        const spell = makeSpell("enemy", { range: 100 });
+        const spell = makeSpell("enemy", { castRange: 100 });
         controller.request(spell);
 
         const second = { x: 50, y: 0, alive: true };
@@ -317,7 +317,7 @@ describe("CastingController approach (walk into range)", () => {
         const controller = makeController();
         const enemy = { x: 500, y: 0, alive: true };
         controller.scene.selected = enemy;
-        const spell = makeSpell("enemy", { range: 100 });
+        const spell = makeSpell("enemy", { castRange: 100 });
         controller.request(spell);
 
         controller.interruptForMove();
@@ -397,7 +397,7 @@ describe("CastingController wind-up casts", () => {
         const controller = makeController();
         const enemy = { x: 500, y: 0, alive: true };
         controller.scene.selected = enemy;
-        const spell = makeSpell("enemy", { range: 100 });
+        const spell = makeSpell("enemy", { castRange: 100 });
         controller.request(spell);
 
         controller.onHit();
@@ -432,7 +432,7 @@ describe("CastingController wind-up casts", () => {
         const controller = makeController();
         const enemy = { x: 10, y: 0, alive: true };
         controller.scene.selected = enemy;
-        const spell = makeSpell("enemy", { range: 100, castTime: 1 });
+        const spell = makeSpell("enemy", { castRange: 100, castTime: 1 });
         controller.request(spell);
 
         enemy.alive = false;
@@ -457,7 +457,7 @@ describe("CastingController wind-up casts", () => {
 describe("CastingController channels", () => {
     it("casts immediately and holds the casting state for the channel", () => {
         const controller = makeController();
-        const spell = makeSpell("enemy", { range: 100, channelDuration: 5 });
+        const spell = makeSpell("enemy", { castRange: 100, channelDuration: 5 });
         const enemy = { x: 10, y: 0, alive: true };
         controller.scene.selected = enemy;
 
@@ -473,7 +473,7 @@ describe("CastingController channels", () => {
 
     it("breaking the channel notifies the spell", () => {
         const controller = makeController();
-        const spell = makeSpell("enemy", { range: 100, channelDuration: 5 });
+        const spell = makeSpell("enemy", { castRange: 100, channelDuration: 5 });
         controller.scene.selected = { x: 10, y: 0, alive: true };
         controller.request(spell);
 
@@ -485,7 +485,7 @@ describe("CastingController channels", () => {
 
     it("a completed channel just returns to idle", () => {
         const controller = makeController();
-        const spell = makeSpell("enemy", { range: 100, channelDuration: 5 });
+        const spell = makeSpell("enemy", { castRange: 100, channelDuration: 5 });
         controller.scene.selected = { x: 10, y: 0, alive: true };
         controller.request(spell);
 
@@ -499,7 +499,7 @@ describe("CastingController channels", () => {
 describe("CastingController.notifyDisabled", () => {
     it("clears the prime when the primed spell is disabled", () => {
         const controller = makeController();
-        const spell = makeSpell("enemy", { range: 100 });
+        const spell = makeSpell("enemy", { castRange: 100 });
         controller.request(spell);
 
         controller.notifyDisabled(spell);
@@ -509,8 +509,8 @@ describe("CastingController.notifyDisabled", () => {
 
     it("ignores spells that are not in flight", () => {
         const controller = makeController();
-        const primed = makeSpell("enemy", { range: 100, name: "primed" });
-        const other = makeSpell("enemy", { range: 100, name: "other" });
+        const primed = makeSpell("enemy", { castRange: 100, name: "primed" });
+        const other = makeSpell("enemy", { castRange: 100, name: "other" });
         controller.request(primed);
 
         controller.notifyDisabled(other);
@@ -541,6 +541,11 @@ describe("CastingController.cleanup", () => {
         expect(controller.scene.events.off).toHaveBeenCalledWith(
             "keypress:esc",
             CastingController.prototype.cancelAll,
+            controller
+        );
+        expect(controller.scene.events.off).toHaveBeenCalledWith(
+            "player:hit",
+            CastingController.prototype.onHit,
             controller
         );
         expect(controller.scene.events.off).toHaveBeenCalledWith(

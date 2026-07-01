@@ -8,7 +8,7 @@ import type { GameSceneLike } from "@/types/scene";
 export interface CastableSpell {
     name: string;
     targetKind: TargetKind;
-    range?: number;
+    castRange?: number;
     castTime?: number;
     channelDuration?: number;
     checkReady(): boolean;
@@ -85,6 +85,8 @@ class CastingController {
         this.scene.events.on("pointerdown:enemy", this.onEnemyTap, this);
         this.scene.events.on("pointerdown:player", this.onPlayerTap, this);
         this.scene.events.on("keypress:esc", this.cancelAll, this);
+        // Actual damage (shield absorbs don't emit player:hit) breaks casts.
+        this.scene.events.on("player:hit", this.onHit, this);
         // The controller is not a GameObject, so SHUTDOWN is its only
         // lifecycle signal; Player.cleanup() also calls cleanup() (idempotent).
         this.scene.events.once(Scenes.Events.SHUTDOWN, this.cleanup, this);
@@ -210,8 +212,10 @@ class CastingController {
     }
 
     // A spell that became unavailable (resource drained, disableall) cannot
-    // stay primed/queued/casting.
-    notifyDisabled(spell: CastableSpell): void {
+    // stay primed/queued/casting. Identity comparison only, so legacy spells
+    // (no targetKind yet) can call this unconditionally from their disable
+    // path — they are never in the controller's state.
+    notifyDisabled(spell: object): void {
         if (this.primed === spell) this.clearPrime();
         if (this.pending?.spell === spell) this.cancelPending();
         if (this.casting?.spell === spell) this.interruptCast();
@@ -237,7 +241,7 @@ class CastingController {
             target.x,
             target.y
         );
-        if (distance <= (spell.range ?? Infinity)) {
+        if (distance <= (spell.castRange ?? Infinity)) {
             this.pending = null;
             this.player.idle();
             this.startCast(spell, target);
@@ -269,14 +273,14 @@ class CastingController {
     }
 
     private commit(spell: CastableSpell, target: CastTarget): void {
-        if (spell.range !== undefined) {
+        if (spell.castRange !== undefined) {
             const distance = PhaserMath.Distance.Between(
                 this.player.x,
                 this.player.y,
                 target.x,
                 target.y
             );
-            if (distance > spell.range) {
+            if (distance > spell.castRange) {
                 this.pending = { spell, target };
                 return;
             }
@@ -320,7 +324,10 @@ class CastingController {
 
     private fire(spell: CastableSpell, target: CastTarget): void {
         spell.onPrimeCleared?.();
-        spell.castSpell(target as TargetType);
+        // Targetless (PBAoE/aura) effects read the caster themselves; passing
+        // the player would hit subclass effect(target) branches meant for
+        // enemies (e.g. Multishot's per-enemy damage guard).
+        spell.castSpell(spell.targetKind === "none" ? undefined : (target as TargetType));
         const channel = spell.channelDuration ?? 0;
         if (channel > 0) {
             // castSpell started the channel (cost charged up-front); hold the
@@ -360,6 +367,7 @@ class CastingController {
         this.scene.events.off("pointerdown:enemy", this.onEnemyTap, this);
         this.scene.events.off("pointerdown:player", this.onPlayerTap, this);
         this.scene.events.off("keypress:esc", this.cancelAll, this);
+        this.scene.events.off("player:hit", this.onHit, this);
         this.scene.events.off(Scenes.Events.SHUTDOWN, this.cleanup, this);
         if (this.casting) {
             this.casting.timer.remove(false);

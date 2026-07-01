@@ -3,6 +3,7 @@ import { v4 as uuid } from "uuid";
 import Hero from "./Hero";
 import Weapon from "@entities/Weapon";
 import AssignSpell from "@entities/Spells/AssignSpell";
+import CastingController from "@entities/Spells/CastingController";
 import AssignResource, {
     AssignResourceType,
     AssignResourceName,
@@ -55,7 +56,11 @@ class Player extends GameObjects.Container {
     public attack_delay!: Phaser.Time.TimerEvent | null;
     public swing: Phaser.Time.TimerEvent | null = null;
     public body!: Physics.Arcade.Body;
+    // Owns the new cast flow (priming, approach, wind-ups, interrupts) for
+    // spells that declare a targetKind.
+    public casting!: CastingController;
     // Set/reset by each Spell to clear the previously primed spell (see Spell).
+    // Legacy prime→click flow only; removed once all spells are migrated.
     public clearLastPrimedSpell!: () => void;
 
     constructor({
@@ -156,6 +161,12 @@ class Player extends GameObjects.Container {
         scene.events.on("enemy:attack", this.hit, this);
         this.health.on("change", this.healthChanged);
 
+        // Created before the spells so their disable path can notify it.
+        this.casting = new CastingController({
+            scene: scene as GameSceneLike,
+            player: this,
+        });
+
         this.spells = abilities.map((spell, i) => {
             return new AssignSpell(spell, {
                 player: this,
@@ -211,7 +222,10 @@ class Player extends GameObjects.Container {
             this.idle();
         }
 
-        if ((this.scene as GameSceneLike).selected) this.goToRange();
+        // Drive any queued walk-into-range cast; wind-ups/channels root the
+        // player and pause the auto-attack chase until they resolve.
+        this.casting.update();
+        if ((this.scene as GameSceneLike).selected && !this.casting.isCasting()) this.goToRange();
 
         // Self cast key
         if (keys.space.isDown) {
@@ -224,10 +238,15 @@ class Player extends GameObjects.Container {
     }
 
     gameDownHandler(scene: Scene, pointer: Phaser.Input.Pointer): void {
-        if (!this.spellPrimed) {
-            this.dragging = true;
-            this.moveToPosition(pointer);
-        }
+        // The controller decides first whether the tap is a ground-spell
+        // placement or a prime-cancel; consumed taps never become moves.
+        if (this.casting.onGroundTap(pointer)) return;
+        // Legacy primed spells consume the tap via their own cast events.
+        if (this.spellPrimed) return;
+        // A move command breaks queued approaches and casts in progress.
+        this.casting.interruptForMove();
+        this.dragging = true;
+        this.moveToPosition(pointer);
     }
 
     gameMoveHandler(scene: Scene, pointer: Phaser.Input.Pointer): void {
@@ -243,8 +262,15 @@ class Player extends GameObjects.Container {
     }
 
     moveToPosition(targetOrPoint: Phaser.Input.Pointer | Enemy): void {
-        this.destination = this.getWorldPointer(targetOrPoint);
-        this.scene.physics.moveTo(this, this.destination.x!, this.destination.y!, this.stats.speed);
+        this.moveToWorldPoint(this.getWorldPointer(targetOrPoint));
+    }
+
+    // Move to an already-resolved world-space point (the CastingController
+    // stores world points, which must not go through the camera conversion
+    // that moveToPosition applies to raw pointers).
+    moveToWorldPoint(point: { x: number; y: number }): void {
+        this.destination = { x: point.x, y: point.y };
+        this.scene.physics.moveTo(this, point.x, point.y, this.stats.speed);
         this.walk();
     }
 
@@ -462,6 +488,10 @@ class Player extends GameObjects.Container {
         // Unsubscribe from all store subscriptions
         this.subscriptions.forEach((unsubscribe) => unsubscribe());
         this.subscriptions = [];
+
+        // Release the casting controller's scene listeners and timers
+        // (idempotent — it also self-cleans on scene SHUTDOWN).
+        this.casting.cleanup();
 
         // On scene SHUTDOWN the player container is not destroyed, so its child
         // resources' DESTROY handlers never fire — clean them up explicitly here

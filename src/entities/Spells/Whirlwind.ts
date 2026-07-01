@@ -21,6 +21,7 @@ class Whirlwind extends Spell {
             type: "physical",
             range: 120,
             cap: 5,
+            targetKind: "none" as const,
         };
 
         super({ ...defaults, ...config });
@@ -31,13 +32,7 @@ class Whirlwind extends Spell {
         this.cap = 5;
     }
 
-    setCastEvents(state: "on" | "off"): void {
-        // Call as it we click the spell to trigger effect().
-        // Acts like an instant cast.
-        if (state === "on") this.castSpell(this.player);
-    }
-
-    effect(target: Enemy): void {
+    effect(target?: Enemy): void {
         const enemiesInRange = (
             (this.scene as GameSceneLike).enemies.children.entries as unknown as Enemy[]
         )

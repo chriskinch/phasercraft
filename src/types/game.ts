@@ -317,8 +317,10 @@ export interface SpellDefinition {
     cost: { [key: string]: number };
     cooldown: number;
     targetKind: TargetKind;
-    // Max cast/placement distance in px; undefined = unlimited.
-    range?: number;
+    // Max cast/placement distance in px; undefined = unlimited. Named
+    // castRange because several spells already use `range` for their AoE
+    // scan radius (Whirlwind, Multishot).
+    castRange?: number;
     // Wind-up seconds before the effect lands; 0/undefined = instant.
     castTime?: number;
     // Channel seconds; the effect runs for the duration and can be broken.
@@ -347,6 +349,15 @@ export interface SpellOptions {
     loop?: boolean;
     cooldownDelay?: boolean;
     cooldownDelayAll?: boolean;
+    // Declarative casting metadata (see SpellDefinition). Spells that set
+    // targetKind are routed through the CastingController; spells without it
+    // still use the legacy prime→click event wiring.
+    targetKind?: TargetKind;
+    castRange?: number;
+    castTime?: number;
+    channelDuration?: number;
+    aoeRadius?: number;
+    projectile?: SpellProjectileConfig;
 }
 
 interface AdjustValue {

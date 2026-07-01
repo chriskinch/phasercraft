@@ -1,7 +1,13 @@
 import { GameObjects, Scenes } from "phaser";
 import store from "@store";
 import SpellButton from "@entities/UI/SpellButton";
-import type { SpellOptions, TargetType, PlayerStats } from "@/types/game";
+import type {
+    SpellOptions,
+    TargetType,
+    PlayerStats,
+    TargetKind,
+    SpellProjectileConfig,
+} from "@/types/game";
 import type Player from "@entities/Player/Player";
 
 interface SpellValue {
@@ -26,6 +32,16 @@ class Spell extends GameObjects.Sprite {
     public loop!: boolean;
     public cooldownDelay!: boolean;
     public cooldownDelayAll!: boolean;
+    // Declarative casting metadata (assigned from the subclass defaults via
+    // Object.assign). A spell with targetKind set routes button presses
+    // through the player's CastingController; without it the legacy
+    // prime→click event wiring below still applies.
+    public targetKind?: TargetKind;
+    public castRange?: number;
+    public castTime?: number;
+    public channelDuration?: number;
+    public aoeRadius?: number;
+    public projectile?: SpellProjectileConfig;
     public button!: SpellButton;
     public cooldownTimer!: Phaser.Tweens.Tween;
     public target: TargetType | undefined;
@@ -50,7 +66,7 @@ class Spell extends GameObjects.Sprite {
             slot: this.slot,
             hotkey: this.hotkey,
             cooldown: this.cooldown,
-            onPress: () => this.setPrimed(),
+            onPress: () => this.press(),
         });
         // Initial state is assumed to be off so monitor spell.
         this.monitorSpell();
@@ -122,6 +138,9 @@ class Spell extends GameObjects.Sprite {
             this.button.out();
             this.player.clearLastPrimedSpell = () => {};
             this.enabled = false;
+            // A spell that just became unavailable cannot stay primed,
+            // queued or mid-cast in the controller.
+            this.player.casting?.notifyDisabled(this);
         }
     }
 
@@ -179,6 +198,26 @@ class Spell extends GameObjects.Sprite {
     clearLastPrimedSpell(): void {
         this.player.clearLastPrimedSpell();
         this.player.clearLastPrimedSpell = () => this.clearSpell();
+    }
+
+    // Button press / hotkey entry point.
+    press(): void {
+        if (this.targetKind !== undefined) {
+            // The guard makes targetKind non-optional, satisfying CastableSpell.
+            this.player.casting.request(this as this & { targetKind: TargetKind });
+        } else {
+            this.setPrimed();
+        }
+    }
+
+    // Visual hooks driven by the CastingController. The button stays
+    // interactive while primed so pressing it again cancels the prime.
+    onPrimed(): void {
+        this.button.primedTint();
+    }
+
+    onPrimeCleared(): void {
+        this.button.out();
     }
 
     setPrimed(): void {

@@ -23,18 +23,13 @@ class Multishot extends Spell {
             type: "physical",
             range: 360,
             cap: 3,
+            targetKind: "none" as const,
         };
 
         super({ ...defaults, ...config });
         this.type = "physical";
         this.range = 360;
         this.cap = 3;
-    }
-
-    setCastEvents(state: "on" | "off"): void {
-        // Call as we click the spell i.e: instant cast.
-        // Instantly triggers an off state so only do this when state is on.
-        if (state === "on") this.castSpell(this.player);
     }
 
     effect(target?: Enemy): void {
