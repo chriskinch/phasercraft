@@ -250,6 +250,8 @@ export interface PlayerOptions {
     stats?: PlayerStats;
     resource_type?: string;
     immovable?: boolean;
+    // Ranged classes fire their basic attack as a homing projectile.
+    attack_projectile?: SpellProjectileConfig;
 }
 
 export interface ResourceStats {
@@ -305,6 +307,8 @@ export type TargetKind = "self" | "enemy" | "ground" | "none";
 
 export interface SpellProjectileConfig {
     key: string;
+    // Frame within the key's spritesheet to use as the projectile visual.
+    frame?: string | number;
     speed: number;
 }
 

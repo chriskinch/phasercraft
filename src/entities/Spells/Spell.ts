@@ -1,6 +1,8 @@
 import { GameObjects, Scenes } from "phaser";
 import store from "@store";
 import SpellButton from "@entities/UI/SpellButton";
+import Projectile from "@entities/Weapons/Projectile";
+import type { ProjectileTarget } from "@entities/Weapons/Projectile";
 import type {
     SpellOptions,
     TargetType,
@@ -177,11 +179,16 @@ class Spell extends GameObjects.Sprite {
 
     castSpell(target?: TargetType): void {
         this.target = target;
-        this.effect(target);
+        if (this.projectile && target && typeof target === "object" && "x" in target) {
+            // Effect and impact VFX land when the projectile arrives.
+            this.launchProjectile(target as unknown as ProjectileTarget);
+        } else {
+            this.effect(target);
+            // Do the animation
+            this.animation = this.hasAnimation ? this.startAnimation() : null;
+        }
         // Charge the player some resource
         this.player.resource.adjustValue(-this.typedCost);
-        // Do the animation
-        this.animation = this.hasAnimation ? this.startAnimation() : null;
         // Check if cooldown should be trigger automatically. Other wise spell must handle this.
         if (!this.cooldownDelayAll) {
             if (!this.cooldownDelay) {
@@ -193,6 +200,23 @@ class Spell extends GameObjects.Sprite {
             this.scene.events.emit("spell:disableall", this);
         }
         this.scene.events.emit("spell:cast", this);
+    }
+
+    launchProjectile(target: ProjectileTarget): void {
+        if (!this.projectile) return;
+        new Projectile({
+            scene: this.scene,
+            x: this.player.x,
+            y: this.player.y - 10,
+            key: this.projectile.key,
+            frame: this.projectile.frame,
+            speed: this.projectile.speed,
+            target,
+            onImpact: (impacted) => {
+                this.effect(impacted as TargetType);
+                this.animation = this.hasAnimation ? this.startAnimation() : null;
+            },
+        });
     }
 
     clearLastPrimedSpell(): void {

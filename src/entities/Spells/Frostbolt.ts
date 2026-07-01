@@ -30,6 +30,7 @@ class Frostbolt extends Spell {
             duration: 7,
             targetKind: "enemy" as const,
             castRange: 250,
+            projectile: { key: "frostbolt-effect", frame: 0, speed: 400 },
             value: {
                 speed: (bs: number) => -bs * 0.5, // Increase by 10
             },

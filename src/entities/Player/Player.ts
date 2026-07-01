@@ -15,7 +15,8 @@ import { addXP, setBaseStats, setLevel, setStats } from "@store/gameReducer";
 import isEmpty from "lodash/isEmpty";
 import mapStateToData from "@helpers/mapStateToData";
 import CombatText from "../UI/CombatText";
-import type { PlayerOptions, PlayerStats } from "@/types/game";
+import Projectile from "@entities/Weapons/Projectile";
+import type { PlayerOptions, PlayerStats, SpellProjectileConfig } from "@/types/game";
 import type Enemy from "@entities/Enemy/Enemy";
 import type { GameSceneLike } from "@/types/scene";
 import * as converter from "number-to-words";
@@ -59,6 +60,9 @@ class Player extends GameObjects.Container {
     // Owns the new cast flow (priming, approach, wind-ups, interrupts) for
     // spells that declare a targetKind.
     public casting!: CastingController;
+    // Ranged classes set this to fire their basic attack as a homing
+    // projectile (damage on impact) instead of an instant melee swing.
+    public attack_projectile?: SpellProjectileConfig;
     // Set/reset by each Spell to clear the previously primed spell (see Spell).
     // Legacy prime→click flow only; removed once all spells are migrated.
     public clearLastPrimedSpell!: () => void;
@@ -72,9 +76,11 @@ class Player extends GameObjects.Container {
         stats,
         resource_type,
         immovable = true,
+        attack_projectile,
     }: PlayerOptions) {
         super(scene, x, y);
         this.classification = classification;
+        this.attack_projectile = attack_projectile;
         this.name = "player";
         this.uuid = uuid();
         const base_stats: PlayerStats = { ...stats, resource_type }; // Add resource type into to base stats.
@@ -357,12 +363,27 @@ class Player extends GameObjects.Container {
         const attack_power = this.stats.attack_power || 0;
         const attack_speed = this.stats.attack_speed || 1;
 
-        this.weapon.swoosh();
-        this.positionWeapon(target);
-
         const crit = this.isCritical();
         const damage = crit ? attack_power * 1.5 : attack_power;
-        target.hit({ power: damage, crit: crit });
+
+        if (this.attack_projectile) {
+            // Ranged basic attack: the hit (and any knockback) lands on
+            // impact; no melee swoosh.
+            new Projectile({
+                scene: this.scene,
+                x: this.x,
+                y: this.y - 10,
+                key: this.attack_projectile.key,
+                frame: this.attack_projectile.frame,
+                speed: this.attack_projectile.speed,
+                target,
+                onImpact: (impacted) => (impacted as Enemy).hit({ power: damage, crit: crit }),
+            });
+        } else {
+            this.weapon.swoosh();
+            this.positionWeapon(target);
+            target.hit({ power: damage, crit: crit });
+        }
 
         this.attack_ready = false;
         this.swing = this.scene.time.addEvent({

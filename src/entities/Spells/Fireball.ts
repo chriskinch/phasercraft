@@ -17,6 +17,7 @@ class Fireball extends Spell {
             type: "magic",
             targetKind: "enemy" as const,
             castRange: 250,
+            projectile: { key: "fireball-effect", frame: 0, speed: 400 },
         };
 
         super({ ...defaults, ...config });

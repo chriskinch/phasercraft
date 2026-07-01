@@ -21,6 +21,7 @@ class Ranger extends Player {
             },
             resource_type: "Energy",
             abilities: ["SnareTrap", "Multishot"],
+            attack_projectile: { key: "multishot-effect", frame: 0, speed: 500 },
         };
 
         super({ ...defaults, ...config });
