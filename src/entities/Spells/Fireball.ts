@@ -15,19 +15,12 @@ class Fireball extends Spell {
                 energy: 40,
             },
             type: "magic",
+            targetKind: "enemy" as const,
+            castRange: 250,
         };
 
         super({ ...defaults, ...config });
         this.type = "magic";
-    }
-
-    setCastEvents(state: "on" | "off"): void {
-        // Elegible targets for this spell
-        this.scene.events[state]("pointerdown:enemy", this.castSpell, this);
-        // Event that clears the primed spell. Emitted by invalid targets.
-        this.scene.events[state]("pointerdown:game", this.clearSpell, this);
-        this.scene.events[state]("keypress:esc", this.clearSpell, this);
-        this.scene.events[state]("pointerdown:player", this.clearSpell, this);
     }
 
     effect(target: TargetType): void {
