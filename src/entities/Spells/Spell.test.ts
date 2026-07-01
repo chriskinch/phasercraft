@@ -5,19 +5,16 @@ import Spell from "./Spell";
 // Regression tests for the Phase 2 Spell lifecycle fix (issue #307). Spell
 // registers listeners on external emitters that Phaser does not remove on its
 // own destroy: scene.events ("spell:disableall"/"spell:enableall"), the player
-// resource ("change"), and its button + the keyboard. Because the spell
-// GameObject is not destroyed on scene SHUTDOWN, these would accumulate across
-// runs. cleanup() removes them. Tested against the real prototype with a
-// constructor-free fake — no Phaser boot — matching the other lifecycle tests.
+// resource ("change"), and its SpellButton's pointer + keyboard bindings.
+// Because the spell GameObject is not destroyed on scene SHUTDOWN, these would
+// accumulate across runs. cleanup() removes them. Tested against the real
+// prototype with a constructor-free fake — no Phaser boot — matching the other
+// lifecycle tests.
 
 interface SpellUnderTest {
     scene: { events: { off: ReturnType<typeof vi.fn> } };
     player: { resource: { off: ReturnType<typeof vi.fn> } };
-    button: {
-        off: ReturnType<typeof vi.fn>;
-        scene: { input: { keyboard: { off: ReturnType<typeof vi.fn> } } };
-    };
-    hotkey: string;
+    button: { cleanup: ReturnType<typeof vi.fn> };
     cleanup(): void;
 }
 
@@ -25,11 +22,7 @@ function makeSpell(): SpellUnderTest {
     const spell = Object.create(Spell.prototype) as SpellUnderTest;
     spell.scene = { events: { off: vi.fn() } };
     spell.player = { resource: { off: vi.fn() } };
-    spell.button = {
-        off: vi.fn(),
-        scene: { input: { keyboard: { off: vi.fn() } } },
-    };
-    spell.hotkey = "ONE";
+    spell.button = { cleanup: vi.fn() };
     return spell;
 }
 
@@ -68,23 +61,12 @@ describe("Spell.cleanup", () => {
         );
     });
 
-    it("turns off the button pointer and keyboard listeners", () => {
+    it("delegates button teardown to the SpellButton", () => {
         const spell = makeSpell();
 
         spell.cleanup();
 
-        expect(spell.button.off).toHaveBeenCalledWith("pointerover", Spell.prototype.over, spell);
-        expect(spell.button.off).toHaveBeenCalledWith("pointerout", Spell.prototype.out, spell);
-        expect(spell.button.off).toHaveBeenCalledWith(
-            "pointerdown",
-            Spell.prototype.setPrimed,
-            spell
-        );
-        expect(spell.button.scene.input.keyboard.off).toHaveBeenCalledWith(
-            "keydown-ONE",
-            Spell.prototype.setPrimed,
-            spell
-        );
+        expect(spell.button.cleanup).toHaveBeenCalledTimes(1);
     });
 });
 

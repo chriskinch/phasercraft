@@ -296,6 +296,40 @@ export interface EnemyOptions {
     vector?: EntityWithVector;
 }
 
+// How a spell acquires its target when cast:
+// - "self":   always the casting player, no target tap needed
+// - "enemy":  the selected enemy, or the next tapped enemy while primed
+// - "ground": a world point chosen by the next tap while primed
+// - "none":   no target at all (PBAoE / auras) — cast fires immediately
+export type TargetKind = "self" | "enemy" | "ground" | "none";
+
+export interface SpellProjectileConfig {
+    key: string;
+    speed: number;
+}
+
+// Declarative casting metadata for a spell. The CastingController reads this
+// to drive target acquisition, range checks and cast bars centrally, so
+// spells never wire their own input events.
+export interface SpellDefinition {
+    name: string;
+    icon_name: string;
+    cost: { [key: string]: number };
+    cooldown: number;
+    targetKind: TargetKind;
+    // Max cast/placement distance in px; undefined = unlimited.
+    range?: number;
+    // Wind-up seconds before the effect lands; 0/undefined = instant.
+    castTime?: number;
+    // Channel seconds; the effect runs for the duration and can be broken.
+    channelDuration?: number;
+    // Radius of a ground/PBAoE effect, also drawn by the target reticle.
+    aoeRadius?: number;
+    // When set, the cast launches a homing projectile that applies the
+    // effect on impact instead of instantly.
+    projectile?: SpellProjectileConfig;
+}
+
 export interface SpellOptions {
     scene: Scene;
     x: number;
