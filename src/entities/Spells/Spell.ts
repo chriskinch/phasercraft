@@ -20,7 +20,7 @@ interface SpellValue {
 class Spell extends GameObjects.Sprite {
     // The owning combatant. Every ability in the game is created by the Player
     // (see Player's `abilities.map(...)`), and the spell reads Player-only members
-    // (resource/shield/isCritical/clearLastPrimedSpell), so the seam is a Player.
+    // (resource/shield/isCritical/casting), so the seam is a Player.
     public player!: Player;
     public cost!: { [key: string]: number };
     public typedCost: number;
@@ -35,10 +35,10 @@ class Spell extends GameObjects.Sprite {
     public cooldownDelay!: boolean;
     public cooldownDelayAll!: boolean;
     // Declarative casting metadata (assigned from the subclass defaults via
-    // Object.assign). A spell with targetKind set routes button presses
-    // through the player's CastingController; without it the legacy
-    // prime→click event wiring below still applies.
-    public targetKind?: TargetKind;
+    // Object.assign). Every spell declares a targetKind; button presses
+    // route through the player's CastingController, which owns priming,
+    // target acquisition, range checks, wind-ups/channels and interrupts.
+    public targetKind!: TargetKind;
     public castRange?: number;
     public castTime?: number;
     public channelDuration?: number;
@@ -58,8 +58,6 @@ class Spell extends GameObjects.Sprite {
         this.typedCost = this.cost[this.player.resource.name];
         this.hasAnimation = true;
         this.enabled = false;
-        // Placeholder empty function for clearing last spell
-        this.player.clearLastPrimedSpell = () => {};
 
         this.setAnimation();
         this.button = new SpellButton({
@@ -136,9 +134,7 @@ class Spell extends GameObjects.Sprite {
         if (this.enabled) {
             this.button.setEnabled(false);
             this.button.setEvents("off");
-            this.setCastEvents("off");
             this.button.out();
-            this.player.clearLastPrimedSpell = () => {};
             this.enabled = false;
             // A spell that just became unavailable cannot stay primed,
             // queued or mid-cast in the controller.
@@ -149,13 +145,6 @@ class Spell extends GameObjects.Sprite {
     killSpell(): void {
         this.player.resource.off("change", this.onResourceChangeHandler, this);
         this.disableSpell("kill spell");
-    }
-
-    clearSpell(): void {
-        this.button.out();
-        this.setCastEvents("off");
-        this.button.setEvents("on");
-        this.scene.events.emit("spell:cleared", this);
     }
 
     setCooldown(): Phaser.Tweens.Tween {
@@ -219,19 +208,9 @@ class Spell extends GameObjects.Sprite {
         });
     }
 
-    clearLastPrimedSpell(): void {
-        this.player.clearLastPrimedSpell();
-        this.player.clearLastPrimedSpell = () => this.clearSpell();
-    }
-
     // Button press / hotkey entry point.
     press(): void {
-        if (this.targetKind !== undefined) {
-            // The guard makes targetKind non-optional, satisfying CastableSpell.
-            this.player.casting.request(this as this & { targetKind: TargetKind });
-        } else {
-            this.setPrimed();
-        }
+        this.player.casting.request(this);
     }
 
     // Visual hooks driven by the CastingController. The button stays
@@ -242,18 +221,6 @@ class Spell extends GameObjects.Sprite {
 
     onPrimeCleared(): void {
         this.button.out();
-    }
-
-    setPrimed(): void {
-        this.clearLastPrimedSpell();
-        this.scene.events.emit("spell:primed", this);
-        this.button.setEvents("off");
-        this.setCastEvents("on");
-        this.button.primedTint();
-    }
-
-    setCastEvents(state: "on" | "off"): void {
-        // This method should be implemented by subclasses
     }
 
     effect(target: TargetType | undefined): void {

@@ -248,6 +248,30 @@ updates on refresh. Single focused PR.
 | Font       | VT323 self-hosted (vendored woff2) — removes the Google Fonts runtime dependency so offline text renders.                                                                                                              |
 | Icons      | Placeholder icons generated from existing art; real Phasercraft square art is a follow-up.                                                                                                                             |
 
+## Phase 12 — Spell system rework (casting, targeting, auto attack)
+
+Mobile-first (tap, not click) rework of the cast flow, agreed with the
+maintainer 2026-07-01. Architecture: a per-player `CastingController` state
+machine (idle → primed → approaching → casting) owns priming, target
+acquisition, range checks, wind-ups/channels and interrupts; `Spell` shrinks
+to declarative metadata (`targetKind`, `castRange`, `castTime`,
+`channelDuration`, `aoeRadius`, `projectile`) + `effect()` + VFX; the HUD
+button extracts to `SpellButton` (stays Phaser-side); new `TargetReticle`,
+`CastBar` and homing `Projectile` entities.
+
+### Decisions update (2026-07-01) — Spell rework
+
+| Topic        | Decision                                                                                                                                                                      |
+| ------------ | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Cast flow    | Auto-target, tap-driven: button tap casts at the selected enemy (walking into range first) or primes; next tap on a valid target commits, floor/invalid taps clear the prime. |
+| Ground       | Two-step tap-to-place with a radius reticle; any world tap (including on an enemy) is a placement.                                                                            |
+| Out of range | Queue the cast: walk toward the target, cast on arrival; another action cancels the queue.                                                                                    |
+| Auto attack  | Keep tap-to-select chase-and-swing (no auto-acquire); it pauses during wind-ups/channels.                                                                                     |
+| Interrupts   | Moving, taking actual damage (`player:hit`, so shield absorbs protect casts), or casting another spell. Wind-ups charge resource on completion only.                          |
+| Projectiles  | Homing (always hit; damage on impact): Fireball, Frostbolt, Multishot arrows, Ranger basic attack.                                                                            |
+| HUD          | Spell buttons stay in Phaser (`SpellButton`), not the React overlay.                                                                                                          |
+| Balance      | Initial numbers (castRange 200–300, Heal 1s wind-up, SiphonSoul/Invocation as 5s channels) are proposals to tune in review.                                                   |
+
 ## Deferred / backlog
 
 - **Retire GitHub Pages**: remove the `gh-pages` deploy workflow and `VITE_BASE_URL` transition shim once Vercel production is confirmed stable (follow-up to Phase 6).

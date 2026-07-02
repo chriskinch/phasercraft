@@ -53,21 +53,16 @@ class Player extends GameObjects.Container {
     public spells: AssignSpell[];
     public mouse!: Phaser.Input.Pointer;
     public point!: PhaserMath.Vector2;
-    public spellPrimed!: boolean;
     public dragging!: boolean;
     public attack_delay!: Phaser.Time.TimerEvent | null;
     public swing: Phaser.Time.TimerEvent | null = null;
     public body!: Physics.Arcade.Body;
-    // Owns the new cast flow (priming, approach, wind-ups, interrupts) for
-    // spells that declare a targetKind.
+    // Owns the cast flow (priming, approach, wind-ups, interrupts).
     public casting!: CastingController;
     // Ranged classes set this to fire their basic attack as a homing
     // projectile (damage on impact) instead of an instant melee swing.
     public attack_projectile?: SpellProjectileConfig;
     public castBar!: CastBar;
-    // Set/reset by each Spell to clear the previously primed spell (see Spell).
-    // Legacy prime→click flow only; removed once all spells are migrated.
-    public clearLastPrimedSpell!: () => void;
 
     constructor({
         scene,
@@ -197,10 +192,6 @@ class Player extends GameObjects.Container {
         scene.events.on("enemy:dead", this.targetDead, this);
         this.on("pointerdown", () => scene.events.emit("pointerdown:player", this));
 
-        scene.events.on("spell:primed", () => (this.spellPrimed = true), this);
-        scene.events.on("spell:cast", () => (this.spellPrimed = false), this);
-        scene.events.on("spell:cleared", () => (this.spellPrimed = false), this);
-
         // mapStateToData("stats", s => this.stats = s);
     }
 
@@ -250,8 +241,6 @@ class Player extends GameObjects.Container {
         // The controller decides first whether the tap is a ground-spell
         // placement or a prime-cancel; consumed taps never become moves.
         if (this.casting.onGroundTap(pointer)) return;
-        // Legacy primed spells consume the tap via their own cast events.
-        if (this.spellPrimed) return;
         // A move command breaks queued approaches and casts in progress.
         this.casting.interruptForMove();
         this.dragging = true;

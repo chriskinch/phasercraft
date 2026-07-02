@@ -353,9 +353,9 @@ export interface SpellOptions {
     loop?: boolean;
     cooldownDelay?: boolean;
     cooldownDelayAll?: boolean;
-    // Declarative casting metadata (see SpellDefinition). Spells that set
-    // targetKind are routed through the CastingController; spells without it
-    // still use the legacy prime→click event wiring.
+    // Declarative casting metadata (see SpellDefinition); every spell's
+    // defaults declare a targetKind and the CastingController drives the
+    // cast flow from it.
     targetKind?: TargetKind;
     castRange?: number;
     castTime?: number;

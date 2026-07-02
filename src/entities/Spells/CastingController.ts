@@ -56,9 +56,9 @@ interface CastingControllerOptions {
     player: CasterLike;
 }
 
-// Central owner of the cast flow for one player. Replaces the per-spell
-// input wiring (setCastEvents) and the clearLastPrimedSpell function-swap
-// with one explicit state machine:
+// Central owner of the cast flow for one player. Replaces the legacy
+// per-spell input wiring and prime bookkeeping with one explicit state
+// machine:
 //
 //   idle → (button press) → primed | approaching | casting → idle
 //
