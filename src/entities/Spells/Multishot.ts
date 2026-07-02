@@ -41,8 +41,10 @@ class Multishot extends Spell {
     }
 
     startAnimation(): void {
+        // getChildren(): `children.entries` stopped being an array in Phaser 4
+        // (children is a plain array there), which made this scan throw.
         const enemiesInRange: Enemy[] = (
-            (this.scene as GameSceneLike).enemies.children.entries as unknown as Enemy[]
+            (this.scene as GameSceneLike).enemies.getChildren() as Enemy[]
         )
             .filter((enemy: Enemy) => {
                 enemy.vector = targetVector(this.player, enemy);
