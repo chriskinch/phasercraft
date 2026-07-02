@@ -27,6 +27,11 @@ class SiphonSoul extends Spell {
             type: "magic",
             duration: 5,
             cooldownDelayAll: true,
+            targetKind: "enemy" as const,
+            castRange: 200,
+            // The controller holds the casting state for the channel and
+            // breaks it (via interruptChannel) on move/hit/new cast.
+            channelDuration: 5,
         };
 
         super({ ...defaults, ...config });
@@ -38,26 +43,23 @@ class SiphonSoul extends Spell {
         this.particleDuration = this.duration + this.cooldown;
     }
 
-    setCastEvents(state: "on" | "off"): void {
-        // Elegible targets for this spell
-        this.scene.events[state]("pointerdown:enemy", this.castSpell, this);
-        // Event that clears the primed spell. Emitted by invalid targets.
-        this.scene.events[state]("pointerdown:game", this.clearSpell, this);
-        this.scene.events[state]("keypress:esc", this.clearSpell, this);
-        this.scene.events[state]("pointerdown:player", this.clearSpell, this);
-    }
-
     effect(target: Enemy): void {
         // Root the target in place.
         target.body.setMaxVelocity(0, 0);
         target.monster.anims.pause();
         target.body.checkCollision.none = true;
-        // Also root the player until spell is over or click to move.
+        // Also root the player until spell is over or click to move; the
+        // CastingController breaks the channel on a move tap and calls
+        // interruptChannel, which unroots both.
         this.player.body.setMaxVelocity(0, 0);
         this.player.idle();
 
         this.target = target;
-        this.scene.events.on("pointerdown:game", this.clearEffect, this);
+    }
+
+    // Channel broken early (move command, taking a hit, or another cast).
+    interruptChannel(): void {
+        this.clearEffect();
     }
 
     setParticles(): void {
@@ -142,7 +144,6 @@ class SiphonSoul extends Spell {
         this.durationAnimationTimer.remove();
         this.cooldownTimer = this.setCooldown();
         this.scene.events.emit("spell:enableall", this);
-        this.scene.events.off("pointerdown:game", this.clearEffect, this);
     }
 
     clearParticleEffect(): void {

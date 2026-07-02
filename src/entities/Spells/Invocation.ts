@@ -28,6 +28,10 @@ class Invocation extends Boon {
             },
             type: "magic",
             duration: 5,
+            targetKind: "self" as const,
+            // Modelled as a channel: the controller roots the player, shows
+            // the cast bar, and breaks it on move/hit/new cast.
+            channelDuration: 5,
             value: {
                 resource_regen_value: (bs: number) => bs * 4, // Increase by 400%
                 resource_regen_rate: -0.1, // Tick 0.1s more frequently
@@ -49,11 +53,15 @@ class Invocation extends Boon {
         };
         this.timer = this.scene.time.addEvent(timer_config);
 
-        // Also root the player until spell is over or click to move.
+        // Also root the player until the channel ends or is broken; the
+        // CastingController calls interruptChannel on move/hit/new cast.
         this.player.body.setMaxVelocity(10);
         this.player.root();
+    }
 
-        this.scene.events.once("player:hit", this.clearEffect, this);
+    // Channel broken early — restore the player just like a natural end.
+    interruptChannel(): void {
+        this.clearEffect();
     }
 
     clearEffect(): void {

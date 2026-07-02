@@ -22,6 +22,9 @@ class SnareTrap extends Spell {
             type: "bleed",
             duration: 6,
             lifespan: 20,
+            targetKind: "ground" as const,
+            castRange: 300,
+            aoeRadius: 20,
         };
 
         super({ ...defaults, ...config });
@@ -33,15 +36,6 @@ class SnareTrap extends Spell {
     // Override and remove the default spell animation functions.
     setAnimation(): void {}
     startAnimation(): void {}
-
-    setCastEvents(state: "on" | "off"): void {
-        // Elegible targets for this spell
-        this.scene.events[state]("pointerdown:game", this.castSpell, this);
-        // Event that clears the primed spell. Emitted by invalid targets.
-        this.scene.events[state]("pointerdown:enemy", this.clearSpell, this);
-        this.scene.events[state]("keypress:esc", this.clearSpell, this);
-        this.scene.events[state]("pointerdown:player", this.clearSpell, this);
-    }
 
     triggerTrap(target: Enemy): void {
         target.body.setMaxVelocity(0);
@@ -62,22 +56,24 @@ class SnareTrap extends Spell {
         );
     }
 
-    layTrap(): void {
-        const pointer = this.scene.input.activePointer;
-        this.item = new Trap(this.scene, pointer.x, pointer.y, this.lifespan);
+    layTrap(point?: { x: number; y: number }): void {
+        // The CastingController passes the committed placement point; fall
+        // back to the pointer for safety.
+        const { x, y } = point ?? this.scene.input.activePointer;
+        this.item = new Trap(this.scene, x, y, this.lifespan);
         this.item.once("trap:collide", this.effect, this);
     }
 
-    // Invoked from two emitters: `pointerdown:game` passes the scene (no body, so
-    // a trap is laid) and `trap:collide` passes the colliding Enemy (triggered).
-    // Kept base-compatible (`TargetType`); the body check distinguishes them.
+    // Invoked from two callers: castSpell passes the placement point (no
+    // body, so a trap is laid) and `trap:collide` passes the colliding Enemy
+    // (triggered). Kept base-compatible (`TargetType`); the body check
+    // distinguishes them.
     effect(target?: TargetType): void {
         // Only trigger if the target have a body.
-        // Game scene does not so lay the trap rather then trigger the trap.
+        // A placement point does not, so lay the trap rather than trigger it.
         target && "body" in target && target.body
             ? this.triggerTrap(target as Enemy)
-            : this.layTrap();
-        this.clearSpell();
+            : this.layTrap(target as { x: number; y: number } | undefined);
     }
 }
 

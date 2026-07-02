@@ -1,5 +1,5 @@
-import { GameObjects } from "phaser";
 import Spell from "./Spell";
+import Projectile from "@entities/Weapons/Projectile";
 import targetVector from "@helpers/targetVector";
 import type { SpellOptions } from "@/types/game";
 import type Enemy from "@entities/Enemy/Enemy";
@@ -23,18 +23,13 @@ class Multishot extends Spell {
             type: "physical",
             range: 360,
             cap: 3,
+            targetKind: "none" as const,
         };
 
         super({ ...defaults, ...config });
         this.type = "physical";
         this.range = 360;
         this.cap = 3;
-    }
-
-    setCastEvents(state: "on" | "off"): void {
-        // Call as we click the spell i.e: instant cast.
-        // Instantly triggers an off state so only do this when state is on.
-        if (state === "on") this.castSpell(this.player);
     }
 
     effect(target?: Enemy): void {
@@ -46,8 +41,10 @@ class Multishot extends Spell {
     }
 
     startAnimation(): void {
+        // getChildren(): `children.entries` stopped being an array in Phaser 4
+        // (children is a plain array there), which made this scan throw.
         const enemiesInRange: Enemy[] = (
-            (this.scene as GameSceneLike).enemies.children.entries as unknown as Enemy[]
+            (this.scene as GameSceneLike).enemies.getChildren() as Enemy[]
         )
             .filter((enemy: Enemy) => {
                 enemy.vector = targetVector(this.player, enemy);
@@ -59,21 +56,20 @@ class Multishot extends Spell {
             })
             .slice(0, this.cap);
 
+        // One homing arrow per target; the damage lands on impact.
         enemiesInRange.forEach((enemy: Enemy) => {
             this.target = enemy;
-            this.effect(enemy);
-
-            const sprite = this.scene.add.sprite(100, 100, "multishot-effect");
-            sprite.anims.play("multishot-animation");
-            const animation = sprite.setDepth(1000).on("animationupdate", () => {
-                this.updateAnimation(animation, enemy);
+            new Projectile({
+                scene: this.scene,
+                x: this.player.x,
+                y: this.player.y - 10,
+                key: "multishot-effect",
+                frame: 0,
+                speed: 500,
+                target: enemy,
+                onImpact: (impacted) => this.effect(impacted as Enemy),
             });
         });
-    }
-
-    updateAnimation(effect: GameObjects.Sprite, target: Enemy): void {
-        effect.x = target.x;
-        effect.y = target.y;
     }
 }
 

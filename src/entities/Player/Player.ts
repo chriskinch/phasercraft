@@ -3,6 +3,7 @@ import { v4 as uuid } from "uuid";
 import Hero from "./Hero";
 import Weapon from "@entities/Weapon";
 import AssignSpell from "@entities/Spells/AssignSpell";
+import CastingController from "@entities/Spells/CastingController";
 import AssignResource, {
     AssignResourceType,
     AssignResourceName,
@@ -14,7 +15,9 @@ import { addXP, setBaseStats, setLevel, setStats } from "@store/gameReducer";
 import isEmpty from "lodash/isEmpty";
 import mapStateToData from "@helpers/mapStateToData";
 import CombatText from "../UI/CombatText";
-import type { PlayerOptions, PlayerStats } from "@/types/game";
+import CastBar from "@entities/UI/CastBar";
+import Projectile from "@entities/Weapons/Projectile";
+import type { PlayerOptions, PlayerStats, SpellProjectileConfig } from "@/types/game";
 import type Enemy from "@entities/Enemy/Enemy";
 import type { GameSceneLike } from "@/types/scene";
 import * as converter from "number-to-words";
@@ -50,13 +53,16 @@ class Player extends GameObjects.Container {
     public spells: AssignSpell[];
     public mouse!: Phaser.Input.Pointer;
     public point!: PhaserMath.Vector2;
-    public spellPrimed!: boolean;
     public dragging!: boolean;
     public attack_delay!: Phaser.Time.TimerEvent | null;
     public swing: Phaser.Time.TimerEvent | null = null;
     public body!: Physics.Arcade.Body;
-    // Set/reset by each Spell to clear the previously primed spell (see Spell).
-    public clearLastPrimedSpell!: () => void;
+    // Owns the cast flow (priming, approach, wind-ups, interrupts).
+    public casting!: CastingController;
+    // Ranged classes set this to fire their basic attack as a homing
+    // projectile (damage on impact) instead of an instant melee swing.
+    public attack_projectile?: SpellProjectileConfig;
+    public castBar!: CastBar;
 
     constructor({
         scene,
@@ -67,9 +73,11 @@ class Player extends GameObjects.Container {
         stats,
         resource_type,
         immovable = true,
+        attack_projectile,
     }: PlayerOptions) {
         super(scene, x, y);
         this.classification = classification;
+        this.attack_projectile = attack_projectile;
         this.name = "player";
         this.uuid = uuid();
         const base_stats: PlayerStats = { ...stats, resource_type }; // Add resource type into to base stats.
@@ -156,6 +164,13 @@ class Player extends GameObjects.Container {
         scene.events.on("enemy:attack", this.hit, this);
         this.health.on("change", this.healthChanged);
 
+        // Created before the spells so their disable path can notify it.
+        this.casting = new CastingController({
+            scene: scene as GameSceneLike,
+            player: this,
+        });
+        this.castBar = new CastBar(scene, this);
+
         this.spells = abilities.map((spell, i) => {
             return new AssignSpell(spell, {
                 player: this,
@@ -176,10 +191,6 @@ class Player extends GameObjects.Container {
         scene.events.on("pointerup:game", this.gameUpHandler, this);
         scene.events.on("enemy:dead", this.targetDead, this);
         this.on("pointerdown", () => scene.events.emit("pointerdown:player", this));
-
-        scene.events.on("spell:primed", () => (this.spellPrimed = true), this);
-        scene.events.on("spell:cast", () => (this.spellPrimed = false), this);
-        scene.events.on("spell:cleared", () => (this.spellPrimed = false), this);
 
         // mapStateToData("stats", s => this.stats = s);
     }
@@ -211,7 +222,10 @@ class Player extends GameObjects.Container {
             this.idle();
         }
 
-        if ((this.scene as GameSceneLike).selected) this.goToRange();
+        // Drive any queued walk-into-range cast; wind-ups/channels root the
+        // player and pause the auto-attack chase until they resolve.
+        this.casting.update();
+        if ((this.scene as GameSceneLike).selected && !this.casting.isCasting()) this.goToRange();
 
         // Self cast key
         if (keys.space.isDown) {
@@ -224,10 +238,13 @@ class Player extends GameObjects.Container {
     }
 
     gameDownHandler(scene: Scene, pointer: Phaser.Input.Pointer): void {
-        if (!this.spellPrimed) {
-            this.dragging = true;
-            this.moveToPosition(pointer);
-        }
+        // The controller decides first whether the tap is a ground-spell
+        // placement or a prime-cancel; consumed taps never become moves.
+        if (this.casting.onGroundTap(pointer)) return;
+        // A move command breaks queued approaches and casts in progress.
+        this.casting.interruptForMove();
+        this.dragging = true;
+        this.moveToPosition(pointer);
     }
 
     gameMoveHandler(scene: Scene, pointer: Phaser.Input.Pointer): void {
@@ -243,8 +260,15 @@ class Player extends GameObjects.Container {
     }
 
     moveToPosition(targetOrPoint: Phaser.Input.Pointer | Enemy): void {
-        this.destination = this.getWorldPointer(targetOrPoint);
-        this.scene.physics.moveTo(this, this.destination.x!, this.destination.y!, this.stats.speed);
+        this.moveToWorldPoint(this.getWorldPointer(targetOrPoint));
+    }
+
+    // Move to an already-resolved world-space point (the CastingController
+    // stores world points, which must not go through the camera conversion
+    // that moveToPosition applies to raw pointers).
+    moveToWorldPoint(point: { x: number; y: number }): void {
+        this.destination = { x: point.x, y: point.y };
+        this.scene.physics.moveTo(this, point.x, point.y, this.stats.speed);
         this.walk();
     }
 
@@ -331,12 +355,27 @@ class Player extends GameObjects.Container {
         const attack_power = this.stats.attack_power || 0;
         const attack_speed = this.stats.attack_speed || 1;
 
-        this.weapon.swoosh();
-        this.positionWeapon(target);
-
         const crit = this.isCritical();
         const damage = crit ? attack_power * 1.5 : attack_power;
-        target.hit({ power: damage, crit: crit });
+
+        if (this.attack_projectile) {
+            // Ranged basic attack: the hit (and any knockback) lands on
+            // impact; no melee swoosh.
+            new Projectile({
+                scene: this.scene,
+                x: this.x,
+                y: this.y - 10,
+                key: this.attack_projectile.key,
+                frame: this.attack_projectile.frame,
+                speed: this.attack_projectile.speed,
+                target,
+                onImpact: (impacted) => (impacted as Enemy).hit({ power: damage, crit: crit }),
+            });
+        } else {
+            this.weapon.swoosh();
+            this.positionWeapon(target);
+            target.hit({ power: damage, crit: crit });
+        }
 
         this.attack_ready = false;
         this.swing = this.scene.time.addEvent({
@@ -462,6 +501,11 @@ class Player extends GameObjects.Container {
         // Unsubscribe from all store subscriptions
         this.subscriptions.forEach((unsubscribe) => unsubscribe());
         this.subscriptions = [];
+
+        // Release the casting controller's scene listeners and timers
+        // (idempotent — it also self-cleans on scene SHUTDOWN).
+        this.casting.cleanup();
+        this.castBar.cleanup();
 
         // On scene SHUTDOWN the player container is not destroyed, so its child
         // resources' DESTROY handlers never fire — clean them up explicitly here

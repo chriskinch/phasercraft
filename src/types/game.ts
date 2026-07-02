@@ -250,6 +250,8 @@ export interface PlayerOptions {
     stats?: PlayerStats;
     resource_type?: string;
     immovable?: boolean;
+    // Ranged classes fire their basic attack as a homing projectile.
+    attack_projectile?: SpellProjectileConfig;
 }
 
 export interface ResourceStats {
@@ -296,6 +298,44 @@ export interface EnemyOptions {
     vector?: EntityWithVector;
 }
 
+// How a spell acquires its target when cast:
+// - "self":   always the casting player, no target tap needed
+// - "enemy":  the selected enemy, or the next tapped enemy while primed
+// - "ground": a world point chosen by the next tap while primed
+// - "none":   no target at all (PBAoE / auras) — cast fires immediately
+export type TargetKind = "self" | "enemy" | "ground" | "none";
+
+export interface SpellProjectileConfig {
+    key: string;
+    // Frame within the key's spritesheet to use as the projectile visual.
+    frame?: string | number;
+    speed: number;
+}
+
+// Declarative casting metadata for a spell. The CastingController reads this
+// to drive target acquisition, range checks and cast bars centrally, so
+// spells never wire their own input events.
+export interface SpellDefinition {
+    name: string;
+    icon_name: string;
+    cost: { [key: string]: number };
+    cooldown: number;
+    targetKind: TargetKind;
+    // Max cast/placement distance in px; undefined = unlimited. Named
+    // castRange because several spells already use `range` for their AoE
+    // scan radius (Whirlwind, Multishot).
+    castRange?: number;
+    // Wind-up seconds before the effect lands; 0/undefined = instant.
+    castTime?: number;
+    // Channel seconds; the effect runs for the duration and can be broken.
+    channelDuration?: number;
+    // Radius of a ground/PBAoE effect, also drawn by the target reticle.
+    aoeRadius?: number;
+    // When set, the cast launches a homing projectile that applies the
+    // effect on impact instead of instantly.
+    projectile?: SpellProjectileConfig;
+}
+
 export interface SpellOptions {
     scene: Scene;
     x: number;
@@ -313,6 +353,15 @@ export interface SpellOptions {
     loop?: boolean;
     cooldownDelay?: boolean;
     cooldownDelayAll?: boolean;
+    // Declarative casting metadata (see SpellDefinition); every spell's
+    // defaults declare a targetKind and the CastingController drives the
+    // cast flow from it.
+    targetKind?: TargetKind;
+    castRange?: number;
+    castTime?: number;
+    channelDuration?: number;
+    aoeRadius?: number;
+    projectile?: SpellProjectileConfig;
 }
 
 interface AdjustValue {

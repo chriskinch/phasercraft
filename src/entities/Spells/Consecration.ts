@@ -24,6 +24,7 @@ class Consecration extends Spell {
             range: 80,
             cap: 5,
             lifespan: 15,
+            targetKind: "none" as const,
         };
 
         super({ ...defaults, ...config });
@@ -33,12 +34,6 @@ class Consecration extends Spell {
         this.range = 80;
         this.cap = 5;
         this.lifespan = 15;
-    }
-
-    setCastEvents(state: "on" | "off"): void {
-        // Call as it we click the spell to trigger effect().
-        // Acts like an instant cast.
-        if (state === "on") this.castSpell();
     }
 
     areaEffect(): void {

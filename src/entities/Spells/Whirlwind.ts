@@ -21,6 +21,7 @@ class Whirlwind extends Spell {
             type: "physical",
             range: 120,
             cap: 5,
+            targetKind: "none" as const,
         };
 
         super({ ...defaults, ...config });
@@ -31,16 +32,10 @@ class Whirlwind extends Spell {
         this.cap = 5;
     }
 
-    setCastEvents(state: "on" | "off"): void {
-        // Call as it we click the spell to trigger effect().
-        // Acts like an instant cast.
-        if (state === "on") this.castSpell(this.player);
-    }
-
-    effect(target: Enemy): void {
-        const enemiesInRange = (
-            (this.scene as GameSceneLike).enemies.children.entries as unknown as Enemy[]
-        )
+    effect(target?: Enemy): void {
+        // getChildren(): `children.entries` stopped being an array in Phaser 4
+        // (children is a plain array there), which made this scan throw.
+        const enemiesInRange = ((this.scene as GameSceneLike).enemies.getChildren() as Enemy[])
             .filter((enemy: Enemy) => {
                 enemy.vector = targetVector(this.player, enemy);
                 if (enemy?.vector?.range && enemy.vector.range < this.range) return enemy;

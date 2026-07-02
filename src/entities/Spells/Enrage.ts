@@ -30,6 +30,7 @@ class Enrage extends Boon {
             },
             type: "physical",
             duration: 5,
+            targetKind: "self" as const,
             value: {
                 critical_chance: 10, // Increase by 10
                 attack_power: (bs: number) => bs * 0.2, // Increase by 20%

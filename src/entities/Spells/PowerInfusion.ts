@@ -32,6 +32,7 @@ class PowerInfusion extends Boon {
             },
             type: "magical",
             duration: 15,
+            targetKind: "self" as const,
             value: {
                 critical_chance: 10, // Increase by 10
                 attack_power: (bs: number) => bs * 0.2, // Increase by 20%
@@ -55,15 +56,6 @@ class PowerInfusion extends Boon {
             resource_regen_value: (bs: number) => bs * 0.3,
             resource_regen_rate: -0.1,
         };
-    }
-
-    setCastEvents(state: "on" | "off"): void {
-        // Elegible targets for this spell
-        this.scene.events[state]("pointerdown:player", this.castSpell, this);
-        // Event that clears the primed spell. Emitted by invalid targets.
-        this.scene.events[state]("pointerdown:game", this.clearSpell, this);
-        this.scene.events[state]("keypress:esc", this.clearSpell, this);
-        this.scene.events[state]("pointerdown:enemy", this.clearSpell, this);
     }
 
     effect(): void {
