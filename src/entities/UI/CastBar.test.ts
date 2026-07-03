@@ -14,6 +14,7 @@ interface CastBarUnderTest {
         events: { off: ReturnType<typeof vi.fn> };
         tweens: { addCounter: ReturnType<typeof vi.fn> };
     };
+    frame: { setVisible: ReturnType<typeof vi.fn> };
     background: GraphicsStub;
     fill: GraphicsStub;
     tween: { remove: ReturnType<typeof vi.fn> } | null;
@@ -28,6 +29,7 @@ function makeCastBar(): CastBarUnderTest {
         events: { off: vi.fn() },
         tweens: { addCounter: vi.fn(() => ({ remove: vi.fn() })) },
     };
+    bar.frame = { setVisible: vi.fn() };
     bar.background = { setVisible: vi.fn(), scaleX: 1 };
     bar.fill = { setVisible: vi.fn(), scaleX: 1 };
     bar.tween = null;
@@ -41,6 +43,7 @@ describe("CastBar", () => {
         bar.onStart({ duration: 1.5 });
 
         expect(bar.fill.scaleX).toBe(0);
+        expect(bar.frame.setVisible).toHaveBeenCalledWith(true);
         expect(bar.background.setVisible).toHaveBeenCalledWith(true);
         expect(bar.fill.setVisible).toHaveBeenCalledWith(true);
         expect(bar.scene.tweens.addCounter).toHaveBeenCalledWith(

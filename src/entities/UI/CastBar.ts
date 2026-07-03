@@ -8,8 +8,12 @@ interface CastBarStart {
 // Wind-up/channel progress bar shown above the player's status bars, driven
 // by the CastingController's "spell:castbar:start/stop" scene events. The
 // fill sweeps left→right over the cast duration via a scene tween.
+// Visuals match the Resource bars (see Resource.drawBar): a "resource-frame"
+// sprite over a 0x111111 background bar and a coloured fill sized to the
+// frame texture, at depths 998/999/1000.
 class CastBar {
     private scene: Scene;
+    private frame: GameObjects.Sprite;
     private background: GameObjects.Graphics;
     private fill: GameObjects.Graphics;
     private tween: Phaser.Tweens.Tween | null = null;
@@ -17,9 +21,11 @@ class CastBar {
     constructor(scene: Scene, container: GameObjects.Container) {
         this.scene = scene;
 
-        this.background = this.drawBar(0x111111, 28, 4);
-        this.fill = this.drawBar(0xffcc33, 28, 4);
-        container.add([this.background, this.fill]);
+        // Sits just above the shield bar (health -35, resource -30, shield -40).
+        this.frame = scene.add.sprite(-14, -47, "resource-frame").setOrigin(0, 0).setDepth(1000);
+        this.background = this.drawBar(0x111111, 998);
+        this.fill = this.drawBar(0xffcc33, 999);
+        container.add([this.background, this.fill, this.frame]);
         this.setVisible(false);
 
         scene.events.on("spell:castbar:start", this.onStart, this);
@@ -27,14 +33,13 @@ class CastBar {
         scene.events.once(Scenes.Events.SHUTDOWN, this.cleanup, this);
     }
 
-    private drawBar(colour: number, width: number, height: number): GameObjects.Graphics {
+    private drawBar(colour: number, depth: number): GameObjects.Graphics {
         const graphics = this.scene.add.graphics();
         graphics.fillStyle(colour, 1);
-        graphics.fillRect(0, 0, width, height);
-        graphics.setDepth(1000);
-        // Sits just above the shield bar (health -35, resource -30, shield -40).
-        graphics.x = -14;
-        graphics.y = -47;
+        graphics.fillRect(0, 0, this.frame.width, this.frame.height);
+        graphics.setDepth(depth);
+        graphics.x = this.frame.x;
+        graphics.y = this.frame.y;
         return graphics;
     }
 
@@ -58,6 +63,7 @@ class CastBar {
     }
 
     private setVisible(visible: boolean): void {
+        this.frame.setVisible(visible);
         this.background.setVisible(visible);
         this.fill.setVisible(visible);
     }
