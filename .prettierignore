@@ -11,6 +11,8 @@ playwright-report
 node_modules
 
 # Generated / vendored
+graphify-out
+.claude/skills
 package-lock.json
 yarn.lock
 *.min.js

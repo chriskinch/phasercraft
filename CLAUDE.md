@@ -106,3 +106,26 @@ before starting work; link PRs to the relevant phase issue.
   `vitest.config.ts` — keep them in sync.
 - Tests live next to the code (`foo.test.ts`), Vitest globals enabled. Prefer testing
   pure logic; mock Phaser objects at the entity seam, not deep engine internals.
+
+## graphify (codebase knowledge graph)
+
+This repo has a committed knowledge graph at `graphify-out/graph.json` (+
+`GRAPH_REPORT.md`) built by [Graphify](https://github.com/safishamsi/graphify) —
+community structure, hub nodes, and cross-file relationships for the whole codebase.
+The `graphify` skill lives in `.claude/skills/graphify/` and self-installs the CLI
+(`uv tool install graphifyy`) if it's missing.
+
+Rules:
+
+- For orientation questions (architecture, "what calls X", "how do A and B relate"),
+  query the graph before grepping or reading whole files: `graphify query "<question>"`,
+  `graphify path "<A>" "<B>"`, `graphify explain "<concept>"`. These return a scoped
+  subgraph, usually far smaller than raw grep/read output. Grepping for exact strings
+  you already intend to edit is fine.
+- Read `graphify-out/GRAPH_REPORT.md` only for broad architecture review or when
+  query/path/explain don't surface enough context.
+- The report header records the commit the graph was built from — if it's stale,
+  or after your PR changes code structure, run `graphify update .` (AST-only, fast,
+  no API cost) and commit the refreshed `graph.json`/`GRAPH_REPORT.md` with your change.
+- `graphify-out/cache/`, `graph.html`, and `manifest.json` are gitignored and
+  regenerable; `graph.html` is an interactive visualization you can rebuild locally.
