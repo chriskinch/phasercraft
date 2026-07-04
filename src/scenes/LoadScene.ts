@@ -292,11 +292,15 @@ export default class LoadScene extends Scene {
 
     create() {
         createAnimations(this);
-        // Hand off to the main menu (React overlay) rather than the save picker.
+        // Hand off to the main menu (React overlay) rather than the save picker:
         // toggleUi("menu") flips showUi to true and sets menu === "menu", which
-        // UI.tsx renders. The menu's own buttons drive navigation from here, so
-        // we intentionally do NOT auto-start SelectScene/GameScene.
+        // UI.tsx renders. The menu's buttons drive navigation from here.
         store.dispatch(toggleUi("menu"));
+        // SelectScene is the passive listener that starts GameScene once a
+        // character is chosen (New Game -> character select, or Load). It has no
+        // visuals, so starting it just shuts this scene down (clearing the splash
+        // logo via shutdown()) and leaves the React menu overlay on top.
+        this.scene.start("SelectScene");
     }
 
     shutdown(): void {
