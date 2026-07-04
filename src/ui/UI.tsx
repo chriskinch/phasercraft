@@ -11,6 +11,7 @@ import CharacterSelect from "@components/CharacterSelect";
 import Equipment from "@components/Equipment";
 import Header from "@components/Header";
 import HUD from "@components/HUD";
+import MainMenu from "@components/MainMenu";
 import Save from "@components/Save";
 import System from "@components/System";
 import CustomDragLayer from "@components/CustomDragLayer";
@@ -73,6 +74,10 @@ const UI: React.FC = () => {
             title: "Load Game",
             props: { load: true },
             close: true,
+        },
+        menu: {
+            component: asMenuComponent(MainMenu),
+            title: "Main Menu",
         },
         save: {
             component: asMenuComponent(Save),
