@@ -85,7 +85,8 @@ export default class TownScene extends Scene {
             )
             .setOrigin(0);
 
-        this.UI = new UI(this);
+        // No abilities in town, so hide the spell/ability slots.
+        this.UI = new UI(this, { showSpellFrames: false });
 
         this.input.on(
             "pointerdown",
@@ -110,6 +111,9 @@ export default class TownScene extends Scene {
             x: 90,
             y: 220,
             immovable: false,
+            // The town is a non-combat hub: spawn with no abilities so no spells
+            // or ability buttons are created here.
+            abilities: [],
         }) as PlayerType;
 
         // Create town map first to set up world bounds
@@ -243,6 +247,18 @@ export default class TownScene extends Scene {
                 "cloth_red"
             ),
         };
+
+        // The stallObjects sheet is authored in Tiled with a 16px single-edge
+        // margin (7×5 = 35 tiles). Phaser's Tileset.updateTileData subtracts the
+        // margin from *both* edges when recomputing `total`, which truncates this
+        // sheet to 20 tiles — so decorations with higher ids (the awnings at tile
+        // ids 23 and 25) fall outside the tileset's gid range and render as the
+        // magenta "missing texture" box. Resetting the margin to 0 widens the gid
+        // range to span the whole sheet; the sprites still draw the correct frame
+        // from the separately-loaded 35-frame `stallObjects` texture, and this
+        // tileset is only used by the flairs object layer (never a tile layer),
+        // so the recomputed tile coordinates are irrelevant.
+        tilesets.stallObjects?.setSpacing(0, 0);
 
         // Create layers in the correct order
         const allTilesets = Object.values(tilesets).filter((tileset) => tileset !== null);
