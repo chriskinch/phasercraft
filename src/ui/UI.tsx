@@ -12,6 +12,7 @@ import Equipment from "@components/Equipment";
 import Header from "@components/Header";
 import HUD from "@components/HUD";
 import Save from "@components/Save";
+import Settings from "@components/Settings";
 import System from "@components/System";
 import CustomDragLayer from "@components/CustomDragLayer";
 import type { RootState } from "@store";
@@ -81,6 +82,11 @@ const UI: React.FC = () => {
         select: {
             component: asMenuComponent(CharacterSelect),
             title: "Character Select",
+        },
+        settings: {
+            component: asMenuComponent(Settings),
+            title: "Settings",
+            close: true,
         },
         system: {
             component: asMenuComponent(System),
