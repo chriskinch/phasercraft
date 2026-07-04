@@ -11,6 +11,7 @@ import CharacterSelect from "@components/CharacterSelect";
 import Equipment from "@components/Equipment";
 import Header from "@components/Header";
 import HUD from "@components/HUD";
+import MainMenu from "@components/MainMenu";
 import Save from "@components/Save";
 import Settings from "@components/Settings";
 import System from "@components/System";
@@ -74,6 +75,10 @@ const UI: React.FC = () => {
             title: "Load Game",
             props: { load: true },
             close: true,
+        },
+        menu: {
+            component: asMenuComponent(MainMenu),
+            title: "Main Menu",
         },
         save: {
             component: asMenuComponent(Save),
