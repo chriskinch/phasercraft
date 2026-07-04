@@ -5,6 +5,7 @@ import Ranger from "./Ranger";
 import Warrior from "./Warrior";
 import type { Scene } from "phaser";
 import type { PlayerOptions } from "@/types/game";
+import type { SpellType } from "@entities/Spells/AssignSpell";
 import type Player from "@entities/Player/Player";
 
 type PlayerConfig = {
@@ -12,6 +13,9 @@ type PlayerConfig = {
     x: number;
     y: number;
     immovable?: boolean;
+    // Overrides the class's default abilities. The town passes `[]` so the
+    // non-combat hub spawns no spells (and no ability buttons).
+    abilities?: SpellType[];
 };
 
 const classes = {
