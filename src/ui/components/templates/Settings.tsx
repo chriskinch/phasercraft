@@ -1,6 +1,10 @@
 import React, { useState } from "react";
 import Button from "@components/Button";
-import { readSettings, writeSettings, type Settings as SettingsData } from "@services/settingsStorage";
+import {
+    readSettings,
+    writeSettings,
+    type Settings as SettingsData,
+} from "@services/settingsStorage";
 
 // Settings screen (#379). Reads the persisted settings on mount and lets the
 // player toggle debug mode. The debug flag applies on next launch — it feeds the
