@@ -3,29 +3,54 @@ import createAnimations from "../config/animations";
 import store from "@store";
 import { toggleUi } from "@store/gameReducer";
 import { fontConfig } from "../config/fonts";
+import createLogo from "./createLogo";
 
 export default class LoadScene extends Scene {
+    private logo?: GameObjects.Container;
+    private progressBar?: GameObjects.Graphics;
+
     constructor() {
         super({
             key: "LoadScene",
         });
     }
     preload() {
-        let progress = this.add.graphics();
+        const centerX = this.scale.width / 2;
+        const centerY = this.scale.height / 2;
+
+        // Intro splash: show the placeholder logo while the heavy asset load
+        // below runs. The character sprite + font image were already loaded by
+        // BootScene, so their textures are available synchronously here. Objects
+        // added in preload() render while the loader works through its queue.
+        this.logo = createLogo(this, { x: centerX, y: centerY - 60 });
+
+        // Progress bar beneath the logo.
+        const barWidth = Math.min(this.scale.width * 0.5, 400);
+        const barX = centerX - barWidth / 2;
+        const barY = centerY + 140;
+        const progress = this.add.graphics();
+        this.progressBar = progress;
 
         this.load.on("progress", (value: number) => {
             progress.clear();
+            progress.fillStyle(0x000000, 0.4);
+            progress.fillRect(barX - 2, barY - 2, barWidth + 4, 12);
             progress.fillStyle(0x00ff00, 1);
-            progress.fillRect(0, 0, this.scale.width * value, 4);
+            progress.fillRect(barX, barY, barWidth * value, 8);
         });
 
         this.load.on("complete", () => {
             progress.destroy();
+            this.progressBar = undefined;
         });
 
         this.load.setPath("graphics");
         // Game entities
-        this.load.image("wayne-3d", "fonts/wayne-3d.png");
+        // wayne-3d + warrior are preloaded by BootScene for the splash; guard the
+        // re-declaration so the loader doesn't warn about duplicate texture keys.
+        if (!this.textures.exists("wayne-3d")) {
+            this.load.image("wayne-3d", "fonts/wayne-3d.png");
+        }
         this.load.image("resource-frame", "images/resource-frame.png");
         this.load.spritesheet("player", "spritesheets/player/noob.gif", {
             frameWidth: 24,
@@ -47,10 +72,12 @@ export default class LoadScene extends Scene {
             frameWidth: 24,
             frameHeight: 32,
         });
-        this.load.spritesheet("warrior", "spritesheets/player/warrior.gif", {
-            frameWidth: 24,
-            frameHeight: 32,
-        });
+        if (!this.textures.exists("warrior")) {
+            this.load.spritesheet("warrior", "spritesheets/player/warrior.gif", {
+                frameWidth: 24,
+                frameHeight: 32,
+            });
+        }
         this.load.image("blank-gif", "images/blank.gif");
         this.load.spritesheet("attack-swoosh", "spritesheets/swoosh.png", {
             frameWidth: 32,
@@ -265,13 +292,23 @@ export default class LoadScene extends Scene {
 
     create() {
         createAnimations(this);
-        store.dispatch(toggleUi("save"));
-        this.scene.start("SelectScene");
+        // Hand off to the main menu (React overlay) rather than the save picker.
+        // toggleUi("menu") flips showUi to true and sets menu === "menu", which
+        // UI.tsx renders. The menu's own buttons drive navigation from here, so
+        // we intentionally do NOT auto-start SelectScene/GameScene.
+        store.dispatch(toggleUi("menu"));
     }
 
     shutdown(): void {
         // Clean up load event listeners
         this.load.off("progress");
         this.load.off("complete");
+
+        // Release the splash objects added in preload(). Phaser does not destroy
+        // GameObjects on scene SHUTDOWN, so drop them explicitly to avoid leaks.
+        this.logo?.destroy();
+        this.logo = undefined;
+        this.progressBar?.destroy();
+        this.progressBar = undefined;
     }
 }

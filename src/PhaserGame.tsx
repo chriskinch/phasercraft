@@ -1,5 +1,6 @@
 import { memo, useEffect, useRef } from "react";
 import { Game, AUTO, Scale } from "phaser";
+import BootScene from "@scenes/BootScene";
 import LoadScene from "@scenes/LoadScene";
 import SelectScene from "@scenes/SelectScene";
 import TownScene from "@scenes/TownScene";
@@ -48,7 +49,7 @@ const PhaserGame = () => {
                     },
                 },
             },
-            scene: [LoadScene, SelectScene, TownScene, GameScene, GameOverScene],
+            scene: [BootScene, LoadScene, SelectScene, TownScene, GameScene, GameOverScene],
             pixelArt: true,
             antialias: false,
         };
