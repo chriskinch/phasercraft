@@ -10,6 +10,7 @@ import {
     setPlayerPosition,
     sellLoot,
     buyLoot,
+    switchUi,
 } from "./gameReducer";
 import type { LootItem } from "@/types/game";
 
@@ -72,6 +73,19 @@ describe("gameReducer", () => {
 
         const cleared = gameReducer(withTwo, toggleFilter(""));
         expect(cleared.filters).toEqual([]);
+    });
+
+    it("switchUi swaps the menu and records the previous one", () => {
+        const initial = gameReducer(undefined, { type: "@@INIT" });
+        const toMenu = gameReducer({ ...initial, menu: "menu" }, switchUi("settings"));
+        // The new screen is shown, and where we came from is remembered so a
+        // close button can navigate back to it.
+        expect(toMenu.menu).toBe("settings");
+        expect(toMenu.previousMenu).toBe("menu");
+
+        const back = gameReducer(toMenu, switchUi("menu"));
+        expect(back.menu).toBe("menu");
+        expect(back.previousMenu).toBe("settings");
     });
 
     it("setSaveSlot updates the save slot", () => {

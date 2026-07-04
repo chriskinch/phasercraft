@@ -3,7 +3,7 @@ import { useSelector, useDispatch } from "react-redux";
 import { pixelBackgroundVars } from "@ui/themes";
 import theme from "@ui/themes.module.css";
 import styles from "./UI.module.css";
-import { toggleUi } from "@store/gameReducer";
+import { switchUi, toggleUi } from "@store/gameReducer";
 import Arcanum from "@components/Arcanum";
 import Armory from "@components/Armory";
 import Character from "@components/Character";
@@ -31,6 +31,9 @@ interface MenuConfig {
     navigation?: boolean;
     props?: Record<string, unknown>;
     close?: boolean;
+    // When set, the close button navigates back to the previous screen instead
+    // of closing the whole overlay (e.g. Settings opened from the main menu).
+    back?: boolean;
     type?: string;
 }
 
@@ -42,12 +45,9 @@ const asMenuComponent = <P,>(component: React.ComponentType<P>): MenuComponent =
 const UI: React.FC = () => {
     const dispatch = useDispatch();
     const menu = useSelector((state: RootState) => state.game.menu);
+    const previousMenu = useSelector((state: RootState) => state.game.previousMenu);
     const showHUD = useSelector((state: RootState) => state.game.showHUD);
     const showUi = useSelector((state: RootState) => state.game.showUi);
-
-    const handleToggleUi = () => {
-        dispatch(toggleUi(menu));
-    };
 
     const config: Record<string, MenuConfig> = {
         arcanum: {
@@ -92,6 +92,7 @@ const UI: React.FC = () => {
             component: asMenuComponent(Settings),
             title: "Settings",
             close: true,
+            back: true,
         },
         system: {
             component: asMenuComponent(System),
@@ -104,13 +105,23 @@ const UI: React.FC = () => {
     const CurrentMenu = menu ? config[menu] : config.equipment;
     const isSystem = menu === "system";
 
+    // Screens flagged `back` return to the previous screen on close; everything
+    // else closes the overlay entirely (the original behavior).
+    const handleClose = () => {
+        if (CurrentMenu.back) {
+            dispatch(switchUi(previousMenu ?? "menu"));
+        } else {
+            dispatch(toggleUi(menu));
+        }
+    };
+
     return (
         <div className={styles.uiContainer}>
             {showHUD && <HUD />}
             {showUi && (
                 <div className={styles.uiMain}>
                     <div className={styles.headerContainer}>
-                        <Header config={CurrentMenu} toggleUi={handleToggleUi} />
+                        <Header config={CurrentMenu} toggleUi={handleClose} />
                     </div>
                     <div
                         id={CurrentMenu.title.toLowerCase().replace(" ", "-")}
