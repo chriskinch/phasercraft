@@ -41,6 +41,18 @@ describe("UI overlay close/back navigation", () => {
         expect(state.showUi).toBe(true);
     });
 
+    it("closing the New Game (save) page returns to the main menu", () => {
+        const { store } = renderWithProviders(<UI />, {
+            preloadedGame: { showUi: true, menu: "save", previousMenu: "menu" },
+        });
+
+        fireEvent.click(screen.getByRole("button", { name: "X" }));
+
+        const state = store.getState().game;
+        expect(state.menu).toBe("menu");
+        expect(state.showUi).toBe(true);
+    });
+
     it("closing a non-back screen still closes the whole overlay", () => {
         const { store } = renderWithProviders(<UI />, {
             preloadedGame: { showUi: true, menu: "load", previousMenu: "menu" },

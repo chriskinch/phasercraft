@@ -83,6 +83,8 @@ const UI: React.FC = () => {
         save: {
             component: asMenuComponent(Save),
             title: "Pick a Game Save",
+            close: true,
+            back: true,
         },
         select: {
             component: asMenuComponent(CharacterSelect),
