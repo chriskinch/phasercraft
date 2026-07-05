@@ -1,11 +1,8 @@
 import Spell from "./Spell";
 
-class Boon extends Spell {
-    setCastEvents(state: "on" | "off"): void {
-        // Call as it we click on the spell to trigger effect().
-        // Acts like an instant cast on the player.
-        if (state === "on") this.castSpell(this.player);
-    }
-}
+// Self-buff spells (Enrage, PowerInfusion). Casting metadata lives in each
+// concrete spell's defaults (targetKind: "self"); the CastingController casts
+// them on the player as soon as the button is pressed.
+class Boon extends Spell {}
 
 export default Boon;

@@ -34,6 +34,7 @@ class EarthShield extends Spell {
             charges: 8,
             ready: true,
             cooldownDelay: true,
+            targetKind: "self" as const,
         };
         super({ ...defaults, ...config });
 
@@ -44,15 +45,6 @@ class EarthShield extends Spell {
         this.charges = 8;
         this.ready = true;
         this.radius = 40;
-    }
-
-    setCastEvents(state: "on" | "off"): void {
-        // Elegible targets for this spell
-        this.scene.events[state]("pointerdown:player", this.castSpell, this);
-        // Event that clears the primed spell. Emitted by invalid targets.
-        this.scene.events[state]("pointerdown:game", this.clearSpell, this);
-        this.scene.events[state]("keypress:esc", this.clearSpell, this);
-        this.scene.events[state]("pointerdown:enemy", this.clearSpell, this);
     }
 
     effect(): void {

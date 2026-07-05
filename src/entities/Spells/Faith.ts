@@ -21,6 +21,7 @@ class Faith extends Spell {
             frequency: 2,
             duration: 10,
             type: "heal",
+            targetKind: "self" as const,
         };
 
         super({ ...defaults, ...config });
@@ -30,15 +31,6 @@ class Faith extends Spell {
         this.type = "heal";
 
         this.scene.events.once("player:dead", this.clearEffect, this);
-    }
-
-    setCastEvents(state: "on" | "off"): void {
-        // Elegible targets for this spell
-        this.scene.events[state]("pointerdown:player", this.castSpell, this);
-        // Event that clears the primed spell. Emitted by invalid targets.
-        this.scene.events[state]("pointerdown:game", this.clearSpell, this);
-        this.scene.events[state]("keypress:esc", this.clearSpell, this);
-        this.scene.events[state]("pointerdown:enemy", this.clearSpell, this);
     }
 
     effect(target: Player): void {

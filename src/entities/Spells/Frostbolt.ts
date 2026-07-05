@@ -28,6 +28,9 @@ class Frostbolt extends Spell {
             },
             type: "magic",
             duration: 7,
+            targetKind: "enemy" as const,
+            castRange: 250,
+            projectile: { key: "frostbolt-effect", frame: 0, speed: 400 },
             value: {
                 speed: (bs: number) => -bs * 0.5, // Increase by 10
             },
@@ -39,15 +42,6 @@ class Frostbolt extends Spell {
         this.value = {
             speed: (bs: number) => -bs * 0.5,
         };
-    }
-
-    setCastEvents(state: "on" | "off"): void {
-        // Elegible targets for this spell
-        this.scene.events[state]("pointerdown:enemy", this.castSpell, this);
-        // Event that clears the primed spell. Emitted by invalid targets.
-        this.scene.events[state]("pointerdown:game", this.clearSpell, this);
-        this.scene.events[state]("keypress:esc", this.clearSpell, this);
-        this.scene.events[state]("pointerdown:player", this.clearSpell, this);
     }
 
     effect(target: Enemy): void {

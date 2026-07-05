@@ -15,19 +15,14 @@ class Heal extends Spell {
                 energy: 30,
             },
             type: "heal",
+            targetKind: "self" as const,
+            // Wind-up: interruptible by moving, taking a hit, or casting
+            // something else; the resource is only charged on completion.
+            castTime: 1,
         };
 
         super({ ...defaults, ...config });
         this.type = "heal";
-    }
-
-    setCastEvents(state: "on" | "off"): void {
-        // Elegible targets for this spell
-        this.scene.events[state]("pointerdown:player", this.castSpell, this);
-        // Event that clears the primed spell. Emitted by invalid targets.
-        this.scene.events[state]("pointerdown:game", this.clearSpell, this);
-        this.scene.events[state]("keypress:esc", this.clearSpell, this);
-        this.scene.events[state]("pointerdown:enemy", this.clearSpell, this);
     }
 
     effect(target: TargetType): void {
