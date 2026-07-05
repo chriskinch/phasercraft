@@ -10,16 +10,19 @@ import { CHARACTERS, makeSave, seedSave, expectGameCanvas } from "./helpers";
 // (the wave readout), it is marked `test.fixme` with the reason inline rather
 // than shipped as a flaky/failing test.
 //
-// Boot sequence the specs rely on (see src/scenes/LoadScene.ts):
-//   LoadScene.create() dispatches toggleUi("save") and starts SelectScene, so
-//   the "Pick a Game Save" overlay is the first interactive UI. Each empty slot
-//   offers a "Select" button -> setSaveSlot + switchUi("select") -> the
-//   "Character Select" menu. Picking a character dispatches selectCharacter,
-//   which sets showUi:false (the overlay closes and the run begins).
+// Boot sequence the specs rely on (see src/scenes/LoadScene.ts and #377):
+//   LoadScene.create() dispatches toggleUi("menu") and starts SelectScene, so
+//   the Main Menu overlay is the first interactive UI. From there "New Game"
+//   opens the "Pick a Game Save" picker (empty slots offer "Select" ->
+//   setSaveSlot + switchUi("select") -> "Character Select"), and "Load" (shown
+//   only when a save exists) opens the picker in load mode. Picking a character
+//   or loading a save dispatches selectCharacter, which sets showUi:false (the
+//   overlay closes and the run begins). SelectScene is the passive listener that
+//   starts GameScene once a character is set.
 
 test.describe("Phasercraft smoke", () => {
     // ── Flow 1: game boots ───────────────────────────────────────────────────
-    test("game boots: page mounts, canvas renders, initial UI appears", async ({ page }) => {
+    test("game boots: page mounts, canvas renders, main menu appears", async ({ page }) => {
         await page.goto("/");
 
         // The Phaser host div is always rendered by React.
@@ -29,35 +32,30 @@ test.describe("Phasercraft smoke", () => {
         const canvas = await expectGameCanvas(page);
         await expect(canvas).toBeAttached();
 
-        // LoadScene.create() opens the "Pick a Game Save" overlay once the scene
-        // boots and preload completes. We key off the menu shell
-        // ([data-testid="menu-container"], rendered only while a menu is open) plus
-        // the save-slot headings rather
-        // than the menu's derived id: UI.tsx builds the id with
-        // `title.toLowerCase().replace(" ", "-")`, and String.replace swaps only
-        // the FIRST space, so "Pick a Game Save" yields the id "pick-a game save"
-        // (a pre-existing quirk). Visible text / slot headings are the stable hook.
+        // LoadScene.create() opens the Main Menu overlay once the scene boots and
+        // preload completes. Key off the menu shell ([data-testid="menu-container"],
+        // rendered only while a menu is open), the title, and the New Game action.
         await expect(page.locator('[data-testid="menu-container"]')).toBeVisible();
-        // Three save slots render with "Slot 1".."Slot 3" headings.
-        await expect(page.getByRole("heading", { name: "Slot 1" })).toBeVisible();
+        await expect(page.getByRole("heading", { name: "Phasercraft" })).toBeVisible();
+        await expect(page.getByRole("button", { name: "New Game" })).toBeVisible();
     });
 
-    // ── Flow 2: character select ─────────────────────────────────────────────
-    test("character select: choosing a class closes the overlay and starts the run", async ({
-        page,
-    }) => {
+    // ── Flow 2: new game -> character select ─────────────────────────────────
+    test("new game: choosing a class closes the overlay and starts the run", async ({ page }) => {
         await page.goto("/");
         await expectGameCanvas(page);
 
-        // From the save menu, an empty slot's "Select" button opens character select.
-        // (The save menu's derived id contains a space — see Flow 1 — so key off the
-        // menu shell and the Select button instead.)
+        // From the main menu, "New Game" opens the save picker.
         await expect(page.locator('[data-testid="menu-container"]')).toBeVisible();
+        await page.getByRole("button", { name: "New Game" }).click();
+
+        // An empty slot's "Select" button opens character select. (The save menu's
+        // derived id contains a space — UI.tsx builds it via title.replace(" ", "-"),
+        // which swaps only the first space — so key off the Select button instead.)
         await page.getByRole("button", { name: "Select" }).first().click();
 
-        // The Character Select menu renders ("Character Select" has a single space,
-        // so its derived id "character-select" is well-formed); assert a button per
-        // playable class as the stable signal.
+        // The Character Select menu renders ("Character Select" -> id "character-select");
+        // assert a button per playable class as the stable signal.
         await expect(page.locator("#character-select")).toBeVisible();
         for (const name of CHARACTERS) {
             await expect(page.getByRole("button", { name, exact: true })).toBeVisible();
@@ -103,11 +101,10 @@ test.describe("Phasercraft smoke", () => {
         await page.goto("/");
         await expectGameCanvas(page);
 
-        // The boot overlay is the save picker, which lists every slot. A populated
-        // slot renders the saved character plus a "Load" button (empty slots show
-        // "Select"), so no extra navigation is needed. Key off the menu shell (the
-        // save menu's derived id contains a space — see Flow 1).
+        // With a save present, the main menu offers "Load", which opens the picker
+        // in load mode (populated slots only).
         await expect(page.locator('[data-testid="menu-container"]')).toBeVisible();
+        await page.getByRole("button", { name: "Load", exact: true }).click();
 
         // The seeded slot surfaces the persisted wave/coins straight from the
         // save service — proof the localStorage roundtrip survived a fresh load.
@@ -116,7 +113,7 @@ test.describe("Phasercraft smoke", () => {
 
         // Loading the save dispatches loadGame + selectCharacter, which closes the
         // overlay (showUi:false) and drops us into the restored run.
-        await page.getByRole("button", { name: "Load" }).first().click();
+        await page.getByRole("button", { name: "Load", exact: true }).first().click();
         // The overlay tears down (showUi:false) — no menu shell remains.
         await expect(page.locator('[data-testid="menu-container"]')).toHaveCount(0);
 

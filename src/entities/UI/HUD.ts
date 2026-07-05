@@ -25,15 +25,19 @@ class UI extends GameObjects.Container {
     public save_slot: string;
     public key_handlers: Record<string, () => void>;
 
-    constructor(scene: Scene) {
+    constructor(scene: Scene, options: { showSpellFrames?: boolean } = {}) {
         super(scene, 0, 0);
+
+        // The town is a non-combat hub, so it opts out of the spell/ability
+        // slots; every other scene shows them by default.
+        const { showSpellFrames = true } = options;
 
         this.spells = 5;
         this.spacing = 60;
         this.frames = [];
         this.subscriptions = [];
 
-        this.setSpellFrames();
+        if (showSpellFrames) this.setSpellFrames();
         this.setCoinCount();
         this.setWaveCount();
         this.buttons = [this.setInvetoryIcon(), this.setSystemIcon()];

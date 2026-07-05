@@ -1,10 +1,12 @@
 import { memo, useEffect, useRef } from "react";
 import { Game, AUTO, Scale } from "phaser";
+import BootScene from "@scenes/BootScene";
 import LoadScene from "@scenes/LoadScene";
 import SelectScene from "@scenes/SelectScene";
 import TownScene from "@scenes/TownScene";
 import GameScene from "@scenes/GameScene";
 import GameOverScene from "@scenes/GameOverScene";
+import { readSettings } from "@services/settingsStorage";
 
 const PhaserGame = () => {
     const gameRef = useRef<Game | null>(null);
@@ -41,14 +43,17 @@ const PhaserGame = () => {
             physics: {
                 default: "arcade",
                 arcade: {
-                    debug: true,
+                    // Physics debug rendering follows the persisted setting and
+                    // applies on next launch (Enemy.showDebugInfo reads it off
+                    // sys.game.config.physics.arcade.debug). Defaults to false.
+                    debug: readSettings().debug,
                     gravity: {
                         x: 0,
                         y: 0,
                     },
                 },
             },
-            scene: [LoadScene, SelectScene, TownScene, GameScene, GameOverScene],
+            scene: [BootScene, LoadScene, SelectScene, TownScene, GameScene, GameOverScene],
             pixelArt: true,
             antialias: false,
         };

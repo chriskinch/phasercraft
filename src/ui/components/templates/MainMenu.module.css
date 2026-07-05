@@ -1,0 +1,42 @@
+.menu {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 1.5rem;
+    padding: 1rem 0;
+}
+
+.logo {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+/* Placeholder pixel/3D wordmark; the Phaser splash owns the real canvas logo. */
+.title {
+    margin: 0;
+    font-size: 3rem;
+    letter-spacing: 0.1em;
+    color: #ffc93e;
+    text-transform: uppercase;
+    text-shadow:
+        -2px -2px 0 #000,
+        2px -2px 0 #000,
+        -2px 2px 0 #000,
+        2px 2px 0 #000,
+        4px 4px 0 rgba(0, 0, 0, 0.4);
+}
+
+.sprite {
+    image-rendering: pixelated;
+    width: 96px;
+    height: auto;
+}
+
+.actions {
+    display: flex;
+    flex-direction: column;
+    gap: 0.75rem;
+    min-width: 220px;
+}

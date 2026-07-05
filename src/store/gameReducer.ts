@@ -23,6 +23,7 @@ export interface GameState {
     showHUD: boolean;
     showUi: boolean;
     menu: string | undefined;
+    previousMenu: string | undefined;
     base_stats: PlayerStats;
     stats: PlayerStats;
     level: Level;
@@ -46,6 +47,7 @@ const initState: GameState = {
     showHUD: false,
     showUi: false,
     menu: "save",
+    previousMenu: undefined,
     base_stats: {} as PlayerStats,
     stats: {} as PlayerStats,
     level: {
@@ -281,7 +283,9 @@ export const gameReducer = createReducer(initState, (builder) => {
             }
         )
         .addCase(switchUi, (state, action: PayloadAction<{ menu: string }>) => {
-            return { ...state, ...action.payload };
+            // Record where we navigated from so a screen's close button can send
+            // the player back to the previous screen instead of closing the UI.
+            return { ...state, previousMenu: state.menu, ...action.payload };
         })
         .addCase(toggleFilter, (state, action: PayloadAction<{ key: string }>) => {
             const { key } = action.payload;
