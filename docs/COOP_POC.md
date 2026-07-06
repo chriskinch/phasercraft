@@ -81,6 +81,16 @@ Out of scope — later tracks of #2:
   in-session (a `ping` protocol message) is a cheap follow-up when tuning
   the replication track.
 
+### Remaining spike validation (open on #390)
+
+The #390 acceptance criterion "two browsers on **different networks**
+connect" has not yet been exercised: the automated evidence is two browser
+contexts on one machine (host candidates / loopback). The remaining step is
+a manual run by two people on different home networks against the deployed
+build — note whether STUN sufficed or the "restrictive NAT may require
+TURN" error appeared, and roughly how the movement feels. #390 stays open
+until that run is recorded there.
+
 ## Testing
 
 - `api/coop/handlers.test.ts` — signaling endpoint contract + TTL expiry.

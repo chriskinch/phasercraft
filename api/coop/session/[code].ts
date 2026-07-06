@@ -1,6 +1,6 @@
 // /api/coop/session/:code
 //   GET  → { offer, answer } — guest fetches the offer; host polls for the answer.
-//   POST { answer: { type: "answer", sdp } } → 204 — guest submits its answer.
+//   POST { answer: { type: "answer", sdp } } → 200 { ok: true } — guest submits its answer.
 //
 // Sessions expire after SESSION_TTL_SECONDS; an expired or unknown code is 404.
 
