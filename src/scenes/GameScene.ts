@@ -17,6 +17,7 @@ import type { EnemyConfig, EnemyOptions } from "@/types/game";
 import type Player from "@entities/Player/Player";
 import type { GameSceneConfig } from "@/scenes/SelectScene";
 import type { PlayerType } from "@entities/Player/AssignClass";
+import CoopPresence from "@/net/CoopPresence";
 import { throwError } from "rxjs";
 
 export default class GameScene extends Scene {
@@ -42,6 +43,7 @@ export default class GameScene extends Scene {
     private cursors!: Phaser.Types.Input.Keyboard.CursorKeys & { esc?: Phaser.Input.Keyboard.Key };
     private next_level_timer: Phaser.Time.TimerEvent | undefined;
     private UI!: UI;
+    private coopPresence?: CoopPresence;
 
     constructor() {
         super({ key: "GameScene" });
@@ -116,6 +118,11 @@ export default class GameScene extends Scene {
         // this.physics.add.collider(this.player.hero, this); // Commented out - invalid collider
 
         this.events.once("player:dead", this.gameOver, this);
+
+        // Co-op presence (epic #2 POC): the partner's avatar is replicated
+        // here, but enemies/waves are still simulated per-client — combat
+        // replication is a later track.
+        this.coopPresence = new CoopPresence(this, this.player, "dungeon");
 
         // Phaser does not call shutdown() automatically — wire it to the
         // scene lifecycle event so cleanup runs on every scene transition.
@@ -380,5 +387,9 @@ export default class GameScene extends Scene {
 
         // Clean up next level timer
         this.removeNextLevelTimer();
+
+        // Release co-op presence listeners and the remote avatar (idempotent —
+        // also self-cleans on the SHUTDOWN event).
+        this.coopPresence?.cleanup();
     }
 }

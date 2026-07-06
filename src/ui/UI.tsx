@@ -8,6 +8,7 @@ import Arcanum from "@components/Arcanum";
 import Armory from "@components/Armory";
 import Character from "@components/Character";
 import CharacterSelect from "@components/CharacterSelect";
+import Coop from "@components/Coop";
 import Equipment from "@components/Equipment";
 import Header from "@components/Header";
 import HUD from "@components/HUD";
@@ -64,6 +65,12 @@ const UI: React.FC = () => {
             component: asMenuComponent(Character),
             title: "Character",
             navigation: true,
+        },
+        coop: {
+            component: asMenuComponent(Coop),
+            title: "Co-op",
+            close: true,
+            back: true,
         },
         equipment: {
             component: asMenuComponent(Equipment),

@@ -38,6 +38,7 @@ const System: React.FC<SystemProps> = ({ state }) => {
     return (
         <>
             <Button text="Save" onClick={() => setShowDialog(true)} />
+            <Button text="Co-op" onClick={() => dispatch(switchUi("coop"))} />
             {/* <Button text="Load" onClick={e => {
           console.log("LOAD")
           dispatch(switchUi("load"));

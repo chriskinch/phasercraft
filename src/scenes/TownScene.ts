@@ -7,6 +7,7 @@ import type { PlayerType } from "@entities/Player/AssignClass";
 import type Player from "@entities/Player/Player";
 import type { GameSceneConfig } from "@/scenes/SelectScene";
 import UI from "@entities/UI/HUD";
+import CoopPresence from "@/net/CoopPresence";
 
 export default class TownScene extends Scene {
     public player!: PlayerType;
@@ -60,6 +61,7 @@ export default class TownScene extends Scene {
     }
     private UI!: UI;
     private collisionIdleTimer?: Phaser.Time.TimerEvent;
+    private coopPresence?: CoopPresence;
 
     constructor() {
         super({ key: "TownScene" });
@@ -135,6 +137,10 @@ export default class TownScene extends Scene {
         store.dispatch(toggleHUD(true));
 
         this.cameras.main.startFollow(this.player);
+
+        // Co-op presence: replicate the local player to a connected partner
+        // and render theirs. Inert until a session connects (epic #2 POC).
+        this.coopPresence = new CoopPresence(this, this.player, "town");
     }
 
     private createTownEnvironment(): void {
@@ -565,5 +571,9 @@ export default class TownScene extends Scene {
             this.collisionIdleTimer.destroy();
             this.collisionIdleTimer = undefined;
         }
+
+        // Release co-op presence listeners and the remote avatar (idempotent —
+        // also self-cleans on the SHUTDOWN event).
+        this.coopPresence?.cleanup();
     }
 }
