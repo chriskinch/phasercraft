@@ -23,6 +23,7 @@ class RemoteLoot extends GameObjects.Sprite {
     public readonly kind: string;
     public body!: Physics.Arcade.Body;
     private taken = false;
+    private readonly onTake: (id: string) => void;
     private collider?: Physics.Arcade.Collider;
     private activateTimer?: Phaser.Time.TimerEvent;
 
@@ -38,6 +39,7 @@ class RemoteLoot extends GameObjects.Sprite {
         super(scene, x, y, texture, frame);
         this.id = id;
         this.kind = kind;
+        this.onTake = onTake;
 
         scene.physics.world.enable(this);
         scene.add.existing(this).setDepth((scene as GameSceneLike).depth_group.UI);
@@ -56,11 +58,7 @@ class RemoteLoot extends GameObjects.Sprite {
                 this.collider = scene.physics.add.collider(
                     (scene as GameSceneLike).player,
                     this,
-                    () => {
-                        if (this.taken) return;
-                        this.taken = true;
-                        onTake(this.id);
-                    },
+                    () => this.take(),
                     undefined,
                     this
                 );
@@ -70,6 +68,13 @@ class RemoteLoot extends GameObjects.Sprite {
         );
 
         this.once(GameObjects.Events.DESTROY, this.cleanup, this);
+    }
+
+    /** Touch handler: sends the collect intent to the host, at most once. */
+    take(): void {
+        if (this.taken) return;
+        this.taken = true;
+        this.onTake(this.id);
     }
 
     /** Host confirmed the drop is gone — play the collect tween and go away. */
