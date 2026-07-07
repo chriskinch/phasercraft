@@ -100,5 +100,16 @@
   "98": "ReticleUnderTest",
   "99": "FakeEmitter",
   "100": "Coop.test.tsx",
-  "101": "Co-op signaling service (`/api/coop/*`)"
+  "101": "Co-op signaling service (`/api/coop/*`)",
+  "102": "SceneUnderTest",
+  "103": "Health.ts",
+  "104": "EarthShield",
+  "105": "Monster",
+  "106": "Resource.ts",
+  "107": "Player.coop.test.ts",
+  "108": "RemotePlayer.test.ts",
+  "109": "StatBar.tsx",
+  "110": "Shield",
+  "111": "Weapon",
+  "112": "Rage"
 }

@@ -1,9 +1,11 @@
 # Online co-op POC — architecture and findings
 
 Proof of concept for **epic #2** (online two-player co-op, P2P host/guest).
-Covers the transport spike (#390) and the first slice of the per-player
-foundation (#391): two players connect via a join code and see each other's
-avatar move in the shared world, live.
+Covers the transport spike (#390), the first slice of the per-player
+foundation (#391), and the **host-authoritative replication track**: two
+players connect via a join code, see each other move live, and fight the
+same host-simulated waves together — shared enemies, loot, XP, and a
+downed/revive rule.
 
 ## How to play together
 
@@ -11,10 +13,12 @@ avatar move in the shared world, live.
    KV must be provisioned; see below) and load/start their own character, so
    each is standing in town.
 2. Either player opens the **cog menu → Co-op → Host Game** and reads the
-   5-character join code to the other (voice, chat, …).
+   5-character join code to the other (voice, chat, …). Whoever hosts runs
+   the authoritative world.
 3. The other player opens **cog menu → Co-op**, types the code, hits **Join**.
 4. On "Connected!", close the menu — your partner's avatar is in town with
-   you. Entering the dungeon shows them there too once they enter as well.
+   you. The **host enters the dungeon first** (the host's client simulates
+   the waves); when the guest follows, they see and fight the same enemies.
 
 Local dev: `npm run dev` serves the same signaling handlers at
 `/api/coop/*` (in-memory), so two tabs on `localhost:8080` can host/join.
@@ -39,18 +43,34 @@ In scope — the infrastructure the epic needs de-risked:
   its own avatar; the partner renders as a lightweight interpolated entity
   (the "scene-only replicated entity" model recommended in #391). Peers in
   different areas (town vs dungeon) are hidden until areas match.
+- **Host-authoritative combat replication** (`src/net/HostReplicator.ts`,
+  `src/net/GuestReplicator.ts`, `src/entities/Enemy/RemoteEnemy.ts`,
+  `src/entities/Loot/RemoteLoot.ts`): the host simulates enemies, waves, and
+  loot exactly as in single-player and streams enemy snapshots (~10Hz) plus
+  event messages. The guest spawns nothing — it renders replicated enemies
+  (which join the normal `scene.enemies` group, so targeting/auto-attack/
+  spell-damage seams work unchanged) and sends validated _events_: damage
+  dealt (`hit`) and loot touched (`lootTake`). Enemies target the **nearest**
+  of the two avatars; hits on the guest's avatar are relayed to the guest's
+  client, which owns its own health.
+- **Co-op rules (maintainer-confirmed defaults, tune later):** every kill
+  grants full XP to both players; coin/gem pickups pay out to both; crafting
+  drops go to whoever grabs them first. A player who dies **spectates** and
+  revives when the wave is cleared; the run ends only when both are down
+  (the host decides, and relays `gameOver`).
 
 Out of scope — later tracks of #2:
 
-- **Shared combat**: enemies, waves, loot, and XP are still simulated
-  per-client. In the arena you see your partner move, but each of you fights
-  your own waves. Host-authoritative enemy/state replication is the next
-  track and extends the protocol union.
+- **Guest CC/banes on enemies**: the guest's direct damage (auto-attacks and
+  spells that call `enemy.hit`) is forwarded; debuffs, knockback, and other
+  status effects from the guest are not applied to the host's simulation.
+- **Enemy↔guest-avatar physics**: on the host, enemies chase and hit the
+  guest's replicated avatar but don't collide with it bodily.
 - **TURN relay**: peers behind symmetric NATs (some mobile carriers,
   corporate networks) cannot connect with STUN alone. The error state
   surfaces this ("a restrictive NAT may require TURN").
 - **Reconnection / host migration**: a drop ends the session (per the epic's
-  v1 decision); either player can immediately re-host.
+  v1 decision); a guest dropped mid-dungeon is returned to town.
 
 ## Spike findings (#390 deliverable)
 
@@ -98,5 +118,9 @@ until that run is recorded there.
   against fake signaling + fake peer connections.
 - `src/net/CoopPresence.test.ts`, `src/entities/Player/RemotePlayer.test.ts`
   — replication, lifecycle discipline (cleanup idempotency), interpolation.
+- `src/net/HostReplicator.test.ts`, `src/net/GuestReplicator.test.ts` —
+  host-authoritative combat: snapshots, validated hits, loot payout rules,
+  down/revive/game-over policy, session-drop teardown.
+- `src/entities/Player/Player.coop.test.ts` — reversible down()/revive().
 - `src/ui/components/templates/Coop.test.tsx` — panel states.
 - Manual/local: `npm run dev`, two tabs, host in one, join from the other.

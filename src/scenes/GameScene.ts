@@ -18,6 +18,9 @@ import type Player from "@entities/Player/Player";
 import type { GameSceneConfig } from "@/scenes/SelectScene";
 import type { PlayerType } from "@entities/Player/AssignClass";
 import CoopPresence from "@/net/CoopPresence";
+import HostReplicator from "@/net/HostReplicator";
+import GuestReplicator from "@/net/GuestReplicator";
+import { coopSession } from "@/net/CoopSession";
 import { throwError } from "rxjs";
 
 export default class GameScene extends Scene {
@@ -44,6 +47,10 @@ export default class GameScene extends Scene {
     private next_level_timer: Phaser.Time.TimerEvent | undefined;
     private UI!: UI;
     private coopPresence?: CoopPresence;
+    private hostReplicator?: HostReplicator;
+    private guestReplicator?: GuestReplicator;
+    // "host" | "guest" while a co-op session is connected at scene start.
+    private coopRole: "host" | "guest" | null = null;
 
     constructor() {
         super({ key: "GameScene" });
@@ -99,7 +106,11 @@ export default class GameScene extends Scene {
         this.enemies = this.add.group();
         this.enemies.runChildUpdate = true;
         this.active_enemies = this.add.group();
-        this.startLevel(store.getState().game.wave);
+
+        // Co-op (epic #2): the HOST is authoritative for enemies/waves/loot;
+        // a GUEST spawns nothing and renders the host's replicated world.
+        this.coopRole = coopSession.isConnected() ? coopSession.getState().role : null;
+        if (this.coopRole !== "guest") this.startLevel(store.getState().game.wave);
 
         this.setLevelCompleteUI();
 
@@ -117,12 +128,27 @@ export default class GameScene extends Scene {
 
         // this.physics.add.collider(this.player.hero, this); // Commented out - invalid collider
 
-        this.events.once("player:dead", this.gameOver, this);
-
-        // Co-op presence (epic #2 POC): the partner's avatar is replicated
-        // here, but enemies/waves are still simulated per-client — combat
-        // replication is a later track.
+        // Co-op presence: replicates the partner's avatar in the arena.
+        // Inert while no session is connected.
         this.coopPresence = new CoopPresence(this, this.player, "dungeon");
+
+        if (this.coopRole === "host") {
+            // The replicator owns the death/spectate/game-over policy in
+            // co-op, so the scene's own player:dead handler stays off.
+            this.hostReplicator = new HostReplicator({
+                scene: this,
+                presence: this.coopPresence,
+                onGameOver: () => this.gameOver(),
+            });
+        } else if (this.coopRole === "guest") {
+            this.guestReplicator = new GuestReplicator({
+                scene: this,
+                onGameOver: () => this.gameOver(),
+                onSessionLost: () => this.returnToTown(),
+            });
+        } else {
+            this.events.once("player:dead", this.gameOver, this);
+        }
 
         // Phaser does not call shutdown() automatically — wire it to the
         // scene lifecycle event so cleanup runs on every scene transition.
@@ -169,8 +195,14 @@ export default class GameScene extends Scene {
 
         // Spawn delayedCalls land a frame after they are scheduled (the clock
         // updates before scene.update), so an empty group only means the wave
-        // is cleared once no spawns are still pending.
-        if (this.enemies.getChildren().length === 0 && this.pending_spawns === 0 && !this.game_over)
+        // is cleared once no spawns are still pending. Co-op guests don't run
+        // wave logic at all — the host owns wave state.
+        if (
+            this.enemies.getChildren().length === 0 &&
+            this.pending_spawns === 0 &&
+            !this.game_over &&
+            this.coopRole !== "guest"
+        )
             this.events.emit("enemies:dead");
 
         if (this.player.alive) this.player.update(mouse, this.cursors, time, delta);
@@ -388,8 +420,10 @@ export default class GameScene extends Scene {
         // Clean up next level timer
         this.removeNextLevelTimer();
 
-        // Release co-op presence listeners and the remote avatar (idempotent —
-        // also self-cleans on the SHUTDOWN event).
+        // Release co-op presence/replication listeners and remote entities
+        // (idempotent — they also self-clean on the SHUTDOWN event).
+        this.hostReplicator?.cleanup();
+        this.guestReplicator?.cleanup();
         this.coopPresence?.cleanup();
     }
 }

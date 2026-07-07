@@ -53,6 +53,11 @@ export default class CoopPresence {
         return this.remote !== null;
     }
 
+    /** The partner's avatar entity when present in this scene (else null). */
+    getRemotePlayer(): RemotePlayer | null {
+        return this.remote;
+    }
+
     private onMessage = (message: CoopMessage): void => {
         if (this.cleaned || message.t !== "state") return;
 

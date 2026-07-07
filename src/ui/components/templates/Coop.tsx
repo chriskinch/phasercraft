@@ -69,8 +69,10 @@ const Coop: React.FC<CoopProps> = ({ session = coopSession }) => {
                             : "Waiting for your partner's details…"}
                     </p>
                     <p className={styles.hint}>
-                        You&apos;ll see each other in town and in the arena. Enemies and loot are
-                        not shared yet — each of you still fights your own waves.
+                        You&apos;ll see each other in town and fight the same waves in the arena —
+                        the host runs the world, so the host should enter the dungeon first. Kills
+                        pay XP and coins to you both; if one of you falls, you&apos;re back on your
+                        feet when the wave is cleared.
                     </p>
                     <Button text="Disconnect" onClick={() => session.disconnect()} />
                 </div>
