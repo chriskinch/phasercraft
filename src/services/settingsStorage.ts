@@ -8,9 +8,10 @@
 
 export interface Settings {
     debug: boolean;
+    installBannerDismissed: boolean;
 }
 
-export const DEFAULT_SETTINGS: Settings = { debug: false };
+export const DEFAULT_SETTINGS: Settings = { debug: false, installBannerDismissed: false };
 
 export const SETTINGS_KEY = "settings";
 

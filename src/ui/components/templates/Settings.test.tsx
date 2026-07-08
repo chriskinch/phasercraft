@@ -23,7 +23,7 @@ describe("Settings template", () => {
     });
 
     it("reflects a persisted debug-on setting on mount", () => {
-        writeSettings({ debug: true });
+        writeSettings({ debug: true, installBannerDismissed: false });
 
         renderWithProviders(<Settings />);
 
@@ -42,7 +42,7 @@ describe("Settings template", () => {
     });
 
     it("toggles back off and persists that too", () => {
-        writeSettings({ debug: true });
+        writeSettings({ debug: true, installBannerDismissed: false });
 
         renderWithProviders(<Settings />);
 

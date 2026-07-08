@@ -11,6 +11,7 @@ import CharacterSelect from "@components/CharacterSelect";
 import Equipment from "@components/Equipment";
 import Header from "@components/Header";
 import HUD from "@components/HUD";
+import InstallBanner from "@components/InstallBanner";
 import MainMenu from "@components/MainMenu";
 import Save from "@components/Save";
 import Settings from "@components/Settings";
@@ -120,6 +121,7 @@ const UI: React.FC = () => {
     return (
         <div className={styles.uiContainer}>
             {showHUD && <HUD />}
+            <InstallBanner />
             {showUi && (
                 <div className={styles.uiMain}>
                     <div className={styles.headerContainer}>
