@@ -1,0 +1,63 @@
+.banner {
+    position: absolute;
+    /* Sit above the iOS home-indicator; falls back to a small margin. */
+    bottom: calc(env(safe-area-inset-bottom, 0px) + 0.5rem);
+    left: 0.5rem;
+    right: 0.5rem;
+    /* Overlay chrome — the parent uiContainer disables pointer events, so
+       re-enable them on the banner itself so the buttons can be tapped. */
+    pointer-events: all;
+    z-index: 1000;
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    padding: 0.75rem 1rem;
+    border: 2px solid #000;
+    background-color: rgba(20, 20, 20, 0.92);
+    color: #ffc93e;
+    font-family: "VT323", monospace;
+    font-size: 1.25rem;
+    line-height: 1.2;
+    box-shadow: 0 3px 0 #000;
+}
+
+.message {
+    flex: 1;
+    display: flex;
+    align-items: center;
+    gap: 0.4rem;
+    color: #fff;
+}
+
+.shareIcon {
+    display: inline-block;
+    vertical-align: middle;
+    fill: currentColor;
+    color: #ffc93e;
+}
+
+.actions {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    flex-shrink: 0;
+}
+
+.close {
+    box-sizing: border-box;
+    width: 2rem;
+    height: 2rem;
+    padding: 0;
+    line-height: 1;
+    font-family: inherit;
+    font-size: 1.25rem;
+    color: #fff;
+    background: transparent;
+    border: 1px solid rgba(255, 255, 255, 0.5);
+    cursor: pointer;
+}
+
+.close:hover {
+    color: #ffc93e;
+    border-color: #ffc93e;
+}
