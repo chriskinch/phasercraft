@@ -174,6 +174,12 @@ export const setCurrentArea = createAction("SET_CURRENT_AREA", (area: string) =>
     payload: { area },
 }));
 
+// Sets the wave to an absolute value (co-op guests sync it from the host's
+// authoritative `wave` messages; single-player only ever uses nextWave).
+export const setWave = createAction("SET_WAVE", (wave: number) => ({
+    payload: { wave },
+}));
+
 export const setPlayerPosition = createAction(
     "SET_PLAYER_POSITION",
     (position: { x: number; y: number }) => ({
@@ -321,6 +327,9 @@ export const gameReducer = createReducer(initState, (builder) => {
         })
         .addCase(setCurrentArea, (state, action: PayloadAction<{ area: string }>) => {
             state.currentArea = action.payload.area;
+        })
+        .addCase(setWave, (state, action: PayloadAction<{ wave: number }>) => {
+            state.wave = action.payload.wave;
         })
         .addCase(
             setPlayerPosition,

@@ -1,8 +1,9 @@
-import { defineConfig } from "vite";
+import { defineConfig, type ViteDevServer } from "vite";
 import react from "@vitejs/plugin-react";
 import { VitePWA } from "vite-plugin-pwa";
 import path from "node:path";
 import fs from "node:fs";
+import type { IncomingMessage, ServerResponse } from "node:http";
 
 // `@components/X` maps to one of five atomic-design directories (see
 // tsconfig.json "paths"). A plain Vite string alias can only point at a single
@@ -31,9 +32,70 @@ function componentsAliasPlugin() {
     };
 }
 
+// Serves the real co-op signaling handlers (api/coop/*, normally Vercel
+// functions) inside the Vite dev server, backed by their in-memory store — so
+// two local tabs can host/join a co-op session without deploying. Production
+// (Vercel) routes /api/coop/* to the same handler modules.
+function coopDevApiPlugin() {
+    return {
+        name: "phasercraft-coop-dev-api",
+        async configureServer(server: ViteDevServer) {
+            const { default: createSession } = await import("./api/coop/session/index");
+            const { default: sessionByCode } = await import("./api/coop/session/[code]");
+
+            const readBody = (req: IncomingMessage): Promise<string> =>
+                new Promise((resolve, reject) => {
+                    let data = "";
+                    req.on("data", (chunk: Buffer) => (data += chunk.toString()));
+                    req.on("end", () => resolve(data));
+                    req.on("error", reject);
+                });
+
+            // Adapt Node's req/res to the structural ApiRequest/ApiResponse
+            // contract the handlers are written against (api/armory/_lib/http.ts).
+            server.middlewares.use("/api/coop", (req: IncomingMessage, res: ServerResponse) => {
+                void (async () => {
+                    const url = new URL(req.url ?? "/", "http://localhost");
+                    const segments = url.pathname.split("/").filter(Boolean);
+
+                    const apiRes = {
+                        setHeader: (name: string, value: string) => res.setHeader(name, value),
+                        status(code: number) {
+                            res.statusCode = code;
+                            return apiRes;
+                        },
+                        json: (body: unknown) => {
+                            res.setHeader("Content-Type", "application/json");
+                            res.end(JSON.stringify(body));
+                        },
+                        send: (body: string) => res.end(body),
+                        end: () => res.end(),
+                    };
+
+                    const body = await readBody(req);
+                    if (segments[0] === "session" && segments.length === 1) {
+                        await createSession({ method: req.method, body }, apiRes);
+                    } else if (segments[0] === "session" && segments.length === 2) {
+                        await sessionByCode(
+                            { method: req.method, body, query: { code: segments[1] } },
+                            apiRes
+                        );
+                    } else {
+                        apiRes.status(404).json({ error: "Not found." });
+                    }
+                })().catch(() => {
+                    res.statusCode = 500;
+                    res.end('{"error":"Internal server error."}');
+                });
+            });
+        },
+    };
+}
+
 export default defineConfig(({ mode }) => ({
     plugins: [
         componentsAliasPlugin(),
+        coopDevApiPlugin(),
         react(),
         // Installable PWA: vite-plugin-pwa (Workbox) generates the manifest and a
         // service worker that precaches the app shell + every game asset for full
@@ -92,6 +154,12 @@ export default defineConfig(({ mode }) => ({
                         // The armory/merchant API is online-only and already degrades
                         // gracefully when unreachable; never cache it.
                         urlPattern: ({ url }) => url.pathname.startsWith("/api/armory"),
+                        handler: "NetworkOnly",
+                    },
+                    {
+                        // Co-op signaling is a live offer/answer handoff — a cached
+                        // response would replay a stale SDP and break the handshake.
+                        urlPattern: ({ url }) => url.pathname.startsWith("/api/coop"),
                         handler: "NetworkOnly",
                     },
                 ],

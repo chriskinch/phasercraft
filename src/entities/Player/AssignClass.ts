@@ -27,6 +27,8 @@ const classes = {
 };
 export type PlayerType = Cleric | Mage | Occultist | Ranger | Warrior;
 export type PlayerName = keyof typeof classes;
+/** All playable class names — the runtime counterpart of `PlayerName`. */
+export const playerNames = Object.keys(classes) as PlayerName[];
 class AssignClass {
     constructor(className: PlayerName, opts: PlayerConfig) {
         if (className === null || className === undefined || !(className in classes)) {

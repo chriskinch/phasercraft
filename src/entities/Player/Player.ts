@@ -309,6 +309,39 @@ class Player extends GameObjects.Container {
         this.alive = false;
     }
 
+    /**
+     * Co-op "downed" state (epic #2): like death() but reversible — the
+     * resource bars survive so revive() can restore them on wave clear.
+     * Never called in single-player, where death() remains the only path.
+     */
+    down(): void {
+        if (!this.alive) return;
+        this.scene.events.off("pointerdown:game", this.gameDownHandler, this);
+        this.scene.events.off("pointermove:game", this.gameMoveHandler, this);
+        this.scene.events.off("pointerup:game", this.gameUpHandler, this);
+        // Downed players take no more hits (enemies stop targeting them, but
+        // splash damage would re-emit player:dead against a dead avatar).
+        this.scene.events.off("enemy:attack", this.hit, this);
+        this.casting.cancelAll();
+        this.dragging = false;
+        this.destination = { x: null, y: null };
+        this.body.setVelocity(0);
+        this.hero.death();
+        this.alive = false;
+    }
+
+    /** Restores a downed player (wave cleared): full health, controls back. */
+    revive(): void {
+        if (this.alive) return;
+        this.alive = true;
+        this.health.adjustValue(this.stats.health_max || 99999);
+        this.scene.events.on("pointerdown:game", this.gameDownHandler, this);
+        this.scene.events.on("pointermove:game", this.gameMoveHandler, this);
+        this.scene.events.on("pointerup:game", this.gameUpHandler, this);
+        this.scene.events.on("enemy:attack", this.hit, this);
+        this.hero.idle();
+    }
+
     hit(power: number): void {
         const damage = Math.ceil(power * (100 / (100 + (this.stats.defence || 0))));
         this.scene.events.emit("player:attacked", this);

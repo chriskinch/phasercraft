@@ -32,4 +32,8 @@ export interface GameSceneLike extends Scene {
     wave: number;
     UI: UI;
     global_attack_delay: number;
+    // Co-op hook (epic #2): set by the host replicator while a partner's
+    // avatar is present in this scene and alive, so enemies can target either
+    // player. Absent/undefined outside a co-op session.
+    coopTarget?: () => GameObjects.Container | null;
 }

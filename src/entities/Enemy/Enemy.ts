@@ -79,6 +79,9 @@ class Enemy extends GameObjects.Container {
     public body!: Physics.Arcade.Body;
     // Transient targeting vector cached by the Whirlwind/Multishot range scans.
     public vector?: EntityWithVector;
+    // The player-avatar this enemy is currently nearest to (co-op: either the
+    // local player or the partner's replicated avatar). Drives attack routing.
+    private victim: { x: number; y: number } | null = null;
 
     constructor(config: EnemyOptions) {
         super(config.scene, config.x, config.y - 300);
@@ -166,10 +169,13 @@ class Enemy extends GameObjects.Container {
             this.point = new PhaserMath.Vector2();
             this.point.x = this.x;
             this.point.y = this.y;
-            this.distance_to_player = PhaserMath.Distance.BetweenPoints(
-                this,
-                (this.scene as GameSceneLike).player
-            );
+            // Nearest player avatar (in co-op the partner's replicated avatar
+            // is a candidate too); offline this is always the local player, so
+            // single-player behavior is unchanged.
+            this.victim = this.nearestPlayerTarget();
+            this.distance_to_player = this.victim
+                ? PhaserMath.Distance.BetweenPoints(this, this.victim)
+                : Infinity;
 
             if (this.distance_to_player < this.attack_radius && this.states.attack === "primed")
                 this.attack();
@@ -188,7 +194,7 @@ class Enemy extends GameObjects.Container {
                 if (this.states.movement !== "chasing") this.setChasing();
                 this.move({ bias: this.caution });
             } else {
-                if (this.target === (this.scene as GameSceneLike).player) {
+                if (this.target !== null && this.isPlayerTarget(this.target)) {
                     this.target = null;
                     this.setIdle();
                     this.setWandering();
@@ -304,8 +310,40 @@ class Enemy extends GameObjects.Container {
         if (this.wandering_looped_timer) {
             this.wandering_looped_timer.remove();
         }
-        this.target = (this.scene as GameSceneLike).player;
+        // Chase whichever player avatar is nearest (offline: the local player).
+        this.target = (this.victim ?? (this.scene as GameSceneLike).player) as TargetType;
         this.destination = null;
+    }
+
+    /** Candidate avatars: the local player, plus the co-op partner's when present. */
+    private nearestPlayerTarget(): { x: number; y: number } | null {
+        const scene = this.scene as GameSceneLike;
+        const coop = scene.coopTarget?.() ?? null;
+        // No co-op session → exactly the historical behavior (the local player,
+        // alive or not — the game-over flow pauses physics moments later).
+        if (!coop) return scene.player;
+
+        const candidates: Array<{ x: number; y: number }> = [];
+        if (scene.player.alive) candidates.push(scene.player);
+        candidates.push(coop);
+
+        let nearest: { x: number; y: number } | null = null;
+        let nearestDistance = Infinity;
+        for (const candidate of candidates) {
+            const distance = PhaserMath.Distance.BetweenPoints(this, candidate);
+            if (distance < nearestDistance) {
+                nearestDistance = distance;
+                nearest = candidate;
+            }
+        }
+        return nearest;
+    }
+
+    private isPlayerTarget(target: TargetType): boolean {
+        const scene = this.scene as GameSceneLike;
+        if (target === scene.player) return true;
+        const coop = scene.coopTarget?.() ?? null;
+        return coop !== null && target === (coop as TargetType);
     }
 
     movementAnimationHandler(): void {
@@ -405,21 +443,35 @@ class Enemy extends GameObjects.Container {
             .flat();
 
         loot.forEach((name) => {
+            let drop: GameObjects.Sprite;
             switch (name) {
                 case "coin":
-                    return new Coin({ scene: this.scene, x: this.x, y: this.y });
+                    drop = new Coin({ scene: this.scene, x: this.x, y: this.y });
+                    break;
                 case "gem":
-                    return new Gem({ scene: this.scene, x: this.x, y: this.y });
+                    drop = new Gem({ scene: this.scene, x: this.x, y: this.y });
+                    break;
                 default:
-                    return new Crafting({ scene: this.scene, x: this.x, y: this.y, key: name });
+                    drop = new Crafting({ scene: this.scene, x: this.x, y: this.y, key: name });
             }
+            // Co-op hook: the host replicator mirrors drops to the guest. No
+            // listener offline — a plain no-op emit.
+            this.scene.events.emit("loot:spawned", drop, name);
         });
     }
 
     attack(): void {
         if (this.states.attack === "primed") {
             this.states.attack = "recovering";
-            this.scene.events.emit("enemy:attack", this.stats.damage);
+            // Route the hit to whichever avatar this enemy is on top of: the
+            // local player (historical event) or, in co-op, the partner —
+            // relayed to their client, which owns their health.
+            const isPeer =
+                this.victim !== null && this.victim !== (this.scene as GameSceneLike).player;
+            this.scene.events.emit(
+                isPeer ? "enemy:attack:peer" : "enemy:attack",
+                this.stats.damage
+            );
             this.attack_ready = false;
             this.swing = this.scene.time.addEvent({
                 delay: this.stats.attack_speed * 1000,
