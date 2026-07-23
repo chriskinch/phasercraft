@@ -57,14 +57,24 @@ export function usePagination<T>(items: T[], pageSize: number): Pagination<T> {
 export interface MeasuredPageSize {
     // Attach to the container whose available space determines the page size.
     ref: React.RefObject<HTMLDivElement | null>;
-    // How many whole cells fit in the measured container; >= 1.
+    // How many whole cells fit in the measured container; >= 1 (cols * rows).
     pageSize: number;
+    // The measured grid dimensions, exposed so a consumer can lay its grid out
+    // with the same column count the page size was derived from.
+    cols: number;
+    rows: number;
+}
+
+interface GridDims {
+    pageSize: number;
+    cols: number;
+    rows: number;
 }
 
 // Derives how many cells of `cellWidth` × `cellHeight` (with `gap` between them)
 // fit inside the referenced container, updating live on resize. Until the first
 // measurement — and in environments without ResizeObserver — it reports
-// `fallback`, so a page always has a sensible size.
+// `fallback` cells in a single column, so a page always has a sensible size.
 export function useMeasuredPageSize(
     cellWidth: number,
     cellHeight: number,
@@ -72,7 +82,11 @@ export function useMeasuredPageSize(
     fallback = 1
 ): MeasuredPageSize {
     const ref = useRef<HTMLDivElement | null>(null);
-    const [pageSize, setPageSize] = useState(Math.max(1, fallback));
+    const [dims, setDims] = useState<GridDims>(() => ({
+        pageSize: Math.max(1, fallback),
+        cols: 1,
+        rows: Math.max(1, fallback),
+    }));
 
     useEffect(() => {
         const el = ref.current;
@@ -84,7 +98,7 @@ export function useMeasuredPageSize(
             // n <= (width + gap) / (cell + gap).
             const cols = Math.max(1, Math.floor((width + gap) / (cellWidth + gap)));
             const rows = Math.max(1, Math.floor((height + gap) / (cellHeight + gap)));
-            setPageSize(cols * rows);
+            setDims({ pageSize: cols * rows, cols, rows });
         };
 
         measure();
@@ -93,5 +107,5 @@ export function useMeasuredPageSize(
         return () => observer.disconnect();
     }, [cellWidth, cellHeight, gap]);
 
-    return { ref, pageSize };
+    return { ref, ...dims };
 }

@@ -6,6 +6,9 @@
 .lootGrid {
     display: grid;
     gap: 1rem;
-    overflow-y: scroll;
+    /* Pagination bounds the item count now, so the grid no longer scrolls — the
+       page fits its container and Prev/Next moves between pages. */
+    overflow: hidden;
     grid-template-columns: repeat(var(--cols), 1fr);
+    align-content: start;
 }
