@@ -1,7 +1,7 @@
 import React, { useState } from "react";
 import Button from "@components/Button";
 import GearGrid from "./GearGrid";
-import ComponentsGrid from "./ComponentsGrid";
+import ComponentsPanel from "./ComponentsPanel";
 import styles from "./InventoryTabs.module.css";
 
 type Tab = "gear" | "components";
@@ -22,7 +22,9 @@ const InventoryTabs: React.FC = () => {
                     onClick={() => setTab("components")}
                 />
             </div>
-            <div className={styles.panel}>{tab === "gear" ? <GearGrid /> : <ComponentsGrid />}</div>
+            <div className={styles.panel}>
+                {tab === "gear" ? <GearGrid /> : <ComponentsPanel />}
+            </div>
         </div>
     );
 };
