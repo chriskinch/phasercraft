@@ -22,7 +22,12 @@ describe("readSettings", () => {
     });
 
     it("round-trips a written value", () => {
-        const settings: Settings = { debug: true, installBannerDismissed: true };
+        const settings: Settings = {
+            debug: true,
+            installBannerDismissed: true,
+            startingCoins: 250,
+            startLocation: "combat",
+        };
         expect(writeSettings(settings)).toBe(true);
         expect(readSettings()).toEqual(settings);
     });
@@ -37,13 +42,14 @@ describe("readSettings", () => {
     });
 
     it("merges a partial stored object over the defaults", () => {
-        // Store a payload missing `debug` and `installBannerDismissed`; the
-        // defaults should fill them in.
-        localStorage.setItem(SETTINGS_KEY, JSON.stringify({}));
+        // Store a payload missing most fields; the defaults should fill them in
+        // while the one provided field is preserved.
+        localStorage.setItem(SETTINGS_KEY, JSON.stringify({ startingCoins: 500 }));
 
-        expect(readSettings()).toEqual(DEFAULT_SETTINGS);
+        expect(readSettings()).toEqual({ ...DEFAULT_SETTINGS, startingCoins: 500 });
         expect(readSettings().debug).toBe(false);
         expect(readSettings().installBannerDismissed).toBe(false);
+        expect(readSettings().startLocation).toBe("default");
     });
 
     it("returns defaults for a non-object payload", () => {
@@ -55,7 +61,12 @@ describe("readSettings", () => {
 
 describe("writeSettings", () => {
     it("serializes the settings under the settings key and reports success", () => {
-        const settings: Settings = { debug: true, installBannerDismissed: false };
+        const settings: Settings = {
+            debug: true,
+            installBannerDismissed: false,
+            startingCoins: 999,
+            startLocation: "default",
+        };
 
         expect(writeSettings(settings)).toBe(true);
         expect(localStorage.getItem(SETTINGS_KEY)).toBe(JSON.stringify(settings));
@@ -67,7 +78,14 @@ describe("writeSettings", () => {
             throw new DOMException("quota exceeded", "QuotaExceededError");
         });
 
-        expect(writeSettings({ debug: true, installBannerDismissed: false })).toBe(false);
+        expect(
+            writeSettings({
+                debug: true,
+                installBannerDismissed: false,
+                startingCoins: 999,
+                startLocation: "default",
+            })
+        ).toBe(false);
         expect(console.warn).toHaveBeenCalled();
     });
 });
