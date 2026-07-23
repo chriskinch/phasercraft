@@ -126,5 +126,8 @@
   "124": "@typescript-eslint/parser",
   "125": "@vitejs/plugin-react",
   "126": "@vitest/coverage-v8",
-  "127": "@vitest/ui"
+  "127": "@vitest/ui",
+  "128": "react-dnd",
+  "129": "react-tooltip",
+  "130": "@reduxjs/toolkit"
 }

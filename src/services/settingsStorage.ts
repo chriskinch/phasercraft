@@ -6,12 +6,26 @@
 //
 // Settings live under their own key, distinct from the `slot_a/b/c` save slots.
 
+// Where a new game drops the player. "default" is the game's normal entry
+// (currently Town, but that may change); "combat" jumps straight into the
+// GameScene, which speeds up manual testing of combat.
+export type StartLocation = "default" | "combat";
+
 export interface Settings {
     debug: boolean;
     installBannerDismissed: boolean;
+    // Coins a new game starts with. Defaults to 0; bump it from the Settings
+    // screen when testing shop/craft flows that need a balance up front.
+    startingCoins: number;
+    startLocation: StartLocation;
 }
 
-export const DEFAULT_SETTINGS: Settings = { debug: false, installBannerDismissed: false };
+export const DEFAULT_SETTINGS: Settings = {
+    debug: false,
+    installBannerDismissed: false,
+    startingCoins: 0,
+    startLocation: "default",
+};
 
 export const SETTINGS_KEY = "settings";
 

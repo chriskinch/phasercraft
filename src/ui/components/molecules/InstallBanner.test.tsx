@@ -3,7 +3,7 @@ import { fireEvent, screen, act } from "@testing-library/react";
 
 import InstallBanner from "./InstallBanner";
 import { renderWithProviders } from "@ui/test-utils/renderWithProviders";
-import { readSettings, writeSettings } from "@services/settingsStorage";
+import { readSettings, writeSettings, DEFAULT_SETTINGS } from "@services/settingsStorage";
 
 // The banner sits at the top of the render tree and decides visibility from
 // three signals: `beforeinstallprompt` (Chromium), iOS Safari UA, and the
@@ -111,7 +111,7 @@ describe("InstallBanner", () => {
 
     it("stays hidden on iOS Safari when the user already dismissed it", () => {
         setUserAgent(IOS_UA);
-        writeSettings({ debug: false, installBannerDismissed: true });
+        writeSettings({ ...DEFAULT_SETTINGS, installBannerDismissed: true });
         renderWithProviders(<InstallBanner />);
         expect(screen.queryByTestId("install-banner")).toBeNull();
     });
