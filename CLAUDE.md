@@ -49,7 +49,8 @@ before starting work; link PRs to the relevant phase issue.
 - Agent teams: use parallel read-only subagents for exploration, audits, and review;
   keep a single writer per branch/PR to avoid conflicting edits.
 - **QA gate (agent-authored PRs only):** after pushing a branch and opening a PR, every
-  agent must run `/qa-review <pr-number>` before the PR is considered ready for the
+  agent must run `/qa-review <pr-number>` (the slash command defined in
+  `.claude/commands/qa-review.md`) before the PR is considered ready for the
   maintainer. The QA agent operates with minimal context — its scope contract (the
   linked issue, or a `Scope:` section in the PR body when there is no issue) plus the
   PR's source changes, with generated artifacts (`graphify-out/`, lockfiles, `dist/`)

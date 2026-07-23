@@ -1,16 +1,16 @@
 # Graph Report - phasercraft  (2026-07-23)
 
 ## Corpus Check
-- 227 files · ~348,169 words
+- 231 files · ~350,817 words
 - Verdict: corpus is large enough that graph structure adds value.
 
 ## Summary
-- 1504 nodes · 2931 edges · 131 communities (77 shown, 54 thin omitted)
+- 1523 nodes · 2965 edges · 131 communities (78 shown, 53 thin omitted)
 - Extraction: 99% EXTRACTED · 1% INFERRED · 0% AMBIGUOUS · INFERRED: 31 edges (avg confidence: 0.68)
 - Token cost: 0 input · 0 output
 
 ## Graph Freshness
-- Built from commit: `3dfa62ab`
+- Built from commit: `034753a1`
 - Run `git rev-parse HEAD` and compare to check if the graph is stale.
 - Run `graphify update .` after code changes (no API cost).
 
@@ -147,7 +147,7 @@
 1. `Enemy` - 72 edges
 2. `Player` - 66 edges
 3. `Spell` - 56 edges
-4. `react` - 45 edges
+4. `react` - 47 edges
 5. `phaser` - 40 edges
 6. `SpellOptions` - 36 edges
 7. `Resource` - 29 edges
@@ -168,40 +168,48 @@
   src/PhaserGame.tsx → src/scenes/GameScene.ts
 
 ## Import Cycles
-- 3-file cycle: `src/entities/Player/AssignClass.ts -> src/entities/Player/Player.ts -> src/store/gameReducer.ts -> src/entities/Player/AssignClass.ts`
 - 3-file cycle: `src/entities/Enemy/Enemy.ts -> src/entities/Enemy/Monster.ts -> src/entities/Player/Player.ts -> src/entities/Enemy/Enemy.ts`
-- 3-file cycle: `src/entities/Player/AssignClass.ts -> src/entities/Player/Player.ts -> src/types/scene.ts -> src/entities/Player/AssignClass.ts`
 - 3-file cycle: `src/entities/Player/Player.ts -> src/entities/Resources/AssignResource.ts -> src/entities/Resources/Rage.ts -> src/entities/Player/Player.ts`
 - 3-file cycle: `src/entities/Player/Player.ts -> src/entities/Spells/AssignSpell.ts -> src/entities/Spells/Faith.ts -> src/entities/Player/Player.ts`
 - 3-file cycle: `src/entities/Player/Player.ts -> src/entities/Spells/AssignSpell.ts -> src/entities/Spells/ManaShield.ts -> src/entities/Player/Player.ts`
-- 4-file cycle: `src/entities/Player/AssignClass.ts -> src/entities/Player/Cleric.ts -> src/entities/Player/Player.ts -> src/store/gameReducer.ts -> src/entities/Player/AssignClass.ts`
-- 4-file cycle: `src/entities/Player/AssignClass.ts -> src/entities/Player/Mage.ts -> src/entities/Player/Player.ts -> src/store/gameReducer.ts -> src/entities/Player/AssignClass.ts`
-- 4-file cycle: `src/entities/Player/AssignClass.ts -> src/entities/Player/Occultist.ts -> src/entities/Player/Player.ts -> src/store/gameReducer.ts -> src/entities/Player/AssignClass.ts`
-- 4-file cycle: `src/entities/Player/AssignClass.ts -> src/entities/Player/Player.ts -> src/entities/UI/Boons.ts -> src/store/gameReducer.ts -> src/entities/Player/AssignClass.ts`
-- 4-file cycle: `src/entities/Player/AssignClass.ts -> src/entities/Player/Player.ts -> src/store/index.ts -> src/store/gameReducer.ts -> src/entities/Player/AssignClass.ts`
-- 4-file cycle: `src/entities/Player/AssignClass.ts -> src/entities/Player/Ranger.ts -> src/entities/Player/Player.ts -> src/store/gameReducer.ts -> src/entities/Player/AssignClass.ts`
-- 4-file cycle: `src/entities/Player/AssignClass.ts -> src/entities/Player/Warrior.ts -> src/entities/Player/Player.ts -> src/store/gameReducer.ts -> src/entities/Player/AssignClass.ts`
-- 4-file cycle: `src/entities/Player/AssignClass.ts -> src/entities/Player/Cleric.ts -> src/entities/Player/Player.ts -> src/types/scene.ts -> src/entities/Player/AssignClass.ts`
-- 4-file cycle: `src/entities/Player/AssignClass.ts -> src/entities/Player/Mage.ts -> src/entities/Player/Player.ts -> src/types/scene.ts -> src/entities/Player/AssignClass.ts`
-- 4-file cycle: `src/entities/Player/AssignClass.ts -> src/entities/Player/Occultist.ts -> src/entities/Player/Player.ts -> src/types/scene.ts -> src/entities/Player/AssignClass.ts`
+- 3-file cycle: `src/entities/Player/AssignClass.ts -> src/entities/Player/Player.ts -> src/store/gameReducer.ts -> src/entities/Player/AssignClass.ts`
+- 3-file cycle: `src/entities/Player/AssignClass.ts -> src/entities/Player/Player.ts -> src/types/scene.ts -> src/entities/Player/AssignClass.ts`
+- 4-file cycle: `src/entities/Enemy/Enemy.ts -> src/entities/Resources/AssignResource.ts -> src/entities/Resources/Rage.ts -> src/entities/Player/Player.ts -> src/entities/Enemy/Enemy.ts`
 - 4-file cycle: `src/entities/Enemy/Enemy.ts -> src/types/scene.ts -> src/entities/Player/AssignClass.ts -> src/entities/Player/Player.ts -> src/entities/Enemy/Enemy.ts`
-- 4-file cycle: `src/entities/Player/AssignClass.ts -> src/entities/Player/Player.ts -> src/entities/Spells/CastingController.ts -> src/types/scene.ts -> src/entities/Player/AssignClass.ts`
-- 4-file cycle: `src/entities/Player/AssignClass.ts -> src/entities/Player/Ranger.ts -> src/entities/Player/Player.ts -> src/types/scene.ts -> src/entities/Player/AssignClass.ts`
-- 4-file cycle: `src/entities/Player/AssignClass.ts -> src/entities/Player/Warrior.ts -> src/entities/Player/Player.ts -> src/types/scene.ts -> src/entities/Player/AssignClass.ts`
+- 4-file cycle: `src/entities/Player/Player.ts -> src/entities/Spells/AssignSpell.ts -> src/entities/Spells/Consecration.ts -> src/entities/Spells/Spell.ts -> src/entities/Player/Player.ts`
+- 4-file cycle: `src/entities/Player/Player.ts -> src/entities/Spells/AssignSpell.ts -> src/entities/Spells/Consecration.ts -> src/entities/Weapons/AreaEffect.ts -> src/entities/Player/Player.ts`
+- 4-file cycle: `src/entities/Player/Player.ts -> src/entities/Spells/AssignSpell.ts -> src/entities/Spells/EarthShield.ts -> src/entities/Spells/Spell.ts -> src/entities/Player/Player.ts`
+- 4-file cycle: `src/entities/Player/Player.ts -> src/entities/Spells/AssignSpell.ts -> src/entities/Spells/Faith.ts -> src/entities/Spells/Spell.ts -> src/entities/Player/Player.ts`
+- 4-file cycle: `src/entities/Player/Player.ts -> src/entities/Spells/AssignSpell.ts -> src/entities/Spells/Fireball.ts -> src/entities/Spells/Spell.ts -> src/entities/Player/Player.ts`
+- 4-file cycle: `src/entities/Player/Player.ts -> src/entities/Spells/AssignSpell.ts -> src/entities/Spells/Frostbolt.ts -> src/entities/Spells/Spell.ts -> src/entities/Player/Player.ts`
+- 4-file cycle: `src/entities/Player/Player.ts -> src/entities/Spells/AssignSpell.ts -> src/entities/Spells/Heal.ts -> src/entities/Spells/Spell.ts -> src/entities/Player/Player.ts`
+- 4-file cycle: `src/entities/Player/Player.ts -> src/entities/Spells/AssignSpell.ts -> src/entities/Spells/ManaShield.ts -> src/entities/Spells/Spell.ts -> src/entities/Player/Player.ts`
+- 4-file cycle: `src/entities/Player/Player.ts -> src/entities/Spells/AssignSpell.ts -> src/entities/Spells/Multishot.ts -> src/entities/Spells/Spell.ts -> src/entities/Player/Player.ts`
+- 4-file cycle: `src/entities/Player/Player.ts -> src/entities/Spells/AssignSpell.ts -> src/entities/Spells/SiphonSoul.ts -> src/entities/Spells/Spell.ts -> src/entities/Player/Player.ts`
+- 4-file cycle: `src/entities/Player/Player.ts -> src/entities/Spells/AssignSpell.ts -> src/entities/Spells/Smite.ts -> src/entities/Spells/Spell.ts -> src/entities/Player/Player.ts`
+- 4-file cycle: `src/entities/Player/Player.ts -> src/entities/Spells/AssignSpell.ts -> src/entities/Spells/SnareTrap.ts -> src/entities/Spells/Spell.ts -> src/entities/Player/Player.ts`
 
-## Communities (131 total, 54 thin omitted)
+## Communities (131 total, 53 thin omitted)
+
+### Community 0 - "Player"
+Cohesion: 0.05
+Nodes (22): classes, PlayerConfig, Cleric, Hero, HeroConfig, Mage, Occultist, Destination (+14 more)
 
 ### Community 1 - "Frostbolt.ts"
 Cohesion: 0.07
-Nodes (15): Boon, Enrage, EnrageValue, Invocation, InvocationValue, PowerInfusion, PowerInfusionValue, Banes (+7 more)
+Nodes (14): classes, Boon, Enrage, EnrageValue, Faith, Frostbolt, FrostboltValue, InvocationValue (+6 more)
+
+### Community 2 - "Spell"
+Cohesion: 0.10
+Nodes (5): Fireball, Heal, Spell, SpellProjectileConfig, TargetType
 
 ### Community 3 - "Item"
 Cohesion: 0.09
 Nodes (15): Common, Epic, Fine, AdjustedStat, Item, ItemConfig, StatInfo, StatIterator (+7 more)
 
 ### Community 4 - "Consecration"
-Cohesion: 0.08
-Nodes (5): Consecration, EarthShield, AreaEffect, TownScene, ArcadeCollisionObject
+Cohesion: 0.16
+Nodes (5): GameSceneConfig, TownScene, setCurrentArea, setPlayerPosition, toggleHUD
 
 ### Community 5 - "generateItem.ts"
 Cohesion: 0.10
@@ -211,37 +219,29 @@ Nodes (31): Categories, itemCategories, Qualities, statNames, Stats, addStatIds(
 Cohesion: 0.13
 Nodes (15): compilerOptions, allowJs, esModuleInterop, incremental, isolatedModules, jsx, module, moduleResolution (+7 more)
 
-### Community 7 - "Player.ts"
-Cohesion: 0.16
-Nodes (6): Multishot, Whirlwind, clone(), targetVector(), TargetWithBody, VectorResult
-
 ### Community 8 - "Gem.ts"
-Cohesion: 0.29
+Cohesion: 0.27
 Nodes (7): DEFAULT_SETTINGS, readSettings(), Settings, StartLocation, writeSettings(), rowStyle, Settings()
-
-### Community 9 - "AssignSpell.ts"
-Cohesion: 0.09
-Nodes (11): AssignSpell, classes, Fireball, Frostbolt, FrostboltValue, Heal, ManaShield, Smite (+3 more)
 
 ### Community 10 - "devDependencies"
 Cohesion: 0.22
 Nodes (9): eslint, devDependencies, eslint, vite, vite-plugin-pwa, vitest, vite, vite-plugin-pwa (+1 more)
 
 ### Community 11 - "Armory.tsx"
-Cohesion: 0.31
-Nodes (12): ApiItem, baseUrl(), colorForQuality(), isArmoryConfigured(), listItems(), qualityColors, removeItem(), restock() (+4 more)
+Cohesion: 0.28
+Nodes (13): ApiItem, baseUrl(), colorForQuality(), isArmoryConfigured(), listItems(), qualityColors, removeItem(), restock() (+5 more)
 
 ### Community 12 - "Enemy"
-Cohesion: 0.09
-Nodes (7): Enemy, EnemyStats, Monster, MonsterConfig, AssignResource(), EnemyAttributes, EnemyConfig
+Cohesion: 0.13
+Nodes (3): Enemy, EntityWithVector, LootTable
 
 ### Community 13 - "LootItem"
-Cohesion: 0.23
-Nodes (13): icon(), equipLoot, selectLoot, unequipLoot, LootItem, DroppableSlot(), DroppableSlotProps, Loot() (+5 more)
+Cohesion: 0.13
+Nodes (24): react, equipLoot, selectLoot, unequipLoot, LootItem, DroppableSlot(), DroppableSlotProps, LootIcon() (+16 more)
 
 ### Community 14 - "PlayerStats"
-Cohesion: 0.12
-Nodes (8): StatProps, HealthProps, HealthStats, StatItem, StatsProps, StatsStyles, GroupedStatsProps, StatItem
+Cohesion: 0.10
+Nodes (11): Equipment, Price(), PriceProps, StatProps, HealthProps, HealthStats, ItemTooltipProps, StatItem (+3 more)
 
 ### Community 15 - "StoredItem"
 Cohesion: 0.16
@@ -252,12 +252,16 @@ Cohesion: 0.30
 Nodes (15): handler(), handler(), ApiRequest, ApiResponse, applyCors(), firstQueryValue(), handlePreflight(), methodNotAllowed() (+7 more)
 
 ### Community 17 - "EnemyOptions"
-Cohesion: 0.12
+Cohesion: 0.13
 Nodes (6): SnareTrap, TrapUnderTest, Trap, dropIn(), DropInItem, DropInOptions
 
 ### Community 18 - "UI.tsx"
-Cohesion: 0.32
-Nodes (6): Title(), TitleProps, Navigation(), PixelBackgroundOptions, pixelBackgroundVars(), PixelEmbossOptions
+Cohesion: 0.13
+Nodes (13): Button(), ButtonProps, Title(), TitleProps, Navigation(), PaginationControls(), PaginationControlsProps, Header() (+5 more)
+
+### Community 19 - "System.tsx"
+Cohesion: 0.07
+Nodes (10): CastableSpell, CastingController, ControllerUnderTest, makeController(), makeTimer(), PlayerStub, ReticleStub, SceneStub (+2 more)
 
 ### Community 20 - "Agentic Readiness Roadmap"
 Cohesion: 0.08
@@ -272,16 +276,16 @@ Cohesion: 0.15
 Nodes (12): description, engines, node, homepage, name, private, repository, type (+4 more)
 
 ### Community 23 - "gameReducer.ts"
-Cohesion: 0.11
-Nodes (24): AssignClass, PlayerName, TODO: Make the timings smarter, GameSceneConfig, addXP, buyLoot, initState, Level (+16 more)
+Cohesion: 0.12
+Nodes (20): PlayerName, addXP, buyLoot, initState, Level, loadGame, selectCharacter, sellComponent (+12 more)
 
 ### Community 24 - "HUD.ts"
-Cohesion: 0.18
-Nodes (16): readAllSaves(), readSave(), removeSave(), SAVE_SLOTS, SaveData, SaveSlot, writeSave(), switchUi (+8 more)
+Cohesion: 0.17
+Nodes (18): LabelledContainer, styles, readAllSaves(), readSave(), removeSave(), SAVE_SLOTS, SaveData, SaveSlot (+10 more)
 
 ### Community 25 - "index.ts"
 Cohesion: 0.16
-Nodes (12): gameReducer, GameState, loadGame, RootState, helm, sampleItems, initialGame, seed() (+4 more)
+Nodes (13): gameReducer, GameState, sellLoot, RootState, helm, Inventory(), sampleItems, Equipment() (+5 more)
 
 ### Community 28 - "handlers.test.ts"
 Cohesion: 0.16
@@ -304,12 +308,12 @@ Cohesion: 0.08
 Nodes (25): fantasy-content-generator, ioredis, number-to-words, dependencies, fantasy-content-generator, ioredis, number-to-words, phaser (+17 more)
 
 ### Community 33 - "Resource"
-Cohesion: 0.08
-Nodes (32): classes, PlayerConfig, Cleric, Mage, Occultist, Destination, DrawBarOptions, Ranger (+24 more)
+Cohesion: 0.06
+Nodes (29): EnemyStats, ActiveCast, CasterLike, CastingControllerOptions, CastingState, CastTarget, PendingCast, AdjustValue (+21 more)
 
 ### Community 34 - "GameScene"
-Cohesion: 0.10
-Nodes (4): GameScene, FakeTimer, SceneUnderTest, EnemyType
+Cohesion: 0.18
+Nodes (3): GameScene, nextWave, EnemyType
 
 ### Community 35 - "classes.ts"
 Cohesion: 0.21
@@ -320,24 +324,24 @@ Cohesion: 0.29
 Nodes (11): addStats(), Comparable, readKey(), removeStats(), sortAscending(), sortBy(), sortDescending(), SortOptions (+3 more)
 
 ### Community 37 - "LoadScene.ts"
-Cohesion: 0.10
-Nodes (13): phaser, AnimationConfig, createAnimations(), EnemyConfig, EnemyType, fontConfig, PhaserGame(), BootScene (+5 more)
+Cohesion: 0.16
+Nodes (8): AnimationConfig, createAnimations(), EnemyConfig, EnemyType, fontConfig, createLogo(), LogoOptions, LoadScene
 
 ### Community 38 - "SceneUnderTest"
-Cohesion: 0.25
-Nodes (4): Projectile, ProjectileOptions, ProjectileTarget, ProjectileUnderTest
+Cohesion: 0.18
+Nodes (7): Banes, IndexableStats, Boons, StatusEffect, StatusEffects, setStats, updateStats
 
 ### Community 39 - "Health.ts"
-Cohesion: 0.08
-Nodes (28): react, container, PhaserGame, Button(), ButtonProps, Price(), PriceProps, InstallBanner() (+20 more)
+Cohesion: 0.13
+Nodes (12): container, PhaserGame, CustomDragLayer(), getItemStyles(), Offset, Arcanum(), CharacterSelect(), HUD() (+4 more)
 
 ### Community 40 - "UI"
-Cohesion: 0.14
-Nodes (6): LabelledContainer, styles, HudUnderTest, UI, addLoot, toggleUi
+Cohesion: 0.28
+Nodes (3): UI, addLoot, toggleUi
 
 ### Community 41 - "ItemTooltip.tsx"
-Cohesion: 0.40
-Nodes (3): Equipment, LootStat, ItemTooltipProps
+Cohesion: 0.17
+Nodes (4): Consecration, AreaEffect, OverlapTarget, ArcadeCollisionObject
 
 ### Community 42 - ".prettierrc.json"
 Cohesion: 0.22
@@ -346,6 +350,10 @@ Nodes (8): arrowParens, endOfLine, printWidth, semi, singleQuote, tabWidth, trai
 ### Community 43 - "helpers.ts"
 Cohesion: 0.39
 Nodes (6): Character, CHARACTERS, expectGameCanvas(), makeSave(), SAVE_SLOTS, seedSave()
+
+### Community 44 - "Hero"
+Cohesion: 0.17
+Nodes (4): PhaserGame(), BootScene, GameOverScene, SelectScene
 
 ### Community 46 - "armory-smoke.ts"
 Cohesion: 0.43
@@ -368,16 +376,16 @@ Cohesion: 0.29
 Nodes (6): CLAUDE.md — Working agreement and project conventions, Code conventions, Commands, graphify (codebase knowledge graph), Versions and docs, Workflow rules
 
 ### Community 51 - "generate-pwa-icons.mjs"
-Cohesion: 0.40
-Nodes (4): BG, ICON_DIR, root, SOURCE
+Cohesion: 0.33
+Nodes (5): BG, icon(), ICON_DIR, root, SOURCE
 
 ### Community 52 - "Multishot"
-Cohesion: 0.20
-Nodes (7): AttributeProps, Attributes(), AttributesProps, AttributesStyles, GroupedAttributes(), GroupedAttributesProps, NumericStats
+Cohesion: 0.15
+Nodes (10): PlayerStats, AttributeProps, Attributes(), AttributesProps, AttributesStyles, GroupedAttributes(), GroupedAttributesProps, NumericStats (+2 more)
 
 ### Community 53 - "Whirlwind"
-Cohesion: 0.10
-Nodes (18): CirclingConfig, EnemyStates, HitParams, MoveOptions, CoinConfig, Crafting, CraftingConfig, GemConfig (+10 more)
+Cohesion: 0.13
+Nodes (15): phaser, CirclingConfig, EnemyStates, HitParams, MoveOptions, CraftingConfig, PlayerType, SpellValue (+7 more)
 
 ### Community 54 - "StatBar.tsx"
 Cohesion: 0.53
@@ -392,20 +400,16 @@ Cohesion: 0.40
 Nodes (4): Notes, One-time maintainer steps (Vercel dashboard), Vercel deployment (Phase 6), What's config-as-code (already in the repo)
 
 ### Community 58 - "HudUnderTest"
-Cohesion: 0.22
-Nodes (6): makeController(), makeTimer(), PlayerStub, ReticleStub, SceneStub, TimerStub
-
-### Community 59 - "GameOverScene"
-Cohesion: 0.28
-Nodes (6): Slot(), SlotComponentProps, SlotProps, DetailedLoot(), DetailedLootProps, Character()
+Cohesion: 0.31
+Nodes (6): InstallBanner(), BeforeInstallPromptEvent, InstallPromptMode, isIosSafari(), isStandalone(), useInstallPrompt
 
 ### Community 60 - "qa-review.md"
-Cohesion: 0.50
-Nodes (3): Comment style rules, Context restriction (CRITICAL — do not skip), Step-by-step process
+Cohesion: 0.40
+Nodes (4): Comment style rules, Context restriction (CRITICAL — do not skip), Identity note (why this posts a comment-style review), Step-by-step process
 
 ### Community 63 - "vite.config.ts"
-Cohesion: 0.18
-Nodes (6): AssignType, classes, Boss, Melee, Ranged, EnemyOptions
+Cohesion: 0.16
+Nodes (8): AssignType, classes, Boss, Melee, Ranged, AssignClass, TODO: Make the timings smarter, EnemyOptions
 
 ### Community 73 - "graphify reference: extra exports and benchmark"
 Cohesion: 0.22
@@ -416,8 +420,8 @@ Cohesion: 0.18
 Nodes (4): CastBar, CastBarStart, CastBarUnderTest, GraphicsStub
 
 ### Community 75 - "Faith"
-Cohesion: 0.21
-Nodes (9): AssignResourceName, classes, Energy, EnergyOptions, Mana, ManaOptions, RageOptions, ResourceOptions (+1 more)
+Cohesion: 0.19
+Nodes (10): AssignResourceName, AssignResourceType, classes, Energy, EnergyOptions, Mana, ManaOptions, RageOptions (+2 more)
 
 ### Community 76 - "graphify reference: query, path, explain"
 Cohesion: 0.33
@@ -426,6 +430,10 @@ Nodes (5): For /graphify explain, For /graphify path, graphify reference: query,
 ### Community 78 - "ManaShield"
 Cohesion: 0.15
 Nodes (3): ResourceFlowUnderTest, ResourceStatsUnderTest, ResourceUnderTest
+
+### Community 79 - "PlayerStats"
+Cohesion: 0.12
+Nodes (3): TargetReticle, GraphicsStub, ReticleUnderTest
 
 ### Community 80 - "Monster"
 Cohesion: 0.18
@@ -448,28 +456,24 @@ Cohesion: 0.50
 Nodes (3): For --cluster-only, For --update (incremental re-extraction), graphify reference: incremental update and cluster-only
 
 ### Community 88 - "repository"
-Cohesion: 0.12
-Nodes (4): Coin, Gem, GemUnderTest, addCoins
+Cohesion: 0.09
+Nodes (9): Coin, CoinConfig, Crafting, Gem, GemConfig, GemUnderTest, getRandomVelocity(), addCoins (+1 more)
 
-### Community 89 - "CastingController.ts"
-Cohesion: 0.25
-Nodes (6): ActiveCast, CasterLike, CastingControllerOptions, CastingState, CastTarget, PendingCast
+### Community 90 - "Consecration"
+Cohesion: 0.33
+Nodes (3): MeasuredPageSize, Pagination, usePagination()
 
 ### Community 91 - ".constructor"
 Cohesion: 0.29
 Nodes (5): keywords, phaser3, typescript, vite, COMPONENT_DIRS
-
-### Community 93 - "Monster.ts"
-Cohesion: 0.40
-Nodes (4): LootIcon(), LootIconProps, LootIconStyles, LootProps
 
 ### Community 94 - "Coin"
 Cohesion: 0.50
 Nodes (5): lint-staged, *.{json,md,css,yml,yaml}, *.{ts,tsx,js,jsx,mjs}, eslint --fix, prettier --write
 
 ### Community 95 - "Resource.ts"
-Cohesion: 0.33
-Nodes (5): DrawBarOptions, MapStateOptions, mapStateToData(), state$, ResourceStats
+Cohesion: 0.29
+Nodes (6): DrawBarOptions, MapStateOptions, mapStateToData(), state$, setBaseStats, ResourceStats
 
 ### Community 97 - "@components/*"
 Cohesion: 0.33
@@ -484,24 +488,24 @@ Cohesion: 0.50
 Nodes (3): **/*.tsx, include, **/*.ts
 
 ## Knowledge Gaps
-- **388 isolated node(s):** `semi`, `singleQuote`, `trailingComma`, `tabWidth`, `useTabs` (+383 more)
+- **393 isolated node(s):** `semi`, `singleQuote`, `trailingComma`, `tabWidth`, `useTabs` (+388 more)
   These have ≤1 connection - possible missing edges or undocumented components.
-- **54 thin communities (<3 nodes) omitted from report** — run `graphify query` to explore isolated nodes.
+- **53 thin communities (<3 nodes) omitted from report** — run `graphify query` to explore isolated nodes.
 
 ## Suggested Questions
 _Questions this graph is uniquely positioned to answer:_
 
-- **Why does `phaser` connect `LoadScene.ts` to `Frostbolt.ts`, `AssignSpell.ts`, `Enemy`, `EnemyOptions`, `gameReducer.ts`, `Resource`, `SceneUnderTest`, `UI`, `Hero`, `SnareTrap`, `Resource.ts`, `Whirlwind`, `HudUnderTest`, `Healer`, `PlayerStats`, `Smite`, `CastingController.ts`, `.constructor`, `Resource.ts`?**
-  _High betweenness centrality (0.159) - this node is a cross-community bridge._
-- **Why does `keywords` connect `.constructor` to `LoadScene.ts`, `game.ts`, `Health.ts`?**
+- **Why does `phaser` connect `Whirlwind` to `Player`, `Frostbolt.ts`, `Consecration`, `Gem.ts`, `EnemyOptions`, `System.tsx`, `HUD.ts`, `Resource`, `LoadScene.ts`, `ItemTooltip.tsx`, `Hero`, `Resource.ts`, `vite.config.ts`, `Healer`, `Frostbolt`, `PlayerStats`, `Smite`, `repository`, `.constructor`, `Resource.ts`?**
+  _High betweenness centrality (0.155) - this node is a cross-community bridge._
+- **Why does `keywords` connect `.constructor` to `LootItem`, `Whirlwind`, `game.ts`?**
   _High betweenness centrality (0.131) - this node is a cross-community bridge._
-- **Why does `Enemy` connect `Enemy` to `Player`, `Frostbolt.ts`, `Resource`, `Consecration`, `Player.ts`, `AssignSpell.ts`, `EnemyOptions`, `Whirlwind`, `Shield`, `Healer`, `vite.config.ts`?**
-  _High betweenness centrality (0.064) - this node is a cross-community bridge._
+- **Why does `react` connect `LootItem` to `Consecration`, `Health.ts`, `Gem.ts`, `Armory.tsx`, `Hero`, `PlayerStats`, `UI.tsx`, `Multishot`, `StatBar.tsx`, `gameReducer.ts`, `HUD.ts`, `index.ts`, `HudUnderTest`, `.constructor`?**
+  _High betweenness centrality (0.067) - this node is a cross-community bridge._
 - **What connects `semi`, `singleQuote`, `trailingComma` to the rest of the system?**
-  _388 weakly-connected nodes found - possible documentation gaps or missing edges._
+  _393 weakly-connected nodes found - possible documentation gaps or missing edges._
 - **Should `Player` be split into smaller, more focused modules?**
-  _Cohesion score 0.09982174688057041 - nodes in this community are weakly interconnected._
+  _Cohesion score 0.05146242132543503 - nodes in this community are weakly interconnected._
 - **Should `Frostbolt.ts` be split into smaller, more focused modules?**
-  _Cohesion score 0.06666666666666667 - nodes in this community are weakly interconnected._
+  _Cohesion score 0.07123034227567067 - nodes in this community are weakly interconnected._
 - **Should `Spell` be split into smaller, more focused modules?**
-  _Cohesion score 0.14333333333333334 - nodes in this community are weakly interconnected._
+  _Cohesion score 0.09841269841269841 - nodes in this community are weakly interconnected._

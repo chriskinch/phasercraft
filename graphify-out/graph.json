@@ -1605,8 +1605,8 @@
       "source_location": "L14",
       "_origin": "ast",
       "id": "ref_phaser",
-      "community": 37,
-      "community_name": "LoadScene.ts",
+      "community": 53,
+      "community_name": "Whirlwind",
       "norm_label": "phaser"
     },
     {
@@ -1638,8 +1638,8 @@
       "source_location": "L14",
       "_origin": "ast",
       "id": "ref_react",
-      "community": 39,
-      "community_name": "Health.ts",
+      "community": 13,
+      "community_name": "LootItem",
       "norm_label": "react"
     },
     {
@@ -3090,8 +3090,8 @@
       "source_location": "L20",
       "_origin": "ast",
       "id": "scripts_generate_pwa_icons_icon",
-      "community": 13,
-      "community_name": "LootItem",
+      "community": 51,
+      "community_name": "generate-pwa-icons.mjs",
       "norm_label": "icon()"
     },
     {
@@ -3101,8 +3101,8 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "src_phasergame",
-      "community": 37,
-      "community_name": "LoadScene.ts",
+      "community": 44,
+      "community_name": "Hero",
       "norm_label": "phasergame.tsx"
     },
     {
@@ -3112,8 +3112,8 @@
       "source_location": "L11",
       "_origin": "ast",
       "id": "src_phasergame_phasergame",
-      "community": 37,
-      "community_name": "LoadScene.ts",
+      "community": 44,
+      "community_name": "Hero",
       "norm_label": "phasergame()"
     },
     {
@@ -3453,8 +3453,8 @@
       "source_location": "L18",
       "_origin": "ast",
       "id": "src_entities_enemy_enemy_enemystats",
-      "community": 12,
-      "community_name": "Enemy",
+      "community": 33,
+      "community_name": "Resource",
       "norm_label": "enemystats"
     },
     {
@@ -3519,8 +3519,8 @@
       "source_location": "L83",
       "_origin": "ast",
       "id": "src_entities_enemy_enemy_enemy_constructor",
-      "community": 12,
-      "community_name": "Enemy",
+      "community": 98,
+      "community_name": "ReticleUnderTest",
       "norm_label": ".constructor()"
     },
     {
@@ -3673,8 +3673,8 @@
       "source_location": "L317",
       "_origin": "ast",
       "id": "src_entities_enemy_enemy_enemy_setstats",
-      "community": 12,
-      "community_name": "Enemy",
+      "community": 33,
+      "community_name": "Resource",
       "norm_label": ".setstats()"
     },
     {
@@ -3684,8 +3684,8 @@
       "source_location": "L327",
       "_origin": "ast",
       "id": "src_entities_enemy_enemy_enemy_drawselected",
-      "community": 12,
-      "community_name": "Enemy",
+      "community": 98,
+      "community_name": "ReticleUnderTest",
       "norm_label": ".drawselected()"
     },
     {
@@ -3794,8 +3794,8 @@
       "source_location": "L440",
       "_origin": "ast",
       "id": "src_entities_enemy_enemy_enemy_showdebuginfo",
-      "community": 12,
-      "community_name": "Enemy",
+      "community": 98,
+      "community_name": "ReticleUnderTest",
       "norm_label": ".showdebuginfo()"
     },
     {
@@ -3937,8 +3937,8 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "src_entities_enemy_monster",
-      "community": 12,
-      "community_name": "Enemy",
+      "community": 77,
+      "community_name": "Frostbolt",
       "norm_label": "monster.ts"
     },
     {
@@ -3948,8 +3948,8 @@
       "source_location": "L4",
       "_origin": "ast",
       "id": "src_entities_enemy_monster_monsterconfig",
-      "community": 12,
-      "community_name": "Enemy",
+      "community": 77,
+      "community_name": "Frostbolt",
       "norm_label": "monsterconfig"
     },
     {
@@ -3959,8 +3959,8 @@
       "source_location": "L12",
       "_origin": "ast",
       "id": "src_entities_enemy_monster_monster",
-      "community": 12,
-      "community_name": "Enemy",
+      "community": 77,
+      "community_name": "Frostbolt",
       "norm_label": "monster"
     },
     {
@@ -3970,8 +3970,8 @@
       "source_location": "L16",
       "_origin": "ast",
       "id": "src_entities_enemy_monster_monster_constructor",
-      "community": 12,
-      "community_name": "Enemy",
+      "community": 77,
+      "community_name": "Frostbolt",
       "norm_label": ".constructor()"
     },
     {
@@ -3981,8 +3981,8 @@
       "source_location": "L24",
       "_origin": "ast",
       "id": "src_entities_enemy_monster_monster_walk",
-      "community": 12,
-      "community_name": "Enemy",
+      "community": 77,
+      "community_name": "Frostbolt",
       "norm_label": ".walk()"
     },
     {
@@ -3992,8 +3992,8 @@
       "source_location": "L28",
       "_origin": "ast",
       "id": "src_entities_enemy_monster_monster_idle",
-      "community": 12,
-      "community_name": "Enemy",
+      "community": 77,
+      "community_name": "Frostbolt",
       "norm_label": ".idle()"
     },
     {
@@ -4003,8 +4003,8 @@
       "source_location": "L32",
       "_origin": "ast",
       "id": "src_entities_enemy_monster_monster_death",
-      "community": 12,
-      "community_name": "Enemy",
+      "community": 77,
+      "community_name": "Frostbolt",
       "norm_label": ".death()"
     },
     {
@@ -4058,8 +4058,8 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "src_entities_loot_coin",
-      "community": 53,
-      "community_name": "Whirlwind",
+      "community": 88,
+      "community_name": "repository",
       "norm_label": "coin.ts"
     },
     {
@@ -4069,8 +4069,8 @@
       "source_location": "L7",
       "_origin": "ast",
       "id": "src_entities_loot_coin_coinconfig",
-      "community": 53,
-      "community_name": "Whirlwind",
+      "community": 88,
+      "community_name": "repository",
       "norm_label": "coinconfig"
     },
     {
@@ -4176,7 +4176,7 @@
       "label": "CraftingConfig",
       "file_type": "code",
       "source_file": "src/entities/Loot/Crafting.ts",
-      "source_location": "L7",
+      "source_location": "L8",
       "_origin": "ast",
       "id": "src_entities_loot_crafting_craftingconfig",
       "community": 53,
@@ -4187,55 +4187,55 @@
       "label": "Crafting",
       "file_type": "code",
       "source_file": "src/entities/Loot/Crafting.ts",
-      "source_location": "L14",
+      "source_location": "L15",
       "_origin": "ast",
       "id": "src_entities_loot_crafting_crafting",
-      "community": 53,
-      "community_name": "Whirlwind",
+      "community": 88,
+      "community_name": "repository",
       "norm_label": "crafting"
     },
     {
       "label": ".constructor()",
       "file_type": "code",
       "source_file": "src/entities/Loot/Crafting.ts",
-      "source_location": "L18",
+      "source_location": "L19",
       "_origin": "ast",
       "id": "src_entities_loot_crafting_crafting_constructor",
-      "community": 53,
-      "community_name": "Whirlwind",
+      "community": 88,
+      "community_name": "repository",
       "norm_label": ".constructor()"
     },
     {
       "label": ".activate()",
       "file_type": "code",
       "source_file": "src/entities/Loot/Crafting.ts",
-      "source_location": "L33",
+      "source_location": "L34",
       "_origin": "ast",
       "id": "src_entities_loot_crafting_crafting_activate",
-      "community": 53,
-      "community_name": "Whirlwind",
+      "community": 88,
+      "community_name": "repository",
       "norm_label": ".activate()"
     },
     {
       "label": ".touch()",
       "file_type": "code",
       "source_file": "src/entities/Loot/Crafting.ts",
-      "source_location": "L43",
+      "source_location": "L44",
       "_origin": "ast",
       "id": "src_entities_loot_crafting_crafting_touch",
-      "community": 53,
-      "community_name": "Whirlwind",
+      "community": 88,
+      "community_name": "repository",
       "norm_label": ".touch()"
     },
     {
       "label": ".collect()",
       "file_type": "code",
       "source_file": "src/entities/Loot/Crafting.ts",
-      "source_location": "L47",
+      "source_location": "L48",
       "_origin": "ast",
       "id": "src_entities_loot_crafting_crafting_collect",
-      "community": 53,
-      "community_name": "Whirlwind",
+      "community": 88,
+      "community_name": "repository",
       "norm_label": ".collect()"
     },
     {
@@ -4355,8 +4355,8 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "src_entities_loot_gem",
-      "community": 53,
-      "community_name": "Whirlwind",
+      "community": 88,
+      "community_name": "repository",
       "norm_label": "gem.ts"
     },
     {
@@ -4366,8 +4366,8 @@
       "source_location": "L8",
       "_origin": "ast",
       "id": "src_entities_loot_gem_gemconfig",
-      "community": 53,
-      "community_name": "Whirlwind",
+      "community": 88,
+      "community_name": "repository",
       "norm_label": "gemconfig"
     },
     {
@@ -4784,8 +4784,8 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "src_entities_player_assignclass",
-      "community": 33,
-      "community_name": "Resource",
+      "community": 0,
+      "community_name": "Player",
       "norm_label": "assignclass.ts"
     },
     {
@@ -4795,8 +4795,8 @@
       "source_location": "L11",
       "_origin": "ast",
       "id": "src_entities_player_assignclass_playerconfig",
-      "community": 33,
-      "community_name": "Resource",
+      "community": 0,
+      "community_name": "Player",
       "norm_label": "playerconfig"
     },
     {
@@ -4806,8 +4806,8 @@
       "source_location": "L21",
       "_origin": "ast",
       "id": "src_entities_player_assignclass_classes",
-      "community": 33,
-      "community_name": "Resource",
+      "community": 0,
+      "community_name": "Player",
       "norm_label": "classes"
     },
     {
@@ -4839,8 +4839,8 @@
       "source_location": "L30",
       "_origin": "ast",
       "id": "src_entities_player_assignclass_assignclass",
-      "community": 23,
-      "community_name": "gameReducer.ts",
+      "community": 63,
+      "community_name": "vite.config.ts",
       "norm_label": "assignclass"
     },
     {
@@ -4850,8 +4850,8 @@
       "source_location": "L31",
       "_origin": "ast",
       "id": "src_entities_player_assignclass_assignclass_constructor",
-      "community": 23,
-      "community_name": "gameReducer.ts",
+      "community": 63,
+      "community_name": "vite.config.ts",
       "norm_label": ".constructor()"
     },
     {
@@ -4861,8 +4861,8 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "src_entities_player_cleric",
-      "community": 33,
-      "community_name": "Resource",
+      "community": 0,
+      "community_name": "Player",
       "norm_label": "cleric.ts"
     },
     {
@@ -4872,8 +4872,8 @@
       "source_location": "L4",
       "_origin": "ast",
       "id": "src_entities_player_cleric_cleric",
-      "community": 33,
-      "community_name": "Resource",
+      "community": 0,
+      "community_name": "Player",
       "norm_label": "cleric"
     },
     {
@@ -4883,8 +4883,8 @@
       "source_location": "L5",
       "_origin": "ast",
       "id": "src_entities_player_cleric_cleric_constructor",
-      "community": 33,
-      "community_name": "Resource",
+      "community": 0,
+      "community_name": "Player",
       "norm_label": ".constructor()"
     },
     {
@@ -4894,8 +4894,8 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "src_entities_player_hero",
-      "community": 44,
-      "community_name": "Hero",
+      "community": 0,
+      "community_name": "Player",
       "norm_label": "hero.ts"
     },
     {
@@ -4905,8 +4905,8 @@
       "source_location": "L3",
       "_origin": "ast",
       "id": "src_entities_player_hero_heroconfig",
-      "community": 44,
-      "community_name": "Hero",
+      "community": 0,
+      "community_name": "Player",
       "norm_label": "heroconfig"
     },
     {
@@ -4916,8 +4916,8 @@
       "source_location": "L8",
       "_origin": "ast",
       "id": "src_entities_player_hero_hero",
-      "community": 44,
-      "community_name": "Hero",
+      "community": 0,
+      "community_name": "Player",
       "norm_label": "hero"
     },
     {
@@ -4927,8 +4927,8 @@
       "source_location": "L11",
       "_origin": "ast",
       "id": "src_entities_player_hero_hero_constructor",
-      "community": 44,
-      "community_name": "Hero",
+      "community": 0,
+      "community_name": "Player",
       "norm_label": ".constructor()"
     },
     {
@@ -4938,8 +4938,8 @@
       "source_location": "L19",
       "_origin": "ast",
       "id": "src_entities_player_hero_hero_walk",
-      "community": 44,
-      "community_name": "Hero",
+      "community": 0,
+      "community_name": "Player",
       "norm_label": ".walk()"
     },
     {
@@ -4949,8 +4949,8 @@
       "source_location": "L23",
       "_origin": "ast",
       "id": "src_entities_player_hero_hero_death",
-      "community": 44,
-      "community_name": "Hero",
+      "community": 0,
+      "community_name": "Player",
       "norm_label": ".death()"
     },
     {
@@ -4960,8 +4960,8 @@
       "source_location": "L27",
       "_origin": "ast",
       "id": "src_entities_player_hero_hero_idle",
-      "community": 44,
-      "community_name": "Hero",
+      "community": 0,
+      "community_name": "Player",
       "norm_label": ".idle()"
     },
     {
@@ -4971,8 +4971,8 @@
       "source_location": "L31",
       "_origin": "ast",
       "id": "src_entities_player_hero_hero_root",
-      "community": 44,
-      "community_name": "Hero",
+      "community": 0,
+      "community_name": "Player",
       "norm_label": ".root()"
     },
     {
@@ -4982,8 +4982,8 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "src_entities_player_mage",
-      "community": 33,
-      "community_name": "Resource",
+      "community": 0,
+      "community_name": "Player",
       "norm_label": "mage.ts"
     },
     {
@@ -4993,8 +4993,8 @@
       "source_location": "L4",
       "_origin": "ast",
       "id": "src_entities_player_mage_mage",
-      "community": 33,
-      "community_name": "Resource",
+      "community": 0,
+      "community_name": "Player",
       "norm_label": "mage"
     },
     {
@@ -5004,8 +5004,8 @@
       "source_location": "L5",
       "_origin": "ast",
       "id": "src_entities_player_mage_mage_constructor",
-      "community": 33,
-      "community_name": "Resource",
+      "community": 0,
+      "community_name": "Player",
       "norm_label": ".constructor()"
     },
     {
@@ -5015,8 +5015,8 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "src_entities_player_occultist",
-      "community": 33,
-      "community_name": "Resource",
+      "community": 0,
+      "community_name": "Player",
       "norm_label": "occultist.ts"
     },
     {
@@ -5026,8 +5026,8 @@
       "source_location": "L4",
       "_origin": "ast",
       "id": "src_entities_player_occultist_occultist",
-      "community": 33,
-      "community_name": "Resource",
+      "community": 0,
+      "community_name": "Player",
       "norm_label": "occultist"
     },
     {
@@ -5037,8 +5037,8 @@
       "source_location": "L5",
       "_origin": "ast",
       "id": "src_entities_player_occultist_occultist_constructor",
-      "community": 33,
-      "community_name": "Resource",
+      "community": 0,
+      "community_name": "Player",
       "norm_label": ".constructor()"
     },
     {
@@ -5048,8 +5048,8 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "src_entities_player_player",
-      "community": 33,
-      "community_name": "Resource",
+      "community": 0,
+      "community_name": "Player",
       "norm_label": "player.ts"
     },
     {
@@ -5059,8 +5059,8 @@
       "source_location": "L25",
       "_origin": "ast",
       "id": "src_entities_player_player_destination",
-      "community": 33,
-      "community_name": "Resource",
+      "community": 0,
+      "community_name": "Player",
       "norm_label": "destination"
     },
     {
@@ -5070,8 +5070,8 @@
       "source_location": "L30",
       "_origin": "ast",
       "id": "src_entities_player_player_drawbaroptions",
-      "community": 33,
-      "community_name": "Resource",
+      "community": 0,
+      "community_name": "Player",
       "norm_label": "drawbaroptions"
     },
     {
@@ -5389,8 +5389,8 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "src_entities_player_ranger",
-      "community": 33,
-      "community_name": "Resource",
+      "community": 0,
+      "community_name": "Player",
       "norm_label": "ranger.ts"
     },
     {
@@ -5400,8 +5400,8 @@
       "source_location": "L4",
       "_origin": "ast",
       "id": "src_entities_player_ranger_ranger",
-      "community": 33,
-      "community_name": "Resource",
+      "community": 0,
+      "community_name": "Player",
       "norm_label": "ranger"
     },
     {
@@ -5411,8 +5411,8 @@
       "source_location": "L5",
       "_origin": "ast",
       "id": "src_entities_player_ranger_ranger_constructor",
-      "community": 33,
-      "community_name": "Resource",
+      "community": 0,
+      "community_name": "Player",
       "norm_label": ".constructor()"
     },
     {
@@ -5422,8 +5422,8 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "src_entities_player_warrior",
-      "community": 33,
-      "community_name": "Resource",
+      "community": 0,
+      "community_name": "Player",
       "norm_label": "warrior.ts"
     },
     {
@@ -5433,8 +5433,8 @@
       "source_location": "L4",
       "_origin": "ast",
       "id": "src_entities_player_warrior_warrior",
-      "community": 33,
-      "community_name": "Resource",
+      "community": 0,
+      "community_name": "Player",
       "norm_label": "warrior"
     },
     {
@@ -5444,8 +5444,8 @@
       "source_location": "L5",
       "_origin": "ast",
       "id": "src_entities_player_warrior_warrior_constructor",
-      "community": 33,
-      "community_name": "Resource",
+      "community": 0,
+      "community_name": "Player",
       "norm_label": ".constructor()"
     },
     {
@@ -5477,8 +5477,8 @@
       "source_location": "L16",
       "_origin": "ast",
       "id": "src_entities_resources_assignresource_assignresourcetype",
-      "community": 53,
-      "community_name": "Whirlwind",
+      "community": 75,
+      "community_name": "Faith",
       "norm_label": "assignresourcetype"
     },
     {
@@ -5499,8 +5499,8 @@
       "source_location": "L20",
       "_origin": "ast",
       "id": "src_entities_resources_assignresource_assignresource",
-      "community": 12,
-      "community_name": "Enemy",
+      "community": 98,
+      "community_name": "ReticleUnderTest",
       "norm_label": "assignresource()"
     },
     {
@@ -6148,8 +6148,8 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "src_entities_spells_assignspell",
-      "community": 9,
-      "community_name": "AssignSpell.ts",
+      "community": 1,
+      "community_name": "Frostbolt.ts",
       "norm_label": "assignspell.ts"
     },
     {
@@ -6159,8 +6159,8 @@
       "source_location": "L18",
       "_origin": "ast",
       "id": "src_entities_spells_assignspell_classes",
-      "community": 9,
-      "community_name": "AssignSpell.ts",
+      "community": 1,
+      "community_name": "Frostbolt.ts",
       "norm_label": "classes"
     },
     {
@@ -6170,8 +6170,8 @@
       "source_location": "L36",
       "_origin": "ast",
       "id": "src_entities_spells_assignspell_spelltype",
-      "community": 33,
-      "community_name": "Resource",
+      "community": 0,
+      "community_name": "Player",
       "norm_label": "spelltype"
     },
     {
@@ -6181,8 +6181,8 @@
       "source_location": "L37",
       "_origin": "ast",
       "id": "src_entities_spells_assignspell_assignspell",
-      "community": 9,
-      "community_name": "AssignSpell.ts",
+      "community": 0,
+      "community_name": "Player",
       "norm_label": "assignspell"
     },
     {
@@ -6192,8 +6192,8 @@
       "source_location": "L38",
       "_origin": "ast",
       "id": "src_entities_spells_assignspell_assignspell_constructor",
-      "community": 9,
-      "community_name": "AssignSpell.ts",
+      "community": 0,
+      "community_name": "Player",
       "norm_label": ".constructor()"
     },
     {
@@ -6225,8 +6225,8 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "src_entities_spells_castingcontroller_test",
-      "community": 58,
-      "community_name": "HudUnderTest",
+      "community": 19,
+      "community_name": "System.tsx",
       "norm_label": "castingcontroller.test.ts"
     },
     {
@@ -6236,8 +6236,8 @@
       "source_location": "L13",
       "_origin": "ast",
       "id": "src_entities_spells_castingcontroller_test_timerstub",
-      "community": 58,
-      "community_name": "HudUnderTest",
+      "community": 19,
+      "community_name": "System.tsx",
       "norm_label": "timerstub"
     },
     {
@@ -6247,8 +6247,8 @@
       "source_location": "L17",
       "_origin": "ast",
       "id": "src_entities_spells_castingcontroller_test_scenestub",
-      "community": 58,
-      "community_name": "HudUnderTest",
+      "community": 19,
+      "community_name": "System.tsx",
       "norm_label": "scenestub"
     },
     {
@@ -6258,8 +6258,8 @@
       "source_location": "L28",
       "_origin": "ast",
       "id": "src_entities_spells_castingcontroller_test_playerstub",
-      "community": 58,
-      "community_name": "HudUnderTest",
+      "community": 19,
+      "community_name": "System.tsx",
       "norm_label": "playerstub"
     },
     {
@@ -6269,8 +6269,8 @@
       "source_location": "L36",
       "_origin": "ast",
       "id": "src_entities_spells_castingcontroller_test_spellstub",
-      "community": 90,
-      "community_name": "Consecration",
+      "community": 19,
+      "community_name": "System.tsx",
       "norm_label": "spellstub"
     },
     {
@@ -6280,8 +6280,8 @@
       "source_location": "L46",
       "_origin": "ast",
       "id": "src_entities_spells_castingcontroller_test_controllerundertest",
-      "community": 77,
-      "community_name": "Frostbolt",
+      "community": 19,
+      "community_name": "System.tsx",
       "norm_label": "controllerundertest"
     },
     {
@@ -6291,8 +6291,8 @@
       "source_location": "L52",
       "_origin": "ast",
       "id": "src_entities_spells_castingcontroller_test_controllerundertest_getstate",
-      "community": 77,
-      "community_name": "Frostbolt",
+      "community": 19,
+      "community_name": "System.tsx",
       "norm_label": ".getstate()"
     },
     {
@@ -6302,8 +6302,8 @@
       "source_location": "L53",
       "_origin": "ast",
       "id": "src_entities_spells_castingcontroller_test_controllerundertest_request",
-      "community": 90,
-      "community_name": "Consecration",
+      "community": 19,
+      "community_name": "System.tsx",
       "norm_label": ".request()"
     },
     {
@@ -6313,8 +6313,8 @@
       "source_location": "L54",
       "_origin": "ast",
       "id": "src_entities_spells_castingcontroller_test_controllerundertest_ongroundtap",
-      "community": 77,
-      "community_name": "Frostbolt",
+      "community": 19,
+      "community_name": "System.tsx",
       "norm_label": ".ongroundtap()"
     },
     {
@@ -6324,8 +6324,8 @@
       "source_location": "L55",
       "_origin": "ast",
       "id": "src_entities_spells_castingcontroller_test_controllerundertest_onplayertap",
-      "community": 77,
-      "community_name": "Frostbolt",
+      "community": 19,
+      "community_name": "System.tsx",
       "norm_label": ".onplayertap()"
     },
     {
@@ -6335,8 +6335,8 @@
       "source_location": "L56",
       "_origin": "ast",
       "id": "src_entities_spells_castingcontroller_test_controllerundertest_onenemytap",
-      "community": 77,
-      "community_name": "Frostbolt",
+      "community": 19,
+      "community_name": "System.tsx",
       "norm_label": ".onenemytap()"
     },
     {
@@ -6346,8 +6346,8 @@
       "source_location": "L57",
       "_origin": "ast",
       "id": "src_entities_spells_castingcontroller_test_controllerundertest_interruptformove",
-      "community": 77,
-      "community_name": "Frostbolt",
+      "community": 19,
+      "community_name": "System.tsx",
       "norm_label": ".interruptformove()"
     },
     {
@@ -6357,8 +6357,8 @@
       "source_location": "L58",
       "_origin": "ast",
       "id": "src_entities_spells_castingcontroller_test_controllerundertest_onhit",
-      "community": 77,
-      "community_name": "Frostbolt",
+      "community": 19,
+      "community_name": "System.tsx",
       "norm_label": ".onhit()"
     },
     {
@@ -6368,8 +6368,8 @@
       "source_location": "L59",
       "_origin": "ast",
       "id": "src_entities_spells_castingcontroller_test_controllerundertest_notifydisabled",
-      "community": 90,
-      "community_name": "Consecration",
+      "community": 19,
+      "community_name": "System.tsx",
       "norm_label": ".notifydisabled()"
     },
     {
@@ -6379,8 +6379,8 @@
       "source_location": "L60",
       "_origin": "ast",
       "id": "src_entities_spells_castingcontroller_test_controllerundertest_cancelall",
-      "community": 77,
-      "community_name": "Frostbolt",
+      "community": 19,
+      "community_name": "System.tsx",
       "norm_label": ".cancelall()"
     },
     {
@@ -6390,8 +6390,8 @@
       "source_location": "L61",
       "_origin": "ast",
       "id": "src_entities_spells_castingcontroller_test_controllerundertest_update",
-      "community": 77,
-      "community_name": "Frostbolt",
+      "community": 19,
+      "community_name": "System.tsx",
       "norm_label": ".update()"
     },
     {
@@ -6401,8 +6401,8 @@
       "source_location": "L62",
       "_origin": "ast",
       "id": "src_entities_spells_castingcontroller_test_controllerundertest_cleanup",
-      "community": 77,
-      "community_name": "Frostbolt",
+      "community": 19,
+      "community_name": "System.tsx",
       "norm_label": ".cleanup()"
     },
     {
@@ -6412,8 +6412,8 @@
       "source_location": "L65",
       "_origin": "ast",
       "id": "src_entities_spells_castingcontroller_test_maketimer",
-      "community": 58,
-      "community_name": "HudUnderTest",
+      "community": 19,
+      "community_name": "System.tsx",
       "norm_label": "maketimer()"
     },
     {
@@ -6423,8 +6423,8 @@
       "source_location": "L69",
       "_origin": "ast",
       "id": "src_entities_spells_castingcontroller_test_makecontroller",
-      "community": 58,
-      "community_name": "HudUnderTest",
+      "community": 19,
+      "community_name": "System.tsx",
       "norm_label": "makecontroller()"
     },
     {
@@ -6434,8 +6434,8 @@
       "source_location": "L90",
       "_origin": "ast",
       "id": "src_entities_spells_castingcontroller_test_makespell",
-      "community": 58,
-      "community_name": "HudUnderTest",
+      "community": 19,
+      "community_name": "System.tsx",
       "norm_label": "makespell()"
     },
     {
@@ -6445,8 +6445,8 @@
       "source_location": "L105",
       "_origin": "ast",
       "id": "src_entities_spells_castingcontroller_test_firetimer",
-      "community": 58,
-      "community_name": "HudUnderTest",
+      "community": 19,
+      "community_name": "System.tsx",
       "norm_label": "firetimer()"
     },
     {
@@ -6456,8 +6456,8 @@
       "source_location": "L500",
       "_origin": "ast",
       "id": "src_entities_spells_castingcontroller_test_reticlestub",
-      "community": 58,
-      "community_name": "HudUnderTest",
+      "community": 19,
+      "community_name": "System.tsx",
       "norm_label": "reticlestub"
     },
     {
@@ -6467,8 +6467,8 @@
       "source_location": "L507",
       "_origin": "ast",
       "id": "src_entities_spells_castingcontroller_test_withreticle",
-      "community": 58,
-      "community_name": "HudUnderTest",
+      "community": 19,
+      "community_name": "System.tsx",
       "norm_label": "withreticle()"
     },
     {
@@ -6478,8 +6478,8 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "src_entities_spells_castingcontroller",
-      "community": 89,
-      "community_name": "CastingController.ts",
+      "community": 33,
+      "community_name": "Resource",
       "norm_label": "castingcontroller.ts"
     },
     {
@@ -6489,8 +6489,8 @@
       "source_location": "L9",
       "_origin": "ast",
       "id": "src_entities_spells_castingcontroller_castablespell",
-      "community": 90,
-      "community_name": "Consecration",
+      "community": 19,
+      "community_name": "System.tsx",
       "norm_label": "castablespell"
     },
     {
@@ -6500,8 +6500,8 @@
       "source_location": "L16",
       "_origin": "ast",
       "id": "src_entities_spells_castingcontroller_castablespell_checkready",
-      "community": 90,
-      "community_name": "Consecration",
+      "community": 19,
+      "community_name": "System.tsx",
       "norm_label": ".checkready()"
     },
     {
@@ -6511,8 +6511,8 @@
       "source_location": "L17",
       "_origin": "ast",
       "id": "src_entities_spells_castingcontroller_castablespell_castspell",
-      "community": 90,
-      "community_name": "Consecration",
+      "community": 19,
+      "community_name": "System.tsx",
       "norm_label": ".castspell()"
     },
     {
@@ -6533,8 +6533,8 @@
       "source_location": "L20",
       "_origin": "ast",
       "id": "src_entities_spells_castingcontroller_castablespell_onprimecleared",
-      "community": 90,
-      "community_name": "Consecration",
+      "community": 19,
+      "community_name": "System.tsx",
       "norm_label": ".onprimecleared()"
     },
     {
@@ -6555,8 +6555,8 @@
       "source_location": "L26",
       "_origin": "ast",
       "id": "src_entities_spells_castingcontroller_casterlike",
-      "community": 89,
-      "community_name": "CastingController.ts",
+      "community": 33,
+      "community_name": "Resource",
       "norm_label": "casterlike"
     },
     {
@@ -6566,8 +6566,8 @@
       "source_location": "L30",
       "_origin": "ast",
       "id": "src_entities_spells_castingcontroller_casterlike_idle",
-      "community": 89,
-      "community_name": "CastingController.ts",
+      "community": 33,
+      "community_name": "Resource",
       "norm_label": ".idle()"
     },
     {
@@ -6577,8 +6577,8 @@
       "source_location": "L31",
       "_origin": "ast",
       "id": "src_entities_spells_castingcontroller_casterlike_movetoworldpoint",
-      "community": 89,
-      "community_name": "CastingController.ts",
+      "community": 33,
+      "community_name": "Resource",
       "norm_label": ".movetoworldpoint()"
     },
     {
@@ -6588,8 +6588,8 @@
       "source_location": "L36",
       "_origin": "ast",
       "id": "src_entities_spells_castingcontroller_casttarget",
-      "community": 89,
-      "community_name": "CastingController.ts",
+      "community": 33,
+      "community_name": "Resource",
       "norm_label": "casttarget"
     },
     {
@@ -6599,8 +6599,8 @@
       "source_location": "L42",
       "_origin": "ast",
       "id": "src_entities_spells_castingcontroller_pendingcast",
-      "community": 89,
-      "community_name": "CastingController.ts",
+      "community": 33,
+      "community_name": "Resource",
       "norm_label": "pendingcast"
     },
     {
@@ -6610,8 +6610,8 @@
       "source_location": "L47",
       "_origin": "ast",
       "id": "src_entities_spells_castingcontroller_activecast",
-      "community": 89,
-      "community_name": "CastingController.ts",
+      "community": 33,
+      "community_name": "Resource",
       "norm_label": "activecast"
     },
     {
@@ -6621,8 +6621,8 @@
       "source_location": "L52",
       "_origin": "ast",
       "id": "src_entities_spells_castingcontroller_castingstate",
-      "community": 89,
-      "community_name": "CastingController.ts",
+      "community": 33,
+      "community_name": "Resource",
       "norm_label": "castingstate"
     },
     {
@@ -6632,8 +6632,8 @@
       "source_location": "L54",
       "_origin": "ast",
       "id": "src_entities_spells_castingcontroller_castingcontrolleroptions",
-      "community": 89,
-      "community_name": "CastingController.ts",
+      "community": 33,
+      "community_name": "Resource",
       "norm_label": "castingcontrolleroptions"
     },
     {
@@ -6852,8 +6852,8 @@
       "source_location": "L322",
       "_origin": "ast",
       "id": "src_entities_spells_castingcontroller_castingcontroller_completecast",
-      "community": 90,
-      "community_name": "Consecration",
+      "community": 19,
+      "community_name": "System.tsx",
       "norm_label": ".completecast()"
     },
     {
@@ -6863,8 +6863,8 @@
       "source_location": "L338",
       "_origin": "ast",
       "id": "src_entities_spells_castingcontroller_castingcontroller_fire",
-      "community": 90,
-      "community_name": "Consecration",
+      "community": 19,
+      "community_name": "System.tsx",
       "norm_label": ".fire()"
     },
     {
@@ -6907,8 +6907,8 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "src_entities_spells_consecration",
-      "community": 9,
-      "community_name": "AssignSpell.ts",
+      "community": 41,
+      "community_name": "ItemTooltip.tsx",
       "norm_label": "consecration.ts"
     },
     {
@@ -6918,8 +6918,8 @@
       "source_location": "L6",
       "_origin": "ast",
       "id": "src_entities_spells_consecration_consecration",
-      "community": 4,
-      "community_name": "Consecration",
+      "community": 41,
+      "community_name": "ItemTooltip.tsx",
       "norm_label": "consecration"
     },
     {
@@ -6929,8 +6929,8 @@
       "source_location": "L13",
       "_origin": "ast",
       "id": "src_entities_spells_consecration_consecration_constructor",
-      "community": 4,
-      "community_name": "Consecration",
+      "community": 41,
+      "community_name": "ItemTooltip.tsx",
       "norm_label": ".constructor()"
     },
     {
@@ -6940,8 +6940,8 @@
       "source_location": "L39",
       "_origin": "ast",
       "id": "src_entities_spells_consecration_consecration_areaeffect",
-      "community": 4,
-      "community_name": "Consecration",
+      "community": 41,
+      "community_name": "ItemTooltip.tsx",
       "norm_label": ".areaeffect()"
     },
     {
@@ -6951,8 +6951,8 @@
       "source_location": "L51",
       "_origin": "ast",
       "id": "src_entities_spells_consecration_consecration_effect",
-      "community": 4,
-      "community_name": "Consecration",
+      "community": 41,
+      "community_name": "ItemTooltip.tsx",
       "norm_label": ".effect()"
     },
     {
@@ -6962,8 +6962,8 @@
       "source_location": "L61",
       "_origin": "ast",
       "id": "src_entities_spells_consecration_consecration_playereffect",
-      "community": 4,
-      "community_name": "Consecration",
+      "community": 41,
+      "community_name": "ItemTooltip.tsx",
       "norm_label": ".playereffect()"
     },
     {
@@ -6973,8 +6973,8 @@
       "source_location": "L68",
       "_origin": "ast",
       "id": "src_entities_spells_consecration_consecration_setanimation",
-      "community": 4,
-      "community_name": "Consecration",
+      "community": 41,
+      "community_name": "ItemTooltip.tsx",
       "norm_label": ".setanimation()"
     },
     {
@@ -6984,8 +6984,8 @@
       "source_location": "L69",
       "_origin": "ast",
       "id": "src_entities_spells_consecration_consecration_animationupdate",
-      "community": 4,
-      "community_name": "Consecration",
+      "community": 41,
+      "community_name": "ItemTooltip.tsx",
       "norm_label": ".animationupdate()"
     },
     {
@@ -6995,8 +6995,8 @@
       "source_location": "L70",
       "_origin": "ast",
       "id": "src_entities_spells_consecration_consecration_startanimation",
-      "community": 4,
-      "community_name": "Consecration",
+      "community": 41,
+      "community_name": "ItemTooltip.tsx",
       "norm_label": ".startanimation()"
     },
     {
@@ -7006,8 +7006,8 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "src_entities_spells_earthshield",
-      "community": 9,
-      "community_name": "AssignSpell.ts",
+      "community": 53,
+      "community_name": "Whirlwind",
       "norm_label": "earthshield.ts"
     },
     {
@@ -7017,8 +7017,8 @@
       "source_location": "L7",
       "_origin": "ast",
       "id": "src_entities_spells_earthshield_earthshield",
-      "community": 4,
-      "community_name": "Consecration",
+      "community": 59,
+      "community_name": "GameOverScene",
       "norm_label": "earthshield"
     },
     {
@@ -7028,8 +7028,8 @@
       "source_location": "L20",
       "_origin": "ast",
       "id": "src_entities_spells_earthshield_earthshield_constructor",
-      "community": 4,
-      "community_name": "Consecration",
+      "community": 59,
+      "community_name": "GameOverScene",
       "norm_label": ".constructor()"
     },
     {
@@ -7039,8 +7039,8 @@
       "source_location": "L50",
       "_origin": "ast",
       "id": "src_entities_spells_earthshield_earthshield_effect",
-      "community": 4,
-      "community_name": "Consecration",
+      "community": 59,
+      "community_name": "GameOverScene",
       "norm_label": ".effect()"
     },
     {
@@ -7050,8 +7050,8 @@
       "source_location": "L75",
       "_origin": "ast",
       "id": "src_entities_spells_earthshield_earthshield_throttle",
-      "community": 4,
-      "community_name": "Consecration",
+      "community": 59,
+      "community_name": "GameOverScene",
       "norm_label": ".throttle()"
     },
     {
@@ -7061,8 +7061,8 @@
       "source_location": "L86",
       "_origin": "ast",
       "id": "src_entities_spells_earthshield_earthshield_end",
-      "community": 4,
-      "community_name": "Consecration",
+      "community": 59,
+      "community_name": "GameOverScene",
       "norm_label": ".end()"
     },
     {
@@ -7072,8 +7072,8 @@
       "source_location": "L101",
       "_origin": "ast",
       "id": "src_entities_spells_earthshield_earthshield_touch",
-      "community": 4,
-      "community_name": "Consecration",
+      "community": 59,
+      "community_name": "GameOverScene",
       "norm_label": ".touch()"
     },
     {
@@ -7083,8 +7083,8 @@
       "source_location": "L118",
       "_origin": "ast",
       "id": "src_entities_spells_earthshield_earthshield_animationstart",
-      "community": 4,
-      "community_name": "Consecration",
+      "community": 59,
+      "community_name": "GameOverScene",
       "norm_label": ".animationstart()"
     },
     {
@@ -7094,8 +7094,8 @@
       "source_location": "L130",
       "_origin": "ast",
       "id": "src_entities_spells_earthshield_earthshield_animationupdate",
-      "community": 4,
-      "community_name": "Consecration",
+      "community": 59,
+      "community_name": "GameOverScene",
       "norm_label": ".animationupdate()"
     },
     {
@@ -7105,8 +7105,8 @@
       "source_location": "L140",
       "_origin": "ast",
       "id": "src_entities_spells_earthshield_earthshield_startmotion",
-      "community": 4,
-      "community_name": "Consecration",
+      "community": 59,
+      "community_name": "GameOverScene",
       "norm_label": ".startmotion()"
     },
     {
@@ -7204,8 +7204,8 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "src_entities_spells_faith",
-      "community": 9,
-      "community_name": "AssignSpell.ts",
+      "community": 1,
+      "community_name": "Frostbolt.ts",
       "norm_label": "faith.ts"
     },
     {
@@ -7215,8 +7215,8 @@
       "source_location": "L5",
       "_origin": "ast",
       "id": "src_entities_spells_faith_faith",
-      "community": 0,
-      "community_name": "Player",
+      "community": 1,
+      "community_name": "Frostbolt.ts",
       "norm_label": "faith"
     },
     {
@@ -7226,8 +7226,8 @@
       "source_location": "L11",
       "_origin": "ast",
       "id": "src_entities_spells_faith_faith_constructor",
-      "community": 0,
-      "community_name": "Player",
+      "community": 1,
+      "community_name": "Frostbolt.ts",
       "norm_label": ".constructor()"
     },
     {
@@ -7237,8 +7237,8 @@
       "source_location": "L36",
       "_origin": "ast",
       "id": "src_entities_spells_faith_faith_effect",
-      "community": 0,
-      "community_name": "Player",
+      "community": 1,
+      "community_name": "Frostbolt.ts",
       "norm_label": ".effect()"
     },
     {
@@ -7248,8 +7248,8 @@
       "source_location": "L49",
       "_origin": "ast",
       "id": "src_entities_spells_faith_faith_overtimeeffect",
-      "community": 0,
-      "community_name": "Player",
+      "community": 1,
+      "community_name": "Frostbolt.ts",
       "norm_label": ".overtimeeffect()"
     },
     {
@@ -7259,8 +7259,8 @@
       "source_location": "L55",
       "_origin": "ast",
       "id": "src_entities_spells_faith_faith_cleareffect",
-      "community": 0,
-      "community_name": "Player",
+      "community": 1,
+      "community_name": "Frostbolt.ts",
       "norm_label": ".cleareffect()"
     },
     {
@@ -7270,8 +7270,8 @@
       "source_location": "L59",
       "_origin": "ast",
       "id": "src_entities_spells_faith_faith_animationupdate",
-      "community": 0,
-      "community_name": "Player",
+      "community": 1,
+      "community_name": "Frostbolt.ts",
       "norm_label": ".animationupdate()"
     },
     {
@@ -7281,8 +7281,8 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "src_entities_spells_fireball",
-      "community": 9,
-      "community_name": "AssignSpell.ts",
+      "community": 2,
+      "community_name": "Spell",
       "norm_label": "fireball.ts"
     },
     {
@@ -7292,8 +7292,8 @@
       "source_location": "L4",
       "_origin": "ast",
       "id": "src_entities_spells_fireball_fireball",
-      "community": 9,
-      "community_name": "AssignSpell.ts",
+      "community": 2,
+      "community_name": "Spell",
       "norm_label": "fireball"
     },
     {
@@ -7303,8 +7303,8 @@
       "source_location": "L7",
       "_origin": "ast",
       "id": "src_entities_spells_fireball_fireball_constructor",
-      "community": 9,
-      "community_name": "AssignSpell.ts",
+      "community": 2,
+      "community_name": "Spell",
       "norm_label": ".constructor()"
     },
     {
@@ -7314,8 +7314,8 @@
       "source_location": "L27",
       "_origin": "ast",
       "id": "src_entities_spells_fireball_fireball_effect",
-      "community": 9,
-      "community_name": "AssignSpell.ts",
+      "community": 2,
+      "community_name": "Spell",
       "norm_label": ".effect()"
     },
     {
@@ -7325,8 +7325,8 @@
       "source_location": "L34",
       "_origin": "ast",
       "id": "src_entities_spells_fireball_fireball_animationupdate",
-      "community": 9,
-      "community_name": "AssignSpell.ts",
+      "community": 2,
+      "community_name": "Spell",
       "norm_label": ".animationupdate()"
     },
     {
@@ -7336,8 +7336,8 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "src_entities_spells_frostbolt",
-      "community": 9,
-      "community_name": "AssignSpell.ts",
+      "community": 1,
+      "community_name": "Frostbolt.ts",
       "norm_label": "frostbolt.ts"
     },
     {
@@ -7347,8 +7347,8 @@
       "source_location": "L8",
       "_origin": "ast",
       "id": "src_entities_spells_frostbolt_frostboltvalue",
-      "community": 9,
-      "community_name": "AssignSpell.ts",
+      "community": 1,
+      "community_name": "Frostbolt.ts",
       "norm_label": "frostboltvalue"
     },
     {
@@ -7358,8 +7358,8 @@
       "source_location": "L13",
       "_origin": "ast",
       "id": "src_entities_spells_frostbolt_frostbolt",
-      "community": 9,
-      "community_name": "AssignSpell.ts",
+      "community": 1,
+      "community_name": "Frostbolt.ts",
       "norm_label": "frostbolt"
     },
     {
@@ -7369,8 +7369,8 @@
       "source_location": "L19",
       "_origin": "ast",
       "id": "src_entities_spells_frostbolt_frostbolt_constructor",
-      "community": 9,
-      "community_name": "AssignSpell.ts",
+      "community": 1,
+      "community_name": "Frostbolt.ts",
       "norm_label": ".constructor()"
     },
     {
@@ -7380,8 +7380,8 @@
       "source_location": "L47",
       "_origin": "ast",
       "id": "src_entities_spells_frostbolt_frostbolt_effect",
-      "community": 9,
-      "community_name": "AssignSpell.ts",
+      "community": 1,
+      "community_name": "Frostbolt.ts",
       "norm_label": ".effect()"
     },
     {
@@ -7391,8 +7391,8 @@
       "source_location": "L63",
       "_origin": "ast",
       "id": "src_entities_spells_frostbolt_frostbolt_cleareffect",
-      "community": 9,
-      "community_name": "AssignSpell.ts",
+      "community": 1,
+      "community_name": "Frostbolt.ts",
       "norm_label": ".cleareffect()"
     },
     {
@@ -7402,8 +7402,8 @@
       "source_location": "L76",
       "_origin": "ast",
       "id": "src_entities_spells_frostbolt_frostbolt_animationupdate",
-      "community": 9,
-      "community_name": "AssignSpell.ts",
+      "community": 1,
+      "community_name": "Frostbolt.ts",
       "norm_label": ".animationupdate()"
     },
     {
@@ -7413,8 +7413,8 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "src_entities_spells_heal",
-      "community": 9,
-      "community_name": "AssignSpell.ts",
+      "community": 2,
+      "community_name": "Spell",
       "norm_label": "heal.ts"
     },
     {
@@ -7424,8 +7424,8 @@
       "source_location": "L4",
       "_origin": "ast",
       "id": "src_entities_spells_heal_heal",
-      "community": 9,
-      "community_name": "AssignSpell.ts",
+      "community": 2,
+      "community_name": "Spell",
       "norm_label": "heal"
     },
     {
@@ -7435,8 +7435,8 @@
       "source_location": "L7",
       "_origin": "ast",
       "id": "src_entities_spells_heal_heal_constructor",
-      "community": 9,
-      "community_name": "AssignSpell.ts",
+      "community": 2,
+      "community_name": "Spell",
       "norm_label": ".constructor()"
     },
     {
@@ -7446,8 +7446,8 @@
       "source_location": "L28",
       "_origin": "ast",
       "id": "src_entities_spells_heal_heal_effect",
-      "community": 9,
-      "community_name": "AssignSpell.ts",
+      "community": 2,
+      "community_name": "Spell",
       "norm_label": ".effect()"
     },
     {
@@ -7457,8 +7457,8 @@
       "source_location": "L35",
       "_origin": "ast",
       "id": "src_entities_spells_heal_heal_animationupdate",
-      "community": 9,
-      "community_name": "AssignSpell.ts",
+      "community": 2,
+      "community_name": "Spell",
       "norm_label": ".animationupdate()"
     },
     {
@@ -7490,8 +7490,8 @@
       "source_location": "L13",
       "_origin": "ast",
       "id": "src_entities_spells_invocation_invocation",
-      "community": 1,
-      "community_name": "Frostbolt.ts",
+      "community": 89,
+      "community_name": "CastingController.ts",
       "norm_label": "invocation"
     },
     {
@@ -7501,8 +7501,8 @@
       "source_location": "L19",
       "_origin": "ast",
       "id": "src_entities_spells_invocation_invocation_constructor",
-      "community": 1,
-      "community_name": "Frostbolt.ts",
+      "community": 89,
+      "community_name": "CastingController.ts",
       "norm_label": ".constructor()"
     },
     {
@@ -7512,8 +7512,8 @@
       "source_location": "L45",
       "_origin": "ast",
       "id": "src_entities_spells_invocation_invocation_effect",
-      "community": 1,
-      "community_name": "Frostbolt.ts",
+      "community": 89,
+      "community_name": "CastingController.ts",
       "norm_label": ".effect()"
     },
     {
@@ -7523,8 +7523,8 @@
       "source_location": "L63",
       "_origin": "ast",
       "id": "src_entities_spells_invocation_invocation_interruptchannel",
-      "community": 1,
-      "community_name": "Frostbolt.ts",
+      "community": 89,
+      "community_name": "CastingController.ts",
       "norm_label": ".interruptchannel()"
     },
     {
@@ -7534,8 +7534,8 @@
       "source_location": "L67",
       "_origin": "ast",
       "id": "src_entities_spells_invocation_invocation_cleareffect",
-      "community": 1,
-      "community_name": "Frostbolt.ts",
+      "community": 89,
+      "community_name": "CastingController.ts",
       "norm_label": ".cleareffect()"
     },
     {
@@ -7545,8 +7545,8 @@
       "source_location": "L74",
       "_origin": "ast",
       "id": "src_entities_spells_invocation_invocation_setanimation",
-      "community": 1,
-      "community_name": "Frostbolt.ts",
+      "community": 89,
+      "community_name": "CastingController.ts",
       "norm_label": ".setanimation()"
     },
     {
@@ -7556,8 +7556,8 @@
       "source_location": "L75",
       "_origin": "ast",
       "id": "src_entities_spells_invocation_invocation_animationupdate",
-      "community": 1,
-      "community_name": "Frostbolt.ts",
+      "community": 89,
+      "community_name": "CastingController.ts",
       "norm_label": ".animationupdate()"
     },
     {
@@ -7633,8 +7633,8 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "src_entities_spells_multishot",
-      "community": 7,
-      "community_name": "Player.ts",
+      "community": 53,
+      "community_name": "Whirlwind",
       "norm_label": "multishot.ts"
     },
     {
@@ -7776,8 +7776,8 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "src_entities_spells_siphonsoul",
-      "community": 9,
-      "community_name": "AssignSpell.ts",
+      "community": 53,
+      "community_name": "Whirlwind",
       "norm_label": "siphonsoul.ts"
     },
     {
@@ -7897,8 +7897,8 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "src_entities_spells_smite",
-      "community": 9,
-      "community_name": "AssignSpell.ts",
+      "community": 1,
+      "community_name": "Frostbolt.ts",
       "norm_label": "smite.ts"
     },
     {
@@ -7908,8 +7908,8 @@
       "source_location": "L5",
       "_origin": "ast",
       "id": "src_entities_spells_smite_smite",
-      "community": 9,
-      "community_name": "AssignSpell.ts",
+      "community": 1,
+      "community_name": "Frostbolt.ts",
       "norm_label": "smite"
     },
     {
@@ -7919,8 +7919,8 @@
       "source_location": "L8",
       "_origin": "ast",
       "id": "src_entities_spells_smite_smite_constructor",
-      "community": 9,
-      "community_name": "AssignSpell.ts",
+      "community": 1,
+      "community_name": "Frostbolt.ts",
       "norm_label": ".constructor()"
     },
     {
@@ -7930,8 +7930,8 @@
       "source_location": "L27",
       "_origin": "ast",
       "id": "src_entities_spells_smite_smite_effect",
-      "community": 9,
-      "community_name": "AssignSpell.ts",
+      "community": 1,
+      "community_name": "Frostbolt.ts",
       "norm_label": ".effect()"
     },
     {
@@ -7941,8 +7941,8 @@
       "source_location": "L35",
       "_origin": "ast",
       "id": "src_entities_spells_smite_smite_animationupdate",
-      "community": 9,
-      "community_name": "AssignSpell.ts",
+      "community": 1,
+      "community_name": "Frostbolt.ts",
       "norm_label": ".animationupdate()"
     },
     {
@@ -7952,8 +7952,8 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "src_entities_spells_snaretrap",
-      "community": 9,
-      "community_name": "AssignSpell.ts",
+      "community": 17,
+      "community_name": "EnemyOptions",
       "norm_label": "snaretrap.ts"
     },
     {
@@ -8161,8 +8161,8 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "src_entities_spells_spell",
-      "community": 9,
-      "community_name": "AssignSpell.ts",
+      "community": 53,
+      "community_name": "Whirlwind",
       "norm_label": "spell.ts"
     },
     {
@@ -8172,8 +8172,8 @@
       "source_location": "L15",
       "_origin": "ast",
       "id": "src_entities_spells_spell_spellvalue",
-      "community": 9,
-      "community_name": "AssignSpell.ts",
+      "community": 53,
+      "community_name": "Whirlwind",
       "norm_label": "spellvalue"
     },
     {
@@ -8458,8 +8458,8 @@
       "source_location": "L6",
       "_origin": "ast",
       "id": "src_entities_spells_whirlwind_whirlwind",
-      "community": 7,
-      "community_name": "Player.ts",
+      "community": 1,
+      "community_name": "Frostbolt.ts",
       "norm_label": "whirlwind"
     },
     {
@@ -8469,8 +8469,8 @@
       "source_location": "L11",
       "_origin": "ast",
       "id": "src_entities_spells_whirlwind_whirlwind_constructor",
-      "community": 7,
-      "community_name": "Player.ts",
+      "community": 1,
+      "community_name": "Frostbolt.ts",
       "norm_label": ".constructor()"
     },
     {
@@ -8480,8 +8480,8 @@
       "source_location": "L35",
       "_origin": "ast",
       "id": "src_entities_spells_whirlwind_whirlwind_effect",
-      "community": 7,
-      "community_name": "Player.ts",
+      "community": 12,
+      "community_name": "Enemy",
       "norm_label": ".effect()"
     },
     {
@@ -8491,8 +8491,8 @@
       "source_location": "L61",
       "_origin": "ast",
       "id": "src_entities_spells_whirlwind_whirlwind_powercap",
-      "community": 7,
-      "community_name": "Player.ts",
+      "community": 12,
+      "community_name": "Enemy",
       "norm_label": ".powercap()"
     },
     {
@@ -8502,8 +8502,8 @@
       "source_location": "L67",
       "_origin": "ast",
       "id": "src_entities_spells_whirlwind_whirlwind_animationupdate",
-      "community": 7,
-      "community_name": "Player.ts",
+      "community": 1,
+      "community_name": "Frostbolt.ts",
       "norm_label": ".animationupdate()"
     },
     {
@@ -8524,8 +8524,8 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "src_entities_ui_banes",
-      "community": 1,
-      "community_name": "Frostbolt.ts",
+      "community": 38,
+      "community_name": "SceneUnderTest",
       "norm_label": "banes.ts"
     },
     {
@@ -8535,8 +8535,8 @@
       "source_location": "L7",
       "_origin": "ast",
       "id": "src_entities_ui_banes_indexablestats",
-      "community": 1,
-      "community_name": "Frostbolt.ts",
+      "community": 38,
+      "community_name": "SceneUnderTest",
       "norm_label": "indexablestats"
     },
     {
@@ -8546,8 +8546,8 @@
       "source_location": "L9",
       "_origin": "ast",
       "id": "src_entities_ui_banes_banes",
-      "community": 1,
-      "community_name": "Frostbolt.ts",
+      "community": 38,
+      "community_name": "SceneUnderTest",
       "norm_label": "banes"
     },
     {
@@ -8557,8 +8557,8 @@
       "source_location": "L10",
       "_origin": "ast",
       "id": "src_entities_ui_banes_banes_addeffect",
-      "community": 1,
-      "community_name": "Frostbolt.ts",
+      "community": 38,
+      "community_name": "SceneUnderTest",
       "norm_label": ".addeffect()"
     },
     {
@@ -8568,8 +8568,8 @@
       "source_location": "L14",
       "_origin": "ast",
       "id": "src_entities_ui_banes_banes_calculate",
-      "community": 1,
-      "community_name": "Frostbolt.ts",
+      "community": 38,
+      "community_name": "SceneUnderTest",
       "norm_label": ".calculate()"
     },
     {
@@ -8579,8 +8579,8 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "src_entities_ui_boons",
-      "community": 1,
-      "community_name": "Frostbolt.ts",
+      "community": 38,
+      "community_name": "SceneUnderTest",
       "norm_label": "boons.ts"
     },
     {
@@ -8590,8 +8590,8 @@
       "source_location": "L6",
       "_origin": "ast",
       "id": "src_entities_ui_boons_boons",
-      "community": 1,
-      "community_name": "Frostbolt.ts",
+      "community": 38,
+      "community_name": "SceneUnderTest",
       "norm_label": "boons"
     },
     {
@@ -8601,8 +8601,8 @@
       "source_location": "L7",
       "_origin": "ast",
       "id": "src_entities_ui_boons_boons_addeffect",
-      "community": 1,
-      "community_name": "Frostbolt.ts",
+      "community": 38,
+      "community_name": "SceneUnderTest",
       "norm_label": ".addeffect()"
     },
     {
@@ -8612,8 +8612,8 @@
       "source_location": "L11",
       "_origin": "ast",
       "id": "src_entities_ui_boons_boons_calculate",
-      "community": 1,
-      "community_name": "Frostbolt.ts",
+      "community": 38,
+      "community_name": "SceneUnderTest",
       "norm_label": ".calculate()"
     },
     {
@@ -8865,8 +8865,8 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "src_entities_ui_hud_test",
-      "community": 40,
-      "community_name": "UI",
+      "community": 23,
+      "community_name": "gameReducer.ts",
       "norm_label": "hud.test.ts"
     },
     {
@@ -8876,8 +8876,8 @@
       "source_location": "L12",
       "_origin": "ast",
       "id": "src_entities_ui_hud_test_hudundertest",
-      "community": 40,
-      "community_name": "UI",
+      "community": 93,
+      "community_name": "Monster.ts",
       "norm_label": "hudundertest"
     },
     {
@@ -8887,8 +8887,8 @@
       "source_location": "L17",
       "_origin": "ast",
       "id": "src_entities_ui_hud_test_hudundertest_savegame",
-      "community": 40,
-      "community_name": "UI",
+      "community": 93,
+      "community_name": "Monster.ts",
       "norm_label": ".savegame()"
     },
     {
@@ -8898,8 +8898,8 @@
       "source_location": "L18",
       "_origin": "ast",
       "id": "src_entities_ui_hud_test_hudundertest_deletesaves",
-      "community": 40,
-      "community_name": "UI",
+      "community": 93,
+      "community_name": "Monster.ts",
       "norm_label": ".deletesaves()"
     },
     {
@@ -8909,8 +8909,8 @@
       "source_location": "L19",
       "_origin": "ast",
       "id": "src_entities_ui_hud_test_hudundertest_loadsavedgame",
-      "community": 40,
-      "community_name": "UI",
+      "community": 93,
+      "community_name": "Monster.ts",
       "norm_label": ".loadsavedgame()"
     },
     {
@@ -8920,8 +8920,8 @@
       "source_location": "L20",
       "_origin": "ast",
       "id": "src_entities_ui_hud_test_hudundertest_cleanup",
-      "community": 40,
-      "community_name": "UI",
+      "community": 93,
+      "community_name": "Monster.ts",
       "norm_label": ".cleanup()"
     },
     {
@@ -8931,8 +8931,8 @@
       "source_location": "L23",
       "_origin": "ast",
       "id": "src_entities_ui_hud_test_makehud",
-      "community": 40,
-      "community_name": "UI",
+      "community": 23,
+      "community_name": "gameReducer.ts",
       "norm_label": "makehud()"
     },
     {
@@ -8942,8 +8942,8 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "src_entities_ui_hud",
-      "community": 40,
-      "community_name": "UI",
+      "community": 24,
+      "community_name": "HUD.ts",
       "norm_label": "hud.ts"
     },
     {
@@ -8953,8 +8953,8 @@
       "source_location": "L8",
       "_origin": "ast",
       "id": "src_entities_ui_hud_styles",
-      "community": 40,
-      "community_name": "UI",
+      "community": 24,
+      "community_name": "HUD.ts",
       "norm_label": "styles"
     },
     {
@@ -8964,8 +8964,8 @@
       "source_location": "L15",
       "_origin": "ast",
       "id": "src_entities_ui_hud_labelledcontainer",
-      "community": 40,
-      "community_name": "UI",
+      "community": 24,
+      "community_name": "HUD.ts",
       "norm_label": "labelledcontainer"
     },
     {
@@ -9382,8 +9382,8 @@
       "source_location": "L11",
       "_origin": "ast",
       "id": "src_entities_ui_statuseffects_statuseffect",
-      "community": 1,
-      "community_name": "Frostbolt.ts",
+      "community": 38,
+      "community_name": "SceneUnderTest",
       "norm_label": "statuseffect"
     },
     {
@@ -9393,8 +9393,8 @@
       "source_location": "L20",
       "_origin": "ast",
       "id": "src_entities_ui_statuseffects_statuseffects",
-      "community": 1,
-      "community_name": "Frostbolt.ts",
+      "community": 38,
+      "community_name": "SceneUnderTest",
       "norm_label": "statuseffects"
     },
     {
@@ -9404,8 +9404,8 @@
       "source_location": "L24",
       "_origin": "ast",
       "id": "src_entities_ui_statuseffects_statuseffects_constructor",
-      "community": 1,
-      "community_name": "Frostbolt.ts",
+      "community": 38,
+      "community_name": "SceneUnderTest",
       "norm_label": ".constructor()"
     },
     {
@@ -9415,8 +9415,8 @@
       "source_location": "L30",
       "_origin": "ast",
       "id": "src_entities_ui_statuseffects_statuseffects_addeffect",
-      "community": 1,
-      "community_name": "Frostbolt.ts",
+      "community": 38,
+      "community_name": "SceneUnderTest",
       "norm_label": ".addeffect()"
     },
     {
@@ -9426,8 +9426,8 @@
       "source_location": "L45",
       "_origin": "ast",
       "id": "src_entities_ui_statuseffects_statuseffects_removeeffect",
-      "community": 1,
-      "community_name": "Frostbolt.ts",
+      "community": 38,
+      "community_name": "SceneUnderTest",
       "norm_label": ".removeeffect()"
     },
     {
@@ -9437,8 +9437,8 @@
       "source_location": "L50",
       "_origin": "ast",
       "id": "src_entities_ui_statuseffects_statuseffects_resolvestats",
-      "community": 1,
-      "community_name": "Frostbolt.ts",
+      "community": 38,
+      "community_name": "SceneUnderTest",
       "norm_label": ".resolvestats()"
     },
     {
@@ -9470,8 +9470,8 @@
       "source_location": "L17",
       "_origin": "ast",
       "id": "src_entities_ui_targetreticle_test_reticleundertest",
-      "community": 98,
-      "community_name": "ReticleUnderTest",
+      "community": 79,
+      "community_name": "PlayerStats",
       "norm_label": "reticleundertest"
     },
     {
@@ -9481,8 +9481,8 @@
       "source_location": "L26",
       "_origin": "ast",
       "id": "src_entities_ui_targetreticle_test_reticleundertest_show",
-      "community": 98,
-      "community_name": "ReticleUnderTest",
+      "community": 79,
+      "community_name": "PlayerStats",
       "norm_label": ".show()"
     },
     {
@@ -9492,8 +9492,8 @@
       "source_location": "L27",
       "_origin": "ast",
       "id": "src_entities_ui_targetreticle_test_reticleundertest_hide",
-      "community": 98,
-      "community_name": "ReticleUnderTest",
+      "community": 79,
+      "community_name": "PlayerStats",
       "norm_label": ".hide()"
     },
     {
@@ -9503,8 +9503,8 @@
       "source_location": "L28",
       "_origin": "ast",
       "id": "src_entities_ui_targetreticle_test_reticleundertest_placeat",
-      "community": 98,
-      "community_name": "ReticleUnderTest",
+      "community": 79,
+      "community_name": "PlayerStats",
       "norm_label": ".placeat()"
     },
     {
@@ -9514,8 +9514,8 @@
       "source_location": "L29",
       "_origin": "ast",
       "id": "src_entities_ui_targetreticle_test_reticleundertest_onpointermove",
-      "community": 98,
-      "community_name": "ReticleUnderTest",
+      "community": 79,
+      "community_name": "PlayerStats",
       "norm_label": ".onpointermove()"
     },
     {
@@ -9525,8 +9525,8 @@
       "source_location": "L30",
       "_origin": "ast",
       "id": "src_entities_ui_targetreticle_test_reticleundertest_cleanup",
-      "community": 98,
-      "community_name": "ReticleUnderTest",
+      "community": 79,
+      "community_name": "PlayerStats",
       "norm_label": ".cleanup()"
     },
     {
@@ -9646,8 +9646,8 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "src_entities_weapon",
-      "community": 45,
-      "community_name": "SnareTrap",
+      "community": 0,
+      "community_name": "Player",
       "norm_label": "weapon.ts"
     },
     {
@@ -9657,8 +9657,8 @@
       "source_location": "L3",
       "_origin": "ast",
       "id": "src_entities_weapon_weaponconfig",
-      "community": 45,
-      "community_name": "SnareTrap",
+      "community": 0,
+      "community_name": "Player",
       "norm_label": "weaponconfig"
     },
     {
@@ -9668,8 +9668,8 @@
       "source_location": "L8",
       "_origin": "ast",
       "id": "src_entities_weapon_weapon",
-      "community": 45,
-      "community_name": "SnareTrap",
+      "community": 0,
+      "community_name": "Player",
       "norm_label": "weapon"
     },
     {
@@ -9679,8 +9679,8 @@
       "source_location": "L9",
       "_origin": "ast",
       "id": "src_entities_weapon_weapon_constructor",
-      "community": 45,
-      "community_name": "SnareTrap",
+      "community": 0,
+      "community_name": "Player",
       "norm_label": ".constructor()"
     },
     {
@@ -9690,8 +9690,8 @@
       "source_location": "L17",
       "_origin": "ast",
       "id": "src_entities_weapon_weapon_swoosh",
-      "community": 45,
-      "community_name": "SnareTrap",
+      "community": 0,
+      "community_name": "Player",
       "norm_label": ".swoosh()"
     },
     {
@@ -9701,8 +9701,8 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "src_entities_weapons_areaeffect",
-      "community": 53,
-      "community_name": "Whirlwind",
+      "community": 41,
+      "community_name": "ItemTooltip.tsx",
       "norm_label": "areaeffect.ts"
     },
     {
@@ -9712,8 +9712,8 @@
       "source_location": "L9",
       "_origin": "ast",
       "id": "src_entities_weapons_areaeffect_overlaptarget",
-      "community": 53,
-      "community_name": "Whirlwind",
+      "community": 41,
+      "community_name": "ItemTooltip.tsx",
       "norm_label": "overlaptarget"
     },
     {
@@ -9723,8 +9723,8 @@
       "source_location": "L11",
       "_origin": "ast",
       "id": "src_entities_weapons_areaeffect_areaeffect",
-      "community": 4,
-      "community_name": "Consecration",
+      "community": 41,
+      "community_name": "ItemTooltip.tsx",
       "norm_label": "areaeffect"
     },
     {
@@ -9734,8 +9734,8 @@
       "source_location": "L15",
       "_origin": "ast",
       "id": "src_entities_weapons_areaeffect_areaeffect_constructor",
-      "community": 4,
-      "community_name": "Consecration",
+      "community": 41,
+      "community_name": "ItemTooltip.tsx",
       "norm_label": ".constructor()"
     },
     {
@@ -9745,8 +9745,8 @@
       "source_location": "L57",
       "_origin": "ast",
       "id": "src_entities_weapons_areaeffect_areaeffect_overlap",
-      "community": 4,
-      "community_name": "Consecration",
+      "community": 41,
+      "community_name": "ItemTooltip.tsx",
       "norm_label": ".overlap()"
     },
     {
@@ -9756,8 +9756,8 @@
       "source_location": "L68",
       "_origin": "ast",
       "id": "src_entities_weapons_areaeffect_areaeffect_throttle",
-      "community": 4,
-      "community_name": "Consecration",
+      "community": 41,
+      "community_name": "ItemTooltip.tsx",
       "norm_label": ".throttle()"
     },
     {
@@ -9767,8 +9767,8 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "src_entities_weapons_projectile_test",
-      "community": 38,
-      "community_name": "SceneUnderTest",
+      "community": 53,
+      "community_name": "Whirlwind",
       "norm_label": "projectile.test.ts"
     },
     {
@@ -9778,8 +9778,8 @@
       "source_location": "L8",
       "_origin": "ast",
       "id": "src_entities_weapons_projectile_test_projectileundertest",
-      "community": 38,
-      "community_name": "SceneUnderTest",
+      "community": 53,
+      "community_name": "Whirlwind",
       "norm_label": "projectileundertest"
     },
     {
@@ -9789,8 +9789,8 @@
       "source_location": "L18",
       "_origin": "ast",
       "id": "src_entities_weapons_projectile_test_projectileundertest_tick",
-      "community": 38,
-      "community_name": "SceneUnderTest",
+      "community": 53,
+      "community_name": "Whirlwind",
       "norm_label": ".tick()"
     },
     {
@@ -9800,8 +9800,8 @@
       "source_location": "L21",
       "_origin": "ast",
       "id": "src_entities_weapons_projectile_test_makeprojectile",
-      "community": 38,
-      "community_name": "SceneUnderTest",
+      "community": 53,
+      "community_name": "Whirlwind",
       "norm_label": "makeprojectile()"
     },
     {
@@ -9811,8 +9811,8 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "src_entities_weapons_projectile",
-      "community": 38,
-      "community_name": "SceneUnderTest",
+      "community": 53,
+      "community_name": "Whirlwind",
       "norm_label": "projectile.ts"
     },
     {
@@ -9822,8 +9822,8 @@
       "source_location": "L4",
       "_origin": "ast",
       "id": "src_entities_weapons_projectile_projectiletarget",
-      "community": 38,
-      "community_name": "SceneUnderTest",
+      "community": 53,
+      "community_name": "Whirlwind",
       "norm_label": "projectiletarget"
     },
     {
@@ -9833,8 +9833,8 @@
       "source_location": "L10",
       "_origin": "ast",
       "id": "src_entities_weapons_projectile_projectileoptions",
-      "community": 38,
-      "community_name": "SceneUnderTest",
+      "community": 53,
+      "community_name": "Whirlwind",
       "norm_label": "projectileoptions"
     },
     {
@@ -9844,8 +9844,8 @@
       "source_location": "L26",
       "_origin": "ast",
       "id": "src_entities_weapons_projectile_projectile",
-      "community": 38,
-      "community_name": "SceneUnderTest",
+      "community": 53,
+      "community_name": "Whirlwind",
       "norm_label": "projectile"
     },
     {
@@ -9855,8 +9855,8 @@
       "source_location": "L32",
       "_origin": "ast",
       "id": "src_entities_weapons_projectile_projectile_constructor",
-      "community": 38,
-      "community_name": "SceneUnderTest",
+      "community": 53,
+      "community_name": "Whirlwind",
       "norm_label": ".constructor()"
     },
     {
@@ -9866,8 +9866,8 @@
       "source_location": "L42",
       "_origin": "ast",
       "id": "src_entities_weapons_projectile_projectile_preupdate",
-      "community": 38,
-      "community_name": "SceneUnderTest",
+      "community": 53,
+      "community_name": "Whirlwind",
       "norm_label": ".preupdate()"
     },
     {
@@ -9877,8 +9877,8 @@
       "source_location": "L49",
       "_origin": "ast",
       "id": "src_entities_weapons_projectile_projectile_tick",
-      "community": 38,
-      "community_name": "SceneUnderTest",
+      "community": 53,
+      "community_name": "Whirlwind",
       "norm_label": ".tick()"
     },
     {
@@ -9932,8 +9932,8 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "src_entities_weapons_trap",
-      "community": 53,
-      "community_name": "Whirlwind",
+      "community": 17,
+      "community_name": "EnemyOptions",
       "norm_label": "trap.ts"
     },
     {
@@ -9998,8 +9998,8 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "src_helpers_getrandomvelocity_test",
-      "community": 53,
-      "community_name": "Whirlwind",
+      "community": 88,
+      "community_name": "repository",
       "norm_label": "getrandomvelocity.test.ts"
     },
     {
@@ -10009,8 +10009,8 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "src_helpers_getrandomvelocity",
-      "community": 53,
-      "community_name": "Whirlwind",
+      "community": 88,
+      "community_name": "repository",
       "norm_label": "getrandomvelocity.ts"
     },
     {
@@ -10020,8 +10020,8 @@
       "source_location": "L3",
       "_origin": "ast",
       "id": "src_helpers_getrandomvelocity_getrandomvelocity",
-      "community": 53,
-      "community_name": "Whirlwind",
+      "community": 88,
+      "community_name": "repository",
       "norm_label": "getrandomvelocity()"
     },
     {
@@ -10152,8 +10152,8 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "src_helpers_targetvector_test",
-      "community": 7,
-      "community_name": "Player.ts",
+      "community": 0,
+      "community_name": "Player",
       "norm_label": "targetvector.test.ts"
     },
     {
@@ -10163,8 +10163,8 @@
       "source_location": "L5",
       "_origin": "ast",
       "id": "src_helpers_targetvector_test_makebody",
-      "community": 7,
-      "community_name": "Player.ts",
+      "community": 0,
+      "community_name": "Player",
       "norm_label": "makebody()"
     },
     {
@@ -10174,8 +10174,8 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "src_helpers_targetvector",
-      "community": 7,
-      "community_name": "Player.ts",
+      "community": 0,
+      "community_name": "Player",
       "norm_label": "targetvector.ts"
     },
     {
@@ -10185,8 +10185,8 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "src_helpers_targetvector_targetwithbody",
-      "community": 7,
-      "community_name": "Player.ts",
+      "community": 0,
+      "community_name": "Player",
       "norm_label": "targetwithbody"
     },
     {
@@ -10196,8 +10196,8 @@
       "source_location": "L4",
       "_origin": "ast",
       "id": "src_helpers_targetvector_clone",
-      "community": 7,
-      "community_name": "Player.ts",
+      "community": 0,
+      "community_name": "Player",
       "norm_label": "clone()"
     },
     {
@@ -10207,8 +10207,8 @@
       "source_location": "L11",
       "_origin": "ast",
       "id": "src_helpers_targetvector_vectorresult",
-      "community": 7,
-      "community_name": "Player.ts",
+      "community": 0,
+      "community_name": "Player",
       "norm_label": "vectorresult"
     },
     {
@@ -10218,8 +10218,8 @@
       "source_location": "L16",
       "_origin": "ast",
       "id": "src_helpers_targetvector_targetvector",
-      "community": 7,
-      "community_name": "Player.ts",
+      "community": 0,
+      "community_name": "Player",
       "norm_label": "targetvector()"
     },
     {
@@ -10394,8 +10394,8 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "src_scenes_bootscene",
-      "community": 37,
-      "community_name": "LoadScene.ts",
+      "community": 44,
+      "community_name": "Hero",
       "norm_label": "bootscene.ts"
     },
     {
@@ -10405,8 +10405,8 @@
       "source_location": "L9",
       "_origin": "ast",
       "id": "src_scenes_bootscene_bootscene",
-      "community": 37,
-      "community_name": "LoadScene.ts",
+      "community": 44,
+      "community_name": "Hero",
       "norm_label": "bootscene"
     },
     {
@@ -10416,8 +10416,8 @@
       "source_location": "L10",
       "_origin": "ast",
       "id": "src_scenes_bootscene_bootscene_constructor",
-      "community": 37,
-      "community_name": "LoadScene.ts",
+      "community": 44,
+      "community_name": "Hero",
       "norm_label": ".constructor()"
     },
     {
@@ -10427,8 +10427,8 @@
       "source_location": "L16",
       "_origin": "ast",
       "id": "src_scenes_bootscene_bootscene_preload",
-      "community": 37,
-      "community_name": "LoadScene.ts",
+      "community": 44,
+      "community_name": "Hero",
       "norm_label": ".preload()"
     },
     {
@@ -10438,8 +10438,8 @@
       "source_location": "L25",
       "_origin": "ast",
       "id": "src_scenes_bootscene_bootscene_create",
-      "community": 37,
-      "community_name": "LoadScene.ts",
+      "community": 44,
+      "community_name": "Hero",
       "norm_label": ".create()"
     },
     {
@@ -10460,8 +10460,8 @@
       "source_location": "L4",
       "_origin": "ast",
       "id": "src_scenes_gameoverscene_gameoverscene",
-      "community": 37,
-      "community_name": "LoadScene.ts",
+      "community": 44,
+      "community_name": "Hero",
       "norm_label": "gameoverscene"
     },
     {
@@ -10471,8 +10471,8 @@
       "source_location": "L10",
       "_origin": "ast",
       "id": "src_scenes_gameoverscene_gameoverscene_constructor",
-      "community": 37,
-      "community_name": "LoadScene.ts",
+      "community": 44,
+      "community_name": "Hero",
       "norm_label": ".constructor()"
     },
     {
@@ -10482,8 +10482,8 @@
       "source_location": "L16",
       "_origin": "ast",
       "id": "src_scenes_gameoverscene_gameoverscene_create",
-      "community": 37,
-      "community_name": "LoadScene.ts",
+      "community": 44,
+      "community_name": "Hero",
       "norm_label": ".create()"
     },
     {
@@ -10493,8 +10493,8 @@
       "source_location": "L49",
       "_origin": "ast",
       "id": "src_scenes_gameoverscene_gameoverscene_restartgame",
-      "community": 37,
-      "community_name": "LoadScene.ts",
+      "community": 44,
+      "community_name": "Hero",
       "norm_label": ".restartgame()"
     },
     {
@@ -10504,8 +10504,8 @@
       "source_location": "L53",
       "_origin": "ast",
       "id": "src_scenes_gameoverscene_gameoverscene_shutdown",
-      "community": 37,
-      "community_name": "LoadScene.ts",
+      "community": 44,
+      "community_name": "Hero",
       "norm_label": ".shutdown()"
     },
     {
@@ -10515,8 +10515,8 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "src_scenes_gamescene_test",
-      "community": 34,
-      "community_name": "GameScene",
+      "community": 45,
+      "community_name": "SnareTrap",
       "norm_label": "gamescene.test.ts"
     },
     {
@@ -10526,8 +10526,8 @@
       "source_location": "L13",
       "_origin": "ast",
       "id": "src_scenes_gamescene_test_faketimer",
-      "community": 34,
-      "community_name": "GameScene",
+      "community": 45,
+      "community_name": "SnareTrap",
       "norm_label": "faketimer"
     },
     {
@@ -10537,8 +10537,8 @@
       "source_location": "L17",
       "_origin": "ast",
       "id": "src_scenes_gamescene_test_sceneundertest",
-      "community": 34,
-      "community_name": "GameScene",
+      "community": 45,
+      "community_name": "SnareTrap",
       "norm_label": "sceneundertest"
     },
     {
@@ -10548,8 +10548,8 @@
       "source_location": "L21",
       "_origin": "ast",
       "id": "src_scenes_gamescene_test_sceneundertest_increaselevel",
-      "community": 34,
-      "community_name": "GameScene",
+      "community": 45,
+      "community_name": "SnareTrap",
       "norm_label": ".increaselevel()"
     },
     {
@@ -10559,8 +10559,8 @@
       "source_location": "L22",
       "_origin": "ast",
       "id": "src_scenes_gamescene_test_sceneundertest_wavecomplete",
-      "community": 34,
-      "community_name": "GameScene",
+      "community": 45,
+      "community_name": "SnareTrap",
       "norm_label": ".wavecomplete()"
     },
     {
@@ -10570,8 +10570,8 @@
       "source_location": "L23",
       "_origin": "ast",
       "id": "src_scenes_gamescene_test_sceneundertest_removenextleveltimer",
-      "community": 34,
-      "community_name": "GameScene",
+      "community": 45,
+      "community_name": "SnareTrap",
       "norm_label": ".removenextleveltimer()"
     },
     {
@@ -10581,8 +10581,8 @@
       "source_location": "L24",
       "_origin": "ast",
       "id": "src_scenes_gamescene_test_sceneundertest_gameover",
-      "community": 34,
-      "community_name": "GameScene",
+      "community": 45,
+      "community_name": "SnareTrap",
       "norm_label": ".gameover()"
     },
     {
@@ -10592,8 +10592,8 @@
       "source_location": "L25",
       "_origin": "ast",
       "id": "src_scenes_gamescene_test_sceneundertest_shutdown",
-      "community": 34,
-      "community_name": "GameScene",
+      "community": 45,
+      "community_name": "SnareTrap",
       "norm_label": ".shutdown()"
     },
     {
@@ -10603,8 +10603,8 @@
       "source_location": "L26",
       "_origin": "ast",
       "id": "src_scenes_gamescene_test_sceneundertest_update",
-      "community": 34,
-      "community_name": "GameScene",
+      "community": 45,
+      "community_name": "SnareTrap",
       "norm_label": ".update()"
     },
     {
@@ -10614,8 +10614,8 @@
       "source_location": "L27",
       "_origin": "ast",
       "id": "src_scenes_gamescene_test_sceneundertest_spawnenemies",
-      "community": 34,
-      "community_name": "GameScene",
+      "community": 45,
+      "community_name": "SnareTrap",
       "norm_label": ".spawnenemies()"
     },
     {
@@ -10625,8 +10625,8 @@
       "source_location": "L42",
       "_origin": "ast",
       "id": "src_scenes_gamescene_test_makescene",
-      "community": 34,
-      "community_name": "GameScene",
+      "community": 45,
+      "community_name": "SnareTrap",
       "norm_label": "makescene()"
     },
     {
@@ -10636,8 +10636,8 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "src_scenes_gamescene",
-      "community": 23,
-      "community_name": "gameReducer.ts",
+      "community": 63,
+      "community_name": "vite.config.ts",
       "norm_label": "gamescene.ts"
     },
     {
@@ -10669,8 +10669,8 @@
       "source_location": "L50",
       "_origin": "ast",
       "id": "src_scenes_gamescene_gamescene_init",
-      "community": 34,
-      "community_name": "GameScene",
+      "community": 4,
+      "community_name": "Consecration",
       "norm_label": ".init()"
     },
     {
@@ -10845,8 +10845,8 @@
       "source_location": "L352",
       "_origin": "ast",
       "id": "src_scenes_gamescene_rationale_352",
-      "community": 23,
-      "community_name": "gameReducer.ts",
+      "community": 63,
+      "community_name": "vite.config.ts",
       "norm_label": "todo: make the timings smarter"
     },
     {
@@ -10922,8 +10922,8 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "src_scenes_selectscene",
-      "community": 23,
-      "community_name": "gameReducer.ts",
+      "community": 8,
+      "community_name": "Gem.ts",
       "norm_label": "selectscene.ts"
     },
     {
@@ -10933,8 +10933,8 @@
       "source_location": "L6",
       "_origin": "ast",
       "id": "src_scenes_selectscene_gamesceneconfig",
-      "community": 23,
-      "community_name": "gameReducer.ts",
+      "community": 4,
+      "community_name": "Consecration",
       "norm_label": "gamesceneconfig"
     },
     {
@@ -10944,8 +10944,8 @@
       "source_location": "L10",
       "_origin": "ast",
       "id": "src_scenes_selectscene_selectscene",
-      "community": 37,
-      "community_name": "LoadScene.ts",
+      "community": 44,
+      "community_name": "Hero",
       "norm_label": "selectscene"
     },
     {
@@ -10955,8 +10955,8 @@
       "source_location": "L13",
       "_origin": "ast",
       "id": "src_scenes_selectscene_selectscene_constructor",
-      "community": 37,
-      "community_name": "LoadScene.ts",
+      "community": 44,
+      "community_name": "Hero",
       "norm_label": ".constructor()"
     },
     {
@@ -10966,8 +10966,8 @@
       "source_location": "L21",
       "_origin": "ast",
       "id": "src_scenes_selectscene_selectscene_create",
-      "community": 37,
-      "community_name": "LoadScene.ts",
+      "community": 44,
+      "community_name": "Hero",
       "norm_label": ".create()"
     },
     {
@@ -10977,8 +10977,8 @@
       "source_location": "L32",
       "_origin": "ast",
       "id": "src_scenes_selectscene_selectscene_choosecharacter",
-      "community": 37,
-      "community_name": "LoadScene.ts",
+      "community": 44,
+      "community_name": "Hero",
       "norm_label": ".choosecharacter()"
     },
     {
@@ -10988,8 +10988,8 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "src_scenes_townscene",
-      "community": 23,
-      "community_name": "gameReducer.ts",
+      "community": 4,
+      "community_name": "Consecration",
       "norm_label": "townscene.ts"
     },
     {
@@ -11414,7 +11414,7 @@
       "label": "makeItem()",
       "file_type": "code",
       "source_file": "src/store/gameReducer.test.ts",
-      "source_location": "L18",
+      "source_location": "L23",
       "_origin": "ast",
       "id": "src_store_gamereducer_test_makeitem",
       "community": 23,
@@ -11436,7 +11436,7 @@
       "label": "Level",
       "file_type": "code",
       "source_file": "src/store/gameReducer.ts",
-      "source_location": "L15",
+      "source_location": "L18",
       "_origin": "ast",
       "id": "src_store_gamereducer_level",
       "community": 23,
@@ -11447,7 +11447,7 @@
       "label": "GameState",
       "file_type": "code",
       "source_file": "src/store/gameReducer.ts",
-      "source_location": "L21",
+      "source_location": "L24",
       "_origin": "ast",
       "id": "src_store_gamereducer_gamestate",
       "community": 25,
@@ -11458,7 +11458,7 @@
       "label": "initState",
       "file_type": "code",
       "source_file": "src/store/gameReducer.ts",
-      "source_location": "L45",
+      "source_location": "L48",
       "_origin": "ast",
       "id": "src_store_gamereducer_initstate",
       "community": 23,
@@ -11469,7 +11469,7 @@
       "label": "addCoins",
       "file_type": "code",
       "source_file": "src/store/gameReducer.ts",
-      "source_location": "L78",
+      "source_location": "L81",
       "_origin": "ast",
       "id": "src_store_gamereducer_addcoins",
       "community": 88,
@@ -11480,7 +11480,7 @@
       "label": "setCoins",
       "file_type": "code",
       "source_file": "src/store/gameReducer.ts",
-      "source_location": "L82",
+      "source_location": "L85",
       "_origin": "ast",
       "id": "src_store_gamereducer_setcoins",
       "community": 23,
@@ -11488,21 +11488,43 @@
       "norm_label": "setcoins"
     },
     {
-      "label": "addCrafting",
+      "label": "addComponent",
       "file_type": "code",
       "source_file": "src/store/gameReducer.ts",
-      "source_location": "L86",
+      "source_location": "L89",
       "_origin": "ast",
-      "id": "src_store_gamereducer_addcrafting",
-      "community": 53,
-      "community_name": "Whirlwind",
-      "norm_label": "addcrafting"
+      "id": "src_store_gamereducer_addcomponent",
+      "community": 88,
+      "community_name": "repository",
+      "norm_label": "addcomponent"
+    },
+    {
+      "label": "sellComponent",
+      "file_type": "code",
+      "source_file": "src/store/gameReducer.ts",
+      "source_location": "L93",
+      "_origin": "ast",
+      "id": "src_store_gamereducer_sellcomponent",
+      "community": 23,
+      "community_name": "gameReducer.ts",
+      "norm_label": "sellcomponent"
+    },
+    {
+      "label": "sellComponentStack",
+      "file_type": "code",
+      "source_file": "src/store/gameReducer.ts",
+      "source_location": "L97",
+      "_origin": "ast",
+      "id": "src_store_gamereducer_sellcomponentstack",
+      "community": 23,
+      "community_name": "gameReducer.ts",
+      "norm_label": "sellcomponentstack"
     },
     {
       "label": "addLoot",
       "file_type": "code",
       "source_file": "src/store/gameReducer.ts",
-      "source_location": "L90",
+      "source_location": "L101",
       "_origin": "ast",
       "id": "src_store_gamereducer_addloot",
       "community": 40,
@@ -11513,7 +11535,7 @@
       "label": "addXP",
       "file_type": "code",
       "source_file": "src/store/gameReducer.ts",
-      "source_location": "L94",
+      "source_location": "L105",
       "_origin": "ast",
       "id": "src_store_gamereducer_addxp",
       "community": 23,
@@ -11524,7 +11546,7 @@
       "label": "buyLoot",
       "file_type": "code",
       "source_file": "src/store/gameReducer.ts",
-      "source_location": "L98",
+      "source_location": "L109",
       "_origin": "ast",
       "id": "src_store_gamereducer_buyloot",
       "community": 23,
@@ -11535,7 +11557,7 @@
       "label": "equipLoot",
       "file_type": "code",
       "source_file": "src/store/gameReducer.ts",
-      "source_location": "L102",
+      "source_location": "L113",
       "_origin": "ast",
       "id": "src_store_gamereducer_equiploot",
       "community": 13,
@@ -11546,29 +11568,29 @@
       "label": "loadGame",
       "file_type": "code",
       "source_file": "src/store/gameReducer.ts",
-      "source_location": "L106",
+      "source_location": "L117",
       "_origin": "ast",
       "id": "src_store_gamereducer_loadgame",
-      "community": 25,
-      "community_name": "index.ts",
+      "community": 23,
+      "community_name": "gameReducer.ts",
       "norm_label": "loadgame"
     },
     {
       "label": "nextWave",
       "file_type": "code",
       "source_file": "src/store/gameReducer.ts",
-      "source_location": "L110",
+      "source_location": "L121",
       "_origin": "ast",
       "id": "src_store_gamereducer_nextwave",
-      "community": 23,
-      "community_name": "gameReducer.ts",
+      "community": 34,
+      "community_name": "GameScene",
       "norm_label": "nextwave"
     },
     {
       "label": "selectCharacter",
       "file_type": "code",
       "source_file": "src/store/gameReducer.ts",
-      "source_location": "L112",
+      "source_location": "L123",
       "_origin": "ast",
       "id": "src_store_gamereducer_selectcharacter",
       "community": 23,
@@ -11579,7 +11601,7 @@
       "label": "selectLoot",
       "file_type": "code",
       "source_file": "src/store/gameReducer.ts",
-      "source_location": "L116",
+      "source_location": "L127",
       "_origin": "ast",
       "id": "src_store_gamereducer_selectloot",
       "community": 13,
@@ -11590,40 +11612,40 @@
       "label": "sellLoot",
       "file_type": "code",
       "source_file": "src/store/gameReducer.ts",
-      "source_location": "L120",
+      "source_location": "L131",
       "_origin": "ast",
       "id": "src_store_gamereducer_sellloot",
-      "community": 23,
-      "community_name": "gameReducer.ts",
+      "community": 25,
+      "community_name": "index.ts",
       "norm_label": "sellloot"
     },
     {
       "label": "setBaseStats",
       "file_type": "code",
       "source_file": "src/store/gameReducer.ts",
-      "source_location": "L124",
+      "source_location": "L135",
       "_origin": "ast",
       "id": "src_store_gamereducer_setbasestats",
-      "community": 33,
-      "community_name": "Resource",
+      "community": 95,
+      "community_name": "Resource.ts",
       "norm_label": "setbasestats"
     },
     {
       "label": "setLevel",
       "file_type": "code",
       "source_file": "src/store/gameReducer.ts",
-      "source_location": "L131",
+      "source_location": "L142",
       "_origin": "ast",
       "id": "src_store_gamereducer_setlevel",
-      "community": 33,
-      "community_name": "Resource",
+      "community": 0,
+      "community_name": "Player",
       "norm_label": "setlevel"
     },
     {
       "label": "setSaveSlot",
       "file_type": "code",
       "source_file": "src/store/gameReducer.ts",
-      "source_location": "L135",
+      "source_location": "L146",
       "_origin": "ast",
       "id": "src_store_gamereducer_setsaveslot",
       "community": 23,
@@ -11634,18 +11656,18 @@
       "label": "setStats",
       "file_type": "code",
       "source_file": "src/store/gameReducer.ts",
-      "source_location": "L139",
+      "source_location": "L150",
       "_origin": "ast",
       "id": "src_store_gamereducer_setstats",
-      "community": 1,
-      "community_name": "Frostbolt.ts",
+      "community": 38,
+      "community_name": "SceneUnderTest",
       "norm_label": "setstats"
     },
     {
       "label": "switchUi",
       "file_type": "code",
       "source_file": "src/store/gameReducer.ts",
-      "source_location": "L146",
+      "source_location": "L157",
       "_origin": "ast",
       "id": "src_store_gamereducer_switchui",
       "community": 24,
@@ -11656,7 +11678,7 @@
       "label": "toggleFilter",
       "file_type": "code",
       "source_file": "src/store/gameReducer.ts",
-      "source_location": "L150",
+      "source_location": "L161",
       "_origin": "ast",
       "id": "src_store_gamereducer_togglefilter",
       "community": 23,
@@ -11667,18 +11689,18 @@
       "label": "toggleHUD",
       "file_type": "code",
       "source_file": "src/store/gameReducer.ts",
-      "source_location": "L154",
+      "source_location": "L165",
       "_origin": "ast",
       "id": "src_store_gamereducer_togglehud",
-      "community": 23,
-      "community_name": "gameReducer.ts",
+      "community": 4,
+      "community_name": "Consecration",
       "norm_label": "togglehud"
     },
     {
       "label": "toggleUi",
       "file_type": "code",
       "source_file": "src/store/gameReducer.ts",
-      "source_location": "L158",
+      "source_location": "L169",
       "_origin": "ast",
       "id": "src_store_gamereducer_toggleui",
       "community": 40,
@@ -11689,7 +11711,7 @@
       "label": "unequipLoot",
       "file_type": "code",
       "source_file": "src/store/gameReducer.ts",
-      "source_location": "L162",
+      "source_location": "L173",
       "_origin": "ast",
       "id": "src_store_gamereducer_unequiploot",
       "community": 13,
@@ -11700,7 +11722,7 @@
       "label": "updateBaseStats",
       "file_type": "code",
       "source_file": "src/store/gameReducer.ts",
-      "source_location": "L166",
+      "source_location": "L177",
       "_origin": "ast",
       "id": "src_store_gamereducer_updatebasestats",
       "community": 23,
@@ -11711,40 +11733,40 @@
       "label": "updateStats",
       "file_type": "code",
       "source_file": "src/store/gameReducer.ts",
-      "source_location": "L173",
+      "source_location": "L184",
       "_origin": "ast",
       "id": "src_store_gamereducer_updatestats",
-      "community": 1,
-      "community_name": "Frostbolt.ts",
+      "community": 38,
+      "community_name": "SceneUnderTest",
       "norm_label": "updatestats"
     },
     {
       "label": "setCurrentArea",
       "file_type": "code",
       "source_file": "src/store/gameReducer.ts",
-      "source_location": "L177",
+      "source_location": "L188",
       "_origin": "ast",
       "id": "src_store_gamereducer_setcurrentarea",
-      "community": 23,
-      "community_name": "gameReducer.ts",
+      "community": 4,
+      "community_name": "Consecration",
       "norm_label": "setcurrentarea"
     },
     {
       "label": "setPlayerPosition",
       "file_type": "code",
       "source_file": "src/store/gameReducer.ts",
-      "source_location": "L181",
+      "source_location": "L192",
       "_origin": "ast",
       "id": "src_store_gamereducer_setplayerposition",
-      "community": 23,
-      "community_name": "gameReducer.ts",
+      "community": 4,
+      "community_name": "Consecration",
       "norm_label": "setplayerposition"
     },
     {
       "label": "syncStats()",
       "file_type": "code",
       "source_file": "src/store/gameReducer.ts",
-      "source_location": "L189",
+      "source_location": "L200",
       "_origin": "ast",
       "id": "src_store_gamereducer_syncstats",
       "community": 23,
@@ -11755,7 +11777,7 @@
       "label": "gameReducer",
       "file_type": "code",
       "source_file": "src/store/gameReducer.ts",
-      "source_location": "L192",
+      "source_location": "L203",
       "_origin": "ast",
       "id": "src_store_gamereducer_gamereducer",
       "community": 25,
@@ -11802,8 +11824,8 @@
       "source_location": "L9",
       "_origin": "ast",
       "id": "src_types_game_arcadecollisionobject",
-      "community": 4,
-      "community_name": "Consecration",
+      "community": 41,
+      "community_name": "ItemTooltip.tsx",
       "norm_label": "arcadecollisionobject"
     },
     {
@@ -11895,10 +11917,21 @@
       "norm_label": "game_balance"
     },
     {
+      "label": "COMPONENT_DEFS",
+      "file_type": "code",
+      "source_file": "src/types/game.ts",
+      "source_location": "L118",
+      "_origin": "ast",
+      "id": "src_types_game_component_defs",
+      "community": 23,
+      "community_name": "gameReducer.ts",
+      "norm_label": "component_defs"
+    },
+    {
       "label": "ITEM_QUALITY_WEIGHTS",
       "file_type": "code",
       "source_file": "src/types/game.ts",
-      "source_location": "L115",
+      "source_location": "L124",
       "_origin": "ast",
       "id": "src_types_game_item_quality_weights",
       "community": 33,
@@ -11909,7 +11942,7 @@
       "label": "CHARACTER_BASE_STATS",
       "file_type": "code",
       "source_file": "src/types/game.ts",
-      "source_location": "L127",
+      "source_location": "L136",
       "_origin": "ast",
       "id": "src_types_game_character_base_stats",
       "community": 33,
@@ -11920,7 +11953,7 @@
       "label": "LootItem",
       "file_type": "code",
       "source_file": "src/types/game.ts",
-      "source_location": "L186",
+      "source_location": "L195",
       "_origin": "ast",
       "id": "src_types_game_lootitem",
       "community": 13,
@@ -11931,18 +11964,18 @@
       "label": "LootStat",
       "file_type": "code",
       "source_file": "src/types/game.ts",
-      "source_location": "L199",
+      "source_location": "L208",
       "_origin": "ast",
       "id": "src_types_game_lootstat",
-      "community": 41,
-      "community_name": "ItemTooltip.tsx",
+      "community": 11,
+      "community_name": "Armory.tsx",
       "norm_label": "lootstat"
     },
     {
       "label": "LootType",
       "file_type": "code",
       "source_file": "src/types/game.ts",
-      "source_location": "L210",
+      "source_location": "L219",
       "_origin": "ast",
       "id": "src_types_game_loottype",
       "community": 33,
@@ -11950,10 +11983,43 @@
       "norm_label": "loottype"
     },
     {
+      "label": "ComponentType",
+      "file_type": "code",
+      "source_file": "src/types/game.ts",
+      "source_location": "L223",
+      "_origin": "ast",
+      "id": "src_types_game_componenttype",
+      "community": 33,
+      "community_name": "Resource",
+      "norm_label": "componenttype"
+    },
+    {
+      "label": "ComponentStack",
+      "file_type": "code",
+      "source_file": "src/types/game.ts",
+      "source_location": "L227",
+      "_origin": "ast",
+      "id": "src_types_game_componentstack",
+      "community": 23,
+      "community_name": "gameReducer.ts",
+      "norm_label": "componentstack"
+    },
+    {
+      "label": "ComponentDef",
+      "file_type": "code",
+      "source_file": "src/types/game.ts",
+      "source_location": "L233",
+      "_origin": "ast",
+      "id": "src_types_game_componentdef",
+      "community": 33,
+      "community_name": "Resource",
+      "norm_label": "componentdef"
+    },
+    {
       "label": "LootDropRate",
       "file_type": "code",
       "source_file": "src/types/game.ts",
-      "source_location": "L211",
+      "source_location": "L239",
       "_origin": "ast",
       "id": "src_types_game_lootdroprate",
       "community": 33,
@@ -11964,40 +12030,40 @@
       "label": "LootTable",
       "file_type": "code",
       "source_file": "src/types/game.ts",
-      "source_location": "L217",
+      "source_location": "L245",
       "_origin": "ast",
       "id": "src_types_game_loottable",
-      "community": 53,
-      "community_name": "Whirlwind",
+      "community": 12,
+      "community_name": "Enemy",
       "norm_label": "loottable"
     },
     {
       "label": "PlayerStats",
       "file_type": "code",
       "source_file": "src/types/game.ts",
-      "source_location": "L218",
+      "source_location": "L246",
       "_origin": "ast",
       "id": "src_types_game_playerstats",
-      "community": 33,
-      "community_name": "Resource",
+      "community": 52,
+      "community_name": "Multishot",
       "norm_label": "playerstats"
     },
     {
       "label": "PlayerOptions",
       "file_type": "code",
       "source_file": "src/types/game.ts",
-      "source_location": "L244",
+      "source_location": "L272",
       "_origin": "ast",
       "id": "src_types_game_playeroptions",
-      "community": 33,
-      "community_name": "Resource",
+      "community": 0,
+      "community_name": "Player",
       "norm_label": "playeroptions"
     },
     {
       "label": "ResourceStats",
       "file_type": "code",
       "source_file": "src/types/game.ts",
-      "source_location": "L257",
+      "source_location": "L285",
       "_origin": "ast",
       "id": "src_types_game_resourcestats",
       "community": 95,
@@ -12008,7 +12074,7 @@
       "label": "EnemyType",
       "file_type": "code",
       "source_file": "src/types/game.ts",
-      "source_location": "L265",
+      "source_location": "L293",
       "_origin": "ast",
       "id": "src_types_game_enemytype",
       "community": 34,
@@ -12019,7 +12085,7 @@
       "label": "CombatType",
       "file_type": "code",
       "source_file": "src/types/game.ts",
-      "source_location": "L266",
+      "source_location": "L294",
       "_origin": "ast",
       "id": "src_types_game_combattype",
       "community": 33,
@@ -12030,40 +12096,40 @@
       "label": "TargetType",
       "file_type": "code",
       "source_file": "src/types/game.ts",
-      "source_location": "L267",
+      "source_location": "L295",
       "_origin": "ast",
       "id": "src_types_game_targettype",
-      "community": 9,
-      "community_name": "AssignSpell.ts",
+      "community": 2,
+      "community_name": "Spell",
       "norm_label": "targettype"
     },
     {
       "label": "EnemyAttributes",
       "file_type": "code",
       "source_file": "src/types/game.ts",
-      "source_location": "L268",
+      "source_location": "L296",
       "_origin": "ast",
       "id": "src_types_game_enemyattributes",
-      "community": 12,
-      "community_name": "Enemy",
+      "community": 33,
+      "community_name": "Resource",
       "norm_label": "enemyattributes"
     },
     {
       "label": "EnemyConfig",
       "file_type": "code",
       "source_file": "src/types/game.ts",
-      "source_location": "L276",
+      "source_location": "L304",
       "_origin": "ast",
       "id": "src_types_game_enemyconfig",
-      "community": 12,
-      "community_name": "Enemy",
+      "community": 33,
+      "community_name": "Resource",
       "norm_label": "enemyconfig"
     },
     {
       "label": "EnemyOptions",
       "file_type": "code",
       "source_file": "src/types/game.ts",
-      "source_location": "L283",
+      "source_location": "L311",
       "_origin": "ast",
       "id": "src_types_game_enemyoptions",
       "community": 63,
@@ -12074,29 +12140,29 @@
       "label": "TargetKind",
       "file_type": "code",
       "source_file": "src/types/game.ts",
-      "source_location": "L306",
+      "source_location": "L334",
       "_origin": "ast",
       "id": "src_types_game_targetkind",
-      "community": 2,
-      "community_name": "Spell",
+      "community": 33,
+      "community_name": "Resource",
       "norm_label": "targetkind"
     },
     {
       "label": "SpellProjectileConfig",
       "file_type": "code",
       "source_file": "src/types/game.ts",
-      "source_location": "L308",
+      "source_location": "L336",
       "_origin": "ast",
       "id": "src_types_game_spellprojectileconfig",
-      "community": 33,
-      "community_name": "Resource",
+      "community": 2,
+      "community_name": "Spell",
       "norm_label": "spellprojectileconfig"
     },
     {
       "label": "SpellDefinition",
       "file_type": "code",
       "source_file": "src/types/game.ts",
-      "source_location": "L318",
+      "source_location": "L346",
       "_origin": "ast",
       "id": "src_types_game_spelldefinition",
       "community": 33,
@@ -12107,18 +12173,18 @@
       "label": "SpellOptions",
       "file_type": "code",
       "source_file": "src/types/game.ts",
-      "source_location": "L339",
+      "source_location": "L367",
       "_origin": "ast",
       "id": "src_types_game_spelloptions",
-      "community": 9,
-      "community_name": "AssignSpell.ts",
+      "community": 1,
+      "community_name": "Frostbolt.ts",
       "norm_label": "spelloptions"
     },
     {
       "label": "AdjustValue",
       "file_type": "code",
       "source_file": "src/types/game.ts",
-      "source_location": "L367",
+      "source_location": "L395",
       "_origin": "ast",
       "id": "src_types_game_adjustvalue",
       "community": 33,
@@ -12129,29 +12195,29 @@
       "label": "EntityWithVector",
       "file_type": "code",
       "source_file": "src/types/game.ts",
-      "source_location": "L371",
+      "source_location": "L399",
       "_origin": "ast",
       "id": "src_types_game_entitywithvector",
-      "community": 53,
-      "community_name": "Whirlwind",
+      "community": 12,
+      "community_name": "Enemy",
       "norm_label": "entitywithvector"
     },
     {
       "label": "Equipment",
       "file_type": "code",
       "source_file": "src/types/game.ts",
-      "source_location": "L378",
+      "source_location": "L406",
       "_origin": "ast",
       "id": "src_types_game_equipment",
-      "community": 41,
-      "community_name": "ItemTooltip.tsx",
+      "community": 14,
+      "community_name": "PlayerStats",
       "norm_label": "equipment"
     },
     {
       "label": "CharacterData",
       "file_type": "code",
       "source_file": "src/types/game.ts",
-      "source_location": "L386",
+      "source_location": "L414",
       "_origin": "ast",
       "id": "src_types_game_characterdata",
       "community": 33,
@@ -12162,7 +12228,7 @@
       "label": "GameState",
       "file_type": "code",
       "source_file": "src/types/game.ts",
-      "source_location": "L400",
+      "source_location": "L428",
       "_origin": "ast",
       "id": "src_types_game_gamestate",
       "community": 33,
@@ -12242,8 +12308,8 @@
       "source_location": "L22",
       "_origin": "ast",
       "id": "src_ui_ui_menucontext",
-      "community": 39,
-      "community_name": "Health.ts",
+      "community": 14,
+      "community_name": "PlayerStats",
       "norm_label": "menucontext"
     },
     {
@@ -12330,8 +12396,8 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "src_ui_components_atoms_button",
-      "community": 39,
-      "community_name": "Health.ts",
+      "community": 18,
+      "community_name": "UI.tsx",
       "norm_label": "button.tsx"
     },
     {
@@ -12341,8 +12407,8 @@
       "source_location": "L5",
       "_origin": "ast",
       "id": "src_ui_components_atoms_button_buttonprops",
-      "community": 39,
-      "community_name": "Health.ts",
+      "community": 18,
+      "community_name": "UI.tsx",
       "norm_label": "buttonprops"
     },
     {
@@ -12352,8 +12418,8 @@
       "source_location": "L16",
       "_origin": "ast",
       "id": "src_ui_components_atoms_button_button",
-      "community": 39,
-      "community_name": "Health.ts",
+      "community": 18,
+      "community_name": "UI.tsx",
       "norm_label": "button()"
     },
     {
@@ -12418,8 +12484,8 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "src_ui_components_atoms_looticon",
-      "community": 93,
-      "community_name": "Monster.ts",
+      "community": 13,
+      "community_name": "LootItem",
       "norm_label": "looticon.tsx"
     },
     {
@@ -12429,8 +12495,8 @@
       "source_location": "L4",
       "_origin": "ast",
       "id": "src_ui_components_atoms_looticon_looticonstyles",
-      "community": 93,
-      "community_name": "Monster.ts",
+      "community": 13,
+      "community_name": "LootItem",
       "norm_label": "looticonstyles"
     },
     {
@@ -12440,8 +12506,8 @@
       "source_location": "L9",
       "_origin": "ast",
       "id": "src_ui_components_atoms_looticon_looticonprops",
-      "community": 93,
-      "community_name": "Monster.ts",
+      "community": 13,
+      "community_name": "LootItem",
       "norm_label": "looticonprops"
     },
     {
@@ -12451,8 +12517,8 @@
       "source_location": "L17",
       "_origin": "ast",
       "id": "src_ui_components_atoms_looticon_looticon",
-      "community": 93,
-      "community_name": "Monster.ts",
+      "community": 13,
+      "community_name": "LootItem",
       "norm_label": "looticon()"
     },
     {
@@ -12462,8 +12528,8 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "src_ui_components_atoms_price",
-      "community": 39,
-      "community_name": "Health.ts",
+      "community": 14,
+      "community_name": "PlayerStats",
       "norm_label": "price.tsx"
     },
     {
@@ -12473,8 +12539,8 @@
       "source_location": "L5",
       "_origin": "ast",
       "id": "src_ui_components_atoms_price_priceprops",
-      "community": 39,
-      "community_name": "Health.ts",
+      "community": 14,
+      "community_name": "PlayerStats",
       "norm_label": "priceprops"
     },
     {
@@ -12484,8 +12550,8 @@
       "source_location": "L9",
       "_origin": "ast",
       "id": "src_ui_components_atoms_price_price",
-      "community": 39,
-      "community_name": "Health.ts",
+      "community": 14,
+      "community_name": "PlayerStats",
       "norm_label": "price()"
     },
     {
@@ -12495,8 +12561,8 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "src_ui_components_atoms_slot",
-      "community": 59,
-      "community_name": "GameOverScene",
+      "community": 13,
+      "community_name": "LootItem",
       "norm_label": "slot.tsx"
     },
     {
@@ -12506,8 +12572,8 @@
       "source_location": "L5",
       "_origin": "ast",
       "id": "src_ui_components_atoms_slot_slotcomponentprops",
-      "community": 59,
-      "community_name": "GameOverScene",
+      "community": 13,
+      "community_name": "LootItem",
       "norm_label": "slotcomponentprops"
     },
     {
@@ -12517,8 +12583,8 @@
       "source_location": "L11",
       "_origin": "ast",
       "id": "src_ui_components_atoms_slot_slotprops",
-      "community": 59,
-      "community_name": "GameOverScene",
+      "community": 13,
+      "community_name": "LootItem",
       "norm_label": "slotprops"
     },
     {
@@ -12528,8 +12594,8 @@
       "source_location": "L18",
       "_origin": "ast",
       "id": "src_ui_components_atoms_slot_slot",
-      "community": 59,
-      "community_name": "GameOverScene",
+      "community": 13,
+      "community_name": "LootItem",
       "norm_label": "slot()"
     },
     {
@@ -12682,8 +12748,8 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "src_ui_components_molecules_detailedloot",
-      "community": 59,
-      "community_name": "GameOverScene",
+      "community": 13,
+      "community_name": "LootItem",
       "norm_label": "detailedloot.tsx"
     },
     {
@@ -12693,8 +12759,8 @@
       "source_location": "L8",
       "_origin": "ast",
       "id": "src_ui_components_molecules_detailedloot_detailedlootprops",
-      "community": 59,
-      "community_name": "GameOverScene",
+      "community": 13,
+      "community_name": "LootItem",
       "norm_label": "detailedlootprops"
     },
     {
@@ -12704,8 +12770,8 @@
       "source_location": "L14",
       "_origin": "ast",
       "id": "src_ui_components_molecules_detailedloot_detailedloot",
-      "community": 59,
-      "community_name": "GameOverScene",
+      "community": 13,
+      "community_name": "LootItem",
       "norm_label": "detailedloot()"
     },
     {
@@ -12803,8 +12869,8 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "src_ui_components_molecules_installbanner",
-      "community": 39,
-      "community_name": "Health.ts",
+      "community": 58,
+      "community_name": "HudUnderTest",
       "norm_label": "installbanner.tsx"
     },
     {
@@ -12814,8 +12880,8 @@
       "source_location": "L13",
       "_origin": "ast",
       "id": "src_ui_components_molecules_installbanner_shareicon",
-      "community": 39,
-      "community_name": "Health.ts",
+      "community": 58,
+      "community_name": "HudUnderTest",
       "norm_label": "shareicon()"
     },
     {
@@ -12825,8 +12891,8 @@
       "source_location": "L27",
       "_origin": "ast",
       "id": "src_ui_components_molecules_installbanner_installbanner",
-      "community": 39,
-      "community_name": "Health.ts",
+      "community": 58,
+      "community_name": "HudUnderTest",
       "norm_label": "installbanner()"
     },
     {
@@ -12836,8 +12902,8 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "src_ui_components_molecules_itemtooltip",
-      "community": 41,
-      "community_name": "ItemTooltip.tsx",
+      "community": 14,
+      "community_name": "PlayerStats",
       "norm_label": "itemtooltip.tsx"
     },
     {
@@ -12847,8 +12913,8 @@
       "source_location": "L13",
       "_origin": "ast",
       "id": "src_ui_components_molecules_itemtooltip_itemtooltipprops",
-      "community": 41,
-      "community_name": "ItemTooltip.tsx",
+      "community": 14,
+      "community_name": "PlayerStats",
       "norm_label": "itemtooltipprops"
     },
     {
@@ -12858,8 +12924,8 @@
       "source_location": "L19",
       "_origin": "ast",
       "id": "src_ui_components_molecules_itemtooltip_itemtooltip",
-      "community": 41,
-      "community_name": "ItemTooltip.tsx",
+      "community": 14,
+      "community_name": "PlayerStats",
       "norm_label": "itemtooltip()"
     },
     {
@@ -12869,8 +12935,8 @@
       "source_location": "L106",
       "_origin": "ast",
       "id": "src_ui_components_molecules_itemtooltip_mapstatetoprops",
-      "community": 41,
-      "community_name": "ItemTooltip.tsx",
+      "community": 14,
+      "community_name": "PlayerStats",
       "norm_label": "mapstatetoprops()"
     },
     {
@@ -12880,8 +12946,8 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "src_ui_components_molecules_loot",
-      "community": 93,
-      "community_name": "Monster.ts",
+      "community": 13,
+      "community_name": "LootItem",
       "norm_label": "loot.tsx"
     },
     {
@@ -12891,8 +12957,8 @@
       "source_location": "L7",
       "_origin": "ast",
       "id": "src_ui_components_molecules_loot_lootprops",
-      "community": 93,
-      "community_name": "Monster.ts",
+      "community": 13,
+      "community_name": "LootItem",
       "norm_label": "lootprops"
     },
     {
@@ -13001,8 +13067,8 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "src_ui_components_molecules_navigation",
-      "community": 25,
-      "community_name": "index.ts",
+      "community": 18,
+      "community_name": "UI.tsx",
       "norm_label": "navigation.tsx"
     },
     {
@@ -13023,9 +13089,64 @@
       "source_location": "L42",
       "_origin": "ast",
       "id": "src_ui_components_molecules_navigation_mapstatetoprops",
-      "community": 25,
-      "community_name": "index.ts",
+      "community": 18,
+      "community_name": "UI.tsx",
       "norm_label": "mapstatetoprops()"
+    },
+    {
+      "label": "PaginationControls.test.tsx",
+      "file_type": "code",
+      "source_file": "src/ui/components/molecules/PaginationControls.test.tsx",
+      "source_location": "L1",
+      "_origin": "ast",
+      "id": "src_ui_components_molecules_paginationcontrols_test",
+      "community": 18,
+      "community_name": "UI.tsx",
+      "norm_label": "paginationcontrols.test.tsx"
+    },
+    {
+      "label": "noop()",
+      "file_type": "code",
+      "source_file": "src/ui/components/molecules/PaginationControls.test.tsx",
+      "source_location": "L5",
+      "_origin": "ast",
+      "id": "src_ui_components_molecules_paginationcontrols_test_noop",
+      "community": 18,
+      "community_name": "UI.tsx",
+      "norm_label": "noop()"
+    },
+    {
+      "label": "PaginationControls.tsx",
+      "file_type": "code",
+      "source_file": "src/ui/components/molecules/PaginationControls.tsx",
+      "source_location": "L1",
+      "_origin": "ast",
+      "id": "src_ui_components_molecules_paginationcontrols",
+      "community": 18,
+      "community_name": "UI.tsx",
+      "norm_label": "paginationcontrols.tsx"
+    },
+    {
+      "label": "PaginationControlsProps",
+      "file_type": "code",
+      "source_file": "src/ui/components/molecules/PaginationControls.tsx",
+      "source_location": "L5",
+      "_origin": "ast",
+      "id": "src_ui_components_molecules_paginationcontrols_paginationcontrolsprops",
+      "community": 18,
+      "community_name": "UI.tsx",
+      "norm_label": "paginationcontrolsprops"
+    },
+    {
+      "label": "PaginationControls()",
+      "file_type": "code",
+      "source_file": "src/ui/components/molecules/PaginationControls.tsx",
+      "source_location": "L17",
+      "_origin": "ast",
+      "id": "src_ui_components_molecules_paginationcontrols_paginationcontrols",
+      "community": 18,
+      "community_name": "UI.tsx",
+      "norm_label": "paginationcontrols()"
     },
     {
       "label": "StatBar.tsx",
@@ -13199,8 +13320,8 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "src_ui_components_organisms_groupedstats",
-      "community": 14,
-      "community_name": "PlayerStats",
+      "community": 52,
+      "community_name": "Multishot",
       "norm_label": "groupedstats.tsx"
     },
     {
@@ -13210,8 +13331,8 @@
       "source_location": "L6",
       "_origin": "ast",
       "id": "src_ui_components_organisms_groupedstats_statitem",
-      "community": 14,
-      "community_name": "PlayerStats",
+      "community": 52,
+      "community_name": "Multishot",
       "norm_label": "statitem"
     },
     {
@@ -13221,8 +13342,8 @@
       "source_location": "L12",
       "_origin": "ast",
       "id": "src_ui_components_organisms_groupedstats_groupedstatsprops",
-      "community": 14,
-      "community_name": "PlayerStats",
+      "community": 52,
+      "community_name": "Multishot",
       "norm_label": "groupedstatsprops"
     },
     {
@@ -13232,8 +13353,8 @@
       "source_location": "L16",
       "_origin": "ast",
       "id": "src_ui_components_organisms_groupedstats_groupedstats",
-      "community": 14,
-      "community_name": "PlayerStats",
+      "community": 52,
+      "community_name": "Multishot",
       "norm_label": "groupedstats()"
     },
     {
@@ -13243,8 +13364,8 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "src_ui_components_organisms_header",
-      "community": 39,
-      "community_name": "Health.ts",
+      "community": 18,
+      "community_name": "UI.tsx",
       "norm_label": "header.tsx"
     },
     {
@@ -13254,8 +13375,8 @@
       "source_location": "L7",
       "_origin": "ast",
       "id": "src_ui_components_organisms_header_headerconfig",
-      "community": 39,
-      "community_name": "Health.ts",
+      "community": 18,
+      "community_name": "UI.tsx",
       "norm_label": "headerconfig"
     },
     {
@@ -13265,8 +13386,8 @@
       "source_location": "L13",
       "_origin": "ast",
       "id": "src_ui_components_organisms_header_headerprops",
-      "community": 39,
-      "community_name": "Health.ts",
+      "community": 18,
+      "community_name": "UI.tsx",
       "norm_label": "headerprops"
     },
     {
@@ -13276,8 +13397,8 @@
       "source_location": "L18",
       "_origin": "ast",
       "id": "src_ui_components_organisms_header_header",
-      "community": 39,
-      "community_name": "Health.ts",
+      "community": 18,
+      "community_name": "UI.tsx",
       "norm_label": "header()"
     },
     {
@@ -13287,8 +13408,8 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "src_ui_components_organisms_inventory",
-      "community": 39,
-      "community_name": "Health.ts",
+      "community": 25,
+      "community_name": "index.ts",
       "norm_label": "inventory.tsx"
     },
     {
@@ -13298,8 +13419,8 @@
       "source_location": "L5",
       "_origin": "ast",
       "id": "src_ui_components_organisms_inventory_inventory",
-      "community": 39,
-      "community_name": "Health.ts",
+      "community": 25,
+      "community_name": "index.ts",
       "norm_label": "inventory()"
     },
     {
@@ -13320,8 +13441,8 @@
       "source_location": "L5",
       "_origin": "ast",
       "id": "src_ui_components_organisms_stock_stock",
-      "community": 23,
-      "community_name": "gameReducer.ts",
+      "community": 13,
+      "community_name": "LootItem",
       "norm_label": "stock()"
     },
     {
@@ -13452,8 +13573,8 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "src_ui_components_templates_character",
-      "community": 59,
-      "community_name": "GameOverScene",
+      "community": 13,
+      "community_name": "LootItem",
       "norm_label": "character.tsx"
     },
     {
@@ -13463,8 +13584,8 @@
       "source_location": "L11",
       "_origin": "ast",
       "id": "src_ui_components_templates_character_character",
-      "community": 59,
-      "community_name": "GameOverScene",
+      "community": 13,
+      "community_name": "LootItem",
       "norm_label": "character()"
     },
     {
@@ -13529,8 +13650,8 @@
       "source_location": "L32",
       "_origin": "ast",
       "id": "src_ui_components_templates_equipment_test_seed",
-      "community": 25,
-      "community_name": "index.ts",
+      "community": 23,
+      "community_name": "gameReducer.ts",
       "norm_label": "seed()"
     },
     {
@@ -13540,8 +13661,8 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "src_ui_components_templates_equipment",
-      "community": 39,
-      "community_name": "Health.ts",
+      "community": 25,
+      "community_name": "index.ts",
       "norm_label": "equipment.tsx"
     },
     {
@@ -13551,8 +13672,8 @@
       "source_location": "L13",
       "_origin": "ast",
       "id": "src_ui_components_templates_equipment_equipment",
-      "community": 23,
-      "community_name": "gameReducer.ts",
+      "community": 25,
+      "community_name": "index.ts",
       "norm_label": "equipment()"
     },
     {
@@ -13815,8 +13936,8 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "src_ui_hooks_useinstallprompt",
-      "community": 39,
-      "community_name": "Health.ts",
+      "community": 58,
+      "community_name": "HudUnderTest",
       "norm_label": "useinstallprompt.ts"
     },
     {
@@ -13826,8 +13947,8 @@
       "source_location": "L17",
       "_origin": "ast",
       "id": "src_ui_hooks_useinstallprompt_beforeinstallpromptevent",
-      "community": 39,
-      "community_name": "Health.ts",
+      "community": 58,
+      "community_name": "HudUnderTest",
       "norm_label": "beforeinstallpromptevent"
     },
     {
@@ -13837,8 +13958,8 @@
       "source_location": "L19",
       "_origin": "ast",
       "id": "src_ui_hooks_useinstallprompt_beforeinstallpromptevent_prompt",
-      "community": 39,
-      "community_name": "Health.ts",
+      "community": 58,
+      "community_name": "HudUnderTest",
       "norm_label": ".prompt()"
     },
     {
@@ -13848,8 +13969,8 @@
       "source_location": "L23",
       "_origin": "ast",
       "id": "src_ui_hooks_useinstallprompt_installpromptmode",
-      "community": 39,
-      "community_name": "Health.ts",
+      "community": 58,
+      "community_name": "HudUnderTest",
       "norm_label": "installpromptmode"
     },
     {
@@ -13859,8 +13980,8 @@
       "source_location": "L55",
       "_origin": "ast",
       "id": "src_ui_hooks_useinstallprompt_useinstallprompt",
-      "community": 39,
-      "community_name": "Health.ts",
+      "community": 58,
+      "community_name": "HudUnderTest",
       "norm_label": "useinstallprompt"
     },
     {
@@ -13870,8 +13991,8 @@
       "source_location": "L32",
       "_origin": "ast",
       "id": "src_ui_hooks_useinstallprompt_isiossafari",
-      "community": 39,
-      "community_name": "Health.ts",
+      "community": 58,
+      "community_name": "HudUnderTest",
       "norm_label": "isiossafari()"
     },
     {
@@ -13881,9 +14002,86 @@
       "source_location": "L47",
       "_origin": "ast",
       "id": "src_ui_hooks_useinstallprompt_isstandalone",
-      "community": 39,
-      "community_name": "Health.ts",
+      "community": 58,
+      "community_name": "HudUnderTest",
       "norm_label": "isstandalone()"
+    },
+    {
+      "label": "usePagination.test.ts",
+      "file_type": "code",
+      "source_file": "src/ui/hooks/usePagination.test.ts",
+      "source_location": "L1",
+      "_origin": "ast",
+      "id": "src_ui_hooks_usepagination_test",
+      "community": 90,
+      "community_name": "Consecration",
+      "norm_label": "usepagination.test.ts"
+    },
+    {
+      "label": "range()",
+      "file_type": "code",
+      "source_file": "src/ui/hooks/usePagination.test.ts",
+      "source_location": "L5",
+      "_origin": "ast",
+      "id": "src_ui_hooks_usepagination_test_range",
+      "community": 90,
+      "community_name": "Consecration",
+      "norm_label": "range()"
+    },
+    {
+      "label": "usePagination.ts",
+      "file_type": "code",
+      "source_file": "src/ui/hooks/usePagination.ts",
+      "source_location": "L1",
+      "_origin": "ast",
+      "id": "src_ui_hooks_usepagination",
+      "community": 90,
+      "community_name": "Consecration",
+      "norm_label": "usepagination.ts"
+    },
+    {
+      "label": "Pagination",
+      "file_type": "code",
+      "source_file": "src/ui/hooks/usePagination.ts",
+      "source_location": "L8",
+      "_origin": "ast",
+      "id": "src_ui_hooks_usepagination_pagination",
+      "community": 90,
+      "community_name": "Consecration",
+      "norm_label": "pagination"
+    },
+    {
+      "label": "usePagination()",
+      "file_type": "code",
+      "source_file": "src/ui/hooks/usePagination.ts",
+      "source_location": "L22",
+      "_origin": "ast",
+      "id": "src_ui_hooks_usepagination_usepagination",
+      "community": 90,
+      "community_name": "Consecration",
+      "norm_label": "usepagination()"
+    },
+    {
+      "label": "MeasuredPageSize",
+      "file_type": "code",
+      "source_file": "src/ui/hooks/usePagination.ts",
+      "source_location": "L57",
+      "_origin": "ast",
+      "id": "src_ui_hooks_usepagination_measuredpagesize",
+      "community": 90,
+      "community_name": "Consecration",
+      "norm_label": "measuredpagesize"
+    },
+    {
+      "label": "useMeasuredPageSize()",
+      "file_type": "code",
+      "source_file": "src/ui/hooks/usePagination.ts",
+      "source_location": "L68",
+      "_origin": "ast",
+      "id": "src_ui_hooks_usepagination_usemeasuredpagesize",
+      "community": 90,
+      "community_name": "Consecration",
+      "norm_label": "usemeasuredpagesize()"
     },
     {
       "label": "helpers.test.ts",
@@ -15162,10 +15360,21 @@
       "norm_label": "context restriction (critical \u2014 do not skip)"
     },
     {
-      "label": "Step-by-step process",
+      "label": "Identity note (why this posts a comment-style review)",
       "file_type": "document",
       "source_file": ".claude/commands/qa-review.md",
       "source_location": "L17",
+      "_origin": "ast",
+      "id": "claude_commands_qa_review_identity_note_why_this_posts_a_comment_style_review",
+      "community": 60,
+      "community_name": "qa-review.md",
+      "norm_label": "identity note (why this posts a comment-style review)"
+    },
+    {
+      "label": "Step-by-step process",
+      "file_type": "document",
+      "source_file": ".claude/commands/qa-review.md",
+      "source_location": "L26",
       "_origin": "ast",
       "id": "claude_commands_qa_review_step_by_step_process",
       "community": 60,
@@ -15176,7 +15385,7 @@
       "label": "Comment style rules",
       "file_type": "document",
       "source_file": ".claude/commands/qa-review.md",
-      "source_location": "L61",
+      "source_location": "L93",
       "_origin": "ast",
       "id": "claude_commands_qa_review_comment_style_rules",
       "community": 60,
@@ -15902,7 +16111,7 @@
       "label": "Code conventions",
       "file_type": "document",
       "source_file": "CLAUDE.md",
-      "source_location": "L66",
+      "source_location": "L73",
       "_origin": "ast",
       "id": "claude_code_conventions",
       "community": 50,
@@ -15913,7 +16122,7 @@
       "label": "graphify (codebase knowledge graph)",
       "file_type": "document",
       "source_file": "CLAUDE.md",
-      "source_location": "L110",
+      "source_location": "L117",
       "_origin": "ast",
       "id": "claude_graphify_codebase_knowledge_graph",
       "community": 50,
@@ -21090,6 +21299,18 @@
       "relation": "imports_from",
       "context": "import",
       "confidence": "EXTRACTED",
+      "source_file": "src/ui/components/molecules/PaginationControls.tsx",
+      "source_location": "L1",
+      "weight": 1.0,
+      "_origin": "ast",
+      "source": "src_ui_components_molecules_paginationcontrols",
+      "target": "ref_react",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "imports_from",
+      "context": "import",
+      "confidence": "EXTRACTED",
       "source_file": "src/ui/components/molecules/StatBar.tsx",
       "source_location": "L1",
       "weight": 1.0,
@@ -21335,6 +21556,18 @@
       "weight": 1.0,
       "_origin": "ast",
       "source": "src_ui_hooks_useinstallprompt",
+      "target": "ref_react",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "imports_from",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "src/ui/hooks/usePagination.ts",
+      "source_location": "L1",
+      "weight": 1.0,
+      "_origin": "ast",
+      "source": "src_ui_hooks_usepagination",
       "target": "ref_react",
       "confidence_score": 1.0
     },
@@ -25052,7 +25285,7 @@
       "context": "field",
       "confidence": "EXTRACTED",
       "source_file": "src/types/game.ts",
-      "source_location": "L289",
+      "source_location": "L317",
       "weight": 1.0,
       "_origin": "ast",
       "source": "src_types_game_enemyoptions",
@@ -26044,7 +26277,7 @@
       "relation": "contains",
       "confidence": "EXTRACTED",
       "source_file": "src/entities/Loot/Crafting.ts",
-      "source_location": "L14",
+      "source_location": "L15",
       "weight": 1.0,
       "_origin": "ast",
       "source": "src_entities_loot_crafting",
@@ -26055,7 +26288,7 @@
       "relation": "contains",
       "confidence": "EXTRACTED",
       "source_file": "src/entities/Loot/Crafting.ts",
-      "source_location": "L7",
+      "source_location": "L8",
       "weight": 1.0,
       "_origin": "ast",
       "source": "src_entities_loot_crafting",
@@ -26107,7 +26340,7 @@
       "weight": 1.0,
       "_origin": "ast",
       "source": "src_entities_loot_crafting",
-      "target": "src_store_gamereducer_addcrafting",
+      "target": "src_store_gamereducer_addcomponent",
       "confidence_score": 1.0
     },
     {
@@ -26120,6 +26353,30 @@
       "_origin": "ast",
       "source": "src_entities_loot_crafting",
       "target": "src_store_index",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "imports_from",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "src/entities/Loot/Crafting.ts",
+      "source_location": "L6",
+      "weight": 1.0,
+      "_origin": "ast",
+      "source": "src_entities_loot_crafting",
+      "target": "src_types_game",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "imports",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "src/entities/Loot/Crafting.ts",
+      "source_location": "L6",
+      "weight": 1.0,
+      "_origin": "ast",
+      "source": "src_entities_loot_crafting",
+      "target": "src_types_game_componenttype",
       "confidence_score": 1.0
     },
     {
@@ -26150,7 +26407,7 @@
       "relation": "method",
       "confidence": "EXTRACTED",
       "source_file": "src/entities/Loot/Crafting.ts",
-      "source_location": "L33",
+      "source_location": "L34",
       "weight": 1.0,
       "_origin": "ast",
       "source": "src_entities_loot_crafting_crafting",
@@ -26161,7 +26418,7 @@
       "relation": "method",
       "confidence": "EXTRACTED",
       "source_file": "src/entities/Loot/Crafting.ts",
-      "source_location": "L47",
+      "source_location": "L48",
       "weight": 1.0,
       "_origin": "ast",
       "source": "src_entities_loot_crafting_crafting",
@@ -26172,7 +26429,7 @@
       "relation": "method",
       "confidence": "EXTRACTED",
       "source_file": "src/entities/Loot/Crafting.ts",
-      "source_location": "L18",
+      "source_location": "L19",
       "weight": 1.0,
       "_origin": "ast",
       "source": "src_entities_loot_crafting_crafting",
@@ -26183,7 +26440,7 @@
       "relation": "method",
       "confidence": "EXTRACTED",
       "source_file": "src/entities/Loot/Crafting.ts",
-      "source_location": "L43",
+      "source_location": "L44",
       "weight": 1.0,
       "_origin": "ast",
       "source": "src_entities_loot_crafting_crafting",
@@ -26196,7 +26453,7 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "src/entities/Loot/Crafting.ts",
-      "source_location": "L26",
+      "source_location": "L27",
       "weight": 1.0,
       "_origin": "ast",
       "source": "src_entities_loot_crafting_crafting_constructor",
@@ -26208,11 +26465,11 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "src/entities/Loot/Crafting.ts",
-      "source_location": "L48",
+      "source_location": "L49",
       "weight": 1.0,
       "_origin": "ast",
       "source": "src_entities_loot_crafting_crafting_collect",
-      "target": "src_store_gamereducer_addcrafting"
+      "target": "src_store_gamereducer_addcomponent"
     },
     {
       "relation": "contains",
@@ -27434,7 +27691,7 @@
       "context": "import",
       "confidence": "EXTRACTED",
       "source_file": "src/store/gameReducer.ts",
-      "source_location": "L11",
+      "source_location": "L14",
       "weight": 1.0,
       "_origin": "ast",
       "source": "src_store_gamereducer",
@@ -27566,7 +27823,7 @@
       "context": "import",
       "confidence": "EXTRACTED",
       "source_file": "src/store/gameReducer.ts",
-      "source_location": "L11",
+      "source_location": "L14",
       "weight": 1.0,
       "_origin": "ast",
       "source": "src_store_gamereducer",
@@ -27578,7 +27835,7 @@
       "context": "field",
       "confidence": "EXTRACTED",
       "source_file": "src/store/gameReducer.ts",
-      "source_location": "L22",
+      "source_location": "L25",
       "weight": 1.0,
       "_origin": "ast",
       "source": "src_store_gamereducer_gamestate",
@@ -29202,7 +29459,7 @@
       "context": "field",
       "confidence": "EXTRACTED",
       "source_file": "src/types/game.ts",
-      "source_location": "L289",
+      "source_location": "L317",
       "weight": 1.0,
       "_origin": "ast",
       "source": "src_types_game_enemyoptions",
@@ -29214,7 +29471,7 @@
       "context": "field",
       "confidence": "EXTRACTED",
       "source_file": "src/types/game.ts",
-      "source_location": "L346",
+      "source_location": "L374",
       "weight": 1.0,
       "_origin": "ast",
       "source": "src_types_game_spelloptions",
@@ -31527,7 +31784,7 @@
       "context": "field",
       "confidence": "EXTRACTED",
       "source_file": "src/types/game.ts",
-      "source_location": "L248",
+      "source_location": "L276",
       "weight": 1.0,
       "_origin": "ast",
       "source": "src_types_game_playeroptions",
@@ -42347,6 +42604,18 @@
       "weight": 1.0,
       "_origin": "ast",
       "source": "src_store_gamereducer_test",
+      "target": "src_store_gamereducer_addcomponent",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "imports",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "src/store/gameReducer.test.ts",
+      "source_location": "L2",
+      "weight": 1.0,
+      "_origin": "ast",
+      "source": "src_store_gamereducer_test",
       "target": "src_store_gamereducer_addxp",
       "confidence_score": 1.0
     },
@@ -42383,7 +42652,43 @@
       "weight": 1.0,
       "_origin": "ast",
       "source": "src_store_gamereducer_test",
+      "target": "src_store_gamereducer_loadgame",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "imports",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "src/store/gameReducer.test.ts",
+      "source_location": "L2",
+      "weight": 1.0,
+      "_origin": "ast",
+      "source": "src_store_gamereducer_test",
       "target": "src_store_gamereducer_nextwave",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "imports",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "src/store/gameReducer.test.ts",
+      "source_location": "L2",
+      "weight": 1.0,
+      "_origin": "ast",
+      "source": "src_store_gamereducer_test",
+      "target": "src_store_gamereducer_sellcomponent",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "imports",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "src/store/gameReducer.test.ts",
+      "source_location": "L2",
+      "weight": 1.0,
+      "_origin": "ast",
+      "source": "src_store_gamereducer_test",
+      "target": "src_store_gamereducer_sellcomponentstack",
       "confidence_score": 1.0
     },
     {
@@ -42462,7 +42767,7 @@
       "relation": "contains",
       "confidence": "EXTRACTED",
       "source_file": "src/store/gameReducer.test.ts",
-      "source_location": "L18",
+      "source_location": "L23",
       "weight": 1.0,
       "_origin": "ast",
       "source": "src_store_gamereducer_test",
@@ -42486,7 +42791,7 @@
       "context": "import",
       "confidence": "EXTRACTED",
       "source_file": "src/store/gameReducer.test.ts",
-      "source_location": "L16",
+      "source_location": "L21",
       "weight": 1.0,
       "_origin": "ast",
       "source": "src_store_gamereducer_test",
@@ -42498,7 +42803,19 @@
       "context": "import",
       "confidence": "EXTRACTED",
       "source_file": "src/store/gameReducer.test.ts",
-      "source_location": "L16",
+      "source_location": "L21",
+      "weight": 1.0,
+      "_origin": "ast",
+      "source": "src_store_gamereducer_test",
+      "target": "src_types_game_component_defs",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "imports",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "src/store/gameReducer.test.ts",
+      "source_location": "L20",
       "weight": 1.0,
       "_origin": "ast",
       "source": "src_store_gamereducer_test",
@@ -42509,7 +42826,7 @@
       "relation": "contains",
       "confidence": "EXTRACTED",
       "source_file": "src/store/gameReducer.ts",
-      "source_location": "L78",
+      "source_location": "L81",
       "weight": 1.0,
       "_origin": "ast",
       "source": "src_store_gamereducer",
@@ -42520,18 +42837,18 @@
       "relation": "contains",
       "confidence": "EXTRACTED",
       "source_file": "src/store/gameReducer.ts",
-      "source_location": "L86",
+      "source_location": "L89",
       "weight": 1.0,
       "_origin": "ast",
       "source": "src_store_gamereducer",
-      "target": "src_store_gamereducer_addcrafting",
+      "target": "src_store_gamereducer_addcomponent",
       "confidence_score": 1.0
     },
     {
       "relation": "contains",
       "confidence": "EXTRACTED",
       "source_file": "src/store/gameReducer.ts",
-      "source_location": "L90",
+      "source_location": "L101",
       "weight": 1.0,
       "_origin": "ast",
       "source": "src_store_gamereducer",
@@ -42542,7 +42859,7 @@
       "relation": "contains",
       "confidence": "EXTRACTED",
       "source_file": "src/store/gameReducer.ts",
-      "source_location": "L94",
+      "source_location": "L105",
       "weight": 1.0,
       "_origin": "ast",
       "source": "src_store_gamereducer",
@@ -42553,7 +42870,7 @@
       "relation": "contains",
       "confidence": "EXTRACTED",
       "source_file": "src/store/gameReducer.ts",
-      "source_location": "L98",
+      "source_location": "L109",
       "weight": 1.0,
       "_origin": "ast",
       "source": "src_store_gamereducer",
@@ -42564,7 +42881,7 @@
       "relation": "contains",
       "confidence": "EXTRACTED",
       "source_file": "src/store/gameReducer.ts",
-      "source_location": "L102",
+      "source_location": "L113",
       "weight": 1.0,
       "_origin": "ast",
       "source": "src_store_gamereducer",
@@ -42575,7 +42892,7 @@
       "relation": "contains",
       "confidence": "EXTRACTED",
       "source_file": "src/store/gameReducer.ts",
-      "source_location": "L192",
+      "source_location": "L203",
       "weight": 1.0,
       "_origin": "ast",
       "source": "src_store_gamereducer",
@@ -42586,7 +42903,7 @@
       "relation": "contains",
       "confidence": "EXTRACTED",
       "source_file": "src/store/gameReducer.ts",
-      "source_location": "L21",
+      "source_location": "L24",
       "weight": 1.0,
       "_origin": "ast",
       "source": "src_store_gamereducer",
@@ -42597,7 +42914,7 @@
       "relation": "contains",
       "confidence": "EXTRACTED",
       "source_file": "src/store/gameReducer.ts",
-      "source_location": "L45",
+      "source_location": "L48",
       "weight": 1.0,
       "_origin": "ast",
       "source": "src_store_gamereducer",
@@ -42608,7 +42925,7 @@
       "relation": "contains",
       "confidence": "EXTRACTED",
       "source_file": "src/store/gameReducer.ts",
-      "source_location": "L15",
+      "source_location": "L18",
       "weight": 1.0,
       "_origin": "ast",
       "source": "src_store_gamereducer",
@@ -42619,7 +42936,7 @@
       "relation": "contains",
       "confidence": "EXTRACTED",
       "source_file": "src/store/gameReducer.ts",
-      "source_location": "L106",
+      "source_location": "L117",
       "weight": 1.0,
       "_origin": "ast",
       "source": "src_store_gamereducer",
@@ -42630,7 +42947,7 @@
       "relation": "contains",
       "confidence": "EXTRACTED",
       "source_file": "src/store/gameReducer.ts",
-      "source_location": "L110",
+      "source_location": "L121",
       "weight": 1.0,
       "_origin": "ast",
       "source": "src_store_gamereducer",
@@ -42641,7 +42958,7 @@
       "relation": "contains",
       "confidence": "EXTRACTED",
       "source_file": "src/store/gameReducer.ts",
-      "source_location": "L112",
+      "source_location": "L123",
       "weight": 1.0,
       "_origin": "ast",
       "source": "src_store_gamereducer",
@@ -42652,7 +42969,7 @@
       "relation": "contains",
       "confidence": "EXTRACTED",
       "source_file": "src/store/gameReducer.ts",
-      "source_location": "L116",
+      "source_location": "L127",
       "weight": 1.0,
       "_origin": "ast",
       "source": "src_store_gamereducer",
@@ -42663,44 +42980,22 @@
       "relation": "contains",
       "confidence": "EXTRACTED",
       "source_file": "src/store/gameReducer.ts",
-      "source_location": "L120",
+      "source_location": "L93",
       "weight": 1.0,
       "_origin": "ast",
       "source": "src_store_gamereducer",
-      "target": "src_store_gamereducer_sellloot",
+      "target": "src_store_gamereducer_sellcomponent",
       "confidence_score": 1.0
     },
     {
       "relation": "contains",
       "confidence": "EXTRACTED",
       "source_file": "src/store/gameReducer.ts",
-      "source_location": "L124",
+      "source_location": "L97",
       "weight": 1.0,
       "_origin": "ast",
       "source": "src_store_gamereducer",
-      "target": "src_store_gamereducer_setbasestats",
-      "confidence_score": 1.0
-    },
-    {
-      "relation": "contains",
-      "confidence": "EXTRACTED",
-      "source_file": "src/store/gameReducer.ts",
-      "source_location": "L82",
-      "weight": 1.0,
-      "_origin": "ast",
-      "source": "src_store_gamereducer",
-      "target": "src_store_gamereducer_setcoins",
-      "confidence_score": 1.0
-    },
-    {
-      "relation": "contains",
-      "confidence": "EXTRACTED",
-      "source_file": "src/store/gameReducer.ts",
-      "source_location": "L177",
-      "weight": 1.0,
-      "_origin": "ast",
-      "source": "src_store_gamereducer",
-      "target": "src_store_gamereducer_setcurrentarea",
+      "target": "src_store_gamereducer_sellcomponentstack",
       "confidence_score": 1.0
     },
     {
@@ -42711,18 +43006,7 @@
       "weight": 1.0,
       "_origin": "ast",
       "source": "src_store_gamereducer",
-      "target": "src_store_gamereducer_setlevel",
-      "confidence_score": 1.0
-    },
-    {
-      "relation": "contains",
-      "confidence": "EXTRACTED",
-      "source_file": "src/store/gameReducer.ts",
-      "source_location": "L181",
-      "weight": 1.0,
-      "_origin": "ast",
-      "source": "src_store_gamereducer",
-      "target": "src_store_gamereducer_setplayerposition",
+      "target": "src_store_gamereducer_sellloot",
       "confidence_score": 1.0
     },
     {
@@ -42733,18 +43017,51 @@
       "weight": 1.0,
       "_origin": "ast",
       "source": "src_store_gamereducer",
-      "target": "src_store_gamereducer_setsaveslot",
+      "target": "src_store_gamereducer_setbasestats",
       "confidence_score": 1.0
     },
     {
       "relation": "contains",
       "confidence": "EXTRACTED",
       "source_file": "src/store/gameReducer.ts",
-      "source_location": "L139",
+      "source_location": "L85",
       "weight": 1.0,
       "_origin": "ast",
       "source": "src_store_gamereducer",
-      "target": "src_store_gamereducer_setstats",
+      "target": "src_store_gamereducer_setcoins",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "src/store/gameReducer.ts",
+      "source_location": "L188",
+      "weight": 1.0,
+      "_origin": "ast",
+      "source": "src_store_gamereducer",
+      "target": "src_store_gamereducer_setcurrentarea",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "src/store/gameReducer.ts",
+      "source_location": "L142",
+      "weight": 1.0,
+      "_origin": "ast",
+      "source": "src_store_gamereducer",
+      "target": "src_store_gamereducer_setlevel",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "src/store/gameReducer.ts",
+      "source_location": "L192",
+      "weight": 1.0,
+      "_origin": "ast",
+      "source": "src_store_gamereducer",
+      "target": "src_store_gamereducer_setplayerposition",
       "confidence_score": 1.0
     },
     {
@@ -42755,18 +43072,7 @@
       "weight": 1.0,
       "_origin": "ast",
       "source": "src_store_gamereducer",
-      "target": "src_store_gamereducer_switchui",
-      "confidence_score": 1.0
-    },
-    {
-      "relation": "contains",
-      "confidence": "EXTRACTED",
-      "source_file": "src/store/gameReducer.ts",
-      "source_location": "L189",
-      "weight": 1.0,
-      "_origin": "ast",
-      "source": "src_store_gamereducer",
-      "target": "src_store_gamereducer_syncstats",
+      "target": "src_store_gamereducer_setsaveslot",
       "confidence_score": 1.0
     },
     {
@@ -42777,6 +43083,39 @@
       "weight": 1.0,
       "_origin": "ast",
       "source": "src_store_gamereducer",
+      "target": "src_store_gamereducer_setstats",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "src/store/gameReducer.ts",
+      "source_location": "L157",
+      "weight": 1.0,
+      "_origin": "ast",
+      "source": "src_store_gamereducer",
+      "target": "src_store_gamereducer_switchui",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "src/store/gameReducer.ts",
+      "source_location": "L200",
+      "weight": 1.0,
+      "_origin": "ast",
+      "source": "src_store_gamereducer",
+      "target": "src_store_gamereducer_syncstats",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "src/store/gameReducer.ts",
+      "source_location": "L161",
+      "weight": 1.0,
+      "_origin": "ast",
+      "source": "src_store_gamereducer",
       "target": "src_store_gamereducer_togglefilter",
       "confidence_score": 1.0
     },
@@ -42784,7 +43123,7 @@
       "relation": "contains",
       "confidence": "EXTRACTED",
       "source_file": "src/store/gameReducer.ts",
-      "source_location": "L154",
+      "source_location": "L165",
       "weight": 1.0,
       "_origin": "ast",
       "source": "src_store_gamereducer",
@@ -42795,7 +43134,7 @@
       "relation": "contains",
       "confidence": "EXTRACTED",
       "source_file": "src/store/gameReducer.ts",
-      "source_location": "L158",
+      "source_location": "L169",
       "weight": 1.0,
       "_origin": "ast",
       "source": "src_store_gamereducer",
@@ -42806,7 +43145,7 @@
       "relation": "contains",
       "confidence": "EXTRACTED",
       "source_file": "src/store/gameReducer.ts",
-      "source_location": "L162",
+      "source_location": "L173",
       "weight": 1.0,
       "_origin": "ast",
       "source": "src_store_gamereducer",
@@ -42817,7 +43156,7 @@
       "relation": "contains",
       "confidence": "EXTRACTED",
       "source_file": "src/store/gameReducer.ts",
-      "source_location": "L166",
+      "source_location": "L177",
       "weight": 1.0,
       "_origin": "ast",
       "source": "src_store_gamereducer",
@@ -42828,7 +43167,7 @@
       "relation": "contains",
       "confidence": "EXTRACTED",
       "source_file": "src/store/gameReducer.ts",
-      "source_location": "L173",
+      "source_location": "L184",
       "weight": 1.0,
       "_origin": "ast",
       "source": "src_store_gamereducer",
@@ -42840,11 +43179,47 @@
       "context": "import",
       "confidence": "EXTRACTED",
       "source_file": "src/store/gameReducer.ts",
-      "source_location": "L5",
+      "source_location": "L13",
       "weight": 1.0,
       "_origin": "ast",
       "source": "src_store_gamereducer",
       "target": "src_types_game",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "imports",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "src/store/gameReducer.ts",
+      "source_location": "L13",
+      "weight": 1.0,
+      "_origin": "ast",
+      "source": "src_store_gamereducer",
+      "target": "src_types_game_component_defs",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "imports",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "src/store/gameReducer.ts",
+      "source_location": "L5",
+      "weight": 1.0,
+      "_origin": "ast",
+      "source": "src_store_gamereducer",
+      "target": "src_types_game_componentstack",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "imports",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "src/store/gameReducer.ts",
+      "source_location": "L5",
+      "weight": 1.0,
+      "_origin": "ast",
+      "source": "src_store_gamereducer",
+      "target": "src_types_game_componenttype",
       "confidence_score": 1.0
     },
     {
@@ -43068,7 +43443,19 @@
       "context": "field",
       "confidence": "EXTRACTED",
       "source_file": "src/store/gameReducer.ts",
-      "source_location": "L33",
+      "source_location": "L36",
+      "weight": 1.0,
+      "_origin": "ast",
+      "source": "src_store_gamereducer_gamestate",
+      "target": "src_types_game_componentstack",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "references",
+      "context": "field",
+      "confidence": "EXTRACTED",
+      "source_file": "src/store/gameReducer.ts",
+      "source_location": "L37",
       "weight": 1.0,
       "_origin": "ast",
       "source": "src_store_gamereducer_gamestate",
@@ -43080,7 +43467,7 @@
       "context": "field",
       "confidence": "EXTRACTED",
       "source_file": "src/store/gameReducer.ts",
-      "source_location": "L30",
+      "source_location": "L33",
       "weight": 1.0,
       "_origin": "ast",
       "source": "src_store_gamereducer_gamestate",
@@ -43092,7 +43479,7 @@
       "context": "field",
       "confidence": "EXTRACTED",
       "source_file": "src/store/gameReducer.ts",
-      "source_location": "L27",
+      "source_location": "L30",
       "weight": 1.0,
       "_origin": "ast",
       "source": "src_store_gamereducer_gamestate",
@@ -44097,7 +44484,7 @@
       "relation": "contains",
       "confidence": "EXTRACTED",
       "source_file": "src/types/game.ts",
-      "source_location": "L367",
+      "source_location": "L395",
       "weight": 1.0,
       "_origin": "ast",
       "source": "src_types_game",
@@ -44119,7 +44506,7 @@
       "relation": "contains",
       "confidence": "EXTRACTED",
       "source_file": "src/types/game.ts",
-      "source_location": "L127",
+      "source_location": "L136",
       "weight": 1.0,
       "_origin": "ast",
       "source": "src_types_game",
@@ -44130,7 +44517,7 @@
       "relation": "contains",
       "confidence": "EXTRACTED",
       "source_file": "src/types/game.ts",
-      "source_location": "L386",
+      "source_location": "L414",
       "weight": 1.0,
       "_origin": "ast",
       "source": "src_types_game",
@@ -44152,7 +44539,7 @@
       "relation": "contains",
       "confidence": "EXTRACTED",
       "source_file": "src/types/game.ts",
-      "source_location": "L266",
+      "source_location": "L294",
       "weight": 1.0,
       "_origin": "ast",
       "source": "src_types_game",
@@ -44163,7 +44550,51 @@
       "relation": "contains",
       "confidence": "EXTRACTED",
       "source_file": "src/types/game.ts",
-      "source_location": "L268",
+      "source_location": "L118",
+      "weight": 1.0,
+      "_origin": "ast",
+      "source": "src_types_game",
+      "target": "src_types_game_component_defs",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "src/types/game.ts",
+      "source_location": "L233",
+      "weight": 1.0,
+      "_origin": "ast",
+      "source": "src_types_game",
+      "target": "src_types_game_componentdef",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "src/types/game.ts",
+      "source_location": "L227",
+      "weight": 1.0,
+      "_origin": "ast",
+      "source": "src_types_game",
+      "target": "src_types_game_componentstack",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "src/types/game.ts",
+      "source_location": "L223",
+      "weight": 1.0,
+      "_origin": "ast",
+      "source": "src_types_game",
+      "target": "src_types_game_componenttype",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "src/types/game.ts",
+      "source_location": "L296",
       "weight": 1.0,
       "_origin": "ast",
       "source": "src_types_game",
@@ -44174,7 +44605,7 @@
       "relation": "contains",
       "confidence": "EXTRACTED",
       "source_file": "src/types/game.ts",
-      "source_location": "L276",
+      "source_location": "L304",
       "weight": 1.0,
       "_origin": "ast",
       "source": "src_types_game",
@@ -44185,7 +44616,7 @@
       "relation": "contains",
       "confidence": "EXTRACTED",
       "source_file": "src/types/game.ts",
-      "source_location": "L283",
+      "source_location": "L311",
       "weight": 1.0,
       "_origin": "ast",
       "source": "src_types_game",
@@ -44196,7 +44627,7 @@
       "relation": "contains",
       "confidence": "EXTRACTED",
       "source_file": "src/types/game.ts",
-      "source_location": "L265",
+      "source_location": "L293",
       "weight": 1.0,
       "_origin": "ast",
       "source": "src_types_game",
@@ -44207,7 +44638,7 @@
       "relation": "contains",
       "confidence": "EXTRACTED",
       "source_file": "src/types/game.ts",
-      "source_location": "L371",
+      "source_location": "L399",
       "weight": 1.0,
       "_origin": "ast",
       "source": "src_types_game",
@@ -44218,7 +44649,7 @@
       "relation": "contains",
       "confidence": "EXTRACTED",
       "source_file": "src/types/game.ts",
-      "source_location": "L378",
+      "source_location": "L406",
       "weight": 1.0,
       "_origin": "ast",
       "source": "src_types_game",
@@ -44251,7 +44682,7 @@
       "relation": "contains",
       "confidence": "EXTRACTED",
       "source_file": "src/types/game.ts",
-      "source_location": "L400",
+      "source_location": "L428",
       "weight": 1.0,
       "_origin": "ast",
       "source": "src_types_game",
@@ -44273,7 +44704,7 @@
       "relation": "contains",
       "confidence": "EXTRACTED",
       "source_file": "src/types/game.ts",
-      "source_location": "L115",
+      "source_location": "L124",
       "weight": 1.0,
       "_origin": "ast",
       "source": "src_types_game",
@@ -44284,7 +44715,7 @@
       "relation": "contains",
       "confidence": "EXTRACTED",
       "source_file": "src/types/game.ts",
-      "source_location": "L211",
+      "source_location": "L239",
       "weight": 1.0,
       "_origin": "ast",
       "source": "src_types_game",
@@ -44295,7 +44726,7 @@
       "relation": "contains",
       "confidence": "EXTRACTED",
       "source_file": "src/types/game.ts",
-      "source_location": "L186",
+      "source_location": "L195",
       "weight": 1.0,
       "_origin": "ast",
       "source": "src_types_game",
@@ -44306,7 +44737,7 @@
       "relation": "contains",
       "confidence": "EXTRACTED",
       "source_file": "src/types/game.ts",
-      "source_location": "L199",
+      "source_location": "L208",
       "weight": 1.0,
       "_origin": "ast",
       "source": "src_types_game",
@@ -44317,7 +44748,7 @@
       "relation": "contains",
       "confidence": "EXTRACTED",
       "source_file": "src/types/game.ts",
-      "source_location": "L217",
+      "source_location": "L245",
       "weight": 1.0,
       "_origin": "ast",
       "source": "src_types_game",
@@ -44328,7 +44759,7 @@
       "relation": "contains",
       "confidence": "EXTRACTED",
       "source_file": "src/types/game.ts",
-      "source_location": "L210",
+      "source_location": "L219",
       "weight": 1.0,
       "_origin": "ast",
       "source": "src_types_game",
@@ -44350,7 +44781,7 @@
       "relation": "contains",
       "confidence": "EXTRACTED",
       "source_file": "src/types/game.ts",
-      "source_location": "L244",
+      "source_location": "L272",
       "weight": 1.0,
       "_origin": "ast",
       "source": "src_types_game",
@@ -44361,7 +44792,7 @@
       "relation": "contains",
       "confidence": "EXTRACTED",
       "source_file": "src/types/game.ts",
-      "source_location": "L218",
+      "source_location": "L246",
       "weight": 1.0,
       "_origin": "ast",
       "source": "src_types_game",
@@ -44372,7 +44803,7 @@
       "relation": "contains",
       "confidence": "EXTRACTED",
       "source_file": "src/types/game.ts",
-      "source_location": "L257",
+      "source_location": "L285",
       "weight": 1.0,
       "_origin": "ast",
       "source": "src_types_game",
@@ -44394,7 +44825,7 @@
       "relation": "contains",
       "confidence": "EXTRACTED",
       "source_file": "src/types/game.ts",
-      "source_location": "L318",
+      "source_location": "L346",
       "weight": 1.0,
       "_origin": "ast",
       "source": "src_types_game",
@@ -44405,7 +44836,7 @@
       "relation": "contains",
       "confidence": "EXTRACTED",
       "source_file": "src/types/game.ts",
-      "source_location": "L339",
+      "source_location": "L367",
       "weight": 1.0,
       "_origin": "ast",
       "source": "src_types_game",
@@ -44416,7 +44847,7 @@
       "relation": "contains",
       "confidence": "EXTRACTED",
       "source_file": "src/types/game.ts",
-      "source_location": "L308",
+      "source_location": "L336",
       "weight": 1.0,
       "_origin": "ast",
       "source": "src_types_game",
@@ -44438,7 +44869,7 @@
       "relation": "contains",
       "confidence": "EXTRACTED",
       "source_file": "src/types/game.ts",
-      "source_location": "L306",
+      "source_location": "L334",
       "weight": 1.0,
       "_origin": "ast",
       "source": "src_types_game",
@@ -44449,7 +44880,7 @@
       "relation": "contains",
       "confidence": "EXTRACTED",
       "source_file": "src/types/game.ts",
-      "source_location": "L267",
+      "source_location": "L295",
       "weight": 1.0,
       "_origin": "ast",
       "source": "src_types_game",
@@ -44916,7 +45347,7 @@
       "context": "type",
       "confidence": "EXTRACTED",
       "source_file": "src/types/game.ts",
-      "source_location": "L276",
+      "source_location": "L304",
       "weight": 1.0,
       "_origin": "ast",
       "source": "src_types_game_enemyconfig",
@@ -45528,6 +45959,18 @@
       "relation": "imports_from",
       "context": "import",
       "confidence": "EXTRACTED",
+      "source_file": "src/ui/components/molecules/PaginationControls.tsx",
+      "source_location": "L2",
+      "weight": 1.0,
+      "_origin": "ast",
+      "source": "src_ui_components_molecules_paginationcontrols",
+      "target": "src_ui_components_atoms_button",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "imports_from",
+      "context": "import",
+      "confidence": "EXTRACTED",
       "source_file": "src/ui/components/organisms/Header.tsx",
       "source_location": "L2",
       "weight": 1.0,
@@ -45629,6 +46072,18 @@
       "weight": 1.0,
       "_origin": "ast",
       "source": "src_ui_components_molecules_installbanner",
+      "target": "src_ui_components_atoms_button_button",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "imports",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "src/ui/components/molecules/PaginationControls.tsx",
+      "source_location": "L2",
+      "weight": 1.0,
+      "_origin": "ast",
+      "source": "src_ui_components_molecules_paginationcontrols",
       "target": "src_ui_components_atoms_button_button",
       "confidence_score": 1.0
     },
@@ -46819,6 +47274,63 @@
       "target": "src_ui_themes_pixelbackgroundvars"
     },
     {
+      "relation": "imports_from",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "src/ui/components/molecules/PaginationControls.test.tsx",
+      "source_location": "L3",
+      "weight": 1.0,
+      "_origin": "ast",
+      "source": "src_ui_components_molecules_paginationcontrols_test",
+      "target": "src_ui_components_molecules_paginationcontrols",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "imports",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "src/ui/components/molecules/PaginationControls.test.tsx",
+      "source_location": "L3",
+      "weight": 1.0,
+      "_origin": "ast",
+      "source": "src_ui_components_molecules_paginationcontrols_test",
+      "target": "src_ui_components_molecules_paginationcontrols_paginationcontrols",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "src/ui/components/molecules/PaginationControls.test.tsx",
+      "source_location": "L5",
+      "weight": 1.0,
+      "_origin": "ast",
+      "source": "src_ui_components_molecules_paginationcontrols_test",
+      "target": "src_ui_components_molecules_paginationcontrols_test_noop",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "src/ui/components/molecules/PaginationControls.tsx",
+      "source_location": "L17",
+      "weight": 1.0,
+      "_origin": "ast",
+      "source": "src_ui_components_molecules_paginationcontrols",
+      "target": "src_ui_components_molecules_paginationcontrols_paginationcontrols",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "src/ui/components/molecules/PaginationControls.tsx",
+      "source_location": "L5",
+      "weight": 1.0,
+      "_origin": "ast",
+      "source": "src_ui_components_molecules_paginationcontrols",
+      "target": "src_ui_components_molecules_paginationcontrols_paginationcontrolsprops",
+      "confidence_score": 1.0
+    },
+    {
       "relation": "contains",
       "confidence": "EXTRACTED",
       "source_file": "src/ui/components/molecules/StatBar.tsx",
@@ -47905,6 +48417,85 @@
       "_origin": "ast",
       "source": "src_ui_hooks_useinstallprompt_useinstallprompt",
       "target": "src_ui_hooks_useinstallprompt_isstandalone",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "imports_from",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "src/ui/hooks/usePagination.test.ts",
+      "source_location": "L3",
+      "weight": 1.0,
+      "_origin": "ast",
+      "source": "src_ui_hooks_usepagination_test",
+      "target": "src_ui_hooks_usepagination",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "src/ui/hooks/usePagination.test.ts",
+      "source_location": "L5",
+      "weight": 1.0,
+      "_origin": "ast",
+      "source": "src_ui_hooks_usepagination_test",
+      "target": "src_ui_hooks_usepagination_test_range",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "imports",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "src/ui/hooks/usePagination.test.ts",
+      "source_location": "L3",
+      "weight": 1.0,
+      "_origin": "ast",
+      "source": "src_ui_hooks_usepagination_test",
+      "target": "src_ui_hooks_usepagination_usepagination",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "src/ui/hooks/usePagination.ts",
+      "source_location": "L57",
+      "weight": 1.0,
+      "_origin": "ast",
+      "source": "src_ui_hooks_usepagination",
+      "target": "src_ui_hooks_usepagination_measuredpagesize",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "src/ui/hooks/usePagination.ts",
+      "source_location": "L8",
+      "weight": 1.0,
+      "_origin": "ast",
+      "source": "src_ui_hooks_usepagination",
+      "target": "src_ui_hooks_usepagination_pagination",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "src/ui/hooks/usePagination.ts",
+      "source_location": "L68",
+      "weight": 1.0,
+      "_origin": "ast",
+      "source": "src_ui_hooks_usepagination",
+      "target": "src_ui_hooks_usepagination_usemeasuredpagesize",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "src/ui/hooks/usePagination.ts",
+      "source_location": "L22",
+      "weight": 1.0,
+      "_origin": "ast",
+      "source": "src_ui_hooks_usepagination",
+      "target": "src_ui_hooks_usepagination_usepagination",
       "confidence_score": 1.0
     },
     {
@@ -49279,7 +49870,7 @@
       "relation": "contains",
       "confidence": "EXTRACTED",
       "source_file": ".claude/commands/qa-review.md",
-      "source_location": "L61",
+      "source_location": "L93",
       "weight": 1.0,
       "_origin": "ast",
       "source": "claude_commands_qa_review",
@@ -49302,6 +49893,17 @@
       "confidence": "EXTRACTED",
       "source_file": ".claude/commands/qa-review.md",
       "source_location": "L17",
+      "weight": 1.0,
+      "_origin": "ast",
+      "source": "claude_commands_qa_review",
+      "target": "claude_commands_qa_review_identity_note_why_this_posts_a_comment_style_review",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": ".claude/commands/qa-review.md",
+      "source_location": "L26",
       "weight": 1.0,
       "_origin": "ast",
       "source": "claude_commands_qa_review",
@@ -49884,7 +50486,7 @@
       "relation": "contains",
       "confidence": "EXTRACTED",
       "source_file": "CLAUDE.md",
-      "source_location": "L66",
+      "source_location": "L73",
       "weight": 1.0,
       "_origin": "ast",
       "source": "claude_claude_md_working_agreement_and_project_conventions",
@@ -49906,7 +50508,7 @@
       "relation": "contains",
       "confidence": "EXTRACTED",
       "source_file": "CLAUDE.md",
-      "source_location": "L110",
+      "source_location": "L117",
       "weight": 1.0,
       "_origin": "ast",
       "source": "claude_claude_md_working_agreement_and_project_conventions",
@@ -50520,5 +51122,5 @@
     }
   ],
   "hyperedges": [],
-  "built_at_commit": "3dfa62ab467f1bca512492bfe537033229ad8320"
+  "built_at_commit": "034753a189c85c237ca76462081f4f6d59a32009"
 }
