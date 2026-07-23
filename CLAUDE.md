@@ -50,11 +50,17 @@ before starting work; link PRs to the relevant phase issue.
   keep a single writer per branch/PR to avoid conflicting edits.
 - **QA gate (agent-authored PRs only):** after pushing a branch and opening a PR, every
   agent must run `/qa-review <pr-number>` before the PR is considered ready for the
-  maintainer. The QA agent operates with minimal context (linked issue + diff only) and
-  posts a formal GitHub APPROVE or REQUEST_CHANGES review. If REQUEST_CHANGES: address
-  every comment, push fixes, then invoke `/qa-review` again. Only request maintainer
-  review after QA posts APPROVE. Do not pass the QA agent conversation history or
-  broader codebase context — this keeps it honest and scope-focused.
+  maintainer. The QA agent operates with minimal context — its scope contract (the
+  linked issue, or a `Scope:` section in the PR body when there is no issue) plus the
+  PR's source changes, with generated artifacts (`graphify-out/`, lockfiles, `dist/`)
+  excluded. Because agent PRs are authored under the maintainer's own account, GitHub
+  forbids a formal APPROVE/REQUEST_CHANGES on them, so the gate posts its verdict as a
+  `COMMENT`-event review whose body starts `[QA] PR #N reviewed…` and carries an
+  explicit `Verdict: APPROVE` or `Verdict: REQUEST_CHANGES`. If the verdict is
+  REQUEST_CHANGES: address every finding, push fixes, then invoke `/qa-review` again.
+  Only request maintainer review after the QA verdict is APPROVE. Do not pass the QA
+  agent conversation history or broader codebase context — this keeps it honest and
+  scope-focused.
 - **Watch every PR you open (agent-authored PRs only):** the moment you open a PR,
   subscribe to its activity (`subscribe_pr_activity`) and keep monitoring it for review
   comments and CI status until it is merged or closed. Address actionable review/CI
