@@ -51,7 +51,7 @@ Then **filter out generated / non-source artifacts** before reviewing — these 
 
 Review only the remaining **source** files, using each file's `patch`. If a single source file's patch is still too large to read in full, note that in the verdict and review what you can rather than pulling the whole raw diff. (`get_diff` is a last resort — for large PRs it returns generated files inline and can exceed the token budget.)
 
-This does **not** relax the context restriction: you still review only the PR's own changes and never read the broader codebase — you are only skipping generated files *within* this PR.
+This does **not** relax the context restriction: you still review only the PR's own changes and never read the broader codebase — you are only skipping generated files _within_ this PR.
 
 **Step 5 — Review the source changes against the scope contract:**
 
