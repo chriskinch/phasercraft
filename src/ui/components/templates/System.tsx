@@ -42,6 +42,7 @@ const System: React.FC<SystemProps> = ({ state }) => {
           console.log("LOAD")
           dispatch(switchUi("load"));
       }} /> */}
+            <Button text="Settings" onClick={() => dispatch(switchUi("settings"))} />
             <Button
                 text="Quit"
                 onClick={() => {

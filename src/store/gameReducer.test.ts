@@ -2,6 +2,7 @@ import { describe, it, expect } from "vitest";
 import {
     gameReducer,
     addCoins,
+    setCoins,
     addXP,
     nextWave,
     toggleFilter,
@@ -48,6 +49,12 @@ describe("gameReducer", () => {
         const initial = gameReducer(undefined, { type: "@@INIT" });
         const next = gameReducer(initial, addCoins(50));
         expect(next.coins).toBe(initial.coins + 50);
+    });
+
+    it("setCoins sets coins to an absolute value", () => {
+        const initial = gameReducer(undefined, { type: "@@INIT" });
+        const next = gameReducer(initial, setCoins(50));
+        expect(next.coins).toBe(50);
     });
 
     it("addXP increments xp", () => {

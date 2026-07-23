@@ -82,6 +82,10 @@ export const addCoins = createAction("ADD_COIN", (value: number) => ({
     payload: { value },
 }));
 
+export const setCoins = createAction("SET_COINS", (value: number) => ({
+    payload: { value },
+}));
+
 export const addComponent = createAction("ADD_COMPONENT", (type: ComponentType) => ({
     payload: { type },
 }));
@@ -200,6 +204,9 @@ export const gameReducer = createReducer(initState, (builder) => {
     builder
         .addCase(addCoins, (state, action: PayloadAction<{ value: number }>) => {
             state.coins += action.payload.value;
+        })
+        .addCase(setCoins, (state, action: PayloadAction<{ value: number }>) => {
+            state.coins = action.payload.value;
         })
         .addCase(addComponent, (state, action: PayloadAction<{ type: ComponentType }>) => {
             const { type } = action.payload;

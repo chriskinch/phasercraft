@@ -1,5 +1,6 @@
 import { Scene } from "phaser";
 import store from "@store";
+import { readSettings } from "@services/settingsStorage";
 import type { PlayerName } from "@entities/Player/AssignClass";
 
 export interface GameSceneConfig {
@@ -32,6 +33,9 @@ export default class SelectScene extends Scene {
         const character = store.getState().game.character;
         if (!character) throw Error("No character set!");
         this.config.type = character;
-        this.scene.start("TownScene", this.config);
+        // "combat" drops the player straight into the GameScene for faster manual
+        // testing; the default lands in the normal entry scene (currently Town).
+        const target = readSettings().startLocation === "combat" ? "GameScene" : "TownScene";
+        this.scene.start(target, this.config);
     }
 }
