@@ -1,0 +1,16 @@
+.tabs {
+    display: flex;
+    flex-direction: column;
+    height: 100%;
+    gap: 0.5rem;
+}
+
+.tabBar {
+    display: flex;
+    gap: 0.5rem;
+}
+
+.panel {
+    flex: 1;
+    min-height: 0;
+}

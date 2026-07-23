@@ -1,0 +1,41 @@
+.panel {
+    display: flex;
+    flex-direction: column;
+    height: 100%;
+    gap: 0.5rem;
+}
+
+.grid {
+    flex: 1;
+    min-height: 0;
+    overflow: hidden;
+    display: grid;
+    gap: 1rem;
+    grid-template-columns: repeat(var(--cols), 1fr);
+    align-content: start;
+}
+
+.slot {
+    position: relative;
+    padding: 0;
+    margin: 0;
+    background: none;
+    border: none;
+    cursor: pointer;
+    line-height: 0;
+}
+
+.badge {
+    position: absolute;
+    right: -4px;
+    bottom: -4px;
+    min-width: 1rem;
+    padding: 1px 4px;
+    background-color: #222;
+    color: #fff;
+    font-size: 0.7rem;
+    line-height: 1;
+    text-align: center;
+    border-radius: 0.6rem;
+    font-variant-numeric: tabular-nums;
+}
