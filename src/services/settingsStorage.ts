@@ -14,8 +14,8 @@ export type StartLocation = "default" | "combat";
 export interface Settings {
     debug: boolean;
     installBannerDismissed: boolean;
-    // Coins a new game starts with. Mirrors the reducer's initial-state default
-    // so leaving it untouched preserves the existing starting balance.
+    // Coins a new game starts with. Defaults to 0; bump it from the Settings
+    // screen when testing shop/craft flows that need a balance up front.
     startingCoins: number;
     startLocation: StartLocation;
 }
@@ -23,7 +23,7 @@ export interface Settings {
 export const DEFAULT_SETTINGS: Settings = {
     debug: false,
     installBannerDismissed: false,
-    startingCoins: 999,
+    startingCoins: 0,
     startLocation: "default",
 };
 
