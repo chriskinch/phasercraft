@@ -79,6 +79,10 @@ export const addCoins = createAction("ADD_COIN", (value: number) => ({
     payload: { value },
 }));
 
+export const setCoins = createAction("SET_COINS", (value: number) => ({
+    payload: { value },
+}));
+
 export const addCrafting = createAction("ADD_CRAFTING", (key: string) => ({
     payload: { key },
 }));
@@ -189,6 +193,9 @@ export const gameReducer = createReducer(initState, (builder) => {
     builder
         .addCase(addCoins, (state, action: PayloadAction<{ value: number }>) => {
             state.coins += action.payload.value;
+        })
+        .addCase(setCoins, (state, action: PayloadAction<{ value: number }>) => {
+            state.coins = action.payload.value;
         })
         .addCase(addCrafting, (state, action: PayloadAction<{ key: string }>) => {
             const { key } = action.payload;

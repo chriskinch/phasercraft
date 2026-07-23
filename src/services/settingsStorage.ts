@@ -6,12 +6,26 @@
 //
 // Settings live under their own key, distinct from the `slot_a/b/c` save slots.
 
+// Where a new game drops the player. "default" is the game's normal entry
+// (currently Town, but that may change); "combat" jumps straight into the
+// GameScene, which speeds up manual testing of combat.
+export type StartLocation = "default" | "combat";
+
 export interface Settings {
     debug: boolean;
     installBannerDismissed: boolean;
+    // Coins a new game starts with. Mirrors the reducer's initial-state default
+    // so leaving it untouched preserves the existing starting balance.
+    startingCoins: number;
+    startLocation: StartLocation;
 }
 
-export const DEFAULT_SETTINGS: Settings = { debug: false, installBannerDismissed: false };
+export const DEFAULT_SETTINGS: Settings = {
+    debug: false,
+    installBannerDismissed: false,
+    startingCoins: 999,
+    startLocation: "default",
+};
 
 export const SETTINGS_KEY = "settings";
 
