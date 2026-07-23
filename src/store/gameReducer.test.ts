@@ -12,8 +12,13 @@ import {
     sellLoot,
     buyLoot,
     switchUi,
+    addComponent,
+    sellComponent,
+    sellComponentStack,
+    loadGame,
 } from "./gameReducer";
 import type { LootItem } from "@/types/game";
+import { COMPONENT_DEFS } from "@/types/game";
 
 const makeItem = (overrides: Partial<LootItem> = {}): LootItem => ({
     __typename: "Item",
@@ -133,5 +138,123 @@ describe("gameReducer", () => {
         expect(next.loot).toContainEqual(item);
         expect(next.coins).toBe(initial.coins + Math.round(30 / 3));
         expect(next.selected).toBeNull();
+    });
+
+    describe("components", () => {
+        it("addComponent creates a stack of quantity 1 for a new type", () => {
+            const initial = gameReducer(undefined, { type: "@@INIT" });
+            const next = gameReducer(initial, addComponent("scrap"));
+            expect(next.components).toHaveLength(1);
+            expect(next.components[0]).toMatchObject({ type: "scrap", quantity: 1 });
+            expect(typeof next.components[0].id).toBe("string");
+        });
+
+        it("addComponent stacks onto an existing non-full stack of the same type", () => {
+            const initial = gameReducer(undefined, { type: "@@INIT" });
+            const once = gameReducer(initial, addComponent("scrap"));
+            const twice = gameReducer(once, addComponent("scrap"));
+            expect(twice.components).toHaveLength(1);
+            expect(twice.components[0].quantity).toBe(2);
+        });
+
+        it("addComponent keeps different types in separate stacks", () => {
+            const initial = gameReducer(undefined, { type: "@@INIT" });
+            const withScrap = gameReducer(initial, addComponent("scrap"));
+            const withCloth = gameReducer(withScrap, addComponent("cloth"));
+            expect(withCloth.components).toHaveLength(2);
+            expect(withCloth.components.map((s) => s.type)).toEqual(["scrap", "cloth"]);
+        });
+
+        it("addComponent overflows into a new stack once a stack hits stackMax", () => {
+            const initial = gameReducer(undefined, { type: "@@INIT" });
+            const max = COMPONENT_DEFS.ichor.stackMax;
+            let state = initial;
+            for (let i = 0; i < max + 1; i++) {
+                state = gameReducer(state, addComponent("ichor"));
+            }
+            expect(state.components).toHaveLength(2);
+            expect(state.components[0].quantity).toBe(max);
+            expect(state.components[1].quantity).toBe(1);
+        });
+
+        it("addComponent ignores unknown component types", () => {
+            const initial = gameReducer(undefined, { type: "@@INIT" });
+            // Simulate a stray/corrupt loot name with no COMPONENT_DEFS entry.
+            const next = gameReducer(initial, addComponent("bogus" as "scrap"));
+            expect(next.components).toEqual([]);
+        });
+
+        it("sellComponent decrements the stack and credits sellValue × count", () => {
+            const initial = gameReducer(undefined, { type: "@@INIT" });
+            const stack = { id: "stack-1", type: "cloth" as const, quantity: 5 };
+            const stateWithStack = { ...initial, components: [stack] };
+
+            const next = gameReducer(stateWithStack, sellComponent("stack-1", 3));
+            expect(next.components[0].quantity).toBe(2);
+            expect(next.coins).toBe(initial.coins + COMPONENT_DEFS.cloth.sellValue * 3);
+        });
+
+        it("sellComponent removes the stack when it reaches zero", () => {
+            const initial = gameReducer(undefined, { type: "@@INIT" });
+            const stack = { id: "stack-1", type: "scrap" as const, quantity: 2 };
+            const stateWithStack = { ...initial, components: [stack] };
+
+            const next = gameReducer(stateWithStack, sellComponent("stack-1", 2));
+            expect(next.components).toEqual([]);
+            expect(next.coins).toBe(initial.coins + COMPONENT_DEFS.scrap.sellValue * 2);
+        });
+
+        it("sellComponent clamps count to the stack quantity", () => {
+            const initial = gameReducer(undefined, { type: "@@INIT" });
+            const stack = { id: "stack-1", type: "scrap" as const, quantity: 3 };
+            const stateWithStack = { ...initial, components: [stack] };
+
+            const next = gameReducer(stateWithStack, sellComponent("stack-1", 99));
+            expect(next.components).toEqual([]);
+            expect(next.coins).toBe(initial.coins + COMPONENT_DEFS.scrap.sellValue * 3);
+        });
+
+        it("sellComponentStack sells the whole stack and credits the total", () => {
+            const initial = gameReducer(undefined, { type: "@@INIT" });
+            const stack = { id: "stack-1", type: "ichor" as const, quantity: 4 };
+            const stateWithStack = { ...initial, components: [stack] };
+
+            const next = gameReducer(stateWithStack, sellComponentStack("stack-1"));
+            expect(next.components).toEqual([]);
+            expect(next.coins).toBe(initial.coins + COMPONENT_DEFS.ichor.sellValue * 4);
+        });
+    });
+
+    describe("loadGame migration", () => {
+        it("wipes legacy crafting-category items from inventory and keeps gear", () => {
+            const initial = gameReducer(undefined, { type: "@@INIT" });
+            const gear = makeItem({ id: "gear-1", category: "weapon" });
+            const legacyComponent = makeItem({
+                id: "legacy-1",
+                category: "crafting",
+                set: "crafting",
+                name: "scrap",
+            });
+            const legacySave = {
+                ...initial,
+                inventory: [gear, legacyComponent],
+            } as unknown as Parameters<typeof loadGame>[0];
+
+            const next = gameReducer(initial, loadGame(legacySave));
+            expect(next.inventory).toEqual([gear]);
+            expect(next.components).toEqual([]);
+        });
+
+        it("defaults a missing components slice to an empty array", () => {
+            const initial = gameReducer(undefined, { type: "@@INIT" });
+            const legacySave = { ...initial } as Record<string, unknown>;
+            delete legacySave.components;
+
+            const next = gameReducer(
+                initial,
+                loadGame(legacySave as Parameters<typeof loadGame>[0])
+            );
+            expect(next.components).toEqual([]);
+        });
     });
 });
