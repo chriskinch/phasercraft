@@ -7,7 +7,10 @@ import type {
     PlayerStats,
     ResourceStats,
     Equipment as GameEquipment,
+    ComponentStack,
+    ComponentType,
 } from "@/types/game";
+import { COMPONENT_DEFS } from "@/types/game";
 import type { PlayerName } from "@entities/Player/AssignClass";
 
 // Types
@@ -30,9 +33,9 @@ export interface GameState {
     loot: LootItem[];
     filters: string[];
     inventory: LootItem[];
+    components: ComponentStack[];
     equipment: GameEquipment;
     coins: number;
-    crafting: LootItem[];
     selected: LootItem | null;
     saveSlot: string | null;
     wave: number;
@@ -58,6 +61,7 @@ const initState: GameState = {
     loot: [],
     filters: [],
     inventory: [],
+    components: [],
     equipment: {
         amulet: null,
         body: null,
@@ -65,7 +69,6 @@ const initState: GameState = {
         weapon: null,
     },
     coins: 999,
-    crafting: [],
     selected: null,
     saveSlot: null,
     wave: 1,
@@ -79,8 +82,16 @@ export const addCoins = createAction("ADD_COIN", (value: number) => ({
     payload: { value },
 }));
 
-export const addCrafting = createAction("ADD_CRAFTING", (key: string) => ({
-    payload: { key },
+export const addComponent = createAction("ADD_COMPONENT", (type: ComponentType) => ({
+    payload: { type },
+}));
+
+export const sellComponent = createAction("SELL_COMPONENT", (stackId: string, count: number) => ({
+    payload: { stackId, count },
+}));
+
+export const sellComponentStack = createAction("SELL_COMPONENT_STACK", (stackId: string) => ({
+    payload: { stackId },
 }));
 
 export const addLoot = createAction("ADD_LOOT", (id: string) => ({
@@ -190,20 +201,44 @@ export const gameReducer = createReducer(initState, (builder) => {
         .addCase(addCoins, (state, action: PayloadAction<{ value: number }>) => {
             state.coins += action.payload.value;
         })
-        .addCase(addCrafting, (state, action: PayloadAction<{ key: string }>) => {
-            const { key } = action.payload;
-            state.inventory.push({
-                __typename: "Item",
-                id: Math.random().toString(),
-                category: "crafting",
-                color: "#bbbbbb",
-                icon: key,
-                set: "crafting",
-                uuid: Math.random().toString(),
-                stats: [],
-                cost: 5,
-                name: key,
-            });
+        .addCase(addComponent, (state, action: PayloadAction<{ type: ComponentType }>) => {
+            const { type } = action.payload;
+            const def = COMPONENT_DEFS[type];
+            // Ignore unknown component types so a stray/corrupt name can't create a
+            // stack with no definition (its stackMax/sellValue would be undefined).
+            if (!def) return;
+            // Fill an existing non-full stack of this type before opening a new one;
+            // once every stack of the type is at stackMax, the pickup starts a fresh
+            // stack (overflow → new stack).
+            const stack = state.components.find(
+                (s) => s.type === type && s.quantity < def.stackMax
+            );
+            if (stack) {
+                stack.quantity += 1;
+            } else {
+                state.components.push({ id: Math.random().toString(), type, quantity: 1 });
+            }
+        })
+        .addCase(
+            sellComponent,
+            (state, action: PayloadAction<{ stackId: string; count: number }>) => {
+                const { stackId, count } = action.payload;
+                const stack = state.components.find((s) => s.id === stackId);
+                if (!stack) return;
+                // Clamp to what the stack actually holds; a non-positive count is a no-op.
+                const sold = Math.min(Math.max(count, 0), stack.quantity);
+                if (sold === 0) return;
+                stack.quantity -= sold;
+                state.coins += COMPONENT_DEFS[stack.type].sellValue * sold;
+                if (stack.quantity <= 0) remove(state.components, (s) => s.id === stackId);
+            }
+        )
+        .addCase(sellComponentStack, (state, action: PayloadAction<{ stackId: string }>) => {
+            const { stackId } = action.payload;
+            const stack = state.components.find((s) => s.id === stackId);
+            if (!stack) return;
+            state.coins += COMPONENT_DEFS[stack.type].sellValue * stack.quantity;
+            remove(state.components, (s) => s.id === stackId);
         })
         .addCase(addLoot, (state, action: PayloadAction<{ id: string }>) => {
             const loot = state.loot.find((l) => l.id === action.payload.id);
@@ -237,7 +272,17 @@ export const gameReducer = createReducer(initState, (builder) => {
             syncStats(state);
         })
         .addCase(loadGame, (state, action: PayloadAction<{ state: Partial<GameState> }>) => {
-            return action.payload.state as GameState;
+            // Migration: pre-overhaul saves stored components as individual
+            // `crafting`-category LootItems inside `inventory`, plus a now-removed
+            // `crafting` slice. Discard both (maintainer-confirmed) and guarantee the
+            // new `components` slice exists. Only `category === "crafting"` items are
+            // dropped, so gear is never touched. Never throws on a partial save.
+            const loaded = action.payload.state as GameState & { crafting?: unknown };
+            const inventory = (loaded.inventory ?? []).filter(
+                (item) => item.category !== "crafting"
+            );
+            delete loaded.crafting;
+            return { ...loaded, inventory, components: loaded.components ?? [] } as GameState;
         })
         .addCase(nextWave, (state) => {
             state.wave++;

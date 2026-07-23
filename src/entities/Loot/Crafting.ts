@@ -1,8 +1,9 @@
 import { GameObjects, Scene } from "phaser";
 import store from "@store";
-import { addCrafting } from "@store/gameReducer";
+import { addComponent } from "@store/gameReducer";
 import getRandomVelocity from "@helpers/getRandomVelocity";
 import type { GameSceneLike } from "@/types/scene";
+import type { ComponentType } from "@/types/game";
 
 interface CraftingConfig {
     scene: Scene;
@@ -45,7 +46,7 @@ class Crafting extends GameObjects.Sprite {
     }
 
     collect(): void {
-        store.dispatch(addCrafting(this.name));
+        store.dispatch(addComponent(this.name as ComponentType));
 
         this.scene.tweens.add({
             targets: this,
