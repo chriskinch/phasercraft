@@ -15,17 +15,34 @@ export type Character = (typeof CHARACTERS)[number];
 // menu reads `wave`/`coins`/`character` off `.game` to render each slot.
 export const SAVE_SLOTS = ["slot_a", "slot_b", "slot_c"] as const;
 
+// A component stack as persisted in the save's `components` slice (added by the
+// inventory overhaul). Mirrors ComponentStack in src/types/game.ts.
+export interface SavedComponentStack {
+    id: string;
+    type: string;
+    quantity: number;
+}
+
 // Minimal save payload matching what the Save menu reads back. We only populate
 // the fields the Load screen renders (character, wave, coins, saveSlot); the
 // rest of GameState is irrelevant to the roundtrip assertion and Redux/Phaser
-// tolerate a partial load for the purposes of the DOM check.
-export function makeSave(slot: string, character: Character, wave: number, coins: number) {
+// tolerate a partial load for the purposes of the DOM check. `components` is
+// optional so a save can carry the overhaul's stack slice for the persistence
+// roundtrip.
+export function makeSave(
+    slot: string,
+    character: Character,
+    wave: number,
+    coins: number,
+    components?: SavedComponentStack[]
+) {
     return {
         game: {
             character,
             saveSlot: slot,
             wave,
             coins,
+            ...(components ? { components } : {}),
         },
     };
 }
