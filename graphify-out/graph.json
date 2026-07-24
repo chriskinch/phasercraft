@@ -1649,8 +1649,8 @@
       "source_location": "L14",
       "_origin": "ast",
       "id": "ref_react",
-      "community": 13,
-      "community_name": "LootItem",
+      "community": 18,
+      "community_name": "UI.tsx",
       "norm_label": "react"
     },
     {
@@ -2529,8 +2529,8 @@
       "source_location": "L72",
       "_origin": "ast",
       "id": "package_devdependencies_eslint",
-      "community": 10,
-      "community_name": "devDependencies",
+      "community": 93,
+      "community_name": "eslint",
       "norm_label": "eslint"
     },
     {
@@ -2540,8 +2540,8 @@
       "source_location": "L72",
       "_origin": "ast",
       "id": "eslint",
-      "community": 10,
-      "community_name": "devDependencies",
+      "community": 93,
+      "community_name": "eslint",
       "norm_label": "eslint"
     },
     {
@@ -2683,8 +2683,8 @@
       "source_location": "L79",
       "_origin": "ast",
       "id": "package_devdependencies_prettier",
-      "community": 110,
-      "community_name": "prettier",
+      "community": 10,
+      "community_name": "devDependencies",
       "norm_label": "prettier"
     },
     {
@@ -2694,8 +2694,8 @@
       "source_location": "L79",
       "_origin": "ast",
       "id": "prettier",
-      "community": 110,
-      "community_name": "prettier",
+      "community": 10,
+      "community_name": "devDependencies",
       "norm_label": "prettier"
     },
     {
@@ -11417,8 +11417,8 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "src_store_gamereducer_test",
-      "community": 25,
-      "community_name": "index.ts",
+      "community": 90,
+      "community_name": "gameReducer.test.ts",
       "norm_label": "gamereducer.test.ts"
     },
     {
@@ -11428,8 +11428,8 @@
       "source_location": "L23",
       "_origin": "ast",
       "id": "src_store_gamereducer_test_makeitem",
-      "community": 25,
-      "community_name": "index.ts",
+      "community": 90,
+      "community_name": "gameReducer.test.ts",
       "norm_label": "makeitem()"
     },
     {
@@ -11494,8 +11494,8 @@
       "source_location": "L85",
       "_origin": "ast",
       "id": "src_store_gamereducer_setcoins",
-      "community": 24,
-      "community_name": "HUD.ts",
+      "community": 90,
+      "community_name": "gameReducer.test.ts",
       "norm_label": "setcoins"
     },
     {
@@ -11516,8 +11516,8 @@
       "source_location": "L93",
       "_origin": "ast",
       "id": "src_store_gamereducer_sellcomponent",
-      "community": 25,
-      "community_name": "index.ts",
+      "community": 90,
+      "community_name": "gameReducer.test.ts",
       "norm_label": "sellcomponent"
     },
     {
@@ -11527,8 +11527,8 @@
       "source_location": "L97",
       "_origin": "ast",
       "id": "src_store_gamereducer_sellcomponentstack",
-      "community": 25,
-      "community_name": "index.ts",
+      "community": 90,
+      "community_name": "gameReducer.test.ts",
       "norm_label": "sellcomponentstack"
     },
     {
@@ -11549,8 +11549,8 @@
       "source_location": "L105",
       "_origin": "ast",
       "id": "src_store_gamereducer_addxp",
-      "community": 25,
-      "community_name": "index.ts",
+      "community": 90,
+      "community_name": "gameReducer.test.ts",
       "norm_label": "addxp"
     },
     {
@@ -11604,8 +11604,8 @@
       "source_location": "L123",
       "_origin": "ast",
       "id": "src_store_gamereducer_selectcharacter",
-      "community": 24,
-      "community_name": "HUD.ts",
+      "community": 90,
+      "community_name": "gameReducer.test.ts",
       "norm_label": "selectcharacter"
     },
     {
@@ -11626,8 +11626,8 @@
       "source_location": "L131",
       "_origin": "ast",
       "id": "src_store_gamereducer_sellloot",
-      "community": 52,
-      "community_name": "Multishot",
+      "community": 90,
+      "community_name": "gameReducer.test.ts",
       "norm_label": "sellloot"
     },
     {
@@ -12407,8 +12407,8 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "src_ui_components_atoms_button",
-      "community": 24,
-      "community_name": "HUD.ts",
+      "community": 90,
+      "community_name": "gameReducer.test.ts",
       "norm_label": "button.tsx"
     },
     {
@@ -12418,8 +12418,8 @@
       "source_location": "L5",
       "_origin": "ast",
       "id": "src_ui_components_atoms_button_buttonprops",
-      "community": 24,
-      "community_name": "HUD.ts",
+      "community": 90,
+      "community_name": "gameReducer.test.ts",
       "norm_label": "buttonprops"
     },
     {
@@ -12429,8 +12429,8 @@
       "source_location": "L16",
       "_origin": "ast",
       "id": "src_ui_components_atoms_button_button",
-      "community": 24,
-      "community_name": "HUD.ts",
+      "community": 90,
+      "community_name": "gameReducer.test.ts",
       "norm_label": "button()"
     },
     {
@@ -12726,8 +12726,8 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "src_ui_components_molecules_charactercard",
-      "community": 24,
-      "community_name": "HUD.ts",
+      "community": 90,
+      "community_name": "gameReducer.test.ts",
       "norm_label": "charactercard.tsx"
     },
     {
@@ -12737,8 +12737,8 @@
       "source_location": "L10",
       "_origin": "ast",
       "id": "src_ui_components_molecules_charactercard_charactercardprops",
-      "community": 24,
-      "community_name": "HUD.ts",
+      "community": 90,
+      "community_name": "gameReducer.test.ts",
       "norm_label": "charactercardprops"
     },
     {
@@ -12748,8 +12748,8 @@
       "source_location": "L17",
       "_origin": "ast",
       "id": "src_ui_components_molecules_charactercard_charactercard",
-      "community": 24,
-      "community_name": "HUD.ts",
+      "community": 90,
+      "community_name": "gameReducer.test.ts",
       "norm_label": "charactercard()"
     },
     {
@@ -12781,8 +12781,8 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "src_ui_components_molecules_componentsellcontrols",
-      "community": 25,
-      "community_name": "index.ts",
+      "community": 90,
+      "community_name": "gameReducer.test.ts",
       "norm_label": "componentsellcontrols.tsx"
     },
     {
@@ -12792,8 +12792,8 @@
       "source_location": "L9",
       "_origin": "ast",
       "id": "src_ui_components_molecules_componentsellcontrols_componentsellcontrolsprops",
-      "community": 25,
-      "community_name": "index.ts",
+      "community": 90,
+      "community_name": "gameReducer.test.ts",
       "norm_label": "componentsellcontrolsprops"
     },
     {
@@ -12803,8 +12803,8 @@
       "source_location": "L17",
       "_origin": "ast",
       "id": "src_ui_components_molecules_componentsellcontrols_componentsellcontrols",
-      "community": 25,
-      "community_name": "index.ts",
+      "community": 90,
+      "community_name": "gameReducer.test.ts",
       "norm_label": "componentsellcontrols()"
     },
     {
@@ -13056,8 +13056,8 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "src_ui_components_molecules_installbanner",
-      "community": 24,
-      "community_name": "HUD.ts",
+      "community": 90,
+      "community_name": "gameReducer.test.ts",
       "norm_label": "installbanner.tsx"
     },
     {
@@ -13067,8 +13067,8 @@
       "source_location": "L13",
       "_origin": "ast",
       "id": "src_ui_components_molecules_installbanner_shareicon",
-      "community": 24,
-      "community_name": "HUD.ts",
+      "community": 90,
+      "community_name": "gameReducer.test.ts",
       "norm_label": "shareicon()"
     },
     {
@@ -13496,8 +13496,8 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "src_ui_components_organisms_dialog",
-      "community": 39,
-      "community_name": "Health.ts",
+      "community": 24,
+      "community_name": "HUD.ts",
       "norm_label": "dialog.tsx"
     },
     {
@@ -13507,8 +13507,8 @@
       "source_location": "L4",
       "_origin": "ast",
       "id": "src_ui_components_organisms_dialog_dialogprops",
-      "community": 39,
-      "community_name": "Health.ts",
+      "community": 24,
+      "community_name": "HUD.ts",
       "norm_label": "dialogprops"
     },
     {
@@ -13518,8 +13518,8 @@
       "source_location": "L8",
       "_origin": "ast",
       "id": "src_ui_components_organisms_dialog_dialog",
-      "community": 39,
-      "community_name": "Health.ts",
+      "community": 24,
+      "community_name": "HUD.ts",
       "norm_label": "dialog()"
     },
     {
@@ -13892,8 +13892,8 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "src_ui_components_templates_equipment",
-      "community": 52,
-      "community_name": "Multishot",
+      "community": 90,
+      "community_name": "gameReducer.test.ts",
       "norm_label": "equipment.tsx"
     },
     {
@@ -13903,8 +13903,8 @@
       "source_location": "L13",
       "_origin": "ast",
       "id": "src_ui_components_templates_equipment_equipment",
-      "community": 52,
-      "community_name": "Multishot",
+      "community": 90,
+      "community_name": "gameReducer.test.ts",
       "norm_label": "equipment()"
     },
     {
@@ -16353,7 +16353,7 @@
       "label": "Code conventions",
       "file_type": "document",
       "source_file": "CLAUDE.md",
-      "source_location": "L72",
+      "source_location": "L73",
       "_origin": "ast",
       "id": "claude_code_conventions",
       "community": 50,
@@ -16364,7 +16364,7 @@
       "label": "graphify (codebase knowledge graph)",
       "file_type": "document",
       "source_file": "CLAUDE.md",
-      "source_location": "L116",
+      "source_location": "L117",
       "_origin": "ast",
       "id": "claude_graphify_codebase_knowledge_graph",
       "community": 50,
@@ -51758,7 +51758,7 @@
       "relation": "contains",
       "confidence": "EXTRACTED",
       "source_file": "CLAUDE.md",
-      "source_location": "L72",
+      "source_location": "L73",
       "weight": 1.0,
       "_origin": "ast",
       "source": "claude_claude_md_working_agreement_and_project_conventions",
@@ -51780,7 +51780,7 @@
       "relation": "contains",
       "confidence": "EXTRACTED",
       "source_file": "CLAUDE.md",
-      "source_location": "L116",
+      "source_location": "L117",
       "weight": 1.0,
       "_origin": "ast",
       "source": "claude_claude_md_working_agreement_and_project_conventions",
@@ -52394,5 +52394,5 @@
     }
   ],
   "hyperedges": [],
-  "built_at_commit": "880c25bc48334edfa31d2061d29029d519bd0293"
+  "built_at_commit": "4ae0fbe99b1afe94d3b6b80964c746455e1a543c"
 }
