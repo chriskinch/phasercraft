@@ -1,0 +1,30 @@
+.controls {
+    display: flex;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 0.5rem;
+}
+
+.stepper {
+    display: flex;
+    align-items: center;
+    gap: 0.25rem;
+}
+
+.qty {
+    min-width: 2ch;
+    text-align: center;
+    font-variant-numeric: tabular-nums;
+}
+
+.value {
+    min-width: 3ch;
+    color: #ffc93e;
+    font-variant-numeric: tabular-nums;
+}
+
+.empty {
+    margin: 0;
+    opacity: 0.7;
+    font-style: italic;
+}

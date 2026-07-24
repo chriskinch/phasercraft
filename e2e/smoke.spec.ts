@@ -122,4 +122,51 @@ test.describe("Phasercraft smoke", () => {
         expect(persisted).not.toBeNull();
         expect(JSON.parse(persisted as string).game.wave).toBe(WAVE);
     });
+
+    // ── Flow 5: component stacks survive the save roundtrip ──────────────────
+    //
+    // The inventory overhaul (#397) added a `components` slice to the save shape.
+    // This asserts the end-to-end persistence contract: a save carrying component
+    // stacks loads without error through the real save service and the slice
+    // survives in storage. (The interactive paginate/sell flow lives behind the
+    // canvas-gated Equipment overlay — see the fixme below.)
+    test("component stacks persist through a save/load roundtrip", async ({ page }) => {
+        const slot = "slot_b";
+        const stacks = [
+            { id: "sc-1", type: "scrap", quantity: 42 },
+            { id: "cl-1", type: "cloth", quantity: 7 },
+        ];
+        await seedSave(page, slot, makeSave(slot, "Warrior", 3, 500, stacks));
+
+        await page.goto("/");
+        await expectGameCanvas(page);
+
+        await expect(page.locator('[data-testid="menu-container"]')).toBeVisible();
+        await page.getByRole("button", { name: "Load", exact: true }).click();
+
+        // Loading a components-carrying save must not error; the overlay closes.
+        await page.getByRole("button", { name: "Load", exact: true }).first().click();
+        await expect(page.locator('[data-testid="menu-container"]')).toHaveCount(0);
+
+        // The persisted save still carries the components slice intact.
+        const persisted = await page.evaluate((key) => window.localStorage.getItem(key), slot);
+        const game = JSON.parse(persisted as string).game;
+        expect(game.components).toHaveLength(2);
+        expect(game.components[0]).toMatchObject({ type: "scrap", quantity: 42 });
+    });
+
+    // ── Flow 6: components tab paginate + sell (canvas-gated) ────────────────
+    //
+    // The Gear|Components tabs live in the Equipment overlay, which is opened
+    // in-run by a Phaser HUD pointerdown dispatching toggleUi("equipment")
+    // (src/entities/UI/HUD.ts) — canvas input that is not reachable from the DOM
+    // headlessly, and the Redux store is not exposed on `window` to force it open
+    // (same limitation as the wave-readout fixme above). The paginate + Sell 1 /
+    // Sell N / Sell All behaviour is fully covered by the component tests
+    // (ComponentsGrid, ComponentSellControls, ComponentsPanel). Unblocked by the
+    // same minimal test hook the wave fixme needs.
+    test.fixme("components tab: paginate the grid and sell a stack via the overlay", async () => {
+        // Needs a DOM-reachable way into the Equipment overlay (a window-exposed
+        // store in dev/test, or a data-testid nav hook) to drive the tab.
+    });
 });

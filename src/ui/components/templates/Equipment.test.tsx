@@ -7,10 +7,10 @@ import Equipment from "@components/Equipment";
 import type { GameState } from "@store/gameReducer";
 import type { LootItem } from "@/types/game";
 
-// Equipment renders the singleton `@store`-backed <Inventory>, which reads
-// `store.getState().game.inventory` directly rather than via useSelector. To keep
-// the inventory grid and the useSelector-driven sections consistent, drive the
-// real singleton store here and restore its initial slice after each test.
+// Equipment renders the <InventoryTabs> grids (Gear tab by default), which read
+// the store via useSelector. Passing the singleton `@store` as the provider store
+// and seeding it with `loadGame` keeps the grid and the other useSelector-driven
+// sections consistent; the initial slice is restored after each test.
 const initialGame: GameState = JSON.parse(JSON.stringify(store.getState().game));
 
 function makeItem(overrides: Partial<LootItem> = {}): LootItem {

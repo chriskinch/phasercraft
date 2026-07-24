@@ -2,7 +2,7 @@ import React from "react";
 import { useSelector, useDispatch } from "react-redux";
 import { sellLoot } from "@store/gameReducer";
 import Button from "@components/Button";
-import Inventory from "@components/Inventory";
+import InventoryTabs from "@components/InventoryTabs";
 import DroppableSlot from "@components/DroppableSlot";
 import GroupedAttributes from "@components/GroupedAttributes";
 import StatBar from "@components/StatBar";
@@ -45,7 +45,7 @@ const Equipment: React.FC = () => {
                 <DroppableSlot slot="amulet" loot={amulet} />
             </section>
             <section className={`${theme.pixelEmboss} ${styles.inventorySection}`}>
-                <Inventory />
+                <InventoryTabs />
             </section>
             <section className={styles.actionsSection}>
                 <Button
