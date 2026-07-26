@@ -136,8 +136,10 @@ describe("Equipment template", () => {
 
             expect(screen.getByTestId("sell-stepper")).toBeInTheDocument();
             expect(screen.getByRole("button", { name: "Sell All" })).toBeInTheDocument();
-            expect(screen.getByTestId("sell-qty")).toHaveTextContent("1");
             expect(screen.getByTestId("sell-value")).toHaveTextContent("+8");
+            // The Sell button label is the only quantity readout.
+            expect(screen.queryByTestId("sell-qty")).not.toBeInTheDocument();
+            expect(screen.getByRole("button", { name: "Sell" })).toBeInTheDocument();
         });
 
         it("counts the Sell button up with + and sells that quantity", () => {
@@ -162,7 +164,7 @@ describe("Equipment template", () => {
             for (let i = 0; i < 10; i++) {
                 fireEvent.click(screen.getByRole("button", { name: "+" }));
             }
-            expect(screen.getByTestId("sell-qty")).toHaveTextContent("5");
+            expect(screen.getByRole("button", { name: "Sell 5" })).toBeInTheDocument();
             expect(screen.getByRole("button", { name: "+" })).toBeDisabled();
 
             fireEvent.click(screen.getByRole("button", { name: "Sell All" }));

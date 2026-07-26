@@ -85,33 +85,30 @@ const Equipment: React.FC = () => {
                 )}
             </section>
             <section className={styles.filtersSection} role="tablist">
-                <Button text="Gear" size={1} on={!onParts} onClick={() => setTab("gear")} />
-                <Button text="Parts" size={1} on={onParts} onClick={() => setTab("parts")} />
+                <Button text="Gear" on={!onParts} onClick={() => setTab("gear")} />
+                <Button text="Parts" on={onParts} onClick={() => setTab("parts")} />
             </section>
             <section className={styles.actionsSection}>
-                {onParts && (
-                    <div className={styles.stepper} data-testid="sell-stepper">
-                        <Button
-                            text="-"
-                            size={1}
-                            disabled={!stack || qty <= 1}
-                            onClick={() => setRawQty(qty - 1)}
-                        />
-                        <span className={styles.qty} data-testid="sell-qty">
-                            {qty}
-                        </span>
-                        <Button
-                            text="+"
-                            size={1}
-                            disabled={!stack || qty >= stack.quantity}
-                            onClick={() => setRawQty(qty + 1)}
-                        />
-                    </div>
-                )}
                 {onParts && stack && (
                     <span className={styles.value} data-testid="sell-value">
                         +{COMPONENT_DEFS[stack.type].sellValue * qty}
                     </span>
+                )}
+                {onParts && (
+                    // No quantity readout between the buttons — the number on the
+                    // Sell button below is the counter.
+                    <div className={styles.stepper} data-testid="sell-stepper">
+                        <Button
+                            text="-"
+                            disabled={!stack || qty <= 1}
+                            onClick={() => setRawQty(qty - 1)}
+                        />
+                        <Button
+                            text="+"
+                            disabled={!stack || qty >= stack.quantity}
+                            onClick={() => setRawQty(qty + 1)}
+                        />
+                    </div>
                 )}
                 <Button
                     text={onParts && qty > 1 ? `Sell ${qty}` : "Sell"}

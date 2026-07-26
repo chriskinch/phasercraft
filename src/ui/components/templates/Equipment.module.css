@@ -57,18 +57,16 @@
     gap: 0.25rem;
 }
 
-/* The quantity stepper sits directly above the Sell button. */
+/* The quantity stepper sits directly above the Sell button; - and + share the
+   row evenly and use the same font size as the other buttons. */
 .stepper {
     display: flex;
     align-items: center;
-    justify-content: center;
     gap: 0.25rem;
 }
 
-.qty {
-    min-width: 2ch;
-    text-align: center;
-    font-variant-numeric: tabular-nums;
+.stepper > * {
+    flex: 1;
 }
 
 .value {
