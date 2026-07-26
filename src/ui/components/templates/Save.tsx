@@ -49,7 +49,7 @@ const Save: React.FC<SaveProps> = ({ load = false }) => {
                             {save && character && (
                                 <>
                                     <img
-                                        src={`ui/player/${character.toLowerCase()}.gif`}
+                                        src={`UI/player/${character.toLowerCase()}.gif`}
                                         alt={`Load this save game.`}
                                     />
                                     <p>Wave: {wave}</p>

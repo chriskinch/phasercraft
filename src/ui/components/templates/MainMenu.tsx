@@ -19,7 +19,7 @@ const MainMenu: React.FC = () => {
         <div className={styles.menu}>
             <div className={styles.logo}>
                 <h1 className={styles.title}>Phasercraft</h1>
-                <img className={styles.sprite} src="ui/player/warrior.gif" alt="" />
+                <img className={styles.sprite} src="UI/player/warrior.gif" alt="" />
             </div>
             <div className={styles.actions}>
                 <Button
