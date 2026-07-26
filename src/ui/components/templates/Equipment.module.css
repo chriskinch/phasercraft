@@ -6,9 +6,15 @@
        the resource block floats the player image left and each StatBar is its
        own block formatting context, so a narrower column cramped/clipped the
        HP/RP label + value. Equal width makes the two pages render identically. */
-    /* The right column sizes to its widest control (the sell buttons) so the
-       labels never clip; the inventory grid absorbs the remainder. */
-    grid-template-columns: 170px 56px 1fr min-content;
+    /* The filters/actions column is a FIXED width: sizing it to its content made
+       it (and so the inventory grid) resize whenever the tab changed, because
+       "Sell All" is wider than the Gear-tab controls. Width is derived from the
+       longest label rather than guessed — VT323 is monospace at 0.5em advance,
+       the buttons render at 1.5em (so 0.75em/char), and "Sell All" is 8 chars
+       plus the button's 0.75rem side padding. The half-em is slack for the
+       monospace fallback. */
+    --actions-col: calc(6.5em + 1.5rem);
+    grid-template-columns: 170px 56px 1fr var(--actions-col);
     grid-template-areas: "stats eq inv filters" "stats eq inv act";
     grid-template-rows: 1fr min-content;
 }
@@ -67,6 +73,14 @@
 
 .stepper > * {
     flex: 1;
+}
+
+/* Button is content-box, so its width:100% + side padding would overflow the
+   now-fixed column. Scoped here rather than on the atom to leave every other
+   screen's button metrics untouched. */
+.filtersSection button,
+.actionsSection button {
+    box-sizing: border-box;
 }
 
 .value {
