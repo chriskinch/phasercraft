@@ -6,8 +6,10 @@
        the resource block floats the player image left and each StatBar is its
        own block formatting context, so a narrower column cramped/clipped the
        HP/RP label + value. Equal width makes the two pages render identically. */
-    grid-template-columns: 170px 56px 1fr 66px;
-    grid-template-areas: "stats eq inv com" "stats eq inv act";
+    /* The right column sizes to its widest control (the sell buttons) so the
+       labels never clip; the inventory grid absorbs the remainder. */
+    grid-template-columns: 170px 56px 1fr min-content;
+    grid-template-areas: "stats eq inv filters" "stats eq inv act";
     grid-template-rows: 1fr min-content;
 }
 
@@ -37,6 +39,40 @@
     padding: 0.5em;
 }
 
+/* Inventory filters sit top-right, in the same column as the sell actions. */
+.filtersSection {
+    grid-area: filters;
+    align-self: start;
+    display: flex;
+    flex-direction: column;
+    gap: 0.25rem;
+}
+
 .actionsSection {
     grid-area: act;
+    align-self: end;
+    display: flex;
+    flex-direction: column;
+    align-items: stretch;
+    gap: 0.25rem;
+}
+
+/* The quantity stepper sits directly above the Sell button. */
+.stepper {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.25rem;
+}
+
+.qty {
+    min-width: 2ch;
+    text-align: center;
+    font-variant-numeric: tabular-nums;
+}
+
+.value {
+    text-align: center;
+    color: #ffc93e;
+    font-variant-numeric: tabular-nums;
 }
