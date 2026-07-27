@@ -4,7 +4,8 @@ import {
     addCoins,
     setCoins,
     addXP,
-    nextWave,
+    setEnemiesRemaining,
+    setBossActive,
     toggleFilter,
     setSaveSlot,
     setCurrentArea,
@@ -37,7 +38,8 @@ const makeItem = (overrides: Partial<LootItem> = {}): LootItem => ({
 describe("gameReducer", () => {
     it("has sensible initial state", () => {
         const state = gameReducer(undefined, { type: "@@INIT" });
-        expect(state.wave).toBe(1);
+        expect(state.enemiesRemaining).toBe(0);
+        expect(state.bossActive).toBe(false);
         expect(state.xp).toBe(0);
         expect(state.coins).toBe(999);
         expect(state.currentArea).toBe("town");
@@ -63,10 +65,17 @@ describe("gameReducer", () => {
         expect(next.xp).toBe(25);
     });
 
-    it("nextWave increments the wave counter", () => {
+    it("setEnemiesRemaining sets the area enemy count", () => {
         const initial = gameReducer(undefined, { type: "@@INIT" });
-        const next = gameReducer(initial, nextWave());
-        expect(next.wave).toBe(initial.wave + 1);
+        const next = gameReducer(initial, setEnemiesRemaining(17));
+        expect(next.enemiesRemaining).toBe(17);
+    });
+
+    it("setBossActive toggles the boss flag", () => {
+        const initial = gameReducer(undefined, { type: "@@INIT" });
+        const on = gameReducer(initial, setBossActive(true));
+        expect(on.bossActive).toBe(true);
+        expect(gameReducer(on, setBossActive(false)).bossActive).toBe(false);
     });
 
     it("toggleFilter adds, removes, and resets filters", () => {
@@ -255,6 +264,22 @@ describe("gameReducer", () => {
                 loadGame(legacySave as Parameters<typeof loadGame>[0])
             );
             expect(next.components).toEqual([]);
+        });
+
+        it("drops the legacy wave counter and seeds the area-progress fields", () => {
+            const initial = gameReducer(undefined, { type: "@@INIT" });
+            const legacySave = { ...initial, wave: 12 } as Record<string, unknown>;
+            delete legacySave.enemiesRemaining;
+            delete legacySave.bossActive;
+
+            const next = gameReducer(
+                initial,
+                loadGame(legacySave as Parameters<typeof loadGame>[0])
+            );
+
+            expect(next).not.toHaveProperty("wave");
+            expect(next.enemiesRemaining).toBe(0);
+            expect(next.bossActive).toBe(false);
         });
     });
 });

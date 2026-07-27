@@ -4,6 +4,7 @@ import { fireEvent, screen } from "@testing-library/react";
 import { renderWithProviders } from "@ui/test-utils/renderWithProviders";
 import { DIALOG_ROOT_ID } from "@components/Dialog";
 import { readSave } from "@services/saveStorage";
+import { addCoins } from "@store/gameReducer";
 import System from "@components/System";
 
 beforeEach(() => {
@@ -57,7 +58,7 @@ describe("System template", () => {
 
         it("confirming writes the live store state to the selected slot", () => {
             const { store } = renderWithProviders(<System />, {
-                preloadedGame: { saveSlot: "slot_a", coins: 250, wave: 7, character: "Mage" },
+                preloadedGame: { saveSlot: "slot_a", coins: 250, xp: 7, character: "Mage" },
             });
 
             fireEvent.click(screen.getByRole("button", { name: "Save" }));
@@ -71,7 +72,7 @@ describe("System template", () => {
 
         it("writes a save the loader can actually read back", () => {
             renderWithProviders(<System />, {
-                preloadedGame: { saveSlot: "slot_a", coins: 250, wave: 7, character: "Mage" },
+                preloadedGame: { saveSlot: "slot_a", coins: 250, xp: 7, character: "Mage" },
             });
 
             fireEvent.click(screen.getByRole("button", { name: "Save" }));
@@ -83,7 +84,7 @@ describe("System template", () => {
             expect(loaded).not.toBeNull();
             expect(loaded!.game.character).toBe("Mage");
             expect(loaded!.game.coins).toBe(250);
-            expect(loaded!.game.wave).toBe(7);
+            expect(loaded!.game.xp).toBe(7);
         });
 
         it("never persists a non-object payload", () => {
@@ -102,14 +103,14 @@ describe("System template", () => {
 
         it("persists state changes made after mount", () => {
             const { store } = renderWithProviders(<System />, {
-                preloadedGame: { saveSlot: "slot_a", wave: 1 },
+                preloadedGame: { saveSlot: "slot_a", coins: 1 },
             });
 
-            store.dispatch({ type: "NEXT_WAVE" });
+            store.dispatch(addCoins(1));
             fireEvent.click(screen.getByRole("button", { name: "Save" }));
             fireEvent.click(screen.getByRole("button", { name: "Yes" }));
 
-            expect(readSave("slot_a")!.game.wave).toBe(2);
+            expect(readSave("slot_a")!.game.coins).toBe(2);
         });
 
         it("Cancel closes the dialog without writing", () => {
