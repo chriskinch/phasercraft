@@ -23,13 +23,9 @@ jobs:
               uses: actions/checkout@v4
 
             - name: Run Copilot bug-fix agent
-              uses: github/copilot-workspace-action@v1
+              uses: github/copilot-swe-agent@v1
               with:
-                  prompt: |
+                  issue: ${{ github.event.issue.number }}
+                  instructions: |
                       You are a bug-fix agent for the Phasercraft repository.
                       Read the full instructions in `.github/copilot/bug-fix-agent.md` before doing anything.
-
-                      Issue #${{ github.event.issue.number }}: ${{ github.event.issue.title }}
-
-                      ${{ github.event.issue.body }}
-                  github-token: ${{ secrets.GITHUB_TOKEN }}
