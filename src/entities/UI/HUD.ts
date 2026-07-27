@@ -184,7 +184,14 @@ class UI extends GameObjects.Container {
         this.subscriptions.forEach((unsubscribe) => unsubscribe());
         this.subscriptions = [];
 
-        // Remove exactly the keyboard listeners registered in the constructor
+        // Remove exactly the keyboard listeners registered in the constructor.
+        // The scene calls cleanup() from its shutdown(), but on a scene restart
+        // Phaser may already have destroyed this container — destroy() clears
+        // `this.scene`, and the keyboard plugin went with it, so there is
+        // nothing left to detach from. The store unsubscribes above stay
+        // unconditional: they are scene-independent, this is the HUD's only
+        // cleanup pass, and leaking them is the very thing they exist to stop.
+        if (!this.scene) return;
         Object.entries(this.key_handlers).forEach(([event, handler]) => {
             this.scene.input.keyboard!.off(event, handler, this);
         });

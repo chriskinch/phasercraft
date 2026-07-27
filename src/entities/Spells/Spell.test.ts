@@ -12,7 +12,7 @@ import Spell from "./Spell";
 // lifecycle tests.
 
 interface SpellUnderTest {
-    scene: { events: { off: ReturnType<typeof vi.fn> } };
+    scene?: { events: { off: ReturnType<typeof vi.fn> } };
     player: { resource: { off: ReturnType<typeof vi.fn> } };
     button: { cleanup: ReturnType<typeof vi.fn> };
     cleanup(): void;
@@ -32,17 +32,17 @@ describe("Spell.cleanup", () => {
 
         spell.cleanup();
 
-        expect(spell.scene.events.off).toHaveBeenCalledWith(
+        expect(spell.scene!.events.off).toHaveBeenCalledWith(
             "spell:disableall",
             Spell.prototype.killSpell,
             spell
         );
-        expect(spell.scene.events.off).toHaveBeenCalledWith(
+        expect(spell.scene!.events.off).toHaveBeenCalledWith(
             "spell:enableall",
             Spell.prototype.monitorSpell,
             spell
         );
-        expect(spell.scene.events.off).toHaveBeenCalledWith(
+        expect(spell.scene!.events.off).toHaveBeenCalledWith(
             Scenes.Events.SHUTDOWN,
             Spell.prototype.cleanup,
             spell
@@ -67,6 +67,47 @@ describe("Spell.cleanup", () => {
         spell.cleanup();
 
         expect(spell.button.cleanup).toHaveBeenCalledTimes(1);
+    });
+
+    // Spell is the only entity registered on both SHUTDOWN and DESTROY, so both
+    // can fire for one instance. Phaser's destroy() clears `this.scene` after
+    // emitting DESTROY, so a surviving SHUTDOWN listener runs against a dead
+    // object. Before the guard this threw out of Systems.shutdown and took the
+    // whole scene transition with it (crashing biome -> town -> biome).
+    it("does not throw when it runs again after the spell was destroyed", () => {
+        const spell = makeSpell();
+
+        spell.cleanup();
+        // Phaser's destroy() leaves the object in exactly this state.
+        spell.scene = undefined;
+
+        expect(() => spell.cleanup()).not.toThrow();
+    });
+
+    it("releases nothing further once destroyed — the first pass already did", () => {
+        const spell = makeSpell();
+
+        spell.cleanup();
+        const offCallsAfterFirstPass = spell.player.resource.off.mock.calls.length;
+        const buttonCallsAfterFirstPass = spell.button.cleanup.mock.calls.length;
+        spell.scene = undefined;
+
+        spell.cleanup();
+
+        expect(spell.player.resource.off.mock.calls.length).toBe(offCallsAfterFirstPass);
+        expect(spell.button.cleanup.mock.calls.length).toBe(buttonCallsAfterFirstPass);
+    });
+
+    it("still cleans up fully when destroy has not run", () => {
+        const spell = makeSpell();
+
+        spell.cleanup();
+        spell.cleanup();
+
+        // Guard only short-circuits post-destroy; repeated live calls stay
+        // idempotent-but-effective, as before.
+        expect(spell.scene!.events.off).toHaveBeenCalledTimes(6);
+        expect(spell.button.cleanup).toHaveBeenCalledTimes(2);
     });
 });
 
