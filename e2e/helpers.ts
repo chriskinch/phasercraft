@@ -12,7 +12,7 @@ export type Character = (typeof CHARACTERS)[number];
 
 // localStorage save slots, mirroring SAVE_SLOTS in src/services/saveStorage.ts.
 // The on-disk shape is the Redux *root* state (`{ game: { ... } }`); the Save
-// menu reads `wave`/`coins`/`character` off `.game` to render each slot.
+// menu reads `level`/`coins`/`character` off `.game` to render each slot.
 export const SAVE_SLOTS = ["slot_a", "slot_b", "slot_c"] as const;
 
 // A component stack as persisted in the save's `components` slice (added by the
@@ -24,7 +24,7 @@ export interface SavedComponentStack {
 }
 
 // Minimal save payload matching what the Save menu reads back. We only populate
-// the fields the Load screen renders (character, wave, coins, saveSlot); the
+// the fields the Load screen renders (character, level, coins, saveSlot); the
 // rest of GameState is irrelevant to the roundtrip assertion and Redux/Phaser
 // tolerate a partial load for the purposes of the DOM check. `components` is
 // optional so a save can carry the overhaul's stack slice for the persistence
@@ -32,7 +32,7 @@ export interface SavedComponentStack {
 export function makeSave(
     slot: string,
     character: Character,
-    wave: number,
+    currentLevel: number,
     coins: number,
     components?: SavedComponentStack[]
 ) {
@@ -40,7 +40,7 @@ export function makeSave(
         game: {
             character,
             saveSlot: slot,
-            wave,
+            level: { currentLevel, xpRemaining: 0, toNextLevel: 100 },
             coins,
             ...(components ? { components } : {}),
         },

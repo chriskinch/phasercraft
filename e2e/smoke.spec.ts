@@ -7,7 +7,7 @@ import { CHARACTERS, makeSave, seedSave, expectGameCanvas } from "./helpers";
 // Canvas internals are not queryable from the DOM, so every assertion here
 // drives the React overlay (visible text, buttons, ids) or `localStorage`
 // (the save service's backing store). Where a flow is genuinely canvas-only
-// (the wave readout), it is marked `test.fixme` with the reason inline rather
+// (the enemy readout), it is marked `test.fixme` with the reason inline rather
 // than shipped as a flaky/failing test.
 //
 // Boot sequence the specs rely on (see src/scenes/LoadScene.ts and #377):
@@ -70,33 +70,31 @@ test.describe("Phasercraft smoke", () => {
         await expect(page.locator("#phaser-game canvas")).toBeAttached();
     });
 
-    // ── Flow 3: wave starts ──────────────────────────────────────────────────
+    // ── Flow 3: area progress ────────────────────────────────────────────────
     //
-    // The wave readout ("Wave: N") is drawn by a Phaser GameObjects.Text on the
-    // canvas (src/entities/UI/HUD.ts), and the React HUD overlay shows only level
-    // info, not the wave. There is no DOM node carrying the wave value, and the
-    // store is not exposed on `window`, so a DOM-level assertion that the wave
-    // started/incremented is not reachable headlessly without a production hook
-    // (a synced DOM mirror or a window-exposed store) — out of scope for a
-    // test-only PR. The save/load roundtrip below exercises the wave *value*
-    // through the save service as a proxy. Deferred deliberately, not skipped for
-    // flake.
-    test.fixme("wave starts: HUD wave readout appears/increments", async () => {
-        // Needs either a data-testid mirror of state.game.wave in the React
-        // HUD, or `window.store` exposed in dev/test builds. Tracked for a
+    // The enemy readout ("Enemies: N" / "BOSS") is drawn by a Phaser
+    // GameObjects.Text on the canvas (src/entities/UI/HUD.ts), and the React HUD
+    // overlay shows only level info. There is no DOM node carrying the count, and
+    // the store is not exposed on `window`, so a DOM-level assertion that the
+    // area started/counted down is not reachable headlessly without a production
+    // hook (a synced DOM mirror or a window-exposed store) — out of scope here.
+    // Deferred deliberately, not skipped for flake.
+    test.fixme("area starts: HUD enemy readout appears/counts down", async () => {
+        // Needs either a data-testid mirror of state.game.enemiesRemaining in the
+        // React HUD, or `window.store` exposed in dev/test builds. Tracked for a
         // follow-up that adds a minimal, flagged production hook.
     });
 
     // ── Flow 4: save/load roundtrip ──────────────────────────────────────────
     test("save/load roundtrip: a seeded save is restored from localStorage", async ({ page }) => {
         const slot = "slot_a";
-        const WAVE = 7;
+        const LEVEL = 7;
         const COINS = 1234;
 
         // Seed a save before the app loads. The Save menu's readAllSaves() reads
         // this slot from localStorage on first render — this is exactly the shape
         // writeSave() persists (Redux root state under `.game`).
-        await seedSave(page, slot, makeSave(slot, "Mage", WAVE, COINS));
+        await seedSave(page, slot, makeSave(slot, "Mage", LEVEL, COINS));
 
         await page.goto("/");
         await expectGameCanvas(page);
@@ -106,9 +104,9 @@ test.describe("Phasercraft smoke", () => {
         await expect(page.locator('[data-testid="menu-container"]')).toBeVisible();
         await page.getByRole("button", { name: "Load", exact: true }).click();
 
-        // The seeded slot surfaces the persisted wave/coins straight from the
+        // The seeded slot surfaces the persisted level/coins straight from the
         // save service — proof the localStorage roundtrip survived a fresh load.
-        await expect(page.getByText(`Wave: ${WAVE}`)).toBeVisible();
+        await expect(page.getByText(`Level: ${LEVEL}`)).toBeVisible();
         await expect(page.getByText(`Gold: ${COINS}`)).toBeVisible();
 
         // Loading the save dispatches loadGame + selectCharacter, which closes the
@@ -120,7 +118,7 @@ test.describe("Phasercraft smoke", () => {
         // And the underlying localStorage save is unchanged after the roundtrip.
         const persisted = await page.evaluate((key) => window.localStorage.getItem(key), slot);
         expect(persisted).not.toBeNull();
-        expect(JSON.parse(persisted as string).game.wave).toBe(WAVE);
+        expect(JSON.parse(persisted as string).game.level.currentLevel).toBe(LEVEL);
     });
 
     // ── Flow 5: component stacks survive the save roundtrip ──────────────────
@@ -161,10 +159,10 @@ test.describe("Phasercraft smoke", () => {
     // in-run by a Phaser HUD pointerdown dispatching toggleUi("equipment")
     // (src/entities/UI/HUD.ts) — canvas input that is not reachable from the DOM
     // headlessly, and the Redux store is not exposed on `window` to force it open
-    // (same limitation as the wave-readout fixme above). The paginate + Sell 1 /
+    // (same limitation as the enemy-readout fixme above). The paginate + Sell 1 /
     // Sell N / Sell All behaviour is fully covered by the component tests
     // (ComponentsGrid, ComponentSellControls, ComponentsPanel). Unblocked by the
-    // same minimal test hook the wave fixme needs.
+    // same minimal test hook the enemy-readout fixme needs.
     test.fixme("components tab: paginate the grid and sell a stack via the overlay", async () => {
         // Needs a DOM-reachable way into the Equipment overlay (a window-exposed
         // store in dev/test, or a data-testid nav hook) to drive the tab.
