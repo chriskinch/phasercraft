@@ -24,6 +24,12 @@
     </head>
     <body>
         <div id="root"></div>
+        <!--
+            Dedicated portal node for modal dialogs. Kept a sibling of #root so a
+            dialog's stacking context is independent of the menu container it
+            overlays. Dialog.tsx recreates this node if it is missing.
+        -->
+        <div id="dialog-root"></div>
         <script type="module" src="/src/main.tsx"></script>
     </body>
 </html>

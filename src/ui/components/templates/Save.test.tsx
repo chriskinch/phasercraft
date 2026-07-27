@@ -2,6 +2,7 @@ import { describe, it, expect, beforeEach, afterEach } from "vitest";
 import { fireEvent, screen, within } from "@testing-library/react";
 import { renderWithProviders } from "@ui/test-utils/renderWithProviders";
 import { SAVE_SLOTS, writeSave, type SaveData } from "@services/saveStorage";
+import { DIALOG_ROOT_ID } from "@components/Dialog";
 import Save from "@components/Save";
 
 // Build a minimal persisted save (root state shape: `{ game: {...} }`) for a slot.
@@ -19,15 +20,14 @@ function makeSave(overrides: Partial<SaveData["game"]> = {}): SaveData {
 
 beforeEach(() => {
     localStorage.clear();
-    // Dialog portals into #app; provide the mount point for the delete flow.
-    const app = document.createElement("div");
-    app.id = "app";
-    document.body.appendChild(app);
 });
 
 afterEach(() => {
     localStorage.clear();
-    document.getElementById("app")?.remove();
+    // Dialog owns its portal root; drop it so each test starts from a bare
+    // document. Never create it here — hand-building the mount point is what
+    // masked the dialogs failing to render in the real app.
+    document.getElementById(DIALOG_ROOT_ID)?.remove();
 });
 
 describe("Save template (save slots)", () => {
@@ -97,9 +97,10 @@ describe("Save template (save slots)", () => {
 
         fireEvent.click(deleteButtons[0]);
 
-        // The confirmation dialog appears (portaled into #app).
-        const app = document.getElementById("app") as HTMLElement;
-        const dialog = within(app);
+        // The confirmation dialog appears in the portal root Dialog owns.
+        const dialogRoot = document.getElementById(DIALOG_ROOT_ID) as HTMLElement;
+        expect(dialogRoot).not.toBeNull();
+        const dialog = within(dialogRoot);
         expect(dialog.getByText(/Are you sure/i)).toBeInTheDocument();
 
         fireEvent.click(dialog.getByRole("button", { name: "Confirm" }));
@@ -114,8 +115,8 @@ describe("Save template (save slots)", () => {
         renderWithProviders(<Save />);
 
         fireEvent.click(screen.getAllByRole("button", { name: "Delete" })[0]);
-        const app = document.getElementById("app") as HTMLElement;
-        fireEvent.click(within(app).getByRole("button", { name: "Cancel" }));
+        const dialogRoot = document.getElementById(DIALOG_ROOT_ID) as HTMLElement;
+        fireEvent.click(within(dialogRoot).getByRole("button", { name: "Cancel" }));
 
         expect(localStorage.getItem(SAVE_SLOTS[0])).not.toBeNull();
     });
