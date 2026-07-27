@@ -3,7 +3,7 @@ import type { PlayerType } from "@entities/Player/AssignClass";
 import type Enemy from "@entities/Enemy/Enemy";
 import type UI from "@entities/UI/HUD";
 
-// The surface of the gameplay scene (GameScene / TownScene) that entities,
+// The surface of the gameplay scene (BiomeScene / TownScene) that entities,
 // spells, loot and the HUD read off `this.scene`. These members are not part of
 // the base Phaser `Scene`, so the call sites historically cast with inline
 // `this.scene as Scene & { ... }` augmentations. `GameSceneLike` replaces every
@@ -11,7 +11,7 @@ import type UI from "@entities/UI/HUD";
 //
 // This is intentionally a standalone interface that the entities cast to, rather
 // than something the scene classes `implements`: a couple of the members below
-// are consumed off the scene but are not actually declared on GameScene /
+// are consumed off the scene but are not actually declared on BiomeScene /
 // TownScene (see the per-member notes), so `implements` would force adding
 // never-written fields and misrepresent the real class. The interface models
 // what the consumers genuinely read; keeping it separate documents that seam

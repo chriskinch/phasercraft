@@ -1,5 +1,6 @@
 import { describe, it, expect, vi, beforeEach, afterEach } from "vitest";
-import GameScene from "./GameScene";
+import BiomeScene from "./BiomeScene";
+import { BIOMES, BIOME_IDS, DEFAULT_BIOME, resolveBiome } from "./biomes";
 import store from "@store";
 
 // The area loop replaces the old wave counter: an area holds a fixed pool of
@@ -28,6 +29,9 @@ interface SceneUnderTest {
     area_cleared: boolean;
     game_over: boolean;
     global_spawn_time: number;
+    biome: (typeof BIOMES)[keyof typeof BIOMES];
+    config: { type?: string; biome?: string };
+    init(config: { type?: string; biome?: string }): void;
     startArea(): void;
     fillToLiveCap(): void;
     onEnemyDead(): void;
@@ -58,7 +62,7 @@ function makeScene(overrides: Partial<SceneUnderTest> = {}): {
     pending: FakeTimer;
 } {
     const pending: FakeTimer = { remove: vi.fn() };
-    const scene = Object.create(GameScene.prototype) as SceneUnderTest;
+    const scene = Object.create(BiomeScene.prototype) as SceneUnderTest;
     scene.time = { delayedCall: vi.fn(() => pending) };
     scene.area_cleared_ui = { setVisible: vi.fn() };
     scene.pending_spawns = 0;
@@ -70,6 +74,7 @@ function makeScene(overrides: Partial<SceneUnderTest> = {}): {
     scene.area_cleared = false;
     scene.game_over = false;
     scene.global_spawn_time = 200;
+    scene.biome = BIOMES[DEFAULT_BIOME];
     scene.physics = { pause: vi.fn() };
     scene.enemies = { runChildUpdate: true, getChildren: vi.fn(() => []) };
     scene.UI = { cleanup: vi.fn() };
@@ -100,7 +105,7 @@ afterEach(() => {
     vi.restoreAllMocks();
 });
 
-describe("GameScene.startArea", () => {
+describe("BiomeScene.startArea", () => {
     it("registers the death listener exactly once across re-entry", () => {
         const { scene } = makeScene();
 
@@ -122,7 +127,7 @@ describe("GameScene.startArea", () => {
     });
 });
 
-describe("GameScene.fillToLiveCap", () => {
+describe("BiomeScene.fillToLiveCap", () => {
     it("fills up to the live cap and draws those enemies out of the pool", () => {
         const { scene } = makeScene();
 
@@ -172,7 +177,7 @@ describe("GameScene.fillToLiveCap", () => {
     });
 });
 
-describe("GameScene.onEnemyDead", () => {
+describe("BiomeScene.onEnemyDead", () => {
     it("tops the area back up as enemies die", () => {
         const { scene } = makeScene({ enemies_alive: 5, pool_remaining: 15 });
 
@@ -225,7 +230,7 @@ describe("GameScene.onEnemyDead", () => {
     });
 });
 
-describe("GameScene.spawnEnemies", () => {
+describe("BiomeScene.spawnEnemies", () => {
     it("counts scheduled spawns as pending until each one lands", () => {
         const { scene } = makeScene();
 
@@ -239,7 +244,7 @@ describe("GameScene.spawnEnemies", () => {
     });
 });
 
-describe("GameScene.areaCleared", () => {
+describe("BiomeScene.areaCleared", () => {
     it("shows the banner on the scene clock, not a raw setTimeout", () => {
         const setTimeoutSpy = vi.spyOn(globalThis, "setTimeout");
         const { scene } = makeScene();
@@ -273,7 +278,7 @@ describe("GameScene.areaCleared", () => {
     });
 });
 
-describe("GameScene.gameOver", () => {
+describe("BiomeScene.gameOver", () => {
     it("cancels the pending banner timer and stops topping the area up", () => {
         const { scene, pending } = makeScene();
         scene.areaCleared();
@@ -287,7 +292,7 @@ describe("GameScene.gameOver", () => {
     });
 });
 
-describe("GameScene.shutdown", () => {
+describe("BiomeScene.shutdown", () => {
     it("cancels the banner timer, drops the death listener and runs entity cleanup", () => {
         const { scene, pending } = makeScene();
         scene.areaCleared();
@@ -299,5 +304,69 @@ describe("GameScene.shutdown", () => {
         expect(scene.events.off).toHaveBeenCalledWith("enemy:dead", scene.onEnemyDead, scene);
         expect(scene.UI.cleanup).toHaveBeenCalled();
         expect(scene.player.cleanup).toHaveBeenCalled();
+    });
+});
+
+describe("biome definitions", () => {
+    it("gives every biome a distinct background colour", () => {
+        const colours = BIOME_IDS.map((id) => BIOMES[id].backgroundColor);
+        expect(new Set(colours).size).toBe(BIOME_IDS.length);
+    });
+
+    it("gives every biome a non-empty enemy pool of known creatures", () => {
+        BIOME_IDS.forEach((id) => {
+            expect(BIOMES[id].enemies.length).toBeGreaterThan(0);
+            expect(new Set(BIOMES[id].enemies).size).toBe(BIOMES[id].enemies.length);
+        });
+    });
+
+    it("keeps the boss drawable from the biome's own pool", () => {
+        // spawnBoss samples this.enemy_pool, so an empty pool would break the
+        // clear condition rather than just spawn the wrong creature.
+        BIOME_IDS.forEach((id) => expect(BIOMES[id].enemies).not.toHaveLength(0));
+    });
+
+    it("resolves a known id, and falls back to the default for anything else", () => {
+        expect(resolveBiome("tundra").id).toBe("tundra");
+        expect(resolveBiome(undefined).id).toBe(DEFAULT_BIOME);
+        expect(resolveBiome("swamp" as never).id).toBe(DEFAULT_BIOME);
+    });
+});
+
+describe("BiomeScene.init", () => {
+    it("seeds the scene from the requested biome", () => {
+        const { scene } = makeScene();
+
+        scene.init({ type: "Warrior", biome: "tundra" });
+
+        expect(scene.biome).toBe(BIOMES.tundra);
+    });
+
+    it("falls back to the default biome when none is given", () => {
+        const { scene } = makeScene();
+
+        scene.init({ type: "Warrior" });
+
+        expect(scene.biome).toBe(BIOMES[DEFAULT_BIOME]);
+    });
+});
+
+describe("BiomeScene pool sourcing", () => {
+    it("only ever spawns creatures belonging to the active biome", () => {
+        BIOME_IDS.forEach((id) => {
+            const { scene } = makeScene({
+                biome: BIOMES[id],
+                enemy_pool: BIOMES[id].enemies,
+                pool_remaining: BIOMES[id].total,
+                live_cap: BIOMES[id].liveCap,
+            });
+
+            scene.fillToLiveCap();
+            landSpawns(scene);
+
+            const spawned = scene.spawnEnemy.mock.calls.map((call) => call[0]);
+            expect(spawned.length).toBeGreaterThan(0);
+            spawned.forEach((creature) => expect(BIOMES[id].enemies).toContain(creature));
+        });
     });
 });

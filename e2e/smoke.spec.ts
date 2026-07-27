@@ -18,7 +18,7 @@ import { CHARACTERS, makeSave, seedSave, expectGameCanvas } from "./helpers";
 //   only when a save exists) opens the picker in load mode. Picking a character
 //   or loading a save dispatches selectCharacter, which sets showUi:false (the
 //   overlay closes and the run begins). SelectScene is the passive listener that
-//   starts GameScene once a character is set.
+//   starts the entry scene once a character is set.
 
 test.describe("Phasercraft smoke", () => {
     // ── Flow 1: game boots ───────────────────────────────────────────────────

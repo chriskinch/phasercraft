@@ -8,7 +8,7 @@
 
 // Where a new game drops the player. "default" is the game's normal entry
 // (currently Town, but that may change); "combat" jumps straight into the
-// GameScene, which speeds up manual testing of combat.
+// default biome, which speeds up manual testing of combat.
 export type StartLocation = "default" | "combat";
 
 export interface Settings {

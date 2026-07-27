@@ -5,9 +5,10 @@ import Boss from "@entities/Enemy/Boss";
 import UI from "@entities/UI/HUD";
 import enemyTypes from "@config/enemies.json";
 import type { EnemyType } from "@/types/game";
-import { AREA_LIVE_CAP, AREA_TOTAL_ENEMIES, DEFAULT_ENEMY_POOL, promoteToBoss } from "@config/area";
+import { promoteToBoss } from "@config/area";
+import { resolveBiome, type BiomeDefinition } from "./biomes";
 import { sample } from "lodash";
-import { fontConfig } from "../config/fonts";
+import { fontConfig } from "../../config/fonts";
 
 import { toggleHUD, setCurrentArea, setEnemiesRemaining, setBossActive } from "@store/gameReducer";
 import store from "@store";
@@ -18,7 +19,7 @@ import type { GameSceneConfig } from "@/scenes/SelectScene";
 import type { PlayerType } from "@entities/Player/AssignClass";
 import { throwError } from "rxjs";
 
-export default class GameScene extends Scene {
+export default class BiomeScene extends Scene {
     private global_tick: number = 42;
     private global_attack_speed: number = 1;
     private global_attack_delay: number = 250;
@@ -38,8 +39,9 @@ export default class GameScene extends Scene {
     // contains the dying enemy when the top-up decision is made.
     private pool_remaining: number = 0;
     private enemies_alive: number = 0;
-    private live_cap: number = AREA_LIVE_CAP;
-    private enemy_pool: EnemyType[] = DEFAULT_ENEMY_POOL;
+    private live_cap!: number;
+    private enemy_pool!: EnemyType[];
+    private biome!: BiomeDefinition;
     private boss_spawned: boolean = false;
     private area_cleared: boolean = false;
     public depth_group: Record<string, number> = {
@@ -54,11 +56,14 @@ export default class GameScene extends Scene {
     private UI!: UI;
 
     constructor() {
-        super({ key: "GameScene" });
+        super({ key: "BiomeScene" });
     }
 
     init(config: GameSceneConfig): void {
         this.config = config;
+        // An unknown or absent id falls back to the default biome rather than
+        // throwing — a bad id should still drop the player somewhere playable.
+        this.biome = resolveBiome(config?.biome);
     }
 
     create(): void {
@@ -68,12 +73,16 @@ export default class GameScene extends Scene {
         // boss.
         this.pending_spawns = 0;
         this.enemies_alive = 0;
-        this.pool_remaining = AREA_TOTAL_ENEMIES;
-        this.live_cap = AREA_LIVE_CAP;
-        this.enemy_pool = DEFAULT_ENEMY_POOL;
+        this.pool_remaining = this.biome.total;
+        this.live_cap = this.biome.liveCap;
+        this.enemy_pool = this.biome.enemies;
         this.boss_spawned = false;
         this.area_cleared = false;
         this.game_over = false;
+
+        // Per-scene camera override, so the global backgroundColor in
+        // PhaserGame.tsx (and therefore the town) is left alone.
+        this.cameras.main.setBackgroundColor(this.biome.backgroundColor);
 
         const scene_padding = 40;
         this.global_game_width = Number(this.sys.game.config.width);
