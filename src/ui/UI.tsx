@@ -6,8 +6,10 @@ import styles from "./UI.module.css";
 import { switchUi, toggleUi } from "@store/gameReducer";
 import Arcanum from "@components/Arcanum";
 import Armory from "@components/Armory";
+import BiomeSelect from "@components/BiomeSelect";
 import Character from "@components/Character";
 import CharacterSelect from "@components/CharacterSelect";
+import ConfirmReturn from "@components/ConfirmReturn";
 import Equipment from "@components/Equipment";
 import Header from "@components/Header";
 import HUD from "@components/HUD";
@@ -61,10 +63,20 @@ const UI: React.FC = () => {
             title: "Armory",
             navigation: true,
         },
+        biomeSelect: {
+            component: asMenuComponent(BiomeSelect),
+            title: "Choose a Biome",
+            close: true,
+        },
         character: {
             component: asMenuComponent(Character),
             title: "Character",
             navigation: true,
+        },
+        confirmReturn: {
+            component: asMenuComponent(ConfirmReturn),
+            title: "Return to Town?",
+            close: true,
         },
         equipment: {
             component: asMenuComponent(Equipment),

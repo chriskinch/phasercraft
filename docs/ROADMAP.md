@@ -272,6 +272,53 @@ button extracts to `SpellButton` (stays Phaser-side); new `TargetReticle`,
 | HUD          | Spell buttons stay in Phaser (`SpellButton`), not the React overlay.                                                                                                          |
 | Balance      | Initial numbers (castRange 200–300, Heal 1s wind-up, SiphonSoul/Invocation as 5s channels) are proposals to tune in review.                                                   |
 
+## Phase 13 — Biomes and world expansion (issue TBD)
+
+Opens the world up beyond the single combat area, and retires the wave mechanic
+with it. Three biomes to start — forest (green), desert (yellow), tundra (white)
+— differing only by background colour and creature pool; POIs, treasure and
+dungeons come later.
+
+An area now holds a fixed pool of enemies (20, max 5 alive) that tops up on each
+death. Clear the pool and a boss spawns; kill the boss and the area is cleared
+and the player must leave. Leaving and re-entering rebuilds the pool and
+de-spawns an un-killed boss. Nothing about an area persists to the save file.
+
+### PR1 — Replace the wave loop with a clear-the-area loop
+
+`GameScene`'s wave machinery (`startLevel`, `increaseLevel`, `waveComplete`,
+`levelComplete`, the next-level timers) becomes an area lifecycle. `waves.json`
+is deleted and `wave`/`nextWave` leave the store, replaced by `enemiesRemaining`
+and `bossActive` driving the HUD readout ("Enemies: N", then "BOSS"). Save-slot
+cards show `Level: N` instead of `Wave: N`. `promoteToBoss()` scales any creature
+from `enemies.json` into that area's boss rather than reading `bosses.json`.
+
+### PR2 — BiomeScene and the biome table
+
+`GameScene` → `BiomeScene`, one scene class driven by `src/config/biomes.ts`.
+The biome sets the camera background colour (not the game config, so Town is
+unaffected), the creature pool and the totals. `GameSceneConfig` gains `biome`.
+
+### PR3 — Biome picker and return-to-town
+
+Leaving town opens a `BiomeSelect` React overlay (temporary — a dedicated portal
+travel screen replaces it). The HUD gains a third button in biome scenes that
+opens a `ConfirmReturn` dialog. Both bridge to Phaser through a single ephemeral
+`travelTo` store field, whose action also closes the overlay — the HUD's `showUi`
+subscription pauses the scene that owns it, so a scene started while the overlay
+is open would pause itself on arrival.
+
+### Decisions update (2026-07-27) — Biomes
+
+| Topic          | Decision                                                                                                                                                                |
+| -------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Scene shape    | One `BiomeScene` + a config table, not three scene classes.                                                                                                             |
+| Boss scaling   | ×3 damage, ×6 health, ×0.6 speed, forced Melee at range 60 / aggro 80. `bosses.json`'s two entries disagree (×10 vs ×3.75 health), so ×6 is a single rule between them. |
+| Save-slot card | `Wave: N` → `Level: N` (`level.currentLevel`), the nearest surviving progress readout.                                                                                  |
+| Persistence    | Fully ephemeral; `enemiesRemaining`, `bossActive` and `travelTo` all reset in `loadGame`.                                                                               |
+| Creature pools | Forest: baby-ghoul, ghoul, imp · Desert: imp, ghoul, satyr, egbert · Tundra: satyr, egbert, slime. Overlapping so difficulty reads as a gradient.                       |
+| Town button    | Biome scenes only, behind a confirm dialog. ESC stays as the instant unconfirmed exit.                                                                                  |
+
 ## Deferred / backlog
 
 - **Retire GitHub Pages**: remove the `gh-pages` deploy workflow and `VITE_BASE_URL` transition shim once Vercel production is confirmed stable (follow-up to Phase 6).

@@ -10,7 +10,14 @@ import { BIOMES, DEFAULT_BIOME, type BiomeDefinition } from "@config/biomes";
 import { sample } from "lodash";
 import { fontConfig } from "@config/fonts";
 
-import { toggleHUD, setCurrentArea, setEnemiesRemaining, setBossActive } from "@store/gameReducer";
+import {
+    toggleHUD,
+    setCurrentArea,
+    setEnemiesRemaining,
+    setBossActive,
+    setTravelTo,
+} from "@store/gameReducer";
+import mapStateToData from "@helpers/mapStateToData";
 import store from "@store";
 
 import type { EnemyConfig, EnemyOptions } from "@/types/game";
@@ -57,6 +64,7 @@ export default class BiomeScene extends Scene {
     private enemies_left: number = 0;
     private boss_spawned: boolean = false;
     private area_cleared: boolean = false;
+    private unsubscribeTravel?: () => void;
 
     constructor() {
         super({ key: "BiomeScene" });
@@ -100,7 +108,17 @@ export default class BiomeScene extends Scene {
             )
             .setOrigin(0);
 
-        this.UI = new UI(this);
+        // Only combat areas offer the trip back to town.
+        this.UI = new UI(this, { showReturnToTown: true });
+
+        // Registered after the HUD so its showUi handler (which resumes this
+        // scene) runs before the confirm dialog starts the next one.
+        this.unsubscribeTravel = mapStateToData("travelTo", (target) => {
+            // Biome ids belong to TownScene.
+            if (target !== "town") return;
+            store.dispatch(setTravelTo(null));
+            this.returnToTown();
+        });
 
         this.input.on(
             "pointerdown",
@@ -360,6 +378,9 @@ export default class BiomeScene extends Scene {
     }
 
     shutdown(): void {
+        this.unsubscribeTravel?.();
+        this.unsubscribeTravel = undefined;
+
         // Clean up HUD subscriptions
         if (this.UI && this.UI.cleanup) {
             this.UI.cleanup();

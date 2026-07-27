@@ -2,11 +2,18 @@ import { Scene, GameObjects, Input, Tilemaps, Types } from "phaser";
 import AssignClass from "@entities/Player/AssignClass";
 import type { ArcadeCollisionObject } from "@/types/game";
 import store from "@store";
-import { toggleHUD, setCurrentArea, setPlayerPosition } from "@store/gameReducer";
+import {
+    toggleHUD,
+    setCurrentArea,
+    setPlayerPosition,
+    toggleUi,
+    setTravelTo,
+} from "@store/gameReducer";
+import mapStateToData from "@helpers/mapStateToData";
 import type { PlayerType } from "@entities/Player/AssignClass";
 import type Player from "@entities/Player/Player";
 import type { GameSceneConfig } from "@/scenes/SelectScene";
-import { DEFAULT_BIOME } from "@config/biomes";
+import { isBiomeId } from "@config/biomes";
 import UI from "@entities/UI/HUD";
 
 export default class TownScene extends Scene {
@@ -61,6 +68,7 @@ export default class TownScene extends Scene {
     }
     private UI!: UI;
     private collisionIdleTimer?: Phaser.Time.TimerEvent;
+    private unsubscribeTravel?: () => void;
 
     constructor() {
         super({ key: "TownScene" });
@@ -134,6 +142,11 @@ export default class TownScene extends Scene {
         this.createTownUI();
 
         store.dispatch(toggleHUD(true));
+
+        // The biome picker is a React overlay, so the store is the only channel
+        // back. Registered after the HUD so its showUi handler (which resumes
+        // this scene) runs before we start the next one.
+        this.unsubscribeTravel = mapStateToData("travelTo", (target) => this.travelTo(target));
 
         this.cameras.main.startFollow(this.player);
     }
@@ -522,14 +535,13 @@ export default class TownScene extends Scene {
                 // Future: Open storage interface
                 break;
             case "dungeon":
-                console.log("Entering the wilds...");
-                // fig.1 For now only do this on actual scene change
-                this.shutdown();
-                // Hardcoded to the default biome until the picker lands; the
-                // area name is the biome id, which currentArea already accepts
-                // as a free-form string.
-                store.dispatch(setCurrentArea(DEFAULT_BIOME));
-                this.scene.start("BiomeScene", { ...this.config, biome: DEFAULT_BIOME });
+                // The overlap callback fires every frame the player stands in the
+                // zone, so only open the picker when no overlay is up — otherwise
+                // it would toggle itself open and shut on consecutive frames.
+                if (!store.getState().game.showUi) {
+                    console.log("Choosing a destination...");
+                    store.dispatch(toggleUi("biomeSelect"));
+                }
                 break;
             default:
                 console.log(`Interacting with ${name}...`);
@@ -548,7 +560,22 @@ export default class TownScene extends Scene {
         this.setDepthByY(this.player);
     }
 
+    // Acts only on a biome id; "town" belongs to BiomeScene.
+    private travelTo(target: unknown): void {
+        if (!isBiomeId(target)) return;
+
+        store.dispatch(setTravelTo(null));
+        // fig.1 For now only do this on actual scene change
+        this.shutdown();
+        // currentArea takes the biome id; the field is already free-form.
+        store.dispatch(setCurrentArea(target));
+        this.scene.start("BiomeScene", { ...this.config, biome: target });
+    }
+
     shutdown(): void {
+        this.unsubscribeTravel?.();
+        this.unsubscribeTravel = undefined;
+
         // Clean up HUD subscriptions
         if (this.UI && this.UI.cleanup) {
             this.UI.cleanup();

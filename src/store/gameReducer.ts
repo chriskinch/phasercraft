@@ -12,6 +12,7 @@ import type {
 } from "@/types/game";
 import { COMPONENT_DEFS } from "@/types/game";
 import type { PlayerName } from "@entities/Player/AssignClass";
+import type { BiomeId } from "@config/biomes";
 
 // Types
 
@@ -46,6 +47,10 @@ export interface GameState {
     // taken mid-fight cannot restore a stale count.
     enemiesRemaining: number;
     bossActive: boolean;
+    // Travel intent set by the React overlay and consumed by whichever scene
+    // owns the destination — the only channel between the two is the store.
+    // Ephemeral: the acting scene clears it, and loadGame resets it.
+    travelTo: BiomeId | "town" | null;
 }
 
 // Init
@@ -80,6 +85,7 @@ const initState: GameState = {
     playerPosition: { x: 400, y: 300 },
     enemiesRemaining: 0,
     bossActive: false,
+    travelTo: null,
 };
 
 // Actions
@@ -129,6 +135,10 @@ export const setEnemiesRemaining = createAction("SET_ENEMIES_REMAINING", (value:
 
 export const setBossActive = createAction("SET_BOSS_ACTIVE", (bossActive: boolean) => ({
     payload: { bossActive },
+}));
+
+export const setTravelTo = createAction("SET_TRAVEL_TO", (travelTo: BiomeId | "town" | null) => ({
+    payload: { travelTo },
 }));
 
 export const selectCharacter = createAction("SELECT_CHARACTER", (character: PlayerName) => ({
@@ -314,6 +324,7 @@ export const gameReducer = createReducer(initState, (builder) => {
                 components: loaded.components ?? [],
                 enemiesRemaining: 0,
                 bossActive: false,
+                travelTo: null,
             } as GameState;
         })
         .addCase(setEnemiesRemaining, (state, action: PayloadAction<{ value: number }>) => {
@@ -322,6 +333,16 @@ export const gameReducer = createReducer(initState, (builder) => {
         .addCase(setBossActive, (state, action: PayloadAction<{ bossActive: boolean }>) => {
             state.bossActive = action.payload.bossActive;
         })
+        .addCase(
+            setTravelTo,
+            (state, action: PayloadAction<{ travelTo: BiomeId | "town" | null }>) => {
+                // Closing the overlay here is load-bearing, not a convenience.
+                // The HUD's showUi subscription pauses the scene that owns it, so
+                // starting a scene while showUi is still true would leave the new
+                // scene's HUD pausing itself on arrival. Mirrors selectCharacter.
+                return { ...state, showUi: false, ...action.payload };
+            }
+        )
         .addCase(selectLoot, (state, action: PayloadAction<{ loot: LootItem }>) => {
             state.selected = action.payload.loot;
         })

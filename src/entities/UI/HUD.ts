@@ -25,12 +25,16 @@ class UI extends GameObjects.Container {
     public save_slot: string;
     public key_handlers: Record<string, () => void>;
 
-    constructor(scene: Scene, options: { showSpellFrames?: boolean } = {}) {
+    constructor(
+        scene: Scene,
+        options: { showSpellFrames?: boolean; showReturnToTown?: boolean } = {}
+    ) {
         super(scene, 0, 0);
 
         // The town is a non-combat hub, so it opts out of the spell/ability
-        // slots; every other scene shows them by default.
-        const { showSpellFrames = true } = options;
+        // slots; every other scene shows them by default. Only combat areas
+        // offer a way back to town — from town itself it would be a no-op.
+        const { showSpellFrames = true, showReturnToTown = false } = options;
 
         this.spells = 5;
         this.spacing = 60;
@@ -41,6 +45,7 @@ class UI extends GameObjects.Container {
         this.setCoinCount();
         this.setEnemyCount();
         this.buttons = [this.setInvetoryIcon(), this.setSystemIcon()];
+        if (showReturnToTown) this.buttons.push(this.setReturnToTownIcon());
 
         // Add buttons to this container
         this.buttons.forEach((button) => this.add(button));
@@ -143,6 +148,16 @@ class UI extends GameObjects.Container {
             .setInteractive()
             .setScrollFactor(0)
             .on("pointerdown", () => store.dispatch(toggleUi("equipment")), this);
+    }
+
+    // No portal/door frame exists in the icon atlas yet; the dash icon reads as
+    // movement and stands in until a proper one is drawn.
+    setReturnToTownIcon(): GameObjects.Sprite {
+        return this.scene.add
+            .sprite(0, 0, "icon", "icon_0025_dash")
+            .setInteractive()
+            .setScrollFactor(0)
+            .on("pointerdown", () => store.dispatch(toggleUi("confirmReturn")), this);
     }
 
     setSystemIcon(): GameObjects.Sprite {

@@ -6,6 +6,7 @@ import {
     addXP,
     setEnemiesRemaining,
     setBossActive,
+    setTravelTo,
     toggleFilter,
     setSaveSlot,
     setCurrentArea,
@@ -76,6 +77,24 @@ describe("gameReducer", () => {
         const up = gameReducer(initial, setBossActive(true));
         expect(up.bossActive).toBe(true);
         expect(gameReducer(up, setBossActive(false)).bossActive).toBe(false);
+    });
+
+    it("setTravelTo records the destination and closes the overlay", () => {
+        // Closing showUi in the same action is load-bearing: the HUD's showUi
+        // subscription pauses the scene that owns it, so a scene started while
+        // the overlay is still open would pause itself on arrival.
+        const initial = gameReducer(undefined, { type: "@@INIT" });
+        const next = gameReducer({ ...initial, showUi: true }, setTravelTo("tundra"));
+
+        expect(next.travelTo).toBe("tundra");
+        expect(next.showUi).toBe(false);
+    });
+
+    it("setTravelTo(null) clears a consumed destination", () => {
+        const initial = gameReducer(undefined, { type: "@@INIT" });
+        const travelling = gameReducer(initial, setTravelTo("town"));
+
+        expect(gameReducer(travelling, setTravelTo(null)).travelTo).toBeNull();
     });
 
     it("toggleFilter adds, removes, and resets filters", () => {
@@ -287,6 +306,13 @@ describe("gameReducer", () => {
             const next = gameReducer(initial, loadGame(midFightSave));
             expect(next.enemiesRemaining).toBe(0);
             expect(next.bossActive).toBe(false);
+        });
+
+        it("resets a pending travel intent so a save cannot teleport on load", () => {
+            const initial = gameReducer(undefined, { type: "@@INIT" });
+            const travelling = { ...initial, travelTo: "desert" } as Parameters<typeof loadGame>[0];
+
+            expect(gameReducer(initial, loadGame(travelling)).travelTo).toBeNull();
         });
     });
 });
