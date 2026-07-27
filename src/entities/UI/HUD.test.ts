@@ -13,12 +13,17 @@ interface HudUnderTest {
     save_slot: string;
     subscriptions: Array<ReturnType<typeof vi.fn>>;
     key_handlers: Record<string, () => void>;
+    buttons: Array<{
+        disableInteractive: ReturnType<typeof vi.fn>;
+        setInteractive: ReturnType<typeof vi.fn>;
+    }>;
     scene: { input: { keyboard: { off: ReturnType<typeof vi.fn> } } };
     enemies: { text: { setText: ReturnType<typeof vi.fn> } };
     saveGame(): void;
     deleteSaves(): void;
     loadSavedGame(): void;
     renderEnemyCount(): void;
+    setButtonsEnabled(enabled: boolean): void;
     cleanup(): void;
 }
 
@@ -27,6 +32,10 @@ function makeHud(): HudUnderTest {
     hud.save_slot = "slot_a";
     hud.subscriptions = [];
     hud.key_handlers = {};
+    hud.buttons = [
+        { disableInteractive: vi.fn(), setInteractive: vi.fn() },
+        { disableInteractive: vi.fn(), setInteractive: vi.fn() },
+    ];
     hud.scene = { input: { keyboard: { off: vi.fn() } } };
     hud.enemies = { text: { setText: vi.fn() } };
     return hud;
@@ -157,5 +166,29 @@ describe("UI.cleanup", () => {
         expect(hud.scene.input.keyboard.off).toHaveBeenCalledWith("keyup-P", handlerP, hud);
         expect(hud.scene.input.keyboard.off).toHaveBeenCalledWith("keyup-L", handlerL, hud);
         expect(hud.scene.input.keyboard.off).toHaveBeenCalledTimes(2);
+    });
+});
+
+describe("UI.setButtonsEnabled", () => {
+    it("disables all buttons when called with false (overlay open)", () => {
+        const hud = makeHud();
+
+        hud.setButtonsEnabled(false);
+
+        hud.buttons.forEach((button) => {
+            expect(button.disableInteractive).toHaveBeenCalled();
+            expect(button.setInteractive).not.toHaveBeenCalled();
+        });
+    });
+
+    it("re-enables all buttons when called with true (overlay closed)", () => {
+        const hud = makeHud();
+
+        hud.setButtonsEnabled(true);
+
+        hud.buttons.forEach((button) => {
+            expect(button.setInteractive).toHaveBeenCalled();
+            expect(button.disableInteractive).not.toHaveBeenCalled();
+        });
     });
 });
