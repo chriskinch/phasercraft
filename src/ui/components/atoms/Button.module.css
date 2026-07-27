@@ -5,6 +5,9 @@
     border: none;
     outline: none;
     font-weight: bold;
+    /* Labels are short and sized to fit; wrapping mid-label ("Sell / All")
+       breaks the fixed 1.5em button height. */
+    white-space: nowrap;
     border-radius: 3px;
     margin-bottom: 0.5rem;
     width: 100%;

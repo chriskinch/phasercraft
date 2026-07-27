@@ -7,7 +7,7 @@ import Equipment from "@components/Equipment";
 import type { GameState } from "@store/gameReducer";
 import type { LootItem } from "@/types/game";
 
-// Equipment renders the <InventoryTabs> grids (Gear tab by default), which read
+// Equipment renders the Gear/Parts grids (Gear tab by default), which read
 // the store via useSelector. Passing the singleton `@store` as the provider store
 // and seeding it with `loadGame` keeps the grid and the other useSelector-driven
 // sections consistent; the initial slice is restored after each test.
@@ -45,7 +45,11 @@ describe("Equipment template", () => {
         expect(container.querySelectorAll(`[data-testid="droppable-slot"]`)).toHaveLength(4);
         expect(container.querySelector(`[data-testid="loot-grid"]`)).toBeInTheDocument();
         expect(screen.getByRole("button", { name: "Sell" })).toBeInTheDocument();
-        expect(screen.getByRole("button", { name: "Scrap" })).toBeInTheDocument();
+        expect(screen.getByRole("button", { name: "Gear" })).toBeInTheDocument();
+        expect(screen.getByRole("button", { name: "Parts" })).toBeInTheDocument();
+        // Sell All and the quantity stepper are component-only controls.
+        expect(screen.queryByRole("button", { name: "Sell All" })).not.toBeInTheDocument();
+        expect(screen.queryByTestId("sell-stepper")).not.toBeInTheDocument();
     });
 
     it("renders equipped items in their slots and inventory items in the grid", () => {
@@ -112,5 +116,62 @@ describe("Equipment template", () => {
         const state = store.getState().game;
         expect(state.coins).toBe(100);
         expect(state.selected?.id).toBe("ghost");
+    });
+
+    describe("Parts tab", () => {
+        function seedParts() {
+            seed({
+                character: "Warrior",
+                components: [{ id: "stack-1", type: "ichor", quantity: 5 }],
+                coins: 0,
+                stats: {} as never,
+            });
+            renderWithProviders(<Equipment />, { store });
+            fireEvent.click(screen.getByRole("button", { name: "Parts" }));
+            fireEvent.click(screen.getByRole("button", { name: "Ichor ×5" }));
+        }
+
+        it("shows the stepper and Sell All once components are shown", () => {
+            seedParts();
+
+            expect(screen.getByTestId("sell-stepper")).toBeInTheDocument();
+            expect(screen.getByRole("button", { name: "Sell All" })).toBeInTheDocument();
+            expect(screen.getByTestId("sell-value")).toHaveTextContent("+8");
+            // The Sell button label is the only quantity readout.
+            expect(screen.queryByTestId("sell-qty")).not.toBeInTheDocument();
+            expect(screen.getByRole("button", { name: "Sell" })).toBeInTheDocument();
+        });
+
+        it("counts the Sell button up with + and sells that quantity", () => {
+            seedParts();
+
+            fireEvent.click(screen.getByRole("button", { name: "+" }));
+            fireEvent.click(screen.getByRole("button", { name: "+" }));
+
+            // No separate "Sell 1" — the single Sell button carries the quantity.
+            expect(screen.queryByRole("button", { name: "Sell 1" })).not.toBeInTheDocument();
+            expect(screen.getByTestId("sell-value")).toHaveTextContent("+24");
+            fireEvent.click(screen.getByRole("button", { name: "Sell 3" }));
+
+            const state = store.getState().game;
+            expect(state.components[0].quantity).toBe(2);
+            expect(state.coins).toBe(24);
+        });
+
+        it("clamps the stepper to the stack and sells the whole stack with Sell All", () => {
+            seedParts();
+
+            for (let i = 0; i < 10; i++) {
+                fireEvent.click(screen.getByRole("button", { name: "+" }));
+            }
+            expect(screen.getByRole("button", { name: "Sell 5" })).toBeInTheDocument();
+            expect(screen.getByRole("button", { name: "+" })).toBeDisabled();
+
+            fireEvent.click(screen.getByRole("button", { name: "Sell All" }));
+
+            const state = store.getState().game;
+            expect(state.components).toHaveLength(0);
+            expect(state.coins).toBe(40);
+        });
     });
 });
