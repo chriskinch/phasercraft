@@ -47,7 +47,7 @@ describe("UI.loadSavedGame", () => {
         // Saves persist the *root* state ({ game: {...} }); loadGame expects the
         // inner slice. loadSavedGame now unwraps .game (matching the Save menu's
         // Load), fixing the round-trip that previously double-nested game.
-        const game = { coins: 42, wave: 3 };
+        const game = { coins: 42, xp: 3 };
         localStorage.setItem("slot_a", JSON.stringify({ game }));
 
         makeHud().loadSavedGame();

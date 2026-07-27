@@ -10,7 +10,7 @@ function makeSave(overrides: Partial<SaveData["game"]> = {}): SaveData {
         game: {
             character: "Warrior",
             coins: 250,
-            wave: 7,
+            xp: 7,
             saveSlot: "slot_a",
             ...overrides,
         },

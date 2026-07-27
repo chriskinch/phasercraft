@@ -42,7 +42,7 @@ const Save: React.FC<SaveProps> = ({ load = false }) => {
         <>
             <ol className={styles.slots}>
                 {otherGames.map((save, i) => {
-                    const { game: { saveSlot, character, coins, wave } = {} } = save || {};
+                    const { game: { saveSlot, character, coins, level } = {} } = save || {};
                     return (
                         <li key={i}>
                             <h2>{"Slot " + Number(i + 1)}</h2>
@@ -52,7 +52,7 @@ const Save: React.FC<SaveProps> = ({ load = false }) => {
                                         src={`UI/player/${character.toLowerCase()}.gif`}
                                         alt={`Load this save game.`}
                                     />
-                                    <p>Wave: {wave}</p>
+                                    <p>Level: {level?.currentLevel}</p>
                                     <p>Gold: {coins}</p>
                                 </>
                             )}

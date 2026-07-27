@@ -4,7 +4,8 @@ import {
     addCoins,
     setCoins,
     addXP,
-    nextWave,
+    setEnemiesRemaining,
+    setBossActive,
     toggleFilter,
     setSaveSlot,
     setCurrentArea,
@@ -37,7 +38,8 @@ const makeItem = (overrides: Partial<LootItem> = {}): LootItem => ({
 describe("gameReducer", () => {
     it("has sensible initial state", () => {
         const state = gameReducer(undefined, { type: "@@INIT" });
-        expect(state.wave).toBe(1);
+        expect(state.enemiesRemaining).toBe(0);
+        expect(state.bossActive).toBe(false);
         expect(state.xp).toBe(0);
         expect(state.coins).toBe(999);
         expect(state.currentArea).toBe("town");
@@ -63,10 +65,17 @@ describe("gameReducer", () => {
         expect(next.xp).toBe(25);
     });
 
-    it("nextWave increments the wave counter", () => {
+    it("setEnemiesRemaining sets the area's remaining-enemy count", () => {
         const initial = gameReducer(undefined, { type: "@@INIT" });
-        const next = gameReducer(initial, nextWave());
-        expect(next.wave).toBe(initial.wave + 1);
+        const next = gameReducer(initial, setEnemiesRemaining(17));
+        expect(next.enemiesRemaining).toBe(17);
+    });
+
+    it("setBossActive toggles the boss flag", () => {
+        const initial = gameReducer(undefined, { type: "@@INIT" });
+        const up = gameReducer(initial, setBossActive(true));
+        expect(up.bossActive).toBe(true);
+        expect(gameReducer(up, setBossActive(false)).bossActive).toBe(false);
     });
 
     it("toggleFilter adds, removes, and resets filters", () => {
@@ -255,6 +264,29 @@ describe("gameReducer", () => {
                 loadGame(legacySave as Parameters<typeof loadGame>[0])
             );
             expect(next.components).toEqual([]);
+        });
+
+        it("drops the legacy wave counter from a pre-Phase-13 save", () => {
+            const initial = gameReducer(undefined, { type: "@@INIT" });
+            const legacySave = { ...initial, wave: 12 } as unknown as Parameters<
+                typeof loadGame
+            >[0];
+
+            const next = gameReducer(initial, loadGame(legacySave));
+            expect(next).not.toHaveProperty("wave");
+        });
+
+        it("resets the ephemeral combat counters so a mid-fight save loads clean", () => {
+            const initial = gameReducer(undefined, { type: "@@INIT" });
+            const midFightSave = {
+                ...initial,
+                enemiesRemaining: 7,
+                bossActive: true,
+            } as Parameters<typeof loadGame>[0];
+
+            const next = gameReducer(initial, loadGame(midFightSave));
+            expect(next.enemiesRemaining).toBe(0);
+            expect(next.bossActive).toBe(false);
         });
     });
 });

@@ -12,7 +12,7 @@ afterEach(() => {
 
 describe("readSave", () => {
     it("parses and returns the stored save", () => {
-        const save = { game: { coins: 7, wave: 2 } };
+        const save = { game: { coins: 7, xp: 2 } };
         localStorage.setItem("slot_a", JSON.stringify(save));
 
         expect(readSave("slot_a")).toEqual(save);
@@ -83,7 +83,7 @@ describe("removeSave", () => {
 describe("readAllSaves", () => {
     it("reads every default slot in order, mapping empty/corrupt to null", () => {
         vi.spyOn(console, "warn").mockImplementation(() => {});
-        const save = { game: { wave: 5 } };
+        const save = { game: { xp: 5 } };
         localStorage.setItem("slot_a", JSON.stringify(save));
         localStorage.setItem("slot_c", "{ corrupt");
 

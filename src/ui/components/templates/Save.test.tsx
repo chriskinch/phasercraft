@@ -10,7 +10,7 @@ function makeSave(overrides: Partial<SaveData["game"]> = {}): SaveData {
         game: {
             character: "Warrior",
             coins: 250,
-            wave: 7,
+            level: { currentLevel: 7, xpRemaining: 0, toNextLevel: 100 },
             saveSlot: "slot_a",
             ...overrides,
         },
@@ -37,11 +37,18 @@ describe("Save template (save slots)", () => {
     });
 
     it("shows save metadata and a Load action for a populated slot", () => {
-        writeSave(SAVE_SLOTS[0], makeSave({ character: "Mage", coins: 500, wave: 12 }));
+        writeSave(
+            SAVE_SLOTS[0],
+            makeSave({
+                character: "Mage",
+                coins: 500,
+                level: { currentLevel: 12, xpRemaining: 0, toNextLevel: 100 },
+            })
+        );
 
         renderWithProviders(<Save />);
 
-        expect(screen.getByText("Wave: 12")).toBeInTheDocument();
+        expect(screen.getByText("Level: 12")).toBeInTheDocument();
         expect(screen.getByText("Gold: 500")).toBeInTheDocument();
         // A populated slot offers Load; an empty slot offers Select instead.
         expect(screen.getAllByRole("button", { name: "Load" }).length).toBeGreaterThanOrEqual(1);
@@ -62,7 +69,14 @@ describe("Save template (save slots)", () => {
     });
 
     it("dispatches loadGame and selectCharacter when loading a populated slot", () => {
-        writeSave(SAVE_SLOTS[0], makeSave({ character: "Ranger", coins: 99, wave: 3 }));
+        writeSave(
+            SAVE_SLOTS[0],
+            makeSave({
+                character: "Ranger",
+                coins: 99,
+                level: { currentLevel: 3, xpRemaining: 0, toNextLevel: 100 },
+            })
+        );
 
         const { store } = renderWithProviders(<Save load />);
 
@@ -70,12 +84,12 @@ describe("Save template (save slots)", () => {
 
         const state = store.getState().game;
         expect(state.coins).toBe(99);
-        expect(state.wave).toBe(3);
+        expect(state.level.currentLevel).toBe(3);
         expect(state.character).toBe("Ranger");
     });
 
     it("in load mode only renders populated slots", () => {
-        writeSave(SAVE_SLOTS[1], makeSave({ character: "Cleric", coins: 10, wave: 1 }));
+        writeSave(SAVE_SLOTS[1], makeSave({ character: "Cleric", coins: 10 }));
 
         const { container } = renderWithProviders(<Save load />);
 

@@ -3,14 +3,13 @@ import AssignClass from "@entities/Player/AssignClass";
 import AssignType from "@entities/Enemy/AssignType";
 import Boss from "@entities/Enemy/Boss";
 import UI from "@entities/UI/HUD";
-import waveConfig from "@config/waves.json";
 import enemyTypes from "@config/enemies.json";
 import type { EnemyType } from "@/types/game";
-import bossTypes from "@config/bosses.json";
+import { promoteToBoss } from "@config/bosses";
 import { sample } from "lodash";
 import { fontConfig } from "../config/fonts";
 
-import { nextWave, toggleHUD, setCurrentArea } from "@store/gameReducer";
+import { toggleHUD, setCurrentArea, setEnemiesRemaining, setBossActive } from "@store/gameReducer";
 import store from "@store";
 
 import type { EnemyConfig, EnemyOptions } from "@/types/game";
@@ -37,11 +36,22 @@ export default class GameScene extends Scene {
         UI: 10000,
         TOP: 99999,
     };
-    private level_complete!: Phaser.GameObjects.Container & { button?: Phaser.GameObjects.Image };
+    private area_cleared_ui!: Phaser.GameObjects.Container;
     private config!: GameSceneConfig;
     private cursors!: Phaser.Types.Input.Keyboard.CursorKeys & { esc?: Phaser.Input.Keyboard.Key };
-    private next_level_timer: Phaser.Time.TimerEvent | undefined;
     private UI!: UI;
+
+    // An area holds a fixed pool of enemies rather than endless waves: spawn up
+    // to `live_cap` at once, top up on each death until `remaining_pool` is dry,
+    // then a boss. Kill the boss and the area is cleared for good — the player
+    // has to leave, and re-entering rebuilds the whole pool from scratch.
+    protected area_total: number = 20;
+    protected live_cap: number = 5;
+    protected enemy_pool: EnemyType[] = Object.keys(enemyTypes) as EnemyType[];
+    private remaining_pool: number = 0;
+    private enemies_left: number = 0;
+    private boss_spawned: boolean = false;
+    private area_cleared: boolean = false;
 
     constructor() {
         super({ key: "GameScene" });
@@ -55,6 +65,13 @@ export default class GameScene extends Scene {
         // Scene instances are reused across scene.start(), so field
         // initializers do not re-run — reset per-run state here.
         this.pending_spawns = 0;
+        this.boss_spawned = false;
+        this.area_cleared = false;
+        // `game_over` was never reset here, so a scene reused after a death kept
+        // it set and the old wave-clear check could never fire again. The area
+        // loop gates boss spawning on the same flag, so it has to be reset —
+        // flagged in the PR rather than left as a latent dead-run bug.
+        this.game_over = false;
 
         const scene_padding = 40;
         this.global_game_width = Number(this.sys.game.config.width);
@@ -97,9 +114,9 @@ export default class GameScene extends Scene {
         this.enemies = this.add.group();
         this.enemies.runChildUpdate = true;
         this.active_enemies = this.add.group();
-        this.startLevel(store.getState().game.wave);
+        this.startArea();
 
-        this.setLevelCompleteUI();
+        this.setAreaClearedUI();
 
         //this.cameras.main.startFollow(this.player hero);
 
@@ -161,10 +178,17 @@ export default class GameScene extends Scene {
         let mouse = this.input.activePointer;
 
         // Spawn delayedCalls land a frame after they are scheduled (the clock
-        // updates before scene.update), so an empty group only means the wave
-        // is cleared once no spawns are still pending.
-        if (this.enemies.getChildren().length === 0 && this.pending_spawns === 0 && !this.game_over)
-            this.events.emit("enemies:dead");
+        // updates before scene.update), so an empty group only means the pool is
+        // exhausted once no spawns are still pending.
+        if (
+            !this.game_over &&
+            !this.boss_spawned &&
+            !this.area_cleared &&
+            this.remaining_pool === 0 &&
+            this.pending_spawns === 0 &&
+            this.enemies.getChildren().length === 0
+        )
+            this.spawnBoss();
 
         if (this.player.alive) this.player.update(mouse, this.cursors, time, delta);
 
@@ -180,44 +204,52 @@ export default class GameScene extends Scene {
         this.scene.start("TownScene", this.config);
     }
 
-    increaseLevel(): void {
-        store.dispatch(nextWave());
-        // this.wave++;
-        // this.events.emit('increment:wave');
-        // this.level_complete.setVisible(false);
-        // this.level_complete.button.input.enabled = false;
-        this.startLevel(store.getState().game.wave);
+    startArea(): void {
+        this.remaining_pool = this.area_total;
+        this.enemies_left = this.area_total;
+        store.dispatch(setEnemiesRemaining(this.enemies_left));
+        store.dispatch(setBossActive(false));
+
+        // create() re-runs on a reused scene instance, so drop any handler left
+        // from the previous run before registering this one.
+        this.events.off("enemy:dead", this.onEnemyDeath, this);
+        this.events.on("enemy:dead", this.onEnemyDeath, this);
+
+        this.spawnFromPool(Math.min(this.live_cap, this.remaining_pool));
     }
 
-    startLevel(wave: number = 1): void {
-        // this.time.paused = false;
-        const enemies = waveConfig[wave - 1] as EnemyType[];
-        const types = Object.keys(bossTypes) as EnemyType[];
-
-        if (typeof enemies === "object") {
-            // Spawn the list of predefined enemies from the wave json
-            this.spawnEnemies(enemies);
-        } else {
-            const wave_multiplier = Math.floor(store.getState().game.wave / 10);
-            const boss_wave = store.getState().game.wave % 10 === 0 ? true : false;
-            if (boss_wave) {
-                // If the wave is a multiple of 10 it's a boss!
-                this.spawnBoss(types);
-            } else {
-                // Other wise spawn x random enemies scaling every 10 levels
-                const sampleEnemies = Array.from({ length: wave_multiplier + 2 }, () =>
-                    sample(types)
-                ).filter((enemy): enemy is EnemyType => enemy !== undefined);
-                this.spawnEnemies(sampleEnemies, wave_multiplier);
-            }
+    onEnemyDeath(): void {
+        if (this.boss_spawned) {
+            this.areaCleared();
+            return;
         }
+
+        this.enemies_left--;
+        store.dispatch(setEnemiesRemaining(this.enemies_left));
+
+        // Hold the live count at the cap by replacing each kill until the pool
+        // of unspawned enemies runs out.
+        if (this.remaining_pool > 0) this.spawnFromPool(1);
+    }
+
+    areaCleared(): void {
+        this.area_cleared = true;
+        store.dispatch(setBossActive(false));
+
+        // Same 1.5s grace period the old level-complete banner used, so the
+        // boss's loot has time to drop and be collected before the message.
+        this.time.delayedCall(
+            1500,
+            () => {
+                this.area_cleared_ui.setVisible(true);
+            },
+            [],
+            this
+        );
     }
 
     gameOver(): void {
         this.game_over = true;
-        // Dying inside the post-wave window must cancel the pending next-wave
-        // timer, or it would spawn a wave during the game-over transition.
-        this.removeNextLevelTimer();
         this.physics.pause();
         this.enemies.runChildUpdate = false;
         this.time.delayedCall(
@@ -231,64 +263,36 @@ export default class GameScene extends Scene {
         );
     }
 
-    setLevelCompleteUI(): void {
-        this.level_complete = this.add
+    setAreaClearedUI(): void {
+        this.area_cleared_ui = this.add
             .container(300, 300)
             .setDepth(this.depth_group.TOP)
             .setVisible(false);
-        Display.Align.In.Center(this.level_complete, this.zone);
+        Display.Align.In.Center(this.area_cleared_ui, this.zone);
 
         this.cache.bitmapFont.add("wayne-3d", GameObjects.RetroFont.Parse(this, fontConfig));
-        this.level_complete.add(
-            this.add.bitmapText(0, 0, "wayne-3d", "LEVEL COMPLETE").setOrigin(0.5).setScale(2)
-        );
-        this.level_complete.add(this.add.bitmapText(0, 60, "wayne-3d", "NEXT").setOrigin(0.5));
-        this.level_complete.button = this.add
-            .image(0, 60, "blank-gif")
-            .setScale(13, 4)
-            .setInteractive();
-        this.level_complete.add(this.level_complete.button);
-    }
-
-    levelComplete(): void {
-        // Level complete activates 1.5 seconds after the last enemy dies to give time for loot to activate.
-        this.time.delayedCall(
-            1500,
-            () => {
-                this.time.paused = true;
-                this.level_complete.setVisible(true);
-                if (this.level_complete.button) {
-                    this.level_complete.button.input!.enabled = true;
-                    this.level_complete.button.once("pointerup", this.increaseLevel, this);
-                }
-            },
-            [],
-            this
+        this.area_cleared_ui.add(
+            this.add.bitmapText(0, 0, "wayne-3d", "AREA CLEARED").setOrigin(0.5).setScale(2)
         );
     }
 
-    waveComplete(): void {
-        // Give the player time to collect loot and cast spells.
-        // Scene clock timer (not setTimeout): pause-aware, and removed by the
-        // clock on scene shutdown so it can't fire after leaving the scene.
-        this.removeNextLevelTimer();
-        this.next_level_timer = this.time.delayedCall(4000, this.increaseLevel, [], this);
-    }
+    spawnFromPool(count: number): void {
+        // Never draw more than the pool holds — the caller's count is a request,
+        // not a guarantee.
+        const drawn = Math.min(count, this.remaining_pool);
+        if (drawn <= 0) return;
 
-    spawnEnemies(list: EnemyType[], wave_multiplier?: number): void {
-        // Remove exsiting instances of this event so that it does trigger multiple times
-        this.events.off("enemies:dead");
+        this.remaining_pool -= drawn;
+        this.pending_spawns += drawn;
 
-        this.pending_spawns += list.length;
-        list.forEach((enemy, i) => {
+        // Drip the spawns in rather than popping them all on one frame.
+        for (let i = 0; i < drawn; i++) {
             this.time.delayedCall(this.global_spawn_time * i, () => {
-                this.spawnEnemy(enemy, wave_multiplier);
+                const enemy = sample(this.enemy_pool);
+                if (enemy) this.spawnEnemy(enemy);
                 this.pending_spawns--;
             });
-        });
-
-        this.events.once("enemies:dead", this.waveComplete, this);
-        // this.setNextLevelTimer();
+        }
     }
 
     spawnEnemy(enemyId: EnemyType, wave_multiplier?: number): void {
@@ -312,10 +316,15 @@ export default class GameScene extends Scene {
         );
     }
 
-    spawnBoss(types: EnemyType[]): void {
-        this.events.off("enemies:dead");
-        const bossId = sample(types) || "baby-ghoul";
-        const boss = bossTypes[bossId as keyof typeof bossTypes] as EnemyConfig;
+    spawnBoss(): void {
+        this.boss_spawned = true;
+        store.dispatch(setEnemiesRemaining(0));
+        store.dispatch(setBossActive(true));
+
+        // The boss is one of this area's own creatures scaled up, so the fight
+        // stays thematically tied to what the player just cleared.
+        const bossId = sample(this.enemy_pool) || "baby-ghoul";
+        const boss = promoteToBoss(bossId);
         const { damage, speed, range, attack_speed, health_max, health_regen_rate } = boss;
 
         this.enemies.add(
@@ -329,33 +338,10 @@ export default class GameScene extends Scene {
                 target: this.player,
                 loot_table: boss.loot_table,
                 active_group: this.active_enemies,
-                coin_multiplier: 10,
+                coin_multiplier: boss.coin_multiplier,
                 aggro_radius: boss.aggro_radius,
             })
         );
-
-        this.events.once("enemies:dead", this.waveComplete, this);
-    }
-
-    removeNextLevelTimer(): void {
-        if (this.next_level_timer) {
-            this.next_level_timer.remove(false);
-            delete this.next_level_timer;
-        }
-    }
-
-    setNextLevelTimer(): void {
-        // If all enemies are killed and next level time gets set again
-        // remove the first time so it doesn't trigger twice
-        this.removeNextLevelTimer();
-
-        // TODO: Make the timings smarter
-        const time_scale = 5000;
-        const n_wave = store.getState().game.wave + 1;
-        const min_delay = n_wave * this.global_spawn_time;
-        const wave_offset = n_wave * time_scale;
-        const time_limit = min_delay + wave_offset + time_scale;
-        this.next_level_timer = this.time.delayedCall(time_limit, this.increaseLevel, [], this);
     }
 
     shutdown(): void {
@@ -376,9 +362,6 @@ export default class GameScene extends Scene {
 
         // Clean up scene event listeners
         this.events.off("player:dead");
-        this.events.off("enemies:dead");
-
-        // Clean up next level timer
-        this.removeNextLevelTimer();
+        this.events.off("enemy:dead", this.onEnemyDeath, this);
     }
 }

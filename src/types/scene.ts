@@ -25,11 +25,6 @@ export interface GameSceneLike extends Scene {
     selected: Enemy | null | undefined;
     depth_group: Record<string, number>;
     zone: GameObjects.Zone;
-    // Read by the HUD wave readout. Note: neither scene declares `wave` (it
-    // lives in the Redux store), so at runtime this is `undefined` and the
-    // initial "Wave: NaN" is immediately overwritten by the `wave` store
-    // subscription. Preserved as-is; flagged for a separate fix.
-    wave: number;
     UI: UI;
     global_attack_delay: number;
 }
