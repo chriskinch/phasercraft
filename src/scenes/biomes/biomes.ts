@@ -57,6 +57,8 @@ export const BIOME_IDS = Object.keys(BIOMES) as BiomeId[];
 
 // Narrows an unknown/absent id to a real biome, falling back to the default
 // rather than throwing — a bad id should drop the player somewhere playable.
-export function resolveBiome(id?: BiomeId): BiomeDefinition {
-    return (id && BIOMES[id]) || BIOMES[DEFAULT_BIOME];
+// Takes a plain string so callers carrying an unvalidated value (a travel
+// request off the store, a persisted id) can pass it without a cast.
+export function resolveBiome(id?: string | null): BiomeDefinition {
+    return (id && BIOMES[id as BiomeId]) || BIOMES[DEFAULT_BIOME];
 }

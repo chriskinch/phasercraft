@@ -10,7 +10,14 @@ import { resolveBiome, type BiomeDefinition } from "./biomes";
 import { sample } from "lodash";
 import { fontConfig } from "../../config/fonts";
 
-import { toggleHUD, setCurrentArea, setEnemiesRemaining, setBossActive } from "@store/gameReducer";
+import {
+    toggleHUD,
+    setCurrentArea,
+    setEnemiesRemaining,
+    setBossActive,
+    clearTravelRequest,
+} from "@store/gameReducer";
+import mapStateToData from "@helpers/mapStateToData";
 import store from "@store";
 
 import type { EnemyConfig, EnemyOptions } from "@/types/game";
@@ -53,6 +60,9 @@ export default class BiomeScene extends Scene {
     private config!: GameSceneConfig;
     private cursors!: Phaser.Types.Input.Keyboard.CursorKeys & { esc?: Phaser.Input.Keyboard.Key };
     private area_cleared_timer: Phaser.Time.TimerEvent | undefined;
+    // Store subscription bridging the React return-to-town confirmation to this
+    // scene; released in shutdown() per the lifecycle convention.
+    private travel_subscription?: () => void;
     private UI!: UI;
 
     constructor() {
@@ -96,7 +106,17 @@ export default class BiomeScene extends Scene {
             )
             .setOrigin(0);
 
-        this.UI = new UI(this);
+        // Only the biome scenes get the return-to-town button — the town has
+        // nowhere to teleport back to.
+        this.UI = new UI(this, { showReturnToTown: true });
+
+        // The confirmation dialog writes a travel request into the store; act on
+        // it once and clear it so a stale request cannot fire on re-entry.
+        this.travel_subscription = mapStateToData("travelRequest", (destination) => {
+            if (destination !== "town") return;
+            store.dispatch(clearTravelRequest());
+            this.returnToTown();
+        });
 
         this.input.on(
             "pointerdown",
@@ -410,5 +430,11 @@ export default class BiomeScene extends Scene {
 
         // Clean up the area-cleared banner timer
         this.removeAreaClearedTimer();
+
+        // Release the travel-request subscription.
+        if (this.travel_subscription) {
+            this.travel_subscription();
+            this.travel_subscription = undefined;
+        }
     }
 }
