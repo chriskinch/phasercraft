@@ -38,7 +38,11 @@ export interface GameState {
     coins: number;
     selected: LootItem | null;
     saveSlot: string | null;
-    wave: number;
+    // Progress through the current combat area. Both are ephemeral run state
+    // (never persisted meaningfully) but live here because the Phaser HUD reads
+    // them through `mapStateToData`.
+    enemiesRemaining: number;
+    bossActive: boolean;
     xp: number;
     currentArea: string;
     playerPosition: { x: number; y: number };
@@ -71,7 +75,8 @@ const initState: GameState = {
     coins: 999,
     selected: null,
     saveSlot: null,
-    wave: 1,
+    enemiesRemaining: 0,
+    bossActive: false,
     xp: 0,
     currentArea: "town",
     playerPosition: { x: 400, y: 300 },
@@ -118,7 +123,13 @@ export const loadGame = createAction("LOAD_GAME", (state: Partial<GameState>) =>
     payload: { state },
 }));
 
-export const nextWave = createAction("NEXT_WAVE");
+export const setEnemiesRemaining = createAction("SET_ENEMIES_REMAINING", (value: number) => ({
+    payload: { value },
+}));
+
+export const setBossActive = createAction("SET_BOSS_ACTIVE", (value: boolean) => ({
+    payload: { value },
+}));
 
 export const selectCharacter = createAction("SELECT_CHARACTER", (character: PlayerName) => ({
     payload: { character },
@@ -284,15 +295,32 @@ export const gameReducer = createReducer(initState, (builder) => {
             // `crafting` slice. Discard both (maintainer-confirmed) and guarantee the
             // new `components` slice exists. Only `category === "crafting"` items are
             // dropped, so gear is never touched. Never throws on a partial save.
-            const loaded = action.payload.state as GameState & { crafting?: unknown };
+            //
+            // Migration: saves written before the wave mechanic was removed carry
+            // a `wave` counter. Drop it and seed the area-progress fields, which
+            // are run state that the scene overwrites on entry anyway.
+            const loaded = action.payload.state as GameState & {
+                crafting?: unknown;
+                wave?: unknown;
+            };
             const inventory = (loaded.inventory ?? []).filter(
                 (item) => item.category !== "crafting"
             );
             delete loaded.crafting;
-            return { ...loaded, inventory, components: loaded.components ?? [] } as GameState;
+            delete loaded.wave;
+            return {
+                ...loaded,
+                inventory,
+                components: loaded.components ?? [],
+                enemiesRemaining: loaded.enemiesRemaining ?? 0,
+                bossActive: loaded.bossActive ?? false,
+            } as GameState;
         })
-        .addCase(nextWave, (state) => {
-            state.wave++;
+        .addCase(setEnemiesRemaining, (state, action: PayloadAction<{ value: number }>) => {
+            state.enemiesRemaining = action.payload.value;
+        })
+        .addCase(setBossActive, (state, action: PayloadAction<{ value: boolean }>) => {
+            state.bossActive = action.payload.value;
         })
         .addCase(selectLoot, (state, action: PayloadAction<{ loot: LootItem }>) => {
             state.selected = action.payload.loot;

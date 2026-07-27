@@ -10,7 +10,7 @@ const styles = {
     fill: "#ffffff",
 };
 
-// The coin/wave readouts are plain containers with a `text` child stashed on
+// The coin/enemy readouts are plain containers with a `text` child stashed on
 // the instance so the store subscriptions can update it.
 type LabelledContainer = GameObjects.Container & { text: GameObjects.Text };
 
@@ -21,7 +21,7 @@ class UI extends GameObjects.Container {
     public subscriptions: Array<() => void>;
     public buttons: GameObjects.Sprite[];
     public coins!: LabelledContainer;
-    public wave!: LabelledContainer;
+    public enemies!: LabelledContainer;
     public save_slot: string;
     public key_handlers: Record<string, () => void>;
 
@@ -39,7 +39,7 @@ class UI extends GameObjects.Container {
 
         if (showSpellFrames) this.setSpellFrames();
         this.setCoinCount();
-        this.setWaveCount();
+        this.setEnemyCount();
         this.buttons = [this.setInvetoryIcon(), this.setSystemIcon()];
 
         // Add buttons to this container
@@ -49,15 +49,14 @@ class UI extends GameObjects.Container {
         const { x, y, width, height } = (this.scene as GameSceneLike).zone;
         Actions.IncXY(this.buttons, x + width, y + height, -35);
 
-        // Maps coins, wave and showUi sections of the store to various functions.
+        // Maps coins, area progress and showUi sections of the store to various functions.
         this.subscriptions.push(
             mapStateToData("coins", (coins) => {
                 this.coins.text.setText("Coins: " + coins);
             })
         );
-        this.subscriptions.push(
-            mapStateToData("wave", (wave) => this.wave.text.setText("Wave: " + wave))
-        );
+        this.subscriptions.push(mapStateToData("enemiesRemaining", () => this.renderEnemyCount()));
+        this.subscriptions.push(mapStateToData("bossActive", () => this.renderEnemyCount()));
         this.subscriptions.push(
             mapStateToData("showUi", (showUi) => {
                 store.dispatch(toggleHUD(!showUi));
@@ -116,17 +115,23 @@ class UI extends GameObjects.Container {
         this.add(this.coins);
     }
 
-    setWaveCount(): void {
-        this.wave = this.scene.add.container(0, 0) as LabelledContainer;
-        Display.Align.In.TopRight(this.wave, (this.scene as GameSceneLike).zone, -190);
+    setEnemyCount(): void {
+        this.enemies = this.scene.add.container(0, 0) as LabelledContainer;
+        Display.Align.In.TopRight(this.enemies, (this.scene as GameSceneLike).zone, -190);
 
-        this.wave.add(this.scene.add.sprite(0, 0, "dungeon", "ghast_baby"));
-        this.wave.text = this.scene.add
-            .text(15, 0, "Wave: " + ((this.scene as GameSceneLike).wave + 1), styles)
-            .setOrigin(0, 0.5);
-        this.wave.add(this.wave.text);
+        this.enemies.add(this.scene.add.sprite(0, 0, "dungeon", "ghast_baby"));
+        this.enemies.text = this.scene.add.text(15, 0, "", styles).setOrigin(0, 0.5);
+        this.enemies.add(this.enemies.text);
 
-        this.add(this.wave);
+        this.add(this.enemies);
+        this.renderEnemyCount();
+    }
+
+    // Counts the area's pool down, then reads BOSS once the boss is up. Both
+    // store fields feed this, so it reads them rather than taking an argument.
+    renderEnemyCount(): void {
+        const { enemiesRemaining, bossActive } = store.getState().game;
+        this.enemies.text.setText(bossActive ? "BOSS" : "Enemies: " + enemiesRemaining);
     }
 
     setInvetoryIcon(): GameObjects.Sprite {
