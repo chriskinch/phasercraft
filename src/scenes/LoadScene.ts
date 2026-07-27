@@ -296,7 +296,7 @@ export default class LoadScene extends Scene {
         // toggleUi("menu") flips showUi to true and sets menu === "menu", which
         // UI.tsx renders. The menu's buttons drive navigation from here.
         store.dispatch(toggleUi("menu"));
-        // SelectScene is the passive listener that starts GameScene once a
+        // SelectScene is the passive listener that starts the next scene once a
         // character is chosen (New Game -> character select, or Load). It has no
         // visuals, so starting it just shuts this scene down (clearing the splash
         // logo via shutdown()) and leaves the React menu overlay on top.

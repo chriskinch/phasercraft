@@ -6,8 +6,9 @@ import UI from "@entities/UI/HUD";
 import enemyTypes from "@config/enemies.json";
 import type { EnemyType } from "@/types/game";
 import { promoteToBoss } from "@config/bosses";
+import { BIOMES, DEFAULT_BIOME, type BiomeDefinition } from "@config/biomes";
 import { sample } from "lodash";
-import { fontConfig } from "../config/fonts";
+import { fontConfig } from "@config/fonts";
 
 import { toggleHUD, setCurrentArea, setEnemiesRemaining, setBossActive } from "@store/gameReducer";
 import store from "@store";
@@ -18,7 +19,7 @@ import type { GameSceneConfig } from "@/scenes/SelectScene";
 import type { PlayerType } from "@entities/Player/AssignClass";
 import { throwError } from "rxjs";
 
-export default class GameScene extends Scene {
+export default class BiomeScene extends Scene {
     private global_tick: number = 42;
     private global_attack_speed: number = 1;
     private global_attack_delay: number = 250;
@@ -45,6 +46,10 @@ export default class GameScene extends Scene {
     // to `live_cap` at once, top up on each death until `remaining_pool` is dry,
     // then a boss. Kill the boss and the area is cleared for good — the player
     // has to leave, and re-entering rebuilds the whole pool from scratch.
+    //
+    // The totals and the creature list come from the active biome, so one scene
+    // class covers all three rather than there being a subclass per biome.
+    private biome!: BiomeDefinition;
     protected area_total: number = 20;
     protected live_cap: number = 5;
     protected enemy_pool: EnemyType[] = Object.keys(enemyTypes) as EnemyType[];
@@ -54,11 +59,19 @@ export default class GameScene extends Scene {
     private area_cleared: boolean = false;
 
     constructor() {
-        super({ key: "GameScene" });
+        super({ key: "BiomeScene" });
     }
 
     init(config: GameSceneConfig): void {
         this.config = config;
+
+        // An unknown or missing biome falls back rather than throwing: the scene
+        // is reachable from the dev `startLocation` setting and from GameOver,
+        // neither of which carries a biome.
+        this.biome = BIOMES[config?.biome ?? DEFAULT_BIOME] ?? BIOMES[DEFAULT_BIOME];
+        this.area_total = this.biome.total;
+        this.live_cap = this.biome.liveCap;
+        this.enemy_pool = this.biome.enemies;
     }
 
     create(): void {
@@ -72,6 +85,8 @@ export default class GameScene extends Scene {
         // loop gates boss spawning on the same flag, so it has to be reset —
         // flagged in the PR rather than left as a latent dead-run bug.
         this.game_over = false;
+
+        this.cameras.main.setBackgroundColor(this.biome.backgroundColor);
 
         const scene_padding = 40;
         this.global_game_width = Number(this.sys.game.config.width);

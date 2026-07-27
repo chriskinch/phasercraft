@@ -1,7 +1,8 @@
 import { describe, it, expect, vi, beforeEach, afterEach } from "vitest";
-import GameScene from "./GameScene";
+import BiomeScene from "./BiomeScene";
 import store from "@store";
 import { setEnemiesRemaining, setBossActive } from "@store/gameReducer";
+import { BIOMES, DEFAULT_BIOME } from "@config/biomes";
 
 // Phase 13 replaced the endless wave loop with a clear-the-area loop: a fixed
 // pool of enemies, `live_cap` alive at a time, topped up on each death until the
@@ -60,7 +61,7 @@ interface SceneUnderTest {
 function makeScene(): { scene: SceneUnderTest; timer: FakeTimer; landSpawns: () => void } {
     const timer: FakeTimer = { remove: vi.fn() };
     const pending: Array<() => void> = [];
-    const scene = Object.create(GameScene.prototype) as SceneUnderTest;
+    const scene = Object.create(BiomeScene.prototype) as SceneUnderTest;
 
     scene.time = {
         delayedCall: vi.fn((_delay: number, callback: () => void) => {
@@ -108,7 +109,40 @@ afterEach(() => {
     vi.restoreAllMocks();
 });
 
-describe("GameScene.startArea", () => {
+describe("BiomeScene.init", () => {
+    // init() resolves the biome and copies its pool/caps onto the scene; the
+    // area loop then reads only those fields.
+    function initWith(config: unknown) {
+        const scene = Object.create(BiomeScene.prototype) as SceneUnderTest & {
+            init(c: unknown): void;
+            biome: { id: string };
+        };
+        scene.init(config);
+        return scene;
+    }
+
+    it("takes its pool and caps from the requested biome", () => {
+        const scene = initWith({ biome: "tundra" });
+
+        expect(scene.biome.id).toBe("tundra");
+        expect(scene.enemy_pool).toEqual(BIOMES.tundra.enemies);
+        expect(scene.area_total).toBe(BIOMES.tundra.total);
+        expect(scene.live_cap).toBe(BIOMES.tundra.liveCap);
+    });
+
+    it("falls back to the default biome when none is given", () => {
+        // GameOverScene and the dev startLocation setting both reach this scene
+        // without a biome, so a missing one must not throw.
+        expect(initWith({}).biome.id).toBe(DEFAULT_BIOME);
+        expect(initWith(undefined).biome.id).toBe(DEFAULT_BIOME);
+    });
+
+    it("falls back rather than throwing on an unknown biome", () => {
+        expect(initWith({ biome: "swamp" }).biome.id).toBe(DEFAULT_BIOME);
+    });
+});
+
+describe("BiomeScene.startArea", () => {
     it("seeds the pool and opens with live_cap enemies, not the whole pool", () => {
         const { scene, landSpawns } = makeScene();
 
@@ -156,7 +190,7 @@ describe("GameScene.startArea", () => {
     });
 });
 
-describe("GameScene.onEnemyDeath", () => {
+describe("BiomeScene.onEnemyDeath", () => {
     it("replaces each kill while the pool still holds enemies", () => {
         const { scene, landSpawns } = makeScene();
         scene.startArea();
@@ -213,7 +247,7 @@ describe("GameScene.onEnemyDeath", () => {
     });
 });
 
-describe("GameScene.areaCleared", () => {
+describe("BiomeScene.areaCleared", () => {
     it("delays the banner so the boss's loot can drop first", () => {
         const { scene, landSpawns } = makeScene();
 
@@ -238,7 +272,7 @@ describe("GameScene.areaCleared", () => {
     });
 });
 
-describe("GameScene boss trigger", () => {
+describe("BiomeScene boss trigger", () => {
     it("spawns the boss once the pool, the pending spawns and the group are all empty", () => {
         const { scene } = makeScene();
 
@@ -304,7 +338,7 @@ describe("GameScene boss trigger", () => {
     });
 });
 
-describe("GameScene.spawnFromPool", () => {
+describe("BiomeScene.spawnFromPool", () => {
     it("counts scheduled spawns as pending until each one lands", () => {
         const { scene, landSpawns } = makeScene();
         scene.remaining_pool = 2;
@@ -342,7 +376,7 @@ describe("GameScene.spawnFromPool", () => {
     });
 });
 
-describe("GameScene.gameOver", () => {
+describe("BiomeScene.gameOver", () => {
     it("pauses physics and stops running enemy updates", () => {
         const { scene } = makeScene();
 
@@ -354,7 +388,7 @@ describe("GameScene.gameOver", () => {
     });
 });
 
-describe("GameScene.shutdown", () => {
+describe("BiomeScene.shutdown", () => {
     it("runs entity cleanup and releases the death handler it registered", () => {
         const { scene } = makeScene();
 
