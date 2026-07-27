@@ -61,6 +61,7 @@ class UI extends GameObjects.Container {
             mapStateToData("showUi", (showUi) => {
                 store.dispatch(toggleHUD(!showUi));
                 showUi ? this.scene.scene.pause() : this.scene.scene.resume();
+                this.setButtonsEnabled(!showUi);
             })
         );
 
@@ -148,6 +149,15 @@ class UI extends GameObjects.Container {
             .setInteractive()
             .setScrollFactor(0)
             .on("pointerdown", () => store.dispatch(toggleUi("system")), this);
+    }
+
+    // Enable or disable all HUD buttons. Called from the showUi subscription so
+    // that the inventory and system buttons cannot be pressed through an open
+    // overlay window.
+    setButtonsEnabled(enabled: boolean): void {
+        this.buttons.forEach((button) =>
+            enabled ? button.setInteractive() : button.disableInteractive()
+        );
     }
 
     saveGame(): void {
