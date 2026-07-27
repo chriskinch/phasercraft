@@ -1,0 +1,35 @@
+# Automated bug-fix agent.
+# Triggers when an issue is opened or labelled with 'bug'.
+# The Copilot coding agent reads the issue, assesses confidence,
+# and opens a PR if it is confident it can fix the bug.
+name: Bug Fix Agent
+
+on:
+  issues:
+    types: [opened, labeled]
+
+jobs:
+  bug-fix:
+    # Only run when the 'bug' label is present
+    if: contains(github.event.issue.labels.*.name, 'bug')
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+      pull-requests: write
+      issues: write
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Run Copilot bug-fix agent
+        uses: github/copilot-workspace-action@v1
+        with:
+          prompt: |
+            You are a bug-fix agent for the Phasercraft repository.
+            Read the full instructions in `.github/copilot/bug-fix-agent.md` before doing anything.
+
+            Issue #${{ github.event.issue.number }}: ${{ github.event.issue.title }}
+
+            ${{ github.event.issue.body }}
+          github-token: ${{ secrets.GITHUB_TOKEN }}
