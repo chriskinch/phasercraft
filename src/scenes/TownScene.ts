@@ -6,6 +6,7 @@ import { toggleHUD, setCurrentArea, setPlayerPosition } from "@store/gameReducer
 import type { PlayerType } from "@entities/Player/AssignClass";
 import type Player from "@entities/Player/Player";
 import type { GameSceneConfig } from "@/scenes/SelectScene";
+import { DEFAULT_BIOME } from "@/scenes/biomes/biomes";
 import UI from "@entities/UI/HUD";
 
 export default class TownScene extends Scene {
@@ -521,11 +522,13 @@ export default class TownScene extends Scene {
                 // Future: Open storage interface
                 break;
             case "dungeon":
-                console.log("Entering dungeon...");
+                console.log("Entering the wilds...");
                 // fig.1 For now only do this on actual scene change
                 this.shutdown();
-                store.dispatch(setCurrentArea("dungeon"));
-                this.scene.start("GameScene", this.config);
+                // Temporary: the entrance drops straight into the default biome.
+                // PR 3 replaces this with the biome picker overlay.
+                store.dispatch(setCurrentArea(DEFAULT_BIOME));
+                this.scene.start("BiomeScene", { ...this.config, biome: DEFAULT_BIOME });
                 break;
             default:
                 console.log(`Interacting with ${name}...`);

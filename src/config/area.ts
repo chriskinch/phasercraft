@@ -10,11 +10,6 @@ export const AREA_TOTAL_ENEMIES = 20;
 // to this cap until the pool is exhausted.
 export const AREA_LIVE_CAP = 5;
 
-// The single default pool. Phase 13 PR 2 replaces this with per-biome pools; it
-// lives here so the wave removal lands without also changing which creatures
-// spawn.
-export const DEFAULT_ENEMY_POOL = Object.keys(enemyTypes) as EnemyType[];
-
 // Boss multipliers, derived from the two hand-authored entries in
 // `bosses.json` (kept as the reference for these numbers):
 //

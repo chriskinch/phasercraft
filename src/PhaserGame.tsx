@@ -4,7 +4,7 @@ import BootScene from "@scenes/BootScene";
 import LoadScene from "@scenes/LoadScene";
 import SelectScene from "@scenes/SelectScene";
 import TownScene from "@scenes/TownScene";
-import GameScene from "@scenes/GameScene";
+import BiomeScene from "@scenes/biomes/BiomeScene";
 import GameOverScene from "@scenes/GameOverScene";
 import { readSettings } from "@services/settingsStorage";
 
@@ -53,7 +53,7 @@ const PhaserGame = () => {
                     },
                 },
             },
-            scene: [BootScene, LoadScene, SelectScene, TownScene, GameScene, GameOverScene],
+            scene: [BootScene, LoadScene, SelectScene, TownScene, BiomeScene, GameOverScene],
             pixelArt: true,
             antialias: false,
         };
