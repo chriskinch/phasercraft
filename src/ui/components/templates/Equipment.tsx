@@ -58,7 +58,7 @@ const Equipment: React.FC = () => {
             <section className={styles.characterData}>
                 <h2>Level {level.currentLevel}</h2>
                 <div className={styles.characterResources}>
-                    <img src={`ui/player/${character}.gif`} alt="This is you!" />
+                    <img src={`UI/player/${character?.toLowerCase()}.gif`} alt="This is you!" />
                     <StatBar type={"health"} label={"HP"} value={stats.health_max || 0} />
                     <StatBar
                         type={resource_type || "mana"}
