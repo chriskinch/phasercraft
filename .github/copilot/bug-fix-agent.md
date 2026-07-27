@@ -23,20 +23,21 @@ Always read `CLAUDE.md` first. Every convention there applies to your work.
 
 Rate your confidence **HIGH**, **MEDIUM**, or **LOW** using these criteria:
 
-| Signal | Effect on confidence |
-|---|---|
-| Root cause is clearly identifiable in the source | +HIGH |
-| Fix is a localised code change (≤ ~50 lines, ≤ 3 files) | +HIGH |
-| No change to runtime behaviour, game balance, save-data format, or public APIs | +HIGH |
-| Fix is a known Phaser 4 lifecycle pattern (see `CLAUDE.md` § Lifecycle discipline) | +HIGH |
-| Issue is vague, missing repro steps, or describes complex emergent behaviour | −LOW |
-| Fix would change game balance, save-data format, or a public API | −LOW |
-| Fix requires Phaser engine internals knowledge beyond the official docs | −LOW |
-| Multiple plausible root causes with no clear winner | −MEDIUM |
+| Signal                                                                             | Effect on confidence |
+| ---------------------------------------------------------------------------------- | -------------------- |
+| Root cause is clearly identifiable in the source                                   | +HIGH                |
+| Fix is a localised code change (≤ ~50 lines, ≤ 3 files)                            | +HIGH                |
+| No change to runtime behaviour, game balance, save-data format, or public APIs     | +HIGH                |
+| Fix is a known Phaser 4 lifecycle pattern (see `CLAUDE.md` § Lifecycle discipline) | +HIGH                |
+| Issue is vague, missing repro steps, or describes complex emergent behaviour       | −LOW                 |
+| Fix would change game balance, save-data format, or a public API                   | −LOW                 |
+| Fix requires Phaser engine internals knowledge beyond the official docs            | −LOW                 |
+| Multiple plausible root causes with no clear winner                                | −MEDIUM              |
 
 **Only proceed to Step 3 if confidence is HIGH.**
 
 If confidence is MEDIUM or LOW:
+
 - Post a comment on the issue explaining what you found, why confidence is not high,
   and what additional information (repro steps, logs, expected vs actual behaviour)
   would be needed for an automated fix.
@@ -51,10 +52,10 @@ If confidence is MEDIUM or LOW:
    `fix/<short-description>` (2–4 words, kebab-case).
 2. Make the minimal change that fixes the bug. Do not refactor unrelated code.
 3. Follow all code conventions in `CLAUDE.md`:
-   - TypeScript everywhere in `src/` — no new `any`, no `@ts-ignore` without comment + issue ref.
-   - Lifecycle discipline: `cleanup()` methods, correct event/timer/collider teardown.
-   - `localStorage` only through the typed save/storage service.
-   - Tests live next to the code (`foo.test.ts`). Add or update a test that covers the fix.
+    - TypeScript everywhere in `src/` — no new `any`, no `@ts-ignore` without comment + issue ref.
+    - Lifecycle discipline: `cleanup()` methods, correct event/timer/collider teardown.
+    - `localStorage` only through the typed save/storage service.
+    - Tests live next to the code (`foo.test.ts`). Add or update a test that covers the fix.
 4. Consult the official Phaser 4 docs (https://docs.phaser.io) before touching scenes,
    timers, events, physics, or game objects — do not code Phaser APIs from memory.
 5. If existing code looks like an additional bug, **preserve its behaviour** and flag it
@@ -84,15 +85,15 @@ post a comment on the issue explaining why and stop — do not open a broken PR.
 1. Push the branch and open a PR targeting `main`.
 2. Title: `fix: <concise description>` (Conventional Commits).
 3. PR body must include:
-   - `Closes #<issue-number>`
-   - A brief description of the root cause.
-   - The fix approach.
-   - Risk notes (could anything else be affected?).
-   - Test evidence (what test covers this, what it asserts).
-   - A `Scope:` section summarising what changed (used by the QA gate).
+    - `Closes #<issue-number>`
+    - A brief description of the root cause.
+    - The fix approach.
+    - Risk notes (could anything else be affected?).
+    - Test evidence (what test covers this, what it asserts).
+    - A `Scope:` section summarising what changed (used by the QA gate).
 4. Run the QA gate: `/qa-review <pr-number>` (see `.claude/commands/qa-review.md`).
-   - If verdict is `REQUEST_CHANGES`: address every finding, push, and re-run the gate.
-   - Only request maintainer review once the verdict is `APPROVE`.
+    - If verdict is `REQUEST_CHANGES`: address every finding, push, and re-run the gate.
+    - Only request maintainer review once the verdict is `APPROVE`.
 5. Subscribe to PR activity and monitor for CI status and review comments until the
    PR is merged or closed. Address actionable feedback promptly.
 
