@@ -316,7 +316,7 @@ export default class GameScene extends Scene {
         });
     }
 
-    spawnEnemy(enemyId: EnemyType, wave_multiplier?: number): void {
+    spawnEnemy(enemyId: EnemyType): void {
         const enemy = enemyTypes[enemyId] as EnemyConfig;
         const { damage, speed, range, attack_speed, health_max, health_regen_rate } = enemy;
 
@@ -331,7 +331,12 @@ export default class GameScene extends Scene {
                 target: null, //this.player,
                 active_group: this.active_enemies,
                 loot_table: enemy.loot_table,
-                wave_multiplier: wave_multiplier || 1,
+                // Behaviour-preserving: the scripted waves always resolved this
+                // to 1 (`wave_multiplier || 1` with nothing passed), and
+                // Enemy.setStats scales off it — ×1.2 damage, ×2 health. Kept
+                // at 1 so removing the wave mechanic does not change enemy
+                // stats. Per-biome scaling is a later step.
+                wave_multiplier: 1,
                 coin_multiplier: enemy.coin_multiplier,
             }) as GameObjects.Container
         );
