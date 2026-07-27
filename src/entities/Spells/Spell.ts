@@ -86,6 +86,16 @@ class Spell extends GameObjects.Sprite {
     }
 
     cleanup(): void {
+        // Spell is the only entity registered on *both* SHUTDOWN and DESTROY, so
+        // the two paths can fire for the same instance. Phaser's destroy() clears
+        // `this.scene` on its way out (after emitting DESTROY), so if destroy ran
+        // first there is no scene left to release listeners from — and every
+        // external listener below was already released by that first pass.
+        // Bail rather than dereference a dead object: without this guard the
+        // second pass throws "Cannot read properties of undefined (reading
+        // 'events')" out of Systems.shutdown, taking the scene transition with it.
+        if (!this.scene) return;
+
         // Remove listeners registered on external emitters (the spell's own
         // listeners are removed by Phaser's destroy()). Idempotent: off() is a
         // no-op when the listener is already gone, so the overlapping SHUTDOWN

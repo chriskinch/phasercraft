@@ -377,11 +377,17 @@ class CastingController {
     cleanup(): void {
         // Idempotent: off() and remove() are no-ops when already gone; the
         // SHUTDOWN self-subscription and Player.cleanup() can both land here.
-        this.scene.events.off("pointerdown:enemy", this.onEnemyTap, this);
-        this.scene.events.off("pointerdown:player", this.onPlayerTap, this);
-        this.scene.events.off("keypress:esc", this.cancelAll, this);
-        this.scene.events.off("player:hit", this.onHit, this);
-        this.scene.events.off(Scenes.Events.SHUTDOWN, this.cleanup, this);
+        // Phaser's destroy() clears `this.scene` after emitting DESTROY, so a
+        // cleanup pass arriving later (scene SHUTDOWN, or an owner's cleanup)
+        // has no scene left to detach from. Bail rather than dereference a dead
+        // object — see the Spell.cleanup guard for the crash this prevents.
+        if (this.scene) {
+            this.scene.events.off("pointerdown:enemy", this.onEnemyTap, this);
+            this.scene.events.off("pointerdown:player", this.onPlayerTap, this);
+            this.scene.events.off("keypress:esc", this.cancelAll, this);
+            this.scene.events.off("player:hit", this.onHit, this);
+            this.scene.events.off(Scenes.Events.SHUTDOWN, this.cleanup, this);
+        }
         if (this.casting) {
             this.casting.timer.remove(false);
             this.casting = null;

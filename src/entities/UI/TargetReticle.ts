@@ -67,6 +67,11 @@ class TargetReticle {
     cleanup(): void {
         // Idempotent; also runs on scene SHUTDOWN (the graphics object itself
         // is torn down with the scene's display list).
+        // Phaser's destroy() clears `this.scene` after emitting DESTROY, so a
+        // cleanup pass arriving later (scene SHUTDOWN, or an owner's cleanup)
+        // has no scene left to detach from. Bail rather than dereference a dead
+        // object — see the Spell.cleanup guard for the crash this prevents.
+        if (!this.scene) return;
         this.scene.events.off("pointermove:game", this.onPointerMove, this);
         this.scene.events.off(Scenes.Events.SHUTDOWN, this.cleanup, this);
     }

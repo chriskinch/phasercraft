@@ -77,9 +77,15 @@ class CastBar {
 
     cleanup(): void {
         // Idempotent; runs from Player.cleanup() and on scene SHUTDOWN.
-        this.scene.events.off("spell:castbar:start", this.onStart, this);
-        this.scene.events.off("spell:castbar:stop", this.onStop, this);
-        this.scene.events.off(Scenes.Events.SHUTDOWN, this.cleanup, this);
+        // Phaser's destroy() clears `this.scene` after emitting DESTROY, so a
+        // cleanup pass arriving later (scene SHUTDOWN, or an owner's cleanup)
+        // has no scene left to detach from. Bail rather than dereference a dead
+        // object — see the Spell.cleanup guard for the crash this prevents.
+        if (this.scene) {
+            this.scene.events.off("spell:castbar:start", this.onStart, this);
+            this.scene.events.off("spell:castbar:stop", this.onStop, this);
+            this.scene.events.off(Scenes.Events.SHUTDOWN, this.cleanup, this);
+        }
         this.removeTween();
     }
 }
