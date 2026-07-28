@@ -25,12 +25,15 @@ class UI extends GameObjects.Container {
     public save_slot: string;
     public key_handlers: Record<string, () => void>;
 
-    constructor(scene: Scene, options: { showSpellFrames?: boolean } = {}) {
+    constructor(
+        scene: Scene,
+        options: { showSpellFrames?: boolean; showEnemyCount?: boolean } = {}
+    ) {
         super(scene, 0, 0);
 
         // The town is a non-combat hub, so it opts out of the spell/ability
         // slots; every other scene shows them by default.
-        const { showSpellFrames = true } = options;
+        const { showSpellFrames = true, showEnemyCount = true } = options;
 
         this.spells = 5;
         this.spacing = 60;
@@ -39,7 +42,7 @@ class UI extends GameObjects.Container {
 
         if (showSpellFrames) this.setSpellFrames();
         this.setCoinCount();
-        this.setEnemyCount();
+        if (showEnemyCount) this.setEnemyCount();
         this.buttons = [this.setInvetoryIcon(), this.setSystemIcon()];
 
         // Add buttons to this container
@@ -131,6 +134,7 @@ class UI extends GameObjects.Container {
     // Counts the area's pool down, then reads BOSS once the boss is up. Both
     // store fields feed this, so it reads them rather than taking an argument.
     renderEnemyCount(): void {
+        if (!this.enemies) return;
         const { enemiesRemaining, bossActive } = store.getState().game;
         this.enemies.text.setText(bossActive ? "BOSS" : "Enemies: " + enemiesRemaining);
     }

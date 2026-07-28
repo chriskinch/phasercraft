@@ -86,8 +86,8 @@ export default class TownScene extends Scene {
             )
             .setOrigin(0);
 
-        // No abilities in town, so hide the spell/ability slots.
-        this.UI = new UI(this, { showSpellFrames: false });
+        // Town is a non-combat hub, so hide spell slots and enemy readout.
+        this.UI = new UI(this, { showSpellFrames: false, showEnemyCount: false });
 
         this.input.on(
             "pointerdown",

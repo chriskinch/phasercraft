@@ -18,7 +18,7 @@ interface HudUnderTest {
         setInteractive: ReturnType<typeof vi.fn>;
     }>;
     scene: { input: { keyboard: { off: ReturnType<typeof vi.fn> } } };
-    enemies: { text: { setText: ReturnType<typeof vi.fn> } };
+    enemies?: { text: { setText: ReturnType<typeof vi.fn> } };
     saveGame(): void;
     deleteSaves(): void;
     loadSavedGame(): void;
@@ -56,7 +56,7 @@ describe("UI.renderEnemyCount", () => {
 
         hud.renderEnemyCount();
 
-        expect(hud.enemies.text.setText).toHaveBeenCalledWith("Enemies: 12");
+        expect(hud.enemies!.text.setText).toHaveBeenCalledWith("Enemies: 12");
     });
 
     it("reads BOSS once the boss is up, whatever the count says", () => {
@@ -66,7 +66,7 @@ describe("UI.renderEnemyCount", () => {
 
         hud.renderEnemyCount();
 
-        expect(hud.enemies.text.setText).toHaveBeenCalledWith("BOSS");
+        expect(hud.enemies!.text.setText).toHaveBeenCalledWith("BOSS");
     });
 
     it("returns to the count when the boss is cleared", () => {
@@ -78,7 +78,14 @@ describe("UI.renderEnemyCount", () => {
         store.dispatch(setEnemiesRemaining(0));
         hud.renderEnemyCount();
 
-        expect(hud.enemies.text.setText).toHaveBeenLastCalledWith("Enemies: 0");
+        expect(hud.enemies!.text.setText).toHaveBeenLastCalledWith("Enemies: 0");
+    });
+
+    it("does nothing when the enemy counter is not mounted", () => {
+        const hud = makeHud();
+        delete hud.enemies;
+
+        expect(() => hud.renderEnemyCount()).not.toThrow();
     });
 });
 
