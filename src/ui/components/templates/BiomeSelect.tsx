@@ -29,10 +29,14 @@ const BiomeSelect: React.FC = () => {
                         <Button
                             text="Travel"
                             onClick={() => {
-                                dispatch(requestTravel(id));
-                                // Close the overlay so the scene it starts is not
-                                // immediately paused by the showUi subscription.
+                                // Close the overlay FIRST. The HUD's showUi
+                                // subscription resumes this scene, and resuming
+                                // after the travel request has already queued
+                                // scene.start() re-activates a scene that is on
+                                // its way out — it then gets stepped once more
+                                // with a destroyed player.
                                 dispatch(toggleUi("biomeSelect"));
+                                dispatch(requestTravel(id));
                             }}
                         />
                     </li>

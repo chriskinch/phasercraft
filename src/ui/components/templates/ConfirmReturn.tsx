@@ -20,10 +20,13 @@ const ConfirmReturn: React.FC = () => {
                 <Button
                     text="Return"
                     onClick={() => {
-                        dispatch(requestTravel("town"));
-                        // Close the overlay so the town scene is not started
-                        // into a paused state by the showUi subscription.
+                        // Close the overlay FIRST. The HUD's showUi subscription
+                        // resumes this scene, and resuming after the travel
+                        // request has already queued scene.start() re-activates a
+                        // scene that is on its way out — it then gets stepped once
+                        // more with a destroyed player.
                         dispatch(toggleUi("confirmReturn"));
+                        dispatch(requestTravel("town"));
                     }}
                 />
                 <Button text="Cancel" onClick={() => dispatch(toggleUi("confirmReturn"))} />
