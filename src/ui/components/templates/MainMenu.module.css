@@ -3,7 +3,6 @@
     flex-direction: column;
     align-items: center;
     gap: 1.5rem;
-    padding: 1rem 0;
 }
 
 .logo {
@@ -16,7 +15,7 @@
 /* Placeholder pixel/3D wordmark; the Phaser splash owns the real canvas logo. */
 .title {
     margin: 0;
-    font-size: 3rem;
+    font-size: clamp(2rem, 10vw, 3rem);
     letter-spacing: 0.1em;
     color: #ffc93e;
     text-transform: uppercase;
@@ -30,7 +29,7 @@
 
 .sprite {
     image-rendering: pixelated;
-    width: 96px;
+    width: 64px;
     height: auto;
 }
 
