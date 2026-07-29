@@ -120,6 +120,24 @@ const UI: React.FC = () => {
     // Use specified menu other use equipment as default
     const CurrentMenu = menu ? config[menu] : config.equipment;
     const isSystem = menu === "system";
+    // The title screen (#382) is not a menu: it drops the header chrome and the
+    // framed pixel-background panel, filling the overlay as a plain full-screen
+    // splash so the logo and actions stay centered and visible on mobile.
+    const isTitle = menu === "menu";
+
+    const containerClassName = isTitle
+        ? styles.titleScreen
+        : isSystem
+          ? undefined
+          : theme.pixelBackground;
+    const containerStyle: React.CSSProperties | undefined = isTitle
+        ? undefined
+        : {
+              ...(isSystem ? {} : pixelBackgroundVars()),
+              margin: "0 auto",
+              padding: "calc(1em + 6px) 1em 1em",
+              width: isSystem ? "200px" : "100%",
+          };
 
     // Screens flagged `back` return to the previous screen on close; everything
     // else closes the overlay entirely (the original behavior).
@@ -137,21 +155,18 @@ const UI: React.FC = () => {
             <InstallBanner />
             {showUi && (
                 <div className={styles.uiMain}>
-                    <div className={styles.headerContainer}>
-                        <Header config={CurrentMenu} toggleUi={handleClose} />
-                    </div>
+                    {!isTitle && (
+                        <div className={styles.headerContainer}>
+                            <Header config={CurrentMenu} toggleUi={handleClose} />
+                        </div>
+                    )}
                     <div
                         id={CurrentMenu.title.toLowerCase().replace(" ", "-")}
                         data-testid="menu-container"
-                        className={isSystem ? undefined : theme.pixelBackground}
-                        style={{
-                            ...(isSystem ? {} : pixelBackgroundVars()),
-                            margin: "0 auto",
-                            padding: "calc(1em + 6px) 1em 1em",
-                            width: isSystem ? "200px" : "100%",
-                        }}
+                        className={containerClassName}
+                        style={containerStyle}
                     >
-                        <CustomDragLayer />
+                        {!isTitle && <CustomDragLayer />}
                         <MenuContext.Provider value={menu || "equipment"}>
                             <CurrentMenu.component {...CurrentMenu.props} />
                         </MenuContext.Provider>
