@@ -25,12 +25,17 @@ class UI extends GameObjects.Container {
     public save_slot: string;
     public key_handlers: Record<string, () => void>;
 
-    constructor(scene: Scene, options: { showSpellFrames?: boolean } = {}) {
+    constructor(
+        scene: Scene,
+        options: { showSpellFrames?: boolean; showReturnToTown?: boolean } = {}
+    ) {
         super(scene, 0, 0);
 
         // The town is a non-combat hub, so it opts out of the spell/ability
-        // slots; every other scene shows them by default.
-        const { showSpellFrames = true } = options;
+        // slots; every other scene shows them by default. The return-to-town
+        // button is the mirror image: only the biome scenes have somewhere to
+        // teleport back from.
+        const { showSpellFrames = true, showReturnToTown = false } = options;
 
         this.spells = 5;
         this.spacing = 60;
@@ -41,6 +46,7 @@ class UI extends GameObjects.Container {
         this.setCoinCount();
         this.setEnemyCount();
         this.buttons = [this.setInvetoryIcon(), this.setSystemIcon()];
+        if (showReturnToTown) this.buttons.push(this.setReturnToTownIcon());
 
         // Add buttons to this container
         this.buttons.forEach((button) => this.add(button));
@@ -141,6 +147,22 @@ class UI extends GameObjects.Container {
             .setInteractive()
             .setScrollFactor(0)
             .on("pointerdown", () => store.dispatch(toggleUi("equipment")), this);
+    }
+
+    // Opens the confirmation screen rather than travelling immediately: leaving
+    // abandons the area's progress. The ESC key remains an instant, unconfirmed
+    // exit for players who want it.
+    setReturnToTownIcon(): GameObjects.Sprite {
+        return (
+            this.scene.add
+                // Placeholder art: the icon atlas has no portal/town frame, so the
+                // movement icon stands in until the portal travel screen brings its
+                // own artwork.
+                .sprite(0, 0, "icon", "icon_0025_dash")
+                .setInteractive()
+                .setScrollFactor(0)
+                .on("pointerdown", () => store.dispatch(toggleUi("confirmReturn")), this)
+        );
     }
 
     setSystemIcon(): GameObjects.Sprite {

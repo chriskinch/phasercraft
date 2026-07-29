@@ -6,6 +6,8 @@ import styles from "./UI.module.css";
 import { switchUi, toggleUi } from "@store/gameReducer";
 import Arcanum from "@components/Arcanum";
 import Armory from "@components/Armory";
+import BiomeSelect from "@components/BiomeSelect";
+import ConfirmReturn from "@components/ConfirmReturn";
 import Character from "@components/Character";
 import CharacterSelect from "@components/CharacterSelect";
 import Equipment from "@components/Equipment";
@@ -60,6 +62,17 @@ const UI: React.FC = () => {
             component: asMenuComponent(Armory),
             title: "Armory",
             navigation: true,
+        },
+        biomeSelect: {
+            component: asMenuComponent(BiomeSelect),
+            title: "Choose a Biome",
+            // Cancellable: closing leaves the player standing in town.
+            close: true,
+        },
+        confirmReturn: {
+            component: asMenuComponent(ConfirmReturn),
+            title: "Return to Town",
+            close: true,
         },
         character: {
             component: asMenuComponent(Character),

@@ -17,7 +17,7 @@ interface HudUnderTest {
         disableInteractive: ReturnType<typeof vi.fn>;
         setInteractive: ReturnType<typeof vi.fn>;
     }>;
-    scene: { input: { keyboard: { off: ReturnType<typeof vi.fn> } } };
+    scene?: { input: { keyboard: { off: ReturnType<typeof vi.fn> } } };
     enemies: { text: { setText: ReturnType<typeof vi.fn> } };
     saveGame(): void;
     deleteSaves(): void;
@@ -163,9 +163,30 @@ describe("UI.cleanup", () => {
         expect(unsubscribeA).toHaveBeenCalled();
         expect(unsubscribeB).toHaveBeenCalled();
         expect(hud.subscriptions).toEqual([]);
-        expect(hud.scene.input.keyboard.off).toHaveBeenCalledWith("keyup-P", handlerP, hud);
-        expect(hud.scene.input.keyboard.off).toHaveBeenCalledWith("keyup-L", handlerL, hud);
-        expect(hud.scene.input.keyboard.off).toHaveBeenCalledTimes(2);
+        expect(hud.scene!.input.keyboard.off).toHaveBeenCalledWith("keyup-P", handlerP, hud);
+        expect(hud.scene!.input.keyboard.off).toHaveBeenCalledWith("keyup-L", handlerL, hud);
+        expect(hud.scene!.input.keyboard.off).toHaveBeenCalledTimes(2);
+    });
+
+    // The HUD is a Container, so Phaser's destroy() clears `this.scene` — and
+    // the scene calls cleanup() from its own shutdown(), which can land after
+    // that. Guarding is only half the requirement: the store unsubscribes must
+    // stay ABOVE the guard, or a future refactor sliding them below it would
+    // silently reintroduce the subscription leak of #307.
+    it("still unsubscribes, and does not throw, when the HUD was already destroyed", () => {
+        const hud = makeHud();
+        const unsubscribeA = vi.fn();
+        const unsubscribeB = vi.fn();
+        hud.subscriptions = [unsubscribeA, unsubscribeB];
+        hud.key_handlers = { "keyup-P": vi.fn() };
+        // Phaser's destroy() leaves the container in exactly this state.
+        hud.scene = undefined;
+
+        expect(() => hud.cleanup()).not.toThrow();
+
+        expect(unsubscribeA).toHaveBeenCalled();
+        expect(unsubscribeB).toHaveBeenCalled();
+        expect(hud.subscriptions).toEqual([]);
     });
 });
 
