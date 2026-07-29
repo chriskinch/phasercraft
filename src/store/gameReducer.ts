@@ -12,6 +12,13 @@ import type {
 } from "@/types/game";
 import { COMPONENT_DEFS } from "@/types/game";
 import type { PlayerName } from "@entities/Player/AssignClass";
+import type { BiomeId } from "@/scenes/biomes/biomes";
+
+// Where the player has asked to travel. The React overlay writes it, the active
+// Phaser scene reads it and clears it — the store is the only bridge between the
+// two halves of the app. Temporary shape: the dedicated portal travel screen
+// will replace the biome picker that sets it.
+export type TravelDestination = BiomeId | "town";
 
 // Types
 
@@ -45,6 +52,7 @@ export interface GameState {
     bossActive: boolean;
     xp: number;
     currentArea: string;
+    travelRequest: TravelDestination | null;
     playerPosition: { x: number; y: number };
 }
 
@@ -79,6 +87,7 @@ const initState: GameState = {
     bossActive: false,
     xp: 0,
     currentArea: "town",
+    travelRequest: null,
     playerPosition: { x: 400, y: 300 },
 };
 
@@ -195,6 +204,12 @@ export const updateBaseStats = createAction(
 export const updateStats = createAction("UPDATE_STATS", (stats: Partial<PlayerStats>) => ({
     payload: { stats },
 }));
+
+export const requestTravel = createAction("REQUEST_TRAVEL", (destination: TravelDestination) => ({
+    payload: { destination },
+}));
+
+export const clearTravelRequest = createAction("CLEAR_TRAVEL_REQUEST");
 
 export const setCurrentArea = createAction("SET_CURRENT_AREA", (area: string) => ({
     payload: { area },
@@ -314,6 +329,9 @@ export const gameReducer = createReducer(initState, (builder) => {
                 components: loaded.components ?? [],
                 enemiesRemaining: loaded.enemiesRemaining ?? 0,
                 bossActive: loaded.bossActive ?? false,
+                // Transient: a request captured mid-save would teleport the
+                // player on load.
+                travelRequest: null,
             } as GameState;
         })
         .addCase(setEnemiesRemaining, (state, action: PayloadAction<{ value: number }>) => {
@@ -398,6 +416,15 @@ export const gameReducer = createReducer(initState, (builder) => {
         })
         .addCase(updateStats, (state, action: PayloadAction<{ stats: Partial<PlayerStats> }>) => {
             mergeWith(state.stats, action.payload.stats, (o: number, s: number) => o + s);
+        })
+        .addCase(
+            requestTravel,
+            (state, action: PayloadAction<{ destination: TravelDestination }>) => {
+                state.travelRequest = action.payload.destination;
+            }
+        )
+        .addCase(clearTravelRequest, (state) => {
+            state.travelRequest = null;
         })
         .addCase(setCurrentArea, (state, action: PayloadAction<{ area: string }>) => {
             state.currentArea = action.payload.area;

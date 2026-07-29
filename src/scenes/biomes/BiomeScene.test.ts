@@ -40,6 +40,7 @@ interface SceneUnderTest {
     removeAreaClearedTimer(): void;
     gameOver(): void;
     shutdown(): void;
+    travel_subscription?: ReturnType<typeof vi.fn>;
     spawnEnemies(list: string[]): void;
     spawnEnemy: ReturnType<typeof vi.fn>;
     spawnBoss: ReturnType<typeof vi.fn>;
@@ -304,6 +305,32 @@ describe("BiomeScene.shutdown", () => {
         expect(scene.events.off).toHaveBeenCalledWith("enemy:dead", scene.onEnemyDead, scene);
         expect(scene.UI.cleanup).toHaveBeenCalled();
         expect(scene.player.cleanup).toHaveBeenCalled();
+    });
+
+    it("releases the travel-request store subscription", () => {
+        const unsubscribe = vi.fn();
+        const { scene } = makeScene({ travel_subscription: unsubscribe });
+
+        scene.shutdown();
+
+        expect(unsubscribe).toHaveBeenCalledTimes(1);
+        expect(scene.travel_subscription).toBeUndefined();
+    });
+
+    it("is idempotent — a second shutdown does not call the subscription's unsubscribe again", () => {
+        const unsubscribe = vi.fn();
+        const { scene } = makeScene({ travel_subscription: unsubscribe });
+
+        scene.shutdown();
+        scene.shutdown();
+
+        expect(unsubscribe).toHaveBeenCalledTimes(1);
+    });
+
+    it("does not throw when there is no travel subscription to release", () => {
+        const { scene } = makeScene();
+
+        expect(() => scene.shutdown()).not.toThrow();
     });
 });
 

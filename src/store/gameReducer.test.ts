@@ -17,6 +17,8 @@ import {
     sellComponent,
     sellComponentStack,
     loadGame,
+    requestTravel,
+    clearTravelRequest,
 } from "./gameReducer";
 import type { LootItem } from "@/types/game";
 import { COMPONENT_DEFS } from "@/types/game";
@@ -113,6 +115,37 @@ describe("gameReducer", () => {
         const initial = gameReducer(undefined, { type: "@@INIT" });
         const next = gameReducer(initial, setSaveSlot("A"));
         expect(next.saveSlot).toBe("A");
+    });
+
+    describe("travel requests", () => {
+        it("requestTravel records the destination", () => {
+            const initial = gameReducer(undefined, { type: "@@INIT" });
+            const toBiome = gameReducer(initial, requestTravel("desert"));
+            expect(toBiome.travelRequest).toBe("desert");
+
+            const toTown = gameReducer(initial, requestTravel("town"));
+            expect(toTown.travelRequest).toBe("town");
+        });
+
+        it("clearTravelRequest nulls it back out", () => {
+            const withRequest = {
+                ...gameReducer(undefined, { type: "@@INIT" }),
+                travelRequest: "forest" as const,
+            };
+            const cleared = gameReducer(withRequest, clearTravelRequest());
+            expect(cleared.travelRequest).toBeNull();
+        });
+
+        it("loadGame resets a captured travel request to null so a stale request cannot fire on load", () => {
+            const initial = gameReducer(undefined, { type: "@@INIT" });
+            const legacySave = { ...initial, travelRequest: "tundra" } as Record<string, unknown>;
+
+            const next = gameReducer(
+                initial,
+                loadGame(legacySave as Parameters<typeof loadGame>[0])
+            );
+            expect(next.travelRequest).toBeNull();
+        });
     });
 
     it("setCurrentArea and setPlayerPosition update navigation state", () => {

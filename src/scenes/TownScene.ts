@@ -1,12 +1,20 @@
-import { Scene, GameObjects, Input, Tilemaps, Types } from "phaser";
+import { Scene, GameObjects, Input, Tilemaps, Types, Scenes } from "phaser";
 import AssignClass from "@entities/Player/AssignClass";
 import type { ArcadeCollisionObject } from "@/types/game";
 import store from "@store";
-import { toggleHUD, setCurrentArea, setPlayerPosition } from "@store/gameReducer";
+import {
+    toggleHUD,
+    setCurrentArea,
+    setPlayerPosition,
+    switchUi,
+    toggleUi,
+    clearTravelRequest,
+} from "@store/gameReducer";
+import mapStateToData from "@helpers/mapStateToData";
 import type { PlayerType } from "@entities/Player/AssignClass";
 import type Player from "@entities/Player/Player";
 import type { GameSceneConfig } from "@/scenes/SelectScene";
-import { DEFAULT_BIOME } from "@/scenes/biomes/biomes";
+import { BIOMES, type BiomeId } from "@/scenes/biomes/biomes";
 import UI from "@entities/UI/HUD";
 
 export default class TownScene extends Scene {
@@ -61,6 +69,9 @@ export default class TownScene extends Scene {
     }
     private UI!: UI;
     private collisionIdleTimer?: Phaser.Time.TimerEvent;
+    // Store subscription bridging the React biome picker to this scene; released
+    // in shutdown() per the lifecycle convention.
+    private travelSubscription?: () => void;
 
     constructor() {
         super({ key: "TownScene" });
@@ -134,6 +145,20 @@ export default class TownScene extends Scene {
         this.createTownUI();
 
         store.dispatch(toggleHUD(true));
+
+        // The biome picker writes a travel request into the store; act on it once
+        // and clear it, so a stale request cannot fire again on the next visit.
+        this.travelSubscription = mapStateToData("travelRequest", (destination) =>
+            this.onTravelRequest(destination as BiomeId | "town" | null)
+        );
+
+        // Phaser fires SHUTDOWN on every transition away from this scene and
+        // does not call shutdown() for us. Wiring cleanup to the event — rather
+        // than calling it by hand before scene.start() — is the documented
+        // lifecycle hook, and it is what makes the teardown symmetric with
+        // create() no matter how the scene is left (picker, ESC, game over).
+        // BiomeScene already does this.
+        this.events.once(Scenes.Events.SHUTDOWN, this.shutdown, this);
 
         this.cameras.main.startFollow(this.player);
     }
@@ -502,6 +527,19 @@ export default class TownScene extends Scene {
         this.handleInteraction(zoneType, zoneName);
     }
 
+    private onTravelRequest(destination: BiomeId | "town" | null): void {
+        // "town" is for the biome scenes to consume — we are already here.
+        if (!destination || destination === "town" || !(destination in BIOMES)) return;
+
+        store.dispatch(clearTravelRequest());
+        store.dispatch(setPlayerPosition({ x: this.player.x, y: this.player.y }));
+        store.dispatch(setCurrentArea(destination));
+        // scene.start() stops this scene (firing SHUTDOWN, which runs cleanup)
+        // and starts the target — the documented way to change scenes. Cleanup
+        // is no longer invoked by hand here.
+        this.scene.start("BiomeScene", { ...this.config, biome: destination });
+    }
+
     private handleInteraction(type: string, name: string): void {
         // Save current position before leaving town
         store.dispatch(setPlayerPosition({ x: this.player.x, y: this.player.y }));
@@ -522,13 +560,13 @@ export default class TownScene extends Scene {
                 // Future: Open storage interface
                 break;
             case "dungeon":
-                console.log("Entering the wilds...");
-                // fig.1 For now only do this on actual scene change
-                this.shutdown();
-                // Temporary: the entrance drops straight into the default biome.
-                // PR 3 replaces this with the biome picker overlay.
-                store.dispatch(setCurrentArea(DEFAULT_BIOME));
-                this.scene.start("BiomeScene", { ...this.config, biome: DEFAULT_BIOME });
+                // The entrance opens the destination picker instead of starting a
+                // scene. Opening the overlay pauses this scene (the HUD's showUi
+                // subscription), and the actual transition happens in
+                // onTravelRequest once the player picks a biome. Cancelling the
+                // picker simply leaves them standing here.
+                store.dispatch(switchUi("biomeSelect"));
+                store.dispatch(toggleUi("biomeSelect"));
                 break;
             default:
                 console.log(`Interacting with ${name}...`);
@@ -548,6 +586,8 @@ export default class TownScene extends Scene {
     }
 
     shutdown(): void {
+        // Runs from the SHUTDOWN event. Idempotent: every release below is a
+        // no-op when it has already happened.
         // Clean up HUD subscriptions
         if (this.UI && this.UI.cleanup) {
             this.UI.cleanup();
@@ -567,6 +607,13 @@ export default class TownScene extends Scene {
         if (this.collisionIdleTimer) {
             this.collisionIdleTimer.destroy();
             this.collisionIdleTimer = undefined;
+        }
+
+        // Release the travel-request subscription (idempotent: shutdown() is
+        // called directly from onTravelRequest as well as on scene shutdown).
+        if (this.travelSubscription) {
+            this.travelSubscription();
+            this.travelSubscription = undefined;
         }
     }
 }
