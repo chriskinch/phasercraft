@@ -195,6 +195,11 @@
         "coin_multiplier": 1,
         "loot_table": [
             {
+                "name": "bone",
+                "rate": 100,
+                "bonus": 1
+            },
+            {
                 "name": "coin",
                 "rate": 55,
                 "bonus": 2

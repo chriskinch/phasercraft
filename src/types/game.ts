@@ -119,6 +119,7 @@ export const COMPONENT_DEFS: Record<ComponentType, ComponentDef> = {
     scrap: { stackMax: 99, sellValue: 2, icon: "scrap", name: "Scrap" },
     cloth: { stackMax: 99, sellValue: 3, icon: "cloth", name: "Cloth" },
     ichor: { stackMax: 20, sellValue: 8, icon: "ichor", name: "Ichor" },
+    bone: { stackMax: 99, sellValue: 2, icon: "bone", name: "Bone" },
 };
 
 export const ITEM_QUALITY_WEIGHTS = {
@@ -216,11 +217,11 @@ export interface LootStat {
     abbreviation?: string;
 }
 
-type LootType = "coin" | "gem" | "scrap" | "cloth" | "ichor";
+type LootType = "coin" | "gem" | "scrap" | "cloth" | "ichor" | "bone";
 
 // The stackable subset of loot (currency — coin, gem — is excluded; it credits coins
 // directly rather than entering the inventory).
-export type ComponentType = "scrap" | "cloth" | "ichor";
+export type ComponentType = "scrap" | "cloth" | "ichor" | "bone";
 
 // One stack of a component in the inventory. `quantity` is kept ≤ the type's
 // `COMPONENT_DEFS[type].stackMax`; overflow beyond that opens a new stack.
