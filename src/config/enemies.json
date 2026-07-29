@@ -184,6 +184,43 @@
             }
         ]
     },
+    "skeleton": {
+        "type": "Melee",
+        "damage": 40,
+        "speed": 55,
+        "range": 40,
+        "attack_speed": 1.2,
+        "health_max": 60,
+        "health_regen_rate": 0,
+        "coin_multiplier": 1,
+        "loot_table": [
+            {
+                "name": "coin",
+                "rate": 55,
+                "bonus": 2
+            },
+            {
+                "name": "gem",
+                "rate": 20,
+                "bonus": 1
+            },
+            {
+                "name": "scrap",
+                "rate": 30,
+                "bonus": 1
+            },
+            {
+                "name": "cloth",
+                "rate": 35,
+                "bonus": 1
+            },
+            {
+                "name": "ichor",
+                "rate": 10,
+                "bonus": 0
+            }
+        ]
+    },
     "slime": {
         "type": "Melee",
         "damage": 250,

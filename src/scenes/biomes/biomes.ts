@@ -29,7 +29,7 @@ export const BIOMES: Record<BiomeId, BiomeDefinition> = {
         id: "forest",
         name: "Forest",
         backgroundColor: "#4a7c3f",
-        enemies: ["baby-ghoul", "ghoul", "imp"],
+        enemies: ["baby-ghoul", "skeleton", "ghoul", "imp"],
         total: AREA_TOTAL_ENEMIES,
         liveCap: AREA_LIVE_CAP,
     },

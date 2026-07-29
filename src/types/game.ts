@@ -290,7 +290,7 @@ export interface ResourceStats {
     missing?: number;
 }
 
-export type EnemyType = "baby-ghoul" | "egbert" | "ghoul" | "imp" | "satyr" | "slime";
+export type EnemyType = "baby-ghoul" | "egbert" | "ghoul" | "imp" | "satyr" | "skeleton" | "slime";
 export type CombatType = "melee" | "ranged" | "healer";
 export type TargetType = Enemy | Player | GameObjects.GameObject | { x: number; y: number } | null;
 export interface EnemyAttributes {
