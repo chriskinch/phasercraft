@@ -1,4 +1,4 @@
-import { Scene, GameObjects, Input, Tilemaps, Types } from "phaser";
+import { Scene, GameObjects, Input, Tilemaps, Types, Scenes } from "phaser";
 import AssignClass from "@entities/Player/AssignClass";
 import type { ArcadeCollisionObject } from "@/types/game";
 import store from "@store";
@@ -151,6 +151,14 @@ export default class TownScene extends Scene {
         this.travelSubscription = mapStateToData("travelRequest", (destination) =>
             this.onTravelRequest(destination as BiomeId | "town" | null)
         );
+
+        // Phaser fires SHUTDOWN on every transition away from this scene and
+        // does not call shutdown() for us. Wiring cleanup to the event — rather
+        // than calling it by hand before scene.start() — is the documented
+        // lifecycle hook, and it is what makes the teardown symmetric with
+        // create() no matter how the scene is left (picker, ESC, game over).
+        // BiomeScene already does this.
+        this.events.once(Scenes.Events.SHUTDOWN, this.shutdown, this);
 
         this.cameras.main.startFollow(this.player);
     }
@@ -525,8 +533,10 @@ export default class TownScene extends Scene {
 
         store.dispatch(clearTravelRequest());
         store.dispatch(setPlayerPosition({ x: this.player.x, y: this.player.y }));
-        this.shutdown();
         store.dispatch(setCurrentArea(destination));
+        // scene.start() stops this scene (firing SHUTDOWN, which runs cleanup)
+        // and starts the target — the documented way to change scenes. Cleanup
+        // is no longer invoked by hand here.
         this.scene.start("BiomeScene", { ...this.config, biome: destination });
     }
 
@@ -576,6 +586,8 @@ export default class TownScene extends Scene {
     }
 
     shutdown(): void {
+        // Runs from the SHUTDOWN event. Idempotent: every release below is a
+        // no-op when it has already happened.
         // Clean up HUD subscriptions
         if (this.UI && this.UI.cleanup) {
             this.UI.cleanup();

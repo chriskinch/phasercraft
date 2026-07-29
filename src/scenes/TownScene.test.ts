@@ -118,14 +118,25 @@ describe("TownScene.onTravelRequest", () => {
             type: "CLEAR_TRAVEL_REQUEST",
             payload: undefined,
         });
-        // The subscription is released (via shutdown()) as part of the same
-        // synchronous handoff — nothing is left listening to re-fire on a
-        // request that has already been actioned.
-        expect(unsubscribe).toHaveBeenCalledTimes(1);
         expect(scene.scene.start).toHaveBeenCalledWith("BiomeScene", {
             type: "Warrior",
             biome: "desert",
         });
+    });
+
+    it("leaves teardown to the SHUTDOWN event rather than calling shutdown() itself", () => {
+        // scene.start() stops this scene and fires SHUTDOWN, which is where
+        // cleanup is wired (see the shutdown describe above). Calling shutdown()
+        // by hand here as well would tear the scene down twice, and it is not
+        // the documented lifecycle hook.
+        const unsubscribe = vi.fn();
+        const scene = makeScene({ travelSubscription: unsubscribe });
+
+        scene.onTravelRequest("desert");
+
+        expect(unsubscribe).not.toHaveBeenCalled();
+        expect(scene.UI.cleanup).not.toHaveBeenCalled();
+        expect(scene.player.cleanup).not.toHaveBeenCalled();
     });
 
     it("saves the player position and starts the requested biome", () => {

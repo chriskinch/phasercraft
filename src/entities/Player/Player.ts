@@ -39,6 +39,11 @@ class Player extends GameObjects.Container {
     public name: string;
     public uuid: string;
     private subscriptions: (() => void)[] = [];
+    // The scene's event emitter, captured at construction. cleanup() cannot reach
+    // it via `this.scene`: the display list destroys game objects from its own
+    // SHUTDOWN listener, registered at scene boot and so ahead of anything
+    // create() adds, which clears `this.scene` before cleanup() runs.
+    private scene_events!: Phaser.Events.EventEmitter;
     public hero: Hero;
     public boons: Boons;
     public alive: boolean;
@@ -159,6 +164,8 @@ class Player extends GameObjects.Container {
                 }
             })
         );
+
+        this.scene_events = scene.events;
 
         scene.events.once("player:dead", this.death, this);
         scene.events.on("enemy:attack", this.hit, this);
@@ -501,6 +508,29 @@ class Player extends GameObjects.Container {
         // Unsubscribe from all store subscriptions
         this.subscriptions.forEach((unsubscribe) => unsubscribe());
         this.subscriptions = [];
+
+        // Release every listener registered on the *scene's* emitter. Phaser only
+        // calls events.removeAllListeners() in Systems.destroy(), never in
+        // Systems.shutdown() — so on a scene restart these outlive the player
+        // that registered them. The scene instance is reused, so create() then
+        // stacks a second player's handlers on top of the first player's, and the
+        // dead one runs first: its `this.scene` is undefined after destroy, it
+        // throws inside emit(), and every later listener (including the live
+        // player's) is skipped. That is what stops movement after a round trip.
+        // Same (event, fn, context) triple as registration, per the lifecycle
+        // convention in CLAUDE.md. Idempotent — death() removes the pointer
+        // three as well, and off() is a no-op when already gone.
+        //
+        // Goes through the captured emitter rather than `this.scene`: the display
+        // list destroys game objects from its own SHUTDOWN listener, registered at
+        // scene boot and therefore ahead of anything create() adds, so by the time
+        // this runs `this.scene` has already been cleared (#423).
+        this.scene_events.off("player:dead", this.death, this);
+        this.scene_events.off("enemy:attack", this.hit, this);
+        this.scene_events.off("pointerdown:game", this.gameDownHandler, this);
+        this.scene_events.off("pointermove:game", this.gameMoveHandler, this);
+        this.scene_events.off("pointerup:game", this.gameUpHandler, this);
+        this.scene_events.off("enemy:dead", this.targetDead, this);
 
         // Release the casting controller's scene listeners and timers
         // (idempotent — it also self-cleans on scene SHUTDOWN).
