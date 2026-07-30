@@ -17,7 +17,7 @@ import mapStateToData from "@helpers/mapStateToData";
 import CombatText from "../UI/CombatText";
 import CastBar from "@entities/UI/CastBar";
 import Projectile from "@entities/Weapons/Projectile";
-import type { PlayerOptions, PlayerStats, SpellProjectileConfig } from "@/types/game";
+import type { CombatType, PlayerOptions, PlayerStats, SpellProjectileConfig } from "@/types/game";
 import type Enemy from "@entities/Enemy/Enemy";
 import type { GameSceneLike } from "@/types/scene";
 import * as converter from "number-to-words";
@@ -316,12 +316,14 @@ class Player extends GameObjects.Container {
         this.alive = false;
     }
 
-    hit(power: number): void {
+    hit(power: number, attackType?: CombatType): void {
         const damage = Math.ceil(power * (100 / (100 + (this.stats.defence || 0))));
         this.scene.events.emit("player:attacked", this);
         const hasShield = "hasShield" in this.shield && this.shield.hasShield();
         const pool = hasShield ? this.shield : this.health;
-        if (!hasShield) this.scene.events.emit("player:hit", this);
+        // Forward the attacker's combat type so the caster can decide whether
+        // the hit interrupts (channelled spells ignore ranged attacks).
+        if (!hasShield) this.scene.events.emit("player:hit", this, attackType);
         pool.adjustValue(-damage);
     }
 
