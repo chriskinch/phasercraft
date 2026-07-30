@@ -243,6 +243,7 @@
             <filename>enemy/ghoul.png</filename>
             <filename>enemy/imp.png</filename>
             <filename>enemy/satyr.png</filename>
+            <filename>enemy/skeleton.png</filename>
             <filename>enemy/slime.png</filename>
         </array>
         <key>ignoreFileList</key>
