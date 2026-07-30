@@ -229,7 +229,16 @@ class CastingController {
     notifyDisabled(spell: object): void {
         if (this.primed === spell) this.clearPrime();
         if (this.pending?.spell === spell) this.cancelPending();
-        if (this.casting?.spell === spell) this.interruptCast();
+        // A wind-up is cancelled if its spell goes unavailable (its cost hasn't
+        // committed yet). A channel must not be: by the time it is running the
+        // cast has committed, the cost is charged and the effect is live, so the
+        // spell going "not ready" — which right after a successful cast means
+        // "on cooldown", fired by the very next resource-regen `change` — would
+        // otherwise tear down its own channel a frame after it started. Genuine
+        // channel stops come through interruptForMove/onHit/request instead.
+        if (this.casting?.spell === spell && this.casting.phase !== "channel") {
+            this.interruptCast();
+        }
     }
 
     cancelAll(): void {
