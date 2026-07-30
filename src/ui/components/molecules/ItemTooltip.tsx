@@ -8,6 +8,7 @@ import { connect } from "react-redux";
 import type { LootItem, Equipment } from "@/types/game";
 import type { LootStat } from "@/types/game";
 import type { RootState } from "@store";
+import { appliedStatValue } from "@/lib/statConversion";
 import styles from "./ItemTooltip.module.css";
 
 interface ItemTooltipProps {
@@ -20,13 +21,18 @@ const ItemTooltip: React.FC<ItemTooltipProps> = ({ id, loot, equipment }) => {
     const { name, set, color, stats, cost } = loot;
     const [compare, setCompare] = useState<LootStat[] | null>(null);
 
+    // Comparison rows already hold a converted difference; raw item stats are still
+    // in pool units, so they go through the same conversion the reducer applies.
+    const displayValue = (stat: LootStat, isComparison: boolean) =>
+        isComparison ? (stat.value ?? 0) : appliedStatValue(stat.name, stat.value ?? 0);
+
     const convertStatsToArray = (statsArray: LootStat[], isComparison = false) => {
         return statsArray
-            .filter((stat) => !isComparison || (stat.rounded || stat.value) !== 0)
+            .filter((stat) => !isComparison || displayValue(stat, isComparison) !== 0)
             .map((stat) => ({
                 id: stat.id,
                 name: stat.name,
-                value: stat.rounded || stat.value || 0,
+                value: displayValue(stat, isComparison),
                 polarity: isComparison ? stat.polarity : undefined,
             }));
     };
@@ -55,9 +61,16 @@ const ItemTooltip: React.FC<ItemTooltipProps> = ({ id, loot, equipment }) => {
                 const selectedStat = selectedMap.get(statId);
                 const equippedStat = equippedMap.get(statId);
 
-                // Get values (default to 0 if stat doesn't exist on item)
-                const selectedValue = selectedStat?.value || 0;
-                const equippedValue = equippedStat?.value || 0;
+                // Compare the magnitudes that actually get applied, not the raw pool
+                // rolls: for the interval stats (attack_speed, health_regen_rate) a
+                // bigger roll is a *smaller* stat, so diffing raw values inverted the
+                // polarity and coloured upgrades red.
+                const selectedValue = selectedStat
+                    ? appliedStatValue(statId, selectedStat.value)
+                    : 0;
+                const equippedValue = equippedStat
+                    ? appliedStatValue(statId, equippedStat.value)
+                    : 0;
 
                 // Calculate difference: positive = gain, negative = loss
                 const difference = selectedValue - equippedValue;

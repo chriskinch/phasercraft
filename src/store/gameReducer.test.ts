@@ -19,6 +19,9 @@ import {
     loadGame,
     requestTravel,
     clearTravelRequest,
+    equipLoot,
+    unequipLoot,
+    setBaseStats,
 } from "./gameReducer";
 import type { LootItem } from "@/types/game";
 import { COMPONENT_DEFS } from "@/types/game";
@@ -313,6 +316,63 @@ describe("gameReducer", () => {
             expect(next).not.toHaveProperty("wave");
             expect(next.enemiesRemaining).toBe(0);
             expect(next.bossActive).toBe(false);
+        });
+    });
+
+    describe("gear stat application", () => {
+        // Regression: equip/unequip used to add the raw pool roll straight to
+        // base_stats instead of the converted magnitude the tooltip advertises.
+        // attack_speed is a delay in seconds (Player.attack -> delay: v * 1000), so a
+        // +30 roll pushed a 1s cooldown to 31s -- gear made the player slower.
+        const geared = (stats: LootItem["stats"]) => makeItem({ stats });
+
+        const seeded = () =>
+            gameReducer(
+                gameReducer(undefined, { type: "@@INIT" }),
+                setBaseStats({
+                    attack_power: 50,
+                    attack_speed: 1,
+                    health_max: 1300,
+                } as never)
+            );
+
+        it("applies the converted magnitude, not the raw roll", () => {
+            const item = geared([{ id: "s1", name: "attack_power", value: 30 }]);
+            const next = gameReducer(seeded(), equipLoot(item));
+            expect(next.base_stats.attack_power).toBe(65); // 50 + 30/2
+        });
+
+        it("makes attack_speed faster, never slower", () => {
+            const item = geared([{ id: "s1", name: "attack_speed", value: 30 }]);
+            const before = seeded();
+            const next = gameReducer(before, equipLoot(item));
+            expect(next.base_stats.attack_speed as number).toBeLessThan(
+                before.base_stats.attack_speed as number
+            );
+            expect(next.base_stats.attack_speed).toBeCloseTo(0.98, 5);
+        });
+
+        it("unequipping restores the original stats exactly", () => {
+            const item = geared([
+                { id: "s1", name: "attack_speed", value: 30 },
+                { id: "s2", name: "health_max", value: 30 },
+            ]);
+            const before = seeded();
+            const equipped = gameReducer(before, equipLoot(item));
+            expect(equipped.base_stats.health_max).toBe(1420); // 1300 + 30*4
+
+            const restored = gameReducer(equipped, unequipLoot(item));
+            expect(restored.base_stats.health_max).toBe(before.base_stats.health_max);
+            expect(restored.base_stats.attack_speed).toBeCloseTo(
+                before.base_stats.attack_speed as number,
+                5
+            );
+        });
+
+        it("keeps stats in sync with base_stats", () => {
+            const item = geared([{ id: "s1", name: "attack_power", value: 30 }]);
+            const next = gameReducer(seeded(), equipLoot(item));
+            expect(next.stats.attack_power).toBe(next.base_stats.attack_power);
         });
     });
 });
