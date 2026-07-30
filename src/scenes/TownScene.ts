@@ -1,6 +1,5 @@
-import { Scene, GameObjects, Input, Tilemaps, Types, Scenes } from "phaser";
+import { Scene, GameObjects, Geom, Input, Tilemaps, Types, Scenes } from "phaser";
 import AssignClass from "@entities/Player/AssignClass";
-import type { ArcadeCollisionObject } from "@/types/game";
 import store from "@store";
 import {
     toggleHUD,
@@ -26,6 +25,11 @@ export default class TownScene extends Scene {
     private townMap!: Tilemaps.Tilemap;
     private interactionZones!: GameObjects.Group;
     private zone!: GameObjects.Zone;
+    // POI the player is currently standing on, or null. Interactions fire once on
+    // entry (when this changes to a non-null value) and re-arm only after the
+    // player leaves the zone — so an overlay that pauses the scene does not
+    // re-open the instant the player closes it while still standing on the spot.
+    private activePoi: string | null = null;
     public depth_group: Record<string, number> = {
         BASE: 10,
         UI: 10000,
@@ -470,9 +474,7 @@ export default class TownScene extends Scene {
             const scaledX = poi.x! * 2;
             const scaledY = poi.y! * 2;
             const zone = this.add.zone(scaledX, scaledY, 32, 32); // 64x64 pixel interaction area (2x scaled)
-            this.physics.world.enable(zone);
 
-            this.player.body.onOverlap = true;
             // Map POI names to interaction types
             const { interactionType, displayName } = this.mapPOIToInteraction(poi.name);
 
@@ -480,15 +482,6 @@ export default class TownScene extends Scene {
             zone.setData("name", displayName);
             zone.setData("poi", poi.name);
             this.interactionZones.add(zone);
-
-            // Add overlap detection
-            this.physics.add.overlap(
-                this.player.body,
-                zone as GameObjects.Zone,
-                (player, zoneObj) => {
-                    this.handleZoneOverlap(player, zoneObj as GameObjects.Zone);
-                }
-            );
         });
     }
 
@@ -521,10 +514,31 @@ export default class TownScene extends Scene {
         // UI elements will be added later
     }
 
-    private handleZoneOverlap(player: ArcadeCollisionObject, zone: GameObjects.Zone): void {
-        const zoneType = zone.getData("type");
-        const zoneName = zone.getData("name");
-        this.handleInteraction(zoneType, zoneName);
+    // Enter/leave POI detection, run every frame. Finds the zone the player is
+    // standing on (if any) and fires the interaction once, on entry. Geometry is
+    // used rather than Arcade overlap callbacks so we get a clean "left the zone"
+    // signal to re-arm on, and so it stays deterministic/testable.
+    private updateInteractions(): void {
+        if (!this.interactionZones) return;
+
+        const playerBounds = this.player.getBounds();
+        let poi: string | null = null;
+        let type = "";
+        let displayName = "";
+
+        for (const child of this.interactionZones.getChildren()) {
+            const zone = child as GameObjects.Zone;
+            if (Geom.Rectangle.Overlaps(playerBounds, zone.getBounds())) {
+                poi = zone.getData("poi");
+                type = zone.getData("type");
+                displayName = zone.getData("name");
+                break;
+            }
+        }
+
+        if (poi === this.activePoi) return;
+        this.activePoi = poi;
+        if (poi) this.handleInteraction(type, poi, displayName);
     }
 
     private onTravelRequest(destination: BiomeId | "town" | null): void {
@@ -540,7 +554,9 @@ export default class TownScene extends Scene {
         this.scene.start("BiomeScene", { ...this.config, biome: destination });
     }
 
-    private handleInteraction(type: string, name: string): void {
+    // `poi` is the raw POI name (e.g. "armory"), which doubles as the UI menu key;
+    // `displayName` is the human label (e.g. "Armory") used for logging.
+    private handleInteraction(type: string, poi: string, displayName: string): void {
         // Save current position before leaving town
         store.dispatch(setPlayerPosition({ x: this.player.x, y: this.player.y }));
 
@@ -548,15 +564,19 @@ export default class TownScene extends Scene {
         // this.shutdown();
         switch (type) {
             case "inn":
-                console.log(`Entering ${name}...`);
+                console.log(`Entering ${displayName}...`);
                 // Future: this.scene.start('InnScene', this.config);
                 break;
             case "shop":
-                console.log(`Visiting ${name}...`);
-                // Future: this.scene.start('ShopScene', { ...this.config, shopType: name });
+                // Shops open as a React overlay (Phase 13), mirroring the dungeon
+                // entrance below: the POI name is the menu-registry key in UI.tsx.
+                // Opening the overlay pauses this scene via the HUD's showUi
+                // subscription; the X closes it and resumes the scene.
+                store.dispatch(switchUi(poi));
+                store.dispatch(toggleUi(poi));
                 break;
             case "storage":
-                console.log(`Accessing ${name}...`);
+                console.log(`Accessing ${displayName}...`);
                 // Future: Open storage interface
                 break;
             case "dungeon":
@@ -569,7 +589,7 @@ export default class TownScene extends Scene {
                 store.dispatch(toggleUi("biomeSelect"));
                 break;
             default:
-                console.log(`Interacting with ${name}...`);
+                console.log(`Interacting with ${displayName}...`);
                 break;
         }
     }
@@ -581,6 +601,8 @@ export default class TownScene extends Scene {
         if (this.player.alive) {
             this.player.update(this.input.activePointer, this.cursors, time, delta);
         }
+        // Open a shop / interaction when the player walks onto its POI.
+        this.updateInteractions();
         // Update player depth based on Y position for proper sprite layering
         this.setDepthByY(this.player);
     }

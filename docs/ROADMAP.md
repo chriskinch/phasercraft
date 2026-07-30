@@ -272,6 +272,89 @@ button extracts to `SpellButton` (stays Phaser-side); new `TargetReticle`,
 | HUD          | Spell buttons stay in Phaser (`SpellButton`), not the React overlay.                                                                                                          |
 | Balance      | Initial numbers (castRange 200–300, Heal 1s wind-up, SiphonSoul/Invocation as 5s channels) are proposals to tune in review.                                                   |
 
+## Phase 13 — Town shops system (issue TBD)
+
+The core game loop is: go out and hunt monsters, collect loot, return to town and
+improve gear and spells, then take on a harder hunt. Town already has a working
+`TownScene` with a Tiled `POI` layer, but the shop entry points are stubs
+(`handleInteraction`'s `"shop"` case only `console.log`s). This epic builds the town
+shops that close the loop: five buildings the player walks up to, each opening a shop
+interface. Shops reuse the existing Armory React overlay pattern (the `UI.tsx` menu
+registry + framed pixel-background container) rather than new Phaser scenes; a proper
+pixel-art background or a full scene can come later without redoing the shop logic.
+
+The five shops (POI names already present in the town map):
+
+- **Armory** — the existing random-generated gear shop (`api/armory/*` + `Armory.tsx`),
+  migrated from the in-game Navigation menu to open from its town POI.
+- **Merchant** — sell gear and materials for coins; buy materials (parts).
+- **Arcanum** — buy spells as scrolls (a new spell service, modeled on the armory).
+- **Blacksmith** — craft new gear from recipes (materials + coins → a gear item).
+- **Alchemist** — skeleton only for now; contents designed in a later step.
+
+### Decisions update (2026-07-30) — Town shops
+
+| Topic        | Decision                                                                                                                                                                                                                              |
+| ------------ | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Presentation | Shops are React overlays reusing the `UI.tsx` menu registry + Armory container, not Phaser scenes. Pixel-art background / promotion to a full scene deferred.                                                                         |
+| Open trigger | Auto-open on approach: walking the player body onto a shop POI opens it once; it re-arms only after the player leaves the zone and returns. An open overlay pauses the town scene (existing HUD `showUi` behaviour).                  |
+| Access       | Shops are POI-only. The Armory and Arcanum tabs are removed from the in-game Navigation; Character and Equipment stay menu-accessible.                                                                                                |
+| Scope        | Five shops only. Inns (home / great hall) and storage (stash) are a later, separate epic.                                                                                                                                             |
+| Merchant     | Sell gear and material stacks for coins; buy materials. Reuses existing `sellLoot`/`sellComponent`; adds a buy-materials action.                                                                                                      |
+| Arcanum      | Spells sold as scroll items. Requires making spell ownership persistent (spells move out of hardcoded per-class arrays into the save). Staged across sub-steps; the save-format change is agreed with the maintainer before building. |
+| Blacksmith   | Recipe-based crafting: recipe = required materials + coins → a `LootItem`. Needs a new `Recipe` type + recipe catalog + `craftItem` reducer.                                                                                          |
+| Alchemist    | Deferred; skeleton (open/close) only in this epic's first step.                                                                                                                                                                       |
+
+### Step 1 — Shop skeletons: open & close every shop (this PR)
+
+- [ ] `TownScene`: replace the every-frame overlap trigger with enter/leave detection
+      (`updateInteractions` in `update()`), so each POI fires once on approach and
+      re-arms only after the player leaves the zone
+- [ ] Wire `handleInteraction`'s `"shop"` case to open the matching overlay
+      (`switchUi(poi)` + `toggleUi(poi)`, mirroring the working dungeon/biome-picker path)
+- [ ] Register the five shop menus in `src/ui/UI.tsx` (`close: true`, POI-only) and add
+      stub `Merchant`/`Blacksmith`/`Alchemist` templates alongside the existing `Armory`
+      and `Arcanum` (Arcanum stays a stub for now)
+- [ ] Remove the Armory & Arcanum tabs from `Navigation.tsx` (shops become POI-only);
+      keep Character & Equipment
+- [ ] Tests: shop POI → correct overlay dispatched; enter/leave single-fire guard; stub
+      templates render
+
+### Step 2 — Armory on its POI (verify migration)
+
+- [ ] Confirm the full Armory (buy/sort/filter/restock) works end-to-end opened from the
+      town POI; remove any now-dead menu path; component/e2e coverage
+
+### Step 3 — Merchant shop
+
+- [ ] Sell inventory gear and material stacks for coins; buy materials (new `buyComponent`
+      reducer: coins → `addComponent`); Merchant template modeled on `Armory.tsx` +
+      `ComponentsGrid.tsx`; prices/balance agreed in review
+
+### Step 4 — Blacksmith crafting
+
+- [ ] `Recipe` type + recipe catalog; `craftItem` reducer (consume `components` + coins →
+      `LootItem` into inventory); Blacksmith template (recipe list, have/need materials,
+      craft button). Recipe unlock model + balance agreed before build
+
+### Step 5 — Arcanum spell shop (scrolls)
+
+- [ ] New spell/scroll service modeled on `api/armory/*` + typed client + hook; scroll
+      item model; buying a scroll → learning it grants a persistent, owned spell (spells
+      move into Redux + the save). Save-format change agreed before build; intersects the
+      Phase 12 casting system, so sequence carefully
+- [ ] Arcanum template: browse/buy scrolls
+
+### Step 6 — Alchemist
+
+- [ ] Design and build the Alchemist contents (deferred; likely consumables/potions —
+      agree scope when reached)
+
+### Later — presentation
+
+- [ ] Pixel-art shop backgrounds / graphics, final prices & interface polish; optionally
+      promote shops from overlays to full Phaser scenes
+
 ## Deferred / backlog
 
 - **Retire GitHub Pages**: remove the `gh-pages` deploy workflow and `VITE_BASE_URL` transition shim once Vercel production is confirmed stable (follow-up to Phase 6).
