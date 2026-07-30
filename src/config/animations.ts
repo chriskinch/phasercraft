@@ -209,6 +209,33 @@ export default function createAnimations(scene: Phaser.Scene): void {
                     },
                 ],
             },
+            {
+                frame: "skeleton",
+                frameWidth: 24,
+                frameHeight: 32,
+                animations: [
+                    {
+                        key: "skeleton-right-up",
+                        frames: { start: 0, end: 5 },
+                        repeat: -1,
+                    },
+                    {
+                        key: "skeleton-left-down",
+                        frames: { start: 6, end: 11 },
+                        repeat: -1,
+                    },
+                    {
+                        key: "skeleton-idle",
+                        frames: { start: 0, end: 5 },
+                        repeat: -1,
+                    },
+                    {
+                        key: "skeleton-death",
+                        frames: { start: 12, end: 16 },
+                        repeat: 0,
+                    },
+                ],
+            },
         ],
     };
 

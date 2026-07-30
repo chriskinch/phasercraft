@@ -145,8 +145,9 @@ class Enemy extends GameObjects.Container {
         this.setAlpha(0);
         this.scene.tweens.add({ targets: this, alpha: 1, ease: "Power1", duration: 500 });
 
-        // Odd bug where the hit box is offset by 14px. not sure why but compensating here
-        this.setInteractive(new Geom.Circle(14, 14, 15), Geom.Circle.Contains);
+        // Odd bug where the hit box is offset by 14px. not sure why but compensating here.
+        // Radius bumped from 15 to 18 (~20% larger) to make enemies easier to tap/select.
+        this.setInteractive(new Geom.Circle(14, 14, 18), Geom.Circle.Contains);
         this.bringToTop(this.monster);
 
         this.scene.events.on("pointerdown:game", this.deselect, this);

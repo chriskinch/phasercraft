@@ -574,6 +574,35 @@ describe("CastingController.notifyDisabled", () => {
 
         expect(controller.getState()).toBe("primed");
     });
+
+    // Regression: a channelled self-buff (Invocation) goes on cooldown the moment
+    // it casts, and the next resource-regen `change` disables its button and
+    // notifies the controller. That must NOT break the already-committed channel
+    // — otherwise the channel starts and immediately stops.
+    it("does not interrupt a committed channel when its spell is disabled", () => {
+        const controller = makeController();
+        const spell = makeSpell("self", { channelDuration: 5 });
+        controller.request(spell);
+        expect(controller.getState()).toBe("casting");
+
+        controller.notifyDisabled(spell);
+
+        expect(spell.interruptChannel).not.toHaveBeenCalled();
+        expect(controller.getState()).toBe("casting");
+    });
+
+    // A wind-up has not committed its cost yet, so a spell going unavailable
+    // during it is still cancelled.
+    it("still interrupts a wind-up when its spell is disabled", () => {
+        const controller = makeController();
+        const spell = makeSpell("self", { castTime: 1 });
+        controller.request(spell);
+        expect(controller.getState()).toBe("casting");
+
+        controller.notifyDisabled(spell);
+
+        expect(controller.getState()).toBe("idle");
+    });
 });
 
 describe("CastingController.cleanup", () => {
