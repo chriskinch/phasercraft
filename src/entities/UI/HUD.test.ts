@@ -1,7 +1,7 @@
 import { describe, it, expect, vi, beforeEach, afterEach } from "vitest";
 import UI from "./HUD";
 import store from "@store";
-import { loadGame, setEnemiesRemaining, setBossActive } from "@store/gameReducer";
+import { loadGame, setEnemiesRemaining, setBossActive, setCoins } from "@store/gameReducer";
 
 // Regression tests for the Phase 2 HUD fixes (issue #307): the keyup-L
 // handler crashed on corrupt save data (unguarded JSON.parse), and cleanup()
@@ -19,10 +19,12 @@ interface HudUnderTest {
     }>;
     scene?: { input: { keyboard: { off: ReturnType<typeof vi.fn> } } };
     enemies?: { text: { setText: ReturnType<typeof vi.fn> } };
+    coins?: { text: { setText: ReturnType<typeof vi.fn> } };
     saveGame(): void;
     deleteSaves(): void;
     loadSavedGame(): void;
     renderEnemyCount(): void;
+    renderCoinCount(): void;
     setButtonsEnabled(enabled: boolean): void;
     cleanup(): void;
 }
@@ -38,6 +40,7 @@ function makeHud(): HudUnderTest {
     ];
     hud.scene = { input: { keyboard: { off: vi.fn() } } };
     hud.enemies = { text: { setText: vi.fn() } };
+    hud.coins = { text: { setText: vi.fn() } };
     return hud;
 }
 
@@ -86,6 +89,30 @@ describe("UI.renderEnemyCount", () => {
         delete hud.enemies;
 
         expect(() => hud.renderEnemyCount()).not.toThrow();
+    });
+});
+
+// The coin purse mirrors the enemy readout: town opts out of it entirely, so a
+// store-driven coin update must be safe when the container was never mounted.
+describe("UI.renderCoinCount", () => {
+    afterEach(() => {
+        store.dispatch(setCoins(0));
+    });
+
+    it("reads the current coin balance into the purse", () => {
+        const hud = makeHud();
+        store.dispatch(setCoins(73));
+
+        hud.renderCoinCount();
+
+        expect(hud.coins!.text.setText).toHaveBeenCalledWith("Coins: 73");
+    });
+
+    it("does nothing when the coin purse is not mounted", () => {
+        const hud = makeHud();
+        delete hud.coins;
+
+        expect(() => hud.renderCoinCount()).not.toThrow();
     });
 });
 

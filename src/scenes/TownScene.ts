@@ -97,8 +97,13 @@ export default class TownScene extends Scene {
             )
             .setOrigin(0);
 
-        // Town is a non-combat hub, so hide spell slots and enemy readout.
-        this.UI = new UI(this, { showSpellFrames: false, showEnemyCount: false });
+        // Town is a non-combat hub, so hide the spell slots and the whole combat
+        // readout — both the enemy counter and the coin purse.
+        this.UI = new UI(this, {
+            showSpellFrames: false,
+            showEnemyCount: false,
+            showCoinCount: false,
+        });
 
         this.input.on(
             "pointerdown",
