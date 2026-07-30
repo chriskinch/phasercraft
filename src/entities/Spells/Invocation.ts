@@ -29,9 +29,6 @@ class Invocation extends Boon {
             type: "magic",
             duration: 5,
             targetKind: "self" as const,
-            // Modelled as a channel: the controller roots the player, shows
-            // the cast bar, and breaks it on move/hit/new cast.
-            channelDuration: 5,
             value: {
                 resource_regen_value: (bs: number) => bs * 4, // Increase by 400%
                 resource_regen_rate: -0.1, // Tick 0.1s more frequently
@@ -40,6 +37,12 @@ class Invocation extends Boon {
 
         super({ ...defaults, ...config });
         this.hasAnimation = false;
+        // Modelled as a channel: the controller roots the player, shows the
+        // cast bar, and breaks it on move/hit/new cast. The channel runs for
+        // exactly as long as the buff it applies, so the cast bar and the root
+        // last the whole effect — derive it from `duration` (defaults or an
+        // override) so the two can never drift.
+        this.channelDuration = this.duration;
     }
 
     effect(): void {
