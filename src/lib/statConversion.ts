@@ -103,9 +103,19 @@ export const DEFAULT_CONVERSION: StatConversion = Object.freeze({
     abr: "Default",
 });
 
-/** The conversion for `name`, falling back to the identity conversion. */
+/**
+ * The conversion for `name`, falling back to the identity conversion.
+ *
+ * Guarded with `hasOwnProperty` rather than `CONVERSIONS[name] ?? DEFAULT` because
+ * the table inherits from `Object.prototype`: a stat named `constructor` or
+ * `toString` would otherwise resolve to an inherited function with no `convert`,
+ * and throw. Stat names reach here from the armory REST service as well as from
+ * generated loot, so an unknown name has to degrade to identity, never crash.
+ */
 export const conversionFor = (name: string): StatConversion =>
-    CONVERSIONS[name] ?? DEFAULT_CONVERSION;
+    Object.prototype.hasOwnProperty.call(CONVERSIONS, name)
+        ? CONVERSIONS[name]
+        : DEFAULT_CONVERSION;
 
 /** Percent stats keep 2dp; everything else is a whole number. Always rounds up. */
 export const roundStat = (adjusted: number, format: StatFormat): number =>

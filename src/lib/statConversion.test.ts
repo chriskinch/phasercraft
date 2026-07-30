@@ -8,6 +8,19 @@ describe("statConversion", () => {
             expect(appliedStatValue("not_a_stat", 30)).toBe(30);
         });
 
+        // The conversion table inherits from Object.prototype, so an unguarded
+        // `CONVERSIONS[name] ?? DEFAULT` lookup resolves these to inherited functions
+        // with no `convert` and throws. Stat names can arrive from the armory service,
+        // so an unknown name must always degrade to identity.
+        it.each(["constructor", "toString", "valueOf", "hasOwnProperty", "__proto__"])(
+            "falls back to identity for the prototype key %s",
+            (name) => {
+                expect(conversionFor(name)).toBe(DEFAULT_CONVERSION);
+                expect(() => appliedStatValue(name, 30)).not.toThrow();
+                expect(appliedStatValue(name, 30)).toBe(30);
+            }
+        );
+
         it("carries the display metadata each stat renders with", () => {
             expect(conversionFor("attack_speed")).toMatchObject({
                 format: "percent",
