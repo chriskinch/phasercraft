@@ -29,9 +29,6 @@ class Invocation extends Boon {
             type: "magic",
             duration: 5,
             targetKind: "self" as const,
-            // Modelled as a channel: the controller roots the player, shows
-            // the cast bar, and breaks it on move/hit/new cast.
-            channelDuration: 5,
             value: {
                 resource_regen_value: (bs: number) => bs * 4, // Increase by 400%
                 resource_regen_rate: -0.1, // Tick 0.1s more frequently
@@ -40,6 +37,12 @@ class Invocation extends Boon {
 
         super({ ...defaults, ...config });
         this.hasAnimation = false;
+        // Modelled as a channel: the controller roots the player, shows the
+        // cast bar, and breaks it on move/hit/new cast. The channel runs for
+        // exactly as long as the buff it applies, so the cast bar and the root
+        // last the whole effect — derive it from `duration` (defaults or an
+        // override) so the two can never drift.
+        this.channelDuration = this.duration;
     }
 
     effect(): void {
@@ -59,12 +62,23 @@ class Invocation extends Boon {
         this.player.root();
     }
 
-    // Channel broken early — restore the player just like a natural end.
+    // Channel broken early — end the buff and restore the player just like a
+    // natural end, so the effect never outlives the channel.
     interruptChannel(): void {
         this.clearEffect();
     }
 
     clearEffect(): void {
+        // Reachable twice for one cast (an early channel break and the
+        // natural-end timer), so keep it idempotent.
+        // Cancel the pending natural-end timer: without this, breaking the
+        // channel early leaves it to fire later and force-idle the player
+        // mid-action.
+        if (this.timer) this.timer.remove();
+        // End the regen buff now. The boon carries its own duration timer, so
+        // an early break must remove it here — otherwise the buff runs to the
+        // full duration after the channel is already gone.
+        this.player.boons.removeEffect(this);
         this.player.idle();
         this.player.hero.clearTint();
         // Set player stats back to normal.
