@@ -62,12 +62,23 @@ class Invocation extends Boon {
         this.player.root();
     }
 
-    // Channel broken early — restore the player just like a natural end.
+    // Channel broken early — end the buff and restore the player just like a
+    // natural end, so the effect never outlives the channel.
     interruptChannel(): void {
         this.clearEffect();
     }
 
     clearEffect(): void {
+        // Reachable twice for one cast (an early channel break and the
+        // natural-end timer), so keep it idempotent.
+        // Cancel the pending natural-end timer: without this, breaking the
+        // channel early leaves it to fire later and force-idle the player
+        // mid-action.
+        if (this.timer) this.timer.remove();
+        // End the regen buff now. The boon carries its own duration timer, so
+        // an early break must remove it here — otherwise the buff runs to the
+        // full duration after the channel is already gone.
+        this.player.boons.removeEffect(this);
         this.player.idle();
         this.player.hero.clearTint();
         // Set player stats back to normal.
