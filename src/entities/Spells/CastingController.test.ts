@@ -55,7 +55,7 @@ interface ControllerUnderTest {
     onPlayerTap(): void;
     onEnemyTap(enemy: { x: number; y: number; alive: boolean }): void;
     interruptForMove(): void;
-    onHit(): void;
+    onHit(player?: unknown, attackType?: string): void;
     notifyDisabled(spell: CastableSpell): void;
     cancelAll(): void;
     update(): void;
@@ -492,6 +492,53 @@ describe("CastingController channels", () => {
         fireTimer(controller);
 
         expect(spell.interruptChannel).not.toHaveBeenCalled();
+        expect(controller.getState()).toBe("idle");
+    });
+
+    it("a ranged hit does not break a channel", () => {
+        const controller = makeController();
+        const spell = makeSpell("enemy", { castRange: 100, channelDuration: 5 });
+        controller.scene.selected = { x: 10, y: 0, alive: true };
+        controller.request(spell);
+
+        controller.onHit(controller.player, "ranged");
+
+        expect(spell.interruptChannel).not.toHaveBeenCalled();
+        expect(controller.getState()).toBe("casting");
+    });
+
+    it("a melee hit still breaks a channel", () => {
+        const controller = makeController();
+        const spell = makeSpell("enemy", { castRange: 100, channelDuration: 5 });
+        controller.scene.selected = { x: 10, y: 0, alive: true };
+        controller.request(spell);
+
+        controller.onHit(controller.player, "melee");
+
+        expect(spell.interruptChannel).toHaveBeenCalled();
+        expect(controller.getState()).toBe("idle");
+    });
+
+    it("a hit with no combat type still breaks a channel", () => {
+        const controller = makeController();
+        const spell = makeSpell("enemy", { castRange: 100, channelDuration: 5 });
+        controller.scene.selected = { x: 10, y: 0, alive: true };
+        controller.request(spell);
+
+        controller.onHit();
+
+        expect(spell.interruptChannel).toHaveBeenCalled();
+        expect(controller.getState()).toBe("idle");
+    });
+
+    it("a ranged hit still breaks a wind-up", () => {
+        const controller = makeController();
+        const spell = makeSpell("self", { castTime: 1 });
+        controller.request(spell);
+
+        controller.onHit(controller.player, "ranged");
+
+        expect(spell.castSpell).not.toHaveBeenCalled();
         expect(controller.getState()).toBe("idle");
     });
 });

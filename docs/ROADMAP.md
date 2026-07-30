@@ -261,16 +261,16 @@ button extracts to `SpellButton` (stays Phaser-side); new `TargetReticle`,
 
 ### Decisions update (2026-07-01) — Spell rework
 
-| Topic        | Decision                                                                                                                                                                      |
-| ------------ | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| Cast flow    | Auto-target, tap-driven: button tap casts at the selected enemy (walking into range first) or primes; next tap on a valid target commits, floor/invalid taps clear the prime. |
-| Ground       | Two-step tap-to-place with a radius reticle; any world tap (including on an enemy) is a placement.                                                                            |
-| Out of range | Queue the cast: walk toward the target, cast on arrival; another action cancels the queue.                                                                                    |
-| Auto attack  | Keep tap-to-select chase-and-swing (no auto-acquire); it pauses during wind-ups/channels.                                                                                     |
-| Interrupts   | Moving, taking actual damage (`player:hit`, so shield absorbs protect casts), or casting another spell. Wind-ups charge resource on completion only.                          |
-| Projectiles  | Homing (always hit; damage on impact): Fireball, Frostbolt, Multishot arrows, Ranger basic attack.                                                                            |
-| HUD          | Spell buttons stay in Phaser (`SpellButton`), not the React overlay.                                                                                                          |
-| Balance      | Initial numbers (castRange 200–300, Heal 1s wind-up, SiphonSoul/Invocation as 5s channels) are proposals to tune in review.                                                   |
+| Topic        | Decision                                                                                                                                                                                                                                                                   |
+| ------------ | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Cast flow    | Auto-target, tap-driven: button tap casts at the selected enemy (walking into range first) or primes; next tap on a valid target commits, floor/invalid taps clear the prime.                                                                                              |
+| Ground       | Two-step tap-to-place with a radius reticle; any world tap (including on an enemy) is a placement.                                                                                                                                                                         |
+| Out of range | Queue the cast: walk toward the target, cast on arrival; another action cancels the queue.                                                                                                                                                                                 |
+| Auto attack  | Keep tap-to-select chase-and-swing (no auto-acquire); it pauses during wind-ups/channels.                                                                                                                                                                                  |
+| Interrupts   | Moving, taking actual damage (`player:hit`, so shield absorbs protect casts), or casting another spell. Channels are the exception: they ignore ranged attacks (only melee/other hits, movement, or another cast break them). Wind-ups charge resource on completion only. |
+| Projectiles  | Homing (always hit; damage on impact): Fireball, Frostbolt, Multishot arrows, Ranger basic attack.                                                                                                                                                                         |
+| HUD          | Spell buttons stay in Phaser (`SpellButton`), not the React overlay.                                                                                                                                                                                                       |
+| Balance      | Initial numbers (castRange 200–300, Heal 1s wind-up, SiphonSoul/Invocation as 5s channels) are proposals to tune in review.                                                                                                                                                |
 
 ## Deferred / backlog
 
