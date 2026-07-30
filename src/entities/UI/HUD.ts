@@ -27,15 +27,26 @@ class UI extends GameObjects.Container {
 
     constructor(
         scene: Scene,
-        options: { showSpellFrames?: boolean; showReturnToTown?: boolean } = {}
+        options: {
+            showSpellFrames?: boolean;
+            showEnemyCount?: boolean;
+            showCoinCount?: boolean;
+            showReturnToTown?: boolean;
+        } = {}
     ) {
         super(scene, 0, 0);
 
         // The town is a non-combat hub, so it opts out of the spell/ability
-        // slots; every other scene shows them by default. The return-to-town
+        // slots and the whole combat readout — the enemy count and the coin
+        // purse; every other scene shows them by default. The return-to-town
         // button is the mirror image: only the biome scenes have somewhere to
         // teleport back from.
-        const { showSpellFrames = true, showReturnToTown = false } = options;
+        const {
+            showSpellFrames = true,
+            showEnemyCount = true,
+            showCoinCount = true,
+            showReturnToTown = false,
+        } = options;
 
         this.spells = 5;
         this.spacing = 60;
@@ -43,8 +54,8 @@ class UI extends GameObjects.Container {
         this.subscriptions = [];
 
         if (showSpellFrames) this.setSpellFrames();
-        this.setCoinCount();
-        this.setEnemyCount();
+        if (showCoinCount) this.setCoinCount();
+        if (showEnemyCount) this.setEnemyCount();
         this.buttons = [this.setInvetoryIcon(), this.setSystemIcon()];
         if (showReturnToTown) this.buttons.push(this.setReturnToTownIcon());
 
@@ -56,11 +67,7 @@ class UI extends GameObjects.Container {
         Actions.IncXY(this.buttons, x + width, y + height, -35);
 
         // Maps coins, area progress and showUi sections of the store to various functions.
-        this.subscriptions.push(
-            mapStateToData("coins", (coins) => {
-                this.coins.text.setText("Coins: " + coins);
-            })
-        );
+        this.subscriptions.push(mapStateToData("coins", () => this.renderCoinCount()));
         this.subscriptions.push(mapStateToData("enemiesRemaining", () => this.renderEnemyCount()));
         this.subscriptions.push(mapStateToData("bossActive", () => this.renderEnemyCount()));
         this.subscriptions.push(
@@ -120,6 +127,14 @@ class UI extends GameObjects.Container {
         this.coins.add(this.coins.text);
 
         this.add(this.coins);
+        this.renderCoinCount();
+    }
+
+    // No-ops when the coin purse is intentionally absent (town opts out), so a
+    // store-driven coin update cannot touch a container that was never mounted.
+    renderCoinCount(): void {
+        if (!this.coins) return;
+        this.coins.text.setText("Coins: " + store.getState().game.coins);
     }
 
     setEnemyCount(): void {
@@ -137,6 +152,7 @@ class UI extends GameObjects.Container {
     // Counts the area's pool down, then reads BOSS once the boss is up. Both
     // store fields feed this, so it reads them rather than taking an argument.
     renderEnemyCount(): void {
+        if (!this.enemies) return;
         const { enemiesRemaining, bossActive } = store.getState().game;
         this.enemies.text.setText(bossActive ? "BOSS" : "Enemies: " + enemiesRemaining);
     }
