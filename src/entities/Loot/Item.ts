@@ -2,6 +2,7 @@ import { v4 as uuid } from "uuid";
 import sample from "lodash/sample";
 import findKey from "lodash/findKey";
 import random from "lodash/random";
+import { conversionFor, roundStat, type StatFormat } from "@/lib/statConversion";
 
 interface ItemConfig {
     base: number;
@@ -83,10 +84,7 @@ class Item {
     round(stat: AdjustedStat): AdjustedStat {
         return {
             ...stat,
-            rounded:
-                stat.format === "percent"
-                    ? Math.ceil((stat.adjusted + Number.EPSILON) * 100) / 100
-                    : Math.ceil(stat.adjusted),
+            rounded: roundStat(stat.adjusted, stat.format as StatFormat),
         } as AdjustedStat;
     }
 
@@ -121,92 +119,8 @@ class Item {
     }
 
     adjustStats(stat: StatInfo): AdjustedStat {
-        const funcs: { [key: string]: (v: number) => AdjustedStat } = {
-            attack_power: (v) => ({
-                ...stat,
-                adjusted: v / 2,
-                format: "basic",
-                label: "Attack Power",
-                short: "Atk Pwr",
-                abr: "AP",
-            }),
-            attack_speed: (v) => ({
-                ...stat,
-                adjusted: -v / 1000,
-                format: "percent",
-                label: "Attack Speed",
-                short: "Atk Spd",
-                abr: "AS",
-            }),
-            critical_chance: (v) => ({
-                ...stat,
-                adjusted: v / 10,
-                format: "percent",
-                label: "Critical Chance",
-                short: "Crit",
-                abr: "C",
-            }),
-            defence: (v) => ({
-                ...stat,
-                adjusted: v / 2,
-                format: "basic",
-                label: "Defence",
-                short: "Def",
-                abr: "D",
-            }),
-            health_max: (v) => ({
-                ...stat,
-                adjusted: v * 4,
-                format: "basic",
-                label: "Health Max",
-                short: "Health",
-                abr: "H",
-            }),
-            health_regen_rate: (v) => ({
-                ...stat,
-                adjusted: -v / 1000,
-                format: "percent",
-                label: "Regen Rate",
-                short: "Reg R",
-                abr: "RR",
-            }),
-            health_regen_value: (v) => ({
-                ...stat,
-                adjusted: v / 10,
-                format: "basic",
-                label: "Regen Value",
-                short: "Reg V",
-                abr: "RV",
-            }),
-            magic_power: (v) => ({
-                ...stat,
-                adjusted: v / 2,
-                format: "basic",
-                label: "Magic Power",
-                short: "Mgc Pwr",
-                abr: "MP",
-            }),
-            speed: (v) => ({
-                ...stat,
-                adjusted: v / 10,
-                format: "basic",
-                label: "Speed",
-                short: "Spd",
-                abr: "S",
-            }),
-            default: (v) => ({
-                ...stat,
-                adjusted: v,
-                format: "basic",
-                label: "Default",
-                short: "Default",
-                abr: "Default",
-            }),
-        };
-
-        return funcs.hasOwnProperty(stat.key)
-            ? funcs[stat.key](stat.value)
-            : funcs.default(stat.value);
+        const { convert, format, label, short, abr } = conversionFor(stat.key);
+        return { ...stat, adjusted: convert(stat.value), format, label, short, abr };
     }
 
     getIcon(category: string): string {

@@ -4,9 +4,11 @@ import { pixelBackgroundVars } from "@ui/themes";
 import theme from "@ui/themes.module.css";
 import styles from "./UI.module.css";
 import { switchUi, toggleUi } from "@store/gameReducer";
+import Alchemist from "@components/Alchemist";
 import Arcanum from "@components/Arcanum";
 import Armory from "@components/Armory";
 import BiomeSelect from "@components/BiomeSelect";
+import Blacksmith from "@components/Blacksmith";
 import ConfirmReturn from "@components/ConfirmReturn";
 import Character from "@components/Character";
 import CharacterSelect from "@components/CharacterSelect";
@@ -15,6 +17,7 @@ import Header from "@components/Header";
 import HUD from "@components/HUD";
 import InstallBanner from "@components/InstallBanner";
 import MainMenu from "@components/MainMenu";
+import Merchant from "@components/Merchant";
 import Save from "@components/Save";
 import Settings from "@components/Settings";
 import System from "@components/System";
@@ -53,15 +56,33 @@ const UI: React.FC = () => {
     const showUi = useSelector((state: RootState) => state.game.showUi);
 
     const config: Record<string, MenuConfig> = {
+        // Shops (Phase 13) are POI-only: opened from their town building, closed
+        // with the X. `close: true` gives the framed container a title + close
+        // button without the Navigation tab bar (which no longer lists shops).
+        alchemist: {
+            component: asMenuComponent(Alchemist),
+            title: "Alchemist",
+            close: true,
+        },
         arcanum: {
             component: asMenuComponent(Arcanum),
             title: "Arcanum",
-            navigation: true,
+            close: true,
         },
         armory: {
             component: asMenuComponent(Armory),
             title: "Armory",
-            navigation: true,
+            close: true,
+        },
+        blacksmith: {
+            component: asMenuComponent(Blacksmith),
+            title: "Blacksmith",
+            close: true,
+        },
+        merchant: {
+            component: asMenuComponent(Merchant),
+            title: "Merchant",
+            close: true,
         },
         biomeSelect: {
             component: asMenuComponent(BiomeSelect),

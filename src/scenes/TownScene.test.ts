@@ -1,4 +1,5 @@
 import { describe, it, expect, vi, beforeEach, afterEach } from "vitest";
+import { Geom } from "phaser";
 import TownScene from "./TownScene";
 import { BIOMES } from "./biomes/biomes";
 import store from "@store";
@@ -12,16 +13,30 @@ import store from "@store";
 // Mocking at the entity seam per the Phase 2 convention: a constructor-free
 // fake built on the real prototype, rather than booting Phaser.
 
+interface FakeZone {
+    getBounds(): Geom.Rectangle;
+    getData(key: string): string;
+}
+
 interface SceneUnderTest {
-    player: { x: number; y: number; cleanup: ReturnType<typeof vi.fn> };
+    player: {
+        x: number;
+        y: number;
+        cleanup: ReturnType<typeof vi.fn>;
+        getBounds?: () => Geom.Rectangle;
+    };
     config: { type?: string; biome?: string };
     UI: { cleanup: ReturnType<typeof vi.fn> };
     input: { off: ReturnType<typeof vi.fn> };
     collisionIdleTimer?: { destroy: ReturnType<typeof vi.fn> };
     travelSubscription?: ReturnType<typeof vi.fn>;
+    interactionZones?: { getChildren(): FakeZone[] };
+    activePoi?: string | null;
     scene: { start: ReturnType<typeof vi.fn> };
     shutdown(): void;
     onTravelRequest(destination: string | null): void;
+    handleInteraction(type: string, poi: string, displayName: string): void;
+    updateInteractions(): void;
 }
 
 function makeScene(overrides: Partial<SceneUnderTest> = {}): SceneUnderTest {
@@ -156,5 +171,77 @@ describe("TownScene.onTravelRequest", () => {
             type: "Warrior",
             biome: BIOMES.tundra.id,
         });
+    });
+});
+
+describe("TownScene.handleInteraction", () => {
+    it("opens the matching shop overlay for a shop POI", () => {
+        const scene = makeScene();
+
+        scene.handleInteraction("shop", "armory", "Armory");
+
+        // Mirrors the dungeon path: switchUi records the previous screen, toggleUi
+        // flips the overlay on. The POI name doubles as the UI menu-registry key.
+        expect(store.dispatch).toHaveBeenCalledWith({
+            type: "SWITCH_UI",
+            payload: { menu: "armory" },
+        });
+        expect(store.dispatch).toHaveBeenCalledWith({
+            type: "TOGGLE_UI",
+            payload: { menu: "armory" },
+        });
+    });
+});
+
+describe("TownScene.updateInteractions", () => {
+    const makeZone = (poi: string, type: string, name: string, rect: Geom.Rectangle): FakeZone => ({
+        getBounds: () => rect,
+        getData: (key: string) => ({ poi, type, name })[key] ?? "",
+    });
+
+    function sceneStandingOn(playerRect: Geom.Rectangle, zones: FakeZone[]): SceneUnderTest {
+        const scene = makeScene();
+        scene.player.getBounds = () => playerRect;
+        scene.interactionZones = { getChildren: () => zones };
+        return scene;
+    }
+
+    it("fires the interaction once on entry, not every frame", () => {
+        const inZone = new Geom.Rectangle(100, 100, 16, 16);
+        const zone = makeZone("armory", "shop", "Armory", new Geom.Rectangle(90, 90, 40, 40));
+        const scene = sceneStandingOn(inZone, [zone]);
+        const spy = vi.spyOn(scene, "handleInteraction").mockImplementation(() => {});
+
+        scene.updateInteractions();
+        scene.updateInteractions(); // still overlapping — must not re-fire
+
+        expect(spy).toHaveBeenCalledTimes(1);
+        expect(spy).toHaveBeenCalledWith("shop", "armory", "Armory");
+    });
+
+    it("re-arms only after the player leaves the zone and returns", () => {
+        const inZone = new Geom.Rectangle(100, 100, 16, 16);
+        const zone = makeZone("armory", "shop", "Armory", new Geom.Rectangle(90, 90, 40, 40));
+        const scene = sceneStandingOn(inZone, [zone]);
+        const spy = vi.spyOn(scene, "handleInteraction").mockImplementation(() => {});
+
+        scene.updateInteractions(); // enter → fire
+        scene.player.getBounds = () => new Geom.Rectangle(500, 500, 16, 16);
+        scene.updateInteractions(); // left → no fire, re-arm
+        scene.player.getBounds = () => inZone;
+        scene.updateInteractions(); // re-enter → fire again
+
+        expect(spy).toHaveBeenCalledTimes(2);
+    });
+
+    it("does nothing while the player is on no POI", () => {
+        const zone = makeZone("armory", "shop", "Armory", new Geom.Rectangle(90, 90, 40, 40));
+        const scene = sceneStandingOn(new Geom.Rectangle(500, 500, 16, 16), [zone]);
+        const spy = vi.spyOn(scene, "handleInteraction").mockImplementation(() => {});
+
+        scene.updateInteractions();
+
+        expect(spy).not.toHaveBeenCalled();
+        expect(scene.activePoi).toBeNull();
     });
 });
