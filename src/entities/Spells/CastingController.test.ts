@@ -55,7 +55,7 @@ interface ControllerUnderTest {
     onPlayerTap(): void;
     onEnemyTap(enemy: { x: number; y: number; alive: boolean }): void;
     interruptForMove(): void;
-    onHit(): void;
+    onHit(player?: unknown, attackType?: string): void;
     notifyDisabled(spell: CastableSpell): void;
     cancelAll(): void;
     update(): void;
@@ -494,6 +494,53 @@ describe("CastingController channels", () => {
         expect(spell.interruptChannel).not.toHaveBeenCalled();
         expect(controller.getState()).toBe("idle");
     });
+
+    it("a ranged hit does not break a channel", () => {
+        const controller = makeController();
+        const spell = makeSpell("enemy", { castRange: 100, channelDuration: 5 });
+        controller.scene.selected = { x: 10, y: 0, alive: true };
+        controller.request(spell);
+
+        controller.onHit(controller.player, "ranged");
+
+        expect(spell.interruptChannel).not.toHaveBeenCalled();
+        expect(controller.getState()).toBe("casting");
+    });
+
+    it("a melee hit still breaks a channel", () => {
+        const controller = makeController();
+        const spell = makeSpell("enemy", { castRange: 100, channelDuration: 5 });
+        controller.scene.selected = { x: 10, y: 0, alive: true };
+        controller.request(spell);
+
+        controller.onHit(controller.player, "melee");
+
+        expect(spell.interruptChannel).toHaveBeenCalled();
+        expect(controller.getState()).toBe("idle");
+    });
+
+    it("a hit with no combat type still breaks a channel", () => {
+        const controller = makeController();
+        const spell = makeSpell("enemy", { castRange: 100, channelDuration: 5 });
+        controller.scene.selected = { x: 10, y: 0, alive: true };
+        controller.request(spell);
+
+        controller.onHit();
+
+        expect(spell.interruptChannel).toHaveBeenCalled();
+        expect(controller.getState()).toBe("idle");
+    });
+
+    it("a ranged hit still breaks a wind-up", () => {
+        const controller = makeController();
+        const spell = makeSpell("self", { castTime: 1 });
+        controller.request(spell);
+
+        controller.onHit(controller.player, "ranged");
+
+        expect(spell.castSpell).not.toHaveBeenCalled();
+        expect(controller.getState()).toBe("idle");
+    });
 });
 
 describe("CastingController ground reticle", () => {
@@ -573,6 +620,35 @@ describe("CastingController.notifyDisabled", () => {
         controller.notifyDisabled(other);
 
         expect(controller.getState()).toBe("primed");
+    });
+
+    // Regression: a channelled self-buff (Invocation) goes on cooldown the moment
+    // it casts, and the next resource-regen `change` disables its button and
+    // notifies the controller. That must NOT break the already-committed channel
+    // — otherwise the channel starts and immediately stops.
+    it("does not interrupt a committed channel when its spell is disabled", () => {
+        const controller = makeController();
+        const spell = makeSpell("self", { channelDuration: 5 });
+        controller.request(spell);
+        expect(controller.getState()).toBe("casting");
+
+        controller.notifyDisabled(spell);
+
+        expect(spell.interruptChannel).not.toHaveBeenCalled();
+        expect(controller.getState()).toBe("casting");
+    });
+
+    // A wind-up has not committed its cost yet, so a spell going unavailable
+    // during it is still cancelled.
+    it("still interrupts a wind-up when its spell is disabled", () => {
+        const controller = makeController();
+        const spell = makeSpell("self", { castTime: 1 });
+        controller.request(spell);
+        expect(controller.getState()).toBe("casting");
+
+        controller.notifyDisabled(spell);
+
+        expect(controller.getState()).toBe("idle");
     });
 });
 

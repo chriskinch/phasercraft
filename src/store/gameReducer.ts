@@ -11,6 +11,7 @@ import type {
     ComponentType,
 } from "@/types/game";
 import { COMPONENT_DEFS } from "@/types/game";
+import { appliedStatValue } from "@/lib/statConversion";
 import type { PlayerName } from "@entities/Player/AssignClass";
 import type { BiomeId } from "@/scenes/biomes/biomes";
 
@@ -299,7 +300,7 @@ export const gameReducer = createReducer(initState, (builder) => {
             stats.map((s) => {
                 const current = state.base_stats[s.name];
                 if (typeof current === "number") {
-                    state.base_stats[s.name] = current + s.value;
+                    state.base_stats[s.name] = current + appliedStatValue(s.name, s.value);
                 }
             });
             syncStats(state);
@@ -409,7 +410,7 @@ export const gameReducer = createReducer(initState, (builder) => {
             stats.map((s) => {
                 const current = state.base_stats[s.name];
                 if (typeof current === "number") {
-                    state.base_stats[s.name] = current - s.value;
+                    state.base_stats[s.name] = current - appliedStatValue(s.name, s.value);
                 }
             });
             syncStats(state);

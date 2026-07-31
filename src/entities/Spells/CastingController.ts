@@ -1,6 +1,6 @@
 import { Math as PhaserMath, Scenes } from "phaser";
 import TargetReticle from "@entities/UI/TargetReticle";
-import type { TargetKind, TargetType } from "@/types/game";
+import type { CombatType, TargetKind, TargetType } from "@/types/game";
 import type { GameSceneLike } from "@/types/scene";
 
 // The subset of Spell the controller drives. Kept narrow so tests can fake a
@@ -91,7 +91,8 @@ class CastingController {
         this.scene.events.on("pointerdown:enemy", this.onEnemyTap, this);
         this.scene.events.on("pointerdown:player", this.onPlayerTap, this);
         this.scene.events.on("keypress:esc", this.cancelAll, this);
-        // Actual damage (shield absorbs don't emit player:hit) breaks casts.
+        // Actual damage (shield absorbs don't emit player:hit) breaks casts;
+        // the hit carries its combat type so channels can ignore ranged ones.
         this.scene.events.on("player:hit", this.onHit, this);
         // The controller is not a GameObject, so SHUTDOWN is its only
         // lifecycle signal; Player.cleanup() also calls cleanup() (idempotent).
@@ -218,7 +219,10 @@ class CastingController {
     }
 
     // Taking actual damage breaks wind-ups and channels (approach is fine).
-    onHit(): void {
+    // Channelled spells are the exception: they shrug off ranged attacks, so
+    // only movement, another cast, or a melee/other hit break them.
+    onHit(_player?: unknown, attackType?: CombatType): void {
+        if (this.casting?.phase === "channel" && attackType === "ranged") return;
         this.interruptCast();
     }
 
@@ -229,7 +233,16 @@ class CastingController {
     notifyDisabled(spell: object): void {
         if (this.primed === spell) this.clearPrime();
         if (this.pending?.spell === spell) this.cancelPending();
-        if (this.casting?.spell === spell) this.interruptCast();
+        // A wind-up is cancelled if its spell goes unavailable (its cost hasn't
+        // committed yet). A channel must not be: by the time it is running the
+        // cast has committed, the cost is charged and the effect is live, so the
+        // spell going "not ready" — which right after a successful cast means
+        // "on cooldown", fired by the very next resource-regen `change` — would
+        // otherwise tear down its own channel a frame after it started. Genuine
+        // channel stops come through interruptForMove/onHit/request instead.
+        if (this.casting?.spell === spell && this.casting.phase !== "channel") {
+            this.interruptCast();
+        }
     }
 
     cancelAll(): void {

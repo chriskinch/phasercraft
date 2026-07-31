@@ -7,6 +7,8 @@ interface StatItem {
     value: number;
     name: string;
     polarity?: number;
+    /** Preformatted value with its unit; see `Stat`. */
+    display?: string;
 }
 
 interface StatsStyles {
@@ -31,6 +33,7 @@ const Stats: React.FC<StatsProps> = ({ children: stats, styles = {} }) => {
                         value={stat.value}
                         label={stat.name}
                         polarity={stat.polarity}
+                        display={stat.display}
                     />
                 );
             })}

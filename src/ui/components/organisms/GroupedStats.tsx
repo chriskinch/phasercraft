@@ -2,11 +2,13 @@ import React from "react";
 import Stats from "@components/Stats";
 import pick from "lodash/pick";
 import type { PlayerStats } from "@/types/game";
+import { formatStatValue } from "@/lib/statConversion";
 
 interface StatItem {
     id: string;
     name: string;
     value: number;
+    display: string;
 }
 
 interface GroupedStatsProps {
@@ -14,7 +16,6 @@ interface GroupedStatsProps {
 }
 
 const GroupedStats: React.FC<GroupedStatsProps> = ({ stats }) => {
-    console.log("WAIT: ", stats);
     const offence_stats = pick(stats, [
         "attack_power",
         "magic_power",
@@ -34,6 +35,9 @@ const GroupedStats: React.FC<GroupedStatsProps> = ({ stats }) => {
             id: key,
             name: key.replace(/_/g, " "),
             value: value,
+            // `key` is the raw stat name, so the unit comes from the same table the
+            // reducer uses — attack speed reads "0.98s", crit reads "13%".
+            display: formatStatValue(key, value),
         }));
     };
 

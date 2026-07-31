@@ -7,6 +7,7 @@ import Crafting from "@entities/Loot/Crafting";
 import Gem from "@entities/Loot/Gem";
 import Banes from "@entities/UI/Banes";
 import type {
+    CombatType,
     EnemyOptions,
     EnemyAttributes,
     LootTable,
@@ -48,6 +49,7 @@ class Enemy extends GameObjects.Container {
     public monster: Monster;
     public key: string;
     public target: TargetType;
+    public combat_type: CombatType;
     public attack_ready: boolean;
     public attack_radius: number;
     public aggro_radius: number;
@@ -101,6 +103,9 @@ class Enemy extends GameObjects.Container {
 
         this.key = config.key;
         this.target = config.target;
+        // The declared enemy archetype (Melee/Ranged/Healer) lower-cased; the
+        // caster reads it off an attack to know whether it can break a channel.
+        this.combat_type = config.type.toLowerCase() as CombatType;
         this.attack_ready = true;
         this.attack_radius = config.attributes.range || 40;
         this.aggro_radius = config.aggro_radius || 250;
@@ -145,8 +150,9 @@ class Enemy extends GameObjects.Container {
         this.setAlpha(0);
         this.scene.tweens.add({ targets: this, alpha: 1, ease: "Power1", duration: 500 });
 
-        // Odd bug where the hit box is offset by 14px. not sure why but compensating here
-        this.setInteractive(new Geom.Circle(14, 14, 15), Geom.Circle.Contains);
+        // Odd bug where the hit box is offset by 14px. not sure why but compensating here.
+        // Radius bumped from 15 to 18 (~20% larger) to make enemies easier to tap/select.
+        this.setInteractive(new Geom.Circle(14, 14, 18), Geom.Circle.Contains);
         this.bringToTop(this.monster);
 
         this.scene.events.on("pointerdown:game", this.deselect, this);
@@ -419,7 +425,7 @@ class Enemy extends GameObjects.Container {
     attack(): void {
         if (this.states.attack === "primed") {
             this.states.attack = "recovering";
-            this.scene.events.emit("enemy:attack", this.stats.damage);
+            this.scene.events.emit("enemy:attack", this.stats.damage, this.combat_type);
             this.attack_ready = false;
             this.swing = this.scene.time.addEvent({
                 delay: this.stats.attack_speed * 1000,
