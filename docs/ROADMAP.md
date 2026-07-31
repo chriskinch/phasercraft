@@ -327,9 +327,11 @@ The five shops (POI names already present in the town map):
 
 ### Step 3 — Merchant shop
 
-- [ ] Sell inventory gear and material stacks for coins; buy materials (new `buyComponent`
-      reducer: coins → `addComponent`); Merchant template modeled on `Armory.tsx` +
-      `ComponentsGrid.tsx`; prices/balance agreed in review
+- [x] Sell inventory gear and material stacks for coins; buy materials (new `buyComponent`
+      reducer: coins → shared `stackComponent` helper, guarded so coins can't go negative);
+      Merchant template reuses the Equipment Gear/Parts sell controls + `ComponentsGrid.tsx`.
+      Decisions: selling stays available in **both** Equipment and the Merchant (non-breaking);
+      buy price = **3×** a part's `sellValue` (`COMPONENT_BUY_MULTIPLIER`, one tunable constant).
 
 ### Step 4 — Blacksmith crafting
 

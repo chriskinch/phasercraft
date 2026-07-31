@@ -14,6 +14,7 @@ import {
     buyLoot,
     switchUi,
     addComponent,
+    buyComponent,
     sellComponent,
     sellComponentStack,
     loadGame,
@@ -24,7 +25,7 @@ import {
     setBaseStats,
 } from "./gameReducer";
 import type { LootItem } from "@/types/game";
-import { COMPONENT_DEFS } from "@/types/game";
+import { COMPONENT_DEFS, componentBuyPrice } from "@/types/game";
 
 const makeItem = (overrides: Partial<LootItem> = {}): LootItem => ({
     __typename: "Item",
@@ -267,6 +268,46 @@ describe("gameReducer", () => {
             const next = gameReducer(stateWithStack, sellComponentStack("stack-1"));
             expect(next.components).toEqual([]);
             expect(next.coins).toBe(initial.coins + COMPONENT_DEFS.ichor.sellValue * 4);
+        });
+
+        it("buyComponent deducts the price and adds a new stack of quantity 1", () => {
+            const initial = gameReducer(undefined, { type: "@@INIT" });
+            const stateWithCoins = { ...initial, coins: 100, components: [] };
+
+            const next = gameReducer(stateWithCoins, buyComponent("scrap"));
+            expect(next.coins).toBe(100 - componentBuyPrice("scrap"));
+            expect(next.components).toHaveLength(1);
+            expect(next.components[0]).toMatchObject({ type: "scrap", quantity: 1 });
+        });
+
+        it("buyComponent stacks onto an existing non-full stack of the same type", () => {
+            const initial = gameReducer(undefined, { type: "@@INIT" });
+            const stack = { id: "stack-1", type: "scrap" as const, quantity: 5 };
+            const stateWithStack = { ...initial, coins: 100, components: [stack] };
+
+            const next = gameReducer(stateWithStack, buyComponent("scrap"));
+            expect(next.components).toHaveLength(1);
+            expect(next.components[0].quantity).toBe(6);
+            expect(next.coins).toBe(100 - componentBuyPrice("scrap"));
+        });
+
+        it("buyComponent refuses the purchase when coins are insufficient", () => {
+            const initial = gameReducer(undefined, { type: "@@INIT" });
+            const stateBroke = { ...initial, coins: 5, components: [] };
+
+            // ichor costs 8 * 3 = 24, well over the 5 coins on hand.
+            const next = gameReducer(stateBroke, buyComponent("ichor"));
+            expect(next.coins).toBe(5);
+            expect(next.components).toEqual([]);
+        });
+
+        it("buyComponent ignores unknown component types", () => {
+            const initial = gameReducer(undefined, { type: "@@INIT" });
+            const stateWithCoins = { ...initial, coins: 100, components: [] };
+
+            const next = gameReducer(stateWithCoins, buyComponent("bogus" as "scrap"));
+            expect(next.coins).toBe(100);
+            expect(next.components).toEqual([]);
         });
     });
 

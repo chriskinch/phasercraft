@@ -10,7 +10,7 @@ import type {
     ComponentStack,
     ComponentType,
 } from "@/types/game";
-import { COMPONENT_DEFS } from "@/types/game";
+import { COMPONENT_DEFS, componentBuyPrice } from "@/types/game";
 import { appliedStatValue } from "@/lib/statConversion";
 import type { PlayerName } from "@entities/Player/AssignClass";
 import type { BiomeId } from "@/scenes/biomes/biomes";
@@ -102,6 +102,10 @@ export const setCoins = createAction("SET_COINS", (value: number) => ({
 }));
 
 export const addComponent = createAction("ADD_COMPONENT", (type: ComponentType) => ({
+    payload: { type },
+}));
+
+export const buyComponent = createAction("BUY_COMPONENT", (type: ComponentType) => ({
     payload: { type },
 }));
 
@@ -226,6 +230,20 @@ export const setPlayerPosition = createAction(
 // Helpers
 const syncStats = (state: GameState) => (state.stats = state.base_stats);
 
+// Add one component of `type` to the stacks: fill an existing non-full stack of
+// that type before opening a new one; once every stack of the type is at
+// stackMax, start a fresh stack (overflow → new stack). Shared by the loot
+// pickup (addComponent) and the merchant purchase (buyComponent).
+const stackComponent = (components: ComponentStack[], type: ComponentType) => {
+    const def = COMPONENT_DEFS[type];
+    const stack = components.find((s) => s.type === type && s.quantity < def.stackMax);
+    if (stack) {
+        stack.quantity += 1;
+    } else {
+        components.push({ id: Math.random().toString(), type, quantity: 1 });
+    }
+};
+
 // Reducers
 export const gameReducer = createReducer(initState, (builder) => {
     builder
@@ -237,21 +255,22 @@ export const gameReducer = createReducer(initState, (builder) => {
         })
         .addCase(addComponent, (state, action: PayloadAction<{ type: ComponentType }>) => {
             const { type } = action.payload;
-            const def = COMPONENT_DEFS[type];
             // Ignore unknown component types so a stray/corrupt name can't create a
             // stack with no definition (its stackMax/sellValue would be undefined).
-            if (!def) return;
-            // Fill an existing non-full stack of this type before opening a new one;
-            // once every stack of the type is at stackMax, the pickup starts a fresh
-            // stack (overflow → new stack).
-            const stack = state.components.find(
-                (s) => s.type === type && s.quantity < def.stackMax
-            );
-            if (stack) {
-                stack.quantity += 1;
-            } else {
-                state.components.push({ id: Math.random().toString(), type, quantity: 1 });
-            }
+            if (!COMPONENT_DEFS[type]) return;
+            stackComponent(state.components, type);
+        })
+        .addCase(buyComponent, (state, action: PayloadAction<{ type: ComponentType }>) => {
+            const { type } = action.payload;
+            // Unknown types have no definition (and so no price) — ignore them.
+            if (!COMPONENT_DEFS[type]) return;
+            const price = componentBuyPrice(type);
+            // Refuse the purchase if the player can't afford it, so coins never go
+            // negative. The Merchant UI also disables the button, but the reducer is
+            // the source of truth. (Stricter than buyLoot, which does not guard.)
+            if (state.coins < price) return;
+            state.coins -= price;
+            stackComponent(state.components, type);
         })
         .addCase(
             sellComponent,

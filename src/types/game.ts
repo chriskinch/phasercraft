@@ -122,6 +122,17 @@ export const COMPONENT_DEFS: Record<ComponentType, ComponentDef> = {
     bone: { stackMax: 99, sellValue: 2, icon: "bone", name: "Bone" },
 };
 
+// Every component type, as a runtime array (the union `ComponentType` is
+// compile-time only) — e.g. for the merchant's buy buttons.
+export const COMPONENT_TYPES = Object.keys(COMPONENT_DEFS) as ComponentType[];
+
+// Buying a part at the merchant costs a multiple of its sell value: a standard
+// shop margin so buying back is dearer than selling, and so hunting for parts
+// stays worthwhile. Placeholder balance value — tune in review.
+export const COMPONENT_BUY_MULTIPLIER = 3;
+export const componentBuyPrice = (type: ComponentType): number =>
+    COMPONENT_DEFS[type].sellValue * COMPONENT_BUY_MULTIPLIER;
+
 export const ITEM_QUALITY_WEIGHTS = {
     AMULET: 3,
     ARMOR: 30,
