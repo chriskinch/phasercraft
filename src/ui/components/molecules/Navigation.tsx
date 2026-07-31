@@ -8,8 +8,9 @@ import type { RootState } from "@store";
 const Navigation = () => {
     const dispatch = useDispatch();
     const menu = useSelector((state: RootState) => state.game.menu);
-    // Max inventory space is 12
-    const items = ["Character", "Equipment", "Armory", "Arcanum"];
+    // Personal screens only. Shops (Armory, Arcanum, …) are POI-only from Phase 13:
+    // they open by walking up to their building in town, not from these tabs.
+    const items = ["Character", "Equipment"];
 
     return (
         <nav>
