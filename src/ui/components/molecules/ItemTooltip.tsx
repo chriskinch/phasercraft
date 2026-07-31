@@ -8,6 +8,7 @@ import { connect } from "react-redux";
 import type { LootItem, Equipment } from "@/types/game";
 import type { LootStat } from "@/types/game";
 import type { RootState } from "@store";
+import { appliedStatValue, formatStatValue, statPolarity } from "@/lib/statConversion";
 import styles from "./ItemTooltip.module.css";
 
 interface ItemTooltipProps {
@@ -20,15 +21,26 @@ const ItemTooltip: React.FC<ItemTooltipProps> = ({ id, loot, equipment }) => {
     const { name, set, color, stats, cost } = loot;
     const [compare, setCompare] = useState<LootStat[] | null>(null);
 
+    // Comparison rows already hold a converted difference; raw item stats are still
+    // in pool units, so they go through the same conversion the reducer applies.
+    const displayValue = (stat: LootStat, isComparison: boolean) =>
+        isComparison ? (stat.value ?? 0) : appliedStatValue(stat.name, stat.value ?? 0);
+
     const convertStatsToArray = (statsArray: LootStat[], isComparison = false) => {
         return statsArray
-            .filter((stat) => !isComparison || (stat.rounded || stat.value) !== 0)
-            .map((stat) => ({
-                id: stat.id,
-                name: stat.name,
-                value: stat.rounded || stat.value || 0,
-                polarity: isComparison ? stat.polarity : undefined,
-            }));
+            .filter((stat) => !isComparison || displayValue(stat, isComparison) !== 0)
+            .map((stat) => {
+                const value = displayValue(stat, isComparison);
+                return {
+                    id: stat.id,
+                    name: stat.name,
+                    value,
+                    polarity: isComparison ? stat.polarity : undefined,
+                    // Carry the unit through so a duration reads "0.98s" and a chance
+                    // reads "13%" instead of both being a bare number.
+                    display: formatStatValue(stat.name, value, { signed: isComparison }),
+                };
+            });
     };
 
     const afterShowHandler = () => {
@@ -55,18 +67,25 @@ const ItemTooltip: React.FC<ItemTooltipProps> = ({ id, loot, equipment }) => {
                 const selectedStat = selectedMap.get(statId);
                 const equippedStat = equippedMap.get(statId);
 
-                // Get values (default to 0 if stat doesn't exist on item)
-                const selectedValue = selectedStat?.value || 0;
-                const equippedValue = equippedStat?.value || 0;
+                // Compare the magnitudes that actually get applied, so the number shown
+                // is in real stat units rather than raw pool units.
+                const selectedValue = selectedStat
+                    ? appliedStatValue(statId, selectedStat.value)
+                    : 0;
+                const equippedValue = equippedStat
+                    ? appliedStatValue(statId, equippedStat.value)
+                    : 0;
 
-                // Calculate difference: positive = gain, negative = loss
                 const difference = selectedValue - equippedValue;
 
                 return {
                     name: selectedStat?.name || equippedStat?.name || statId,
                     id: statId,
                     value: difference,
-                    polarity: Math.sign(difference),
+                    // Not Math.sign: for the interval stats (attack_speed,
+                    // health_regen_rate) a *smaller* number is the better item, so a
+                    // negative difference there is an upgrade and must colour green.
+                    polarity: statPolarity(statId, difference),
                 };
             })
             .filter((stat) => stat.value !== 0); // Only show differences
