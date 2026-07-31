@@ -1627,7 +1627,7 @@
       "source_location": "L14",
       "_origin": "ast",
       "id": "ref_phaser",
-      "community": 26,
+      "community": 38,
       "community_name": "phaser",
       "norm_label": "phaser"
     },
@@ -1660,7 +1660,7 @@
       "source_location": "L14",
       "_origin": "ast",
       "id": "ref_react",
-      "community": 39,
+      "community": 13,
       "community_name": "react",
       "norm_label": "react"
     },
@@ -2540,8 +2540,8 @@
       "source_location": "L72",
       "_origin": "ast",
       "id": "package_devdependencies_eslint",
-      "community": 10,
-      "community_name": "devDependencies",
+      "community": 78,
+      "community_name": "eslint",
       "norm_label": "eslint"
     },
     {
@@ -2551,8 +2551,8 @@
       "source_location": "L72",
       "_origin": "ast",
       "id": "eslint",
-      "community": 10,
-      "community_name": "devDependencies",
+      "community": 78,
+      "community_name": "eslint",
       "norm_label": "eslint"
     },
     {
@@ -2562,8 +2562,8 @@
       "source_location": "L73",
       "_origin": "ast",
       "id": "package_devdependencies_eslint_config_prettier",
-      "community": 104,
-      "community_name": "eslint-config-prettier",
+      "community": 10,
+      "community_name": "devDependencies",
       "norm_label": "eslint-config-prettier"
     },
     {
@@ -2573,8 +2573,8 @@
       "source_location": "L73",
       "_origin": "ast",
       "id": "eslint_config_prettier",
-      "community": 104,
-      "community_name": "eslint-config-prettier",
+      "community": 10,
+      "community_name": "devDependencies",
       "norm_label": "eslint-config-prettier"
     },
     {
@@ -3124,7 +3124,7 @@
       "_origin": "ast",
       "id": "src_phasergame",
       "community": 26,
-      "community_name": "phaser",
+      "community_name": "PhaserGame.tsx",
       "norm_label": "phasergame.tsx"
     },
     {
@@ -3134,8 +3134,8 @@
       "source_location": "L11",
       "_origin": "ast",
       "id": "src_phasergame_phasergame",
-      "community": 37,
-      "community_name": "settingsStorage.ts",
+      "community": 26,
+      "community_name": "PhaserGame.tsx",
       "norm_label": "phasergame()"
     },
     {
@@ -3145,8 +3145,8 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "src_config_animations",
-      "community": 78,
-      "community_name": "animations.ts",
+      "community": 26,
+      "community_name": "PhaserGame.tsx",
       "norm_label": "animations.ts"
     },
     {
@@ -3156,8 +3156,8 @@
       "source_location": "L3",
       "_origin": "ast",
       "id": "src_config_animations_animationconfig",
-      "community": 78,
-      "community_name": "animations.ts",
+      "community": 26,
+      "community_name": "PhaserGame.tsx",
       "norm_label": "animationconfig"
     },
     {
@@ -3167,8 +3167,8 @@
       "source_location": "L9",
       "_origin": "ast",
       "id": "src_config_animations_enemytype",
-      "community": 78,
-      "community_name": "animations.ts",
+      "community": 26,
+      "community_name": "PhaserGame.tsx",
       "norm_label": "enemytype"
     },
     {
@@ -3178,8 +3178,8 @@
       "source_location": "L16",
       "_origin": "ast",
       "id": "src_config_animations_enemyconfig",
-      "community": 78,
-      "community_name": "animations.ts",
+      "community": 26,
+      "community_name": "PhaserGame.tsx",
       "norm_label": "enemyconfig"
     },
     {
@@ -3189,8 +3189,8 @@
       "source_location": "L21",
       "_origin": "ast",
       "id": "src_config_animations_createanimations",
-      "community": 78,
-      "community_name": "animations.ts",
+      "community": 26,
+      "community_name": "PhaserGame.tsx",
       "norm_label": "createanimations()"
     },
     {
@@ -3200,7 +3200,7 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "src_config_area",
-      "community": 23,
+      "community": 34,
       "community_name": "BiomeScene.ts",
       "norm_label": "area.ts"
     },
@@ -3211,7 +3211,7 @@
       "source_location": "L7",
       "_origin": "ast",
       "id": "src_config_area_area_total_enemies",
-      "community": 23,
+      "community": 34,
       "community_name": "BiomeScene.ts",
       "norm_label": "area_total_enemies"
     },
@@ -3222,7 +3222,7 @@
       "source_location": "L11",
       "_origin": "ast",
       "id": "src_config_area_area_live_cap",
-      "community": 23,
+      "community": 34,
       "community_name": "BiomeScene.ts",
       "norm_label": "area_live_cap"
     },
@@ -3233,7 +3233,7 @@
       "source_location": "L23",
       "_origin": "ast",
       "id": "src_config_area_boss_scaling",
-      "community": 23,
+      "community": 34,
       "community_name": "BiomeScene.ts",
       "norm_label": "boss_scaling"
     },
@@ -3244,7 +3244,7 @@
       "source_location": "L33",
       "_origin": "ast",
       "id": "src_config_area_promotetoboss",
-      "community": 23,
+      "community": 34,
       "community_name": "BiomeScene.ts",
       "norm_label": "promotetoboss()"
     },
@@ -3421,7 +3421,7 @@
       "_origin": "ast",
       "id": "src_config_fonts",
       "community": 26,
-      "community_name": "phaser",
+      "community_name": "PhaserGame.tsx",
       "norm_label": "fonts.ts"
     },
     {
@@ -3432,7 +3432,7 @@
       "_origin": "ast",
       "id": "src_config_fonts_fontconfig",
       "community": 26,
-      "community_name": "phaser",
+      "community_name": "PhaserGame.tsx",
       "norm_label": "fontconfig"
     },
     {
@@ -3442,8 +3442,8 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "src_entities_enemy_assigntype",
-      "community": 14,
-      "community_name": "EnemyOptions",
+      "community": 63,
+      "community_name": "Enemy",
       "norm_label": "assigntype.ts"
     },
     {
@@ -3453,8 +3453,8 @@
       "source_location": "L6",
       "_origin": "ast",
       "id": "src_entities_enemy_assigntype_classes",
-      "community": 14,
-      "community_name": "EnemyOptions",
+      "community": 63,
+      "community_name": "Enemy",
       "norm_label": "classes"
     },
     {
@@ -3464,8 +3464,8 @@
       "source_location": "L11",
       "_origin": "ast",
       "id": "src_entities_enemy_assigntype_assigntype",
-      "community": 14,
-      "community_name": "EnemyOptions",
+      "community": 63,
+      "community_name": "Enemy",
       "norm_label": "assigntype"
     },
     {
@@ -3475,8 +3475,8 @@
       "source_location": "L12",
       "_origin": "ast",
       "id": "src_entities_enemy_assigntype_assigntype_constructor",
-      "community": 14,
-      "community_name": "EnemyOptions",
+      "community": 63,
+      "community_name": "Enemy",
       "norm_label": ".constructor()"
     },
     {
@@ -3486,8 +3486,8 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "src_entities_enemy_boss",
-      "community": 14,
-      "community_name": "EnemyOptions",
+      "community": 63,
+      "community_name": "Enemy",
       "norm_label": "boss.ts"
     },
     {
@@ -3497,8 +3497,8 @@
       "source_location": "L5",
       "_origin": "ast",
       "id": "src_entities_enemy_boss_boss",
-      "community": 14,
-      "community_name": "EnemyOptions",
+      "community": 63,
+      "community_name": "Enemy",
       "norm_label": "boss"
     },
     {
@@ -3508,8 +3508,8 @@
       "source_location": "L6",
       "_origin": "ast",
       "id": "src_entities_enemy_boss_boss_constructor",
-      "community": 14,
-      "community_name": "EnemyOptions",
+      "community": 63,
+      "community_name": "Enemy",
       "norm_label": ".constructor()"
     },
     {
@@ -3519,7 +3519,7 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "src_entities_enemy_enemy",
-      "community": 9,
+      "community": 53,
       "community_name": "Enemy.ts",
       "norm_label": "enemy.ts"
     },
@@ -3541,7 +3541,7 @@
       "source_location": "L22",
       "_origin": "ast",
       "id": "src_entities_enemy_enemy_enemystates",
-      "community": 9,
+      "community": 53,
       "community_name": "Enemy.ts",
       "norm_label": "enemystates"
     },
@@ -3552,7 +3552,7 @@
       "source_location": "L27",
       "_origin": "ast",
       "id": "src_entities_enemy_enemy_circlingconfig",
-      "community": 9,
+      "community": 53,
       "community_name": "Enemy.ts",
       "norm_label": "circlingconfig"
     },
@@ -3563,8 +3563,8 @@
       "source_location": "L36",
       "_origin": "ast",
       "id": "src_entities_enemy_enemy_moveoptions",
-      "community": 9,
-      "community_name": "Enemy.ts",
+      "community": 2,
+      "community_name": "Spell",
       "norm_label": "moveoptions"
     },
     {
@@ -3574,7 +3574,7 @@
       "source_location": "L41",
       "_origin": "ast",
       "id": "src_entities_enemy_enemy_hitparams",
-      "community": 9,
+      "community": 53,
       "community_name": "Enemy.ts",
       "norm_label": "hitparams"
     },
@@ -3882,8 +3882,8 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "src_entities_enemy_healer",
-      "community": 14,
-      "community_name": "EnemyOptions",
+      "community": 63,
+      "community_name": "Enemy",
       "norm_label": "healer.ts"
     },
     {
@@ -3893,8 +3893,8 @@
       "source_location": "L4",
       "_origin": "ast",
       "id": "src_entities_enemy_healer_healer",
-      "community": 14,
-      "community_name": "EnemyOptions",
+      "community": 63,
+      "community_name": "Enemy",
       "norm_label": "healer"
     },
     {
@@ -3904,8 +3904,8 @@
       "source_location": "L5",
       "_origin": "ast",
       "id": "src_entities_enemy_healer_healer_constructor",
-      "community": 14,
-      "community_name": "EnemyOptions",
+      "community": 63,
+      "community_name": "Enemy",
       "norm_label": ".constructor()"
     },
     {
@@ -3915,8 +3915,8 @@
       "source_location": "L15",
       "_origin": "ast",
       "id": "src_entities_enemy_healer_healer_update",
-      "community": 14,
-      "community_name": "EnemyOptions",
+      "community": 63,
+      "community_name": "Enemy",
       "norm_label": ".update()"
     },
     {
@@ -3926,8 +3926,8 @@
       "source_location": "L35",
       "_origin": "ast",
       "id": "src_entities_enemy_healer_healer_gethealtarget",
-      "community": 14,
-      "community_name": "EnemyOptions",
+      "community": 63,
+      "community_name": "Enemy",
       "norm_label": ".gethealtarget()"
     },
     {
@@ -3937,8 +3937,8 @@
       "source_location": "L44",
       "_origin": "ast",
       "id": "src_entities_enemy_healer_healer_healtarget",
-      "community": 14,
-      "community_name": "EnemyOptions",
+      "community": 63,
+      "community_name": "Enemy",
       "norm_label": ".healtarget()"
     },
     {
@@ -3948,8 +3948,8 @@
       "source_location": "L57",
       "_origin": "ast",
       "id": "src_entities_enemy_healer_healer_getmissinghealth",
-      "community": 14,
-      "community_name": "EnemyOptions",
+      "community": 63,
+      "community_name": "Enemy",
       "norm_label": ".getmissinghealth()"
     },
     {
@@ -3959,8 +3959,8 @@
       "source_location": "L61",
       "_origin": "ast",
       "id": "src_entities_enemy_healer_healer_laststanding",
-      "community": 14,
-      "community_name": "EnemyOptions",
+      "community": 63,
+      "community_name": "Enemy",
       "norm_label": ".laststanding()"
     },
     {
@@ -3970,8 +3970,8 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "src_entities_enemy_melee",
-      "community": 14,
-      "community_name": "EnemyOptions",
+      "community": 63,
+      "community_name": "Enemy",
       "norm_label": "melee.ts"
     },
     {
@@ -3981,8 +3981,8 @@
       "source_location": "L4",
       "_origin": "ast",
       "id": "src_entities_enemy_melee_melee",
-      "community": 14,
-      "community_name": "EnemyOptions",
+      "community": 63,
+      "community_name": "Enemy",
       "norm_label": "melee"
     },
     {
@@ -3992,8 +3992,8 @@
       "source_location": "L5",
       "_origin": "ast",
       "id": "src_entities_enemy_melee_melee_constructor",
-      "community": 14,
-      "community_name": "EnemyOptions",
+      "community": 63,
+      "community_name": "Enemy",
       "norm_label": ".constructor()"
     },
     {
@@ -4003,8 +4003,8 @@
       "source_location": "L12",
       "_origin": "ast",
       "id": "src_entities_enemy_melee_melee_update",
-      "community": 14,
-      "community_name": "EnemyOptions",
+      "community": 63,
+      "community_name": "Enemy",
       "norm_label": ".update()"
     },
     {
@@ -4014,8 +4014,8 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "src_entities_enemy_monster",
-      "community": 132,
-      "community_name": "Player.ts",
+      "community": 63,
+      "community_name": "Enemy",
       "norm_label": "monster.ts"
     },
     {
@@ -4025,8 +4025,8 @@
       "source_location": "L4",
       "_origin": "ast",
       "id": "src_entities_enemy_monster_monsterconfig",
-      "community": 132,
-      "community_name": "Player.ts",
+      "community": 63,
+      "community_name": "Enemy",
       "norm_label": "monsterconfig"
     },
     {
@@ -4091,8 +4091,8 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "src_entities_enemy_ranged",
-      "community": 14,
-      "community_name": "EnemyOptions",
+      "community": 63,
+      "community_name": "Enemy",
       "norm_label": "ranged.ts"
     },
     {
@@ -4102,8 +4102,8 @@
       "source_location": "L4",
       "_origin": "ast",
       "id": "src_entities_enemy_ranged_ranged",
-      "community": 14,
-      "community_name": "EnemyOptions",
+      "community": 63,
+      "community_name": "Enemy",
       "norm_label": "ranged"
     },
     {
@@ -4113,8 +4113,8 @@
       "source_location": "L5",
       "_origin": "ast",
       "id": "src_entities_enemy_ranged_ranged_constructor",
-      "community": 14,
-      "community_name": "EnemyOptions",
+      "community": 63,
+      "community_name": "Enemy",
       "norm_label": ".constructor()"
     },
     {
@@ -4124,8 +4124,8 @@
       "source_location": "L12",
       "_origin": "ast",
       "id": "src_entities_enemy_ranged_ranged_update",
-      "community": 14,
-      "community_name": "EnemyOptions",
+      "community": 63,
+      "community_name": "Enemy",
       "norm_label": ".update()"
     },
     {
@@ -4136,7 +4136,7 @@
       "_origin": "ast",
       "id": "src_entities_loot_coin",
       "community": 53,
-      "community_name": "Crafting.ts",
+      "community_name": "Enemy.ts",
       "norm_label": "coin.ts"
     },
     {
@@ -4147,7 +4147,7 @@
       "_origin": "ast",
       "id": "src_entities_loot_coin_coinconfig",
       "community": 53,
-      "community_name": "Crafting.ts",
+      "community_name": "Enemy.ts",
       "norm_label": "coinconfig"
     },
     {
@@ -4158,7 +4158,7 @@
       "_origin": "ast",
       "id": "src_entities_loot_coin_coin",
       "community": 53,
-      "community_name": "Crafting.ts",
+      "community_name": "Enemy.ts",
       "norm_label": "coin"
     },
     {
@@ -4169,7 +4169,7 @@
       "_origin": "ast",
       "id": "src_entities_loot_coin_coin_constructor",
       "community": 53,
-      "community_name": "Crafting.ts",
+      "community_name": "Enemy.ts",
       "norm_label": ".constructor()"
     },
     {
@@ -4180,7 +4180,7 @@
       "_origin": "ast",
       "id": "src_entities_loot_coin_coin_activate",
       "community": 53,
-      "community_name": "Crafting.ts",
+      "community_name": "Enemy.ts",
       "norm_label": ".activate()"
     },
     {
@@ -4191,7 +4191,7 @@
       "_origin": "ast",
       "id": "src_entities_loot_coin_coin_touch",
       "community": 53,
-      "community_name": "Crafting.ts",
+      "community_name": "Enemy.ts",
       "norm_label": ".touch()"
     },
     {
@@ -4202,7 +4202,7 @@
       "_origin": "ast",
       "id": "src_entities_loot_coin_coin_collect",
       "community": 53,
-      "community_name": "Crafting.ts",
+      "community_name": "Enemy.ts",
       "norm_label": ".collect()"
     },
     {
@@ -4246,7 +4246,7 @@
       "_origin": "ast",
       "id": "src_entities_loot_crafting",
       "community": 53,
-      "community_name": "Crafting.ts",
+      "community_name": "Enemy.ts",
       "norm_label": "crafting.ts"
     },
     {
@@ -4257,7 +4257,7 @@
       "_origin": "ast",
       "id": "src_entities_loot_crafting_craftingconfig",
       "community": 53,
-      "community_name": "Crafting.ts",
+      "community_name": "Enemy.ts",
       "norm_label": "craftingconfig"
     },
     {
@@ -4268,7 +4268,7 @@
       "_origin": "ast",
       "id": "src_entities_loot_crafting_crafting",
       "community": 53,
-      "community_name": "Crafting.ts",
+      "community_name": "Enemy.ts",
       "norm_label": "crafting"
     },
     {
@@ -4279,7 +4279,7 @@
       "_origin": "ast",
       "id": "src_entities_loot_crafting_crafting_constructor",
       "community": 53,
-      "community_name": "Crafting.ts",
+      "community_name": "Enemy.ts",
       "norm_label": ".constructor()"
     },
     {
@@ -4290,7 +4290,7 @@
       "_origin": "ast",
       "id": "src_entities_loot_crafting_crafting_activate",
       "community": 53,
-      "community_name": "Crafting.ts",
+      "community_name": "Enemy.ts",
       "norm_label": ".activate()"
     },
     {
@@ -4301,7 +4301,7 @@
       "_origin": "ast",
       "id": "src_entities_loot_crafting_crafting_touch",
       "community": 53,
-      "community_name": "Crafting.ts",
+      "community_name": "Enemy.ts",
       "norm_label": ".touch()"
     },
     {
@@ -4312,7 +4312,7 @@
       "_origin": "ast",
       "id": "src_entities_loot_crafting_crafting_collect",
       "community": 53,
-      "community_name": "Crafting.ts",
+      "community_name": "Enemy.ts",
       "norm_label": ".collect()"
     },
     {
@@ -4389,7 +4389,7 @@
       "_origin": "ast",
       "id": "src_entities_loot_gem_test",
       "community": 53,
-      "community_name": "Crafting.ts",
+      "community_name": "Enemy.ts",
       "norm_label": "gem.test.ts"
     },
     {
@@ -4400,7 +4400,7 @@
       "_origin": "ast",
       "id": "src_entities_loot_gem_test_gemundertest",
       "community": 53,
-      "community_name": "Crafting.ts",
+      "community_name": "Enemy.ts",
       "norm_label": "gemundertest"
     },
     {
@@ -4411,7 +4411,7 @@
       "_origin": "ast",
       "id": "src_entities_loot_gem_test_gemundertest_cleanup",
       "community": 53,
-      "community_name": "Crafting.ts",
+      "community_name": "Enemy.ts",
       "norm_label": ".cleanup()"
     },
     {
@@ -4422,7 +4422,7 @@
       "_origin": "ast",
       "id": "src_entities_loot_gem_test_makegem",
       "community": 53,
-      "community_name": "Crafting.ts",
+      "community_name": "Enemy.ts",
       "norm_label": "makegem()"
     },
     {
@@ -4433,7 +4433,7 @@
       "_origin": "ast",
       "id": "src_entities_loot_gem",
       "community": 53,
-      "community_name": "Crafting.ts",
+      "community_name": "Enemy.ts",
       "norm_label": "gem.ts"
     },
     {
@@ -4444,7 +4444,7 @@
       "_origin": "ast",
       "id": "src_entities_loot_gem_gemconfig",
       "community": 53,
-      "community_name": "Crafting.ts",
+      "community_name": "Enemy.ts",
       "norm_label": "gemconfig"
     },
     {
@@ -4455,7 +4455,7 @@
       "_origin": "ast",
       "id": "src_entities_loot_gem_gem",
       "community": 53,
-      "community_name": "Crafting.ts",
+      "community_name": "Enemy.ts",
       "norm_label": "gem"
     },
     {
@@ -4466,7 +4466,7 @@
       "_origin": "ast",
       "id": "src_entities_loot_gem_gem_constructor",
       "community": 53,
-      "community_name": "Crafting.ts",
+      "community_name": "Enemy.ts",
       "norm_label": ".constructor()"
     },
     {
@@ -4477,7 +4477,7 @@
       "_origin": "ast",
       "id": "src_entities_loot_gem_gem_activate",
       "community": 53,
-      "community_name": "Crafting.ts",
+      "community_name": "Enemy.ts",
       "norm_label": ".activate()"
     },
     {
@@ -4488,7 +4488,7 @@
       "_origin": "ast",
       "id": "src_entities_loot_gem_gem_cleanup",
       "community": 53,
-      "community_name": "Crafting.ts",
+      "community_name": "Enemy.ts",
       "norm_label": ".cleanup()"
     },
     {
@@ -4499,7 +4499,7 @@
       "_origin": "ast",
       "id": "src_entities_loot_gem_gem_touch",
       "community": 53,
-      "community_name": "Crafting.ts",
+      "community_name": "Enemy.ts",
       "norm_label": ".touch()"
     },
     {
@@ -4510,7 +4510,7 @@
       "_origin": "ast",
       "id": "src_entities_loot_gem_gem_collect",
       "community": 53,
-      "community_name": "Crafting.ts",
+      "community_name": "Enemy.ts",
       "norm_label": ".collect()"
     },
     {
@@ -4576,7 +4576,7 @@
       "_origin": "ast",
       "id": "src_entities_loot_item",
       "community": 17,
-      "community_name": "Item.ts",
+      "community_name": "statConversion.ts",
       "norm_label": "item.ts"
     },
     {
@@ -4587,7 +4587,7 @@
       "_origin": "ast",
       "id": "src_entities_loot_item_itemconfig",
       "community": 17,
-      "community_name": "Item.ts",
+      "community_name": "statConversion.ts",
       "norm_label": "itemconfig"
     },
     {
@@ -4598,7 +4598,7 @@
       "_origin": "ast",
       "id": "src_entities_loot_item_statinfo",
       "community": 17,
-      "community_name": "Item.ts",
+      "community_name": "statConversion.ts",
       "norm_label": "statinfo"
     },
     {
@@ -4609,7 +4609,7 @@
       "_origin": "ast",
       "id": "src_entities_loot_item_adjustedstat",
       "community": 17,
-      "community_name": "Item.ts",
+      "community_name": "statConversion.ts",
       "norm_label": "adjustedstat"
     },
     {
@@ -4620,7 +4620,7 @@
       "_origin": "ast",
       "id": "src_entities_loot_item_statiterator",
       "community": 17,
-      "community_name": "Item.ts",
+      "community_name": "statConversion.ts",
       "norm_label": "statiterator"
     },
     {
@@ -4653,7 +4653,7 @@
       "_origin": "ast",
       "id": "src_entities_loot_item_item_round",
       "community": 17,
-      "community_name": "Item.ts",
+      "community_name": "statConversion.ts",
       "norm_label": ".round()"
     },
     {
@@ -4894,8 +4894,8 @@
       "source_location": "L28",
       "_origin": "ast",
       "id": "src_entities_player_assignclass_playertype",
-      "community": 9,
-      "community_name": "Enemy.ts",
+      "community": 34,
+      "community_name": "BiomeScene.ts",
       "norm_label": "playertype"
     },
     {
@@ -4916,7 +4916,7 @@
       "source_location": "L30",
       "_origin": "ast",
       "id": "src_entities_player_assignclass_assignclass",
-      "community": 23,
+      "community": 34,
       "community_name": "BiomeScene.ts",
       "norm_label": "assignclass"
     },
@@ -4927,7 +4927,7 @@
       "source_location": "L31",
       "_origin": "ast",
       "id": "src_entities_player_assignclass_assignclass_constructor",
-      "community": 23,
+      "community": 34,
       "community_name": "BiomeScene.ts",
       "norm_label": ".constructor()"
     },
@@ -5433,8 +5433,8 @@
       "source_location": "L319",
       "_origin": "ast",
       "id": "src_entities_player_player_player_hit",
-      "community": 93,
-      "community_name": "CombatType",
+      "community": 132,
+      "community_name": "Player.ts",
       "norm_label": ".hit()"
     },
     {
@@ -5477,8 +5477,8 @@
       "source_location": "L363",
       "_origin": "ast",
       "id": "src_entities_player_player_player_attack",
-      "community": 93,
-      "community_name": "CombatType",
+      "community": 0,
+      "community_name": "Player",
       "norm_label": ".attack()"
     },
     {
@@ -5499,8 +5499,8 @@
       "source_location": "L407",
       "_origin": "ast",
       "id": "src_entities_player_player_player_iscritical",
-      "community": 93,
-      "community_name": "CombatType",
+      "community": 0,
+      "community_name": "Player",
       "norm_label": ".iscritical()"
     },
     {
@@ -5510,8 +5510,8 @@
       "source_location": "L412",
       "_origin": "ast",
       "id": "src_entities_player_player_player_positionweapon",
-      "community": 93,
-      "community_name": "CombatType",
+      "community": 0,
+      "community_name": "Player",
       "norm_label": ".positionweapon()"
     },
     {
@@ -6347,7 +6347,7 @@
       "_origin": "ast",
       "id": "src_entities_spells_assignspell",
       "community": 9,
-      "community_name": "Enemy.ts",
+      "community_name": "AssignSpell.ts",
       "norm_label": "assignspell.ts"
     },
     {
@@ -6358,7 +6358,7 @@
       "_origin": "ast",
       "id": "src_entities_spells_assignspell_classes",
       "community": 9,
-      "community_name": "Enemy.ts",
+      "community_name": "AssignSpell.ts",
       "norm_label": "classes"
     },
     {
@@ -6379,8 +6379,8 @@
       "source_location": "L37",
       "_origin": "ast",
       "id": "src_entities_spells_assignspell_assignspell",
-      "community": 132,
-      "community_name": "Player.ts",
+      "community": 9,
+      "community_name": "AssignSpell.ts",
       "norm_label": "assignspell"
     },
     {
@@ -6390,8 +6390,8 @@
       "source_location": "L38",
       "_origin": "ast",
       "id": "src_entities_spells_assignspell_assignspell_constructor",
-      "community": 132,
-      "community_name": "Player.ts",
+      "community": 9,
+      "community_name": "AssignSpell.ts",
       "norm_label": ".constructor()"
     },
     {
@@ -6676,8 +6676,8 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "src_entities_spells_castingcontroller",
-      "community": 89,
-      "community_name": "CastingController.ts",
+      "community": 38,
+      "community_name": "phaser",
       "norm_label": "castingcontroller.ts"
     },
     {
@@ -6753,8 +6753,8 @@
       "source_location": "L26",
       "_origin": "ast",
       "id": "src_entities_spells_castingcontroller_casterlike",
-      "community": 89,
-      "community_name": "CastingController.ts",
+      "community": 38,
+      "community_name": "phaser",
       "norm_label": "casterlike"
     },
     {
@@ -6764,8 +6764,8 @@
       "source_location": "L30",
       "_origin": "ast",
       "id": "src_entities_spells_castingcontroller_casterlike_idle",
-      "community": 89,
-      "community_name": "CastingController.ts",
+      "community": 38,
+      "community_name": "phaser",
       "norm_label": ".idle()"
     },
     {
@@ -6775,8 +6775,8 @@
       "source_location": "L31",
       "_origin": "ast",
       "id": "src_entities_spells_castingcontroller_casterlike_movetoworldpoint",
-      "community": 89,
-      "community_name": "CastingController.ts",
+      "community": 38,
+      "community_name": "phaser",
       "norm_label": ".movetoworldpoint()"
     },
     {
@@ -6786,8 +6786,8 @@
       "source_location": "L36",
       "_origin": "ast",
       "id": "src_entities_spells_castingcontroller_casttarget",
-      "community": 89,
-      "community_name": "CastingController.ts",
+      "community": 38,
+      "community_name": "phaser",
       "norm_label": "casttarget"
     },
     {
@@ -6797,8 +6797,8 @@
       "source_location": "L42",
       "_origin": "ast",
       "id": "src_entities_spells_castingcontroller_pendingcast",
-      "community": 89,
-      "community_name": "CastingController.ts",
+      "community": 38,
+      "community_name": "phaser",
       "norm_label": "pendingcast"
     },
     {
@@ -6808,8 +6808,8 @@
       "source_location": "L47",
       "_origin": "ast",
       "id": "src_entities_spells_castingcontroller_activecast",
-      "community": 89,
-      "community_name": "CastingController.ts",
+      "community": 38,
+      "community_name": "phaser",
       "norm_label": "activecast"
     },
     {
@@ -6819,8 +6819,8 @@
       "source_location": "L52",
       "_origin": "ast",
       "id": "src_entities_spells_castingcontroller_castingstate",
-      "community": 89,
-      "community_name": "CastingController.ts",
+      "community": 38,
+      "community_name": "phaser",
       "norm_label": "castingstate"
     },
     {
@@ -6830,8 +6830,8 @@
       "source_location": "L54",
       "_origin": "ast",
       "id": "src_entities_spells_castingcontroller_castingcontrolleroptions",
-      "community": 89,
-      "community_name": "CastingController.ts",
+      "community": 38,
+      "community_name": "phaser",
       "norm_label": "castingcontrolleroptions"
     },
     {
@@ -6951,8 +6951,8 @@
       "source_location": "L224",
       "_origin": "ast",
       "id": "src_entities_spells_castingcontroller_castingcontroller_onhit",
-      "community": 19,
-      "community_name": "CastingController",
+      "community": 132,
+      "community_name": "Player.ts",
       "norm_label": ".onhit()"
     },
     {
@@ -7106,7 +7106,7 @@
       "_origin": "ast",
       "id": "src_entities_spells_consecration",
       "community": 9,
-      "community_name": "Enemy.ts",
+      "community_name": "AssignSpell.ts",
       "norm_label": "consecration.ts"
     },
     {
@@ -7116,8 +7116,8 @@
       "source_location": "L6",
       "_origin": "ast",
       "id": "src_entities_spells_consecration_consecration",
-      "community": 54,
-      "community_name": "Consecration",
+      "community": 4,
+      "community_name": "TownScene",
       "norm_label": "consecration"
     },
     {
@@ -7127,8 +7127,8 @@
       "source_location": "L13",
       "_origin": "ast",
       "id": "src_entities_spells_consecration_consecration_constructor",
-      "community": 54,
-      "community_name": "Consecration",
+      "community": 4,
+      "community_name": "TownScene",
       "norm_label": ".constructor()"
     },
     {
@@ -7138,8 +7138,8 @@
       "source_location": "L39",
       "_origin": "ast",
       "id": "src_entities_spells_consecration_consecration_areaeffect",
-      "community": 54,
-      "community_name": "Consecration",
+      "community": 4,
+      "community_name": "TownScene",
       "norm_label": ".areaeffect()"
     },
     {
@@ -7149,8 +7149,8 @@
       "source_location": "L51",
       "_origin": "ast",
       "id": "src_entities_spells_consecration_consecration_effect",
-      "community": 54,
-      "community_name": "Consecration",
+      "community": 4,
+      "community_name": "TownScene",
       "norm_label": ".effect()"
     },
     {
@@ -7160,8 +7160,8 @@
       "source_location": "L61",
       "_origin": "ast",
       "id": "src_entities_spells_consecration_consecration_playereffect",
-      "community": 54,
-      "community_name": "Consecration",
+      "community": 4,
+      "community_name": "TownScene",
       "norm_label": ".playereffect()"
     },
     {
@@ -7171,8 +7171,8 @@
       "source_location": "L68",
       "_origin": "ast",
       "id": "src_entities_spells_consecration_consecration_setanimation",
-      "community": 54,
-      "community_name": "Consecration",
+      "community": 4,
+      "community_name": "TownScene",
       "norm_label": ".setanimation()"
     },
     {
@@ -7182,8 +7182,8 @@
       "source_location": "L69",
       "_origin": "ast",
       "id": "src_entities_spells_consecration_consecration_animationupdate",
-      "community": 54,
-      "community_name": "Consecration",
+      "community": 4,
+      "community_name": "TownScene",
       "norm_label": ".animationupdate()"
     },
     {
@@ -7193,8 +7193,8 @@
       "source_location": "L70",
       "_origin": "ast",
       "id": "src_entities_spells_consecration_consecration_startanimation",
-      "community": 54,
-      "community_name": "Consecration",
+      "community": 4,
+      "community_name": "TownScene",
       "norm_label": ".startanimation()"
     },
     {
@@ -7204,8 +7204,8 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "src_entities_spells_earthshield",
-      "community": 9,
-      "community_name": "Enemy.ts",
+      "community": 38,
+      "community_name": "phaser",
       "norm_label": "earthshield.ts"
     },
     {
@@ -7402,8 +7402,8 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "src_entities_spells_faith",
-      "community": 77,
-      "community_name": "Faith.ts",
+      "community": 9,
+      "community_name": "AssignSpell.ts",
       "norm_label": "faith.ts"
     },
     {
@@ -7414,7 +7414,7 @@
       "_origin": "ast",
       "id": "src_entities_spells_faith_faith",
       "community": 77,
-      "community_name": "Faith.ts",
+      "community_name": "Faith",
       "norm_label": "faith"
     },
     {
@@ -7425,7 +7425,7 @@
       "_origin": "ast",
       "id": "src_entities_spells_faith_faith_constructor",
       "community": 77,
-      "community_name": "Faith.ts",
+      "community_name": "Faith",
       "norm_label": ".constructor()"
     },
     {
@@ -7436,7 +7436,7 @@
       "_origin": "ast",
       "id": "src_entities_spells_faith_faith_effect",
       "community": 77,
-      "community_name": "Faith.ts",
+      "community_name": "Faith",
       "norm_label": ".effect()"
     },
     {
@@ -7447,7 +7447,7 @@
       "_origin": "ast",
       "id": "src_entities_spells_faith_faith_overtimeeffect",
       "community": 77,
-      "community_name": "Faith.ts",
+      "community_name": "Faith",
       "norm_label": ".overtimeeffect()"
     },
     {
@@ -7458,7 +7458,7 @@
       "_origin": "ast",
       "id": "src_entities_spells_faith_faith_cleareffect",
       "community": 77,
-      "community_name": "Faith.ts",
+      "community_name": "Faith",
       "norm_label": ".cleareffect()"
     },
     {
@@ -7469,7 +7469,7 @@
       "_origin": "ast",
       "id": "src_entities_spells_faith_faith_animationupdate",
       "community": 77,
-      "community_name": "Faith.ts",
+      "community_name": "Faith",
       "norm_label": ".animationupdate()"
     },
     {
@@ -7479,8 +7479,8 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "src_entities_spells_fireball",
-      "community": 9,
-      "community_name": "Enemy.ts",
+      "community": 2,
+      "community_name": "Spell",
       "norm_label": "fireball.ts"
     },
     {
@@ -7490,8 +7490,8 @@
       "source_location": "L4",
       "_origin": "ast",
       "id": "src_entities_spells_fireball_fireball",
-      "community": 9,
-      "community_name": "Enemy.ts",
+      "community": 2,
+      "community_name": "Spell",
       "norm_label": "fireball"
     },
     {
@@ -7501,8 +7501,8 @@
       "source_location": "L7",
       "_origin": "ast",
       "id": "src_entities_spells_fireball_fireball_constructor",
-      "community": 9,
-      "community_name": "Enemy.ts",
+      "community": 2,
+      "community_name": "Spell",
       "norm_label": ".constructor()"
     },
     {
@@ -7512,8 +7512,8 @@
       "source_location": "L27",
       "_origin": "ast",
       "id": "src_entities_spells_fireball_fireball_effect",
-      "community": 9,
-      "community_name": "Enemy.ts",
+      "community": 2,
+      "community_name": "Spell",
       "norm_label": ".effect()"
     },
     {
@@ -7523,8 +7523,8 @@
       "source_location": "L34",
       "_origin": "ast",
       "id": "src_entities_spells_fireball_fireball_animationupdate",
-      "community": 9,
-      "community_name": "Enemy.ts",
+      "community": 2,
+      "community_name": "Spell",
       "norm_label": ".animationupdate()"
     },
     {
@@ -7556,8 +7556,8 @@
       "source_location": "L13",
       "_origin": "ast",
       "id": "src_entities_spells_frostbolt_frostbolt",
-      "community": 1,
-      "community_name": "Frostbolt.ts",
+      "community": 9,
+      "community_name": "AssignSpell.ts",
       "norm_label": "frostbolt"
     },
     {
@@ -7567,8 +7567,8 @@
       "source_location": "L19",
       "_origin": "ast",
       "id": "src_entities_spells_frostbolt_frostbolt_constructor",
-      "community": 1,
-      "community_name": "Frostbolt.ts",
+      "community": 9,
+      "community_name": "AssignSpell.ts",
       "norm_label": ".constructor()"
     },
     {
@@ -7578,8 +7578,8 @@
       "source_location": "L47",
       "_origin": "ast",
       "id": "src_entities_spells_frostbolt_frostbolt_effect",
-      "community": 1,
-      "community_name": "Frostbolt.ts",
+      "community": 9,
+      "community_name": "AssignSpell.ts",
       "norm_label": ".effect()"
     },
     {
@@ -7589,8 +7589,8 @@
       "source_location": "L63",
       "_origin": "ast",
       "id": "src_entities_spells_frostbolt_frostbolt_cleareffect",
-      "community": 1,
-      "community_name": "Frostbolt.ts",
+      "community": 9,
+      "community_name": "AssignSpell.ts",
       "norm_label": ".cleareffect()"
     },
     {
@@ -7600,8 +7600,8 @@
       "source_location": "L76",
       "_origin": "ast",
       "id": "src_entities_spells_frostbolt_frostbolt_animationupdate",
-      "community": 1,
-      "community_name": "Frostbolt.ts",
+      "community": 9,
+      "community_name": "AssignSpell.ts",
       "norm_label": ".animationupdate()"
     },
     {
@@ -7612,7 +7612,7 @@
       "_origin": "ast",
       "id": "src_entities_spells_heal",
       "community": 9,
-      "community_name": "Enemy.ts",
+      "community_name": "AssignSpell.ts",
       "norm_label": "heal.ts"
     },
     {
@@ -7623,7 +7623,7 @@
       "_origin": "ast",
       "id": "src_entities_spells_heal_heal",
       "community": 9,
-      "community_name": "Enemy.ts",
+      "community_name": "AssignSpell.ts",
       "norm_label": "heal"
     },
     {
@@ -7634,7 +7634,7 @@
       "_origin": "ast",
       "id": "src_entities_spells_heal_heal_constructor",
       "community": 9,
-      "community_name": "Enemy.ts",
+      "community_name": "AssignSpell.ts",
       "norm_label": ".constructor()"
     },
     {
@@ -7645,7 +7645,7 @@
       "_origin": "ast",
       "id": "src_entities_spells_heal_heal_effect",
       "community": 9,
-      "community_name": "Enemy.ts",
+      "community_name": "AssignSpell.ts",
       "norm_label": ".effect()"
     },
     {
@@ -7656,7 +7656,7 @@
       "_origin": "ast",
       "id": "src_entities_spells_heal_heal_animationupdate",
       "community": 9,
-      "community_name": "Enemy.ts",
+      "community_name": "AssignSpell.ts",
       "norm_label": ".animationupdate()"
     },
     {
@@ -7666,8 +7666,8 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "src_entities_spells_invocation_test",
-      "community": 88,
-      "community_name": "Invocation",
+      "community": 1,
+      "community_name": "Frostbolt.ts",
       "norm_label": "invocation.test.ts"
     },
     {
@@ -7677,8 +7677,8 @@
       "source_location": "L12",
       "_origin": "ast",
       "id": "src_entities_spells_invocation_test_invocationundertest",
-      "community": 88,
-      "community_name": "Invocation",
+      "community": 1,
+      "community_name": "Frostbolt.ts",
       "norm_label": "invocationundertest"
     },
     {
@@ -7688,8 +7688,8 @@
       "source_location": "L20",
       "_origin": "ast",
       "id": "src_entities_spells_invocation_test_invocationundertest_cleareffect",
-      "community": 88,
-      "community_name": "Invocation",
+      "community": 1,
+      "community_name": "Frostbolt.ts",
       "norm_label": ".cleareffect()"
     },
     {
@@ -7699,8 +7699,8 @@
       "source_location": "L21",
       "_origin": "ast",
       "id": "src_entities_spells_invocation_test_invocationundertest_interruptchannel",
-      "community": 88,
-      "community_name": "Invocation",
+      "community": 1,
+      "community_name": "Frostbolt.ts",
       "norm_label": ".interruptchannel()"
     },
     {
@@ -7710,8 +7710,8 @@
       "source_location": "L24",
       "_origin": "ast",
       "id": "src_entities_spells_invocation_test_makeinvocation",
-      "community": 88,
-      "community_name": "Invocation",
+      "community": 1,
+      "community_name": "Frostbolt.ts",
       "norm_label": "makeinvocation()"
     },
     {
@@ -7743,8 +7743,8 @@
       "source_location": "L13",
       "_origin": "ast",
       "id": "src_entities_spells_invocation_invocation",
-      "community": 88,
-      "community_name": "Invocation",
+      "community": 1,
+      "community_name": "Frostbolt.ts",
       "norm_label": "invocation"
     },
     {
@@ -7754,8 +7754,8 @@
       "source_location": "L19",
       "_origin": "ast",
       "id": "src_entities_spells_invocation_invocation_constructor",
-      "community": 88,
-      "community_name": "Invocation",
+      "community": 1,
+      "community_name": "Frostbolt.ts",
       "norm_label": ".constructor()"
     },
     {
@@ -7765,8 +7765,8 @@
       "source_location": "L48",
       "_origin": "ast",
       "id": "src_entities_spells_invocation_invocation_effect",
-      "community": 88,
-      "community_name": "Invocation",
+      "community": 1,
+      "community_name": "Frostbolt.ts",
       "norm_label": ".effect()"
     },
     {
@@ -7776,8 +7776,8 @@
       "source_location": "L67",
       "_origin": "ast",
       "id": "src_entities_spells_invocation_invocation_interruptchannel",
-      "community": 88,
-      "community_name": "Invocation",
+      "community": 1,
+      "community_name": "Frostbolt.ts",
       "norm_label": ".interruptchannel()"
     },
     {
@@ -7787,8 +7787,8 @@
       "source_location": "L71",
       "_origin": "ast",
       "id": "src_entities_spells_invocation_invocation_cleareffect",
-      "community": 88,
-      "community_name": "Invocation",
+      "community": 1,
+      "community_name": "Frostbolt.ts",
       "norm_label": ".cleareffect()"
     },
     {
@@ -7798,8 +7798,8 @@
       "source_location": "L88",
       "_origin": "ast",
       "id": "src_entities_spells_invocation_invocation_setanimation",
-      "community": 88,
-      "community_name": "Invocation",
+      "community": 1,
+      "community_name": "Frostbolt.ts",
       "norm_label": ".setanimation()"
     },
     {
@@ -7809,8 +7809,8 @@
       "source_location": "L89",
       "_origin": "ast",
       "id": "src_entities_spells_invocation_invocation_animationupdate",
-      "community": 88,
-      "community_name": "Invocation",
+      "community": 1,
+      "community_name": "Frostbolt.ts",
       "norm_label": ".animationupdate()"
     },
     {
@@ -7821,7 +7821,7 @@
       "_origin": "ast",
       "id": "src_entities_spells_manashield",
       "community": 9,
-      "community_name": "Enemy.ts",
+      "community_name": "AssignSpell.ts",
       "norm_label": "manashield.ts"
     },
     {
@@ -7832,7 +7832,7 @@
       "_origin": "ast",
       "id": "src_entities_spells_manashield_manashield",
       "community": 9,
-      "community_name": "Enemy.ts",
+      "community_name": "AssignSpell.ts",
       "norm_label": "manashield"
     },
     {
@@ -7843,7 +7843,7 @@
       "_origin": "ast",
       "id": "src_entities_spells_manashield_manashield_constructor",
       "community": 9,
-      "community_name": "Enemy.ts",
+      "community_name": "AssignSpell.ts",
       "norm_label": ".constructor()"
     },
     {
@@ -7854,7 +7854,7 @@
       "_origin": "ast",
       "id": "src_entities_spells_manashield_manashield_effect",
       "community": 9,
-      "community_name": "Enemy.ts",
+      "community_name": "AssignSpell.ts",
       "norm_label": ".effect()"
     },
     {
@@ -7865,7 +7865,7 @@
       "_origin": "ast",
       "id": "src_entities_spells_manashield_manashield_end",
       "community": 9,
-      "community_name": "Enemy.ts",
+      "community_name": "AssignSpell.ts",
       "norm_label": ".end()"
     },
     {
@@ -7876,7 +7876,7 @@
       "_origin": "ast",
       "id": "src_entities_spells_manashield_manashield_animationupdate",
       "community": 9,
-      "community_name": "Enemy.ts",
+      "community_name": "AssignSpell.ts",
       "norm_label": ".animationupdate()"
     },
     {
@@ -7886,8 +7886,8 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "src_entities_spells_multishot",
-      "community": 9,
-      "community_name": "Enemy.ts",
+      "community": 38,
+      "community_name": "phaser",
       "norm_label": "multishot.ts"
     },
     {
@@ -8030,7 +8030,7 @@
       "_origin": "ast",
       "id": "src_entities_spells_siphonsoul",
       "community": 9,
-      "community_name": "Enemy.ts",
+      "community_name": "AssignSpell.ts",
       "norm_label": "siphonsoul.ts"
     },
     {
@@ -8151,7 +8151,7 @@
       "_origin": "ast",
       "id": "src_entities_spells_smite",
       "community": 9,
-      "community_name": "Enemy.ts",
+      "community_name": "AssignSpell.ts",
       "norm_label": "smite.ts"
     },
     {
@@ -8162,7 +8162,7 @@
       "_origin": "ast",
       "id": "src_entities_spells_smite_smite",
       "community": 9,
-      "community_name": "Enemy.ts",
+      "community_name": "AssignSpell.ts",
       "norm_label": "smite"
     },
     {
@@ -8173,7 +8173,7 @@
       "_origin": "ast",
       "id": "src_entities_spells_smite_smite_constructor",
       "community": 9,
-      "community_name": "Enemy.ts",
+      "community_name": "AssignSpell.ts",
       "norm_label": ".constructor()"
     },
     {
@@ -8184,7 +8184,7 @@
       "_origin": "ast",
       "id": "src_entities_spells_smite_smite_effect",
       "community": 9,
-      "community_name": "Enemy.ts",
+      "community_name": "AssignSpell.ts",
       "norm_label": ".effect()"
     },
     {
@@ -8195,7 +8195,7 @@
       "_origin": "ast",
       "id": "src_entities_spells_smite_smite_animationupdate",
       "community": 9,
-      "community_name": "Enemy.ts",
+      "community_name": "AssignSpell.ts",
       "norm_label": ".animationupdate()"
     },
     {
@@ -8205,8 +8205,8 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "src_entities_spells_snaretrap",
-      "community": 9,
-      "community_name": "Enemy.ts",
+      "community": 8,
+      "community_name": "SnareTrap.ts",
       "norm_label": "snaretrap.ts"
     },
     {
@@ -8216,8 +8216,8 @@
       "source_location": "L6",
       "_origin": "ast",
       "id": "src_entities_spells_snaretrap_snaretrap",
-      "community": 2,
-      "community_name": "Spell",
+      "community": 8,
+      "community_name": "SnareTrap.ts",
       "norm_label": "snaretrap"
     },
     {
@@ -8227,8 +8227,8 @@
       "source_location": "L12",
       "_origin": "ast",
       "id": "src_entities_spells_snaretrap_snaretrap_constructor",
-      "community": 2,
-      "community_name": "Spell",
+      "community": 8,
+      "community_name": "SnareTrap.ts",
       "norm_label": ".constructor()"
     },
     {
@@ -8238,8 +8238,8 @@
       "source_location": "L37",
       "_origin": "ast",
       "id": "src_entities_spells_snaretrap_snaretrap_setanimation",
-      "community": 2,
-      "community_name": "Spell",
+      "community": 8,
+      "community_name": "SnareTrap.ts",
       "norm_label": ".setanimation()"
     },
     {
@@ -8249,8 +8249,8 @@
       "source_location": "L38",
       "_origin": "ast",
       "id": "src_entities_spells_snaretrap_snaretrap_startanimation",
-      "community": 2,
-      "community_name": "Spell",
+      "community": 8,
+      "community_name": "SnareTrap.ts",
       "norm_label": ".startanimation()"
     },
     {
@@ -8260,8 +8260,8 @@
       "source_location": "L40",
       "_origin": "ast",
       "id": "src_entities_spells_snaretrap_snaretrap_triggertrap",
-      "community": 2,
-      "community_name": "Spell",
+      "community": 8,
+      "community_name": "SnareTrap.ts",
       "norm_label": ".triggertrap()"
     },
     {
@@ -8271,8 +8271,8 @@
       "source_location": "L59",
       "_origin": "ast",
       "id": "src_entities_spells_snaretrap_snaretrap_laytrap",
-      "community": 2,
-      "community_name": "Spell",
+      "community": 8,
+      "community_name": "SnareTrap.ts",
       "norm_label": ".laytrap()"
     },
     {
@@ -8282,8 +8282,8 @@
       "source_location": "L71",
       "_origin": "ast",
       "id": "src_entities_spells_snaretrap_snaretrap_effect",
-      "community": 2,
-      "community_name": "Spell",
+      "community": 8,
+      "community_name": "SnareTrap.ts",
       "norm_label": ".effect()"
     },
     {
@@ -8348,8 +8348,8 @@
       "source_location": "L123",
       "_origin": "ast",
       "id": "src_entities_spells_spell_test_spellcheckundertest",
-      "community": 48,
-      "community_name": "Spell.test.ts",
+      "community": 54,
+      "community_name": "SpellCheckUnderTest",
       "norm_label": "spellcheckundertest"
     },
     {
@@ -8359,8 +8359,8 @@
       "source_location": "L130",
       "_origin": "ast",
       "id": "src_entities_spells_spell_test_spellcheckundertest_checkresource",
-      "community": 48,
-      "community_name": "Spell.test.ts",
+      "community": 54,
+      "community_name": "SpellCheckUnderTest",
       "norm_label": ".checkresource()"
     },
     {
@@ -8370,8 +8370,8 @@
       "source_location": "L131",
       "_origin": "ast",
       "id": "src_entities_spells_spell_test_spellcheckundertest_checkcooldown",
-      "community": 48,
-      "community_name": "Spell.test.ts",
+      "community": 54,
+      "community_name": "SpellCheckUnderTest",
       "norm_label": ".checkcooldown()"
     },
     {
@@ -8381,8 +8381,8 @@
       "source_location": "L132",
       "_origin": "ast",
       "id": "src_entities_spells_spell_test_spellcheckundertest_checkready",
-      "community": 48,
-      "community_name": "Spell.test.ts",
+      "community": 54,
+      "community_name": "SpellCheckUnderTest",
       "norm_label": ".checkready()"
     },
     {
@@ -8392,8 +8392,8 @@
       "source_location": "L133",
       "_origin": "ast",
       "id": "src_entities_spells_spell_test_spellcheckundertest_onresourcechangehandler",
-      "community": 48,
-      "community_name": "Spell.test.ts",
+      "community": 54,
+      "community_name": "SpellCheckUnderTest",
       "norm_label": ".onresourcechangehandler()"
     },
     {
@@ -8414,8 +8414,8 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "src_entities_spells_spell",
-      "community": 9,
-      "community_name": "Enemy.ts",
+      "community": 38,
+      "community_name": "phaser",
       "norm_label": "spell.ts"
     },
     {
@@ -8425,8 +8425,8 @@
       "source_location": "L15",
       "_origin": "ast",
       "id": "src_entities_spells_spell_spellvalue",
-      "community": 9,
-      "community_name": "Enemy.ts",
+      "community": 38,
+      "community_name": "phaser",
       "norm_label": "spellvalue"
     },
     {
@@ -8700,8 +8700,8 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "src_entities_spells_whirlwind",
-      "community": 9,
-      "community_name": "Enemy.ts",
+      "community": 38,
+      "community_name": "phaser",
       "norm_label": "whirlwind.ts"
     },
     {
@@ -8766,8 +8766,8 @@
       "source_location": "L49",
       "_origin": "ast",
       "id": "src_entities_spells_whirlwind_rationale_49",
-      "community": 9,
-      "community_name": "Enemy.ts",
+      "community": 38,
+      "community_name": "phaser",
       "norm_label": "todo: abstract this capping functionality out as many spells might use."
     },
     {
@@ -8778,7 +8778,7 @@
       "_origin": "ast",
       "id": "src_entities_ui_banes",
       "community": 41,
-      "community_name": "StatusEffects",
+      "community_name": "Boons.ts",
       "norm_label": "banes.ts"
     },
     {
@@ -8789,7 +8789,7 @@
       "_origin": "ast",
       "id": "src_entities_ui_banes_indexablestats",
       "community": 41,
-      "community_name": "StatusEffects",
+      "community_name": "Boons.ts",
       "norm_label": "indexablestats"
     },
     {
@@ -8800,7 +8800,7 @@
       "_origin": "ast",
       "id": "src_entities_ui_banes_banes",
       "community": 41,
-      "community_name": "StatusEffects",
+      "community_name": "Boons.ts",
       "norm_label": "banes"
     },
     {
@@ -8811,7 +8811,7 @@
       "_origin": "ast",
       "id": "src_entities_ui_banes_banes_addeffect",
       "community": 41,
-      "community_name": "StatusEffects",
+      "community_name": "Boons.ts",
       "norm_label": ".addeffect()"
     },
     {
@@ -8822,7 +8822,7 @@
       "_origin": "ast",
       "id": "src_entities_ui_banes_banes_calculate",
       "community": 41,
-      "community_name": "StatusEffects",
+      "community_name": "Boons.ts",
       "norm_label": ".calculate()"
     },
     {
@@ -8832,8 +8832,8 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "src_entities_ui_boons",
-      "community": 90,
-      "community_name": "gameReducer.ts",
+      "community": 41,
+      "community_name": "Boons.ts",
       "norm_label": "boons.ts"
     },
     {
@@ -8843,8 +8843,8 @@
       "source_location": "L6",
       "_origin": "ast",
       "id": "src_entities_ui_boons_boons",
-      "community": 90,
-      "community_name": "gameReducer.ts",
+      "community": 41,
+      "community_name": "Boons.ts",
       "norm_label": "boons"
     },
     {
@@ -8854,8 +8854,8 @@
       "source_location": "L7",
       "_origin": "ast",
       "id": "src_entities_ui_boons_boons_addeffect",
-      "community": 90,
-      "community_name": "gameReducer.ts",
+      "community": 41,
+      "community_name": "Boons.ts",
       "norm_label": ".addeffect()"
     },
     {
@@ -8865,8 +8865,8 @@
       "source_location": "L11",
       "_origin": "ast",
       "id": "src_entities_ui_boons_boons_calculate",
-      "community": 90,
-      "community_name": "gameReducer.ts",
+      "community": 41,
+      "community_name": "Boons.ts",
       "norm_label": ".calculate()"
     },
     {
@@ -8877,7 +8877,7 @@
       "_origin": "ast",
       "id": "src_entities_ui_castbar_test",
       "community": 74,
-      "community_name": "CastBar.test.ts",
+      "community_name": "CastBar",
       "norm_label": "castbar.test.ts"
     },
     {
@@ -8888,7 +8888,7 @@
       "_origin": "ast",
       "id": "src_entities_ui_castbar_test_graphicsstub",
       "community": 74,
-      "community_name": "CastBar.test.ts",
+      "community_name": "CastBar",
       "norm_label": "graphicsstub"
     },
     {
@@ -8899,7 +8899,7 @@
       "_origin": "ast",
       "id": "src_entities_ui_castbar_test_castbarundertest",
       "community": 74,
-      "community_name": "CastBar.test.ts",
+      "community_name": "CastBar",
       "norm_label": "castbarundertest"
     },
     {
@@ -8910,7 +8910,7 @@
       "_origin": "ast",
       "id": "src_entities_ui_castbar_test_castbarundertest_onstart",
       "community": 74,
-      "community_name": "CastBar.test.ts",
+      "community_name": "CastBar",
       "norm_label": ".onstart()"
     },
     {
@@ -8921,7 +8921,7 @@
       "_origin": "ast",
       "id": "src_entities_ui_castbar_test_castbarundertest_onstop",
       "community": 74,
-      "community_name": "CastBar.test.ts",
+      "community_name": "CastBar",
       "norm_label": ".onstop()"
     },
     {
@@ -8932,7 +8932,7 @@
       "_origin": "ast",
       "id": "src_entities_ui_castbar_test_castbarundertest_cleanup",
       "community": 74,
-      "community_name": "CastBar.test.ts",
+      "community_name": "CastBar",
       "norm_label": ".cleanup()"
     },
     {
@@ -8943,7 +8943,7 @@
       "_origin": "ast",
       "id": "src_entities_ui_castbar_test_makecastbar",
       "community": 74,
-      "community_name": "CastBar.test.ts",
+      "community_name": "CastBar",
       "norm_label": "makecastbar()"
     },
     {
@@ -8954,7 +8954,7 @@
       "_origin": "ast",
       "id": "src_entities_ui_castbar",
       "community": 74,
-      "community_name": "CastBar.test.ts",
+      "community_name": "CastBar",
       "norm_label": "castbar.ts"
     },
     {
@@ -8965,7 +8965,7 @@
       "_origin": "ast",
       "id": "src_entities_ui_castbar_castbarstart",
       "community": 74,
-      "community_name": "CastBar.test.ts",
+      "community_name": "CastBar",
       "norm_label": "castbarstart"
     },
     {
@@ -8975,7 +8975,7 @@
       "source_location": "L14",
       "_origin": "ast",
       "id": "src_entities_ui_castbar_castbar",
-      "community": 59,
+      "community": 74,
       "community_name": "CastBar",
       "norm_label": "castbar"
     },
@@ -8986,7 +8986,7 @@
       "source_location": "L21",
       "_origin": "ast",
       "id": "src_entities_ui_castbar_castbar_constructor",
-      "community": 59,
+      "community": 74,
       "community_name": "CastBar",
       "norm_label": ".constructor()"
     },
@@ -8997,7 +8997,7 @@
       "source_location": "L36",
       "_origin": "ast",
       "id": "src_entities_ui_castbar_castbar_drawbar",
-      "community": 59,
+      "community": 74,
       "community_name": "CastBar",
       "norm_label": ".drawbar()"
     },
@@ -9008,7 +9008,7 @@
       "source_location": "L46",
       "_origin": "ast",
       "id": "src_entities_ui_castbar_castbar_onstart",
-      "community": 59,
+      "community": 74,
       "community_name": "CastBar",
       "norm_label": ".onstart()"
     },
@@ -9019,7 +9019,7 @@
       "source_location": "L60",
       "_origin": "ast",
       "id": "src_entities_ui_castbar_castbar_onstop",
-      "community": 59,
+      "community": 74,
       "community_name": "CastBar",
       "norm_label": ".onstop()"
     },
@@ -9030,7 +9030,7 @@
       "source_location": "L65",
       "_origin": "ast",
       "id": "src_entities_ui_castbar_castbar_setvisible",
-      "community": 59,
+      "community": 74,
       "community_name": "CastBar",
       "norm_label": ".setvisible()"
     },
@@ -9041,7 +9041,7 @@
       "source_location": "L71",
       "_origin": "ast",
       "id": "src_entities_ui_castbar_castbar_removetween",
-      "community": 59,
+      "community": 74,
       "community_name": "CastBar",
       "norm_label": ".removetween()"
     },
@@ -9052,7 +9052,7 @@
       "source_location": "L78",
       "_origin": "ast",
       "id": "src_entities_ui_castbar_castbar_cleanup",
-      "community": 59,
+      "community": 74,
       "community_name": "CastBar",
       "norm_label": ".cleanup()"
     },
@@ -9118,8 +9118,8 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "src_entities_ui_hud_test",
-      "community": 34,
-      "community_name": "BiomeScene",
+      "community": 25,
+      "community_name": "store/index.ts",
       "norm_label": "hud.test.ts"
     },
     {
@@ -9217,8 +9217,8 @@
       "source_location": "L32",
       "_origin": "ast",
       "id": "src_entities_ui_hud_test_makehud",
-      "community": 34,
-      "community_name": "BiomeScene",
+      "community": 25,
+      "community_name": "store/index.ts",
       "norm_label": "makehud()"
     },
     {
@@ -9261,8 +9261,8 @@
       "source_location": "L17",
       "_origin": "ast",
       "id": "src_entities_ui_hud_ui",
-      "community": 40,
-      "community_name": "UI",
+      "community": 34,
+      "community_name": "BiomeScene.ts",
       "norm_label": "ui"
     },
     {
@@ -9272,8 +9272,8 @@
       "source_location": "L28",
       "_origin": "ast",
       "id": "src_entities_ui_hud_ui_constructor",
-      "community": 40,
-      "community_name": "UI",
+      "community": 34,
+      "community_name": "BiomeScene.ts",
       "norm_label": ".constructor()"
     },
     {
@@ -9283,8 +9283,8 @@
       "source_location": "L108",
       "_origin": "ast",
       "id": "src_entities_ui_hud_ui_setspellframes",
-      "community": 40,
-      "community_name": "UI",
+      "community": 34,
+      "community_name": "BiomeScene.ts",
       "norm_label": ".setspellframes()"
     },
     {
@@ -9294,8 +9294,8 @@
       "source_location": "L121",
       "_origin": "ast",
       "id": "src_entities_ui_hud_ui_setcoincount",
-      "community": 40,
-      "community_name": "UI",
+      "community": 34,
+      "community_name": "BiomeScene.ts",
       "norm_label": ".setcoincount()"
     },
     {
@@ -9305,8 +9305,8 @@
       "source_location": "L135",
       "_origin": "ast",
       "id": "src_entities_ui_hud_ui_rendercoincount",
-      "community": 40,
-      "community_name": "UI",
+      "community": 34,
+      "community_name": "BiomeScene.ts",
       "norm_label": ".rendercoincount()"
     },
     {
@@ -9316,8 +9316,8 @@
       "source_location": "L140",
       "_origin": "ast",
       "id": "src_entities_ui_hud_ui_setenemycount",
-      "community": 40,
-      "community_name": "UI",
+      "community": 34,
+      "community_name": "BiomeScene.ts",
       "norm_label": ".setenemycount()"
     },
     {
@@ -9327,8 +9327,8 @@
       "source_location": "L154",
       "_origin": "ast",
       "id": "src_entities_ui_hud_ui_renderenemycount",
-      "community": 40,
-      "community_name": "UI",
+      "community": 34,
+      "community_name": "BiomeScene.ts",
       "norm_label": ".renderenemycount()"
     },
     {
@@ -9338,8 +9338,8 @@
       "source_location": "L160",
       "_origin": "ast",
       "id": "src_entities_ui_hud_ui_setinvetoryicon",
-      "community": 40,
-      "community_name": "UI",
+      "community": 34,
+      "community_name": "BiomeScene.ts",
       "norm_label": ".setinvetoryicon()"
     },
     {
@@ -9349,8 +9349,8 @@
       "source_location": "L171",
       "_origin": "ast",
       "id": "src_entities_ui_hud_ui_setreturntotownicon",
-      "community": 40,
-      "community_name": "UI",
+      "community": 34,
+      "community_name": "BiomeScene.ts",
       "norm_label": ".setreturntotownicon()"
     },
     {
@@ -9360,8 +9360,8 @@
       "source_location": "L184",
       "_origin": "ast",
       "id": "src_entities_ui_hud_ui_setsystemicon",
-      "community": 40,
-      "community_name": "UI",
+      "community": 34,
+      "community_name": "BiomeScene.ts",
       "norm_label": ".setsystemicon()"
     },
     {
@@ -9371,8 +9371,8 @@
       "source_location": "L195",
       "_origin": "ast",
       "id": "src_entities_ui_hud_ui_setbuttonsenabled",
-      "community": 40,
-      "community_name": "UI",
+      "community": 34,
+      "community_name": "BiomeScene.ts",
       "norm_label": ".setbuttonsenabled()"
     },
     {
@@ -9382,8 +9382,8 @@
       "source_location": "L201",
       "_origin": "ast",
       "id": "src_entities_ui_hud_ui_savegame",
-      "community": 40,
-      "community_name": "UI",
+      "community": 34,
+      "community_name": "BiomeScene.ts",
       "norm_label": ".savegame()"
     },
     {
@@ -9393,8 +9393,8 @@
       "source_location": "L207",
       "_origin": "ast",
       "id": "src_entities_ui_hud_ui_deletesaves",
-      "community": 40,
-      "community_name": "UI",
+      "community": 34,
+      "community_name": "BiomeScene.ts",
       "norm_label": ".deletesaves()"
     },
     {
@@ -9404,8 +9404,8 @@
       "source_location": "L211",
       "_origin": "ast",
       "id": "src_entities_ui_hud_ui_loadsavedgame",
-      "community": 40,
-      "community_name": "UI",
+      "community": 34,
+      "community_name": "BiomeScene.ts",
       "norm_label": ".loadsavedgame()"
     },
     {
@@ -9415,8 +9415,8 @@
       "source_location": "L220",
       "_origin": "ast",
       "id": "src_entities_ui_hud_ui_cleanup",
-      "community": 40,
-      "community_name": "UI",
+      "community": 34,
+      "community_name": "BiomeScene.ts",
       "norm_label": ".cleanup()"
     },
     {
@@ -9536,8 +9536,8 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "src_entities_ui_spellbutton",
-      "community": 9,
-      "community_name": "Enemy.ts",
+      "community": 38,
+      "community_name": "phaser",
       "norm_label": "spellbutton.ts"
     },
     {
@@ -9547,8 +9547,8 @@
       "source_location": "L4",
       "_origin": "ast",
       "id": "src_entities_ui_spellbutton_spellbuttonoptions",
-      "community": 9,
-      "community_name": "Enemy.ts",
+      "community": 38,
+      "community_name": "phaser",
       "norm_label": "spellbuttonoptions"
     },
     {
@@ -9712,8 +9712,8 @@
       "source_location": "L11",
       "_origin": "ast",
       "id": "src_entities_ui_statuseffects_statuseffect",
-      "community": 90,
-      "community_name": "gameReducer.ts",
+      "community": 41,
+      "community_name": "Boons.ts",
       "norm_label": "statuseffect"
     },
     {
@@ -9724,7 +9724,7 @@
       "_origin": "ast",
       "id": "src_entities_ui_statuseffects_statuseffects",
       "community": 41,
-      "community_name": "StatusEffects",
+      "community_name": "Boons.ts",
       "norm_label": "statuseffects"
     },
     {
@@ -9735,7 +9735,7 @@
       "_origin": "ast",
       "id": "src_entities_ui_statuseffects_statuseffects_constructor",
       "community": 41,
-      "community_name": "StatusEffects",
+      "community_name": "Boons.ts",
       "norm_label": ".constructor()"
     },
     {
@@ -9746,7 +9746,7 @@
       "_origin": "ast",
       "id": "src_entities_ui_statuseffects_statuseffects_addeffect",
       "community": 41,
-      "community_name": "StatusEffects",
+      "community_name": "Boons.ts",
       "norm_label": ".addeffect()"
     },
     {
@@ -9757,7 +9757,7 @@
       "_origin": "ast",
       "id": "src_entities_ui_statuseffects_statuseffects_removeeffect",
       "community": 41,
-      "community_name": "StatusEffects",
+      "community_name": "Boons.ts",
       "norm_label": ".removeeffect()"
     },
     {
@@ -9768,7 +9768,7 @@
       "_origin": "ast",
       "id": "src_entities_ui_statuseffects_statuseffects_resolvestats",
       "community": 41,
-      "community_name": "StatusEffects",
+      "community_name": "Boons.ts",
       "norm_label": ".resolvestats()"
     },
     {
@@ -9800,8 +9800,8 @@
       "source_location": "L17",
       "_origin": "ast",
       "id": "src_entities_ui_targetreticle_test_reticleundertest",
-      "community": 79,
-      "community_name": "ReticleUnderTest",
+      "community": 110,
+      "community_name": "TargetReticle",
       "norm_label": "reticleundertest"
     },
     {
@@ -9811,8 +9811,8 @@
       "source_location": "L26",
       "_origin": "ast",
       "id": "src_entities_ui_targetreticle_test_reticleundertest_show",
-      "community": 79,
-      "community_name": "ReticleUnderTest",
+      "community": 110,
+      "community_name": "TargetReticle",
       "norm_label": ".show()"
     },
     {
@@ -9822,8 +9822,8 @@
       "source_location": "L27",
       "_origin": "ast",
       "id": "src_entities_ui_targetreticle_test_reticleundertest_hide",
-      "community": 79,
-      "community_name": "ReticleUnderTest",
+      "community": 110,
+      "community_name": "TargetReticle",
       "norm_label": ".hide()"
     },
     {
@@ -9833,8 +9833,8 @@
       "source_location": "L28",
       "_origin": "ast",
       "id": "src_entities_ui_targetreticle_test_reticleundertest_placeat",
-      "community": 79,
-      "community_name": "ReticleUnderTest",
+      "community": 110,
+      "community_name": "TargetReticle",
       "norm_label": ".placeat()"
     },
     {
@@ -9844,8 +9844,8 @@
       "source_location": "L29",
       "_origin": "ast",
       "id": "src_entities_ui_targetreticle_test_reticleundertest_onpointermove",
-      "community": 79,
-      "community_name": "ReticleUnderTest",
+      "community": 110,
+      "community_name": "TargetReticle",
       "norm_label": ".onpointermove()"
     },
     {
@@ -9855,8 +9855,8 @@
       "source_location": "L30",
       "_origin": "ast",
       "id": "src_entities_ui_targetreticle_test_reticleundertest_cleanup",
-      "community": 79,
-      "community_name": "ReticleUnderTest",
+      "community": 110,
+      "community_name": "TargetReticle",
       "norm_label": ".cleanup()"
     },
     {
@@ -10031,8 +10031,8 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "src_entities_weapons_areaeffect",
-      "community": 9,
-      "community_name": "Enemy.ts",
+      "community": 38,
+      "community_name": "phaser",
       "norm_label": "areaeffect.ts"
     },
     {
@@ -10042,8 +10042,8 @@
       "source_location": "L9",
       "_origin": "ast",
       "id": "src_entities_weapons_areaeffect_overlaptarget",
-      "community": 9,
-      "community_name": "Enemy.ts",
+      "community": 38,
+      "community_name": "phaser",
       "norm_label": "overlaptarget"
     },
     {
@@ -10098,7 +10098,7 @@
       "_origin": "ast",
       "id": "src_entities_weapons_projectile_test",
       "community": 38,
-      "community_name": "Projectile.ts",
+      "community_name": "phaser",
       "norm_label": "projectile.test.ts"
     },
     {
@@ -10109,7 +10109,7 @@
       "_origin": "ast",
       "id": "src_entities_weapons_projectile_test_projectileundertest",
       "community": 38,
-      "community_name": "Projectile.ts",
+      "community_name": "phaser",
       "norm_label": "projectileundertest"
     },
     {
@@ -10120,7 +10120,7 @@
       "_origin": "ast",
       "id": "src_entities_weapons_projectile_test_projectileundertest_tick",
       "community": 38,
-      "community_name": "Projectile.ts",
+      "community_name": "phaser",
       "norm_label": ".tick()"
     },
     {
@@ -10131,7 +10131,7 @@
       "_origin": "ast",
       "id": "src_entities_weapons_projectile_test_makeprojectile",
       "community": 38,
-      "community_name": "Projectile.ts",
+      "community_name": "phaser",
       "norm_label": "makeprojectile()"
     },
     {
@@ -10142,7 +10142,7 @@
       "_origin": "ast",
       "id": "src_entities_weapons_projectile",
       "community": 38,
-      "community_name": "Projectile.ts",
+      "community_name": "phaser",
       "norm_label": "projectile.ts"
     },
     {
@@ -10153,7 +10153,7 @@
       "_origin": "ast",
       "id": "src_entities_weapons_projectile_projectiletarget",
       "community": 38,
-      "community_name": "Projectile.ts",
+      "community_name": "phaser",
       "norm_label": "projectiletarget"
     },
     {
@@ -10164,7 +10164,7 @@
       "_origin": "ast",
       "id": "src_entities_weapons_projectile_projectileoptions",
       "community": 38,
-      "community_name": "Projectile.ts",
+      "community_name": "phaser",
       "norm_label": "projectileoptions"
     },
     {
@@ -10175,7 +10175,7 @@
       "_origin": "ast",
       "id": "src_entities_weapons_projectile_projectile",
       "community": 38,
-      "community_name": "Projectile.ts",
+      "community_name": "phaser",
       "norm_label": "projectile"
     },
     {
@@ -10186,7 +10186,7 @@
       "_origin": "ast",
       "id": "src_entities_weapons_projectile_projectile_constructor",
       "community": 38,
-      "community_name": "Projectile.ts",
+      "community_name": "phaser",
       "norm_label": ".constructor()"
     },
     {
@@ -10197,7 +10197,7 @@
       "_origin": "ast",
       "id": "src_entities_weapons_projectile_projectile_preupdate",
       "community": 38,
-      "community_name": "Projectile.ts",
+      "community_name": "phaser",
       "norm_label": ".preupdate()"
     },
     {
@@ -10208,7 +10208,7 @@
       "_origin": "ast",
       "id": "src_entities_weapons_projectile_projectile_tick",
       "community": 38,
-      "community_name": "Projectile.ts",
+      "community_name": "phaser",
       "norm_label": ".tick()"
     },
     {
@@ -10218,8 +10218,8 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "src_entities_weapons_trap_test",
-      "community": 4,
-      "community_name": "TownScene",
+      "community": 8,
+      "community_name": "SnareTrap.ts",
       "norm_label": "trap.test.ts"
     },
     {
@@ -10229,8 +10229,8 @@
       "source_location": "L10",
       "_origin": "ast",
       "id": "src_entities_weapons_trap_test_trapundertest",
-      "community": 4,
-      "community_name": "TownScene",
+      "community": 8,
+      "community_name": "SnareTrap.ts",
       "norm_label": "trapundertest"
     },
     {
@@ -10240,8 +10240,8 @@
       "source_location": "L15",
       "_origin": "ast",
       "id": "src_entities_weapons_trap_test_trapundertest_cleanup",
-      "community": 4,
-      "community_name": "TownScene",
+      "community": 8,
+      "community_name": "SnareTrap.ts",
       "norm_label": ".cleanup()"
     },
     {
@@ -10251,8 +10251,8 @@
       "source_location": "L18",
       "_origin": "ast",
       "id": "src_entities_weapons_trap_test_maketrap",
-      "community": 4,
-      "community_name": "TownScene",
+      "community": 8,
+      "community_name": "SnareTrap.ts",
       "norm_label": "maketrap()"
     },
     {
@@ -10262,8 +10262,8 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "src_entities_weapons_trap",
-      "community": 4,
-      "community_name": "TownScene",
+      "community": 8,
+      "community_name": "SnareTrap.ts",
       "norm_label": "trap.ts"
     },
     {
@@ -10273,8 +10273,8 @@
       "source_location": "L6",
       "_origin": "ast",
       "id": "src_entities_weapons_trap_trap",
-      "community": 4,
-      "community_name": "TownScene",
+      "community": 8,
+      "community_name": "SnareTrap.ts",
       "norm_label": "trap"
     },
     {
@@ -10284,8 +10284,8 @@
       "source_location": "L13",
       "_origin": "ast",
       "id": "src_entities_weapons_trap_trap_constructor",
-      "community": 4,
-      "community_name": "TownScene",
+      "community": 8,
+      "community_name": "SnareTrap.ts",
       "norm_label": ".constructor()"
     },
     {
@@ -10295,8 +10295,8 @@
       "source_location": "L45",
       "_origin": "ast",
       "id": "src_entities_weapons_trap_trap_collide",
-      "community": 4,
-      "community_name": "TownScene",
+      "community": 8,
+      "community_name": "SnareTrap.ts",
       "norm_label": ".collide()"
     },
     {
@@ -10306,8 +10306,8 @@
       "source_location": "L52",
       "_origin": "ast",
       "id": "src_entities_weapons_trap_trap_spawnedhandler",
-      "community": 4,
-      "community_name": "TownScene",
+      "community": 8,
+      "community_name": "SnareTrap.ts",
       "norm_label": ".spawnedhandler()"
     },
     {
@@ -10317,8 +10317,8 @@
       "source_location": "L73",
       "_origin": "ast",
       "id": "src_entities_weapons_trap_trap_cleanup",
-      "community": 4,
-      "community_name": "TownScene",
+      "community": 8,
+      "community_name": "SnareTrap.ts",
       "norm_label": ".cleanup()"
     },
     {
@@ -10329,7 +10329,7 @@
       "_origin": "ast",
       "id": "src_helpers_getrandomvelocity_test",
       "community": 53,
-      "community_name": "Crafting.ts",
+      "community_name": "Enemy.ts",
       "norm_label": "getrandomvelocity.test.ts"
     },
     {
@@ -10340,7 +10340,7 @@
       "_origin": "ast",
       "id": "src_helpers_getrandomvelocity",
       "community": 53,
-      "community_name": "Crafting.ts",
+      "community_name": "Enemy.ts",
       "norm_label": "getrandomvelocity.ts"
     },
     {
@@ -10351,7 +10351,7 @@
       "_origin": "ast",
       "id": "src_helpers_getrandomvelocity_getrandomvelocity",
       "community": 53,
-      "community_name": "Crafting.ts",
+      "community_name": "Enemy.ts",
       "norm_label": "getrandomvelocity()"
     },
     {
@@ -10361,8 +10361,8 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "src_helpers_getresourcecolour_test",
-      "community": 13,
-      "community_name": "LootItem",
+      "community": 18,
+      "community_name": "StatBar.tsx",
       "norm_label": "getresourcecolour.test.ts"
     },
     {
@@ -10372,8 +10372,8 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "src_helpers_getresourcecolour",
-      "community": 13,
-      "community_name": "LootItem",
+      "community": 18,
+      "community_name": "StatBar.tsx",
       "norm_label": "getresourcecolour.ts"
     },
     {
@@ -10383,8 +10383,8 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "src_helpers_getresourcecolour_getresourcecolour",
-      "community": 13,
-      "community_name": "LootItem",
+      "community": 18,
+      "community_name": "StatBar.tsx",
       "norm_label": "getresourcecolour()"
     },
     {
@@ -10394,7 +10394,7 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "src_helpers_mapstatetodata",
-      "community": 23,
+      "community": 34,
       "community_name": "BiomeScene.ts",
       "norm_label": "mapstatetodata.ts"
     },
@@ -10405,7 +10405,7 @@
       "source_location": "L7",
       "_origin": "ast",
       "id": "src_helpers_mapstatetodata_state",
-      "community": 23,
+      "community": 34,
       "community_name": "BiomeScene.ts",
       "norm_label": "state$"
     },
@@ -10416,7 +10416,7 @@
       "source_location": "L14",
       "_origin": "ast",
       "id": "src_helpers_mapstatetodata_mapstateoptions",
-      "community": 23,
+      "community": 34,
       "community_name": "BiomeScene.ts",
       "norm_label": "mapstateoptions"
     },
@@ -10427,7 +10427,7 @@
       "source_location": "L18",
       "_origin": "ast",
       "id": "src_helpers_mapstatetodata_mapstatetodata",
-      "community": 23,
+      "community": 34,
       "community_name": "BiomeScene.ts",
       "norm_label": "mapstatetodata()"
     },
@@ -10438,8 +10438,8 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "src_helpers_spawnstyle",
-      "community": 4,
-      "community_name": "TownScene",
+      "community": 8,
+      "community_name": "SnareTrap.ts",
       "norm_label": "spawnstyle.ts"
     },
     {
@@ -10449,8 +10449,8 @@
       "source_location": "L3",
       "_origin": "ast",
       "id": "src_helpers_spawnstyle_dropinoptions",
-      "community": 4,
-      "community_name": "TownScene",
+      "community": 8,
+      "community_name": "SnareTrap.ts",
       "norm_label": "dropinoptions"
     },
     {
@@ -10460,8 +10460,8 @@
       "source_location": "L12",
       "_origin": "ast",
       "id": "src_helpers_spawnstyle_dropinitem",
-      "community": 4,
-      "community_name": "TownScene",
+      "community": 8,
+      "community_name": "SnareTrap.ts",
       "norm_label": "dropinitem"
     },
     {
@@ -10471,8 +10471,8 @@
       "source_location": "L17",
       "_origin": "ast",
       "id": "src_helpers_spawnstyle_dropin",
-      "community": 4,
-      "community_name": "TownScene",
+      "community": 8,
+      "community_name": "SnareTrap.ts",
       "norm_label": "dropin()"
     },
     {
@@ -10559,8 +10559,8 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "src_lib_armoryclient",
-      "community": 13,
-      "community_name": "LootItem",
+      "community": 14,
+      "community_name": "armoryClient.ts",
       "norm_label": "armoryclient.ts"
     },
     {
@@ -10570,8 +10570,8 @@
       "source_location": "L14",
       "_origin": "ast",
       "id": "src_lib_armoryclient_qualitycolors",
-      "community": 13,
-      "community_name": "LootItem",
+      "community": 14,
+      "community_name": "armoryClient.ts",
       "norm_label": "qualitycolors"
     },
     {
@@ -10581,8 +10581,8 @@
       "source_location": "L22",
       "_origin": "ast",
       "id": "src_lib_armoryclient_colorforquality",
-      "community": 13,
-      "community_name": "LootItem",
+      "community": 14,
+      "community_name": "armoryClient.ts",
       "norm_label": "colorforquality()"
     },
     {
@@ -10592,8 +10592,8 @@
       "source_location": "L25",
       "_origin": "ast",
       "id": "src_lib_armoryclient_apiitem",
-      "community": 13,
-      "community_name": "LootItem",
+      "community": 14,
+      "community_name": "armoryClient.ts",
       "norm_label": "apiitem"
     },
     {
@@ -10603,8 +10603,8 @@
       "source_location": "L43",
       "_origin": "ast",
       "id": "src_lib_armoryclient_storeitem",
-      "community": 13,
-      "community_name": "LootItem",
+      "community": 14,
+      "community_name": "armoryClient.ts",
       "norm_label": "storeitem"
     },
     {
@@ -10614,8 +10614,8 @@
       "source_location": "L49",
       "_origin": "ast",
       "id": "src_lib_armoryclient_tostoreitem",
-      "community": 13,
-      "community_name": "LootItem",
+      "community": 14,
+      "community_name": "armoryClient.ts",
       "norm_label": "tostoreitem()"
     },
     {
@@ -10625,8 +10625,8 @@
       "source_location": "L68",
       "_origin": "ast",
       "id": "src_lib_armoryclient_isarmoryconfigured",
-      "community": 13,
-      "community_name": "LootItem",
+      "community": 14,
+      "community_name": "armoryClient.ts",
       "norm_label": "isarmoryconfigured()"
     },
     {
@@ -10636,8 +10636,8 @@
       "source_location": "L70",
       "_origin": "ast",
       "id": "src_lib_armoryclient_baseurl",
-      "community": 13,
-      "community_name": "LootItem",
+      "community": 14,
+      "community_name": "armoryClient.ts",
       "norm_label": "baseurl()"
     },
     {
@@ -10647,8 +10647,8 @@
       "source_location": "L77",
       "_origin": "ast",
       "id": "src_lib_armoryclient_listitems",
-      "community": 13,
-      "community_name": "LootItem",
+      "community": 14,
+      "community_name": "armoryClient.ts",
       "norm_label": "listitems()"
     },
     {
@@ -10658,8 +10658,8 @@
       "source_location": "L85",
       "_origin": "ast",
       "id": "src_lib_armoryclient_removeitem",
-      "community": 13,
-      "community_name": "LootItem",
+      "community": 14,
+      "community_name": "armoryClient.ts",
       "norm_label": "removeitem()"
     },
     {
@@ -10669,8 +10669,8 @@
       "source_location": "L95",
       "_origin": "ast",
       "id": "src_lib_armoryclient_restock",
-      "community": 13,
-      "community_name": "LootItem",
+      "community": 14,
+      "community_name": "armoryClient.ts",
       "norm_label": "restock()"
     },
     {
@@ -10681,7 +10681,7 @@
       "_origin": "ast",
       "id": "src_lib_statconversion_test",
       "community": 17,
-      "community_name": "Item.ts",
+      "community_name": "statConversion.ts",
       "norm_label": "statconversion.test.ts"
     },
     {
@@ -10692,85 +10692,118 @@
       "_origin": "ast",
       "id": "src_lib_statconversion",
       "community": 17,
-      "community_name": "Item.ts",
+      "community_name": "statConversion.ts",
       "norm_label": "statconversion.ts"
     },
     {
       "label": "StatFormat",
       "file_type": "code",
       "source_file": "src/lib/statConversion.ts",
-      "source_location": "L16",
+      "source_location": "L22",
       "_origin": "ast",
       "id": "src_lib_statconversion_statformat",
       "community": 17,
-      "community_name": "Item.ts",
+      "community_name": "statConversion.ts",
       "norm_label": "statformat"
+    },
+    {
+      "label": "StatUnit",
+      "file_type": "code",
+      "source_file": "src/lib/statConversion.ts",
+      "source_location": "L25",
+      "_origin": "ast",
+      "id": "src_lib_statconversion_statunit",
+      "community": 17,
+      "community_name": "statConversion.ts",
+      "norm_label": "statunit"
     },
     {
       "label": "StatConversion",
       "file_type": "code",
       "source_file": "src/lib/statConversion.ts",
-      "source_location": "L18",
+      "source_location": "L27",
       "_origin": "ast",
       "id": "src_lib_statconversion_statconversion",
       "community": 17,
-      "community_name": "Item.ts",
+      "community_name": "statConversion.ts",
       "norm_label": "statconversion"
     },
     {
       "label": "CONVERSIONS",
       "file_type": "code",
       "source_file": "src/lib/statConversion.ts",
-      "source_location": "L32",
+      "source_location": "L50",
       "_origin": "ast",
       "id": "src_lib_statconversion_conversions",
       "community": 17,
-      "community_name": "Item.ts",
+      "community_name": "statConversion.ts",
       "norm_label": "conversions"
     },
     {
       "label": "DEFAULT_CONVERSION",
       "file_type": "code",
       "source_file": "src/lib/statConversion.ts",
-      "source_location": "L98",
+      "source_location": "L172",
       "_origin": "ast",
       "id": "src_lib_statconversion_default_conversion",
       "community": 17,
-      "community_name": "Item.ts",
+      "community_name": "statConversion.ts",
       "norm_label": "default_conversion"
     },
     {
       "label": "conversionFor()",
       "file_type": "code",
       "source_file": "src/lib/statConversion.ts",
-      "source_location": "L115",
+      "source_location": "L191",
       "_origin": "ast",
       "id": "src_lib_statconversion_conversionfor",
       "community": 17,
-      "community_name": "Item.ts",
+      "community_name": "statConversion.ts",
       "norm_label": "conversionfor()"
     },
     {
       "label": "roundStat()",
       "file_type": "code",
       "source_file": "src/lib/statConversion.ts",
-      "source_location": "L121",
+      "source_location": "L197",
       "_origin": "ast",
       "id": "src_lib_statconversion_roundstat",
       "community": 17,
-      "community_name": "Item.ts",
+      "community_name": "statConversion.ts",
       "norm_label": "roundstat()"
     },
     {
       "label": "appliedStatValue()",
       "file_type": "code",
       "source_file": "src/lib/statConversion.ts",
-      "source_location": "L128",
+      "source_location": "L204",
       "_origin": "ast",
       "id": "src_lib_statconversion_appliedstatvalue",
       "community": 17,
-      "community_name": "Item.ts",
+      "community_name": "statConversion.ts",
       "norm_label": "appliedstatvalue()"
+    },
+    {
+      "label": "statPolarity()",
+      "file_type": "code",
+      "source_file": "src/lib/statConversion.ts",
+      "source_location": "L217",
+      "_origin": "ast",
+      "id": "src_lib_statconversion_statpolarity",
+      "community": 11,
+      "community_name": "ItemTooltip.tsx",
+      "norm_label": "statpolarity()"
+    },
+    {
+      "label": "formatStatValue()",
+      "file_type": "code",
+      "source_file": "src/lib/statConversion.ts",
+      "source_location": "L228",
+      "_origin": "ast",
+      "id": "src_lib_statconversion_formatstatvalue",
+      "community": 52,
+      "community_name": "PlayerStats",
+      "norm_label": "formatstatvalue()"
     },
     {
       "label": "main.tsx",
@@ -10780,7 +10813,7 @@
       "_origin": "ast",
       "id": "src_main",
       "community": 39,
-      "community_name": "react",
+      "community_name": "UI.tsx",
       "norm_label": "main.tsx"
     },
     {
@@ -10791,7 +10824,7 @@
       "_origin": "ast",
       "id": "src_main_phasergame",
       "community": 39,
-      "community_name": "react",
+      "community_name": "UI.tsx",
       "norm_label": "phasergame"
     },
     {
@@ -10802,7 +10835,7 @@
       "_origin": "ast",
       "id": "src_main_app",
       "community": 39,
-      "community_name": "react",
+      "community_name": "UI.tsx",
       "norm_label": "app()"
     },
     {
@@ -10813,7 +10846,7 @@
       "_origin": "ast",
       "id": "src_main_container",
       "community": 39,
-      "community_name": "react",
+      "community_name": "UI.tsx",
       "norm_label": "container"
     },
     {
@@ -10824,7 +10857,7 @@
       "_origin": "ast",
       "id": "src_scenes_bootscene",
       "community": 26,
-      "community_name": "phaser",
+      "community_name": "PhaserGame.tsx",
       "norm_label": "bootscene.ts"
     },
     {
@@ -10834,8 +10867,8 @@
       "source_location": "L9",
       "_origin": "ast",
       "id": "src_scenes_bootscene_bootscene",
-      "community": 113,
-      "community_name": "BootScene",
+      "community": 26,
+      "community_name": "PhaserGame.tsx",
       "norm_label": "bootscene"
     },
     {
@@ -10845,8 +10878,8 @@
       "source_location": "L10",
       "_origin": "ast",
       "id": "src_scenes_bootscene_bootscene_constructor",
-      "community": 113,
-      "community_name": "BootScene",
+      "community": 26,
+      "community_name": "PhaserGame.tsx",
       "norm_label": ".constructor()"
     },
     {
@@ -10856,8 +10889,8 @@
       "source_location": "L16",
       "_origin": "ast",
       "id": "src_scenes_bootscene_bootscene_preload",
-      "community": 113,
-      "community_name": "BootScene",
+      "community": 26,
+      "community_name": "PhaserGame.tsx",
       "norm_label": ".preload()"
     },
     {
@@ -10867,8 +10900,8 @@
       "source_location": "L25",
       "_origin": "ast",
       "id": "src_scenes_bootscene_bootscene_create",
-      "community": 113,
-      "community_name": "BootScene",
+      "community": 26,
+      "community_name": "PhaserGame.tsx",
       "norm_label": ".create()"
     },
     {
@@ -10879,7 +10912,7 @@
       "_origin": "ast",
       "id": "src_scenes_gameoverscene",
       "community": 26,
-      "community_name": "phaser",
+      "community_name": "PhaserGame.tsx",
       "norm_label": "gameoverscene.ts"
     },
     {
@@ -10889,8 +10922,8 @@
       "source_location": "L4",
       "_origin": "ast",
       "id": "src_scenes_gameoverscene_gameoverscene",
-      "community": 99,
-      "community_name": "GameOverScene",
+      "community": 26,
+      "community_name": "PhaserGame.tsx",
       "norm_label": "gameoverscene"
     },
     {
@@ -10900,8 +10933,8 @@
       "source_location": "L10",
       "_origin": "ast",
       "id": "src_scenes_gameoverscene_gameoverscene_constructor",
-      "community": 99,
-      "community_name": "GameOverScene",
+      "community": 26,
+      "community_name": "PhaserGame.tsx",
       "norm_label": ".constructor()"
     },
     {
@@ -10911,8 +10944,8 @@
       "source_location": "L16",
       "_origin": "ast",
       "id": "src_scenes_gameoverscene_gameoverscene_create",
-      "community": 99,
-      "community_name": "GameOverScene",
+      "community": 26,
+      "community_name": "PhaserGame.tsx",
       "norm_label": ".create()"
     },
     {
@@ -10922,8 +10955,8 @@
       "source_location": "L49",
       "_origin": "ast",
       "id": "src_scenes_gameoverscene_gameoverscene_restartgame",
-      "community": 99,
-      "community_name": "GameOverScene",
+      "community": 26,
+      "community_name": "PhaserGame.tsx",
       "norm_label": ".restartgame()"
     },
     {
@@ -10933,8 +10966,8 @@
       "source_location": "L53",
       "_origin": "ast",
       "id": "src_scenes_gameoverscene_gameoverscene_shutdown",
-      "community": 99,
-      "community_name": "GameOverScene",
+      "community": 26,
+      "community_name": "PhaserGame.tsx",
       "norm_label": ".shutdown()"
     },
     {
@@ -10945,7 +10978,7 @@
       "_origin": "ast",
       "id": "src_scenes_loadscene",
       "community": 26,
-      "community_name": "phaser",
+      "community_name": "PhaserGame.tsx",
       "norm_label": "loadscene.ts"
     },
     {
@@ -10956,7 +10989,7 @@
       "_origin": "ast",
       "id": "src_scenes_loadscene_loadscene",
       "community": 26,
-      "community_name": "phaser",
+      "community_name": "PhaserGame.tsx",
       "norm_label": "loadscene"
     },
     {
@@ -10967,7 +11000,7 @@
       "_origin": "ast",
       "id": "src_scenes_loadscene_loadscene_constructor",
       "community": 26,
-      "community_name": "phaser",
+      "community_name": "PhaserGame.tsx",
       "norm_label": ".constructor()"
     },
     {
@@ -10978,7 +11011,7 @@
       "_origin": "ast",
       "id": "src_scenes_loadscene_loadscene_preload",
       "community": 26,
-      "community_name": "phaser",
+      "community_name": "PhaserGame.tsx",
       "norm_label": ".preload()"
     },
     {
@@ -10988,8 +11021,8 @@
       "source_location": "L293",
       "_origin": "ast",
       "id": "src_scenes_loadscene_loadscene_create",
-      "community": 78,
-      "community_name": "animations.ts",
+      "community": 26,
+      "community_name": "PhaserGame.tsx",
       "norm_label": ".create()"
     },
     {
@@ -11000,7 +11033,7 @@
       "_origin": "ast",
       "id": "src_scenes_loadscene_loadscene_shutdown",
       "community": 26,
-      "community_name": "phaser",
+      "community_name": "PhaserGame.tsx",
       "norm_label": ".shutdown()"
     },
     {
@@ -11011,7 +11044,7 @@
       "_origin": "ast",
       "id": "src_scenes_selectscene",
       "community": 23,
-      "community_name": "BiomeScene.ts",
+      "community_name": "TownScene.ts",
       "norm_label": "selectscene.ts"
     },
     {
@@ -11022,7 +11055,7 @@
       "_origin": "ast",
       "id": "src_scenes_selectscene_gamesceneconfig",
       "community": 23,
-      "community_name": "BiomeScene.ts",
+      "community_name": "TownScene.ts",
       "norm_label": "gamesceneconfig"
     },
     {
@@ -11032,8 +11065,8 @@
       "source_location": "L13",
       "_origin": "ast",
       "id": "src_scenes_selectscene_selectscene",
-      "community": 37,
-      "community_name": "settingsStorage.ts",
+      "community": 26,
+      "community_name": "PhaserGame.tsx",
       "norm_label": "selectscene"
     },
     {
@@ -11043,8 +11076,8 @@
       "source_location": "L16",
       "_origin": "ast",
       "id": "src_scenes_selectscene_selectscene_constructor",
-      "community": 37,
-      "community_name": "settingsStorage.ts",
+      "community": 26,
+      "community_name": "PhaserGame.tsx",
       "norm_label": ".constructor()"
     },
     {
@@ -11054,8 +11087,8 @@
       "source_location": "L24",
       "_origin": "ast",
       "id": "src_scenes_selectscene_selectscene_create",
-      "community": 37,
-      "community_name": "settingsStorage.ts",
+      "community": 26,
+      "community_name": "PhaserGame.tsx",
       "norm_label": ".create()"
     },
     {
@@ -11065,8 +11098,8 @@
       "source_location": "L35",
       "_origin": "ast",
       "id": "src_scenes_selectscene_selectscene_choosecharacter",
-      "community": 37,
-      "community_name": "settingsStorage.ts",
+      "community": 26,
+      "community_name": "PhaserGame.tsx",
       "norm_label": ".choosecharacter()"
     },
     {
@@ -11077,7 +11110,7 @@
       "_origin": "ast",
       "id": "src_scenes_townscene_test",
       "community": 23,
-      "community_name": "BiomeScene.ts",
+      "community_name": "TownScene.ts",
       "norm_label": "townscene.test.ts"
     },
     {
@@ -11087,8 +11120,8 @@
       "source_location": "L15",
       "_origin": "ast",
       "id": "src_scenes_townscene_test_sceneundertest",
-      "community": 23,
-      "community_name": "BiomeScene.ts",
+      "community": 59,
+      "community_name": "SceneUnderTest",
       "norm_label": "sceneundertest"
     },
     {
@@ -11098,8 +11131,8 @@
       "source_location": "L23",
       "_origin": "ast",
       "id": "src_scenes_townscene_test_sceneundertest_shutdown",
-      "community": 23,
-      "community_name": "BiomeScene.ts",
+      "community": 59,
+      "community_name": "SceneUnderTest",
       "norm_label": ".shutdown()"
     },
     {
@@ -11109,8 +11142,8 @@
       "source_location": "L24",
       "_origin": "ast",
       "id": "src_scenes_townscene_test_sceneundertest_ontravelrequest",
-      "community": 23,
-      "community_name": "BiomeScene.ts",
+      "community": 59,
+      "community_name": "SceneUnderTest",
       "norm_label": ".ontravelrequest()"
     },
     {
@@ -11121,7 +11154,7 @@
       "_origin": "ast",
       "id": "src_scenes_townscene_test_makescene",
       "community": 23,
-      "community_name": "BiomeScene.ts",
+      "community_name": "TownScene.ts",
       "norm_label": "makescene()"
     },
     {
@@ -11132,7 +11165,7 @@
       "_origin": "ast",
       "id": "src_scenes_townscene",
       "community": 23,
-      "community_name": "BiomeScene.ts",
+      "community_name": "TownScene.ts",
       "norm_label": "townscene.ts"
     },
     {
@@ -11308,7 +11341,7 @@
       "_origin": "ast",
       "id": "src_scenes_townscene_townscene_ontravelrequest",
       "community": 23,
-      "community_name": "BiomeScene.ts",
+      "community_name": "TownScene.ts",
       "norm_label": ".ontravelrequest()"
     },
     {
@@ -11319,7 +11352,7 @@
       "_origin": "ast",
       "id": "src_scenes_townscene_townscene_handleinteraction",
       "community": 39,
-      "community_name": "react",
+      "community_name": "UI.tsx",
       "norm_label": ".handleinteraction()"
     },
     {
@@ -11352,7 +11385,7 @@
       "_origin": "ast",
       "id": "src_scenes_biomes_biomescene_test",
       "community": 23,
-      "community_name": "BiomeScene.ts",
+      "community_name": "TownScene.ts",
       "norm_label": "biomescene.test.ts"
     },
     {
@@ -11363,7 +11396,7 @@
       "_origin": "ast",
       "id": "src_scenes_biomes_biomescene_test_faketimer",
       "community": 23,
-      "community_name": "BiomeScene.ts",
+      "community_name": "TownScene.ts",
       "norm_label": "faketimer"
     },
     {
@@ -11495,7 +11528,7 @@
       "_origin": "ast",
       "id": "src_scenes_biomes_biomescene_test_makescene",
       "community": 23,
-      "community_name": "BiomeScene.ts",
+      "community_name": "TownScene.ts",
       "norm_label": "makescene()"
     },
     {
@@ -11506,7 +11539,7 @@
       "_origin": "ast",
       "id": "src_scenes_biomes_biomescene_test_landspawns",
       "community": 23,
-      "community_name": "BiomeScene.ts",
+      "community_name": "TownScene.ts",
       "norm_label": "landspawns()"
     },
     {
@@ -11516,7 +11549,7 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "src_scenes_biomes_biomescene",
-      "community": 23,
+      "community": 34,
       "community_name": "BiomeScene.ts",
       "norm_label": "biomescene.ts"
     },
@@ -11528,7 +11561,7 @@
       "_origin": "ast",
       "id": "src_scenes_biomes_biomescene_biomescene",
       "community": 34,
-      "community_name": "BiomeScene",
+      "community_name": "BiomeScene.ts",
       "norm_label": "biomescene"
     },
     {
@@ -11539,7 +11572,7 @@
       "_origin": "ast",
       "id": "src_scenes_biomes_biomescene_biomescene_constructor",
       "community": 34,
-      "community_name": "BiomeScene",
+      "community_name": "BiomeScene.ts",
       "norm_label": ".constructor()"
     },
     {
@@ -11550,7 +11583,7 @@
       "_origin": "ast",
       "id": "src_scenes_biomes_biomescene_biomescene_init",
       "community": 23,
-      "community_name": "BiomeScene.ts",
+      "community_name": "TownScene.ts",
       "norm_label": ".init()"
     },
     {
@@ -11561,7 +11594,7 @@
       "_origin": "ast",
       "id": "src_scenes_biomes_biomescene_biomescene_create",
       "community": 34,
-      "community_name": "BiomeScene",
+      "community_name": "BiomeScene.ts",
       "norm_label": ".create()"
     },
     {
@@ -11572,7 +11605,7 @@
       "_origin": "ast",
       "id": "src_scenes_biomes_biomescene_biomescene_update",
       "community": 34,
-      "community_name": "BiomeScene",
+      "community_name": "BiomeScene.ts",
       "norm_label": ".update()"
     },
     {
@@ -11583,7 +11616,7 @@
       "_origin": "ast",
       "id": "src_scenes_biomes_biomescene_biomescene_returntotown",
       "community": 34,
-      "community_name": "BiomeScene",
+      "community_name": "BiomeScene.ts",
       "norm_label": ".returntotown()"
     },
     {
@@ -11594,7 +11627,7 @@
       "_origin": "ast",
       "id": "src_scenes_biomes_biomescene_biomescene_startarea",
       "community": 34,
-      "community_name": "BiomeScene",
+      "community_name": "BiomeScene.ts",
       "norm_label": ".startarea()"
     },
     {
@@ -11605,7 +11638,7 @@
       "_origin": "ast",
       "id": "src_scenes_biomes_biomescene_biomescene_filltolivecap",
       "community": 34,
-      "community_name": "BiomeScene",
+      "community_name": "BiomeScene.ts",
       "norm_label": ".filltolivecap()"
     },
     {
@@ -11616,7 +11649,7 @@
       "_origin": "ast",
       "id": "src_scenes_biomes_biomescene_biomescene_onenemydead",
       "community": 34,
-      "community_name": "BiomeScene",
+      "community_name": "BiomeScene.ts",
       "norm_label": ".onenemydead()"
     },
     {
@@ -11627,7 +11660,7 @@
       "_origin": "ast",
       "id": "src_scenes_biomes_biomescene_biomescene_syncareaprogress",
       "community": 34,
-      "community_name": "BiomeScene",
+      "community_name": "BiomeScene.ts",
       "norm_label": ".syncareaprogress()"
     },
     {
@@ -11638,7 +11671,7 @@
       "_origin": "ast",
       "id": "src_scenes_biomes_biomescene_biomescene_gameover",
       "community": 34,
-      "community_name": "BiomeScene",
+      "community_name": "BiomeScene.ts",
       "norm_label": ".gameover()"
     },
     {
@@ -11649,7 +11682,7 @@
       "_origin": "ast",
       "id": "src_scenes_biomes_biomescene_biomescene_setareaclearedui",
       "community": 34,
-      "community_name": "BiomeScene",
+      "community_name": "BiomeScene.ts",
       "norm_label": ".setareaclearedui()"
     },
     {
@@ -11660,7 +11693,7 @@
       "_origin": "ast",
       "id": "src_scenes_biomes_biomescene_biomescene_areacleared",
       "community": 34,
-      "community_name": "BiomeScene",
+      "community_name": "BiomeScene.ts",
       "norm_label": ".areacleared()"
     },
     {
@@ -11671,7 +11704,7 @@
       "_origin": "ast",
       "id": "src_scenes_biomes_biomescene_biomescene_spawnenemies",
       "community": 34,
-      "community_name": "BiomeScene",
+      "community_name": "BiomeScene.ts",
       "norm_label": ".spawnenemies()"
     },
     {
@@ -11682,7 +11715,7 @@
       "_origin": "ast",
       "id": "src_scenes_biomes_biomescene_biomescene_spawnenemy",
       "community": 34,
-      "community_name": "BiomeScene",
+      "community_name": "BiomeScene.ts",
       "norm_label": ".spawnenemy()"
     },
     {
@@ -11693,7 +11726,7 @@
       "_origin": "ast",
       "id": "src_scenes_biomes_biomescene_biomescene_spawnboss",
       "community": 34,
-      "community_name": "BiomeScene",
+      "community_name": "BiomeScene.ts",
       "norm_label": ".spawnboss()"
     },
     {
@@ -11704,7 +11737,7 @@
       "_origin": "ast",
       "id": "src_scenes_biomes_biomescene_biomescene_removeareaclearedtimer",
       "community": 34,
-      "community_name": "BiomeScene",
+      "community_name": "BiomeScene.ts",
       "norm_label": ".removeareaclearedtimer()"
     },
     {
@@ -11715,7 +11748,7 @@
       "_origin": "ast",
       "id": "src_scenes_biomes_biomescene_biomescene_shutdown",
       "community": 34,
-      "community_name": "BiomeScene",
+      "community_name": "BiomeScene.ts",
       "norm_label": ".shutdown()"
     },
     {
@@ -11726,7 +11759,7 @@
       "_origin": "ast",
       "id": "src_scenes_biomes_biomes",
       "community": 23,
-      "community_name": "BiomeScene.ts",
+      "community_name": "TownScene.ts",
       "norm_label": "biomes.ts"
     },
     {
@@ -11737,7 +11770,7 @@
       "_origin": "ast",
       "id": "src_scenes_biomes_biomes_biomeid",
       "community": 23,
-      "community_name": "BiomeScene.ts",
+      "community_name": "TownScene.ts",
       "norm_label": "biomeid"
     },
     {
@@ -11748,7 +11781,7 @@
       "_origin": "ast",
       "id": "src_scenes_biomes_biomes_biomedefinition",
       "community": 34,
-      "community_name": "BiomeScene",
+      "community_name": "BiomeScene.ts",
       "norm_label": "biomedefinition"
     },
     {
@@ -11759,7 +11792,7 @@
       "_origin": "ast",
       "id": "src_scenes_biomes_biomes_biomes",
       "community": 23,
-      "community_name": "BiomeScene.ts",
+      "community_name": "TownScene.ts",
       "norm_label": "biomes"
     },
     {
@@ -11770,7 +11803,7 @@
       "_origin": "ast",
       "id": "src_scenes_biomes_biomes_default_biome",
       "community": 23,
-      "community_name": "BiomeScene.ts",
+      "community_name": "TownScene.ts",
       "norm_label": "default_biome"
     },
     {
@@ -11780,8 +11813,8 @@
       "source_location": "L56",
       "_origin": "ast",
       "id": "src_scenes_biomes_biomes_biome_ids",
-      "community": 39,
-      "community_name": "react",
+      "community": 23,
+      "community_name": "TownScene.ts",
       "norm_label": "biome_ids"
     },
     {
@@ -11792,7 +11825,7 @@
       "_origin": "ast",
       "id": "src_scenes_biomes_biomes_resolvebiome",
       "community": 23,
-      "community_name": "BiomeScene.ts",
+      "community_name": "TownScene.ts",
       "norm_label": "resolvebiome()"
     },
     {
@@ -11803,7 +11836,7 @@
       "_origin": "ast",
       "id": "src_scenes_createlogo",
       "community": 26,
-      "community_name": "phaser",
+      "community_name": "PhaserGame.tsx",
       "norm_label": "createlogo.ts"
     },
     {
@@ -11814,7 +11847,7 @@
       "_origin": "ast",
       "id": "src_scenes_createlogo_logooptions",
       "community": 26,
-      "community_name": "phaser",
+      "community_name": "PhaserGame.tsx",
       "norm_label": "logooptions"
     },
     {
@@ -11825,7 +11858,7 @@
       "_origin": "ast",
       "id": "src_scenes_createlogo_createlogo",
       "community": 26,
-      "community_name": "phaser",
+      "community_name": "PhaserGame.tsx",
       "norm_label": "createlogo()"
     },
     {
@@ -12099,8 +12132,8 @@
       "source_location": "L96",
       "_origin": "ast",
       "id": "src_store_gamereducer_addcoins",
-      "community": 53,
-      "community_name": "Crafting.ts",
+      "community": 24,
+      "community_name": "HUD.ts",
       "norm_label": "addcoins"
     },
     {
@@ -12154,8 +12187,8 @@
       "source_location": "L116",
       "_origin": "ast",
       "id": "src_store_gamereducer_addloot",
-      "community": 24,
-      "community_name": "HUD.ts",
+      "community": 34,
+      "community_name": "BiomeScene.ts",
       "norm_label": "addloot"
     },
     {
@@ -12176,8 +12209,8 @@
       "source_location": "L124",
       "_origin": "ast",
       "id": "src_store_gamereducer_buyloot",
-      "community": 25,
-      "community_name": "store/index.ts",
+      "community": 40,
+      "community_name": "Armory.tsx",
       "norm_label": "buyloot"
     },
     {
@@ -12188,7 +12221,7 @@
       "_origin": "ast",
       "id": "src_store_gamereducer_equiploot",
       "community": 13,
-      "community_name": "LootItem",
+      "community_name": "react",
       "norm_label": "equiploot"
     },
     {
@@ -12210,7 +12243,7 @@
       "_origin": "ast",
       "id": "src_store_gamereducer_setenemiesremaining",
       "community": 34,
-      "community_name": "BiomeScene",
+      "community_name": "BiomeScene.ts",
       "norm_label": "setenemiesremaining"
     },
     {
@@ -12221,7 +12254,7 @@
       "_origin": "ast",
       "id": "src_store_gamereducer_setbossactive",
       "community": 34,
-      "community_name": "BiomeScene",
+      "community_name": "BiomeScene.ts",
       "norm_label": "setbossactive"
     },
     {
@@ -12231,8 +12264,8 @@
       "source_location": "L144",
       "_origin": "ast",
       "id": "src_store_gamereducer_selectcharacter",
-      "community": 90,
-      "community_name": "gameReducer.ts",
+      "community": 24,
+      "community_name": "HUD.ts",
       "norm_label": "selectcharacter"
     },
     {
@@ -12243,7 +12276,7 @@
       "_origin": "ast",
       "id": "src_store_gamereducer_selectloot",
       "community": 13,
-      "community_name": "LootItem",
+      "community_name": "react",
       "norm_label": "selectloot"
     },
     {
@@ -12297,8 +12330,8 @@
       "source_location": "L171",
       "_origin": "ast",
       "id": "src_store_gamereducer_setstats",
-      "community": 90,
-      "community_name": "gameReducer.ts",
+      "community": 41,
+      "community_name": "Boons.ts",
       "norm_label": "setstats"
     },
     {
@@ -12308,8 +12341,8 @@
       "source_location": "L178",
       "_origin": "ast",
       "id": "src_store_gamereducer_switchui",
-      "community": 24,
-      "community_name": "HUD.ts",
+      "community": 39,
+      "community_name": "UI.tsx",
       "norm_label": "switchui"
     },
     {
@@ -12319,8 +12352,8 @@
       "source_location": "L182",
       "_origin": "ast",
       "id": "src_store_gamereducer_togglefilter",
-      "community": 25,
-      "community_name": "store/index.ts",
+      "community": 40,
+      "community_name": "Armory.tsx",
       "norm_label": "togglefilter"
     },
     {
@@ -12330,7 +12363,7 @@
       "source_location": "L186",
       "_origin": "ast",
       "id": "src_store_gamereducer_togglehud",
-      "community": 23,
+      "community": 34,
       "community_name": "BiomeScene.ts",
       "norm_label": "togglehud"
     },
@@ -12342,7 +12375,7 @@
       "_origin": "ast",
       "id": "src_store_gamereducer_toggleui",
       "community": 39,
-      "community_name": "react",
+      "community_name": "UI.tsx",
       "norm_label": "toggleui"
     },
     {
@@ -12353,7 +12386,7 @@
       "_origin": "ast",
       "id": "src_store_gamereducer_unequiploot",
       "community": 13,
-      "community_name": "LootItem",
+      "community_name": "react",
       "norm_label": "unequiploot"
     },
     {
@@ -12374,8 +12407,8 @@
       "source_location": "L205",
       "_origin": "ast",
       "id": "src_store_gamereducer_updatestats",
-      "community": 90,
-      "community_name": "gameReducer.ts",
+      "community": 41,
+      "community_name": "Boons.ts",
       "norm_label": "updatestats"
     },
     {
@@ -12386,7 +12419,7 @@
       "_origin": "ast",
       "id": "src_store_gamereducer_requesttravel",
       "community": 39,
-      "community_name": "react",
+      "community_name": "UI.tsx",
       "norm_label": "requesttravel"
     },
     {
@@ -12397,7 +12430,7 @@
       "_origin": "ast",
       "id": "src_store_gamereducer_cleartravelrequest",
       "community": 23,
-      "community_name": "BiomeScene.ts",
+      "community_name": "TownScene.ts",
       "norm_label": "cleartravelrequest"
     },
     {
@@ -12408,7 +12441,7 @@
       "_origin": "ast",
       "id": "src_store_gamereducer_setcurrentarea",
       "community": 23,
-      "community_name": "BiomeScene.ts",
+      "community_name": "TownScene.ts",
       "norm_label": "setcurrentarea"
     },
     {
@@ -12419,7 +12452,7 @@
       "_origin": "ast",
       "id": "src_store_gamereducer_setplayerposition",
       "community": 23,
-      "community_name": "BiomeScene.ts",
+      "community_name": "TownScene.ts",
       "norm_label": "setplayerposition"
     },
     {
@@ -12617,7 +12650,7 @@
       "_origin": "ast",
       "id": "src_types_game_lootitem",
       "community": 13,
-      "community_name": "LootItem",
+      "community_name": "react",
       "norm_label": "lootitem"
     },
     {
@@ -12627,8 +12660,8 @@
       "source_location": "L209",
       "_origin": "ast",
       "id": "src_types_game_lootstat",
-      "community": 11,
-      "community_name": "ItemTooltip.tsx",
+      "community": 14,
+      "community_name": "armoryClient.ts",
       "norm_label": "lootstat"
     },
     {
@@ -12650,7 +12683,7 @@
       "_origin": "ast",
       "id": "src_types_game_componenttype",
       "community": 53,
-      "community_name": "Crafting.ts",
+      "community_name": "Enemy.ts",
       "norm_label": "componenttype"
     },
     {
@@ -12660,8 +12693,8 @@
       "source_location": "L228",
       "_origin": "ast",
       "id": "src_types_game_componentstack",
-      "community": 18,
-      "community_name": "ComponentsGrid.tsx",
+      "community": 25,
+      "community_name": "store/index.ts",
       "norm_label": "componentstack"
     },
     {
@@ -12693,8 +12726,8 @@
       "source_location": "L246",
       "_origin": "ast",
       "id": "src_types_game_loottable",
-      "community": 33,
-      "community_name": "game.ts",
+      "community": 53,
+      "community_name": "Enemy.ts",
       "norm_label": "loottable"
     },
     {
@@ -12738,7 +12771,7 @@
       "_origin": "ast",
       "id": "src_types_game_enemytype",
       "community": 34,
-      "community_name": "BiomeScene",
+      "community_name": "BiomeScene.ts",
       "norm_label": "enemytype"
     },
     {
@@ -12748,8 +12781,8 @@
       "source_location": "L295",
       "_origin": "ast",
       "id": "src_types_game_combattype",
-      "community": 93,
-      "community_name": "CombatType",
+      "community": 132,
+      "community_name": "Player.ts",
       "norm_label": "combattype"
     },
     {
@@ -12759,8 +12792,8 @@
       "source_location": "L296",
       "_origin": "ast",
       "id": "src_types_game_targettype",
-      "community": 9,
-      "community_name": "Enemy.ts",
+      "community": 2,
+      "community_name": "Spell",
       "norm_label": "targettype"
     },
     {
@@ -12792,8 +12825,8 @@
       "source_location": "L312",
       "_origin": "ast",
       "id": "src_types_game_enemyoptions",
-      "community": 14,
-      "community_name": "EnemyOptions",
+      "community": 63,
+      "community_name": "Enemy",
       "norm_label": "enemyoptions"
     },
     {
@@ -12803,8 +12836,8 @@
       "source_location": "L335",
       "_origin": "ast",
       "id": "src_types_game_targetkind",
-      "community": 89,
-      "community_name": "CastingController.ts",
+      "community": 19,
+      "community_name": "CastingController",
       "norm_label": "targetkind"
     },
     {
@@ -12837,7 +12870,7 @@
       "_origin": "ast",
       "id": "src_types_game_spelloptions",
       "community": 9,
-      "community_name": "Enemy.ts",
+      "community_name": "AssignSpell.ts",
       "norm_label": "spelloptions"
     },
     {
@@ -12858,8 +12891,8 @@
       "source_location": "L400",
       "_origin": "ast",
       "id": "src_types_game_entitywithvector",
-      "community": 33,
-      "community_name": "game.ts",
+      "community": 53,
+      "community_name": "Enemy.ts",
       "norm_label": "entitywithvector"
     },
     {
@@ -12869,8 +12902,8 @@
       "source_location": "L407",
       "_origin": "ast",
       "id": "src_types_game_equipment",
-      "community": 11,
-      "community_name": "ItemTooltip.tsx",
+      "community": 90,
+      "community_name": "gameReducer.ts",
       "norm_label": "equipment"
     },
     {
@@ -12924,8 +12957,8 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "src_types_scene",
-      "community": 9,
-      "community_name": "Enemy.ts",
+      "community": 38,
+      "community_name": "phaser",
       "norm_label": "scene.ts"
     },
     {
@@ -12935,8 +12968,8 @@
       "source_location": "L19",
       "_origin": "ast",
       "id": "src_types_scene_gamescenelike",
-      "community": 9,
-      "community_name": "Enemy.ts",
+      "community": 38,
+      "community_name": "phaser",
       "norm_label": "gamescenelike"
     },
     {
@@ -12946,8 +12979,8 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "src_ui_ui_test",
-      "community": 25,
-      "community_name": "store/index.ts",
+      "community": 39,
+      "community_name": "UI.tsx",
       "norm_label": "ui.test.tsx"
     },
     {
@@ -12958,7 +12991,7 @@
       "_origin": "ast",
       "id": "src_ui_ui",
       "community": 39,
-      "community_name": "react",
+      "community_name": "UI.tsx",
       "norm_label": "ui.tsx"
     },
     {
@@ -12980,7 +13013,7 @@
       "_origin": "ast",
       "id": "src_ui_ui_menucomponent",
       "community": 39,
-      "community_name": "react",
+      "community_name": "UI.tsx",
       "norm_label": "menucomponent"
     },
     {
@@ -12991,7 +13024,7 @@
       "_origin": "ast",
       "id": "src_ui_ui_menuconfig",
       "community": 39,
-      "community_name": "react",
+      "community_name": "UI.tsx",
       "norm_label": "menuconfig"
     },
     {
@@ -13002,7 +13035,7 @@
       "_origin": "ast",
       "id": "src_ui_ui_asmenucomponent",
       "community": 39,
-      "community_name": "react",
+      "community_name": "UI.tsx",
       "norm_label": "asmenucomponent()"
     },
     {
@@ -13013,7 +13046,7 @@
       "_origin": "ast",
       "id": "src_ui_ui_ui",
       "community": 39,
-      "community_name": "react",
+      "community_name": "UI.tsx",
       "norm_label": "ui()"
     },
     {
@@ -13042,7 +13075,7 @@
       "label": "Attribute()",
       "file_type": "code",
       "source_file": "src/ui/components/atoms/Attribute.tsx",
-      "source_location": "L12",
+      "source_location": "L17",
       "_origin": "ast",
       "id": "src_ui_components_atoms_attribute_attribute",
       "community": 52,
@@ -13057,7 +13090,7 @@
       "_origin": "ast",
       "id": "src_ui_components_atoms_button",
       "community": 39,
-      "community_name": "react",
+      "community_name": "UI.tsx",
       "norm_label": "button.tsx"
     },
     {
@@ -13068,7 +13101,7 @@
       "_origin": "ast",
       "id": "src_ui_components_atoms_button_buttonprops",
       "community": 39,
-      "community_name": "react",
+      "community_name": "UI.tsx",
       "norm_label": "buttonprops"
     },
     {
@@ -13079,7 +13112,7 @@
       "_origin": "ast",
       "id": "src_ui_components_atoms_button_button",
       "community": 39,
-      "community_name": "react",
+      "community_name": "UI.tsx",
       "norm_label": "button()"
     },
     {
@@ -13089,8 +13122,8 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "src_ui_components_atoms_droppableslot_test",
-      "community": 13,
-      "community_name": "LootItem",
+      "community": 25,
+      "community_name": "store/index.ts",
       "norm_label": "droppableslot.test.tsx"
     },
     {
@@ -13100,8 +13133,8 @@
       "source_location": "L7",
       "_origin": "ast",
       "id": "src_ui_components_atoms_droppableslot_test_helm",
-      "community": 13,
-      "community_name": "LootItem",
+      "community": 25,
+      "community_name": "store/index.ts",
       "norm_label": "helm"
     },
     {
@@ -13112,7 +13145,7 @@
       "_origin": "ast",
       "id": "src_ui_components_atoms_droppableslot",
       "community": 13,
-      "community_name": "LootItem",
+      "community_name": "react",
       "norm_label": "droppableslot.tsx"
     },
     {
@@ -13123,7 +13156,7 @@
       "_origin": "ast",
       "id": "src_ui_components_atoms_droppableslot_droppableslotprops",
       "community": 13,
-      "community_name": "LootItem",
+      "community_name": "react",
       "norm_label": "droppableslotprops"
     },
     {
@@ -13134,7 +13167,7 @@
       "_origin": "ast",
       "id": "src_ui_components_atoms_droppableslot_droppableslot",
       "community": 13,
-      "community_name": "LootItem",
+      "community_name": "react",
       "norm_label": "droppableslot()"
     },
     {
@@ -13145,7 +13178,7 @@
       "_origin": "ast",
       "id": "src_ui_components_atoms_looticon",
       "community": 13,
-      "community_name": "LootItem",
+      "community_name": "react",
       "norm_label": "looticon.tsx"
     },
     {
@@ -13156,7 +13189,7 @@
       "_origin": "ast",
       "id": "src_ui_components_atoms_looticon_looticonstyles",
       "community": 13,
-      "community_name": "LootItem",
+      "community_name": "react",
       "norm_label": "looticonstyles"
     },
     {
@@ -13167,7 +13200,7 @@
       "_origin": "ast",
       "id": "src_ui_components_atoms_looticon_looticonprops",
       "community": 13,
-      "community_name": "LootItem",
+      "community_name": "react",
       "norm_label": "looticonprops"
     },
     {
@@ -13178,7 +13211,7 @@
       "_origin": "ast",
       "id": "src_ui_components_atoms_looticon_looticon",
       "community": 13,
-      "community_name": "LootItem",
+      "community_name": "react",
       "norm_label": "looticon()"
     },
     {
@@ -13222,7 +13255,7 @@
       "_origin": "ast",
       "id": "src_ui_components_atoms_slot",
       "community": 13,
-      "community_name": "LootItem",
+      "community_name": "react",
       "norm_label": "slot.tsx"
     },
     {
@@ -13233,7 +13266,7 @@
       "_origin": "ast",
       "id": "src_ui_components_atoms_slot_slotcomponentprops",
       "community": 13,
-      "community_name": "LootItem",
+      "community_name": "react",
       "norm_label": "slotcomponentprops"
     },
     {
@@ -13244,7 +13277,7 @@
       "_origin": "ast",
       "id": "src_ui_components_atoms_slot_slotprops",
       "community": 13,
-      "community_name": "LootItem",
+      "community_name": "react",
       "norm_label": "slotprops"
     },
     {
@@ -13255,7 +13288,7 @@
       "_origin": "ast",
       "id": "src_ui_components_atoms_slot_slot",
       "community": 13,
-      "community_name": "LootItem",
+      "community_name": "react",
       "norm_label": "slot()"
     },
     {
@@ -13284,7 +13317,7 @@
       "label": "Stat()",
       "file_type": "code",
       "source_file": "src/ui/components/atoms/Stat.tsx",
-      "source_location": "L12",
+      "source_location": "L17",
       "_origin": "ast",
       "id": "src_ui_components_atoms_stat_stat",
       "community": 45,
@@ -13298,8 +13331,8 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "src_ui_components_atoms_title",
-      "community": 8,
-      "community_name": "Header.tsx",
+      "community": 39,
+      "community_name": "UI.tsx",
       "norm_label": "title.tsx"
     },
     {
@@ -13309,8 +13342,8 @@
       "source_location": "L5",
       "_origin": "ast",
       "id": "src_ui_components_atoms_title_titleprops",
-      "community": 8,
-      "community_name": "Header.tsx",
+      "community": 39,
+      "community_name": "UI.tsx",
       "norm_label": "titleprops"
     },
     {
@@ -13320,8 +13353,8 @@
       "source_location": "L9",
       "_origin": "ast",
       "id": "src_ui_components_atoms_title_title",
-      "community": 8,
-      "community_name": "Header.tsx",
+      "community": 39,
+      "community_name": "UI.tsx",
       "norm_label": "title()"
     },
     {
@@ -13408,8 +13441,8 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "src_ui_components_molecules_componentsgrid_test",
-      "community": 18,
-      "community_name": "ComponentsGrid.tsx",
+      "community": 25,
+      "community_name": "store/index.ts",
       "norm_label": "componentsgrid.test.tsx"
     },
     {
@@ -13419,8 +13452,8 @@
       "source_location": "L7",
       "_origin": "ast",
       "id": "src_ui_components_molecules_componentsgrid_test_stacks",
-      "community": 18,
-      "community_name": "ComponentsGrid.tsx",
+      "community": 25,
+      "community_name": "store/index.ts",
       "norm_label": "stacks"
     },
     {
@@ -13430,8 +13463,8 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "src_ui_components_molecules_componentsgrid",
-      "community": 18,
-      "community_name": "ComponentsGrid.tsx",
+      "community": 13,
+      "community_name": "react",
       "norm_label": "componentsgrid.tsx"
     },
     {
@@ -13441,8 +13474,8 @@
       "source_location": "L16",
       "_origin": "ast",
       "id": "src_ui_components_molecules_componentsgrid_componentsgridprops",
-      "community": 18,
-      "community_name": "ComponentsGrid.tsx",
+      "community": 13,
+      "community_name": "react",
       "norm_label": "componentsgridprops"
     },
     {
@@ -13452,8 +13485,8 @@
       "source_location": "L26",
       "_origin": "ast",
       "id": "src_ui_components_molecules_componentsgrid_componentsgrid",
-      "community": 18,
-      "community_name": "ComponentsGrid.tsx",
+      "community": 13,
+      "community_name": "react",
       "norm_label": "componentsgrid()"
     },
     {
@@ -13464,7 +13497,7 @@
       "_origin": "ast",
       "id": "src_ui_components_molecules_detailedloot",
       "community": 13,
-      "community_name": "LootItem",
+      "community_name": "react",
       "norm_label": "detailedloot.tsx"
     },
     {
@@ -13475,7 +13508,7 @@
       "_origin": "ast",
       "id": "src_ui_components_molecules_detailedloot_detailedlootprops",
       "community": 13,
-      "community_name": "LootItem",
+      "community_name": "react",
       "norm_label": "detailedlootprops"
     },
     {
@@ -13486,7 +13519,7 @@
       "_origin": "ast",
       "id": "src_ui_components_molecules_detailedloot_detailedloot",
       "community": 13,
-      "community_name": "LootItem",
+      "community_name": "react",
       "norm_label": "detailedloot()"
     },
     {
@@ -13496,8 +13529,8 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "src_ui_components_molecules_geargrid",
-      "community": 18,
-      "community_name": "ComponentsGrid.tsx",
+      "community": 13,
+      "community_name": "react",
       "norm_label": "geargrid.tsx"
     },
     {
@@ -13507,8 +13540,8 @@
       "source_location": "L17",
       "_origin": "ast",
       "id": "src_ui_components_molecules_geargrid_geargrid",
-      "community": 18,
-      "community_name": "ComponentsGrid.tsx",
+      "community": 13,
+      "community_name": "react",
       "norm_label": "geargrid()"
     },
     {
@@ -13606,8 +13639,8 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "src_ui_components_molecules_installbanner",
-      "community": 39,
-      "community_name": "react",
+      "community": 37,
+      "community_name": "settingsStorage.ts",
       "norm_label": "installbanner.tsx"
     },
     {
@@ -13617,8 +13650,8 @@
       "source_location": "L13",
       "_origin": "ast",
       "id": "src_ui_components_molecules_installbanner_shareicon",
-      "community": 39,
-      "community_name": "react",
+      "community": 37,
+      "community_name": "settingsStorage.ts",
       "norm_label": "shareicon()"
     },
     {
@@ -13628,8 +13661,8 @@
       "source_location": "L27",
       "_origin": "ast",
       "id": "src_ui_components_molecules_installbanner_installbanner",
-      "community": 39,
-      "community_name": "react",
+      "community": 37,
+      "community_name": "settingsStorage.ts",
       "norm_label": "installbanner()"
     },
     {
@@ -13650,8 +13683,8 @@
       "source_location": "L14",
       "_origin": "ast",
       "id": "src_ui_components_molecules_itemtooltip_itemtooltipprops",
-      "community": 11,
-      "community_name": "ItemTooltip.tsx",
+      "community": 90,
+      "community_name": "gameReducer.ts",
       "norm_label": "itemtooltipprops"
     },
     {
@@ -13669,7 +13702,7 @@
       "label": "mapStateToProps()",
       "file_type": "code",
       "source_file": "src/ui/components/molecules/ItemTooltip.tsx",
-      "source_location": "L119",
+      "source_location": "L125",
       "_origin": "ast",
       "id": "src_ui_components_molecules_itemtooltip_mapstatetoprops",
       "community": 11,
@@ -13684,7 +13717,7 @@
       "_origin": "ast",
       "id": "src_ui_components_molecules_loot",
       "community": 13,
-      "community_name": "LootItem",
+      "community_name": "react",
       "norm_label": "loot.tsx"
     },
     {
@@ -13695,7 +13728,7 @@
       "_origin": "ast",
       "id": "src_ui_components_molecules_loot_lootprops",
       "community": 13,
-      "community_name": "LootItem",
+      "community_name": "react",
       "norm_label": "lootprops"
     },
     {
@@ -13706,7 +13739,7 @@
       "_origin": "ast",
       "id": "src_ui_components_molecules_loot_loot",
       "community": 13,
-      "community_name": "LootItem",
+      "community_name": "react",
       "norm_label": "loot()"
     },
     {
@@ -13717,7 +13750,7 @@
       "_origin": "ast",
       "id": "src_ui_components_molecules_lootlist",
       "community": 13,
-      "community_name": "LootItem",
+      "community_name": "react",
       "norm_label": "lootlist.tsx"
     },
     {
@@ -13728,7 +13761,7 @@
       "_origin": "ast",
       "id": "src_ui_components_molecules_lootlist_lootlistprops",
       "community": 13,
-      "community_name": "LootItem",
+      "community_name": "react",
       "norm_label": "lootlistprops"
     },
     {
@@ -13739,7 +13772,7 @@
       "_origin": "ast",
       "id": "src_ui_components_molecules_lootlist_lootlist",
       "community": 13,
-      "community_name": "LootItem",
+      "community_name": "react",
       "norm_label": "lootlist()"
     },
     {
@@ -13750,7 +13783,7 @@
       "_origin": "ast",
       "id": "src_ui_components_molecules_lootlistdrag_test",
       "community": 13,
-      "community_name": "LootItem",
+      "community_name": "react",
       "norm_label": "lootlistdrag.test.tsx"
     },
     {
@@ -13761,7 +13794,7 @@
       "_origin": "ast",
       "id": "src_ui_components_molecules_lootlistdrag_test_makeitem",
       "community": 13,
-      "community_name": "LootItem",
+      "community_name": "react",
       "norm_label": "makeitem()"
     },
     {
@@ -13772,7 +13805,7 @@
       "_origin": "ast",
       "id": "src_ui_components_molecules_lootlistdrag",
       "community": 13,
-      "community_name": "LootItem",
+      "community_name": "react",
       "norm_label": "lootlistdrag.tsx"
     },
     {
@@ -13783,7 +13816,7 @@
       "_origin": "ast",
       "id": "src_ui_components_molecules_lootlistdrag_lootlistdragprops",
       "community": 13,
-      "community_name": "LootItem",
+      "community_name": "react",
       "norm_label": "lootlistdragprops"
     },
     {
@@ -13794,7 +13827,7 @@
       "_origin": "ast",
       "id": "src_ui_components_molecules_lootlistdrag_lootlistdrag",
       "community": 13,
-      "community_name": "LootItem",
+      "community_name": "react",
       "norm_label": "lootlistdrag()"
     },
     {
@@ -13804,8 +13837,8 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "src_ui_components_molecules_navigation",
-      "community": 8,
-      "community_name": "Header.tsx",
+      "community": 39,
+      "community_name": "UI.tsx",
       "norm_label": "navigation.tsx"
     },
     {
@@ -13815,8 +13848,8 @@
       "source_location": "L8",
       "_origin": "ast",
       "id": "src_ui_components_molecules_navigation_navigation",
-      "community": 8,
-      "community_name": "Header.tsx",
+      "community": 39,
+      "community_name": "UI.tsx",
       "norm_label": "navigation()"
     },
     {
@@ -13826,8 +13859,8 @@
       "source_location": "L42",
       "_origin": "ast",
       "id": "src_ui_components_molecules_navigation_mapstatetoprops",
-      "community": 8,
-      "community_name": "Header.tsx",
+      "community": 39,
+      "community_name": "UI.tsx",
       "norm_label": "mapstatetoprops()"
     },
     {
@@ -13837,8 +13870,8 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "src_ui_components_molecules_paginationcontrols_test",
-      "community": 18,
-      "community_name": "ComponentsGrid.tsx",
+      "community": 13,
+      "community_name": "react",
       "norm_label": "paginationcontrols.test.tsx"
     },
     {
@@ -13848,8 +13881,8 @@
       "source_location": "L5",
       "_origin": "ast",
       "id": "src_ui_components_molecules_paginationcontrols_test_noop",
-      "community": 18,
-      "community_name": "ComponentsGrid.tsx",
+      "community": 13,
+      "community_name": "react",
       "norm_label": "noop()"
     },
     {
@@ -13859,8 +13892,8 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "src_ui_components_molecules_paginationcontrols",
-      "community": 18,
-      "community_name": "ComponentsGrid.tsx",
+      "community": 13,
+      "community_name": "react",
       "norm_label": "paginationcontrols.tsx"
     },
     {
@@ -13870,8 +13903,8 @@
       "source_location": "L5",
       "_origin": "ast",
       "id": "src_ui_components_molecules_paginationcontrols_paginationcontrolsprops",
-      "community": 18,
-      "community_name": "ComponentsGrid.tsx",
+      "community": 13,
+      "community_name": "react",
       "norm_label": "paginationcontrolsprops"
     },
     {
@@ -13881,8 +13914,8 @@
       "source_location": "L17",
       "_origin": "ast",
       "id": "src_ui_components_molecules_paginationcontrols_paginationcontrols",
-      "community": 18,
-      "community_name": "ComponentsGrid.tsx",
+      "community": 13,
+      "community_name": "react",
       "norm_label": "paginationcontrols()"
     },
     {
@@ -13892,8 +13925,8 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "src_ui_components_molecules_statbar",
-      "community": 13,
-      "community_name": "LootItem",
+      "community": 18,
+      "community_name": "StatBar.tsx",
       "norm_label": "statbar.tsx"
     },
     {
@@ -13903,8 +13936,8 @@
       "source_location": "L6",
       "_origin": "ast",
       "id": "src_ui_components_molecules_statbar_statbarprops",
-      "community": 13,
-      "community_name": "LootItem",
+      "community": 18,
+      "community_name": "StatBar.tsx",
       "norm_label": "statbarprops"
     },
     {
@@ -13914,8 +13947,8 @@
       "source_location": "L14",
       "_origin": "ast",
       "id": "src_ui_components_molecules_statbar_statbar",
-      "community": 13,
-      "community_name": "LootItem",
+      "community": 18,
+      "community_name": "StatBar.tsx",
       "norm_label": "statbar()"
     },
     {
@@ -13944,7 +13977,7 @@
       "label": "StatsStyles",
       "file_type": "code",
       "source_file": "src/ui/components/molecules/Stats.tsx",
-      "source_location": "L12",
+      "source_location": "L14",
       "_origin": "ast",
       "id": "src_ui_components_molecules_stats_statsstyles",
       "community": 45,
@@ -13955,7 +13988,7 @@
       "label": "StatsProps",
       "file_type": "code",
       "source_file": "src/ui/components/molecules/Stats.tsx",
-      "source_location": "L16",
+      "source_location": "L18",
       "_origin": "ast",
       "id": "src_ui_components_molecules_stats_statsprops",
       "community": 45,
@@ -13966,11 +13999,11 @@
       "label": "Stats()",
       "file_type": "code",
       "source_file": "src/ui/components/molecules/Stats.tsx",
-      "source_location": "L21",
+      "source_location": "L23",
       "_origin": "ast",
       "id": "src_ui_components_molecules_stats_stats",
-      "community": 52,
-      "community_name": "PlayerStats",
+      "community": 45,
+      "community_name": "Stats.tsx",
       "norm_label": "stats()"
     },
     {
@@ -13980,8 +14013,8 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "src_ui_components_organisms_dialog_test",
-      "community": 39,
-      "community_name": "react",
+      "community": 24,
+      "community_name": "HUD.ts",
       "norm_label": "dialog.test.tsx"
     },
     {
@@ -13991,8 +14024,8 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "src_ui_components_organisms_dialog",
-      "community": 39,
-      "community_name": "react",
+      "community": 24,
+      "community_name": "HUD.ts",
       "norm_label": "dialog.tsx"
     },
     {
@@ -14002,8 +14035,8 @@
       "source_location": "L4",
       "_origin": "ast",
       "id": "src_ui_components_organisms_dialog_dialogprops",
-      "community": 39,
-      "community_name": "react",
+      "community": 24,
+      "community_name": "HUD.ts",
       "norm_label": "dialogprops"
     },
     {
@@ -14013,8 +14046,8 @@
       "source_location": "L8",
       "_origin": "ast",
       "id": "src_ui_components_organisms_dialog_dialog_root_id",
-      "community": 39,
-      "community_name": "react",
+      "community": 24,
+      "community_name": "HUD.ts",
       "norm_label": "dialog_root_id"
     },
     {
@@ -14024,8 +14057,8 @@
       "source_location": "L16",
       "_origin": "ast",
       "id": "src_ui_components_organisms_dialog_getdialogroot",
-      "community": 39,
-      "community_name": "react",
+      "community": 24,
+      "community_name": "HUD.ts",
       "norm_label": "getdialogroot()"
     },
     {
@@ -14035,8 +14068,8 @@
       "source_location": "L26",
       "_origin": "ast",
       "id": "src_ui_components_organisms_dialog_dialog",
-      "community": 39,
-      "community_name": "react",
+      "community": 24,
+      "community_name": "HUD.ts",
       "norm_label": "dialog()"
     },
     {
@@ -14079,8 +14112,8 @@
       "source_location": "L16",
       "_origin": "ast",
       "id": "src_ui_components_organisms_groupedattributes_groupedattributes",
-      "community": 13,
-      "community_name": "LootItem",
+      "community": 90,
+      "community_name": "gameReducer.ts",
       "norm_label": "groupedattributes()"
     },
     {
@@ -14098,7 +14131,7 @@
       "label": "StatItem",
       "file_type": "code",
       "source_file": "src/ui/components/organisms/GroupedStats.tsx",
-      "source_location": "L6",
+      "source_location": "L7",
       "_origin": "ast",
       "id": "src_ui_components_organisms_groupedstats_statitem",
       "community": 52,
@@ -14109,7 +14142,7 @@
       "label": "GroupedStatsProps",
       "file_type": "code",
       "source_file": "src/ui/components/organisms/GroupedStats.tsx",
-      "source_location": "L12",
+      "source_location": "L14",
       "_origin": "ast",
       "id": "src_ui_components_organisms_groupedstats_groupedstatsprops",
       "community": 52,
@@ -14120,7 +14153,7 @@
       "label": "GroupedStats()",
       "file_type": "code",
       "source_file": "src/ui/components/organisms/GroupedStats.tsx",
-      "source_location": "L16",
+      "source_location": "L18",
       "_origin": "ast",
       "id": "src_ui_components_organisms_groupedstats_groupedstats",
       "community": 52,
@@ -14134,8 +14167,8 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "src_ui_components_organisms_header",
-      "community": 8,
-      "community_name": "Header.tsx",
+      "community": 39,
+      "community_name": "UI.tsx",
       "norm_label": "header.tsx"
     },
     {
@@ -14145,8 +14178,8 @@
       "source_location": "L7",
       "_origin": "ast",
       "id": "src_ui_components_organisms_header_headerconfig",
-      "community": 8,
-      "community_name": "Header.tsx",
+      "community": 39,
+      "community_name": "UI.tsx",
       "norm_label": "headerconfig"
     },
     {
@@ -14156,8 +14189,8 @@
       "source_location": "L13",
       "_origin": "ast",
       "id": "src_ui_components_organisms_header_headerprops",
-      "community": 8,
-      "community_name": "Header.tsx",
+      "community": 39,
+      "community_name": "UI.tsx",
       "norm_label": "headerprops"
     },
     {
@@ -14167,8 +14200,8 @@
       "source_location": "L18",
       "_origin": "ast",
       "id": "src_ui_components_organisms_header_header",
-      "community": 8,
-      "community_name": "Header.tsx",
+      "community": 39,
+      "community_name": "UI.tsx",
       "norm_label": "header()"
     },
     {
@@ -14178,8 +14211,8 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "src_ui_components_organisms_stock",
-      "community": 13,
-      "community_name": "LootItem",
+      "community": 40,
+      "community_name": "Armory.tsx",
       "norm_label": "stock.tsx"
     },
     {
@@ -14189,8 +14222,8 @@
       "source_location": "L5",
       "_origin": "ast",
       "id": "src_ui_components_organisms_stock_stock",
-      "community": 13,
-      "community_name": "LootItem",
+      "community": 40,
+      "community_name": "Armory.tsx",
       "norm_label": "stock()"
     },
     {
@@ -14201,7 +14234,7 @@
       "_origin": "ast",
       "id": "src_ui_components_protons_customdraglayer",
       "community": 13,
-      "community_name": "LootItem",
+      "community_name": "react",
       "norm_label": "customdraglayer.tsx"
     },
     {
@@ -14212,7 +14245,7 @@
       "_origin": "ast",
       "id": "src_ui_components_protons_customdraglayer_offset",
       "community": 13,
-      "community_name": "LootItem",
+      "community_name": "react",
       "norm_label": "offset"
     },
     {
@@ -14223,7 +14256,7 @@
       "_origin": "ast",
       "id": "src_ui_components_protons_customdraglayer_getitemstyles",
       "community": 13,
-      "community_name": "LootItem",
+      "community_name": "react",
       "norm_label": "getitemstyles()"
     },
     {
@@ -14234,7 +14267,7 @@
       "_origin": "ast",
       "id": "src_ui_components_protons_customdraglayer_customdraglayer",
       "community": 13,
-      "community_name": "LootItem",
+      "community_name": "react",
       "norm_label": "customdraglayer()"
     },
     {
@@ -14245,7 +14278,7 @@
       "_origin": "ast",
       "id": "src_ui_components_templates_arcanum",
       "community": 39,
-      "community_name": "react",
+      "community_name": "UI.tsx",
       "norm_label": "arcanum.tsx"
     },
     {
@@ -14256,7 +14289,7 @@
       "_origin": "ast",
       "id": "src_ui_components_templates_arcanum_arcanum",
       "community": 39,
-      "community_name": "react",
+      "community_name": "UI.tsx",
       "norm_label": "arcanum()"
     },
     {
@@ -14266,8 +14299,8 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "src_ui_components_templates_armory_test",
-      "community": 25,
-      "community_name": "store/index.ts",
+      "community": 40,
+      "community_name": "Armory.tsx",
       "norm_label": "armory.test.tsx"
     },
     {
@@ -14277,8 +14310,8 @@
       "source_location": "L11",
       "_origin": "ast",
       "id": "src_ui_components_templates_armory_test_sampleitems",
-      "community": 25,
-      "community_name": "store/index.ts",
+      "community": 40,
+      "community_name": "Armory.tsx",
       "norm_label": "sampleitems"
     },
     {
@@ -14288,8 +14321,8 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "src_ui_components_templates_armory",
-      "community": 25,
-      "community_name": "store/index.ts",
+      "community": 40,
+      "community_name": "Armory.tsx",
       "norm_label": "armory.tsx"
     },
     {
@@ -14299,8 +14332,8 @@
       "source_location": "L12",
       "_origin": "ast",
       "id": "src_ui_components_templates_armory_sortkey",
-      "community": 25,
-      "community_name": "store/index.ts",
+      "community": 40,
+      "community_name": "Armory.tsx",
       "norm_label": "sortkey"
     },
     {
@@ -14310,8 +14343,8 @@
       "source_location": "L14",
       "_origin": "ast",
       "id": "src_ui_components_templates_armory_armory",
-      "community": 25,
-      "community_name": "store/index.ts",
+      "community": 40,
+      "community_name": "Armory.tsx",
       "norm_label": "armory()"
     },
     {
@@ -14321,8 +14354,8 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "src_ui_components_templates_biomeselect_test",
-      "community": 39,
-      "community_name": "react",
+      "community": 23,
+      "community_name": "TownScene.ts",
       "norm_label": "biomeselect.test.tsx"
     },
     {
@@ -14332,8 +14365,8 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "src_ui_components_templates_biomeselect",
-      "community": 39,
-      "community_name": "react",
+      "community": 23,
+      "community_name": "TownScene.ts",
       "norm_label": "biomeselect.tsx"
     },
     {
@@ -14344,7 +14377,7 @@
       "_origin": "ast",
       "id": "src_ui_components_templates_biomeselect_biomeselect",
       "community": 39,
-      "community_name": "react",
+      "community_name": "UI.tsx",
       "norm_label": "biomeselect()"
     },
     {
@@ -14355,7 +14388,7 @@
       "_origin": "ast",
       "id": "src_ui_components_templates_character",
       "community": 13,
-      "community_name": "LootItem",
+      "community_name": "react",
       "norm_label": "character.tsx"
     },
     {
@@ -14366,7 +14399,7 @@
       "_origin": "ast",
       "id": "src_ui_components_templates_character_character",
       "community": 13,
-      "community_name": "LootItem",
+      "community_name": "react",
       "norm_label": "character()"
     },
     {
@@ -14377,7 +14410,7 @@
       "_origin": "ast",
       "id": "src_ui_components_templates_characterselect",
       "community": 39,
-      "community_name": "react",
+      "community_name": "UI.tsx",
       "norm_label": "characterselect.tsx"
     },
     {
@@ -14388,7 +14421,7 @@
       "_origin": "ast",
       "id": "src_ui_components_templates_characterselect_characterselect",
       "community": 39,
-      "community_name": "react",
+      "community_name": "UI.tsx",
       "norm_label": "characterselect()"
     },
     {
@@ -14399,7 +14432,7 @@
       "_origin": "ast",
       "id": "src_ui_components_templates_confirmreturn_test",
       "community": 39,
-      "community_name": "react",
+      "community_name": "UI.tsx",
       "norm_label": "confirmreturn.test.tsx"
     },
     {
@@ -14410,7 +14443,7 @@
       "_origin": "ast",
       "id": "src_ui_components_templates_confirmreturn",
       "community": 39,
-      "community_name": "react",
+      "community_name": "UI.tsx",
       "norm_label": "confirmreturn.tsx"
     },
     {
@@ -14421,7 +14454,7 @@
       "_origin": "ast",
       "id": "src_ui_components_templates_confirmreturn_confirmreturn",
       "community": 39,
-      "community_name": "react",
+      "community_name": "UI.tsx",
       "norm_label": "confirmreturn()"
     },
     {
@@ -14519,8 +14552,8 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "src_ui_components_templates_hud",
-      "community": 25,
-      "community_name": "store/index.ts",
+      "community": 18,
+      "community_name": "StatBar.tsx",
       "norm_label": "hud.tsx"
     },
     {
@@ -14530,8 +14563,8 @@
       "source_location": "L7",
       "_origin": "ast",
       "id": "src_ui_components_templates_hud_level",
-      "community": 25,
-      "community_name": "store/index.ts",
+      "community": 18,
+      "community_name": "StatBar.tsx",
       "norm_label": "level"
     },
     {
@@ -14541,8 +14574,8 @@
       "source_location": "L13",
       "_origin": "ast",
       "id": "src_ui_components_templates_hud_hud",
-      "community": 25,
-      "community_name": "store/index.ts",
+      "community": 18,
+      "community_name": "StatBar.tsx",
       "norm_label": "hud()"
     },
     {
@@ -14695,8 +14728,8 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "src_ui_components_templates_system_test",
-      "community": 39,
-      "community_name": "react",
+      "community": 24,
+      "community_name": "HUD.ts",
       "norm_label": "system.test.tsx"
     },
     {
@@ -14707,7 +14740,7 @@
       "_origin": "ast",
       "id": "src_ui_components_templates_system",
       "community": 39,
-      "community_name": "react",
+      "community_name": "UI.tsx",
       "norm_label": "system.tsx"
     },
     {
@@ -14718,7 +14751,7 @@
       "_origin": "ast",
       "id": "src_ui_components_templates_system_system",
       "community": 39,
-      "community_name": "react",
+      "community_name": "UI.tsx",
       "norm_label": "system()"
     },
     {
@@ -14728,8 +14761,8 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "src_ui_hooks_usearmory",
-      "community": 13,
-      "community_name": "LootItem",
+      "community": 14,
+      "community_name": "armoryClient.ts",
       "norm_label": "usearmory.ts"
     },
     {
@@ -14739,8 +14772,8 @@
       "source_location": "L17",
       "_origin": "ast",
       "id": "src_ui_hooks_usearmory_armorystatus",
-      "community": 13,
-      "community_name": "LootItem",
+      "community": 14,
+      "community_name": "armoryClient.ts",
       "norm_label": "armorystatus"
     },
     {
@@ -14750,8 +14783,8 @@
       "source_location": "L28",
       "_origin": "ast",
       "id": "src_ui_hooks_usearmory_usearmory",
-      "community": 13,
-      "community_name": "LootItem",
+      "community": 14,
+      "community_name": "armoryClient.ts",
       "norm_label": "usearmory"
     },
     {
@@ -14838,8 +14871,8 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "src_ui_hooks_usepagination_test",
-      "community": 18,
-      "community_name": "ComponentsGrid.tsx",
+      "community": 13,
+      "community_name": "react",
       "norm_label": "usepagination.test.ts"
     },
     {
@@ -14849,8 +14882,8 @@
       "source_location": "L5",
       "_origin": "ast",
       "id": "src_ui_hooks_usepagination_test_range",
-      "community": 18,
-      "community_name": "ComponentsGrid.tsx",
+      "community": 13,
+      "community_name": "react",
       "norm_label": "range()"
     },
     {
@@ -14860,8 +14893,8 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "src_ui_hooks_usepagination",
-      "community": 18,
-      "community_name": "ComponentsGrid.tsx",
+      "community": 13,
+      "community_name": "react",
       "norm_label": "usepagination.ts"
     },
     {
@@ -14871,8 +14904,8 @@
       "source_location": "L8",
       "_origin": "ast",
       "id": "src_ui_hooks_usepagination_pagination",
-      "community": 18,
-      "community_name": "ComponentsGrid.tsx",
+      "community": 13,
+      "community_name": "react",
       "norm_label": "pagination"
     },
     {
@@ -14882,8 +14915,8 @@
       "source_location": "L22",
       "_origin": "ast",
       "id": "src_ui_hooks_usepagination_usepagination",
-      "community": 18,
-      "community_name": "ComponentsGrid.tsx",
+      "community": 13,
+      "community_name": "react",
       "norm_label": "usepagination()"
     },
     {
@@ -14893,8 +14926,8 @@
       "source_location": "L57",
       "_origin": "ast",
       "id": "src_ui_hooks_usepagination_measuredpagesize",
-      "community": 18,
-      "community_name": "ComponentsGrid.tsx",
+      "community": 13,
+      "community_name": "react",
       "norm_label": "measuredpagesize"
     },
     {
@@ -14904,8 +14937,8 @@
       "source_location": "L68",
       "_origin": "ast",
       "id": "src_ui_hooks_usepagination_griddims",
-      "community": 18,
-      "community_name": "ComponentsGrid.tsx",
+      "community": 13,
+      "community_name": "react",
       "norm_label": "griddims"
     },
     {
@@ -14915,8 +14948,8 @@
       "source_location": "L78",
       "_origin": "ast",
       "id": "src_ui_hooks_usepagination_usemeasuredpagesize",
-      "community": 18,
-      "community_name": "ComponentsGrid.tsx",
+      "community": 13,
+      "community_name": "react",
       "norm_label": "usemeasuredpagesize()"
     },
     {
@@ -15124,8 +15157,8 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "src_ui_themes",
-      "community": 8,
-      "community_name": "Header.tsx",
+      "community": 39,
+      "community_name": "UI.tsx",
       "norm_label": "themes.ts"
     },
     {
@@ -15135,8 +15168,8 @@
       "source_location": "L12",
       "_origin": "ast",
       "id": "src_ui_themes_pixelbackgroundoptions",
-      "community": 8,
-      "community_name": "Header.tsx",
+      "community": 39,
+      "community_name": "UI.tsx",
       "norm_label": "pixelbackgroundoptions"
     },
     {
@@ -15146,8 +15179,8 @@
       "source_location": "L16",
       "_origin": "ast",
       "id": "src_ui_themes_pixelbackgroundvars",
-      "community": 8,
-      "community_name": "Header.tsx",
+      "community": 39,
+      "community_name": "UI.tsx",
       "norm_label": "pixelbackgroundvars()"
     },
     {
@@ -15157,8 +15190,8 @@
       "source_location": "L24",
       "_origin": "ast",
       "id": "src_ui_themes_pixelembossoptions",
-      "community": 8,
-      "community_name": "Header.tsx",
+      "community": 39,
+      "community_name": "UI.tsx",
       "norm_label": "pixelembossoptions"
     },
     {
@@ -15169,7 +15202,7 @@
       "_origin": "ast",
       "id": "src_ui_themes_pixelembossvars",
       "community": 13,
-      "community_name": "LootItem",
+      "community_name": "react",
       "norm_label": "pixelembossvars()"
     },
     {
@@ -41724,14 +41757,38 @@
       "weight": 1.0,
       "_origin": "ast",
       "source": "src_lib_statconversion_test",
+      "target": "src_lib_statconversion_formatstatvalue",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "imports",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "src/lib/statConversion.test.ts",
+      "source_location": "L2",
+      "weight": 1.0,
+      "_origin": "ast",
+      "source": "src_lib_statconversion_test",
       "target": "src_lib_statconversion_roundstat",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "imports",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "src/lib/statConversion.test.ts",
+      "source_location": "L2",
+      "weight": 1.0,
+      "_origin": "ast",
+      "source": "src_lib_statconversion_test",
+      "target": "src_lib_statconversion_statpolarity",
       "confidence_score": 1.0
     },
     {
       "relation": "contains",
       "confidence": "EXTRACTED",
       "source_file": "src/lib/statConversion.ts",
-      "source_location": "L128",
+      "source_location": "L204",
       "weight": 1.0,
       "_origin": "ast",
       "source": "src_lib_statconversion",
@@ -41742,7 +41799,7 @@
       "relation": "contains",
       "confidence": "EXTRACTED",
       "source_file": "src/lib/statConversion.ts",
-      "source_location": "L115",
+      "source_location": "L191",
       "weight": 1.0,
       "_origin": "ast",
       "source": "src_lib_statconversion",
@@ -41753,7 +41810,7 @@
       "relation": "contains",
       "confidence": "EXTRACTED",
       "source_file": "src/lib/statConversion.ts",
-      "source_location": "L32",
+      "source_location": "L50",
       "weight": 1.0,
       "_origin": "ast",
       "source": "src_lib_statconversion",
@@ -41764,7 +41821,7 @@
       "relation": "contains",
       "confidence": "EXTRACTED",
       "source_file": "src/lib/statConversion.ts",
-      "source_location": "L98",
+      "source_location": "L172",
       "weight": 1.0,
       "_origin": "ast",
       "source": "src_lib_statconversion",
@@ -41775,7 +41832,18 @@
       "relation": "contains",
       "confidence": "EXTRACTED",
       "source_file": "src/lib/statConversion.ts",
-      "source_location": "L121",
+      "source_location": "L228",
+      "weight": 1.0,
+      "_origin": "ast",
+      "source": "src_lib_statconversion",
+      "target": "src_lib_statconversion_formatstatvalue",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "src/lib/statConversion.ts",
+      "source_location": "L197",
       "weight": 1.0,
       "_origin": "ast",
       "source": "src_lib_statconversion",
@@ -41786,7 +41854,7 @@
       "relation": "contains",
       "confidence": "EXTRACTED",
       "source_file": "src/lib/statConversion.ts",
-      "source_location": "L18",
+      "source_location": "L27",
       "weight": 1.0,
       "_origin": "ast",
       "source": "src_lib_statconversion",
@@ -41797,11 +41865,33 @@
       "relation": "contains",
       "confidence": "EXTRACTED",
       "source_file": "src/lib/statConversion.ts",
-      "source_location": "L16",
+      "source_location": "L22",
       "weight": 1.0,
       "_origin": "ast",
       "source": "src_lib_statconversion",
       "target": "src_lib_statconversion_statformat",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "src/lib/statConversion.ts",
+      "source_location": "L217",
+      "weight": 1.0,
+      "_origin": "ast",
+      "source": "src_lib_statconversion",
+      "target": "src_lib_statconversion_statpolarity",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "src/lib/statConversion.ts",
+      "source_location": "L25",
+      "weight": 1.0,
+      "_origin": "ast",
+      "source": "src_lib_statconversion",
+      "target": "src_lib_statconversion_statunit",
       "confidence_score": 1.0
     },
     {
@@ -41820,6 +41910,18 @@
       "relation": "imports_from",
       "context": "import",
       "confidence": "EXTRACTED",
+      "source_file": "src/ui/components/molecules/Attributes.tsx",
+      "source_location": "L5",
+      "weight": 1.0,
+      "_origin": "ast",
+      "source": "src_ui_components_molecules_attributes",
+      "target": "src_lib_statconversion",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "imports_from",
+      "context": "import",
+      "confidence": "EXTRACTED",
       "source_file": "src/ui/components/molecules/ItemTooltip.tsx",
       "source_location": "L11",
       "weight": 1.0,
@@ -41829,11 +41931,23 @@
       "confidence_score": 1.0
     },
     {
+      "relation": "imports_from",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "src/ui/components/organisms/GroupedStats.tsx",
+      "source_location": "L5",
+      "weight": 1.0,
+      "_origin": "ast",
+      "source": "src_ui_components_organisms_groupedstats",
+      "target": "src_lib_statconversion",
+      "confidence_score": 1.0
+    },
+    {
       "relation": "calls",
       "context": "call",
       "confidence": "EXTRACTED",
       "source_file": "src/lib/statConversion.ts",
-      "source_location": "L129",
+      "source_location": "L205",
       "weight": 1.0,
       "_origin": "ast",
       "source": "src_lib_statconversion_appliedstatvalue",
@@ -41845,7 +41959,31 @@
       "context": "call",
       "confidence": "EXTRACTED",
       "source_file": "src/lib/statConversion.ts",
-      "source_location": "L130",
+      "source_location": "L233",
+      "weight": 1.0,
+      "_origin": "ast",
+      "source": "src_lib_statconversion_formatstatvalue",
+      "target": "src_lib_statconversion_conversionfor",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "calls",
+      "context": "call",
+      "confidence": "EXTRACTED",
+      "source_file": "src/lib/statConversion.ts",
+      "source_location": "L219",
+      "weight": 1.0,
+      "_origin": "ast",
+      "source": "src_lib_statconversion_statpolarity",
+      "target": "src_lib_statconversion_conversionfor",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "calls",
+      "context": "call",
+      "confidence": "EXTRACTED",
+      "source_file": "src/lib/statConversion.ts",
+      "source_location": "L206",
       "weight": 1.0,
       "_origin": "ast",
       "source": "src_lib_statconversion_appliedstatvalue",
@@ -41886,6 +42024,102 @@
       "_origin": "ast",
       "source": "src_ui_components_molecules_itemtooltip_itemtooltip",
       "target": "src_lib_statconversion_appliedstatvalue",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "imports",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "src/ui/components/molecules/ItemTooltip.tsx",
+      "source_location": "L11",
+      "weight": 1.0,
+      "_origin": "ast",
+      "source": "src_ui_components_molecules_itemtooltip",
+      "target": "src_lib_statconversion_statpolarity",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "calls",
+      "context": "call",
+      "confidence": "EXTRACTED",
+      "source_file": "src/ui/components/molecules/ItemTooltip.tsx",
+      "source_location": "L88",
+      "weight": 1.0,
+      "_origin": "ast",
+      "source": "src_ui_components_molecules_itemtooltip_itemtooltip",
+      "target": "src_lib_statconversion_statpolarity",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "imports",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "src/ui/components/molecules/Attributes.tsx",
+      "source_location": "L5",
+      "weight": 1.0,
+      "_origin": "ast",
+      "source": "src_ui_components_molecules_attributes",
+      "target": "src_lib_statconversion_formatstatvalue",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "calls",
+      "context": "call",
+      "confidence": "EXTRACTED",
+      "source_file": "src/ui/components/molecules/Attributes.tsx",
+      "source_location": "L32",
+      "weight": 1.0,
+      "_origin": "ast",
+      "source": "src_ui_components_molecules_attributes_attributes",
+      "target": "src_lib_statconversion_formatstatvalue",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "imports",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "src/ui/components/molecules/ItemTooltip.tsx",
+      "source_location": "L11",
+      "weight": 1.0,
+      "_origin": "ast",
+      "source": "src_ui_components_molecules_itemtooltip",
+      "target": "src_lib_statconversion_formatstatvalue",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "calls",
+      "context": "call",
+      "confidence": "EXTRACTED",
+      "source_file": "src/ui/components/molecules/ItemTooltip.tsx",
+      "source_location": "L41",
+      "weight": 1.0,
+      "_origin": "ast",
+      "source": "src_ui_components_molecules_itemtooltip_itemtooltip",
+      "target": "src_lib_statconversion_formatstatvalue",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "imports",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "src/ui/components/organisms/GroupedStats.tsx",
+      "source_location": "L5",
+      "weight": 1.0,
+      "_origin": "ast",
+      "source": "src_ui_components_organisms_groupedstats",
+      "target": "src_lib_statconversion_formatstatvalue",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "calls",
+      "context": "call",
+      "confidence": "EXTRACTED",
+      "source_file": "src/ui/components/organisms/GroupedStats.tsx",
+      "source_location": "L40",
+      "weight": 1.0,
+      "_origin": "ast",
+      "source": "src_ui_components_organisms_groupedstats_groupedstats",
+      "target": "src_lib_statconversion_formatstatvalue",
       "confidence_score": 1.0
     },
     {
@@ -48474,7 +48708,7 @@
       "context": "generic_arg",
       "confidence": "EXTRACTED",
       "source_file": "src/ui/components/organisms/GroupedStats.tsx",
-      "source_location": "L13",
+      "source_location": "L15",
       "weight": 1.0,
       "_origin": "ast",
       "source": "src_ui_components_organisms_groupedstats_groupedstatsprops",
@@ -49198,7 +49432,7 @@
       "relation": "contains",
       "confidence": "EXTRACTED",
       "source_file": "src/ui/components/atoms/Attribute.tsx",
-      "source_location": "L12",
+      "source_location": "L17",
       "weight": 1.0,
       "_origin": "ast",
       "source": "src_ui_components_atoms_attribute",
@@ -49928,7 +50162,7 @@
       "relation": "contains",
       "confidence": "EXTRACTED",
       "source_file": "src/ui/components/atoms/Stat.tsx",
-      "source_location": "L12",
+      "source_location": "L17",
       "weight": 1.0,
       "_origin": "ast",
       "source": "src_ui_components_atoms_stat",
@@ -50746,7 +50980,7 @@
       "relation": "indirect_call",
       "confidence": "INFERRED",
       "source_file": "src/ui/components/molecules/ItemTooltip.tsx",
-      "source_location": "L124",
+      "source_location": "L130",
       "weight": 1.0,
       "_origin": "ast",
       "context": "argument",
@@ -50769,7 +51003,7 @@
       "relation": "indirect_call",
       "confidence": "INFERRED",
       "source_file": "src/ui/components/molecules/ItemTooltip.tsx",
-      "source_location": "L124",
+      "source_location": "L130",
       "weight": 1.0,
       "_origin": "ast",
       "context": "argument",
@@ -51258,7 +51492,7 @@
       "relation": "contains",
       "confidence": "EXTRACTED",
       "source_file": "src/ui/components/molecules/Stats.tsx",
-      "source_location": "L21",
+      "source_location": "L23",
       "weight": 1.0,
       "_origin": "ast",
       "source": "src_ui_components_molecules_stats",
@@ -51269,7 +51503,7 @@
       "relation": "contains",
       "confidence": "EXTRACTED",
       "source_file": "src/ui/components/molecules/Stats.tsx",
-      "source_location": "L16",
+      "source_location": "L18",
       "weight": 1.0,
       "_origin": "ast",
       "source": "src_ui_components_molecules_stats",
@@ -51280,7 +51514,7 @@
       "relation": "contains",
       "confidence": "EXTRACTED",
       "source_file": "src/ui/components/molecules/Stats.tsx",
-      "source_location": "L12",
+      "source_location": "L14",
       "weight": 1.0,
       "_origin": "ast",
       "source": "src_ui_components_molecules_stats",
@@ -51584,7 +51818,7 @@
       "relation": "contains",
       "confidence": "EXTRACTED",
       "source_file": "src/ui/components/organisms/GroupedStats.tsx",
-      "source_location": "L16",
+      "source_location": "L18",
       "weight": 1.0,
       "_origin": "ast",
       "source": "src_ui_components_organisms_groupedstats",
@@ -51595,7 +51829,7 @@
       "relation": "contains",
       "confidence": "EXTRACTED",
       "source_file": "src/ui/components/organisms/GroupedStats.tsx",
-      "source_location": "L12",
+      "source_location": "L14",
       "weight": 1.0,
       "_origin": "ast",
       "source": "src_ui_components_organisms_groupedstats",
@@ -51606,7 +51840,7 @@
       "relation": "contains",
       "confidence": "EXTRACTED",
       "source_file": "src/ui/components/organisms/GroupedStats.tsx",
-      "source_location": "L6",
+      "source_location": "L7",
       "weight": 1.0,
       "_origin": "ast",
       "source": "src_ui_components_organisms_groupedstats",
@@ -55385,5 +55619,5 @@
     }
   ],
   "hyperedges": [],
-  "built_at_commit": "20c57b3e5e9fad6ae60fcc36f677bbdf12089124"
+  "built_at_commit": "a5c3ad72a30a8b87d32270603161545bd6448a4f"
 }

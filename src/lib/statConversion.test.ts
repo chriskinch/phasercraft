@@ -1,5 +1,12 @@
 import { describe, it, expect } from "vitest";
-import { appliedStatValue, conversionFor, roundStat, DEFAULT_CONVERSION } from "./statConversion";
+import {
+    appliedStatValue,
+    conversionFor,
+    roundStat,
+    statPolarity,
+    formatStatValue,
+    DEFAULT_CONVERSION,
+} from "./statConversion";
 
 describe("statConversion", () => {
     describe("conversionFor", () => {
@@ -84,6 +91,66 @@ describe("statConversion", () => {
             // base_stats, which turned a 1s attack cooldown into 31s.
             expect(appliedStatValue("attack_speed", 30)).not.toBe(30);
             expect(appliedStatValue("health_max", 30)).not.toBe(30);
+        });
+    });
+
+    describe("statPolarity", () => {
+        // Regression: polarity used to be Math.sign(difference). For the interval
+        // stats a *smaller* number is the better item, so a faster weapon produced a
+        // negative difference and got coloured red as though it were a downgrade.
+        it("treats a faster attack_speed as an improvement", () => {
+            const equipped = appliedStatValue("attack_speed", 20);
+            const faster = appliedStatValue("attack_speed", 50);
+            expect(faster).toBeLessThan(equipped); // lower delay = faster
+            expect(statPolarity("attack_speed", faster - equipped)).toBe(1);
+        });
+
+        it("treats a slower attack_speed as a regression", () => {
+            expect(statPolarity("attack_speed", 0.03)).toBe(-1);
+        });
+
+        it("treats a shorter health_regen_rate as an improvement", () => {
+            expect(statPolarity("health_regen_rate", -0.02)).toBe(1);
+        });
+
+        it("keeps the intuitive direction for normal stats", () => {
+            expect(statPolarity("attack_power", 15)).toBe(1);
+            expect(statPolarity("attack_power", -15)).toBe(-1);
+            expect(statPolarity("health_max", 120)).toBe(1);
+        });
+
+        it("is neutral on no change", () => {
+            expect(statPolarity("attack_power", 0)).toBe(0);
+            expect(statPolarity("attack_speed", 0)).toBe(0);
+        });
+
+        it("defaults unknown stats to higher-is-better", () => {
+            expect(statPolarity("not_a_stat", 5)).toBe(1);
+        });
+    });
+
+    describe("formatStatValue", () => {
+        it.each([
+            ["attack_speed", 0.98, "0.98s"],
+            ["health_regen_rate", 0.73, "0.73s"],
+            ["resource_regen_rate", 2, "2s"],
+            ["critical_chance", 13, "13%"],
+            ["attack_power", 65, "65"],
+            ["health_max", 1420, "1420"],
+        ])("renders %s with its unit", (name, value, expected) => {
+            expect(formatStatValue(name, value as number)).toBe(expected);
+        });
+
+        it("signs comparison deltas but not absolutes", () => {
+            expect(formatStatValue("attack_power", 15, { signed: true })).toBe("+15");
+            expect(formatStatValue("attack_power", 15)).toBe("15");
+            // A negative attack_speed delta is a buff; the sign is literal, the colour
+            // (from statPolarity) is what communicates good vs bad.
+            expect(formatStatValue("attack_speed", -0.02, { signed: true })).toBe("-0.02s");
+        });
+
+        it("falls back to a bare number for unknown stats", () => {
+            expect(formatStatValue("not_a_stat", 7)).toBe("7");
         });
     });
 });

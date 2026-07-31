@@ -7,9 +7,20 @@ interface AttributeProps {
     label: string;
     value: number;
     polarity?: number;
+    /**
+     * Preformatted value carrying its unit (`0.98s`, `13%`). Supplied by callers that
+     * know the stat name; falls back to the bare rounded number when absent.
+     */
+    display?: string;
 }
 
-const Attribute: React.FC<AttributeProps> = ({ delimeter = ":", label, value, polarity }) => {
+const Attribute: React.FC<AttributeProps> = ({
+    delimeter = ":",
+    label,
+    value,
+    polarity,
+    display,
+}) => {
     const getColor = (): string => {
         if (!polarity) return "black";
         return polarity > 0 ? "#10b981" : "#ef4444";
@@ -25,7 +36,7 @@ const Attribute: React.FC<AttributeProps> = ({ delimeter = ":", label, value, po
                 className={styles.value}
                 style={{ "--attribute-color": getColor() } as React.CSSProperties}
             >
-                {round(value, 2)}
+                {display ?? round(value, 2)}
             </dd>
         </>
     );
