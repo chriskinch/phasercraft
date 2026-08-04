@@ -9,21 +9,62 @@
        0.75rem side padding, with a half-em of slack for the monospace fallback. */
     --actions-col: calc(6.5em + 1.5rem);
     grid-template-columns: 1fr var(--actions-col);
-    grid-template-areas: "coins tabs" "stock act";
-    grid-template-rows: min-content 1fr;
+    grid-template-areas:
+        "mode  coins"
+        "stock tabs"
+        "stock act";
+    grid-template-rows: min-content min-content 1fr;
+}
+
+/* The grey title chip and the Buy/Sell toggle sit together across the top. */
+.modeSection {
+    grid-area: mode;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+/* The title shares the button shape but is a plain grey label, not a control. */
+.title {
+    margin: 0;
+    padding: 0 0.75rem;
+    height: 1.5em;
+    line-height: 1.5em;
+    font-size: 1.5em;
+    border-radius: 3px;
+    background-color: #8a8a8a;
+    border-bottom: 2px solid #5c5c5c;
+    box-shadow: 0 3px 0px #5c5c5c;
+    color: #222;
+    text-shadow: 0 1px rgba(255, 255, 255, 0.5);
+    white-space: nowrap;
+}
+
+.modeButtons {
+    display: flex;
+    gap: 0.5rem;
+}
+
+/* The inactive mode is dimmed so the active Buy/Sell reads as selected while both
+   keep their identity colour (Buy yellow, Sell blue). */
+.inactive {
+    opacity: 0.5;
+}
+
+.active {
+    opacity: 1;
 }
 
 .coinsSection {
     grid-area: coins;
-}
-
-.coinsSection h2 {
-    margin-bottom: 0.25rem;
+    align-self: center;
+    justify-self: end;
 }
 
 .stockSection {
     grid-area: stock;
     padding: 0.5em;
+    min-height: 0;
 }
 
 /* Tabs sit top-right, above the sell/buy actions. */
@@ -44,7 +85,23 @@
     gap: 0.25rem;
 }
 
-/* The quantity stepper sits directly above the Sell button; - and + share the
+.buyControls {
+    display: flex;
+    flex-direction: column;
+    align-items: stretch;
+    gap: 0.25rem;
+}
+
+/* The countdown to the next parts restock. Small and wrap-friendly so it fits the
+   fixed actions column. */
+.timer {
+    font-size: 0.85rem;
+    text-align: center;
+    color: #a5b4c1;
+    margin-bottom: 0.25rem;
+}
+
+/* The quantity stepper sits directly above the Buy/Sell button; - and + share the
    row evenly and use the same font size as the other buttons. */
 .stepper {
     display: flex;
@@ -56,24 +113,12 @@
     flex: 1;
 }
 
-/* The buy buttons sit below the sell controls, one per component type. */
-.buySection {
-    display: flex;
-    flex-direction: column;
-    align-items: stretch;
-    gap: 0.25rem;
-    margin-top: 0.5rem;
-}
-
-.buySection h3 {
-    margin-bottom: 0.25rem;
-}
-
 /* Button is content-box, so its width:100% + side padding would overflow the
    fixed column. Scoped here rather than on the atom to leave every other screen's
    button metrics untouched. */
 .tabsSection button,
-.actionsSection button {
+.actionsSection button,
+.modeButtons button {
     box-sizing: border-box;
 }
 

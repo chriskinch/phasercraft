@@ -10,7 +10,7 @@ import type {
     ComponentStack,
     ComponentType,
 } from "@/types/game";
-import { COMPONENT_DEFS, componentBuyPrice } from "@/types/game";
+import { COMPONENT_DEFS, componentBuyPrice, merchantWindow, merchantPartsBase } from "@/types/game";
 import { appliedStatValue } from "@/lib/statConversion";
 import type { PlayerName } from "@entities/Player/AssignClass";
 import type { BiomeId } from "@/scenes/biomes/biomes";
@@ -28,6 +28,27 @@ interface Level {
     toNextLevel: number;
     currentLevel: number;
 }
+
+// Ephemeral Merchant shop stock. Never persisted meaningfully (reset in loadGame,
+// like enemiesRemaining/travelRequest) — "forgotten on reset". Two halves:
+//  - Parts: a random base roll seeded by the wall-clock window (see
+//    merchantPartsBase). `partsDelta` layers the run's net sells (+) and buys (-)
+//    on top of that base; when the window rolls over it is wiped, so the sold and
+//    bought counts are forgotten and stock returns to the fresh roll. Selling can
+//    push a type's stock above MERCHANT_MAX_STOCK.
+//  - Gear: `gearStock` is exactly the gear the player has sold this session. It is
+//    NOT tied to the restock window — it lasts until the game is closed or reset.
+export interface MerchantState {
+    partsWindow: number;
+    partsDelta: Partial<Record<ComponentType, number>>;
+    gearStock: LootItem[];
+}
+
+const freshMerchant = (): MerchantState => ({
+    partsWindow: merchantWindow(Date.now()),
+    partsDelta: {},
+    gearStock: [],
+});
 
 export interface GameState {
     character: PlayerName | null;
@@ -55,6 +76,7 @@ export interface GameState {
     currentArea: string;
     travelRequest: TravelDestination | null;
     playerPosition: { x: number; y: number };
+    merchant: MerchantState;
 }
 
 // Init
@@ -90,6 +112,7 @@ const initState: GameState = {
     currentArea: "town",
     travelRequest: null,
     playerPosition: { x: 400, y: 300 },
+    merchant: freshMerchant(),
 };
 
 // Actions
@@ -107,6 +130,19 @@ export const addComponent = createAction("ADD_COMPONENT", (type: ComponentType) 
 
 export const buyComponent = createAction("BUY_COMPONENT", (type: ComponentType) => ({
     payload: { type },
+}));
+
+// The Merchant UI dispatches this on open and whenever its countdown crosses a
+// window boundary, passing the current wall-clock window. The reducer rolls the
+// parts stock over — wiping the run's sold/bought counts — only when the window
+// actually changes, so it is safe to call every tick.
+export const refreshMerchant = createAction("REFRESH_MERCHANT", (window: number) => ({
+    payload: { window },
+}));
+
+// Buy back a piece of gear the player previously sold to the Merchant.
+export const buyGear = createAction("BUY_GEAR", (loot: LootItem) => ({
+    payload: { loot },
 }));
 
 export const sellComponent = createAction("SELL_COMPONENT", (stackId: string, count: number) => ({
@@ -264,13 +300,45 @@ export const gameReducer = createReducer(initState, (builder) => {
             const { type } = action.payload;
             // Unknown types have no definition (and so no price) — ignore them.
             if (!COMPONENT_DEFS[type]) return;
+            // The shop must actually hold one: base roll for the current window plus
+            // the run's net delta. `partsWindow` is kept current by refreshMerchant,
+            // so this stays pure (no Date.now() in the reducer).
+            const stock =
+                merchantPartsBase(state.merchant.partsWindow, type) +
+                (state.merchant.partsDelta[type] ?? 0);
+            if (stock <= 0) return;
             const price = componentBuyPrice(type);
             // Refuse the purchase if the player can't afford it, so coins never go
             // negative. The Merchant UI also disables the button, but the reducer is
             // the source of truth. (Stricter than buyLoot, which does not guard.)
             if (state.coins < price) return;
             state.coins -= price;
+            // Buying removes one from the shop's stock for this window.
+            state.merchant.partsDelta[type] = (state.merchant.partsDelta[type] ?? 0) - 1;
             stackComponent(state.components, type);
+        })
+        .addCase(refreshMerchant, (state, action: PayloadAction<{ window: number }>) => {
+            const { window } = action.payload;
+            // Only a genuine window change rolls the stock: wipe the run's net
+            // sold/bought part counts so stock returns to the fresh random roll.
+            if (window !== state.merchant.partsWindow) {
+                state.merchant.partsWindow = window;
+                state.merchant.partsDelta = {};
+            }
+        })
+        .addCase(buyGear, (state, action: PayloadAction<{ loot: LootItem }>) => {
+            const { loot } = action.payload;
+            // Only gear the player actually sold to the Merchant is buyable back.
+            if (!state.merchant.gearStock.some((l) => l.id === loot.id)) return;
+            // No merchant margin on gear: the buy-back price is exactly the sell
+            // refund (see sellLoot's `Math.round(loot.cost / 3)`).
+            const price = Math.round(loot.cost / 3);
+            if (state.coins < price) return;
+            state.coins -= price;
+            remove(state.merchant.gearStock, (l) => l.id === loot.id);
+            // sellLoot also pushed it into the armory `loot` pool; keep them in sync.
+            remove(state.loot, (l) => l.id === loot.id);
+            state.inventory.push(loot);
         })
         .addCase(
             sellComponent,
@@ -283,6 +351,10 @@ export const gameReducer = createReducer(initState, (builder) => {
                 if (sold === 0) return;
                 stack.quantity -= sold;
                 state.coins += COMPONENT_DEFS[stack.type].sellValue * sold;
+                // Selling raises the Merchant's stock for this window (can exceed
+                // MERCHANT_MAX_STOCK; wiped when the window rolls over).
+                state.merchant.partsDelta[stack.type] =
+                    (state.merchant.partsDelta[stack.type] ?? 0) + sold;
                 if (stack.quantity <= 0) remove(state.components, (s) => s.id === stackId);
             }
         )
@@ -291,6 +363,8 @@ export const gameReducer = createReducer(initState, (builder) => {
             const stack = state.components.find((s) => s.id === stackId);
             if (!stack) return;
             state.coins += COMPONENT_DEFS[stack.type].sellValue * stack.quantity;
+            state.merchant.partsDelta[stack.type] =
+                (state.merchant.partsDelta[stack.type] ?? 0) + stack.quantity;
             remove(state.components, (s) => s.id === stackId);
         })
         .addCase(addLoot, (state, action: PayloadAction<{ id: string }>) => {
@@ -352,6 +426,9 @@ export const gameReducer = createReducer(initState, (builder) => {
                 // Transient: a request captured mid-save would teleport the
                 // player on load.
                 travelRequest: null,
+                // Ephemeral shop stock — loading a save is a reset, so the
+                // Merchant starts fresh rather than restoring any saved stock.
+                merchant: freshMerchant(),
             } as GameState;
         })
         .addCase(setEnemiesRemaining, (state, action: PayloadAction<{ value: number }>) => {
@@ -370,6 +447,9 @@ export const gameReducer = createReducer(initState, (builder) => {
             const { loot } = action.payload;
             remove(state.inventory, (l) => l.id === loot.id);
             state.loot.push(loot);
+            // Sold gear becomes buyable back from the Merchant for the rest of the
+            // session (gear stock is not tied to the parts restock window).
+            state.merchant.gearStock.push(loot);
             state.coins += Math.round(loot.cost / 3);
             state.selected = null;
         })
