@@ -1,0 +1,11 @@
+.toggle {
+    display: flex;
+    gap: 0.5rem;
+    align-items: center;
+}
+
+/* Buttons default to a 0.5rem bottom margin; the header row centres them, so drop
+   it to keep them aligned with the title. */
+.toggle button {
+    margin-bottom: 0;
+}

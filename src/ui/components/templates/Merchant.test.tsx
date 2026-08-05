@@ -3,14 +3,17 @@ import { fireEvent, screen, within } from "@testing-library/react";
 import { renderWithProviders } from "@ui/test-utils/renderWithProviders";
 import Merchant from "@components/Merchant";
 import { componentBuyPrice, merchantWindow, merchantPartsBase } from "@/types/game";
-import type { GameState, MerchantState } from "@store/gameReducer";
+import type { GameState, MerchantState, MerchantMode } from "@store/gameReducer";
 import type { ComponentType, LootItem } from "@/types/game";
 
 // A merchant slice pinned to the current wall-clock window (so the component's
 // mount refresh doesn't wipe it) with plenty of every part in stock. Buy tests
-// then never depend on the window's random base roll.
+// then never depend on the window's random base roll. The Buy/Sell toggle lives
+// in the shared header (see MerchantModeToggle), so `mode` is seeded here rather
+// than clicked in these panel-only tests.
 function stockedMerchant(over: Partial<MerchantState> = {}): MerchantState {
     return {
+        mode: "buy",
         partsWindow: merchantWindow(Date.now()),
         partsDelta: { scrap: 50, cloth: 50, ichor: 50, bone: 50 },
         gearStock: [],
@@ -34,30 +37,23 @@ function makeItem(overrides: Partial<LootItem> = {}): LootItem {
     };
 }
 
-function render(partial: Partial<GameState>) {
+function render(partial: Partial<GameState>, mode: MerchantMode = "buy") {
+    const base = partial.merchant ?? stockedMerchant();
     return renderWithProviders(<Merchant />, {
-        preloadedGame: { merchant: stockedMerchant(), ...partial },
+        preloadedGame: { ...partial, merchant: { ...base, mode } },
     });
 }
 
-// "Buy"/"Sell" name both a mode toggle and an action button, so queries are
-// scoped to the relevant section.
-const clickMode = (name: "Buy" | "Sell") =>
-    fireEvent.click(within(screen.getByTestId("merchant-modes")).getByRole("button", { name }));
 const actions = () => within(screen.getByTestId("merchant-actions"));
 
 describe("Merchant template", () => {
-    it("defaults to Buy mode on the Parts tab with the shop stock and countdown", () => {
+    it("shows the coin balance, tabs and (in Buy/Parts) the shop grid + countdown", () => {
         render({ coins: 42 });
 
-        expect(screen.getByRole("heading", { name: "Merchant" })).toBeInTheDocument();
         expect(screen.getByTestId("merchant-coins")).toHaveTextContent("42");
-        const modes = within(screen.getByTestId("merchant-modes"));
-        expect(modes.getByRole("button", { name: "Buy" })).toBeInTheDocument();
-        expect(modes.getByRole("button", { name: "Sell" })).toBeInTheDocument();
         expect(screen.getByRole("button", { name: "Gear" })).toBeInTheDocument();
         expect(screen.getByRole("button", { name: "Parts" })).toBeInTheDocument();
-        // Buy + Parts shows the shop grid and a restock countdown.
+        // Buy + Parts (defaults) shows the shop grid and a restock countdown.
         expect(screen.getByTestId("parts-shop-grid")).toBeInTheDocument();
         expect(screen.getByTestId("restock-timer")).toHaveTextContent(/Refreshes in \d+:\d\d/);
     });
@@ -126,8 +122,7 @@ describe("Merchant template", () => {
 
     describe("Sell", () => {
         it("has no buy controls in sell mode", () => {
-            render({ coins: 100 });
-            clickMode("Sell");
+            render({ coins: 100 }, "sell");
 
             expect(screen.queryByTestId("buy-parts-controls")).not.toBeInTheDocument();
             expect(screen.queryByTestId("restock-timer")).not.toBeInTheDocument();
@@ -136,13 +131,11 @@ describe("Merchant template", () => {
 
         it("sells the selected gear item and credits a third of its cost", () => {
             const sellable = makeItem({ id: "sell-me", cost: 30 });
-            const { store } = render({
-                inventory: [sellable],
-                selected: sellable,
-                coins: 100,
-            });
+            const { store } = render(
+                { inventory: [sellable], selected: sellable, coins: 100 },
+                "sell"
+            );
 
-            clickMode("Sell");
             fireEvent.click(screen.getByRole("button", { name: "Gear" }));
             fireEvent.click(actions().getByRole("button", { name: "Sell" }));
 
@@ -154,20 +147,18 @@ describe("Merchant template", () => {
         });
 
         it("sells a component stack and raises the merchant's stock", () => {
-            const { store } = render({
-                components: [{ id: "stack-1", type: "cloth", quantity: 4 }],
-                coins: 0,
-            });
+            const { store } = render(
+                { components: [{ id: "stack-1", type: "cloth", quantity: 4 }], coins: 0 },
+                "sell"
+            );
 
-            clickMode("Sell"); // Parts is the default tab
-            // Select the stack, then sell it all.
+            // Parts is the default tab; select the stack, then sell it all.
             fireEvent.click(screen.getByRole("button", { name: "Cloth ×4" }));
             fireEvent.click(actions().getByRole("button", { name: "Sell All" }));
 
             const state = store.getState().game;
             expect(state.components).toEqual([]);
             expect(state.coins).toBeGreaterThan(0);
-            // Selling into the shop bumps its stock delta for the type.
             expect(state.merchant.partsDelta.cloth).toBeGreaterThanOrEqual(4);
         });
     });

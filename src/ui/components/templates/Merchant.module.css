@@ -10,49 +10,10 @@
     --actions-col: calc(6.5em + 1.5rem);
     grid-template-columns: 1fr var(--actions-col);
     grid-template-areas:
-        "mode  coins"
+        "stock coins"
         "stock tabs"
         "stock act";
     grid-template-rows: min-content min-content 1fr;
-}
-
-/* The grey title chip and the Buy/Sell toggle sit together across the top. */
-.modeSection {
-    grid-area: mode;
-    display: flex;
-    align-items: center;
-    gap: 0.5rem;
-}
-
-/* The title shares the button shape but is a plain grey label, not a control. */
-.title {
-    margin: 0;
-    padding: 0 0.75rem;
-    height: 1.5em;
-    line-height: 1.5em;
-    font-size: 1.5em;
-    border-radius: 3px;
-    background-color: #8a8a8a;
-    border-bottom: 2px solid #5c5c5c;
-    box-shadow: 0 3px 0px #5c5c5c;
-    color: #222;
-    text-shadow: 0 1px rgba(255, 255, 255, 0.5);
-    white-space: nowrap;
-}
-
-.modeButtons {
-    display: flex;
-    gap: 0.5rem;
-}
-
-/* The inactive mode is dimmed so the active Buy/Sell reads as selected while both
-   keep their identity colour (Buy yellow, Sell blue). */
-.inactive {
-    opacity: 0.5;
-}
-
-.active {
-    opacity: 1;
 }
 
 .coinsSection {
@@ -117,8 +78,7 @@
    fixed column. Scoped here rather than on the atom to leave every other screen's
    button metrics untouched. */
 .tabsSection button,
-.actionsSection button,
-.modeButtons button {
+.actionsSection button {
     box-sizing: border-box;
 }
 

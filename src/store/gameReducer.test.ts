@@ -17,6 +17,7 @@ import {
     buyComponent,
     buyGear,
     refreshMerchant,
+    setMerchantMode,
     sellComponent,
     sellComponentStack,
     loadGame,
@@ -33,6 +34,7 @@ import { COMPONENT_DEFS, componentBuyPrice, merchantPartsBase } from "@/types/ga
 // tests never depend on the current wall-clock window's random base roll.
 const STOCKED_WINDOW = 1_000;
 const stockedMerchant = () => ({
+    mode: "buy" as const,
     partsWindow: STOCKED_WINDOW,
     partsDelta: { scrap: 50, cloth: 50, ichor: 50, bone: 50 },
     gearStock: [],
@@ -345,6 +347,7 @@ describe("gameReducer", () => {
                 coins: 100,
                 components: [],
                 merchant: {
+                    mode: "buy" as const,
                     partsWindow: STOCKED_WINDOW,
                     partsDelta: { scrap: -base },
                     gearStock: [],
@@ -376,7 +379,12 @@ describe("gameReducer", () => {
             const initial = gameReducer(undefined, { type: "@@INIT" });
             const seeded = {
                 ...initial,
-                merchant: { partsWindow: STOCKED_WINDOW, partsDelta: { scrap: 4 }, gearStock: [] },
+                merchant: {
+                    mode: "buy" as const,
+                    partsWindow: STOCKED_WINDOW,
+                    partsDelta: { scrap: 4 },
+                    gearStock: [],
+                },
             };
 
             // Same window: the run's sold/bought counts survive.
@@ -441,6 +449,7 @@ describe("gameReducer", () => {
             const withStock = {
                 ...initial,
                 merchant: {
+                    mode: "sell" as const,
                     partsWindow: 42,
                     partsDelta: { scrap: 9 },
                     gearStock: [item],
@@ -448,8 +457,17 @@ describe("gameReducer", () => {
             };
 
             const next = gameReducer(withStock, loadGame(withStock));
+            expect(next.merchant.mode).toBe("buy");
             expect(next.merchant.partsDelta).toEqual({});
             expect(next.merchant.gearStock).toEqual([]);
+        });
+
+        it("setMerchantMode switches the shop side", () => {
+            const initial = gameReducer(undefined, { type: "@@INIT" });
+            expect(initial.merchant.mode).toBe("buy");
+            const selling = gameReducer(initial, setMerchantMode("sell"));
+            expect(selling.merchant.mode).toBe("sell");
+            expect(gameReducer(selling, setMerchantMode("buy")).merchant.mode).toBe("buy");
         });
     });
 

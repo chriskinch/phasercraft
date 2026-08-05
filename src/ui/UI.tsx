@@ -18,6 +18,7 @@ import HUD from "@components/HUD";
 import InstallBanner from "@components/InstallBanner";
 import MainMenu from "@components/MainMenu";
 import Merchant from "@components/Merchant";
+import MerchantModeToggle from "@components/MerchantModeToggle";
 import Save from "@components/Save";
 import Settings from "@components/Settings";
 import System from "@components/System";
@@ -34,6 +35,11 @@ type MenuComponent = React.ComponentType<Record<string, unknown>>;
 interface MenuConfig {
     component: MenuComponent;
     title: string;
+    // Overrides the default blue title colour in the header (Merchant uses grey).
+    titleColor?: string;
+    // Optional controls rendered in the header next to the title (e.g. the
+    // Merchant's Buy/Sell toggle). Reads its own state from the store.
+    headerControls?: React.FC;
     navigation?: boolean;
     props?: Record<string, unknown>;
     close?: boolean;
@@ -82,6 +88,9 @@ const UI: React.FC = () => {
         merchant: {
             component: asMenuComponent(Merchant),
             title: "Merchant",
+            // Grey title (not the default blue) with the Buy/Sell toggle beside it.
+            titleColor: "#8a8a8a",
+            headerControls: MerchantModeToggle,
             close: true,
         },
         biomeSelect: {

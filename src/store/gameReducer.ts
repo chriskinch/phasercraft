@@ -38,13 +38,20 @@ interface Level {
 //    push a type's stock above MERCHANT_MAX_STOCK.
 //  - Gear: `gearStock` is exactly the gear the player has sold this session. It is
 //    NOT tied to the restock window — it lasts until the game is closed or reset.
+export type MerchantMode = "buy" | "sell";
+
 export interface MerchantState {
+    // Which side of the shop is showing. Ephemeral UI state, but lives here because
+    // the Buy/Sell toggle renders in the shared overlay header while the shop
+    // contents render in the Merchant panel — Redux is the bridge between them.
+    mode: MerchantMode;
     partsWindow: number;
     partsDelta: Partial<Record<ComponentType, number>>;
     gearStock: LootItem[];
 }
 
 const freshMerchant = (): MerchantState => ({
+    mode: "buy",
     partsWindow: merchantWindow(Date.now()),
     partsDelta: {},
     gearStock: [],
@@ -143,6 +150,11 @@ export const refreshMerchant = createAction("REFRESH_MERCHANT", (window: number)
 // Buy back a piece of gear the player previously sold to the Merchant.
 export const buyGear = createAction("BUY_GEAR", (loot: LootItem) => ({
     payload: { loot },
+}));
+
+// Switch the Merchant between its Buy and Sell sides (the header toggle).
+export const setMerchantMode = createAction("SET_MERCHANT_MODE", (mode: MerchantMode) => ({
+    payload: { mode },
 }));
 
 export const sellComponent = createAction("SELL_COMPONENT", (stackId: string, count: number) => ({
@@ -316,6 +328,9 @@ export const gameReducer = createReducer(initState, (builder) => {
             // Buying removes one from the shop's stock for this window.
             state.merchant.partsDelta[type] = (state.merchant.partsDelta[type] ?? 0) - 1;
             stackComponent(state.components, type);
+        })
+        .addCase(setMerchantMode, (state, action: PayloadAction<{ mode: MerchantMode }>) => {
+            state.merchant.mode = action.payload.mode;
         })
         .addCase(refreshMerchant, (state, action: PayloadAction<{ window: number }>) => {
             const { window } = action.payload;

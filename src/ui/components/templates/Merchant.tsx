@@ -9,10 +9,12 @@ import {
     refreshMerchant,
 } from "@store/gameReducer";
 import Button from "@components/Button";
+import Coins from "@components/Coins";
 import GearGrid from "@components/GearGrid";
 import ComponentsGrid from "@components/ComponentsGrid";
 import PartsShopGrid from "@components/PartsShopGrid";
 import GearShopGrid from "@components/GearShopGrid";
+import { MERCHANT_ACTIVE_BLUE } from "@components/MerchantModeToggle";
 import {
     COMPONENT_DEFS,
     componentBuyPrice,
@@ -25,11 +27,7 @@ import type { RootState } from "@store";
 import theme from "@ui/themes.module.css";
 import styles from "./Merchant.module.css";
 
-type Mode = "buy" | "sell";
 type Tab = "gear" | "parts";
-
-// Buy is the default mode; Parts is the default tab (parts over gear).
-const SELL_BLUE = "#4aa3df";
 
 // mm:ss for the "refreshes in" countdown.
 const formatCountdown = (ms: number): string => {
@@ -39,20 +37,24 @@ const formatCountdown = (ms: number): string => {
     return `${m}:${s.toString().padStart(2, "0")}`;
 };
 
-// The town Merchant shop. A Buy/Sell toggle sits next to the grey title, each
-// mode with its own Gear/Parts tabs:
+// The tab convention across the shop: the active tab is blue, inactive tabs are
+// the standard yellow. `undefined` bg_color falls back to the Button's yellow.
+const tabColor = (active: boolean) => (active ? MERCHANT_ACTIVE_BLUE : undefined);
+
+// The town Merchant shop panel. The Buy/Sell mode toggle lives in the shared
+// overlay header (see MerchantModeToggle) and is read here from the store; this
+// panel renders the matching side, each with its own Gear/Parts tabs:
 //  - Sell shows the player's inventory (reusing the gear/component grids and the
 //    sell reducers).
 //  - Buy shows the shop's stock: Parts restock on a wall-clock 10-minute cycle
 //    (with a live countdown); Gear is whatever the player has sold this session.
-// Selection and quantity live here because both grids share the actions column.
 const Merchant: React.FC = () => {
     const dispatch = useDispatch();
     const { coins, selected, inventory, components, merchant } = useSelector(
         (state: RootState) => state.game
     );
+    const mode = merchant.mode;
 
-    const [mode, setMode] = useState<Mode>("buy");
     const [tab, setTab] = useState<Tab>("parts");
     // Sell-parts selection + quantity.
     const [selectedComponentId, setSelectedComponentId] = useState<string | null>(null);
@@ -114,11 +116,6 @@ const Merchant: React.FC = () => {
     const gearBuyable = !!selected && merchant.gearStock.some((l) => l.id === selected.id);
     const gearBuyPrice = selected ? Math.round(selected.cost / 3) : 0;
 
-    const switchMode = (next: Mode) => {
-        setMode(next);
-        setBuyType(null);
-        setSelectedComponentId(null);
-    };
     const switchTab = (next: Tab) => {
         setTab(next);
         setBuyType(null);
@@ -127,30 +124,8 @@ const Merchant: React.FC = () => {
 
     return (
         <div className={styles.merchantContainer}>
-            <section className={styles.modeSection}>
-                <h2 className={`${theme.pixelEmboss} ${styles.title}`}>Merchant</h2>
-                <div
-                    className={styles.modeButtons}
-                    role="tablist"
-                    aria-label="Buy or sell"
-                    data-testid="merchant-modes"
-                >
-                    <span className={onBuy ? styles.active : styles.inactive}>
-                        <Button text="Buy" onClick={() => switchMode("buy")} />
-                    </span>
-                    <span className={!onBuy ? styles.active : styles.inactive}>
-                        <Button
-                            text="Sell"
-                            bg_color={SELL_BLUE}
-                            onClick={() => switchMode("sell")}
-                        />
-                    </span>
-                </div>
-            </section>
             <section className={styles.coinsSection}>
-                <span className={styles.value} data-testid="merchant-coins">
-                    {coins}
-                </span>
+                <Coins data-testid="merchant-coins" />
             </section>
             <section className={`${theme.pixelEmboss} ${styles.stockSection}`}>
                 {onBuy ? (
@@ -169,8 +144,16 @@ const Merchant: React.FC = () => {
                 )}
             </section>
             <section className={styles.tabsSection} role="tablist" aria-label="Gear or parts">
-                <Button text="Gear" on={!onParts} onClick={() => switchTab("gear")} />
-                <Button text="Parts" on={onParts} onClick={() => switchTab("parts")} />
+                <Button
+                    text="Gear"
+                    bg_color={tabColor(!onParts)}
+                    onClick={() => switchTab("gear")}
+                />
+                <Button
+                    text="Parts"
+                    bg_color={tabColor(onParts)}
+                    onClick={() => switchTab("parts")}
+                />
             </section>
             <section className={styles.actionsSection} data-testid="merchant-actions">
                 {onBuy ? (
