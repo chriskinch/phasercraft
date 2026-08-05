@@ -1,11 +1,14 @@
 .grid {
-    flex: 1;
-    min-height: 0;
-    overflow: hidden auto;
+    height: 100%;
     display: grid;
     gap: 1rem;
     grid-template-columns: repeat(auto-fill, minmax(44px, 1fr));
     align-content: start;
+    /* The quantity badge is offset -4px past the icon's right/bottom; pad the grid
+       (and don't clip) so the bottom row's badge isn't cut off. The sell grid
+       avoids this only because its flex panel makes it tall. */
+    padding: 2px 8px 8px 2px;
+    overflow: visible;
 }
 
 .slot {

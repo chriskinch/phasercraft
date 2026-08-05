@@ -1,15 +1,25 @@
 import React from "react";
 import { useSelector, useDispatch } from "react-redux";
-import Button from "@components/Button";
 import { setMerchantMode } from "@store/gameReducer";
+import { pixelBackgroundVars } from "@ui/themes";
+import theme from "@ui/themes.module.css";
 import type { RootState } from "@store";
 import styles from "./MerchantModeToggle.module.css";
 
+// The blue an active Merchant tab uses — matches the Character/Equipment nav tabs.
+// Exported so the Merchant panel's Gear/Parts tabs can share the same active blue.
+export const MERCHANT_ACTIVE_BLUE = "#44bff7";
+const INACTIVE_YELLOW = "#ffa53d";
+
 // The Merchant's Buy/Sell toggle. Rendered in the shared overlay header (to the
 // right of the title), so its state lives in the store rather than the Merchant
-// panel. Follows the tab convention: the active side is blue, the inactive side
-// the standard yellow.
-export const MERCHANT_ACTIVE_BLUE = "#44bff7";
+// panel. Styled as the same pixel-background tabs as the Character/Equipment nav
+// tabs: the active side is blue, the inactive side yellow.
+const tabStyle = (active: boolean): React.CSSProperties => ({
+    ...pixelBackgroundVars({ bg_color: active ? MERCHANT_ACTIVE_BLUE : INACTIVE_YELLOW }),
+    color: "white",
+    fontSize: "2em",
+});
 
 const MerchantModeToggle: React.FC = () => {
     const dispatch = useDispatch();
@@ -22,16 +32,22 @@ const MerchantModeToggle: React.FC = () => {
             aria-label="Buy or sell"
             data-testid="merchant-modes"
         >
-            <Button
-                text="Buy"
-                bg_color={mode === "buy" ? MERCHANT_ACTIVE_BLUE : undefined}
+            <button
+                type="button"
+                className={theme.pixelBackground}
+                style={tabStyle(mode === "buy")}
                 onClick={() => dispatch(setMerchantMode("buy"))}
-            />
-            <Button
-                text="Sell"
-                bg_color={mode === "sell" ? MERCHANT_ACTIVE_BLUE : undefined}
+            >
+                Buy
+            </button>
+            <button
+                type="button"
+                className={theme.pixelBackground}
+                style={tabStyle(mode === "sell")}
                 onClick={() => dispatch(setMerchantMode("sell"))}
-            />
+            >
+                Sell
+            </button>
         </div>
     );
 };
