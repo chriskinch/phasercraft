@@ -19,6 +19,9 @@ const tabStyle = (active: boolean): React.CSSProperties => ({
     ...pixelBackgroundVars({ bg_color: active ? MERCHANT_ACTIVE_BLUE : INACTIVE_YELLOW }),
     color: "white",
     fontSize: "2em",
+    // Same spacing the Character/Equipment nav tabs use; clears the pixel-background
+    // pseudo-borders that would otherwise make a small flex gap look cramped.
+    marginRight: "0.5em",
 });
 
 const MerchantModeToggle: React.FC = () => {

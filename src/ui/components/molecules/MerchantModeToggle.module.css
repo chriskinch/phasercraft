@@ -1,11 +1,13 @@
 .toggle {
     display: flex;
-    gap: 0.5rem;
     align-items: center;
 }
 
-/* Native tab buttons carry no default UA margin here; the flex gap spaces them. */
+/* Spacing comes from each button's marginRight (matching the nav tabs), so the
+   pixel-background pseudo-borders don't eat a small flex gap. */
 .toggle button {
-    margin: 0;
+    margin-top: 0;
+    margin-bottom: 0;
+    margin-left: 0;
     cursor: pointer;
 }
