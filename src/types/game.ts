@@ -113,13 +113,78 @@ export const GAME_BALANCE = {
 } as const;
 
 // Stackable crafting components (the non-currency loot routed through `Crafting`).
-// Single source of truth for each type's stack ceiling, sell value, icon frame and
-// display name. `stackMax`/`sellValue` are placeholder balance values — tune in review.
+// Single source of truth for each type's stack ceiling, sell value, icon frame,
+// display name and shop-tooltip flavour text. `stackMax`/`sellValue` are
+// placeholder balance values — tune in review.
 export const COMPONENT_DEFS: Record<ComponentType, ComponentDef> = {
-    scrap: { stackMax: 99, sellValue: 2, icon: "scrap", name: "Scrap" },
-    cloth: { stackMax: 99, sellValue: 3, icon: "cloth", name: "Cloth" },
-    ichor: { stackMax: 20, sellValue: 8, icon: "ichor", name: "Ichor" },
-    bone: { stackMax: 99, sellValue: 2, icon: "bone", name: "Bone" },
+    scrap: {
+        stackMax: 99,
+        sellValue: 2,
+        icon: "scrap",
+        name: "Scrap",
+        description: "Bent nails and busted buckles. One smith's junk is another's jackpot.",
+    },
+    cloth: {
+        stackMax: 99,
+        sellValue: 3,
+        icon: "cloth",
+        name: "Cloth",
+        description: "Softer than it looks, tougher than it smells. Great for patching heroes.",
+    },
+    ichor: {
+        stackMax: 20,
+        sellValue: 8,
+        icon: "ichor",
+        name: "Ichor",
+        description: "Still faintly glowing. Try not to think about where it came from.",
+    },
+    bone: {
+        stackMax: 99,
+        sellValue: 2,
+        icon: "bone",
+        name: "Bone",
+        description: "Ethically sourced from things that were already trying to eat you.",
+    },
+};
+
+// Every component type, as a runtime array (the union `ComponentType` is
+// compile-time only) — e.g. for the merchant's buy buttons.
+export const COMPONENT_TYPES = Object.keys(COMPONENT_DEFS) as ComponentType[];
+
+// Buying a part at the merchant costs a multiple of its sell value: a standard
+// shop margin so buying back is dearer than selling, and so hunting for parts
+// stays worthwhile. Placeholder balance value — tune in review.
+export const COMPONENT_BUY_MULTIPLIER = 3;
+export const componentBuyPrice = (type: ComponentType): number =>
+    COMPONENT_DEFS[type].sellValue * COMPONENT_BUY_MULTIPLIER;
+
+// --- Merchant stock rotation --------------------------------------------------
+// The Merchant's Parts stock re-rolls on a fixed real-time cycle, aligned to the
+// wall clock so the same window shows the same stock across a reload ("time of
+// day") and every client agrees without persisting anything. Gear stock is
+// session-lived and does NOT use any of this — it only tracks what the player
+// sold. All placeholder balance values — tune in review.
+export const MERCHANT_RESTOCK_MS = 10 * 60 * 1000; // 10 minutes
+export const MERCHANT_MAX_STOCK = 10; // ceiling for a random restock roll
+
+// Which restock window `now` falls in. Rolls over every MERCHANT_RESTOCK_MS,
+// which is the signal the shop uses to forget the run's sold/bought part counts.
+export const merchantWindow = (now: number): number => Math.floor(now / MERCHANT_RESTOCK_MS);
+
+// Milliseconds left in the current window, for the "refreshes in" countdown.
+export const merchantRestockRemaining = (now: number): number =>
+    MERCHANT_RESTOCK_MS - (now % MERCHANT_RESTOCK_MS);
+
+// Deterministic base stock (0..MERCHANT_MAX_STOCK inclusive) for a part type in a
+// given window. A tiny FNV-1a hash of `window:type` gives a stable spread with
+// nothing stored — not security-sensitive, just needs to look random per window.
+export const merchantPartsBase = (window: number, type: ComponentType): number => {
+    const key = `${window}:${type}`;
+    let h = 2166136261;
+    for (let i = 0; i < key.length; i++) {
+        h = Math.imul(h ^ key.charCodeAt(i), 16777619);
+    }
+    return (h >>> 0) % (MERCHANT_MAX_STOCK + 1);
 };
 
 export const ITEM_QUALITY_WEIGHTS = {
@@ -236,6 +301,8 @@ export interface ComponentDef {
     sellValue: number;
     icon: string;
     name: string;
+    // Short flavour blurb shown in the Merchant's buy tooltip.
+    description: string;
 }
 export interface LootDropRate {
     name: LootType;

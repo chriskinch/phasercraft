@@ -7,6 +7,11 @@ import styles from "./Header.module.css";
 interface HeaderConfig {
     navigation?: boolean;
     title?: string;
+    // Overrides the default blue title colour (the Merchant uses grey).
+    titleColor?: string;
+    // Optional controls rendered in the header, to the right of the title (e.g.
+    // the Merchant's Buy/Sell toggle). Reads its own state from the store.
+    headerControls?: React.FC;
     close?: boolean;
 }
 
@@ -16,7 +21,7 @@ interface HeaderProps {
 }
 
 const Header: React.FC<HeaderProps> = ({ config, toggleUi }) => {
-    const { navigation, title, close } = config || {};
+    const { navigation, title, titleColor, headerControls: HeaderControls, close } = config || {};
 
     if (navigation) {
         return (
@@ -30,7 +35,12 @@ const Header: React.FC<HeaderProps> = ({ config, toggleUi }) => {
     } else {
         return (
             <>
-                <Title text={title || ""} />
+                <Title text={title || ""} color={titleColor} />
+                {HeaderControls && (
+                    <div className={styles.headerControls}>
+                        <HeaderControls />
+                    </div>
+                )}
                 <div className={styles.closeButton}>
                     {close && <Button text="X" onClick={() => toggleUi()} />}
                 </div>

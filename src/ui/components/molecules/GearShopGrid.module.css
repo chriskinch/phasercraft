@@ -1,0 +1,16 @@
+.panel {
+    display: flex;
+    flex-direction: column;
+    height: 100%;
+    gap: 0.5rem;
+}
+
+.grid {
+    flex: 1;
+    min-height: 0;
+    overflow: hidden;
+    display: grid;
+    gap: 1rem;
+    grid-template-columns: repeat(var(--cols), 1fr);
+    align-content: start;
+}
