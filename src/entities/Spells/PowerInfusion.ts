@@ -34,11 +34,11 @@ class PowerInfusion extends Boon {
             duration: 15,
             targetKind: "self" as const,
             value: {
-                critical_chance: 10, // Increase by 10
-                attack_power: (bs: number) => bs * 0.2, // Increase by 20%
-                magic_power: (bs: number) => bs * 0.2, // Increase by 20%
-                speed: (bs: number) => bs * 0.1, // Increase by 10%;
-                resource_regen_value: (bs: number) => bs * 0.3, // Increase by 30%
+                critical_chance: 10,
+                attack_power: (bs: number) => bs * 0.2,
+                magic_power: (bs: number) => bs * 0.2,
+                speed: (bs: number) => bs * 0.1,
+                resource_regen_value: (bs: number) => bs * 0.3,
                 resource_regen_rate: -0.1, // Tick 0.1s more frequently
             },
         };
@@ -71,7 +71,6 @@ class PowerInfusion extends Boon {
     }
 
     clearEffect(): void {
-        // Check to confirm spell is gone from boon group before removing tint
         if (!this.player.boons.contains(this)) this.player.hero.clearTint();
     }
 

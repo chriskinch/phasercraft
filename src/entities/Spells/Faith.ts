@@ -47,7 +47,6 @@ class Faith extends Spell {
     }
 
     overTimeEffect(target: Player): void {
-        // Scales value bases on player stat
         const value = this.setValue({ base: 20, key: "magic_power" });
         target.health.adjustValue(value.amount, this.type, value.crit);
     }

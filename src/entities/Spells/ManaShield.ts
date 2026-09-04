@@ -27,7 +27,6 @@ class ManaShield extends Spell {
 
     effect(target: Player): void {
         this.setVisible(true);
-        // Scales value bases on player stat
         const value = this.setValue({ base: 130, key: "magic_power" });
         target.shield.adjustValue(value.amount);
         target.shield.once("shield:depleted", this.end, this);

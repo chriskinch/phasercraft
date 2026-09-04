@@ -52,8 +52,8 @@ class EarthShield extends Spell {
         this.scene.physics.world.enable(this);
         // this.body.syncBounds = true;
         this.body.isCircle = true;
-        this.body.setCircle(30); //TODO: Must be a better way!?
-        this.body.setOffset(40, 20); //TODO: Must be a better way!?
+        this.body.setCircle(30);
+        this.body.setOffset(40, 20);
         this.body.immovable = true;
         this.scene.physics.add.collider(
             (this.scene as GameSceneLike).active_enemies,
@@ -101,17 +101,14 @@ class EarthShield extends Spell {
     touch(object: ArcadeCollisionObject): void {
         const enemy = object as Enemy;
         if (this.ready) {
-            // The actual hit.
             const value = this.setValue({ base: 10, key: "magic_power" });
             enemy.health.adjustValue(-value.amount, this.type, value.crit);
-            // Reduce charges and scale.
             this.charges--;
             this.setScale(this.charges / this.capacity);
             // Not ready until delay timer completes.
             this.ready = false;
             this.throttleDelay = this.throttle();
         }
-        // Kill this spell when we are out of charges.
         if (this.charges <= 0) this.end();
     }
 

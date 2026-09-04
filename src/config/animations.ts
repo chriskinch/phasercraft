@@ -43,7 +43,6 @@ export default function createAnimations(scene: Phaser.Scene): void {
         repeatDelay: 2000,
     });
 
-    // Enemies
     const enemies: EnemyConfig = {
         atlas: "enemy",
         types: [

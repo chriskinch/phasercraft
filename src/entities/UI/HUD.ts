@@ -59,10 +59,8 @@ class UI extends GameObjects.Container {
         this.buttons = [this.setInvetoryIcon(), this.setSystemIcon()];
         if (showReturnToTown) this.buttons.push(this.setReturnToTownIcon());
 
-        // Add buttons to this container
         this.buttons.forEach((button) => this.add(button));
 
-        // Position buttons in the bottom right
         const { x, y, width, height } = (this.scene as GameSceneLike).zone;
         Actions.IncXY(this.buttons, x + width, y + height, -35);
 
@@ -90,7 +88,6 @@ class UI extends GameObjects.Container {
             // Preserve the runtime value; type-only cast, not a behaviour change.
             "keyup-R": () =>
                 store.dispatch(addLoot(Math.floor(Math.random() * 100) as unknown as string)),
-            // Saving
             "keyup-S": () => this.saveGame(),
             "keyup-D": () => this.deleteSaves(),
             "keyup-L": () => this.loadSavedGame(),
@@ -218,7 +215,6 @@ class UI extends GameObjects.Container {
     }
 
     cleanup(): void {
-        // Unsubscribe from all store subscriptions
         this.subscriptions.forEach((unsubscribe) => unsubscribe());
         this.subscriptions = [];
 

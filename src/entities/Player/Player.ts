@@ -85,7 +85,7 @@ class Player extends GameObjects.Container {
         this.attack_projectile = attack_projectile;
         this.name = "player";
         this.uuid = uuid();
-        const base_stats: PlayerStats = { ...stats, resource_type }; // Add resource type into to base stats.
+        const base_stats: PlayerStats = { ...stats, resource_type };
         // Adding this in place for when there is a stats state when resuming from gameover or a save.
         if (isEmpty(store.getState().game.base_stats)) store.dispatch(setBaseStats(base_stats));
         if (isEmpty(store.getState().game.stats)) store.dispatch(setStats(base_stats));
@@ -149,8 +149,6 @@ class Player extends GameObjects.Container {
         this.weapon = new Weapon({ scene: scene, key: "weapon-swooch" });
         this.add(this.weapon);
 
-        // This maps the stats section of the store to this.stats.
-        // Updates on store change using RxJS.
         this.subscriptions.push(
             mapStateToData("stats", (stats: unknown) => {
                 // Store stats might have different properties, so we handle the conversion
@@ -342,7 +340,7 @@ class Player extends GameObjects.Container {
         if (!target) return;
         this.moveToPosition(target);
         let distance = PhaserMath.Distance.Between(target.x, target.y, this.x, this.y);
-        let hit_distance = distance - 15; // TODO not 15;
+        let hit_distance = distance - 15;
 
         if (hit_distance <= (this.stats.range || 0)) {
             this.idle();
@@ -405,7 +403,7 @@ class Player extends GameObjects.Container {
     }
 
     isCritical(): boolean {
-        const rng = Math.random() * 100; // Percentage roll up to 100.
+        const rng = Math.random() * 100;
         return rng < (this.stats.critical_chance || 0);
     }
 
@@ -507,7 +505,6 @@ class Player extends GameObjects.Container {
     }
 
     cleanup(): void {
-        // Unsubscribe from all store subscriptions
         this.subscriptions.forEach((unsubscribe) => unsubscribe());
         this.subscriptions = [];
 

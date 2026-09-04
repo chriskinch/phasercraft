@@ -51,7 +51,6 @@ export default class GameOverScene extends Scene {
     }
 
     shutdown(): void {
-        // Clean up button event listener
         const buttonContainer = this.game_over as Phaser.GameObjects.Container & {
             button: Phaser.GameObjects.Image;
         };

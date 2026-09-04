@@ -183,10 +183,8 @@ class Spell extends GameObjects.Sprite {
             this.launchProjectile(target as unknown as ProjectileTarget);
         } else {
             this.effect(target);
-            // Do the animation
             this.animation = this.hasAnimation ? this.startAnimation() : null;
         }
-        // Charge the player some resource
         this.player.resource.adjustValue(-this.typedCost);
         // Check if cooldown should be trigger automatically. Other wise spell must handle this.
         if (!this.cooldownDelayAll) {
@@ -277,7 +275,6 @@ class Spell extends GameObjects.Sprite {
         const power = typeof statValue === "number" ? statValue : 0;
         // Value based on base + scaled percentage of base from power + flat percent of power
         const scaled = base + base * (power / 100) + power / 10;
-        // Check for crit
         const crit = this.player.isCritical();
         const total = reducer(crit ? scaled * 1.5 : scaled);
         return { crit: crit, amount: total };

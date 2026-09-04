@@ -105,7 +105,6 @@ class SiphonSoul extends Spell {
         });
     }
 
-    // Update gravity well position to follow the player
     updateGravityWellPosition(): void {
         if (this.gravityWell && this.player && this.target) {
             // Update gravity well position relative to emitter

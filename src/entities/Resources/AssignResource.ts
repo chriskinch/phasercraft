@@ -16,7 +16,6 @@ const classes = {
 export type AssignResourceType = Health | Rage | Mana | Energy | Shield;
 export type AssignResourceName = keyof typeof classes;
 
-// Union type of all resource types
 function AssignResource(className: AssignResourceName, opts: ResourceOptions) {
     return new classes[className](opts);
 }
