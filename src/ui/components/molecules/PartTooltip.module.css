@@ -1,0 +1,40 @@
+.tooltip {
+    font-size: 1em;
+    background-color: transparent !important;
+    padding: 0;
+    text-align: left;
+    /* Flavour text can be a full sentence; keep the card from stretching wide. */
+    max-width: 16rem;
+    opacity: 1;
+    z-index: 10;
+}
+
+.card {
+    border: 5px solid #888;
+    background: white;
+    padding: 0.5em 1em;
+    border-radius: 3px;
+}
+
+.title {
+    margin: 0 0 0.25em;
+}
+
+.price {
+    display: flex;
+    align-items: center;
+    gap: 0.25em;
+    color: #b8860b;
+    font-variant-numeric: tabular-nums;
+}
+
+.price img {
+    width: 16px;
+    height: 16px;
+}
+
+.description {
+    margin: 0.5em 0 0;
+    color: #444;
+    font-style: italic;
+}

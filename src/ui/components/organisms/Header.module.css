@@ -1,3 +1,13 @@
 .closeButton {
     float: right;
 }
+
+/* Sits to the right of the (left-floated) title. Aligns its buttons to the
+   title's baseline row. */
+.headerControls {
+    float: left;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    height: 100%;
+}

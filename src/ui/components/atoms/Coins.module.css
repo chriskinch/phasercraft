@@ -1,0 +1,16 @@
+.coins {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.35em;
+}
+
+.icon {
+    width: 24px;
+    height: 24px;
+    image-rendering: pixelated;
+}
+
+.value {
+    color: #ffc34d;
+    font-variant-numeric: tabular-nums;
+}
