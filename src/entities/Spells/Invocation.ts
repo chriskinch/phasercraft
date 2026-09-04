@@ -30,7 +30,7 @@ class Invocation extends Boon {
             duration: 5,
             targetKind: "self" as const,
             value: {
-                resource_regen_value: (bs: number) => bs * 4, // Increase by 400%
+                resource_regen_value: (bs: number) => bs * 4,
                 resource_regen_rate: -0.1, // Tick 0.1s more frequently
             },
         };

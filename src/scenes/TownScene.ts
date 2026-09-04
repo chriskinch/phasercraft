@@ -35,7 +35,6 @@ export default class TownScene extends Scene {
         UI: 10000,
         TOP: 99999,
     };
-    // Depth sorting function based on Y position
     private setDepthByY(
         sprite: GameObjects.Sprite | Player | Tilemaps.TilemapLayer | Tilemaps.TilemapGPULayer,
         offset: number = 0
@@ -44,7 +43,6 @@ export default class TownScene extends Scene {
         sprite.setDepth(depth);
     }
 
-    // Abstracted animation creation function
     private createAnimationForSprite(
         sprite: GameObjects.Sprite,
         animConfig: {
@@ -55,7 +53,6 @@ export default class TownScene extends Scene {
             repeat?: number;
         }
     ): void {
-        // Create animation if it doesn't exist
         if (!this.anims.exists(animConfig.key)) {
             this.anims.create({
                 key: animConfig.key,
@@ -68,7 +65,6 @@ export default class TownScene extends Scene {
             });
         }
 
-        // Play the animation
         sprite.play(animConfig.key);
     }
     private UI!: UI;
@@ -86,7 +82,6 @@ export default class TownScene extends Scene {
     }
 
     create(): void {
-        // Set current area in store
         store.dispatch(setCurrentArea("town"));
 
         const scene_padding = 40;
@@ -173,10 +168,8 @@ export default class TownScene extends Scene {
     }
 
     private createTownEnvironment(): void {
-        // Create tilemap from JSON file
         this.townMap = this.make.tilemap({ key: "town-map" });
 
-        // Add all tilesets used in the map (matching what's loaded in LoadScene)
         // The first parameter must match the tileset name in the .tmj file exactly
         // The second parameter must match the loaded image key from LoadScene
         const tilesets = {
@@ -295,7 +288,6 @@ export default class TownScene extends Scene {
         // so the recomputed tile coordinates are irrelevant.
         tilesets.stallObjects?.setSpacing(0, 0);
 
-        // Create layers in the correct order
         const allTilesets = Object.values(tilesets).filter((tileset) => tileset !== null);
 
         const layerNames = [
@@ -307,7 +299,6 @@ export default class TownScene extends Scene {
             "structure foreground",
             "flairs",
         ];
-        // Create and scale all layers (2x scaling)
         layerNames.forEach((layerName, index) => {
             const layer = this.townMap.createLayer(layerName, allTilesets);
             if (layer) {
@@ -317,10 +308,8 @@ export default class TownScene extends Scene {
             }
         });
 
-        // Create object layers for buildings and animated objects
         this.createObjectLayers();
 
-        // Set world bounds to match scaled map size (2x larger)
         const originalMapWidth = this.townMap.widthInPixels;
         const originalMapHeight = this.townMap.heightInPixels;
         const mapWidth = originalMapWidth * 2;
@@ -328,7 +317,6 @@ export default class TownScene extends Scene {
 
         this.physics.world.setBounds(0, 0, mapWidth, mapHeight);
 
-        // Update camera bounds to match world bounds
         this.cameras.main.setBounds(0, 0, mapWidth, mapHeight);
     }
 
@@ -345,10 +333,8 @@ export default class TownScene extends Scene {
         ];
 
         layerNames.forEach((layerName) => {
-            // Use Phaser's built-in createFromObjects method for buildings layer
             const sprites = this.townMap.createFromObjects(layerName, {});
 
-            // Scale and configure building sprites
             sprites.forEach((gameObject) => {
                 if (gameObject instanceof GameObjects.Sprite) {
                     const sprite = gameObject as GameObjects.Sprite;
@@ -363,7 +349,6 @@ export default class TownScene extends Scene {
     }
 
     private addAnimationsToSprite(sprite: GameObjects.Sprite): void {
-        // Check the texture key to determine what animations to add
         const textureKey = sprite.texture.key;
 
         switch (textureKey) {
@@ -397,17 +382,14 @@ export default class TownScene extends Scene {
     }
 
     private setupCollisions(): void {
-        // Set up collision with collision map object layer
         const collisionLayer = this.townMap.getObjectLayer("collision map");
         if (!collisionLayer) throw Error("Collision layer failed to load!");
 
-        // Ensure player has physics body
         if (!this.player.body) {
             console.warn("Player physics body not ready, cannot set up collisions");
             return;
         }
 
-        // Create collision bodies from object layer (scaled 2x to match map)
         collisionLayer.objects.forEach((obj: Types.Tilemaps.TiledObject, index: number) => {
             // Tiled rect/ellipse objects always carry x/y/width/height; the
             // non-null assertions preserve the original arithmetic exactly.
@@ -419,7 +401,6 @@ export default class TownScene extends Scene {
             let collisionBody: GameObjects.GameObject;
 
             if (obj.ellipse) {
-                // Handle ellipse collision objects
                 const ellipse = this.add.ellipse(
                     scaledX + scaledWidth / 2,
                     scaledY + scaledHeight / 2,
@@ -428,7 +409,6 @@ export default class TownScene extends Scene {
                 );
                 collisionBody = ellipse;
             } else {
-                // Handle rectangle collision objects
                 const rectangle = this.add.rectangle(
                     scaledX + scaledWidth / 2,
                     scaledY + scaledHeight / 2,
@@ -441,7 +421,6 @@ export default class TownScene extends Scene {
             // Enable physics and set as static body
             this.physics.add.existing(collisionBody, true);
 
-            // Add collision detection - this will now properly block the player
             this.physics.add.collider(this.player, collisionBody, () => {
                 // Debounced idle: only set to idle after 500ms of continuous collision
                 this.handleCollisionIdle();
@@ -450,12 +429,10 @@ export default class TownScene extends Scene {
     }
 
     private handleCollisionIdle(): void {
-        // Clear existing timer if it exists
         if (this.collisionIdleTimer) {
             this.collisionIdleTimer.destroy();
         }
 
-        // Set new timer for 500ms delay
         this.collisionIdleTimer = this.time.delayedCall(500, () => {
             if (this.player && this.player.body && this.player.body.speed < 20) {
                 this.player.idle();
@@ -465,7 +442,6 @@ export default class TownScene extends Scene {
     }
 
     private setupPOIInteractions(): void {
-        // Set up interaction zones from POI layer
         const poiLayer = this.townMap.getObjectLayer("POI");
         if (!poiLayer) {
             console.warn("No POI layer found in town map");
@@ -475,12 +451,10 @@ export default class TownScene extends Scene {
         this.interactionZones = this.add.group();
 
         poiLayer.objects.forEach((poi: Types.Tilemaps.TiledObject) => {
-            // Create interaction zone around each POI (scaled 2x to match map)
             const scaledX = poi.x! * 2;
             const scaledY = poi.y! * 2;
             const zone = this.add.zone(scaledX, scaledY, 32, 32); // 64x64 pixel interaction area (2x scaled)
 
-            // Map POI names to interaction types
             const { interactionType, displayName } = this.mapPOIToInteraction(poi.name);
 
             zone.setData("type", interactionType);
@@ -562,7 +536,6 @@ export default class TownScene extends Scene {
     // `poi` is the raw POI name (e.g. "armory"), which doubles as the UI menu key;
     // `displayName` is the human label (e.g. "Armory") used for logging.
     private handleInteraction(type: string, poi: string, displayName: string): void {
-        // Save current position before leaving town
         store.dispatch(setPlayerPosition({ x: this.player.x, y: this.player.y }));
 
         // Eventually this should universal on scene change. But... see fig.1
@@ -602,35 +575,29 @@ export default class TownScene extends Scene {
     update(time: number, delta: number): void {
         if (!this.player) return;
 
-        // Handle player movement
         if (this.player.alive) {
             this.player.update(this.input.activePointer, this.cursors, time, delta);
         }
         // Open a shop / interaction when the player walks onto its POI.
         this.updateInteractions();
-        // Update player depth based on Y position for proper sprite layering
         this.setDepthByY(this.player);
     }
 
     shutdown(): void {
         // Runs from the SHUTDOWN event. Idempotent: every release below is a
         // no-op when it has already happened.
-        // Clean up HUD subscriptions
         if (this.UI && this.UI.cleanup) {
             this.UI.cleanup();
         }
 
-        // Clean up player subscriptions
         if (this.player && this.player.cleanup) {
             this.player.cleanup();
         }
 
-        // Clean up input event listeners
         this.input.off("pointerdown");
         this.input.off("pointermove");
         this.input.off("pointerup");
 
-        // Clean up collision timer if it exists
         if (this.collisionIdleTimer) {
             this.collisionIdleTimer.destroy();
             this.collisionIdleTimer = undefined;

@@ -48,7 +48,6 @@ class Whirlwind extends Spell {
         // Modified if more the cap. This ensure that the spell is not massively overpowered.
         // TODO: Abstract this capping functionality out as many spells might use.
         const mod = this.powerCap(enemiesInRange);
-        // Scales value bases on player stat.
         const value = this.setValue({ base: 30, key: "attack_power" });
 
         enemiesInRange.forEach((target: Enemy) => {

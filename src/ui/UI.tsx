@@ -138,7 +138,6 @@ const UI: React.FC = () => {
         },
     };
 
-    // Use specified menu other use equipment as default
     const CurrentMenu = menu ? config[menu] : config.equipment;
     const isSystem = menu === "system";
     // The title screen (#382) is not a menu: it drops the header chrome and the

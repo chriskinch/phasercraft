@@ -32,8 +32,8 @@ class Enrage extends Boon {
             duration: 5,
             targetKind: "self" as const,
             value: {
-                critical_chance: 10, // Increase by 10
-                attack_power: (bs: number) => bs * 0.2, // Increase by 20%
+                critical_chance: 10,
+                attack_power: (bs: number) => bs * 0.2,
                 health_regen_value: (bs: number) => bs, // Increase by 100%
                 health_regen_rate: -0.25, // Tick 0.25s more frequently
             },
@@ -65,7 +65,6 @@ class Enrage extends Boon {
     }
 
     clearEffect(): void {
-        // Check to confirm spell is gone from boon group before removing tint
         if (!this.player.boons.contains(this)) this.player.hero.clearTint();
     }
 

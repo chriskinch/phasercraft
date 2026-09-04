@@ -96,7 +96,6 @@ const LootListDrag: React.FC<LootListDragProps> = ({ cols = 6, list, name }) => 
         >
             {list &&
                 list.map((loot, i) => {
-                    // Check for matching selected uuid
                     const isSelected = selected ? selected.id === loot.id : false;
                     return (
                         <LootDrag

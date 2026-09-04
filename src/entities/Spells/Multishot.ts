@@ -33,7 +33,6 @@ class Multishot extends Spell {
     }
 
     effect(target?: Enemy): void {
-        // Scales value bases on player stat.
         if (target) {
             const value = this.setValue({ base: 30, key: "attack_power" });
             target.health.adjustValue(-value.amount, this.type, value.crit);

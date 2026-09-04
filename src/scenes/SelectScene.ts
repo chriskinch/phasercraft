@@ -22,7 +22,6 @@ export default class SelectScene extends Scene {
     }
 
     create(): void {
-        // Save the returned unsub function and call one first action.
         // Looks like and infinite loop but actually acts like a "once" event.
         const unsubscribe = store.subscribe(() => {
             if (store.getState().game.character) {

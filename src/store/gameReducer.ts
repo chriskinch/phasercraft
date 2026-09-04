@@ -21,8 +21,6 @@ import type { BiomeId } from "@/scenes/biomes/biomes";
 // will replace the biome picker that sets it.
 export type TravelDestination = BiomeId | "town";
 
-// Types
-
 interface Level {
     xpRemaining: number;
     toNextLevel: number;
@@ -57,7 +55,6 @@ export interface GameState {
     playerPosition: { x: number; y: number };
 }
 
-// Init
 const initState: GameState = {
     character: null,
     showHUD: false,
@@ -92,7 +89,6 @@ const initState: GameState = {
     playerPosition: { x: 400, y: 300 },
 };
 
-// Actions
 export const addCoins = createAction("ADD_COIN", (value: number) => ({
     payload: { value },
 }));
@@ -223,10 +219,8 @@ export const setPlayerPosition = createAction(
     })
 );
 
-// Helpers
 const syncStats = (state: GameState) => (state.stats = state.base_stats);
 
-// Reducers
 export const gameReducer = createReducer(initState, (builder) => {
     builder
         .addCase(addCoins, (state, action: PayloadAction<{ value: number }>) => {

@@ -51,7 +51,6 @@ class Resource extends GameObjects.Sprite {
         };
 
         if (this.container.name === "player") {
-            // Only dispatch if we have valid stats to set
             store.dispatch(setStats(this.resources));
             store.dispatch(setBaseStats(this.resources));
 
