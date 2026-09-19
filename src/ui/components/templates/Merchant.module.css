@@ -1,3 +1,89 @@
-.container {
+.merchantContainer {
+    display: grid;
+    gap: 0.5rem 1rem;
+    height: 100%;
+    /* Fixed actions column (same reasoning as Equipment.module.css): sizing it to
+       content made the inventory grid resize when the tab changed, since "Sell All"
+       is wider than the Gear-tab controls. VT323 is monospace at 0.5em advance, the
+       buttons render at 1.5em (0.75em/char); "Sell All" is 8 chars plus the button's
+       0.75rem side padding, with a half-em of slack for the monospace fallback. */
+    --actions-col: calc(6.5em + 1.5rem);
+    grid-template-columns: 1fr var(--actions-col);
+    grid-template-areas:
+        "stock coins"
+        "stock tabs"
+        "stock act";
+    grid-template-rows: min-content min-content 1fr;
+}
+
+.coinsSection {
+    grid-area: coins;
+    align-self: center;
+    justify-self: end;
+}
+
+.stockSection {
+    grid-area: stock;
+    padding: 0.5em;
+    min-height: 0;
+}
+
+/* Tabs sit top-right, above the sell/buy actions. */
+.tabsSection {
+    grid-area: tabs;
+    align-self: start;
     display: flex;
+    flex-direction: column;
+    gap: 0.25rem;
+}
+
+.actionsSection {
+    grid-area: act;
+    align-self: start;
+    display: flex;
+    flex-direction: column;
+    align-items: stretch;
+    gap: 0.25rem;
+}
+
+.buyControls {
+    display: flex;
+    flex-direction: column;
+    align-items: stretch;
+    gap: 0.25rem;
+}
+
+/* The countdown to the next parts restock. Small and wrap-friendly so it fits the
+   fixed actions column. */
+.timer {
+    font-size: 0.85rem;
+    text-align: center;
+    color: #a5b4c1;
+    margin-bottom: 0.25rem;
+}
+
+/* The quantity stepper sits directly above the Buy/Sell button; - and + share the
+   row evenly and use the same font size as the other buttons. */
+.stepper {
+    display: flex;
+    align-items: center;
+    gap: 0.25rem;
+}
+
+.stepper > * {
+    flex: 1;
+}
+
+/* Button is content-box, so its width:100% + side padding would overflow the
+   fixed column. Scoped here rather than on the atom to leave every other screen's
+   button metrics untouched. */
+.tabsSection button,
+.actionsSection button {
+    box-sizing: border-box;
+}
+
+.value {
+    text-align: center;
+    color: #ffc93e;
+    font-variant-numeric: tabular-nums;
 }

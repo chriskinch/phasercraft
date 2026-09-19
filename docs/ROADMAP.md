@@ -327,9 +327,22 @@ The five shops (POI names already present in the town map):
 
 ### Step 3 — Merchant shop
 
-- [ ] Sell inventory gear and material stacks for coins; buy materials (new `buyComponent`
-      reducer: coins → `addComponent`); Merchant template modeled on `Armory.tsx` +
-      `ComponentsGrid.tsx`; prices/balance agreed in review
+- [x] Sell inventory gear and material stacks for coins; buy materials (new `buyComponent`
+      reducer: coins → shared `stackComponent` helper, guarded so coins can't go negative);
+      Merchant template reuses the Equipment Gear/Parts sell controls + `ComponentsGrid.tsx`.
+      Decisions: selling stays available in **both** Equipment and the Merchant (non-breaking);
+      buy price = **3×** a part's `sellValue` (`COMPONENT_BUY_MULTIPLIER`, one tunable constant).
+- [x] Shopfront overhaul: a **Buy/Sell** toggle beside the grey title (Buy default, yellow;
+      Sell blue), each with its own **Gear/Parts** tabs (Parts default). Sell shows the
+      player's inventory; Buy shows the shop's own stock as selectable icons with a
+      quantity stepper. Parts tooltips carry a price + short flavour line from
+      `COMPONENT_DEFS.description`. Merchant stock is **ephemeral run state** (reset in
+      `loadGame`, like `enemiesRemaining`): Parts re-roll on a wall-clock **10-minute**
+      window (`merchantPartsBase`, random 0–`MERCHANT_MAX_STOCK`) with a live countdown —
+      selling raises stock (can exceed the max) and buying lowers it, both forgotten on
+      roll-over; Gear stock is exactly what the player sold this session (session-lived,
+      not window-tied) and buys back at the **no-margin** sell refund (`round(cost/3)`).
+      Balance note: Parts buy price still carries the existing 3× margin.
 
 ### Step 4 — Blacksmith crafting
 
