@@ -1,4 +1,16 @@
 {
+    "extraKnownMarketplaces": {
+        "chriskinch": {
+            "source": {
+                "source": "github",
+                "repo": "chriskinch/claude-plugins"
+            }
+        }
+    },
+    "enabledPlugins": {
+        "concise-replies@chriskinch": true,
+        "event-driven-prs@chriskinch": true
+    },
     "hooks": {
         "PreToolUse": [
             {
