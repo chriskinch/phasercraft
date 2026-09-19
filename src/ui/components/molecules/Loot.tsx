@@ -5,7 +5,7 @@ import ItemTooltip from "./ItemTooltip";
 import type { LootItem } from "@/types/game";
 
 interface LootProps {
-    loot: LootItem & { isHidden?: boolean }; // Allow for optional isHidden property
+    loot: LootItem & { isHidden?: boolean };
     isSelected?: boolean;
     setSelected?: () => void;
 }

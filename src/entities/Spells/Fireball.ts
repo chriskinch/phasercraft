@@ -26,7 +26,6 @@ class Fireball extends Spell {
 
     effect(target: TargetType): void {
         if (!target || !("health" in target)) return;
-        // Returns crit boolean and modified value using spell base value.
         const value = this.setValue({ base: 45, key: "magic_power" });
         target.health.adjustValue(-value.amount, this.type, value.crit);
     }

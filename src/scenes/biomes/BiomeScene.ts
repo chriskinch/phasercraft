@@ -151,7 +151,6 @@ export default class BiomeScene extends Scene {
 
         //this.cameras.main.startFollow(this.player hero);
 
-        // Mouse capture - using type assertion for Phaser property
         if (this.input.mouse) {
             (this.input.mouse as Phaser.Input.Mouse.MouseManager & { capture: boolean }).capture =
                 true;
@@ -210,7 +209,6 @@ export default class BiomeScene extends Scene {
 
         if (this.player.alive) this.player.update(mouse, this.cursors, time, delta);
 
-        // Allow ESC key to return to town
         if (this.cursors.esc?.isDown) {
             this.returnToTown();
         }
@@ -409,26 +407,21 @@ export default class BiomeScene extends Scene {
     }
 
     shutdown(): void {
-        // Clean up HUD subscriptions
         if (this.UI && this.UI.cleanup) {
             this.UI.cleanup();
         }
 
-        // Clean up player subscriptions
         if (this.player && this.player.cleanup) {
             this.player.cleanup();
         }
 
-        // Clean up input event listeners
         this.input.off("pointerdown");
         this.input.off("pointermove");
         this.input.off("pointerup");
 
-        // Clean up scene event listeners
         this.events.off("player:dead");
         this.events.off("enemy:dead", this.onEnemyDead, this);
 
-        // Clean up the area-cleared banner timer
         this.removeAreaClearedTimer();
 
         // Release the travel-request subscription.

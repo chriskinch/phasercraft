@@ -12,14 +12,12 @@ const PhaserGame = () => {
     const gameRef = useRef<Game | null>(null);
 
     useEffect(() => {
-        // Clean up any existing game instance first
         if (gameRef.current) {
             console.log("Destroying existing Phaser game instance for hot reload...");
             gameRef.current.destroy(true, false);
             gameRef.current = null;
         }
 
-        // Clear the game container
         const gameContainer = document.getElementById("phaser-game");
         if (gameContainer) {
             gameContainer.innerHTML = "";
@@ -63,7 +61,6 @@ const PhaserGame = () => {
         // game synchronously rather than racing it behind a setTimeout.
         gameRef.current = new Game(config);
 
-        // Cleanup function for when component unmounts or hot reloads
         return () => {
             if (gameRef.current) {
                 console.log("Cleaning up Phaser game instance...");

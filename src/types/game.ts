@@ -12,7 +12,6 @@ export type ArcadeCollisionObject =
     | Physics.Arcade.StaticBody
     | Tilemaps.Tile;
 
-// Constants
 export const EQUIPMENT_SLOTS = {
     AMULET: "amulet",
     BODY: "body",
@@ -257,7 +256,6 @@ export const CHARACTER_BASE_STATS = {
     },
 } as const;
 
-// Types
 export interface LootItem {
     __typename: string;
     id: string;
@@ -321,7 +319,6 @@ export interface PlayerStats {
     [STAT_NAMES.HEALTH_MAX]?: number;
     [STAT_NAMES.HEALTH_REGEN_VALUE]?: number;
     [STAT_NAMES.HEALTH_REGEN_RATE]?: number;
-    // Additional properties that may exist in local player stats
     health?: number;
     mana?: number;
     energy?: number;
@@ -333,7 +330,6 @@ export interface PlayerStats {
     resource_max?: number;
     resource_regen_value?: number;
     resource_regen_rate?: number;
-    // Allow index signature for flexibility
     [key: string]: number | string | undefined;
 }
 

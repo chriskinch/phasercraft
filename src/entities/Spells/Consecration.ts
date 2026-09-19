@@ -50,7 +50,6 @@ class Consecration extends Spell {
 
     effect(target?: Enemy): void {
         if (target?.body) {
-            // Scales value bases on player stat.
             const value = this.setValue({ base: 3, key: "magic_power" });
             target.health.adjustValue(-value.amount * 0.5, this.type);
         } else {
@@ -59,7 +58,6 @@ class Consecration extends Spell {
     }
 
     playerEffect(): void {
-        // Scales value bases on player stat.
         const value = this.setValue({ base: 5, key: "magic_power" });
         this.player.health.adjustValue(value.amount, "heal");
     }

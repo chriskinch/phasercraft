@@ -11,7 +11,6 @@ class Boons extends StatusEffects<Player> {
     calculate(boons: StatusEffect[]): void {
         // Always start from base_stats when calculating boons.
         store.dispatch(setStats(store.getState().game.base_stats));
-        // Loop through boons with an iterator to hit nested objects
         boons.forEach((boon) => {
             return store.dispatch(
                 updateStats(this.resolveStats(boon.value, store.getState().game.base_stats))

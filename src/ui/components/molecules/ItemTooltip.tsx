@@ -55,11 +55,9 @@ const ItemTooltip: React.FC<ItemTooltipProps> = ({ id, loot, equipment }) => {
     };
 
     const compareStats = (selectedLoot: LootItem, equippedLoot: LootItem): LootStat[] => {
-        // Create maps for O(1) lookup
         const selectedMap = new Map(selectedLoot.stats.map((stat) => [stat.name, stat]));
         const equippedMap = new Map(equippedLoot.stats.map((stat) => [stat.name, stat]));
 
-        // Get all unique stat IDs from both items
         const allStatIds = new Set([...selectedMap.keys(), ...equippedMap.keys()]);
 
         const comparisons = Array.from(allStatIds)
@@ -88,7 +86,7 @@ const ItemTooltip: React.FC<ItemTooltipProps> = ({ id, loot, equipment }) => {
                     polarity: statPolarity(statId, difference),
                 };
             })
-            .filter((stat) => stat.value !== 0); // Only show differences
+            .filter((stat) => stat.value !== 0);
 
         return comparisons;
     };

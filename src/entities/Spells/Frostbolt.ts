@@ -32,7 +32,7 @@ class Frostbolt extends Spell {
             castRange: 250,
             projectile: { key: "frostbolt-effect", frame: 0, speed: 400 },
             value: {
-                speed: (bs: number) => -bs * 0.5, // Increase by 10
+                speed: (bs: number) => -bs * 0.5,
             },
         };
 
@@ -45,7 +45,6 @@ class Frostbolt extends Spell {
     }
 
     effect(target: Enemy): void {
-        // Returns crit boolean and modified value using spell base value.
         const value = this.setValue({ base: 35, key: "magic_power" });
         target.health.adjustValue(-value.amount, this.type, value.crit);
 
@@ -61,7 +60,6 @@ class Frostbolt extends Spell {
     }
 
     clearEffect(): void {
-        // Check to confirm spell is gone from boon group before removing tint
         if (
             this.target &&
             typeof this.target === "object" &&

@@ -21,7 +21,6 @@ const LootList: React.FC<LootListProps> = ({ cols = 4, list }) => {
 
     const items = [];
     for (const loot of list) {
-        // Check for matching selected id
         const isSelected = selected ? selected.id === loot.id : false;
         items.push(
             <Loot

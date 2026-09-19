@@ -16,7 +16,6 @@ class Banes extends StatusEffects<Enemy> {
         if (banes.length === 0) this.entity.stats = this.entity.base_stats;
         const stats = this.entity.stats as unknown as IndexableStats;
         const base_stats = this.entity.base_stats as unknown as IndexableStats;
-        // Loop through banes with an iterator to hit nested objects
         banes.forEach((bane) => {
             Object.entries(this.resolveStats(bane.value, base_stats)).forEach((stat) => {
                 stats[stat[0]] = (base_stats[stat[0]] as number) + stat[1];

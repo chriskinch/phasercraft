@@ -25,7 +25,6 @@ class Smite extends Spell {
     }
 
     effect(target: Enemy): void {
-        // Returns crit boolean and modified value using spell base value.
         const value = this.setValue({ base: 30, key: "magic_power" });
         const heal = this.setValue({ base: 15, key: "magic_power" });
         this.player.health.adjustValue(heal.amount, "heal", heal.crit);

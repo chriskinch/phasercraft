@@ -45,7 +45,6 @@ export default class LoadScene extends Scene {
         });
 
         this.load.setPath("graphics");
-        // Game entities
         // wayne-3d + warrior are preloaded by BootScene for the splash; guard the
         // re-declaration so the loader doesn't warn about duplicate texture keys.
         if (!this.textures.exists("wayne-3d")) {
@@ -142,11 +141,9 @@ export default class LoadScene extends Scene {
             frameHeight: 32,
         });
         this.load.image("consecration", "spritesheets/spells/consecration.png");
-        // Maps
         this.load.image("tiles", "tilesets/tileset_organic_extruded.png");
         this.load.tilemapTiledJSON("map", "tilesets/enchanted_forrest_map.json");
 
-        // Town assets
         this.load.tilemapTiledJSON("town-map", "tilesets/town-tiled-project.tmj");
 
         // Town tilesets (only the ones actually used in TMJ file)
@@ -193,7 +190,6 @@ export default class LoadScene extends Scene {
         this.load.image("arch", "tilesets/fantasy/forest_/forest_fencesAndWalls_arch.png");
         this.load.image("cloth_red", "tilesets/forestVillage/stalls_/cloth_red.png");
 
-        // spritesheets
         this.load.spritesheet("home", "tilesets/forestVillage/buildings_/greenHouse_0_0.png", {
             frameWidth: 96,
             frameHeight: 96,
