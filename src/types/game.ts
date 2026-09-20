@@ -490,6 +490,16 @@ export interface CharacterData {
     components: ComponentStack[];
 }
 
+// Unused, and deliberately NOT kept in sync with the live game state.
+//
+// This models a speculative multi-character save (keyed `characters`,
+// `selected_character`, `loot` as a record) that nothing references — neither this
+// interface nor `CharacterData` above has a single consumer in `src/`. The real
+// state shape is `GameState` in `src/store/gameReducer.ts`, which is what
+// `store/index.ts`, `saveStorage` and every component import.
+//
+// So new persisted fields (the Blacksmith's `recipes`, and `components` before it)
+// are added there, not here. Retiring this pair is a separate cleanup.
 export interface GameState {
     characters: Record<string, CharacterData>;
     selected_character: string | null;
