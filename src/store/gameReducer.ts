@@ -2,6 +2,7 @@ import { createAction, createReducer, PayloadAction } from "@reduxjs/toolkit";
 import mergeWith from "lodash/mergeWith";
 import remove from "lodash/remove";
 import pull from "lodash/pull";
+import { v4 as uuid } from "uuid";
 import type {
     LootItem,
     PlayerStats,
@@ -9,9 +10,18 @@ import type {
     Equipment as GameEquipment,
     ComponentStack,
     ComponentType,
+    Recipe,
 } from "@/types/game";
-import { COMPONENT_DEFS, componentBuyPrice, merchantWindow, merchantPartsBase } from "@/types/game";
+import {
+    COMPONENT_DEFS,
+    INITIAL_RECIPES,
+    componentBuyPrice,
+    merchantWindow,
+    merchantPartsBase,
+    recipeById,
+} from "@/types/game";
 import { appliedStatValue } from "@/lib/statConversion";
+import { colorForQuality } from "@/lib/armoryClient";
 import type { PlayerName } from "@entities/Player/AssignClass";
 import type { BiomeId } from "@/scenes/biomes/biomes";
 
@@ -68,6 +78,10 @@ export interface GameState {
     filters: string[];
     inventory: LootItem[];
     components: ComponentStack[];
+    // Ids of the Blacksmith recipes the player knows. Persisted: a learnt recipe
+    // is permanent progress. Seeded with INITIAL_RECIPES; the rest are learnt
+    // from schematics.
+    recipes: string[];
     equipment: GameEquipment;
     coins: number;
     selected: LootItem | null;
@@ -101,6 +115,7 @@ const initState: GameState = {
     filters: [],
     inventory: [],
     components: [],
+    recipes: [...INITIAL_RECIPES],
     equipment: {
         amulet: null,
         body: null,
@@ -155,6 +170,10 @@ export const setMerchantMode = createAction("SET_MERCHANT_MODE", (mode: Merchant
 
 export const sellComponent = createAction("SELL_COMPONENT", (stackId: string, count: number) => ({
     payload: { stackId, count },
+}));
+
+export const craftItem = createAction("CRAFT_ITEM", (recipeId: string) => ({
+    payload: { recipeId },
 }));
 
 export const sellComponentStack = createAction("SELL_COMPONENT_STACK", (stackId: string) => ({
@@ -287,6 +306,71 @@ const stackComponent = (components: ComponentStack[], type: ComponentType) => {
     }
 };
 
+// How many of `type` the player holds, summed across every stack of it. A
+// component's total is spread over stacks once it passes stackMax, so a crafting
+// cost has to be measured (and paid) against the whole set, not one stack.
+export const componentTotal = (components: ComponentStack[], type: ComponentType): number =>
+    components.reduce((sum, s) => (s.type === type ? sum + s.quantity : sum), 0);
+
+// The materials a recipe still needs, given what the player holds. Empty means
+// the recipe is materially craftable (coins are checked separately). Drives both
+// the reducer's guard and the Blacksmith's have/need rows, so the UI can never
+// disagree with what `craftItem` will actually allow.
+export const missingMaterials = (
+    components: ComponentStack[],
+    recipe: Recipe
+): Partial<Record<ComponentType, number>> => {
+    const missing: Partial<Record<ComponentType, number>> = {};
+    for (const [type, needed] of Object.entries(recipe.materials) as Array<
+        [ComponentType, number]
+    >) {
+        const short = needed - componentTotal(components, type);
+        if (short > 0) missing[type] = short;
+    }
+    return missing;
+};
+
+// Spend `count` of `type` across the player's stacks, draining partial stacks
+// first so the inventory compacts rather than leaving a trail of near-empty
+// stacks. Emptied stacks are removed. Callers must have already checked the
+// player holds enough (see `missingMaterials`).
+const consumeComponent = (components: ComponentStack[], type: ComponentType, count: number) => {
+    let left = count;
+    // Smallest stacks first: drains the partials before breaking into a full one.
+    const stacks = components
+        .filter((s) => s.type === type)
+        .sort((a, b) => a.quantity - b.quantity);
+    for (const stack of stacks) {
+        if (left <= 0) break;
+        const taken = Math.min(stack.quantity, left);
+        stack.quantity -= taken;
+        left -= taken;
+    }
+    remove(components, (s) => s.type === type && s.quantity <= 0);
+};
+
+// Mint the finished gear for a recipe. The statline is fixed by the recipe, so
+// only the identity is generated: a fresh uuid per craft keeps two copies of the
+// same recipe distinct in the inventory (ids are how gear is selected, equipped
+// and sold). `color` comes from the same quality→border mapping the Armory uses,
+// so a crafted item sits beside a bought one without looking different.
+const craftedItem = (recipe: Recipe): LootItem => {
+    const { result } = recipe;
+    const id = uuid();
+    return {
+        __typename: "Item",
+        id,
+        uuid: id,
+        name: result.name,
+        category: result.category,
+        set: result.set,
+        icon: result.icon,
+        cost: result.cost,
+        color: colorForQuality(result.quality),
+        stats: result.stats.map((stat) => ({ id: uuid(), name: stat.name, value: stat.value })),
+    };
+};
+
 export const gameReducer = createReducer(initState, (builder) => {
     builder
         .addCase(addCoins, (state, action: PayloadAction<{ value: number }>) => {
@@ -367,6 +451,26 @@ export const gameReducer = createReducer(initState, (builder) => {
                 if (stack.quantity <= 0) remove(state.components, (s) => s.id === stackId);
             }
         )
+        .addCase(craftItem, (state, action: PayloadAction<{ recipeId: string }>) => {
+            const recipe = recipeById(action.payload.recipeId);
+            // Unknown id, or a recipe the player has not learnt — neither can be
+            // crafted. The Blacksmith only offers known recipes, but the reducer
+            // is the source of truth (same stance as buyComponent).
+            if (!recipe || !state.recipes.includes(recipe.id)) return;
+            // Materials and coins are both all-or-nothing: refuse outright rather
+            // than partially consuming, so a short craft can't eat the player's
+            // components or push coins negative.
+            if (Object.keys(missingMaterials(state.components, recipe)).length > 0) return;
+            if (state.coins < recipe.coins) return;
+
+            for (const [type, count] of Object.entries(recipe.materials) as Array<
+                [ComponentType, number]
+            >) {
+                consumeComponent(state.components, type, count);
+            }
+            state.coins -= recipe.coins;
+            state.inventory.push(craftedItem(recipe));
+        })
         .addCase(sellComponentStack, (state, action: PayloadAction<{ stackId: string }>) => {
             const { stackId } = action.payload;
             const stack = state.components.find((s) => s.id === stackId);
@@ -430,6 +534,10 @@ export const gameReducer = createReducer(initState, (builder) => {
                 ...loaded,
                 inventory,
                 components: loaded.components ?? [],
+                // Saves written before the Blacksmith carry no recipe list. Seed
+                // them with the starters rather than an empty set, so an existing
+                // character isn't locked out of crafting until a schematic drops.
+                recipes: loaded.recipes ?? [...INITIAL_RECIPES],
                 enemiesRemaining: loaded.enemiesRemaining ?? 0,
                 bossActive: loaded.bossActive ?? false,
                 // Transient: a request captured mid-save would teleport the
