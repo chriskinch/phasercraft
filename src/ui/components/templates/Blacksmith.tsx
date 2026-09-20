@@ -18,6 +18,11 @@ import styles from "./Blacksmith.module.css";
 //
 // A crafted item is minted by the `craftItem` reducer, which re-checks materials
 // and coins; this panel only mirrors that check so the button can explain itself.
+//
+// No title is rendered here: the framed overlay container supplies it from the
+// `UI.tsx` menu registry (`title: "Blacksmith"`), the same way the Merchant panel
+// leaves its own header to the registry. The skeleton's `<h2>` is dropped for that
+// reason, not by oversight.
 const Blacksmith: React.FC = () => {
     const dispatch = useDispatch();
     const { coins, components, recipes } = useSelector((state: RootState) => state.game);
