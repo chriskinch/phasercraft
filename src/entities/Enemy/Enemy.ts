@@ -410,12 +410,14 @@ class Enemy extends GameObjects.Container {
             })
             .flat();
 
+        const coin_multiplier = this.coin_multiplier ?? 1;
+
         loot.forEach((name) => {
             switch (name) {
                 case "coin":
-                    return new Coin({ scene: this.scene, x: this.x, y: this.y });
+                    return new Coin({ scene: this.scene, x: this.x, y: this.y, coin_multiplier });
                 case "gem":
-                    return new Gem({ scene: this.scene, x: this.x, y: this.y });
+                    return new Gem({ scene: this.scene, x: this.x, y: this.y, coin_multiplier });
                 default:
                     return new Crafting({ scene: this.scene, x: this.x, y: this.y, key: name });
             }

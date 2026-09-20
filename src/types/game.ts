@@ -367,7 +367,7 @@ export interface EnemyAttributes {
 }
 export interface EnemyConfig extends EnemyAttributes {
     type: Capitalize<CombatType>;
-    coin_multiplier: 10;
+    coin_multiplier: number;
     loot_table: LootTable;
     aggro_radius?: number;
 }

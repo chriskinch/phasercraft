@@ -2,22 +2,30 @@ import { GameObjects, Scene, Physics, Display, Time } from "phaser";
 import store from "@store";
 import { addCoins } from "@store/gameReducer";
 import getRandomVelocity from "@helpers/getRandomVelocity";
+import coinValue from "@helpers/coinValue";
 import random from "lodash/random";
 import type { GameSceneLike } from "@/types/scene";
+
+// What one gem is worth before the dropper's `coin_multiplier` is applied.
+export const GEM_BASE_VALUE = 5;
 
 interface GemConfig {
     scene: Scene;
     x: number;
     y: number;
+    // Payout multiplier inherited from the enemy that dropped this gem.
+    coin_multiplier?: number;
 }
 
 class Gem extends GameObjects.Sprite {
     public body!: Physics.Arcade.Body;
     public activateTimer?: Time.TimerEvent;
     public collider?: Physics.Arcade.Collider;
+    public value: number;
 
     constructor(config: GemConfig) {
         super(config.scene, config.x, config.y, "gem-shine");
+        this.value = coinValue(GEM_BASE_VALUE, config.coin_multiplier);
         config.scene.physics.world.enable(this);
         config.scene.add.existing(this).setDepth((this.scene as GameSceneLike).depth_group.UI);
 
@@ -58,7 +66,7 @@ class Gem extends GameObjects.Sprite {
     }
 
     collect(): void {
-        store.dispatch(addCoins(5));
+        store.dispatch(addCoins(this.value));
         this.scene.tweens.add({
             targets: this,
             y: {

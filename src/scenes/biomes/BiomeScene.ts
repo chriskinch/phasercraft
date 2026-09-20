@@ -393,7 +393,7 @@ export default class BiomeScene extends Scene {
                 target: this.player,
                 loot_table: boss.loot_table,
                 active_group: this.active_enemies,
-                coin_multiplier: 10,
+                coin_multiplier: boss.coin_multiplier,
                 aggro_radius: boss.aggro_radius,
             })
         );

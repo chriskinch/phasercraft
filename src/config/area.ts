@@ -1,5 +1,5 @@
 import enemyTypes from "@config/enemies.json";
-import type { EnemyConfig, EnemyType } from "@/types/game";
+import type { EnemyConfig, EnemyType, LootTable } from "@/types/game";
 
 // A combat area holds a fixed pool of enemies. The player clears the pool, a
 // boss spawns, and killing the boss clears the area. Leaving and re-entering
@@ -27,7 +27,28 @@ export const BOSS_SCALING = {
     range: 60,
     aggro_radius: 80,
     coin_multiplier: 10,
+    // How much more loot a boss drops than the creature it was promoted from.
+    // `loot` scales the drop table itself (see `scaleLootTable`) and
+    // `coin_multiplier` scales what each coin/gem is worth when collected, so a
+    // boss's coin payout is roughly the product of the two. Tune either here.
+    loot: 10,
 } as const;
+
+// Scales a loot table's drop quantities by `multiplier`.
+//
+// `rate` is "drops per kill x 100" as read by `Enemy.dropLoot`: the whole
+// hundreds are guaranteed drops and the remainder is the chance of one more
+// (e.g. 135 = 1 guaranteed + a 35% chance of a second). Multiplying `rate`
+// therefore multiplies the expected drop count linearly while leaving the
+// relative rarity of each entry untouched. `bonus` (the size of the occasional
+// 25% bonus roll) is scaled alongside it so bonus rolls stay proportionate.
+export function scaleLootTable(loot_table: LootTable, multiplier: number): LootTable {
+    return loot_table.map((item) => ({
+        ...item,
+        rate: Math.round(item.rate * multiplier),
+        bonus: Math.round(item.bonus * multiplier),
+    }));
+}
 
 // Promotes one of the area's own creatures into that area's boss.
 export function promoteToBoss(id: EnemyType): EnemyConfig {
@@ -42,5 +63,6 @@ export function promoteToBoss(id: EnemyType): EnemyConfig {
         range: BOSS_SCALING.range,
         aggro_radius: BOSS_SCALING.aggro_radius,
         coin_multiplier: BOSS_SCALING.coin_multiplier,
+        loot_table: scaleLootTable(base.loot_table, BOSS_SCALING.loot),
     };
 }
