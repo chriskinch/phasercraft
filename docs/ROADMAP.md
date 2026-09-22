@@ -368,6 +368,66 @@ The five shops (POI names already present in the town map):
 - [ ] Pixel-art shop backgrounds / graphics, final prices & interface polish; optionally
       promote shops from overlays to full Phaser scenes
 
+## Spike — E2E test hook: a deterministic action space (issue TBD)
+
+Origin: an evaluation of [browser-use/jev-ultrafast](https://github.com/browser-use/jev-ultrafast)
+as a browser-automation / gameplay-testing tool for this repo.
+
+**Verdict on the tool itself: no.** Recorded here so it is not re-litigated.
+
+| Question                 | Finding                                                                                                                                                                                                                |
+| ------------------------ | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Can it drive the canvas? | No. `snapshot.js` enumerates `a[href],button,input,textarea,select,summary,[contenteditable],[role=…]` only; canvas is explicitly out of its MVP. Our Phaser canvas exposes **zero** actions to it.                    |
+| Real-time gameplay?      | No. One HTTP round trip to a hosted model per decision — human-speed clicking, no frame loop. Its headline is 7.1 s for a whole Google Flights task.                                                                   |
+| Fit for CI?              | No. Two paid external APIs per step (`TYPESAFE_API_KEY` + a text model), so PR runs would be non-deterministic, networked and metered. The decision model is hosted-only; the open repo is the harness, not the brain. |
+| Cost of adoption         | Python 3.12 + `uv` in a Node-22 repo; drives a real Chrome via a CDP daemon sharing the user's profile — no headless/ephemeral-profile path.                                                                           |
+
+**What is worth taking is the shape, not the product.** Jev rebuilds an _indexed
+table of the actions that are legal right now_ on every observation, and executes
+by resolving an index back through that table — the model never emits a selector,
+a coordinate or a payload. Applied to our store, with no model in the loop, that
+is exactly the hook the two `test.fixme` flows in `e2e/smoke.spec.ts` have been
+waiting for (the enemy readout and the Equipment overlay are both canvas-owned,
+so neither is reachable from the DOM).
+
+### Spike scope (this PR)
+
+- [x] `src/services/testHook.ts`: `window.__phasercraft` with `getState()`,
+      `actions()` (indexed, derived from live state) and `perform(idOrIndex, value)`.
+      Allowlisted: four actions, at most one _enumerated_ argument each, no
+      free-form payloads and no raw store access
+- [x] `perform()` re-derives the table at call time and refuses an action that is
+      no longer available, or a value outside its enumerated options — a stale step
+      fails loudly instead of forcing a state the real UI could never produce
+- [x] Build gating: installed only under `npm run dev` and `npm run build:e2e`
+      (Vite mode `e2e`). `main.tsx` guards the import with a statically-foldable
+      `import.meta.env` check, so `npm run build` drops the branch **and** the
+      chunk — verified by grepping `dist/` for the hook name
+- [x] Unblock `test.fixme` #1 (area progress): travel into a biome, assert the
+      canvas-owned `enemiesRemaining` fills
+- [x] Unblock `test.fixme` #2 (components tab): open the Equipment overlay,
+      paginate the parts grid and sell a stack
+- [x] Unit tests for the action space (availability gating, index/id resolution,
+      argument validation)
+
+### Explicitly out of scope
+
+- Any action that writes game state directly (grant coins, set enemy count):
+  the allowlist is UI/navigation only, so a test cannot manufacture an outcome
+  it is supposed to be asserting
+- Driving the canvas itself (movement, combat, clicking a Phaser button).
+  Countdown of `enemiesRemaining` still needs real combat and stays uncovered
+- Any production code path — the hook must remain absent from `npm run build`
+
+### Open questions for after the spike
+
+- The smoke job now builds with `build:e2e`, so E2E no longer exercises the exact
+  production bundle. Worth a second job, or accept it?
+- `OPENABLE_MENUS` duplicates the menu keys in `src/ui/UI.tsx`. If the hook stays,
+  lift that registry out of the component so there is one list
+- If this earns its keep, the same table is the basis for a cheap fuzz/soak run
+  (walk the action space at random, assert no crash) — offline and free
+
 ## Deferred / backlog
 
 - **Retire GitHub Pages**: remove the `gh-pages` deploy workflow and `VITE_BASE_URL` transition shim once Vercel production is confirmed stable (follow-up to Phase 6).
