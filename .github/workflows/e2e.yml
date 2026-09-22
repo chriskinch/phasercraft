@@ -44,8 +44,11 @@ jobs:
             - run: npm ci
             - name: Install Playwright browsers (Chromium)
               run: npx playwright install --with-deps chromium
-            - name: Build static export
-              run: npm run build
+            # Vite mode `e2e` keeps the `window.__phasercraft` test hook that the
+            # canvas-gated flows drive; a plain `npm run build` strips it (and is
+            # still gated in ci.yml). See docs/ROADMAP.md, "Spike — E2E test hook".
+            - name: Build static export (e2e mode)
+              run: npm run build:e2e
             - name: Run smoke E2E
               run: npm run test:e2e
             - name: Upload Playwright report
@@ -71,8 +74,11 @@ jobs:
             - run: npm ci
             - name: Install Playwright browsers (all)
               run: npx playwright install --with-deps
-            - name: Build static export
-              run: npm run build
+            # Vite mode `e2e` keeps the `window.__phasercraft` test hook that the
+            # canvas-gated flows drive; a plain `npm run build` strips it (and is
+            # still gated in ci.yml). See docs/ROADMAP.md, "Spike — E2E test hook".
+            - name: Build static export (e2e mode)
+              run: npm run build:e2e
             - name: Run full E2E
               run: npm run test:e2e:full
             - name: Upload Playwright report

@@ -1,14 +1,28 @@
 import { test, expect } from "@playwright/test";
-import { CHARACTERS, makeSave, seedSave, expectGameCanvas } from "./helpers";
+import {
+    CHARACTERS,
+    actionSpace,
+    expectGameCanvas,
+    gameState,
+    makeSave,
+    runAction,
+    seedSave,
+    waitForTestHook,
+} from "./helpers";
 
 // Smoke pack for Phasercraft (Phase 4, #309) — runs on every PR.
 //
 // The game is a Phaser `<canvas>` with a React/Redux UI overlay drawn on top.
-// Canvas internals are not queryable from the DOM, so every assertion here
-// drives the React overlay (visible text, buttons, ids) or `localStorage`
-// (the save service's backing store). Where a flow is genuinely canvas-only
-// (the enemy readout), it is marked `test.fixme` with the reason inline rather
-// than shipped as a flaky/failing test.
+// Canvas internals are not queryable from the DOM, so most assertions here drive
+// the React overlay (visible text, buttons, ids) or `localStorage` (the save
+// service's backing store).
+//
+// Flows that are genuinely canvas-only — the enemy readout, and the in-run
+// Equipment button — go through the test hook instead (`window.__phasercraft`,
+// see e2e/helpers.ts and src/services/testHook.ts). The hook supplies the one
+// step the DOM cannot take and nothing more: everything after it is the real
+// overlay, driven normally. It requires a build in Vite's `e2e` mode
+// (`npm run build:e2e`); a plain `npm run build` strips it out.
 //
 // Boot sequence the specs rely on (see src/scenes/LoadScene.ts and #377):
 //   LoadScene.create() dispatches toggleUi("menu") and starts SelectScene, so
@@ -70,19 +84,54 @@ test.describe("Phasercraft smoke", () => {
         await expect(page.locator("#phaser-game canvas")).toBeAttached();
     });
 
-    // ── Flow 3: area progress ────────────────────────────────────────────────
+    // ── Flow 3: area progress (test hook) ────────────────────────────────────
     //
     // The enemy readout ("Enemies: N" / "BOSS") is drawn by a Phaser
-    // GameObjects.Text on the canvas (src/entities/UI/HUD.ts), and the React HUD
-    // overlay shows only level info. There is no DOM node carrying the count, and
-    // the store is not exposed on `window`, so a DOM-level assertion that the
-    // area started/counted down is not reachable headlessly without a production
-    // hook (a synced DOM mirror or a window-exposed store) — out of scope here.
-    // Deferred deliberately, not skipped for flake.
-    test.fixme("area starts: HUD enemy readout appears/counts down", async () => {
-        // Needs either a data-testid mirror of state.game.enemiesRemaining in the
-        // React HUD, or `window.store` exposed in dev/test builds. Tracked for a
-        // follow-up that adds a minimal, flagged production hook.
+    // GameObjects.Text on the canvas (src/entities/UI/HUD.ts) and the React HUD
+    // overlay shows only level info, so no DOM node carries the count. This used
+    // to be a `test.fixme` for exactly that reason; the test hook is the way in.
+    test("area starts: travelling into a biome fills the canvas-owned enemy count", async ({
+        page,
+    }) => {
+        await page.goto("/");
+        await expectGameCanvas(page);
+
+        // Start a run through the real DOM path, as Flow 2 does — the hook is for
+        // reaching what the canvas owns, not for skipping the UI that works.
+        await expect(page.locator('[data-testid="menu-container"]')).toBeVisible();
+        await page.getByRole("button", { name: "New Game" }).click();
+        await page.getByRole("button", { name: "Select" }).first().click();
+        await page.getByRole("button", { name: "Warrior", exact: true }).click();
+
+        await waitForTestHook(page);
+
+        // TownScene.create() turns the HUD on: the signal that town is live and
+        // subscribed to travel requests.
+        await expect
+            .poll(async () => (await gameState(page)).game.showHUD, { timeout: 30_000 })
+            .toBe(true);
+        expect((await gameState(page)).game.currentArea).toBe("town");
+
+        // The action space tracks where we are: travel is on offer now a class
+        // exists, and picking a class is no longer one of the options.
+        const space = (await actionSpace(page)).map((a) => a.id);
+        expect(space).toContain("travel.request");
+        expect(space).not.toContain("character.select");
+
+        await runAction(page, "travel.request", "forest");
+
+        // BiomeScene spawns the pool and mirrors area progress into the store,
+        // which is what the canvas HUD renders. Both assertions are unreachable
+        // from the DOM.
+        await expect
+            .poll(async () => (await gameState(page)).game.currentArea, { timeout: 30_000 })
+            .toBe("forest");
+        await expect
+            .poll(async () => (await gameState(page)).game.enemiesRemaining, { timeout: 30_000 })
+            .toBeGreaterThan(0);
+
+        // Counting *down* still needs real combat (the canvas owns movement and
+        // attacks), so it stays uncovered — see the roadmap spike's out-of-scope list.
     });
 
     // ── Flow 4: save/load roundtrip ──────────────────────────────────────────
@@ -153,18 +202,99 @@ test.describe("Phasercraft smoke", () => {
         expect(game.components[0]).toMatchObject({ type: "scrap", quantity: 42 });
     });
 
-    // ── Flow 6: components tab paginate + sell (canvas-gated) ────────────────
+    // ── Flow 6: components tab paginate + sell (test hook) ───────────────────
     //
-    // The Gear|Components tabs live in the Equipment overlay, which is opened
-    // in-run by a Phaser HUD pointerdown dispatching toggleUi("equipment")
-    // (src/entities/UI/HUD.ts) — canvas input that is not reachable from the DOM
-    // headlessly, and the Redux store is not exposed on `window` to force it open
-    // (same limitation as the enemy-readout fixme above). The paginate + Sell 1 /
-    // Sell N / Sell All behaviour is fully covered by the component tests
-    // (ComponentsGrid, ComponentSellControls, ComponentsPanel). Unblocked by the
-    // same minimal test hook the enemy-readout fixme needs.
-    test.fixme("components tab: paginate the grid and sell a stack via the overlay", async () => {
-        // Needs a DOM-reachable way into the Equipment overlay (a window-exposed
-        // store in dev/test, or a data-testid nav hook) to drive the tab.
+    // The Gear|Parts tabs live in the Equipment overlay, opened in-run by a Phaser
+    // HUD pointerdown dispatching toggleUi("equipment") (src/entities/UI/HUD.ts) —
+    // canvas input, not reachable from the DOM headlessly. This was the second
+    // `test.fixme`; `ui.open` is the one step the hook supplies, and everything
+    // after it is ordinary DOM driving of the real overlay.
+    test("components tab: open the canvas-gated Equipment overlay, paginate and sell", async ({
+        page,
+    }) => {
+        const slot = "slot_c";
+        const COINS = 500;
+        const SCRAP_SELL_VALUE = 2; // COMPONENT_DEFS.scrap.sellValue
+
+        // 300 stacks is above any page size this grid can measure: cells are 44px
+        // on a 16px gap, so even a full 1280×720 viewport tops out at 21×12 = 252
+        // cells and the inventory panel is a fraction of the viewport. That makes
+        // "more than one page" a bound rather than a guess. The head stack carries
+        // a unique quantity so its slot has a unique accessible name.
+        const types = ["scrap", "cloth", "ichor", "bone"] as const;
+        const stacks = Array.from({ length: 300 }, (_, i) => ({
+            id: `stack-${i}`,
+            type: types[i % types.length] as string,
+            quantity: i === 0 ? 10 : 7,
+        }));
+        await seedSave(page, slot, makeSave(slot, "Warrior", 3, COINS, stacks));
+
+        await page.goto("/");
+        await expectGameCanvas(page);
+
+        await expect(page.locator('[data-testid="menu-container"]')).toBeVisible();
+        await page.getByRole("button", { name: "Load", exact: true }).click();
+        await page.getByRole("button", { name: "Load", exact: true }).first().click();
+
+        await waitForTestHook(page);
+        await expect
+            .poll(async () => (await gameState(page)).game.showHUD, { timeout: 30_000 })
+            .toBe(true);
+
+        // The step the DOM cannot take.
+        const ran = await runAction(page, "ui.open", "equipment");
+        expect(ran.id).toBe("ui.open");
+        await expect(page.locator("#equipment")).toBeVisible();
+
+        // From here it is the real overlay, driven normally.
+        await page.getByRole("button", { name: "Parts", exact: true }).click();
+        await expect(page.getByTestId("components-grid")).toBeVisible();
+
+        // Paginate: forward, then back.
+        const pagination = page.getByTestId("pagination-controls");
+        await expect(pagination).toBeVisible();
+        await expect(pagination).toContainText("Page 1 of");
+        await pagination.getByRole("button", { name: "›" }).click();
+        await expect(pagination).toContainText("Page 2 of");
+        await pagination.getByRole("button", { name: "‹" }).click();
+        await expect(pagination).toContainText("Page 1 of");
+
+        // Sell one off the head stack and check the store moved by exactly the
+        // part's sell value.
+        await page.getByRole("button", { name: "Scrap ×10" }).click();
+        await page.getByRole("button", { name: "Sell", exact: true }).click();
+
+        await expect
+            .poll(async () => (await gameState(page)).game.coins)
+            .toBe(COINS + SCRAP_SELL_VALUE);
+        const sold = (await gameState(page)).game.components.find((s) => s.id === "stack-0");
+        expect(sold?.quantity).toBe(9);
+        await expect(page.getByRole("button", { name: "Scrap ×9" })).toBeVisible();
+    });
+
+    // ── Flow 7: the action space refuses illegal steps ───────────────────────
+    //
+    // The hook's whole point is that it is not a raw store: every call re-derives
+    // what is legal right now and refuses anything else, so a stale or invented
+    // step fails loudly instead of forcing a state the real UI could never reach.
+    test("test hook: refuses a step the game cannot take, and an invented argument", async ({
+        page,
+    }) => {
+        await page.goto("/");
+        await expectGameCanvas(page);
+        await waitForTestHook(page);
+
+        // Before a class is picked, class selection is the only legal row.
+        expect((await actionSpace(page)).map((a) => a.id)).toEqual(["character.select"]);
+
+        // Opening an in-run overlay is not legal yet...
+        await expect(runAction(page, "ui.open", "equipment")).rejects.toThrow(
+            /No action "ui\.open" is available here/
+        );
+        // ...and an invented class is not a class, so nothing is dispatched.
+        await expect(runAction(page, "character.select", "Bard")).rejects.toThrow(
+            /"Bard" is not a valid character/
+        );
+        expect((await gameState(page)).game.character).toBeNull();
     });
 });

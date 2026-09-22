@@ -28,6 +28,15 @@ function App() {
     );
 }
 
+// E2E test hook (spike, see docs/ROADMAP.md): an allowlisted action space on
+// `window` so the smoke pack can reach the flows the Phaser canvas owns. The
+// condition folds to a constant at build time, so `npm run build` drops both the
+// branch and the module's chunk; `npm run build:e2e` (Vite mode `e2e`) and
+// `npm run dev` keep it.
+if (import.meta.env.MODE === "e2e" || import.meta.env.DEV) {
+    void import("@services/testHook").then(({ installTestHook }) => installTestHook(store));
+}
+
 const container = document.getElementById("root");
 if (!container) throw new Error('Root element "#root" not found');
 
