@@ -58,6 +58,7 @@ interface SceneUnderTest {
     prop_layers: object[];
     setupMapCollisions(): void;
     updatePropOverlays(): void;
+    sortCharactersByFeet(): void;
     add: { sprite: ReturnType<typeof vi.fn> };
     map: { tileWidth: number; tileHeight: number };
     scale: { width: number; height: number };
@@ -71,6 +72,8 @@ interface SceneUnderTest {
         x: number;
         y: number;
         body?: object;
+        height?: number;
+        setDepth?: ReturnType<typeof vi.fn>;
     };
     input: { off: ReturnType<typeof vi.fn>; activePointer: object };
     cursors: { esc: { isDown: boolean } };
@@ -451,6 +454,54 @@ describe("BiomeScene.setupMapCollisions", () => {
         scene.setupMapCollisions();
 
         expect(collider).not.toHaveBeenCalled();
+    });
+});
+
+describe("BiomeScene.sortCharactersByFeet", () => {
+    // Player and Enemy are Containers holding a Sprite at (0,0) with the default
+    // 0.5 origin, so `y` is the character's middle. Props sort on their base.
+    // Mixing those references let a bush level with the player draw over them.
+    function character(y: number, height: number) {
+        return { y, height, active: true, setDepth: vi.fn() };
+    }
+
+    it("moves the player's depth from its middle to its feet", () => {
+        const { scene } = makeScene();
+        const player = { ...scene.player, ...character(500, 40) };
+        scene.player = player;
+        scene.enemies = { ...scene.enemies, getChildren: vi.fn(() => []) };
+
+        scene.sortCharactersByFeet();
+
+        expect(player.setDepth).toHaveBeenCalledWith(520);
+    });
+
+    it("applies the same correction to every live enemy", () => {
+        const { scene } = makeScene();
+        scene.player = { ...scene.player, ...character(500, 40) };
+        const alive = character(300, 30);
+        const dead = { ...character(400, 30), active: false };
+        scene.enemies = { ...scene.enemies, getChildren: vi.fn(() => [alive, dead]) };
+
+        scene.sortCharactersByFeet();
+
+        expect(alive.setDepth).toHaveBeenCalledWith(315);
+        expect(dead.setDepth).not.toHaveBeenCalled();
+    });
+
+    it("keeps a prop level with the player behind them", () => {
+        // The reported bug: a bush whose base sits between the player's middle
+        // and their feet used to sort in front.
+        const { scene } = makeScene();
+        const player = { ...scene.player, ...character(500, 40) };
+        scene.player = player;
+        scene.enemies = { ...scene.enemies, getChildren: vi.fn(() => []) };
+
+        scene.sortCharactersByFeet();
+
+        const player_depth = player.setDepth.mock.calls[0][0];
+        const prop_base_between_middle_and_feet = 510;
+        expect(player_depth).toBeGreaterThan(prop_base_between_middle_and_feet);
     });
 });
 

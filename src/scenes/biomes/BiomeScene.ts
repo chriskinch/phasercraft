@@ -276,6 +276,40 @@ export default class BiomeScene extends Scene {
     }
 
     /**
+     * Re-sorts the characters on their feet instead of their middle.
+     *
+     * `Player` and `Enemy` both set their own depth to `this.y`, and both are
+     * Containers holding a Sprite at (0, 0) with the default 0.5 origin — so
+     * `y` is the *middle* of the visible character, not the ground it stands on.
+     * Props sort on their base, the bottom of the two-tile prop. Mixing the two
+     * references is what let a bush level with the player draw over them: its
+     * base sat just below the player's middle, though well above the player's
+     * feet.
+     *
+     * Applying the same correction to the player and to every enemy keeps their
+     * sorting against each other intact while putting all four references —
+     * player, enemies, prop bases — on the ground. This is the town's
+     * `setDepthByY(player)` idea; the town can use `y + height` because it only
+     * ever sorts the player against object sprites, whereas here the characters
+     * must also stay correct against each other, so it is the true half-height.
+     */
+    private sortCharactersByFeet(): void {
+        const onFeet = (character: { y: number; height: number; setDepth(d: number): unknown }) =>
+            character.setDepth(character.y + character.height / 2);
+
+        onFeet(this.player);
+        this.enemies.getChildren().forEach((enemy) => {
+            const character = enemy as unknown as {
+                y: number;
+                height: number;
+                active: boolean;
+                setDepth(d: number): unknown;
+            };
+            if (character.active) onFeet(character);
+        });
+    }
+
+    /**
      * Redraws the handful of prop tiles around each character as individually
      * depth-sorted sprites, so a canopy is in front of a character standing
      * behind the tree and behind one standing in front of it.
@@ -474,6 +508,7 @@ export default class BiomeScene extends Scene {
         if (this.player.alive) this.player.update(mouse, this.cursors, time, delta);
 
         // After the characters have moved and re-set their own depths.
+        this.sortCharactersByFeet();
         this.updatePropOverlays();
 
         if (this.cursors.esc?.isDown) {
