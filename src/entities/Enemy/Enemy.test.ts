@@ -20,9 +20,21 @@ interface EnemyUnderTest {
         player: { x: number; y: number };
         events: { emit: ReturnType<typeof vi.fn> };
         time: { addEvent: ReturnType<typeof vi.fn> };
+        add: { sprite: ReturnType<typeof vi.fn> };
     };
     weapon: { setAngle: ReturnType<typeof vi.fn>; swoosh: ReturnType<typeof vi.fn> };
     attack(): void;
+}
+
+function makeBurst() {
+    return {
+        setDepth: vi.fn(),
+        setPosition: vi.fn(),
+        on: vi.fn(),
+        once: vi.fn(),
+        play: vi.fn(),
+        destroy: vi.fn(),
+    };
 }
 
 function makeEnemy(combat_type: CombatType): EnemyUnderTest {
@@ -36,6 +48,7 @@ function makeEnemy(combat_type: CombatType): EnemyUnderTest {
         player: { x: 0, y: 100 },
         events: { emit: vi.fn() },
         time: { addEvent: vi.fn() },
+        add: { sprite: vi.fn(() => makeBurst()) },
     };
     enemy.weapon = { setAngle: vi.fn(), swoosh: vi.fn() };
     return enemy;
@@ -54,6 +67,7 @@ describe("Enemy.attack", () => {
         expect(enemy.weapon.setAngle).toHaveBeenCalledWith(90);
         expect(enemy.weapon.swoosh).toHaveBeenCalledTimes(1);
         expect(ProjectileMock).not.toHaveBeenCalled();
+        expect(enemy.scene.add.sprite).not.toHaveBeenCalled();
         expect(enemy.scene.events.emit).toHaveBeenCalledWith("enemy:attack", 12, type);
     });
 
@@ -72,6 +86,21 @@ describe("Enemy.attack", () => {
         opts.onImpact(enemy.scene.player);
 
         expect(enemy.scene.events.emit).toHaveBeenCalledWith("enemy:attack", 12, "ranged");
+        expect(enemy.scene.add.sprite).toHaveBeenCalledWith(0, 100, "enemy-bolt", 0);
+        const burst = enemy.scene.add.sprite.mock.results[0].value;
+        expect(burst.play).toHaveBeenCalledWith("enemy-bolt-impact");
+    });
+
+    it("ranged impact burst removes itself when its animation completes", () => {
+        const enemy = makeEnemy("ranged");
+        enemy.attack();
+        ProjectileMock.mock.calls[0][0].onImpact(enemy.scene.player);
+        const burst = enemy.scene.add.sprite.mock.results[0].value;
+
+        const [, onComplete] = burst.once.mock.calls[0];
+        onComplete();
+
+        expect(burst.destroy).toHaveBeenCalledTimes(1);
     });
 
     it("does nothing while recovering", () => {

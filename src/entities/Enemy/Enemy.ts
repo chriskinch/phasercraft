@@ -1,4 +1,4 @@
-import { Core, Math as PhaserMath, GameObjects, Geom, Physics, Types } from "phaser";
+import { Animations, Core, Math as PhaserMath, GameObjects, Geom, Physics, Types } from "phaser";
 import { v4 as uuid } from "uuid";
 import AssignResource, { AssignResourceType } from "@entities/Resources/AssignResource";
 import Monster from "./Monster";
@@ -449,7 +449,10 @@ class Enemy extends GameObjects.Container {
                     frame: 0,
                     speed: 400,
                     target: player,
-                    onImpact: () => events.emit("enemy:attack", damage, combat_type),
+                    onImpact: () => {
+                        events.emit("enemy:attack", damage, combat_type);
+                        this.impactBurst(player);
+                    },
                 });
             } else {
                 this.swipe(player);
@@ -470,6 +473,21 @@ class Enemy extends GameObjects.Container {
         const angle = PhaserMath.RadToDeg(Math.atan2(target.y - this.y, target.x - this.x));
         this.weapon.setAngle(angle);
         this.weapon.swoosh();
+    }
+
+    // Bolt impact VFX, like the player's fireball impact: plays the bolt
+    // sheet on the target, tracking it, then removes itself. Only its own
+    // listeners, so destroy() releases everything.
+    impactBurst(target: { x: number; y: number }): void {
+        if (!this.scene) return;
+        const burst = this.scene.add.sprite(target.x, target.y, "enemy-bolt", 0);
+        burst.setDepth(target.y + 1);
+        burst.on(Animations.Events.ANIMATION_UPDATE, () => {
+            burst.setPosition(target.x, target.y);
+            burst.setDepth(target.y + 1);
+        });
+        burst.once(Animations.Events.ANIMATION_COMPLETE, () => burst.destroy());
+        burst.play("enemy-bolt-impact");
     }
 
     attackReady(): void {
