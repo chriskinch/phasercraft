@@ -127,13 +127,19 @@ const BOULDER = { w: 2, h: 2, top: [38, 39], bottom: [50, 51] };
 // ── biome table ───────────────────────────────────────────────────────────────
 
 /**
+ * `vegetation` holds [canopy, base] pairs and MUST be two tiles of one
+ * continuous prop — a tree's crown directly over its trunk. The canopy goes on
+ * `structure props` and is sorted on the base a tile below it. Anything that is
+ * complete in a single tile belongs in `scatter` instead, however the sheet
+ * happens to stack it.
+ *
  * Every tile a biome actually stands on the `structure` layer: the base tile of
  * each 2-tall plant, every single-tile scatter prop, and both halves of the
  * boulder's bottom row. The canopy/top tiles live on `structure props`, which
  * is not a collision layer, so they are deliberately absent.
  */
-function solidPropsFor({ vegetation, rocks }) {
-    return [...vegetation.map(([, base]) => base), ...rocks, ...BOULDER.bottom];
+function solidPropsFor({ vegetation, scatter }) {
+    return [...vegetation.map(([, base]) => base), ...scatter, ...BOULDER.bottom];
 }
 
 const BIOMES = {
@@ -157,9 +163,13 @@ const BIOMES = {
             [13, 25],
             [14, 26],
             [18, 30],
-            [37, 49],
         ],
-        rocks: [40, 52, 41, 53, 42, 54],
+        // 37 and 49 are two *separate* single-tile bushes that happen to sit one
+        // above the other in the sheet — not a canopy over its trunk. Pairing
+        // them stacked one bush on top of another and, because the upper tile
+        // landed on `structure props`, left it neither solid nor sorted on its
+        // own base.
+        scatter: [40, 52, 41, 53, 42, 54, 37, 49],
     },
     desert: {
         seed: 0x5eed_de,
@@ -180,7 +190,7 @@ const BIOMES = {
             [15, 27],
         ],
         // Plus the bleached bones in the desert sheet's spare slot.
-        rocks: [40, 52, 41, 53, 42, 54, 30],
+        scatter: [40, 52, 41, 53, 42, 54, 30],
     },
     tundra: {
         seed: 0x5eed_7a,
@@ -198,8 +208,9 @@ const BIOMES = {
             [13, 25],
             [14, 26],
         ],
-        // Rocks plus the two single-tile ice shards.
-        rocks: [40, 52, 41, 53, 42, 54, 70, 82],
+        // Rocks plus the two single-tile ice shards. (68,69/80,81 is one 2x2
+        // crystal, deliberately unused — it is not a pair of singles.)
+        scatter: [40, 52, 41, 53, 42, 54, 70, 82],
     },
 };
 
@@ -515,7 +526,7 @@ function generate(name, biome) {
         for (let x = 0; x < WIDTH; x++) {
             if (random() >= rock) continue;
             if (!free(x, y)) continue;
-            structure[y * WIDTH + x] = biome.rocks[Math.floor(random() * biome.rocks.length)];
+            structure[y * WIDTH + x] = biome.scatter[Math.floor(random() * biome.scatter.length)];
             taken[y * WIDTH + x] = 1;
         }
     }

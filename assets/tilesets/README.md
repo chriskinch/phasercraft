@@ -65,7 +65,7 @@ making solid:
 | Tile | Fill | Solid? |
 | --- | --- | --- |
 | Full water (158) | 100% | yes — exact fit |
-| Tree / conifer / bush base | 60-66% | yes — ~2px slack per side |
+| Tree / conifer base, bush | 52-66% | yes — ~2px slack per side |
 | Rocks, ore, ice shards, bones | 44-66% | no |
 | Cactus base | 43-54% | no — a 10px trunk in a 16px cell |
 | Shoreline edge tiles | partial | no — the player can reach the water's edge |
@@ -93,9 +93,16 @@ with bits `NW=1, NE=2, SW=4, SE=8`. The two diagonal masks (6 and 9) have no
 tile in the pack, so the generator smooths them out of the corner grid before
 any lookup — see `removeDiagonals`.
 
-Props live in `<biome>_ [resources].png` (12x10). Vegetation is two tiles tall
-and the canopy sits 12 indices above its base (e.g. 13 over 25), which is why it
-is split across `structure` and `structure props`.
+Props live in `<biome>_ [resources].png` (12x10). A `vegetation` entry is two
+tiles of **one continuous prop** — a crown directly over its trunk, the canopy 12
+indices above its base (e.g. 13 over 25) — which is why it is split across
+`structure` and `structure props`.
+
+Anything complete in a single tile goes in `scatter` instead, however the sheet
+stacks it. The sheets do stack unrelated singles: forest 37 and 49 are two
+separate bushes one above the other, and pairing them as canopy-and-trunk drew
+one bush on top of another, left the upper one neither solid nor sorted on its
+own base. Check the art before adding a pair.
 
 ## Loading
 
