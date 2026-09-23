@@ -106,7 +106,11 @@ never leave town. `BiomeScene.preload()` fetches the one map it needs and skips
 the fetch when it is already cached, so re-entering a biome is free.
 
 For the same reason the biome maps are excluded from the PWA precache
-(`globIgnores` in `vite.config.ts`) and given a `CacheFirst` runtime rule: they
-are cached the first time a player visits that biome and offline from then on.
-The 30x30 town map stays precached — it is 66KB and the player lands there
-immediately.
+(`globIgnores` in `vite.config.ts`) and given a `StaleWhileRevalidate` runtime
+rule: a revisit is instant and works offline, while a background revalidation
+picks up a regenerated map for the next visit. It is deliberately not
+`CacheFirst` — outside the precache these files no longer get Workbox's
+per-entry content revision, and public assets are copied unhashed, so a
+`CacheFirst` entry would pin the first map a player loaded and never serve them
+a regenerated layout again. The 30x30 town map stays precached — it is 66KB and
+the player lands there immediately.

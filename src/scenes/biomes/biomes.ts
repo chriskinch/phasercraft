@@ -22,10 +22,6 @@ export interface BiomeDefinition {
     liveCap: number;
 }
 
-// Difficulty tiers, overlapping at the edges so the ramp between biomes is a
-// slope rather than a step: the forest is the starter, the tundra the hardest.
-// `total`/`liveCap` are identical across the three for now — they live on the
-// definition so per-biome tuning is a config edit rather than a refactor.
 /**
  * How a biome's .tmj hangs together. `key` is the tilemap cache key from
  * LoadScene; each `tilesets` entry pairs the tileset name *inside* the .tmj with
@@ -62,6 +58,10 @@ function biomeMap(id: BiomeId): BiomeMap {
     };
 }
 
+// Difficulty tiers, overlapping at the edges so the ramp between biomes is a
+// slope rather than a step: the forest is the starter, the tundra the hardest.
+// `total`/`liveCap` are identical across the three for now — they live on the
+// definition so per-biome tuning is a config edit rather than a refactor.
 export const BIOMES: Record<BiomeId, BiomeDefinition> = {
     forest: {
         id: "forest",

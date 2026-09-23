@@ -101,12 +101,20 @@ export default defineConfig(({ mode }) => ({
                         handler: "NetworkOnly",
                     },
                     {
-                        // Biome maps: cached the first time the player visits that
-                        // biome, and offline from then on. Excluded from the
-                        // precache above because of their size.
+                        // Biome maps: served from cache so a revisit is instant
+                        // and works offline, while a background revalidation
+                        // picks up a regenerated map for the next visit.
+                        //
+                        // Not CacheFirst. These files left the precache above,
+                        // so they no longer get Workbox's per-entry content
+                        // revision, and public assets are copied unhashed — a
+                        // CacheFirst entry for a stable URL would pin the first
+                        // map a player ever loaded and never serve a
+                        // regenerated layout to them again. (`cleanupOutdated-
+                        // Caches` prunes precaches, not runtime caches.)
                         urlPattern: ({ url }) =>
                             url.pathname.includes("/graphics/tilesets/biomes/"),
-                        handler: "CacheFirst",
+                        handler: "StaleWhileRevalidate",
                         options: {
                             cacheName: "biome-maps",
                             expiration: { maxEntries: 8 },
