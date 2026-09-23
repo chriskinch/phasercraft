@@ -39,9 +39,15 @@ export interface BiomeMap {
     layers: string[];
     // Layers whose tiles can carry `collides: true`. The rest are decoration.
     collisionLayers: string[];
-    // Layers that draw *over* the player and the enemies, so walking up behind a
-    // tree puts its canopy in front of you. Everything else draws beneath them.
-    foregroundLayers: string[];
+    // Layers holding the upper half of a standing prop — canopies, boulder tops.
+    // These draw beneath the characters like every other layer, and BiomeScene
+    // additionally redraws the few tiles near a character as individually
+    // depth-sorted sprites, so walking up behind a tree puts its canopy in
+    // front of you. See `BiomeScene.updatePropOverlays`.
+    propLayers: string[];
+    // Spritesheet key for those overlay sprites: the same art as the layer's
+    // tileset, loaded with frames so a tile index can be drawn on its own.
+    propsTexture: string;
     // Tile art is 16px; the town renders its map at 2x and the biomes match, so
     // the player reads at the same size in both.
     scale: number;
@@ -57,7 +63,8 @@ function biomeMap(id: BiomeId): BiomeMap {
         ],
         layers: ["terrain", "terrain props", "paths", "structure", "structure props"],
         collisionLayers: ["terrain", "structure"],
-        foregroundLayers: ["structure props"],
+        propLayers: ["structure props"],
+        propsTexture: `${id}Props`,
         scale: 2,
     };
 }

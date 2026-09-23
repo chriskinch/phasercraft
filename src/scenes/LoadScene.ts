@@ -315,6 +315,19 @@ export default class LoadScene extends Scene {
             this.load.image(`${biome}Path`, `${dir}/${biome}Path_.png`);
             this.load.image(`${biome}Resources`, `${dir}/${biome}_ [resources].png`);
         }
+
+        // The same resource sheets again, as spritesheets. BiomeScene draws a
+        // handful of prop tiles as individual sprites so they can sort against
+        // the characters by their own y (see `updatePropOverlays`), and that
+        // needs a frame index — which a plain `load.image` texture does not
+        // have. The sheets are 192x160, so the duplicate costs very little.
+        for (const biome of ["forest", "desert", "tundra"] as const) {
+            this.load.spritesheet(
+                `${biome}Props`,
+                `tilesets/fantasy/${biome}_/${biome}_ [resources].png`,
+                { frameWidth: 16, frameHeight: 16 }
+            );
+        }
     }
 
     create() {

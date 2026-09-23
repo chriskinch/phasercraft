@@ -50,16 +50,28 @@ interface SceneUnderTest {
             removeCollider: ReturnType<typeof vi.fn>;
             bounds?: { left: number; top: number; right: number; bottom: number };
         };
+        add?: { collider: ReturnType<typeof vi.fn> };
     };
     map_colliders: object[];
     collision_layers: object[];
+    prop_overlays: Array<{ destroy: ReturnType<typeof vi.fn> }>;
+    prop_layers: object[];
+    setupMapCollisions(): void;
+    updatePropOverlays(): void;
+    add: { sprite: ReturnType<typeof vi.fn> };
     map: { tileWidth: number; tileHeight: number };
     scale: { width: number; height: number };
     isOpenAt: ReturnType<typeof vi.fn>;
     spawnPointNearPlayer(): { x: number; y: number };
-    enemies: { runChildUpdate: boolean; getChildren: ReturnType<typeof vi.fn> };
+    enemies: { runChildUpdate: boolean; getChildren: ReturnType<typeof vi.fn>; name?: string };
     UI: { cleanup: ReturnType<typeof vi.fn> };
-    player: { cleanup: ReturnType<typeof vi.fn>; alive: boolean; x: number; y: number };
+    player: {
+        cleanup: ReturnType<typeof vi.fn>;
+        alive: boolean;
+        x: number;
+        y: number;
+        body?: object;
+    };
     input: { off: ReturnType<typeof vi.fn>; activePointer: object };
     cursors: { esc: { isDown: boolean } };
     events: {
@@ -93,6 +105,9 @@ function makeScene(overrides: Partial<SceneUnderTest> = {}): {
     // the scene sets up in create() has to be seeded here.
     scene.map_colliders = [];
     scene.collision_layers = [];
+    scene.prop_overlays = [];
+    scene.prop_layers = [];
+    scene.add = { sprite: vi.fn() };
     scene.enemies = { runChildUpdate: true, getChildren: vi.fn(() => []) };
     scene.UI = { cleanup: vi.fn() };
     scene.player = { cleanup: vi.fn(), alive: false, x: 0, y: 0 };
@@ -379,6 +394,19 @@ describe("BiomeScene.shutdown", () => {
         expect(scene.map_colliders).toEqual([]);
     });
 
+    it("destroys the prop overlay pool", () => {
+        // Scene instances are reused across scene.start(), so a surviving pool
+        // would point at sprites the previous visit's display list destroyed.
+        const sprites = [{ destroy: vi.fn() }, { destroy: vi.fn() }];
+        const { scene } = makeScene({ prop_overlays: sprites, prop_layers: [{ id: "props" }] });
+
+        scene.shutdown();
+
+        sprites.forEach((sprite) => expect(sprite.destroy).toHaveBeenCalledTimes(1));
+        expect(scene.prop_overlays).toEqual([]);
+        expect(scene.prop_layers).toEqual([]);
+    });
+
     it("is idempotent — a second shutdown does not re-remove the colliders", () => {
         const { scene } = makeScene({ map_colliders: [{ id: "terrain" }] });
 
@@ -386,6 +414,128 @@ describe("BiomeScene.shutdown", () => {
         scene.shutdown();
 
         expect(scene.physics.world.removeCollider).toHaveBeenCalledTimes(1);
+    });
+});
+
+describe("BiomeScene.setupMapCollisions", () => {
+    it("collides the map with the enemy group as well as the player", () => {
+        // Enemies ignoring water and tree trunks was the visible bug: only the
+        // player was ever given a collider. Registering the *group* covers
+        // enemies spawned later without re-registering.
+        const { scene } = makeScene();
+        const layers = [{ id: "terrain" }, { id: "structure" }];
+        const collider = vi.fn((a, b) => ({ a, b }));
+        scene.collision_layers = layers;
+        scene.player = { ...scene.player, body: {} };
+        scene.enemies = { ...scene.enemies, name: "enemy-group" };
+        scene.physics = { ...scene.physics, add: { collider } };
+
+        scene.setupMapCollisions();
+
+        // One collider per body per collidable layer.
+        expect(collider).toHaveBeenCalledTimes(4);
+        for (const layer of layers) {
+            expect(collider).toHaveBeenCalledWith(scene.player, layer);
+            expect(collider).toHaveBeenCalledWith(scene.enemies, layer);
+        }
+        expect(scene.map_colliders).toHaveLength(4);
+    });
+
+    it("registers nothing when the player has no body yet", () => {
+        const { scene } = makeScene();
+        const collider = vi.fn();
+        scene.collision_layers = [{ id: "terrain" }];
+        scene.player = { ...scene.player, body: undefined };
+        scene.physics = { ...scene.physics, add: { collider } };
+
+        scene.setupMapCollisions();
+
+        expect(collider).not.toHaveBeenCalled();
+    });
+});
+
+describe("BiomeScene.updatePropOverlays", () => {
+    // A prop tile is the *upper* half of a two-tile prop, so it must sort on the
+    // bottom of the whole prop — one tile below itself. That is what decides
+    // whether a canopy covers a character or the character covers the canopy,
+    // and it is the thing a single-depth tile layer cannot express.
+    const TILE = 16;
+    const SCALE = 2;
+    const TILE_PX = TILE * SCALE;
+
+    function makeOverlayScene(tileWorld: { x: number; y: number }) {
+        const { scene } = makeScene();
+        // Typed args on the chainable setters, so the assertions below can read
+        // `mock.calls[0][0]` without TypeScript inferring an empty tuple.
+        const sprite = {
+            setOrigin: vi.fn((_x: number, _y: number) => sprite),
+            setScale: vi.fn((_s: number) => sprite),
+            setFrame: vi.fn((_f: number) => sprite),
+            setPosition: vi.fn((_x: number, _y: number) => sprite),
+            setDepth: vi.fn((_d: number) => sprite),
+            setVisible: vi.fn((_v: boolean) => sprite),
+            destroy: vi.fn(),
+        };
+        const tile = { x: 3, y: 4, index: 250, tileset: { firstgid: 239 } };
+        const layer = {
+            layer: { name: "structure props" },
+            getTileAtWorldXY: vi.fn(() => tile),
+            tileToWorldXY: vi.fn(() => tileWorld),
+        };
+
+        scene.map = { tileWidth: TILE, tileHeight: TILE };
+        scene.biome = { ...scene.biome, map: { ...scene.biome.map, scale: SCALE } };
+        scene.prop_layers = [layer];
+        scene.prop_overlays = [];
+        scene.player = { ...scene.player, x: 500, y: 500 };
+        scene.enemies = { ...scene.enemies, getChildren: vi.fn(() => []) };
+        scene.add = { sprite: vi.fn(() => sprite) };
+        return { scene, sprite, tile, layer };
+    }
+
+    it("sorts a prop on the bottom of the whole prop, one tile below the drawn tile", () => {
+        const world = { x: 320, y: 640 };
+        const { scene, sprite } = makeOverlayScene(world);
+
+        scene.updatePropOverlays();
+
+        expect(sprite.setPosition).toHaveBeenCalledWith(world.x, world.y);
+        expect(sprite.setDepth).toHaveBeenCalledWith(world.y + TILE_PX * 2);
+    });
+
+    it("puts the canopy in front of a character behind the tree and behind one in front of it", () => {
+        const world = { x: 320, y: 640 };
+        const { scene, sprite } = makeOverlayScene(world);
+
+        scene.updatePropOverlays();
+        const depth = sprite.setDepth.mock.calls[0][0];
+
+        // Characters sort on their own y (Player/Enemy both setDepth(this.y)).
+        const behind_tree = world.y + TILE_PX; // standing above the trunk
+        const in_front = world.y + TILE_PX * 3; // standing below the trunk
+        expect(depth).toBeGreaterThan(behind_tree);
+        expect(depth).toBeLessThan(in_front);
+    });
+
+    it("reuses the pool rather than creating a sprite per frame", () => {
+        const { scene, sprite } = makeOverlayScene({ x: 320, y: 640 });
+
+        scene.updatePropOverlays();
+        scene.updatePropOverlays();
+        scene.updatePropOverlays();
+
+        // One distinct tile is found each frame, so the pool never grows past 1.
+        expect(scene.add.sprite).toHaveBeenCalledTimes(1);
+        expect(scene.prop_overlays).toHaveLength(1);
+        expect(sprite.setVisible).toHaveBeenCalledWith(true);
+    });
+
+    it("does nothing when the biome has no prop layers", () => {
+        const { scene } = makeOverlayScene({ x: 0, y: 0 });
+        scene.prop_layers = [];
+
+        expect(() => scene.updatePropOverlays()).not.toThrow();
+        expect(scene.add.sprite).not.toHaveBeenCalled();
     });
 });
 

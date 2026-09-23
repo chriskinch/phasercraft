@@ -69,6 +69,10 @@ export default class BiomeScene extends Scene {
     private map!: Phaser.Tilemaps.Tilemap;
     private collision_layers: Phaser.Tilemaps.TilemapLayer[] = [];
     private map_colliders: Phaser.Physics.Arcade.Collider[] = [];
+    // Prop layers, and the small recycled pool of sprites that redraws the few
+    // prop tiles near a character so they can sort against them individually.
+    private prop_layers: Tilemaps.TilemapLayer[] = [];
+    private prop_overlays: GameObjects.Sprite[] = [];
     // Spawn ring around the player, in pixels. The lower bound keeps enemies
     // from materialising on top of the player; the upper bound is set per-spawn
     // from the viewport, so enemies arrive within sight.
@@ -174,14 +178,16 @@ export default class BiomeScene extends Scene {
             y: spawn.y,
         }) as PlayerType;
 
-        // Collide the player with the map, then lock the camera to them so the
-        // area can be wandered the way the town is.
-        this.setupMapCollisions();
-        this.cameras.main.startFollow(this.player);
-
         this.enemies = this.add.group();
         this.enemies.runChildUpdate = true;
         this.active_enemies = this.add.group();
+
+        // Collide the map with the player *and* the enemy group, then lock the
+        // camera to the player so the area can be wandered the way the town is.
+        // The groups have to exist first: an Arcade group collider covers
+        // members added later, but only if the group is registered up front.
+        this.setupMapCollisions();
+        this.cameras.main.startFollow(this.player);
 
         this.setAreaClearedUI();
         this.startArea();
@@ -215,7 +221,7 @@ export default class BiomeScene extends Scene {
      * bounds sized to the result.
      */
     private createBiomeEnvironment(): void {
-        const { key, tilesets, layers, scale, foregroundLayers } = this.biome.map;
+        const { key, tilesets, layers, scale, propLayers } = this.biome.map;
 
         this.map = this.make.tilemap({ key });
 
@@ -230,13 +236,21 @@ export default class BiomeScene extends Scene {
         }
 
         this.collision_layers = [];
+        this.prop_layers = [];
 
         layers.forEach((name, index) => {
             const layer = this.map.createLayer(name, images);
             if (!layer) throw Error(`${this.biome.id}: layer "${name}" missing from "${key}"`);
 
             layer.setScale(scale);
-            layer.setDepth(this.layerDepth(name, index, layers, foregroundLayers));
+            // Every tile layer sits below the characters, whose depth tracks
+            // their y. Props that need to be *in front* are redrawn per-tile by
+            // updatePropOverlays() rather than by lifting a whole layer.
+            layer.setDepth(index - layers.length);
+
+            if (propLayers.includes(name) && layer instanceof Tilemaps.TilemapLayer) {
+                this.prop_layers.push(layer);
+            }
 
             if (this.biome.map.collisionLayers.includes(name)) {
                 // `createLayer` is typed as CPU-or-GPU layer; Arcade collision
@@ -262,54 +276,111 @@ export default class BiomeScene extends Scene {
     }
 
     /**
-     * Where a tile layer sits relative to the characters.
+     * Redraws the handful of prop tiles around each character as individually
+     * depth-sorted sprites, so a canopy is in front of a character standing
+     * behind the tree and behind one standing in front of it.
      *
-     * `Player` and `Enemy` both set their own depth to their `y` each frame, so
-     * a character's depth is somewhere in 0..worldHeight. A background layer
-     * therefore needs a negative depth to stay under every character, and a
-     * foreground layer needs one above worldHeight to stay over them — which is
-     * how walking up behind a tree puts its canopy in front of you.
+     * Why not simply put the prop layer in front? A tile layer carries a single
+     * depth, so it is either wholly in front of every character or wholly
+     * behind — which is why a canopy ended up covering a health bar belonging to
+     * a player standing *below* the tree. No amount of shifting a character's
+     * depth can fix that; the town avoids it by y-sorting individual object
+     * sprites, which is only possible per prop.
      *
-     * Note this is *not* the town's `setDepthByY(player)` treatment. The town
-     * pushes the player to `y + height`, which is fine there because the town
-     * has no enemies; doing the same here would lift the player above every
-     * enemy at a similar y. Characters already sort correctly against each
-     * other — only the tile layers needed fixing.
+     * Why not convert the whole layer to sprites, as the town does? Measured:
+     * the forest holds 5,303 prop tiles, and turning all of them into sprites
+     * dropped the frame rate from ~50 to ~35, because every character changing
+     * depth re-sorts a display list that size each frame. Only props that can
+     * actually overlap a character matter, and there are never more than a few
+     * dozen of those, so the pool stays tiny and the cost is flat.
      *
-     * A whole layer has a single depth, so a canopy drawn in front is in front
-     * of the player wherever they stand. In practice that is invisible: trunks
-     * are solid, so the player can never stand on the trunk tile whose canopy
-     * sits directly above it. Per-tree sorting would mean per-tree sprites, and
-     * the forest has thousands of trees.
+     * The prop layer still draws every canopy *behind* the characters, so this
+     * only has to add the in-front case; the duplicate is the same pixels in
+     * the same place and is invisible.
      */
-    private layerDepth(
-        name: string,
-        index: number,
-        layers: string[],
-        foregroundLayers: string[]
-    ): number {
-        if (!foregroundLayers.includes(name)) {
-            // Preserves the .tmj's own bottom-to-top order, all below zero.
-            return index - layers.length;
+    private updatePropOverlays(): void {
+        if (!this.prop_layers.length) return;
+
+        const scale = this.biome.map.scale;
+        const tile_w = this.map.tileWidth * scale;
+        const tile_h = this.map.tileHeight * scale;
+
+        const characters: Array<{ x: number; y: number }> = [this.player];
+        this.enemies.getChildren().forEach((enemy) => {
+            const body = enemy as unknown as { x: number; y: number; active: boolean };
+            if (body.active) characters.push(body);
+        });
+
+        const seen = new Set<string>();
+        let used = 0;
+
+        for (const character of characters) {
+            for (const layer of this.prop_layers) {
+                // A prop is two tiles tall and a character about the same, so a
+                // 3-wide by 4-tall window around them covers everything that can
+                // overlap. Cheap: a few dozen lookups a frame.
+                for (let dy = -2; dy <= 1; dy++) {
+                    for (let dx = -1; dx <= 1; dx++) {
+                        const world_x = character.x + dx * tile_w;
+                        const world_y = character.y + dy * tile_h;
+                        const tile = layer.getTileAtWorldXY(world_x, world_y);
+                        if (!tile || tile.index < 0) continue;
+
+                        const key = `${layer.layer.name}:${tile.x},${tile.y}`;
+                        if (seen.has(key)) continue;
+                        seen.add(key);
+
+                        used = this.drawPropOverlay(tile, layer, used, scale, tile_h);
+                    }
+                }
+            }
         }
 
-        const above_characters = this.map.heightInPixels * this.biome.map.scale + 1;
-        // Foreground tiles must still sit under the HUD, which is drawn at
-        // `depth_group.UI`. A map tall enough to collide with that would need
-        // the HUD lifted rather than the terrain quietly dropping behind it.
-        if (above_characters >= this.depth_group.UI) {
-            throw Error(
-                `${this.biome.id}: map is too tall for the foreground depth band ` +
-                    `(${above_characters} >= HUD depth ${this.depth_group.UI})`
-            );
+        // Park whatever the pool did not need this frame.
+        for (let i = used; i < this.prop_overlays.length; i++) {
+            this.prop_overlays[i].setVisible(false);
         }
-        return above_characters + index;
+    }
+
+    /** Places one pooled sprite over `tile`, growing the pool if needed. */
+    private drawPropOverlay(
+        tile: Phaser.Tilemaps.Tile,
+        layer: Tilemaps.TilemapLayer,
+        used: number,
+        scale: number,
+        tile_h: number
+    ): number {
+        const tileset = tile.tileset;
+        if (!tileset) return used;
+
+        let sprite = this.prop_overlays[used];
+        if (!sprite) {
+            sprite = this.add.sprite(0, 0, this.biome.map.propsTexture).setOrigin(0, 0);
+            sprite.setScale(scale);
+            this.prop_overlays.push(sprite);
+        }
+
+        const world = layer.tileToWorldXY(tile.x, tile.y);
+        if (!world) return used;
+
+        sprite.setFrame(tile.index - tileset.firstgid);
+        sprite.setPosition(world.x, world.y);
+        // Sort on the bottom of the whole prop, not of this tile: these are the
+        // *upper* halves of two-tile props, so the base sits one tile lower.
+        // Matches the town's `sprite.y + sprite.height` convention.
+        sprite.setDepth(world.y + tile_h * 2);
+        sprite.setVisible(true);
+        return used + 1;
     }
 
     /**
-     * One collider per collidable layer, rather than the town's one-per-object
-     * approach: Arcade only tests the tiles under the body, so this stays flat
-     * however large the map gets.
+     * One collider per collidable layer per body, rather than the town's
+     * one-per-object approach: Arcade only tests the tiles under each body, so
+     * this stays flat however large the map gets.
+     *
+     * Enemies collide with the map too — water and tree trunks stop them the
+     * same way they stop the player. Registering the *group* means enemies
+     * spawned later are covered without re-registering anything.
      */
     private setupMapCollisions(): void {
         if (!this.player.body) {
@@ -317,9 +388,10 @@ export default class BiomeScene extends Scene {
             return;
         }
 
-        this.map_colliders = this.collision_layers.map((layer) =>
-            this.physics.add.collider(this.player, layer)
-        );
+        this.map_colliders = this.collision_layers.flatMap((layer) => [
+            this.physics.add.collider(this.player, layer),
+            this.physics.add.collider(this.enemies, layer),
+        ]);
     }
 
     /** True when no collidable layer has a solid tile at this world position. */
@@ -400,6 +472,9 @@ export default class BiomeScene extends Scene {
         let mouse = this.input.activePointer;
 
         if (this.player.alive) this.player.update(mouse, this.cursors, time, delta);
+
+        // After the characters have moved and re-set their own depths.
+        this.updatePropOverlays();
 
         if (this.cursors.esc?.isDown) {
             this.returnToTown();
@@ -632,6 +707,13 @@ export default class BiomeScene extends Scene {
         this.map_colliders.forEach((collider) => this.physics?.world?.removeCollider(collider));
         this.map_colliders = [];
         this.collision_layers = [];
+
+        // The overlay pool is scene-owned, but scene instances are reused across
+        // scene.start() and field initialisers do not re-run — so a stale pool
+        // would survive into the next visit pointing at destroyed sprites.
+        this.prop_overlays.forEach((sprite) => sprite.destroy());
+        this.prop_overlays = [];
+        this.prop_layers = [];
 
         // Release the travel-request subscription.
         if (this.travel_subscription) {
