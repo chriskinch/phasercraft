@@ -68,6 +68,12 @@ before starting work; link PRs to the relevant phase issue.
   events as they arrive (fix when confident and small; ask the maintainer when
   ambiguous or architecturally significant). This is an action only the agent can take,
   so it cannot be a settings hook.
+- **Never use time-based polling.** No `while true` + `sleep` loops, no repeating
+  timers, no scheduled wake-ups to re-check state — not for PR activity, CI, deploys,
+  background jobs, or anything else. Wait only on event-driven subscriptions
+  (`subscribe_pr_activity`) or on a single command that blocks until its condition is
+  true and then exits. If neither is available, do not improvise a poll loop: report the
+  current state once, hand it back, and say what you would need to watch it properly.
 - Dependency majors are individual PRs, never bundled with feature work.
 
 ## Code conventions
