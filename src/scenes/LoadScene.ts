@@ -118,6 +118,10 @@ export default class LoadScene extends Scene {
             frameWidth: 87,
             frameHeight: 87,
         });
+        this.load.spritesheet("enemy-bolt", "spritesheets/spells/enemy-bolt.png", {
+            frameWidth: 24,
+            frameHeight: 24,
+        });
         this.load.spritesheet("frostbolt-effect", "spritesheets/spells/frostbolt.png", {
             frameWidth: 150,
             frameHeight: 67,
@@ -284,6 +288,46 @@ export default class LoadScene extends Scene {
             margin: 16,
             spacing: 0,
         });
+
+        this.loadBiomeTilesets();
+    }
+
+    /**
+     * Tilesets for the biome maps. Each biome uses the same three sheets —
+     * terrain, path and resources — which the fantasy_ pack ships in an
+     * identical layout per biome, so the keys follow one pattern:
+     * `<biome>Terrain` / `<biome>Path` / `<biome>Resources`.
+     *
+     * The maps themselves are *not* loaded here. At 300x300x5 layers they are
+     * ~1MB of JSON each, and Phaser builds a Tile object per tile on parse —
+     * pulling all three in at boot cost about fourteen seconds before the main
+     * menu appeared, paid even by a player who never leaves town. BiomeScene
+     * loads the one map it needs in its own `preload()` instead.
+     *
+     * The forest keys (`forestTerrain`, `forestPath`, `forestResources`) are
+     * already loaded above for the town map and are deliberately not repeated —
+     * Phaser would warn about the duplicate key and keep the first.
+     */
+    private loadBiomeTilesets(): void {
+        for (const biome of ["desert", "tundra"] as const) {
+            const dir = `tilesets/fantasy/${biome}_`;
+            this.load.image(`${biome}Terrain`, `${dir}/${biome}_.png`);
+            this.load.image(`${biome}Path`, `${dir}/${biome}Path_.png`);
+            this.load.image(`${biome}Resources`, `${dir}/${biome}_ [resources].png`);
+        }
+
+        // The same resource sheets again, as spritesheets. BiomeScene draws a
+        // handful of prop tiles as individual sprites so they can sort against
+        // the characters by their own y (see `updatePropOverlays`), and that
+        // needs a frame index — which a plain `load.image` texture does not
+        // have. The sheets are 192x160, so the duplicate costs very little.
+        for (const biome of ["forest", "desert", "tundra"] as const) {
+            this.load.spritesheet(
+                `${biome}Props`,
+                `tilesets/fantasy/${biome}_/${biome}_ [resources].png`,
+                { frameWidth: 16, frameHeight: 16 }
+            );
+        }
     }
 
     create() {

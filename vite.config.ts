@@ -81,6 +81,12 @@ export default defineConfig(({ mode }) => ({
                 // copied unhashed, so Workbox revisions them by content and only
                 // re-downloads what actually changed between builds.
                 globPatterns: ["**/*.{js,css,html,png,gif,json,tmj,csv,woff2,svg,ico}"],
+                // The three 300x300 biome maps are ~1MB each and are only needed
+                // once the player travels to that biome, so they are fetched on
+                // demand (see runtimeCaching below) rather than near-doubling the
+                // install. The 30x30 town map stays precached — it is 66KB and
+                // the player lands there immediately.
+                globIgnores: ["**/graphics/tilesets/biomes/*.tmj"],
                 maximumFileSizeToCacheInBytes: 4 * 1024 * 1024,
                 navigateFallback: "index.html",
                 navigateFallbackDenylist: [/^\/api\//],
@@ -93,6 +99,27 @@ export default defineConfig(({ mode }) => ({
                         // gracefully when unreachable; never cache it.
                         urlPattern: ({ url }) => url.pathname.startsWith("/api/armory"),
                         handler: "NetworkOnly",
+                    },
+                    {
+                        // Biome maps: served from cache so a revisit is instant
+                        // and works offline, while a background revalidation
+                        // picks up a regenerated map for the next visit.
+                        //
+                        // Not CacheFirst. These files left the precache above,
+                        // so they no longer get Workbox's per-entry content
+                        // revision, and public assets are copied unhashed — a
+                        // CacheFirst entry for a stable URL would pin the first
+                        // map a player ever loaded and never serve a
+                        // regenerated layout to them again. (`cleanupOutdated-
+                        // Caches` prunes precaches, not runtime caches.)
+                        urlPattern: ({ url }) =>
+                            url.pathname.includes("/graphics/tilesets/biomes/"),
+                        handler: "StaleWhileRevalidate",
+                        options: {
+                            cacheName: "biome-maps",
+                            expiration: { maxEntries: 8 },
+                            cacheableResponse: { statuses: [0, 200] },
+                        },
                     },
                 ],
             },

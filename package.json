@@ -35,7 +35,8 @@
         "format": "prettier --write .",
         "format:check": "prettier --check .",
         "prepare": "simple-git-hooks",
-        "armory:smoke": "tsx scripts/armory-smoke.ts"
+        "armory:smoke": "tsx scripts/armory-smoke.ts",
+        "maps:biomes": "node scripts/generate-biome-maps.mjs"
     },
     "dependencies": {
         "@reduxjs/toolkit": "^2.8.2",
