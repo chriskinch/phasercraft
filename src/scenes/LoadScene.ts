@@ -118,6 +118,10 @@ export default class LoadScene extends Scene {
             frameWidth: 87,
             frameHeight: 87,
         });
+        this.load.spritesheet("enemy-bolt", "spritesheets/spells/enemy-bolt.png", {
+            frameWidth: 24,
+            frameHeight: 24,
+        });
         this.load.spritesheet("frostbolt-effect", "spritesheets/spells/frostbolt.png", {
             frameWidth: 150,
             frameHeight: 67,

@@ -1,4 +1,4 @@
-import { Core, Math as PhaserMath, GameObjects, Geom, Physics, Types } from "phaser";
+import { Animations, Core, Math as PhaserMath, GameObjects, Geom, Physics, Types } from "phaser";
 import { v4 as uuid } from "uuid";
 import AssignResource, { AssignResourceType } from "@entities/Resources/AssignResource";
 import Monster from "./Monster";
@@ -6,6 +6,8 @@ import Coin from "@entities/Loot/Coin";
 import Crafting from "@entities/Loot/Crafting";
 import Gem from "@entities/Loot/Gem";
 import Banes from "@entities/UI/Banes";
+import Weapon from "@entities/Weapon";
+import Projectile from "@entities/Weapons/Projectile";
 import type {
     CombatType,
     EnemyOptions,
@@ -77,6 +79,7 @@ class Enemy extends GameObjects.Container {
     public wandering_looped_timer: Phaser.Time.TimerEvent | null = null;
     public selected!: boolean;
     public swing: Phaser.Time.TimerEvent | null = null;
+    public weapon!: Weapon;
     public collider!: Physics.Arcade.Collider;
     public body!: Physics.Arcade.Body;
     // Transient targeting vector cached by the Whirlwind/Multishot range scans.
@@ -154,6 +157,11 @@ class Enemy extends GameObjects.Container {
         // Radius bumped from 15 to 18 (~20% larger) to make enemies easier to tap/select.
         this.setInteractive(new Geom.Circle(14, 14, 18), Geom.Circle.Contains);
         this.bringToTop(this.monster);
+
+        // Melee/healer swing VFX — the player's swoosh, added last so it draws
+        // over the monster. A container child, so it goes with the enemy.
+        this.weapon = new Weapon({ scene: this.scene, key: "weapon-swooch" });
+        this.add(this.weapon);
 
         this.scene.events.on("pointerdown:game", this.deselect, this);
         this.scene.events.on("pointerdown:enemy", this.deselect, this);
@@ -427,7 +435,29 @@ class Enemy extends GameObjects.Container {
     attack(): void {
         if (this.states.attack === "primed") {
             this.states.attack = "recovering";
-            this.scene.events.emit("enemy:attack", this.stats.damage, this.combat_type);
+            const player = (this.scene as GameSceneLike).player;
+            const damage = this.stats.damage;
+            const combat_type = this.combat_type;
+            const events = this.scene.events;
+            if (combat_type === "ranged") {
+                // Ranged attack: a homing bolt; the hit lands on impact.
+                new Projectile({
+                    scene: this.scene,
+                    x: this.x,
+                    y: this.y - 10,
+                    key: "enemy-bolt",
+                    frame: 0,
+                    speed: 400,
+                    target: player,
+                    onImpact: () => {
+                        events.emit("enemy:attack", damage, combat_type);
+                        this.impactBurst(player);
+                    },
+                });
+            } else {
+                this.swipe(player);
+                this.scene.events.emit("enemy:attack", damage, combat_type);
+            }
             this.attack_ready = false;
             this.swing = this.scene.time.addEvent({
                 delay: this.stats.attack_speed * 1000,
@@ -436,6 +466,28 @@ class Enemy extends GameObjects.Container {
                 loop: true,
             });
         }
+    }
+
+    // Point the swoosh at the target and play it.
+    swipe(target: { x: number; y: number }): void {
+        const angle = PhaserMath.RadToDeg(Math.atan2(target.y - this.y, target.x - this.x));
+        this.weapon.setAngle(angle);
+        this.weapon.swoosh();
+    }
+
+    // Bolt impact VFX, like the player's fireball impact: plays the bolt
+    // sheet on the target, tracking it, then removes itself. Only its own
+    // listeners, so destroy() releases everything.
+    impactBurst(target: { x: number; y: number }): void {
+        if (!this.scene) return;
+        const burst = this.scene.add.sprite(target.x, target.y, "enemy-bolt", 0);
+        burst.setDepth(target.y + 1);
+        burst.on(Animations.Events.ANIMATION_UPDATE, () => {
+            burst.setPosition(target.x, target.y);
+            burst.setDepth(target.y + 1);
+        });
+        burst.once(Animations.Events.ANIMATION_COMPLETE, () => burst.destroy());
+        burst.play("enemy-bolt-impact");
     }
 
     attackReady(): void {

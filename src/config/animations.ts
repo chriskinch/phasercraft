@@ -28,6 +28,15 @@ export default function createAnimations(scene: Phaser.Scene): void {
         hideOnComplete: true,
     });
 
+    // Enemy ranged bolt impact — plays the whole bolt sheet like the
+    // player's fireball impact.
+    scene.anims.create({
+        key: "enemy-bolt-impact",
+        frames: scene.anims.generateFrameNumbers("enemy-bolt", { start: 0, end: 5 }),
+        frameRate: 24,
+        repeat: 0,
+    });
+
     scene.anims.create({
         key: "coin",
         frames: scene.anims.generateFrameNumbers("coin-spin", { start: 0, end: 7 }),
