@@ -78,7 +78,16 @@ export default class TownScene extends Scene {
     }
 
     init(config: GameSceneConfig): void {
-        this.config = config || {};
+        // Resolve the class once and keep it on the config, because the config
+        // is forwarded to BiomeScene on travel and BiomeScene cannot start
+        // without `type`. The town can be entered with no class in its data —
+        // GameOverScene's restart passes none, and Phaser only replaces a
+        // scene's data when new data is given, so if the town was never
+        // started with a class (e.g. Start Location "combat") it has none.
+        this.config = {
+            ...config,
+            type: config?.type || store.getState().game.character || undefined,
+        };
     }
 
     create(): void {
@@ -120,7 +129,7 @@ export default class TownScene extends Scene {
             this.events.emit("pointerup:game", this);
         });
 
-        const character = this.config.type || store.getState().game.character;
+        const character = this.config.type;
         if (!character) throw new Error("No character selected for town scene");
         this.player = new AssignClass(character, {
             scene: this,

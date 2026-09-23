@@ -35,6 +35,7 @@ interface SceneUnderTest {
     scene: { start: ReturnType<typeof vi.fn> };
     shutdown(): void;
     onTravelRequest(destination: string | null): void;
+    init(config: { type?: string; biome?: string } | undefined): void;
     handleInteraction(type: string, poi: string, displayName: string): void;
     updateInteractions(): void;
 }
@@ -92,6 +93,48 @@ describe("TownScene.shutdown", () => {
 
         expect(scene.UI.cleanup).toHaveBeenCalled();
         expect(scene.player.cleanup).toHaveBeenCalled();
+    });
+});
+
+describe("TownScene.init", () => {
+    it("keeps the class it was started with", () => {
+        vi.spyOn(store, "getState").mockReturnValue({
+            game: { character: "Mage" },
+        } as ReturnType<typeof store.getState>);
+        const scene = makeScene();
+
+        scene.init({ type: "Warrior" });
+
+        expect(scene.config.type).toBe("Warrior");
+    });
+
+    it("falls back to the store's character when started without one", () => {
+        // GameOverScene's restart starts the town with no data; if the town was
+        // never started with a class (Start Location "combat"), its data has no
+        // `type` either.
+        vi.spyOn(store, "getState").mockReturnValue({
+            game: { character: "Mage" },
+        } as ReturnType<typeof store.getState>);
+        const scene = makeScene();
+
+        scene.init({});
+
+        expect(scene.config.type).toBe("Mage");
+    });
+
+    it("forwards the resolved class to BiomeScene on travel", () => {
+        vi.spyOn(store, "getState").mockReturnValue({
+            game: { character: "Mage" },
+        } as ReturnType<typeof store.getState>);
+        const scene = makeScene();
+
+        scene.init(undefined);
+        scene.onTravelRequest("forest");
+
+        expect(scene.scene.start).toHaveBeenCalledWith("BiomeScene", {
+            type: "Mage",
+            biome: "forest",
+        });
     });
 });
 
