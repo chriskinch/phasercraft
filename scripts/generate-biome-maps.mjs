@@ -100,18 +100,20 @@ const PATH_BY_MASK = {
 };
 
 /**
- * Tiles that stop the player, as `collides: true` tile properties in the .tmj.
- * Arcade collides against the *whole* tile (it ignores Tiled's per-tile collision
- * shapes — only Matter reads those), so only tiles whose art nearly fills their
- * cell are worth making solid. Full water fills its tile exactly; tree, conifer
- * and bush bases cover 60-66% with the gap at the edges, which is about 2px of
- * slack per side and reads fine in play.
+ * Tiles that stop the player, written into the .tmj as `collides: true` tile
+ * properties.
  *
- * Deliberately *not* solid: loose scatter — rocks, ore, ice shards, bones — and
- * the desert cacti, whose trunks are only 10px wide in a 16px cell. They stay
- * decorative rather than giving the player a wall they can see through. Boulders
- * are the obvious next candidate if these maps want more cover; add 50 and 51 to
- * a biome's `solidProps` to make them block.
+ * Arcade collides against the *whole* tile — it ignores Tiled's per-tile
+ * collision shapes, which only Matter reads — so a solid tile is as wide as its
+ * cell whatever its art does. The props here fill 43-66% of their cell, so
+ * expect up to ~3px of slack per side on the slimmest of them (the desert
+ * cactus, a 10px trunk in a 16px cell). That is the accepted trade for props
+ * that actually block: walking through a boulder reads far worse than a couple
+ * of pixels of generous collision.
+ *
+ * `solidProps` is derived from what each biome actually places (see
+ * `solidPropsFor`) rather than hand-listed, so a prop can never be added to a
+ * biome and silently stay walk-through.
  */
 const SOLID_TERRAIN = [158]; // full water only — shorelines stay walkable
 
@@ -123,6 +125,16 @@ const GROUND_DECO = [30, 31, 52, 53, 32, 33, 54, 55, 76, 77, 98, 99];
 const BOULDER = { w: 2, h: 2, top: [38, 39], bottom: [50, 51] };
 
 // ── biome table ───────────────────────────────────────────────────────────────
+
+/**
+ * Every tile a biome actually stands on the `structure` layer: the base tile of
+ * each 2-tall plant, every single-tile scatter prop, and both halves of the
+ * boulder's bottom row. The canopy/top tiles live on `structure props`, which
+ * is not a collision layer, so they are deliberately absent.
+ */
+function solidPropsFor({ vegetation, rocks }) {
+    return [...vegetation.map(([, base]) => base), ...rocks, ...BOULDER.bottom];
+}
 
 const BIOMES = {
     forest: {
@@ -148,8 +160,6 @@ const BIOMES = {
             [37, 49],
         ],
         rocks: [40, 52, 41, 53, 42, 54],
-        // Tree, conifer and bush bases all sit tight in their tile.
-        solidProps: [25, 26, 30, 49],
     },
     desert: {
         seed: 0x5eed_de,
@@ -171,9 +181,6 @@ const BIOMES = {
         ],
         // Plus the bleached bones in the desert sheet's spare slot.
         rocks: [40, 52, 41, 53, 42, 54, 30],
-        // Nothing: cacti are too slim for whole-tile collision, so the desert
-        // is bounded by its oases alone.
-        solidProps: [],
     },
     tundra: {
         seed: 0x5eed_7a,
@@ -193,8 +200,6 @@ const BIOMES = {
         ],
         // Rocks plus the two single-tile ice shards.
         rocks: [40, 52, 41, 53, 42, 54, 70, 82],
-        // Conifer bases only.
-        solidProps: [25, 26],
     },
 };
 
@@ -352,13 +357,35 @@ function buildWaterCorners(random, { coverage, scale }) {
 function buildPathCorners(random, water, trails) {
     const grid = new Uint8Array(CW * CH);
 
+    // A corner is off-limits to the path if it, or any corner touching it, is
+    // water. Skipping only water corners themselves is not enough: a tile with
+    // one path corner and one water corner gets a *partial* path tile, whose
+    // non-path half is drawn as plain ground — painting over the shoreline the
+    // terrain layer drew underneath and leaving the water with no edge at all.
+    // Keeping one corner of clearance means a path tile never shares a tile
+    // with water.
+    const nearWater = new Uint8Array(CW * CH);
+    for (let y = 0; y < CH; y++) {
+        for (let x = 0; x < CW; x++) {
+            if (!water[y * CW + x]) continue;
+            for (let dy = -1; dy <= 1; dy++) {
+                for (let dx = -1; dx <= 1; dx++) {
+                    const nx = x + dx;
+                    const ny = y + dy;
+                    if (nx < 0 || ny < 0 || nx >= CW || ny >= CH) continue;
+                    nearWater[ny * CW + nx] = 1;
+                }
+            }
+        }
+    }
+
     const stamp = (cx, cy, radius) => {
         for (let dy = -radius; dy <= radius; dy++) {
             for (let dx = -radius; dx <= radius; dx++) {
                 const x = Math.round(cx) + dx;
                 const y = Math.round(cy) + dy;
                 if (x < 0 || y < 0 || x >= CW || y >= CH) continue;
-                if (water[y * CW + x]) continue;
+                if (nearWater[y * CW + x]) continue;
                 grid[y * CW + x] = 1;
             }
         }
@@ -511,6 +538,8 @@ function solidTiles(ids) {
 }
 
 function tilesets(biome) {
+    const solidProps = solidPropsFor(biome);
+
     return [
         {
             columns: 22,
@@ -550,7 +579,7 @@ function tilesets(biome) {
             spacing: 0,
             tilecount: 120,
             tileheight: 16,
-            tiles: solidTiles(biome.solidProps),
+            tiles: solidTiles(solidProps),
             tilewidth: 16,
         },
     ];

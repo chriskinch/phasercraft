@@ -39,6 +39,9 @@ export interface BiomeMap {
     layers: string[];
     // Layers whose tiles can carry `collides: true`. The rest are decoration.
     collisionLayers: string[];
+    // Layers that draw *over* the player and the enemies, so walking up behind a
+    // tree puts its canopy in front of you. Everything else draws beneath them.
+    foregroundLayers: string[];
     // Tile art is 16px; the town renders its map at 2x and the biomes match, so
     // the player reads at the same size in both.
     scale: number;
@@ -54,6 +57,7 @@ function biomeMap(id: BiomeId): BiomeMap {
         ],
         layers: ["terrain", "terrain props", "paths", "structure", "structure props"],
         collisionLayers: ["terrain", "structure"],
+        foregroundLayers: ["structure props"],
         scale: 2,
     };
 }

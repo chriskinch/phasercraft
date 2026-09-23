@@ -215,7 +215,7 @@ export default class BiomeScene extends Scene {
      * bounds sized to the result.
      */
     private createBiomeEnvironment(): void {
-        const { key, tilesets, layers, scale } = this.biome.map;
+        const { key, tilesets, layers, scale, foregroundLayers } = this.biome.map;
 
         this.map = this.make.tilemap({ key });
 
@@ -236,12 +236,7 @@ export default class BiomeScene extends Scene {
             if (!layer) throw Error(`${this.biome.id}: layer "${name}" missing from "${key}"`);
 
             layer.setScale(scale);
-            // Negative depths keep every tile layer under the player and the
-            // enemies, whose depth tracks their y and so is never below zero.
-            // Canopies therefore draw over trunks but never over a character —
-            // in a top-down fight, seeing who you are hitting wins over the
-            // occlusion realism of walking behind a tree.
-            layer.setDepth(index - layers.length);
+            layer.setDepth(this.layerDepth(name, index, layers, foregroundLayers));
 
             if (this.biome.map.collisionLayers.includes(name)) {
                 // `createLayer` is typed as CPU-or-GPU layer; Arcade collision
@@ -264,6 +259,51 @@ export default class BiomeScene extends Scene {
         const height = this.map.heightInPixels * scale;
         this.physics.world.setBounds(0, 0, width, height);
         this.cameras.main.setBounds(0, 0, width, height);
+    }
+
+    /**
+     * Where a tile layer sits relative to the characters.
+     *
+     * `Player` and `Enemy` both set their own depth to their `y` each frame, so
+     * a character's depth is somewhere in 0..worldHeight. A background layer
+     * therefore needs a negative depth to stay under every character, and a
+     * foreground layer needs one above worldHeight to stay over them — which is
+     * how walking up behind a tree puts its canopy in front of you.
+     *
+     * Note this is *not* the town's `setDepthByY(player)` treatment. The town
+     * pushes the player to `y + height`, which is fine there because the town
+     * has no enemies; doing the same here would lift the player above every
+     * enemy at a similar y. Characters already sort correctly against each
+     * other — only the tile layers needed fixing.
+     *
+     * A whole layer has a single depth, so a canopy drawn in front is in front
+     * of the player wherever they stand. In practice that is invisible: trunks
+     * are solid, so the player can never stand on the trunk tile whose canopy
+     * sits directly above it. Per-tree sorting would mean per-tree sprites, and
+     * the forest has thousands of trees.
+     */
+    private layerDepth(
+        name: string,
+        index: number,
+        layers: string[],
+        foregroundLayers: string[]
+    ): number {
+        if (!foregroundLayers.includes(name)) {
+            // Preserves the .tmj's own bottom-to-top order, all below zero.
+            return index - layers.length;
+        }
+
+        const above_characters = this.map.heightInPixels * this.biome.map.scale + 1;
+        // Foreground tiles must still sit under the HUD, which is drawn at
+        // `depth_group.UI`. A map tall enough to collide with that would need
+        // the HUD lifted rather than the terrain quietly dropping behind it.
+        if (above_characters >= this.depth_group.UI) {
+            throw Error(
+                `${this.biome.id}: map is too tall for the foreground depth band ` +
+                    `(${above_characters} >= HUD depth ${this.depth_group.UI})`
+            );
+        }
+        return above_characters + index;
     }
 
     /**

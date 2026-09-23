@@ -260,12 +260,16 @@ class Player extends GameObjects.Container {
         this.dragging = false;
     }
 
-    getWorldPointer(targetOrPoint: Phaser.Input.Pointer | Enemy) {
-        return this.scene.cameras.main.getWorldPoint(targetOrPoint.x, targetOrPoint.y);
+    // Screen space -> world space. Only ever valid for a raw pointer: anything
+    // already living in the world (an Enemy, a stored cast point) is in world
+    // coordinates already and must not be converted again.
+    getWorldPointer(pointer: Phaser.Input.Pointer) {
+        return this.scene.cameras.main.getWorldPoint(pointer.x, pointer.y);
     }
 
-    moveToPosition(targetOrPoint: Phaser.Input.Pointer | Enemy): void {
-        this.moveToWorldPoint(this.getWorldPointer(targetOrPoint));
+    // Walk to where the player clicked. Takes a *pointer* — see getWorldPointer.
+    moveToPosition(pointer: Phaser.Input.Pointer): void {
+        this.moveToWorldPoint(this.getWorldPointer(pointer));
     }
 
     // Move to an already-resolved world-space point (the CastingController
@@ -338,7 +342,14 @@ class Player extends GameObjects.Container {
     goToRange(): void {
         let target = (this.scene as GameSceneLike).selected;
         if (!target) return;
-        this.moveToPosition(target);
+        // An Enemy's x/y are world coordinates, so this goes straight to
+        // moveToWorldPoint. Running it through moveToPosition would apply the
+        // camera conversion a second time and add the scroll offset on top of
+        // an already-world position, sending the player away from the target
+        // rather than towards it — invisible until the camera started
+        // scrolling, because at scroll 0 the conversion is the identity. Note
+        // the distance check below has always read target.x/y raw.
+        this.moveToWorldPoint(target);
         let distance = PhaserMath.Distance.Between(target.x, target.y, this.x, this.y);
         let hit_distance = distance - 15;
 
