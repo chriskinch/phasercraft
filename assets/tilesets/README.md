@@ -88,6 +88,11 @@ cover 14 of the 16 corner combinations.
 | `<biome>_.png` | 22x9 | cols 1-3, rows 5-7 | cols 4-5, rows 5-6 | ground 46, water 158 |
 | `<biome>Path_.png` | 8x5 | cols 1-3, rows 1-3 | cols 4-5, rows 1-2 | path 28 |
 
+Tiles 14, 22, 29 and 30 of the path sheet are the plain path tile with a scatter
+of pebble flecks — same edges, detail only in the middle — so they stand in for
+28 wherever the path is solid. The generator uses them on about one solid path
+tile in five, matching the town's own dirt (10 of its 43).
+
 Tiles are picked from a corner grid one larger than the map in each dimension,
 with bits `NW=1, NE=2, SW=4, SE=8`. The two diagonal masks (6 and 9) have no
 tile in the pack, so the generator smooths them out of the corner grid before

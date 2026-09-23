@@ -117,6 +117,17 @@ const PATH_BY_MASK = {
  */
 const SOLID_TERRAIN = [158]; // full water only — shorelines stay walkable
 
+/**
+ * Full-path tiles carrying a scatter of pebble flecks, in `<biome>Path_.png`.
+ * Interchangeable with the plain path tile 28 — same edges, just detail in the
+ * middle — so one can stand in for the other wherever the path is solid.
+ *
+ * The town sprinkles these at roughly one flecked tile in four (10 of its 43
+ * solid path tiles), which is the density `PATH_DECO_CHANCE` matches.
+ */
+const PATH_DECO = [14, 22, 29, 30];
+const PATH_DECO_CHANCE = 0.22;
+
 /** Ground decoration tiles in `<biome>_.png` — pebble clusters and tufts. */
 const GROUND_DECO = [30, 31, 52, 53, 32, 33, 54, 55, 76, 77, 98, 99];
 
@@ -461,7 +472,14 @@ function generate(name, biome) {
             if (PATH_BY_MASK[pathMask] === undefined)
                 throw new Error(`${name}: no path tile for corner mask ${pathMask} at ${x},${y}`);
             terrain[i] = WATER_BY_MASK[waterMask];
-            paths[i] = PATH_BY_MASK[pathMask];
+            // Where the path is solid, sometimes swap the plain tile for one of
+            // the flecked variants, the way the town's dirt is detailed. Only
+            // the full-path mask: the edge tiles carry their own grass border
+            // and have no flecked counterpart.
+            paths[i] =
+                pathMask === 15 && random() < PATH_DECO_CHANCE
+                    ? PATH_DECO[Math.floor(random() * PATH_DECO.length)]
+                    : PATH_BY_MASK[pathMask];
             open[i] = waterMask === 0 && pathMask === 0 ? 1 : 0;
         }
     }
