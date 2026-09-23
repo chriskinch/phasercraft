@@ -44,10 +44,22 @@ interface SceneUnderTest {
     spawnEnemies(list: string[]): void;
     spawnEnemy: ReturnType<typeof vi.fn>;
     spawnBoss: ReturnType<typeof vi.fn>;
-    physics: { pause: ReturnType<typeof vi.fn> };
+    physics: {
+        pause: ReturnType<typeof vi.fn>;
+        world: {
+            removeCollider: ReturnType<typeof vi.fn>;
+            bounds?: { left: number; top: number; right: number; bottom: number };
+        };
+    };
+    map_colliders: object[];
+    collision_layers: object[];
+    map: { tileWidth: number; tileHeight: number };
+    scale: { width: number; height: number };
+    isOpenAt: ReturnType<typeof vi.fn>;
+    spawnPointNearPlayer(): { x: number; y: number };
     enemies: { runChildUpdate: boolean; getChildren: ReturnType<typeof vi.fn> };
     UI: { cleanup: ReturnType<typeof vi.fn> };
-    player: { cleanup: ReturnType<typeof vi.fn>; alive: boolean };
+    player: { cleanup: ReturnType<typeof vi.fn>; alive: boolean; x: number; y: number };
     input: { off: ReturnType<typeof vi.fn>; activePointer: object };
     cursors: { esc: { isDown: boolean } };
     events: {
@@ -76,10 +88,14 @@ function makeScene(overrides: Partial<SceneUnderTest> = {}): {
     scene.game_over = false;
     scene.global_spawn_time = 200;
     scene.biome = BIOMES[DEFAULT_BIOME];
-    scene.physics = { pause: vi.fn() };
+    scene.physics = { pause: vi.fn(), world: { removeCollider: vi.fn() } };
+    // Object.create() skips field initialisers, so the tilemap collision state
+    // the scene sets up in create() has to be seeded here.
+    scene.map_colliders = [];
+    scene.collision_layers = [];
     scene.enemies = { runChildUpdate: true, getChildren: vi.fn(() => []) };
     scene.UI = { cleanup: vi.fn() };
-    scene.player = { cleanup: vi.fn(), alive: false };
+    scene.player = { cleanup: vi.fn(), alive: false, x: 0, y: 0 };
     scene.input = { off: vi.fn(), activePointer: {} };
     scene.cursors = { esc: { isDown: false } };
     scene.events = { on: vi.fn(), off: vi.fn(), once: vi.fn(), emit: vi.fn() };
@@ -331,6 +347,97 @@ describe("BiomeScene.shutdown", () => {
         const { scene } = makeScene();
 
         expect(() => scene.shutdown()).not.toThrow();
+    });
+
+    it("removes every tilemap collider it registered", () => {
+        const colliders = [{ id: "terrain" }, { id: "structure" }];
+        const { scene } = makeScene({ map_colliders: colliders });
+
+        scene.shutdown();
+
+        expect(scene.physics.world.removeCollider).toHaveBeenCalledTimes(2);
+        colliders.forEach((collider) =>
+            expect(scene.physics.world.removeCollider).toHaveBeenCalledWith(collider)
+        );
+        expect(scene.map_colliders).toEqual([]);
+    });
+
+    it("survives the Arcade world already being torn down", () => {
+        // Phaser's physics plugin shuts its world down before the scene's own
+        // SHUTDOWN handler runs, so `physics.world` is routinely null here. A
+        // throw at this point would skip the rest of shutdown and leak the
+        // travel subscription.
+        const unsubscribe = vi.fn();
+        const { scene } = makeScene({
+            map_colliders: [{ id: "terrain" }],
+            travel_subscription: unsubscribe,
+        });
+        (scene.physics as { world: unknown }).world = null;
+
+        expect(() => scene.shutdown()).not.toThrow();
+        expect(unsubscribe).toHaveBeenCalledTimes(1);
+        expect(scene.map_colliders).toEqual([]);
+    });
+
+    it("is idempotent — a second shutdown does not re-remove the colliders", () => {
+        const { scene } = makeScene({ map_colliders: [{ id: "terrain" }] });
+
+        scene.shutdown();
+        scene.shutdown();
+
+        expect(scene.physics.world.removeCollider).toHaveBeenCalledTimes(1);
+    });
+});
+
+describe("BiomeScene.spawnPointNearPlayer", () => {
+    // The spawn ring is the reason enemies still appear around the player once
+    // the world is 300x300 rather than one viewport wide.
+    function makeSpawnScene(
+        open: boolean,
+        overrides: Partial<SceneUnderTest> = {}
+    ): SceneUnderTest {
+        const { scene } = makeScene(overrides);
+        scene.player = { ...scene.player, x: 5000, y: 5000 };
+        scene.scale = { width: 800, height: 600 };
+        scene.map = { tileWidth: 16, tileHeight: 16 };
+        scene.physics.world.bounds = { left: 0, top: 0, right: 9600, bottom: 9600 };
+        scene.isOpenAt = vi.fn(() => open);
+        return scene;
+    }
+
+    it("lands inside the viewport radius but outside the player's personal space", () => {
+        const scene = makeSpawnScene(true);
+
+        for (let i = 0; i < 200; i++) {
+            const { x, y } = scene.spawnPointNearPlayer();
+            const distance = Math.hypot(x - scene.player.x, y - scene.player.y);
+            // Upper bound is half the shorter viewport side, so a spawn is
+            // always on screen whichever way round the window is.
+            expect(distance).toBeLessThanOrEqual(300.0001);
+            expect(distance).toBeGreaterThanOrEqual(179.9999);
+        }
+    });
+
+    it("clamps to the world bounds rather than spawning outside the map", () => {
+        const scene = makeSpawnScene(true);
+        scene.player = { ...scene.player, x: 0, y: 0 };
+
+        for (let i = 0; i < 200; i++) {
+            const { x, y } = scene.spawnPointNearPlayer();
+            expect(x).toBeGreaterThanOrEqual(16);
+            expect(y).toBeGreaterThanOrEqual(16);
+        }
+    });
+
+    it("gives up after a bounded number of tries when everywhere is blocked", () => {
+        const scene = makeSpawnScene(false);
+
+        const { x, y } = scene.spawnPointNearPlayer();
+
+        // Still returns a usable point rather than looping forever.
+        expect(Number.isFinite(x)).toBe(true);
+        expect(Number.isFinite(y)).toBe(true);
+        expect(scene.isOpenAt).toHaveBeenCalledTimes(12);
     });
 });
 

@@ -81,6 +81,12 @@ export default defineConfig(({ mode }) => ({
                 // copied unhashed, so Workbox revisions them by content and only
                 // re-downloads what actually changed between builds.
                 globPatterns: ["**/*.{js,css,html,png,gif,json,tmj,csv,woff2,svg,ico}"],
+                // The three 300x300 biome maps are ~1MB each and are only needed
+                // once the player travels to that biome, so they are fetched on
+                // demand (see runtimeCaching below) rather than near-doubling the
+                // install. The 30x30 town map stays precached — it is 66KB and
+                // the player lands there immediately.
+                globIgnores: ["**/graphics/tilesets/biomes/*.tmj"],
                 maximumFileSizeToCacheInBytes: 4 * 1024 * 1024,
                 navigateFallback: "index.html",
                 navigateFallbackDenylist: [/^\/api\//],
@@ -93,6 +99,19 @@ export default defineConfig(({ mode }) => ({
                         // gracefully when unreachable; never cache it.
                         urlPattern: ({ url }) => url.pathname.startsWith("/api/armory"),
                         handler: "NetworkOnly",
+                    },
+                    {
+                        // Biome maps: cached the first time the player visits that
+                        // biome, and offline from then on. Excluded from the
+                        // precache above because of their size.
+                        urlPattern: ({ url }) =>
+                            url.pathname.includes("/graphics/tilesets/biomes/"),
+                        handler: "CacheFirst",
+                        options: {
+                            cacheName: "biome-maps",
+                            expiration: { maxEntries: 8 },
+                            cacheableResponse: { statuses: [0, 200] },
+                        },
                     },
                 ],
             },

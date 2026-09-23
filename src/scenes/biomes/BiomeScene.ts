@@ -1,4 +1,4 @@
-import { Scene, Input, GameObjects, Display, Scenes } from "phaser";
+import { Scene, Input, GameObjects, Display, Scenes, Tilemaps } from "phaser";
 import AssignClass from "@entities/Player/AssignClass";
 import AssignType from "@entities/Enemy/AssignType";
 import Boss from "@entities/Enemy/Boss";
@@ -64,6 +64,15 @@ export default class BiomeScene extends Scene {
     // scene; released in shutdown() per the lifecycle convention.
     private travel_subscription?: () => void;
     private UI!: UI;
+    // The biome tilemap and the layers the player collides with. Both are
+    // rebuilt on every create(); the colliders are released in shutdown().
+    private map!: Phaser.Tilemaps.Tilemap;
+    private collision_layers: Phaser.Tilemaps.TilemapLayer[] = [];
+    private map_colliders: Phaser.Physics.Arcade.Collider[] = [];
+    // Spawn ring around the player, in pixels. The lower bound keeps enemies
+    // from materialising on top of the player; the upper bound is set per-spawn
+    // from the viewport, so enemies arrive within sight.
+    private static readonly MIN_SPAWN_DISTANCE = 180;
 
     constructor() {
         super({ key: "BiomeScene" });
@@ -74,6 +83,24 @@ export default class BiomeScene extends Scene {
         // An unknown or absent id falls back to the default biome rather than
         // throwing — a bad id should still drop the player somewhere playable.
         this.biome = resolveBiome(config?.biome);
+    }
+
+    /**
+     * Pulls in this biome's map if it is not already cached. Deliberately not
+     * part of LoadScene's boot payload: the three maps are ~1MB of JSON each and
+     * Phaser builds a Tile object per tile on parse, so loading all three up
+     * front delayed the main menu by seconds for a player who might never leave
+     * town. Phaser waits for the scene loader between preload() and create(),
+     * and the cache check makes re-entry free.
+     */
+    preload(): void {
+        const { key } = this.biome.map;
+        if (this.cache.tilemap.exists(key)) return;
+
+        // Same loader root as LoadScene, so a non-root deployment base resolves
+        // the same way for both.
+        this.load.setPath("graphics");
+        this.load.tilemapTiledJSON(key, `tilesets/biomes/${key}.tmj`);
     }
 
     create(): void {
@@ -136,11 +163,21 @@ export default class BiomeScene extends Scene {
 
         if (!this.config.type) throw Error("Player type is not defined");
 
+        // The map comes first: it sets the world bounds the player is clamped
+        // to, and its collision data decides where the player can legally start.
+        this.createBiomeEnvironment();
+
+        const spawn = this.findOpenSpawn();
         this.player = new AssignClass(this.config.type, {
             scene: this,
-            x: 100,
-            y: 100,
+            x: spawn.x,
+            y: spawn.y,
         }) as PlayerType;
+
+        // Collide the player with the map, then lock the camera to them so the
+        // area can be wandered the way the town is.
+        this.setupMapCollisions();
+        this.cameras.main.startFollow(this.player);
 
         this.enemies = this.add.group();
         this.enemies.runChildUpdate = true;
@@ -168,40 +205,155 @@ export default class BiomeScene extends Scene {
         // scene lifecycle event so cleanup runs on every scene transition.
         this.events.once(Scenes.Events.SHUTDOWN, this.shutdown, this);
 
-        // When loading from an array, make sure to specify the tileWidth and tileHeight
-        // const map = this.make.tilemap({ key: "map"});
-        // const tileset = map.addTilesetImage("tileset_organic", "tiles", 16, 16, 1, 2);
-        // this.mapset = {
-        // 	base: map.createStaticLayer("base", tileset, 0, 0),
-        // 	trees: map.createStaticLayer("trees", tileset, 0, 0),
-        // 	bushes: map.createStaticLayer("bushes", tileset, 0, 0),
-        // 	ore: map.createStaticLayer("ore", tileset, 0, 0),
-        // 	details: map.createStaticLayer("details", tileset, 0, 0)
-        // }
-        // this.mapset.trees.setCollisionByProperty({ collides: true });
-        // this.mapset.bushes.setCollisionByProperty({ collides: true });
-        // this.mapset.ore.setCollisionByProperty({ collides: true });
-        // this.mapset.details.setCollisionByProperty({ collides: true });
-
-        // const debugGraphics = this.add.graphics().setAlpha(0.75);
-        // mapset.trees.renderDebug(debugGraphics, {
-        // 	tileColor: null, // Color of non-colliding tiles
-        // 	collidingTileColor: new Display.Color(243, 134, 48, 255), // Color of colliding tiles
-        // 	faceColor: new Display.Color(40, 39, 37, 255) // Color of colliding face edges
-        // });
-
-        // Camera
-        // const camera = this.cameras.main;
-        // camera.setBounds(0, 0, map.widthInPixels, map.heightInPixels);
-        // camera.startFollow(this.player);
-
-        // this.physics.add.collider(this.player, this.mapset.trees);
-        // this.physics.add.collider(this.player, this.mapset.bushes);
-        // this.physics.add.collider(this.player, this.mapset.ore);
-        // this.physics.add.collider(this.player, this.mapset.details);
-
         // Resume physics if we load the scene post game over.
         this.physics.resume();
+    }
+
+    /**
+     * Builds the biome tilemap: every layer in the .tmj, in the order the
+     * generator wrote them, scaled to match the town, with the world and camera
+     * bounds sized to the result.
+     */
+    private createBiomeEnvironment(): void {
+        const { key, tilesets, layers, scale } = this.biome.map;
+
+        this.map = this.make.tilemap({ key });
+
+        // The first argument must match the tileset name inside the .tmj; the
+        // second the image key LoadScene preloaded it under.
+        const images = tilesets
+            .map(({ name, image }) => this.map.addTilesetImage(name, image))
+            .filter((tileset): tileset is Phaser.Tilemaps.Tileset => tileset !== null);
+
+        if (images.length !== tilesets.length) {
+            throw Error(`${this.biome.id}: tilesets failed to load for "${key}"`);
+        }
+
+        this.collision_layers = [];
+
+        layers.forEach((name, index) => {
+            const layer = this.map.createLayer(name, images);
+            if (!layer) throw Error(`${this.biome.id}: layer "${name}" missing from "${key}"`);
+
+            layer.setScale(scale);
+            // Negative depths keep every tile layer under the player and the
+            // enemies, whose depth tracks their y and so is never below zero.
+            // Canopies therefore draw over trunks but never over a character —
+            // in a top-down fight, seeing who you are hitting wins over the
+            // occlusion realism of walking behind a tree.
+            layer.setDepth(index - layers.length);
+
+            if (this.biome.map.collisionLayers.includes(name)) {
+                // `createLayer` is typed as CPU-or-GPU layer; Arcade collision
+                // only works with the CPU one, which is what we get since we
+                // never pass `gpu: true`. Narrow rather than cast, so a future
+                // switch to GPU layers fails loudly instead of silently
+                // dropping collision.
+                if (!(layer instanceof Tilemaps.TilemapLayer)) {
+                    throw Error(`${this.biome.id}: layer "${name}" cannot carry collision`);
+                }
+                // Arcade collides against whole tiles; the generator only sets
+                // `collides` on tiles whose art fills its cell (full water, tree
+                // and conifer bases), so the padding stays imperceptible.
+                layer.setCollisionByProperty({ collides: true });
+                this.collision_layers.push(layer);
+            }
+        });
+
+        const width = this.map.widthInPixels * scale;
+        const height = this.map.heightInPixels * scale;
+        this.physics.world.setBounds(0, 0, width, height);
+        this.cameras.main.setBounds(0, 0, width, height);
+    }
+
+    /**
+     * One collider per collidable layer, rather than the town's one-per-object
+     * approach: Arcade only tests the tiles under the body, so this stays flat
+     * however large the map gets.
+     */
+    private setupMapCollisions(): void {
+        if (!this.player.body) {
+            console.warn("Player physics body not ready, cannot set up map collisions");
+            return;
+        }
+
+        this.map_colliders = this.collision_layers.map((layer) =>
+            this.physics.add.collider(this.player, layer)
+        );
+    }
+
+    /** True when no collidable layer has a solid tile at this world position. */
+    private isOpenAt(x: number, y: number): boolean {
+        return this.collision_layers.every((layer) => {
+            const tile = layer.getTileAtWorldXY(x, y);
+            return !tile?.collides;
+        });
+    }
+
+    /**
+     * Somewhere legal to start. Walks outward in a spiral from the middle of the
+     * map, which the generator keeps clear of the water margin, so in practice
+     * this lands on the first tile it tries.
+     */
+    private findOpenSpawn(): { x: number; y: number } {
+        const scale = this.biome.map.scale;
+        const step = this.map.tileWidth * scale;
+        const centre_x = (this.map.widthInPixels * scale) / 2;
+        const centre_y = (this.map.heightInPixels * scale) / 2;
+
+        for (let ring = 0; ring < 40; ring++) {
+            for (let dy = -ring; dy <= ring; dy++) {
+                for (let dx = -ring; dx <= ring; dx++) {
+                    // Only the outer edge of each ring is new.
+                    if (ring > 0 && Math.abs(dx) !== ring && Math.abs(dy) !== ring) continue;
+                    const x = centre_x + dx * step;
+                    const y = centre_y + dy * step;
+                    if (this.isOpenAt(x, y)) return { x, y };
+                }
+            }
+        }
+
+        // Every biome has a clear centre, so this is unreachable in practice —
+        // but a spawn has to resolve to something rather than throw.
+        console.warn(`${this.biome.id}: no open spawn found, falling back to map centre`);
+        return { x: centre_x, y: centre_y };
+    }
+
+    /**
+     * A point on a ring around the player, inside the viewport so enemies arrive
+     * within sight rather than somewhere off in the map. Positions that land on
+     * water or a tree are retried a bounded number of times; if the player is
+     * genuinely boxed in, the last candidate is used rather than looping.
+     */
+    private spawnPointNearPlayer(): { x: number; y: number } {
+        // Half the shorter viewport side, so the ring fits on screen whichever
+        // way round the window is.
+        const max_radius = Math.min(this.scale.width, this.scale.height) / 2;
+        const min_radius = Math.min(BiomeScene.MIN_SPAWN_DISTANCE, max_radius);
+        const bounds = this.physics.world.bounds;
+
+        let x = this.player.x;
+        let y = this.player.y;
+
+        for (let attempt = 0; attempt < 12; attempt++) {
+            const angle = Math.random() * Math.PI * 2;
+            const radius = min_radius + Math.random() * (max_radius - min_radius);
+            const clamp = (value: number, min: number, max: number) =>
+                Math.min(Math.max(value, min), max);
+            x = clamp(
+                this.player.x + Math.cos(angle) * radius,
+                bounds.left + this.map.tileWidth,
+                bounds.right - this.map.tileWidth
+            );
+            y = clamp(
+                this.player.y + Math.sin(angle) * radius,
+                bounds.top + this.map.tileHeight,
+                bounds.bottom - this.map.tileHeight
+            );
+            if (this.isOpenAt(x, y)) break;
+        }
+
+        return { x, y };
     }
 
     update(time: number, delta: number): void {
@@ -299,6 +451,9 @@ export default class BiomeScene extends Scene {
         this.area_cleared_ui = this.add
             .container(300, 300)
             .setDepth(this.depth_group.TOP)
+            // Pinned to the viewport: the camera follows the player now, so a
+            // world-space banner would scroll off with the terrain.
+            .setScrollFactor(0)
             .setVisible(false);
         Display.Align.In.Center(this.area_cleared_ui, this.zone);
 
@@ -346,6 +501,10 @@ export default class BiomeScene extends Scene {
     spawnEnemy(enemyId: EnemyType): void {
         const enemy = enemyTypes[enemyId] as EnemyConfig;
         const { damage, speed, range, attack_speed, health_max, health_regen_rate } = enemy;
+        // Enemies used to spawn anywhere in a viewport-sized area, which put
+        // them all in the map's top-left corner once the world grew to 300x300.
+        // They now arrive on a ring around the player instead.
+        const { x, y } = this.spawnPointNearPlayer();
 
         this.enemies.add(
             new AssignType(enemy.type, {
@@ -353,8 +512,8 @@ export default class BiomeScene extends Scene {
                 key: enemyId,
                 attributes: { damage, speed, range, attack_speed, health_max, health_regen_rate },
                 type: enemy.type,
-                x: Math.random() * this.global_game_width,
-                y: Math.random() * this.global_game_height,
+                x,
+                y,
                 target: null, //this.player,
                 active_group: this.active_enemies,
                 loot_table: enemy.loot_table,
@@ -377,6 +536,7 @@ export default class BiomeScene extends Scene {
         const bossId = sample(this.enemy_pool) || "baby-ghoul";
         const boss = promoteToBoss(bossId);
         const { damage, speed, range, attack_speed, health_max, health_regen_rate } = boss;
+        const { x, y } = this.spawnPointNearPlayer();
 
         store.dispatch(setBossActive(true));
         store.dispatch(setEnemiesRemaining(1));
@@ -388,8 +548,8 @@ export default class BiomeScene extends Scene {
                 key: bossId,
                 attributes: { damage, speed, range, attack_speed, health_max, health_regen_rate },
                 type: boss.type,
-                x: Math.random() * this.global_game_width,
-                y: Math.random() * this.global_game_height,
+                x,
+                y,
                 target: this.player,
                 loot_table: boss.loot_table,
                 active_group: this.active_enemies,
@@ -423,6 +583,15 @@ export default class BiomeScene extends Scene {
         this.events.off("enemy:dead", this.onEnemyDead, this);
 
         this.removeAreaClearedTimer();
+
+        // Colliders registered against the tilemap layers. The Arcade plugin
+        // tears its world down before the scene's own SHUTDOWN handler runs, so
+        // `physics.world` is often already null here — optional-chain rather
+        // than assume, or the throw takes the rest of this method with it and
+        // the travel subscription below never gets released.
+        this.map_colliders.forEach((collider) => this.physics?.world?.removeCollider(collider));
+        this.map_colliders = [];
+        this.collision_layers = [];
 
         // Release the travel-request subscription.
         if (this.travel_subscription) {

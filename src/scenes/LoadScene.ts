@@ -284,6 +284,33 @@ export default class LoadScene extends Scene {
             margin: 16,
             spacing: 0,
         });
+
+        this.loadBiomeTilesets();
+    }
+
+    /**
+     * Tilesets for the biome maps. Each biome uses the same three sheets —
+     * terrain, path and resources — which the fantasy_ pack ships in an
+     * identical layout per biome, so the keys follow one pattern:
+     * `<biome>Terrain` / `<biome>Path` / `<biome>Resources`.
+     *
+     * The maps themselves are *not* loaded here. At 300x300x5 layers they are
+     * ~1MB of JSON each, and Phaser builds a Tile object per tile on parse —
+     * pulling all three in at boot cost about fourteen seconds before the main
+     * menu appeared, paid even by a player who never leaves town. BiomeScene
+     * loads the one map it needs in its own `preload()` instead.
+     *
+     * The forest keys (`forestTerrain`, `forestPath`, `forestResources`) are
+     * already loaded above for the town map and are deliberately not repeated —
+     * Phaser would warn about the duplicate key and keep the first.
+     */
+    private loadBiomeTilesets(): void {
+        for (const biome of ["desert", "tundra"] as const) {
+            const dir = `tilesets/fantasy/${biome}_`;
+            this.load.image(`${biome}Terrain`, `${dir}/${biome}_.png`);
+            this.load.image(`${biome}Path`, `${dir}/${biome}Path_.png`);
+            this.load.image(`${biome}Resources`, `${dir}/${biome}_ [resources].png`);
+        }
     }
 
     create() {
