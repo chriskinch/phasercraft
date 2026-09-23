@@ -126,3 +126,81 @@ describe("Player.cleanup", () => {
         expect(() => player.cleanup()).not.toThrow();
     });
 });
+
+// Regression coverage for the double camera conversion in goToRange().
+//
+// An Enemy's x/y are world coordinates. goToRange() used to hand the enemy to
+// moveToPosition(), which runs cameras.main.getWorldPoint() on it — a screen ->
+// world conversion. Applying that to an already-world position adds the camera
+// scroll on top of it, so the player walked to target + scroll instead of to
+// target. It stayed invisible while the biome camera was static (at scroll 0
+// the conversion is the identity) and only surfaced once the camera began
+// following the player across a 300x300 map.
+interface RangedPlayerUnderTest {
+    x: number;
+    y: number;
+    scene: unknown;
+    stats: { range: number; speed: number };
+    attack_ready: boolean;
+    attack_delay: unknown;
+    destination: { x: number | null; y: number | null };
+    body: { setVelocity: ReturnType<typeof vi.fn> };
+    hero: { idle: ReturnType<typeof vi.fn>; walk: ReturnType<typeof vi.fn> };
+    moveToWorldPoint(point: { x: number; y: number }): void;
+    goToRange(): void;
+    idle(): void;
+    attack(target: unknown): void;
+}
+
+function makeRangedPlayer(enemy: { x: number; y: number }, scrollX: number, scrollY: number) {
+    const player = Object.create(Player.prototype) as RangedPlayerUnderTest;
+    const moveTo = vi.fn();
+
+    player.x = 0;
+    player.y = 0;
+    player.stats = { range: 10, speed: 100 };
+    player.attack_ready = false;
+    player.attack_delay = null;
+    player.destination = { x: null, y: null };
+    player.body = { setVelocity: vi.fn() };
+    player.hero = { idle: vi.fn(), walk: vi.fn() };
+    player.attack = vi.fn();
+    player.scene = {
+        selected: enemy,
+        global_attack_delay: 250,
+        // A scrolled camera: getWorldPoint would shift anything passed through it.
+        cameras: {
+            main: { getWorldPoint: (x: number, y: number) => ({ x: x + scrollX, y: y + scrollY }) },
+        },
+        physics: { moveTo },
+        time: { delayedCall: vi.fn() },
+    };
+    return { player, moveTo };
+}
+
+describe("Player.goToRange", () => {
+    it("walks to the enemy's own world position, not one shifted by camera scroll", () => {
+        const enemy = { x: 5000, y: 4000 };
+        const { player, moveTo } = makeRangedPlayer(enemy, 1234, 567);
+
+        player.goToRange();
+
+        expect(moveTo).toHaveBeenCalledWith(player, enemy.x, enemy.y, player.stats.speed);
+        expect(player.destination).toEqual({ x: enemy.x, y: enemy.y });
+    });
+
+    it("is unaffected by how far the camera has scrolled", () => {
+        const enemy = { x: 5000, y: 4000 };
+        const near = makeRangedPlayer(enemy, 0, 0);
+        const far = makeRangedPlayer(enemy, 9000, 9000);
+
+        near.player.goToRange();
+        far.player.goToRange();
+
+        // Compare the coordinates only — the first argument is each fixture's
+        // own player instance.
+        const coords = (m: typeof near.moveTo) => m.mock.calls[0].slice(1);
+        expect(coords(far.moveTo)).toEqual(coords(near.moveTo));
+        expect(coords(far.moveTo)).toEqual([enemy.x, enemy.y, 100]);
+    });
+});
