@@ -12,6 +12,16 @@
         "event-driven-prs@chriskinch": true
     },
     "hooks": {
+        "UserPromptSubmit": [
+            {
+                "hooks": [
+                    {
+                        "type": "command",
+                        "command": "echo '{\"hookSpecificOutput\":{\"hookEventName\":\"UserPromptSubmit\",\"additionalContext\":\"Pull request follow-up here is event-driven: subscribe to a PR you open so its webhook events arrive, act on them as they come, and otherwise look at a PR when handed the next task or asked directly. Scheduled check-ins, wakeup timers and polling loops are not how this repo works — do not create them and do not offer them.\"}}'"
+                    }
+                ]
+            }
+        ],
         "PreToolUse": [
             {
                 "matcher": "Bash",
