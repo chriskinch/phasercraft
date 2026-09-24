@@ -42,6 +42,7 @@ function makeDirector(tuning: Partial<AreaTuning> = {}, host: Partial<SpawnHost<
         spawnBoss: vi.fn((id: string, at) => new FakeEnemy(at.x, at.y, `boss:${id}`)),
         onProgress: vi.fn(),
         onAreaCleared: vi.fn(),
+        onBossSpawned: vi.fn(),
         random: seeded(),
         ...host,
     };
@@ -287,6 +288,33 @@ describe("SpawnDirector kills and the boss", () => {
         expect(host.footprint).toHaveBeenLastCalledWith("ghoul", true);
         expect(host.onProgress).toHaveBeenLastCalledWith(0, true);
         expect(director.regularsAlive).toBe(3);
+    });
+
+    it("announces the boss every time it appears: first spawn, retry and respawn", () => {
+        const isSpawnable = vi.fn(() => true);
+        const { director, host, player, regulars, bosses } = makeDirector(
+            { killsToBoss: 1, despawnDelayMs: 10 },
+            { isSpawnable }
+        );
+        director.tick();
+
+        // First attempt finds no room: nothing to announce yet.
+        isSpawnable.mockReturnValue(false);
+        killAll(director, regulars());
+        expect(host.onBossSpawned).not.toHaveBeenCalled();
+
+        // The retry on the next tick lands it.
+        isSpawnable.mockReturnValue(true);
+        director.tick();
+        expect(host.onBossSpawned).toHaveBeenCalledTimes(1);
+        expect(host.onBossSpawned).toHaveBeenLastCalledWith(bosses()[0]);
+
+        // Left behind, despawned, and respawned ahead: announced again.
+        player.x += 5000;
+        director.update(10);
+        director.tick();
+        expect(host.onBossSpawned).toHaveBeenCalledTimes(2);
+        expect(host.onBossSpawned).toHaveBeenLastCalledWith(bosses()[1]);
     });
 
     it("stops spawning regulars once the boss is triggered", () => {

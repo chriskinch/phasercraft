@@ -1,4 +1,5 @@
 import { describe, it, expect, vi, beforeEach, afterEach } from "vitest";
+import { Events } from "phaser";
 import BiomeScene from "./BiomeScene";
 import type { SpawnHost } from "./SpawnDirector";
 import type { WalkabilityGrid } from "@helpers/walkability";
@@ -190,6 +191,22 @@ describe("BiomeScene.startArea", () => {
 });
 
 describe("BiomeScene.onEnemyDead", () => {
+    it("receives the dying enemy itself through the real enemy:dead event", () => {
+        // Enemy.death() emits `enemy:dead` with `this`; the director counts a
+        // kill only for an enemy it tracks, so the instance must arrive intact.
+        const { scene } = makeScene();
+        (scene as unknown as { events: Events.EventEmitter }).events = new Events.EventEmitter();
+        scene.player = { ...scene.player, body: { velocity: { x: 0, y: 0 } } };
+        scene.startArea();
+        const onEnemyDead = vi.spyOn(scene.director, "onEnemyDead");
+        const enemy = { x: 0, y: 0, despawn: vi.fn() };
+
+        (scene.events as unknown as Events.EventEmitter).emit("enemy:dead", enemy);
+
+        expect(onEnemyDead).toHaveBeenCalledTimes(1);
+        expect(onEnemyDead.mock.calls[0][0]).toBe(enemy);
+    });
+
     it("hands the death to the director", () => {
         const { scene } = makeScene();
         const enemy = {};
@@ -257,6 +274,15 @@ describe("BiomeScene.spawnHost", () => {
 
         scene.player = { ...scene.player, body: undefined };
         expect(scene.spawnHost().playerVelocity()).toEqual({ x: 0, y: 0 });
+    });
+
+    it("announces each boss spawn as boss:spawned, with the boss", () => {
+        const { scene } = makeScene();
+        const boss = {} as never;
+
+        scene.spawnHost().onBossSpawned(boss);
+
+        expect(scene.events.emit).toHaveBeenCalledWith("boss:spawned", boss);
     });
 
     it("mirrors progress into the store for the HUD", () => {

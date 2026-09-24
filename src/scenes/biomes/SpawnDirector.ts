@@ -38,6 +38,9 @@ export interface SpawnHost<E extends SpawnedEnemy, Id extends string = string> {
     // Kills left before the boss, and whether the boss has been triggered.
     onProgress(killsRemaining: number, bossActive: boolean): void;
     onAreaCleared(): void;
+    // Every time the boss appears: its first spawn, and each respawn after a
+    // despawn. The scene turns this into `boss:spawned` (see #465).
+    onBossSpawned(boss: E): void;
     random(): number;
 }
 
@@ -173,6 +176,7 @@ export default class SpawnDirector<E extends SpawnedEnemy, Id extends string = s
         if (!at) return;
         this.boss = this.host.spawnBoss(this.boss_id, at.point);
         this.track(this.boss, true, at.size);
+        this.host.onBossSpawned(this.boss);
     }
 
     /**

@@ -587,6 +587,7 @@ export default class BiomeScene extends Scene {
                 store.dispatch(setBossActive(bossActive));
             },
             onAreaCleared: () => this.areaCleared(),
+            onBossSpawned: (boss) => this.events.emit("boss:spawned", boss),
             random: Math.random,
         };
     }
