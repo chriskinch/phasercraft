@@ -2,12 +2,13 @@ import { Scene, Input, GameObjects, Display, Scenes, Tilemaps } from "phaser";
 import AssignClass from "@entities/Player/AssignClass";
 import AssignType from "@entities/Enemy/AssignType";
 import Boss from "@entities/Enemy/Boss";
+import Enemy from "@entities/Enemy/Enemy";
 import UI from "@entities/UI/HUD";
 import enemyTypes from "@config/enemies.json";
 import type { EnemyType } from "@/types/game";
-import { promoteToBoss } from "@config/area";
+import { DEFAULT_AREA_TUNING, promoteToBoss, type AreaTuning } from "@config/area";
 import { resolveBiome, type BiomeDefinition } from "./biomes";
-import { sample } from "lodash";
+import SpawnDirector, { type Point, type SpawnedEnemy } from "./SpawnDirector";
 import { fontConfig } from "../../config/fonts";
 
 import {
@@ -20,36 +21,22 @@ import {
 import mapStateToData from "@helpers/mapStateToData";
 import store from "@store";
 
-import type { EnemyConfig, EnemyOptions } from "@/types/game";
-import type Player from "@entities/Player/Player";
+import type { EnemyConfig } from "@/types/game";
 import type { GameSceneConfig } from "@/scenes/SelectScene";
 import type { PlayerType } from "@entities/Player/AssignClass";
-import { throwError } from "rxjs";
 
 export default class BiomeScene extends Scene {
-    private global_tick: number = 42;
-    private global_attack_speed: number = 1;
     private global_attack_delay: number = 250;
-    private global_spawn_time: number = 200;
     private global_game_width!: number;
     private global_game_height!: number;
     private zone!: Phaser.GameObjects.Zone;
     public player!: PlayerType;
     public enemies!: Phaser.GameObjects.Group;
     public active_enemies!: Phaser.GameObjects.Group;
-    private game_over: boolean = false;
-    private pending_spawns: number = 0;
-    // Area progress. `pool_remaining` counts enemies not yet spawned,
-    // `enemies_alive` those spawned and not yet dead. Both are tracked here
-    // rather than read off the group because `enemy:dead` fires from
-    // Enemy.death() *before* the object is destroyed, so the group still
-    // contains the dying enemy when the top-up decision is made.
-    private pool_remaining: number = 0;
-    private enemies_alive: number = 0;
-    private live_cap!: number;
     private enemy_pool!: EnemyType[];
     private biome!: BiomeDefinition;
-    private boss_spawned: boolean = false;
+    private director?: SpawnDirector;
+    private readonly area_tuning: AreaTuning = DEFAULT_AREA_TUNING;
     private area_cleared: boolean = false;
     public depth_group: Record<string, number> = {
         BASE: 10,
@@ -73,10 +60,6 @@ export default class BiomeScene extends Scene {
     // prop tiles near a character so they can sort against them individually.
     private prop_layers: Tilemaps.TilemapLayer[] = [];
     private prop_overlays: GameObjects.Sprite[] = [];
-    // Spawn ring around the player, in pixels. The lower bound keeps enemies
-    // from materialising on top of the player; the upper bound is set per-spawn
-    // from the viewport, so enemies arrive within sight.
-    private static readonly MIN_SPAWN_DISTANCE = 180;
 
     constructor() {
         super({ key: "BiomeScene" });
@@ -112,14 +95,8 @@ export default class BiomeScene extends Scene {
         // initializers do not re-run — reset per-run state here. This is also
         // what makes re-entering an area respawn its pool and drop an un-killed
         // boss.
-        this.pending_spawns = 0;
-        this.enemies_alive = 0;
-        this.pool_remaining = this.biome.total;
-        this.live_cap = this.biome.liveCap;
         this.enemy_pool = this.biome.enemies;
-        this.boss_spawned = false;
         this.area_cleared = false;
-        this.game_over = false;
 
         // Per-scene camera override, so the global backgroundColor in
         // PhaserGame.tsx (and therefore the town) is left alone.
@@ -465,41 +442,71 @@ export default class BiomeScene extends Scene {
         return { x: centre_x, y: centre_y };
     }
 
-    /**
-     * A point on a ring around the player, inside the viewport so enemies arrive
-     * within sight rather than somewhere off in the map. Positions that land on
-     * water or a tree are retried a bounded number of times; if the player is
-     * genuinely boxed in, the last candidate is used rather than looping.
-     */
-    private spawnPointNearPlayer(): { x: number; y: number } {
-        // Half the shorter viewport side, so the ring fits on screen whichever
-        // way round the window is.
-        const max_radius = Math.min(this.scale.width, this.scale.height) / 2;
-        const min_radius = Math.min(BiomeScene.MIN_SPAWN_DISTANCE, max_radius);
-        const bounds = this.physics.world.bounds;
+    private getSpawnRadius(): number {
+        return Math.min(this.scale.width, this.scale.height) / 2;
+    }
 
-        let x = this.player.x;
-        let y = this.player.y;
+    private getSpawnFootprint(multiplier: number): number {
+        return (
+            Math.max(this.map.tileWidth, this.map.tileHeight) * this.biome.map.scale * multiplier
+        );
+    }
 
-        for (let attempt = 0; attempt < 12; attempt++) {
-            const angle = Math.random() * Math.PI * 2;
-            const radius = min_radius + Math.random() * (max_radius - min_radius);
-            const clamp = (value: number, min: number, max: number) =>
-                Math.min(Math.max(value, min), max);
-            x = clamp(
-                this.player.x + Math.cos(angle) * radius,
-                bounds.left + this.map.tileWidth,
-                bounds.right - this.map.tileWidth
+    private getSpawnBounds(): { left: number; right: number; top: number; bottom: number } {
+        return this.physics.world.bounds;
+    }
+
+    private getPlayerVelocity(): { x: number; y: number } {
+        const velocity = this.player.body?.velocity;
+        return velocity ? { x: velocity.x, y: velocity.y } : { x: 0, y: 0 };
+    }
+
+    private isFootprintSpawnable(point: Point, footprint: number): boolean {
+        const offsets = [
+            { x: 0, y: 0 },
+            { x: footprint, y: 0 },
+            { x: -footprint, y: 0 },
+            { x: 0, y: footprint },
+            { x: 0, y: -footprint },
+            { x: footprint, y: footprint },
+            { x: footprint, y: -footprint },
+            { x: -footprint, y: footprint },
+            { x: -footprint, y: -footprint },
+        ];
+        const bounds = this.getSpawnBounds();
+
+        return offsets.every(({ x, y }) => {
+            const worldX = point.x + x;
+            const worldY = point.y + y;
+
+            return (
+                worldX >= bounds.left &&
+                worldX <= bounds.right &&
+                worldY >= bounds.top &&
+                worldY <= bounds.bottom &&
+                this.isOpenAt(worldX, worldY)
             );
-            y = clamp(
-                this.player.y + Math.sin(angle) * radius,
-                bounds.top + this.map.tileHeight,
-                bounds.bottom - this.map.tileHeight
-            );
-            if (this.isOpenAt(x, y)) break;
-        }
+        });
+    }
 
-        return { x, y };
+    private syncSpawnHud({
+        killsRemaining,
+        bossActive,
+    }: {
+        kills: number;
+        killsRemaining: number;
+        bossActive: boolean;
+    }): void {
+        store.dispatch(setBossActive(bossActive));
+        store.dispatch(setEnemiesRemaining(killsRemaining));
+    }
+
+    private spawnRegularAt(enemyId: EnemyType, point: Point): SpawnedEnemy {
+        return this.spawnEnemy(enemyId, point);
+    }
+
+    private spawnBossAt(enemyId: EnemyType, point: Point): SpawnedEnemy {
+        return this.spawnBoss(enemyId, point);
     }
 
     update(time: number, delta: number): void {
@@ -510,6 +517,7 @@ export default class BiomeScene extends Scene {
         // After the characters have moved and re-set their own depths.
         this.sortCharactersByFeet();
         this.updatePropOverlays();
+        this.director?.update(delta);
 
         if (this.cursors.esc?.isDown) {
             this.returnToTown();
@@ -522,68 +530,33 @@ export default class BiomeScene extends Scene {
         this.scene.start("TownScene", this.config);
     }
 
-    // Seeds the area: subscribe to enemy deaths, then fill up to the live cap.
     startArea(): void {
-        // Scene instances are reused, so drop any listener left by a previous
-        // run before re-registering (same handler + context, so `off` matches).
-        this.events.off("enemy:dead", this.onEnemyDead, this);
-        this.events.on("enemy:dead", this.onEnemyDead, this);
-
-        // Leaving mid-boss leaves `bossActive` set in the store, which would
-        // make the fresh area read "BOSS" — clear it as the area is seeded.
-        store.dispatch(setBossActive(false));
-        this.syncAreaProgress();
-        this.fillToLiveCap();
-    }
-
-    // Tops the area back up to the live cap, drawing from what is left of the
-    // pool. No-op once the pool is exhausted.
-    fillToLiveCap(): void {
-        const occupied = this.enemies_alive + this.pending_spawns;
-        const count = Math.min(Math.max(this.live_cap - occupied, 0), this.pool_remaining);
-        if (count <= 0) return;
-
-        const list = Array.from({ length: count }, () => sample(this.enemy_pool)).filter(
-            (enemy): enemy is EnemyType => enemy !== undefined
-        );
-
-        this.pool_remaining -= list.length;
-        this.spawnEnemies(list);
-    }
-
-    onEnemyDead(): void {
-        if (this.game_over) return;
-
-        this.enemies_alive = Math.max(this.enemies_alive - 1, 0);
-
-        if (this.boss_spawned) {
-            this.areaCleared();
-            return;
-        }
-
-        this.fillToLiveCap();
-        this.syncAreaProgress();
-
-        // The pool is spent and the field is clear: time for the boss.
-        if (this.pool_remaining === 0 && this.enemies_alive === 0 && this.pending_spawns === 0) {
-            this.spawnBoss();
-        }
-    }
-
-    // Mirrors area progress into the store for the HUD readout.
-    syncAreaProgress(): void {
-        store.dispatch(
-            setEnemiesRemaining(this.pool_remaining + this.enemies_alive + this.pending_spawns)
-        );
+        this.director?.cleanup();
+        this.director = new SpawnDirector({
+            tuning: this.area_tuning,
+            enemyPool: this.enemy_pool,
+            clock: this.time,
+            events: this.events,
+            getPlayerPosition: () => ({ x: this.player.x, y: this.player.y }),
+            getPlayerVelocity: () => this.getPlayerVelocity(),
+            getSpawnBounds: () => this.getSpawnBounds(),
+            getSpawnRadius: () => this.getSpawnRadius(),
+            getSpawnFootprint: (multiplier) => this.getSpawnFootprint(multiplier),
+            isFootprintSpawnable: (point, footprint) => this.isFootprintSpawnable(point, footprint),
+            spawnRegular: (enemyId, point) => this.spawnRegularAt(enemyId, point),
+            spawnBoss: (enemyId, point) => this.spawnBossAt(enemyId, point),
+            syncHud: (state) => this.syncSpawnHud(state),
+            onBossSpawned: (boss) => this.events.emit("boss:spawned", boss),
+            onAreaCleared: () => this.areaCleared(),
+        });
+        this.director.start();
     }
 
     gameOver(): void {
-        this.game_over = true;
         // Dying inside the area-cleared window must cancel the pending banner
         // timer, or it would pop during the game-over transition.
         this.removeAreaClearedTimer();
-        // Stop topping the area up while the game-over transition runs.
-        this.events.off("enemy:dead", this.onEnemyDead, this);
+        this.director?.cleanup();
         this.physics.pause();
         this.enemies.runChildUpdate = false;
         this.time.delayedCall(
@@ -636,77 +609,46 @@ export default class BiomeScene extends Scene {
         );
     }
 
-    spawnEnemies(list: EnemyType[]): void {
-        this.pending_spawns += list.length;
-        list.forEach((enemy, i) => {
-            this.time.delayedCall(this.global_spawn_time * i, () => {
-                this.pending_spawns--;
-                this.spawnEnemy(enemy);
-                this.enemies_alive++;
-                this.syncAreaProgress();
-            });
-        });
-    }
-
-    spawnEnemy(enemyId: EnemyType): void {
+    spawnEnemy(enemyId: EnemyType, point: Point): SpawnedEnemy {
         const enemy = enemyTypes[enemyId] as EnemyConfig;
         const { damage, speed, range, attack_speed, health_max, health_regen_rate } = enemy;
-        // Enemies used to spawn anywhere in a viewport-sized area, which put
-        // them all in the map's top-left corner once the world grew to 300x300.
-        // They now arrive on a ring around the player instead.
-        const { x, y } = this.spawnPointNearPlayer();
+        const spawned = new AssignType(enemy.type, {
+            scene: this,
+            key: enemyId,
+            attributes: { damage, speed, range, attack_speed, health_max, health_regen_rate },
+            type: enemy.type,
+            x: point.x,
+            y: point.y,
+            target: null,
+            active_group: this.active_enemies,
+            loot_table: enemy.loot_table,
+            wave_multiplier: 1,
+            coin_multiplier: enemy.coin_multiplier,
+        }) as Enemy;
 
-        this.enemies.add(
-            new AssignType(enemy.type, {
-                scene: this,
-                key: enemyId,
-                attributes: { damage, speed, range, attack_speed, health_max, health_regen_rate },
-                type: enemy.type,
-                x,
-                y,
-                target: null, //this.player,
-                active_group: this.active_enemies,
-                loot_table: enemy.loot_table,
-                // Behaviour-preserving: the scripted waves always resolved this
-                // to 1 (`wave_multiplier || 1` with nothing passed), and
-                // Enemy.setStats scales off it — ×1.2 damage, ×2 health. Kept
-                // at 1 so removing the wave mechanic does not change enemy
-                // stats. Per-biome scaling is a later step.
-                wave_multiplier: 1,
-                coin_multiplier: enemy.coin_multiplier,
-            }) as GameObjects.Container
-        );
+        this.enemies.add(spawned as GameObjects.Container);
+        return spawned as SpawnedEnemy;
     }
 
-    // Promotes one of the area's own creatures into the area boss.
-    spawnBoss(): void {
-        if (this.boss_spawned) return;
-        this.boss_spawned = true;
-
-        const bossId = sample(this.enemy_pool) || "baby-ghoul";
-        const boss = promoteToBoss(bossId);
+    spawnBoss(enemyId: EnemyType, point: Point): SpawnedEnemy {
+        const boss = promoteToBoss(enemyId);
         const { damage, speed, range, attack_speed, health_max, health_regen_rate } = boss;
-        const { x, y } = this.spawnPointNearPlayer();
+        const spawned = new Boss({
+            scene: this,
+            key: enemyId,
+            attributes: { damage, speed, range, attack_speed, health_max, health_regen_rate },
+            type: boss.type,
+            x: point.x,
+            y: point.y,
+            target: this.player,
+            loot_table: boss.loot_table,
+            active_group: this.active_enemies,
+            coin_multiplier: boss.coin_multiplier,
+            aggro_radius: boss.aggro_radius,
+        });
 
-        store.dispatch(setBossActive(true));
-        store.dispatch(setEnemiesRemaining(1));
-        this.enemies_alive = 1;
-
-        this.enemies.add(
-            new Boss({
-                scene: this,
-                key: bossId,
-                attributes: { damage, speed, range, attack_speed, health_max, health_regen_rate },
-                type: boss.type,
-                x,
-                y,
-                target: this.player,
-                loot_table: boss.loot_table,
-                active_group: this.active_enemies,
-                coin_multiplier: boss.coin_multiplier,
-                aggro_radius: boss.aggro_radius,
-            })
-        );
+        this.enemies.add(spawned);
+        return spawned as SpawnedEnemy;
     }
 
     removeAreaClearedTimer(): void {
@@ -730,7 +672,8 @@ export default class BiomeScene extends Scene {
         this.input.off("pointerup");
 
         this.events.off("player:dead");
-        this.events.off("enemy:dead", this.onEnemyDead, this);
+        this.director?.cleanup();
+        this.director = undefined;
 
         this.removeAreaClearedTimer();
 

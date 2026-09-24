@@ -368,6 +368,22 @@ class Enemy extends GameObjects.Container {
     }
 
     death(): void {
+        this.retire({ dropLoot: true, event: "enemy:dead" });
+    }
+
+    despawn(): void {
+        this.retire({ dropLoot: false, event: "enemy:despawned" });
+    }
+
+    private retire({
+        dropLoot,
+        event,
+    }: {
+        dropLoot: boolean;
+        event: "enemy:dead" | "enemy:despawned";
+    }): void {
+        if (!this.alive) return;
+
         this.state = "dead";
         if (this.circling) this.circling.remove();
         if (this.wandering_looped_timer) this.wandering_looped_timer.remove();
@@ -375,7 +391,7 @@ class Enemy extends GameObjects.Container {
         this.health.remove();
         this.scene.events.off("pointerdown:enemy", this.deselect, this);
         this.scene.events.off("pointerdown:game", this.deselect, this);
-        this.scene.events.emit("enemy:dead", this);
+        this.scene.events.emit(event, this);
         this.monster.death();
         this.alive = false;
         this.active = false;
@@ -384,7 +400,7 @@ class Enemy extends GameObjects.Container {
         (this.scene as GameSceneLike).enemies.remove(this);
         (this.scene as GameSceneLike).active_enemies.remove(this);
         this.decompose();
-        this.dropLoot();
+        if (dropLoot) this.dropLoot();
     }
 
     decompose(): void {

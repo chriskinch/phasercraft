@@ -2,53 +2,40 @@ import { describe, it, expect, vi, beforeEach, afterEach } from "vitest";
 import BiomeScene from "./BiomeScene";
 import { BIOMES, BIOME_IDS, DEFAULT_BIOME, resolveBiome } from "./biomes";
 import store from "@store";
+import { DEFAULT_AREA_TUNING } from "@config/area";
 
-// The area loop replaces the old wave counter: an area holds a fixed pool of
-// enemies, keeps `live_cap` of them alive at a time, and once the pool is spent
-// and the field is clear a boss spawns. Killing the boss clears the area with
-// no respawn.
-//
-// These methods only touch scene fields, the clock and the event emitter, so we
-// run them against a minimal fake scene built on the real prototype — mocking at
-// the entity seam rather than booting Phaser (the Phase 2 convention).
+// These scene helpers only touch scene fields, the clock and the event emitter,
+// so we run them against a minimal fake scene built on the real prototype —
+// mocking at the entity seam rather than booting Phaser (the Phase 2
+// convention).
 
 interface FakeTimer {
     remove: ReturnType<typeof vi.fn>;
 }
 
 interface SceneUnderTest {
-    time: { delayedCall: ReturnType<typeof vi.fn> };
+    time: { delayedCall: ReturnType<typeof vi.fn>; addEvent: ReturnType<typeof vi.fn> };
     area_cleared_timer?: FakeTimer;
     area_cleared_ui: { setVisible: ReturnType<typeof vi.fn> };
-    pending_spawns: number;
-    pool_remaining: number;
-    enemies_alive: number;
-    live_cap: number;
     enemy_pool: string[];
-    boss_spawned: boolean;
+    director?: { cleanup: ReturnType<typeof vi.fn>; update: ReturnType<typeof vi.fn> };
+    area_tuning: typeof DEFAULT_AREA_TUNING;
     area_cleared: boolean;
-    game_over: boolean;
-    global_spawn_time: number;
     biome: (typeof BIOMES)[keyof typeof BIOMES];
     config: { type?: string; biome?: string };
     init(config: { type?: string; biome?: string }): void;
     startArea(): void;
-    fillToLiveCap(): void;
-    onEnemyDead(): void;
-    syncAreaProgress(): void;
+    update(time: number, delta: number): void;
     areaCleared(): void;
     removeAreaClearedTimer(): void;
     gameOver(): void;
     shutdown(): void;
     travel_subscription?: ReturnType<typeof vi.fn>;
-    spawnEnemies(list: string[]): void;
-    spawnEnemy: ReturnType<typeof vi.fn>;
-    spawnBoss: ReturnType<typeof vi.fn>;
     physics: {
         pause: ReturnType<typeof vi.fn>;
         world: {
             removeCollider: ReturnType<typeof vi.fn>;
-            bounds?: { left: number; top: number; right: number; bottom: number };
+            bounds: { left: number; top: number; right: number; bottom: number };
         };
         add?: { collider: ReturnType<typeof vi.fn> };
     };
@@ -63,7 +50,7 @@ interface SceneUnderTest {
     map: { tileWidth: number; tileHeight: number };
     scale: { width: number; height: number };
     isOpenAt: ReturnType<typeof vi.fn>;
-    spawnPointNearPlayer(): { x: number; y: number };
+    isFootprintSpawnable(point: { x: number; y: number }, footprint: number): boolean;
     enemies: { runChildUpdate: boolean; getChildren: ReturnType<typeof vi.fn>; name?: string };
     UI: { cleanup: ReturnType<typeof vi.fn> };
     player: {
@@ -71,9 +58,10 @@ interface SceneUnderTest {
         alive: boolean;
         x: number;
         y: number;
-        body?: object;
+        body?: { velocity?: { x: number; y: number } };
         height?: number;
         setDepth?: ReturnType<typeof vi.fn>;
+        update?: ReturnType<typeof vi.fn>;
     };
     input: { off: ReturnType<typeof vi.fn>; activePointer: object };
     cursors: { esc: { isDown: boolean } };
@@ -91,19 +79,19 @@ function makeScene(overrides: Partial<SceneUnderTest> = {}): {
 } {
     const pending: FakeTimer = { remove: vi.fn() };
     const scene = Object.create(BiomeScene.prototype) as SceneUnderTest;
-    scene.time = { delayedCall: vi.fn(() => pending) };
+    scene.time = { delayedCall: vi.fn(() => pending), addEvent: vi.fn(() => pending) };
     scene.area_cleared_ui = { setVisible: vi.fn() };
-    scene.pending_spawns = 0;
-    scene.pool_remaining = 20;
-    scene.enemies_alive = 0;
-    scene.live_cap = 5;
     scene.enemy_pool = ["baby-ghoul", "ghoul"];
-    scene.boss_spawned = false;
+    scene.area_tuning = DEFAULT_AREA_TUNING;
     scene.area_cleared = false;
-    scene.game_over = false;
-    scene.global_spawn_time = 200;
     scene.biome = BIOMES[DEFAULT_BIOME];
-    scene.physics = { pause: vi.fn(), world: { removeCollider: vi.fn() } };
+    scene.physics = {
+        pause: vi.fn(),
+        world: {
+            removeCollider: vi.fn(),
+            bounds: { left: 0, top: 0, right: 9600, bottom: 9600 },
+        },
+    };
     // Object.create() skips field initialisers, so the tilemap collision state
     // the scene sets up in create() has to be seeded here.
     scene.map_colliders = [];
@@ -111,25 +99,26 @@ function makeScene(overrides: Partial<SceneUnderTest> = {}): {
     scene.prop_overlays = [];
     scene.prop_layers = [];
     scene.add = { sprite: vi.fn() };
+    scene.map = { tileWidth: 16, tileHeight: 16 };
+    scene.scale = { width: 800, height: 600 };
+    scene.isOpenAt = vi.fn(() => true);
     scene.enemies = { runChildUpdate: true, getChildren: vi.fn(() => []) };
     scene.UI = { cleanup: vi.fn() };
-    scene.player = { cleanup: vi.fn(), alive: false, x: 0, y: 0 };
+    scene.player = {
+        cleanup: vi.fn(),
+        alive: false,
+        x: 0,
+        y: 0,
+        body: { velocity: { x: 0, y: 0 } },
+        height: 0,
+        setDepth: vi.fn(),
+        update: vi.fn(),
+    };
     scene.input = { off: vi.fn(), activePointer: {} };
     scene.cursors = { esc: { isDown: false } };
     scene.events = { on: vi.fn(), off: vi.fn(), once: vi.fn(), emit: vi.fn() };
-    scene.spawnEnemy = vi.fn();
-    scene.spawnBoss = vi.fn(() => {
-        scene.boss_spawned = true;
-    });
     Object.assign(scene, overrides);
     return { scene, pending };
-}
-
-// Runs every spawn callback the scene scheduled on the clock.
-function landSpawns(scene: SceneUnderTest): void {
-    const calls = scene.time.delayedCall.mock.calls as Array<[number, () => void]>;
-    calls.forEach(([, callback]) => callback());
-    scene.time.delayedCall.mockClear();
 }
 
 beforeEach(() => {
@@ -145,9 +134,41 @@ describe("BiomeScene.startArea", () => {
         const { scene } = makeScene();
 
         scene.startArea();
+        scene.startArea();
 
-        expect(scene.events.off).toHaveBeenCalledWith("enemy:dead", scene.onEnemyDead, scene);
-        expect(scene.events.on).toHaveBeenCalledWith("enemy:dead", scene.onEnemyDead, scene);
+        expect(scene.events.off).toHaveBeenCalledWith(
+            "enemy:dead",
+            expect.any(Function),
+            expect.anything()
+        );
+        expect(scene.events.on).toHaveBeenCalledWith(
+            "enemy:dead",
+            expect.any(Function),
+            expect.anything()
+        );
+        expect(scene.events.off).toHaveBeenCalledWith(
+            "enemy:despawned",
+            expect.any(Function),
+            expect.anything()
+        );
+        expect(scene.events.on).toHaveBeenCalledWith(
+            "enemy:despawned",
+            expect.any(Function),
+            expect.anything()
+        );
+        expect(scene.time.addEvent).toHaveBeenCalledTimes(2);
+    });
+
+    describe("BiomeScene.update", () => {
+        it("forwards frame delta to the spawn director", () => {
+            const { scene } = makeScene({
+                director: { cleanup: vi.fn(), update: vi.fn() },
+            });
+
+            scene.update(1000, 16);
+
+            expect(scene.director!.update).toHaveBeenCalledWith(16);
+        });
     });
 
     it("clears a stale boss flag so re-entry does not read BOSS", () => {
@@ -159,123 +180,10 @@ describe("BiomeScene.startArea", () => {
             type: "SET_BOSS_ACTIVE",
             payload: { value: false },
         });
-    });
-});
-
-describe("BiomeScene.fillToLiveCap", () => {
-    it("fills up to the live cap and draws those enemies out of the pool", () => {
-        const { scene } = makeScene();
-
-        scene.fillToLiveCap();
-        landSpawns(scene);
-
-        expect(scene.spawnEnemy).toHaveBeenCalledTimes(5);
-        expect(scene.enemies_alive).toBe(5);
-        expect(scene.pool_remaining).toBe(15);
-    });
-
-    it("counts pending spawns against the cap so it cannot over-fill", () => {
-        const { scene } = makeScene({ enemies_alive: 3, pending_spawns: 2 });
-
-        scene.fillToLiveCap();
-
-        expect(scene.spawnEnemy).not.toHaveBeenCalled();
-        expect(scene.pool_remaining).toBe(20);
-    });
-
-    it("never spawns more than the pool has left", () => {
-        const { scene } = makeScene({ pool_remaining: 2 });
-
-        scene.fillToLiveCap();
-        landSpawns(scene);
-
-        expect(scene.spawnEnemy).toHaveBeenCalledTimes(2);
-        expect(scene.pool_remaining).toBe(0);
-    });
-
-    it("is a no-op once the pool is exhausted", () => {
-        const { scene } = makeScene({ pool_remaining: 0 });
-
-        scene.fillToLiveCap();
-
-        expect(scene.time.delayedCall).not.toHaveBeenCalled();
-    });
-
-    it("only draws from the area's own enemy pool", () => {
-        const { scene } = makeScene({ enemy_pool: ["slime"] });
-
-        scene.fillToLiveCap();
-        landSpawns(scene);
-
-        const spawned = scene.spawnEnemy.mock.calls.map((call) => call[0]);
-        expect(new Set(spawned)).toEqual(new Set(["slime"]));
-    });
-});
-
-describe("BiomeScene.onEnemyDead", () => {
-    it("tops the area back up as enemies die", () => {
-        const { scene } = makeScene({ enemies_alive: 5, pool_remaining: 15 });
-
-        scene.onEnemyDead();
-        landSpawns(scene);
-
-        expect(scene.spawnEnemy).toHaveBeenCalledTimes(1);
-        expect(scene.enemies_alive).toBe(5);
-        expect(scene.pool_remaining).toBe(14);
-    });
-
-    it("does not top up past the pool, and spawns the boss when the field clears", () => {
-        const { scene } = makeScene({ enemies_alive: 1, pool_remaining: 0 });
-
-        scene.onEnemyDead();
-
-        expect(scene.spawnEnemy).not.toHaveBeenCalled();
-        expect(scene.spawnBoss).toHaveBeenCalledTimes(1);
-    });
-
-    it("waits for in-flight spawns before calling the area clear", () => {
-        const { scene } = makeScene({ enemies_alive: 1, pool_remaining: 0, pending_spawns: 1 });
-
-        scene.onEnemyDead();
-
-        expect(scene.spawnBoss).not.toHaveBeenCalled();
-    });
-
-    it("clears the area when the boss dies, and does not respawn anything", () => {
-        const { scene } = makeScene({
-            enemies_alive: 1,
-            pool_remaining: 0,
-            boss_spawned: true,
+        expect(store.dispatch).toHaveBeenCalledWith({
+            type: "SET_ENEMIES_REMAINING",
+            payload: { value: DEFAULT_AREA_TUNING.killsToBoss },
         });
-
-        scene.onEnemyDead();
-
-        expect(scene.area_cleared).toBe(true);
-        expect(scene.spawnEnemy).not.toHaveBeenCalled();
-        expect(scene.spawnBoss).not.toHaveBeenCalled();
-    });
-
-    it("ignores deaths once the game is over", () => {
-        const { scene } = makeScene({ enemies_alive: 1, pool_remaining: 0, game_over: true });
-
-        scene.onEnemyDead();
-
-        expect(scene.spawnBoss).not.toHaveBeenCalled();
-        expect(scene.enemies_alive).toBe(1);
-    });
-});
-
-describe("BiomeScene.spawnEnemies", () => {
-    it("counts scheduled spawns as pending until each one lands", () => {
-        const { scene } = makeScene();
-
-        scene.spawnEnemies(["baby-ghoul", "baby-ghoul"]);
-        expect(scene.pending_spawns).toBe(2);
-
-        landSpawns(scene);
-        expect(scene.pending_spawns).toBe(0);
-        expect(scene.enemies_alive).toBe(2);
-        expect(scene.spawnEnemy).toHaveBeenCalledTimes(2);
     });
 });
 
@@ -314,8 +222,9 @@ describe("BiomeScene.areaCleared", () => {
 });
 
 describe("BiomeScene.gameOver", () => {
-    it("cancels the pending banner timer and stops topping the area up", () => {
+    it("cancels the pending banner timer and releases the spawn director", () => {
         const { scene, pending } = makeScene();
+        scene.startArea();
         scene.areaCleared();
 
         scene.gameOver();
@@ -323,22 +232,43 @@ describe("BiomeScene.gameOver", () => {
         expect(pending.remove).toHaveBeenCalledWith(false);
         expect(scene.area_cleared_timer).toBeUndefined();
         expect(scene.physics.pause).toHaveBeenCalled();
-        expect(scene.events.off).toHaveBeenCalledWith("enemy:dead", scene.onEnemyDead, scene);
+        expect(scene.events.off).toHaveBeenCalledWith(
+            "enemy:dead",
+            expect.any(Function),
+            expect.anything()
+        );
+        expect(scene.events.off).toHaveBeenCalledWith(
+            "enemy:despawned",
+            expect.any(Function),
+            expect.anything()
+        );
     });
 });
 
 describe("BiomeScene.shutdown", () => {
-    it("cancels the banner timer, drops the death listener and runs entity cleanup", () => {
+    it("cancels the banner timer, drops the director listeners and runs entity cleanup", () => {
         const { scene, pending } = makeScene();
+        scene.startArea();
         scene.areaCleared();
+        expect(scene.director).toBeDefined();
 
         scene.shutdown();
 
         expect(pending.remove).toHaveBeenCalledWith(false);
         expect(scene.area_cleared_timer).toBeUndefined();
-        expect(scene.events.off).toHaveBeenCalledWith("enemy:dead", scene.onEnemyDead, scene);
+        expect(scene.events.off).toHaveBeenCalledWith(
+            "enemy:dead",
+            expect.any(Function),
+            expect.anything()
+        );
+        expect(scene.events.off).toHaveBeenCalledWith(
+            "enemy:despawned",
+            expect.any(Function),
+            expect.anything()
+        );
         expect(scene.UI.cleanup).toHaveBeenCalled();
         expect(scene.player.cleanup).toHaveBeenCalled();
+        expect(scene.director).toBeUndefined();
     });
 
     it("releases the travel-request store subscription", () => {
@@ -590,55 +520,23 @@ describe("BiomeScene.updatePropOverlays", () => {
     });
 });
 
-describe("BiomeScene.spawnPointNearPlayer", () => {
-    // The spawn ring is the reason enemies still appear around the player once
-    // the world is 300x300 rather than one viewport wide.
-    function makeSpawnScene(
-        open: boolean,
-        overrides: Partial<SceneUnderTest> = {}
-    ): SceneUnderTest {
-        const { scene } = makeScene(overrides);
-        scene.player = { ...scene.player, x: 5000, y: 5000 };
-        scene.scale = { width: 800, height: 600 };
-        scene.map = { tileWidth: 16, tileHeight: 16 };
-        scene.physics.world.bounds = { left: 0, top: 0, right: 9600, bottom: 9600 };
-        scene.isOpenAt = vi.fn(() => open);
-        return scene;
-    }
+describe("BiomeScene.isFootprintSpawnable", () => {
+    it("rejects a spawn when any point in the footprint hits blocked terrain", () => {
+        const { scene } = makeScene();
+        scene.isOpenAt = vi
+            .fn()
+            .mockReturnValueOnce(true)
+            .mockReturnValueOnce(true)
+            .mockReturnValueOnce(false);
 
-    it("lands inside the viewport radius but outside the player's personal space", () => {
-        const scene = makeSpawnScene(true);
-
-        for (let i = 0; i < 200; i++) {
-            const { x, y } = scene.spawnPointNearPlayer();
-            const distance = Math.hypot(x - scene.player.x, y - scene.player.y);
-            // Upper bound is half the shorter viewport side, so a spawn is
-            // always on screen whichever way round the window is.
-            expect(distance).toBeLessThanOrEqual(300.0001);
-            expect(distance).toBeGreaterThanOrEqual(179.9999);
-        }
+        expect(scene.isFootprintSpawnable({ x: 100, y: 100 }, 10)).toBe(false);
     });
 
-    it("clamps to the world bounds rather than spawning outside the map", () => {
-        const scene = makeSpawnScene(true);
-        scene.player = { ...scene.player, x: 0, y: 0 };
+    it("rejects a spawn when the footprint would leave the world bounds", () => {
+        const { scene } = makeScene();
 
-        for (let i = 0; i < 200; i++) {
-            const { x, y } = scene.spawnPointNearPlayer();
-            expect(x).toBeGreaterThanOrEqual(16);
-            expect(y).toBeGreaterThanOrEqual(16);
-        }
-    });
-
-    it("gives up after a bounded number of tries when everywhere is blocked", () => {
-        const scene = makeSpawnScene(false);
-
-        const { x, y } = scene.spawnPointNearPlayer();
-
-        // Still returns a usable point rather than looping forever.
-        expect(Number.isFinite(x)).toBe(true);
-        expect(Number.isFinite(y)).toBe(true);
-        expect(scene.isOpenAt).toHaveBeenCalledTimes(12);
+        expect(scene.isFootprintSpawnable({ x: 5, y: 100 }, 10)).toBe(false);
+        expect(scene.isOpenAt).toHaveBeenCalledTimes(2);
     });
 });
 
@@ -683,25 +581,5 @@ describe("BiomeScene.init", () => {
         scene.init({ type: "Warrior" });
 
         expect(scene.biome).toBe(BIOMES[DEFAULT_BIOME]);
-    });
-});
-
-describe("BiomeScene pool sourcing", () => {
-    it("only ever spawns creatures belonging to the active biome", () => {
-        BIOME_IDS.forEach((id) => {
-            const { scene } = makeScene({
-                biome: BIOMES[id],
-                enemy_pool: BIOMES[id].enemies,
-                pool_remaining: BIOMES[id].total,
-                live_cap: BIOMES[id].liveCap,
-            });
-
-            scene.fillToLiveCap();
-            landSpawns(scene);
-
-            const spawned = scene.spawnEnemy.mock.calls.map((call) => call[0]);
-            expect(spawned.length).toBeGreaterThan(0);
-            spawned.forEach((creature) => expect(BIOMES[id].enemies).toContain(creature));
-        });
     });
 });
