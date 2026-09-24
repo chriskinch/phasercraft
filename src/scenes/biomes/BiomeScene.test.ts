@@ -25,6 +25,7 @@ interface SceneUnderTest {
     config: { type?: string; biome?: string };
     init(config: { type?: string; biome?: string }): void;
     startArea(): void;
+    update(time: number, delta: number): void;
     areaCleared(): void;
     removeAreaClearedTimer(): void;
     gameOver(): void;

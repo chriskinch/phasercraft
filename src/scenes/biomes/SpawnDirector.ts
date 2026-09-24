@@ -176,7 +176,13 @@ export default class SpawnDirector {
 
         this.allLiveEnemies().forEach((enemy) => {
             if (enemy.active === false || enemy.alive === false) {
+                if (enemy === this.boss) {
+                    this.boss = undefined;
+                } else {
+                    this.regulars.delete(enemy);
+                }
                 this.despawnClocks.delete(enemy);
+                this.syncHud();
                 return;
             }
 

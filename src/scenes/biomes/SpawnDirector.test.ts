@@ -186,6 +186,18 @@ describe("SpawnDirector", () => {
         });
     });
 
+    it("drops stale inactive regulars from the live cap count", () => {
+        const { director, tick, spawnedRegulars, spawnRegular } = makeDirector();
+        director.start();
+        tick();
+
+        spawnedRegulars[0].active = false;
+        director.update(16);
+        tick();
+
+        expect(spawnRegular).toHaveBeenCalledTimes(2);
+    });
+
     it("triggers the boss at kill count and stops regular spawning", () => {
         const tuning: AreaTuning = { ...DEFAULT_AREA_TUNING, killsToBoss: 2 };
         const { director, tick, spawnedRegulars, events, spawnRegular, spawnBoss } = makeDirector({
