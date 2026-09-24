@@ -60,6 +60,7 @@ interface SceneUnderTest {
         body?: { velocity?: { x: number; y: number } };
         height?: number;
         setDepth?: ReturnType<typeof vi.fn>;
+        update?: ReturnType<typeof vi.fn>;
     };
     input: { off: ReturnType<typeof vi.fn>; activePointer: object };
     cursors: { esc: { isDown: boolean } };
@@ -108,6 +109,9 @@ function makeScene(overrides: Partial<SceneUnderTest> = {}): {
         x: 0,
         y: 0,
         body: { velocity: { x: 0, y: 0 } },
+        height: 0,
+        setDepth: vi.fn(),
+        update: vi.fn(),
     };
     scene.input = { off: vi.fn(), activePointer: {} };
     scene.cursors = { esc: { isDown: false } };
@@ -152,6 +156,18 @@ describe("BiomeScene.startArea", () => {
             expect.anything()
         );
         expect(scene.time.addEvent).toHaveBeenCalledTimes(2);
+    });
+
+    describe("BiomeScene.update", () => {
+        it("forwards frame delta to the spawn director", () => {
+            const { scene } = makeScene({
+                director: { cleanup: vi.fn(), update: vi.fn() },
+            });
+
+            scene.update(1000, 16);
+
+            expect(scene.director!.update).toHaveBeenCalledWith(16);
+        });
     });
 
     it("clears a stale boss flag so re-entry does not read BOSS", () => {
