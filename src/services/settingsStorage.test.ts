@@ -27,6 +27,11 @@ describe("readSettings", () => {
             installBannerDismissed: true,
             startingCoins: 250,
             startLocation: "combat",
+            spawnDebugOverlay: true,
+            spawnRadiusOverride: 200,
+            liveCapOverride: 2,
+            killsToBossOverride: 3,
+            despawnDelaySeconds: 5,
         };
         expect(writeSettings(settings)).toBe(true);
         expect(readSettings()).toEqual(settings);
@@ -52,6 +57,21 @@ describe("readSettings", () => {
         expect(readSettings().startLocation).toBe("default");
     });
 
+    it("fills the spawn tuning fields in with their defaults for an older payload", () => {
+        // A settings payload saved before the spawn tuning existed.
+        localStorage.setItem(
+            SETTINGS_KEY,
+            JSON.stringify({ debug: true, installBannerDismissed: false, startingCoins: 0 })
+        );
+
+        const settings = readSettings();
+        expect(settings.spawnDebugOverlay).toBe(false);
+        expect(settings.spawnRadiusOverride).toBe(0);
+        expect(settings.liveCapOverride).toBe(0);
+        expect(settings.killsToBossOverride).toBe(0);
+        expect(settings.despawnDelaySeconds).toBe(0);
+    });
+
     it("returns defaults for a non-object payload", () => {
         localStorage.setItem(SETTINGS_KEY, JSON.stringify("not-an-object"));
 
@@ -62,10 +82,9 @@ describe("readSettings", () => {
 describe("writeSettings", () => {
     it("serializes the settings under the settings key and reports success", () => {
         const settings: Settings = {
+            ...DEFAULT_SETTINGS,
             debug: true,
-            installBannerDismissed: false,
             startingCoins: 999,
-            startLocation: "default",
         };
 
         expect(writeSettings(settings)).toBe(true);
@@ -79,12 +98,7 @@ describe("writeSettings", () => {
         });
 
         expect(
-            writeSettings({
-                debug: true,
-                installBannerDismissed: false,
-                startingCoins: 999,
-                startLocation: "default",
-            })
+            writeSettings({ ...DEFAULT_SETTINGS, debug: true, startingCoins: 999 })
         ).toBe(false);
         expect(console.warn).toHaveBeenCalled();
     });

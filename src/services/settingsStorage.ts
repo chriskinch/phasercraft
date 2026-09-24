@@ -18,6 +18,16 @@ export interface Settings {
     // screen when testing shop/craft flows that need a balance up front.
     startingCoins: number;
     startLocation: StartLocation;
+    // Spawn tuning for testing the enemy spawner (#456). Only read while
+    // `debug` is on; with it off the game always uses the config defaults.
+    // Each number is 0 for "use the default", so these stay flat fields the
+    // shallow merge in readSettings() can fill in.
+    spawnDebugOverlay: boolean;
+    // A fixed spawn/despawn radius in world px; 0 derives it from the viewport.
+    spawnRadiusOverride: number;
+    liveCapOverride: number;
+    killsToBossOverride: number;
+    despawnDelaySeconds: number;
 }
 
 export const DEFAULT_SETTINGS: Settings = {
@@ -25,6 +35,11 @@ export const DEFAULT_SETTINGS: Settings = {
     installBannerDismissed: false,
     startingCoins: 0,
     startLocation: "default",
+    spawnDebugOverlay: false,
+    spawnRadiusOverride: 0,
+    liveCapOverride: 0,
+    killsToBossOverride: 0,
+    despawnDelaySeconds: 0,
 };
 
 export const SETTINGS_KEY = "settings";

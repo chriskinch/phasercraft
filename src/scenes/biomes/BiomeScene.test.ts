@@ -5,6 +5,7 @@ import type { SpawnHost } from "./SpawnDirector";
 import type { WalkabilityGrid } from "@helpers/walkability";
 import { AREA_KILLS_TO_BOSS, SPAWN_INTERVAL_MS } from "@config/area";
 import { BOSS_SCALE } from "@entities/Enemy/Boss";
+import { DEFAULT_SETTINGS, writeSettings } from "@services/settingsStorage";
 import { BIOMES, BIOME_IDS, DEFAULT_BIOME, resolveBiome } from "./biomes";
 import store from "@store";
 
@@ -164,6 +165,32 @@ describe("BiomeScene.startArea", () => {
             type: "SET_BOSS_ACTIVE",
             payload: { value: false },
         });
+    });
+
+    it("applies the Debug spawn overrides on area entry", () => {
+        writeSettings({ ...DEFAULT_SETTINGS, debug: true, killsToBossOverride: 3 });
+        const { scene } = makeScene();
+
+        scene.startArea();
+
+        expect(store.dispatch).toHaveBeenCalledWith({
+            type: "SET_ENEMIES_REMAINING",
+            payload: { value: 3 },
+        });
+        localStorage.clear();
+    });
+
+    it("ignores the spawn overrides when Debug mode is off", () => {
+        writeSettings({ ...DEFAULT_SETTINGS, debug: false, killsToBossOverride: 3 });
+        const { scene } = makeScene();
+
+        scene.startArea();
+
+        expect(store.dispatch).toHaveBeenCalledWith({
+            type: "SET_ENEMIES_REMAINING",
+            payload: { value: AREA_KILLS_TO_BOSS },
+        });
+        localStorage.clear();
     });
 
     it("ticks a fresh director on a looping, pause-aware scene timer", () => {
