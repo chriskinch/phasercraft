@@ -25,6 +25,7 @@ const SCENE_EVENTS = [
     "pointermove:game",
     "pointerup:game",
     "enemy:dead",
+    "enemy:despawned",
 ] as const;
 
 interface PlayerUnderTest {
@@ -42,6 +43,7 @@ interface PlayerUnderTest {
     gameMoveHandler(): void;
     gameUpHandler(): void;
     targetDead(): void;
+    targetDespawned(): void;
     cleanup(): void;
 }
 
@@ -93,6 +95,7 @@ describe("Player.cleanup", () => {
         expect(byEvent["pointermove:game"]).toBe(player.gameMoveHandler);
         expect(byEvent["pointerup:game"]).toBe(player.gameUpHandler);
         expect(byEvent["enemy:dead"]).toBe(player.targetDead);
+        expect(byEvent["enemy:despawned"]).toBe(player.targetDespawned);
     });
 
     it("does not reach for this.scene, which Phaser has already cleared", () => {
@@ -124,6 +127,22 @@ describe("Player.cleanup", () => {
 
         player.cleanup();
         expect(() => player.cleanup()).not.toThrow();
+    });
+});
+
+describe("Player.targetDespawned", () => {
+    it("idles once a despawning enemy clears the current selection", () => {
+        const player = Object.create(Player.prototype) as {
+            scene: { selected: null };
+            idle: ReturnType<typeof vi.fn>;
+            targetDespawned(): void;
+        };
+        player.scene = { selected: null };
+        player.idle = vi.fn();
+
+        player.targetDespawned();
+
+        expect(player.idle).toHaveBeenCalledTimes(1);
     });
 });
 

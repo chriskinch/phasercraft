@@ -69,6 +69,7 @@ export default class BiomeScene extends Scene {
     private map!: Phaser.Tilemaps.Tilemap;
     private collision_layers: Phaser.Tilemaps.TilemapLayer[] = [];
     private map_colliders: Phaser.Physics.Arcade.Collider[] = [];
+    private active_enemy_collider?: Phaser.Physics.Arcade.Collider;
     // Prop layers, and the small recycled pool of sprites that redraws the few
     // prop tiles near a character so they can sort against them individually.
     private prop_layers: Tilemaps.TilemapLayer[] = [];
@@ -181,6 +182,10 @@ export default class BiomeScene extends Scene {
         this.enemies = this.add.group();
         this.enemies.runChildUpdate = true;
         this.active_enemies = this.add.group();
+        this.active_enemy_collider = this.physics.add.collider(
+            this.active_enemies,
+            this.active_enemies
+        );
 
         // Collide the map with the player *and* the enemy group, then lock the
         // camera to the player so the area can be wandered the way the town is.
@@ -741,6 +746,10 @@ export default class BiomeScene extends Scene {
         // the travel subscription below never gets released.
         this.map_colliders.forEach((collider) => this.physics?.world?.removeCollider(collider));
         this.map_colliders = [];
+        if (this.active_enemy_collider) {
+            this.physics?.world?.removeCollider(this.active_enemy_collider);
+            this.active_enemy_collider = undefined;
+        }
         this.collision_layers = [];
 
         // The overlay pool is scene-owned, but scene instances are reused across
