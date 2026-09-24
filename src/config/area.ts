@@ -1,5 +1,6 @@
 import enemyTypes from "@config/enemies.json";
 import type { EnemyConfig, EnemyType, LootTable } from "@/types/game";
+import type { Settings } from "@services/settingsStorage";
 
 // Enemies populate a combat area as the player moves through it. Once this many
 // have been killed the area's boss spawns, and killing the boss clears the
@@ -60,6 +61,30 @@ export const DEFAULT_AREA_TUNING: Readonly<AreaTuning> = {
     coneHalfAngleDeg: SPAWN_CONE_HALF_ANGLE_DEG,
     movingSpeed: SPAWN_MOVING_SPEED,
 };
+
+/**
+ * The tuning an area runs with. Debug mode off, it is always the defaults, so a
+ * player can never carry a test value into a real run. Debug mode on, each
+ * override replaces its default when it is a positive number; 0 (or anything
+ * a hand-edited settings payload might hold that is not a positive number)
+ * keeps the default.
+ */
+export function resolveAreaTuning(settings: Settings): AreaTuning {
+    const tuning = { ...DEFAULT_AREA_TUNING };
+    if (!settings.debug) return tuning;
+
+    const positive = (value: unknown): value is number =>
+        typeof value === "number" && Number.isFinite(value) && value > 0;
+
+    if (positive(settings.spawnRadiusOverride))
+        tuning.radiusOverride = settings.spawnRadiusOverride;
+    if (positive(settings.liveCapOverride)) tuning.liveCap = Math.floor(settings.liveCapOverride);
+    if (positive(settings.killsToBossOverride))
+        tuning.killsToBoss = Math.floor(settings.killsToBossOverride);
+    if (positive(settings.despawnDelaySeconds))
+        tuning.despawnDelayMs = settings.despawnDelaySeconds * 1000;
+    return tuning;
+}
 
 // Boss multipliers, derived from the two hand-authored entries in
 // `bosses.json` (kept as the reference for these numbers):

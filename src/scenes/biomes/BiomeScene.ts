@@ -6,7 +6,8 @@ import type Enemy from "@entities/Enemy/Enemy";
 import UI from "@entities/UI/HUD";
 import enemyTypes from "@config/enemies.json";
 import type { EnemyType } from "@/types/game";
-import { DEFAULT_AREA_TUNING, promoteToBoss } from "@config/area";
+import { promoteToBoss, resolveAreaTuning } from "@config/area";
+import { readSettings } from "@services/settingsStorage";
 import { resolveBiome, type BiomeDefinition } from "./biomes";
 import SpawnDirector, { type SpawnHost } from "./SpawnDirector";
 import { buildWalkability, isFootprintSpawnable, type WalkabilityGrid } from "@helpers/walkability";
@@ -547,7 +548,9 @@ export default class BiomeScene extends Scene {
         this.events.off("enemy:dead", this.onEnemyDead, this);
         this.events.on("enemy:dead", this.onEnemyDead, this);
 
-        const tuning = DEFAULT_AREA_TUNING;
+        // Read once per area entry, so a Debug settings change applies the next
+        // time an area is entered rather than mid-run.
+        const tuning = resolveAreaTuning(readSettings());
         this.director = new SpawnDirector(tuning, this.spawnHost());
         // Resets the HUD: leaving mid-boss leaves `bossActive` set in the store,
         // which would make the fresh area read "BOSS".

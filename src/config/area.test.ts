@@ -1,6 +1,13 @@
 import { describe, it, expect } from "vitest";
 import enemyTypes from "@config/enemies.json";
-import { BOSS_SCALING, promoteToBoss, scaleLootTable } from "./area";
+import {
+    BOSS_SCALING,
+    DEFAULT_AREA_TUNING,
+    promoteToBoss,
+    resolveAreaTuning,
+    scaleLootTable,
+} from "./area";
+import { DEFAULT_SETTINGS } from "@services/settingsStorage";
 import type { EnemyConfig, LootTable } from "@/types/game";
 
 // `promoteToBoss` and `scaleLootTable` are pure config factories — no Phaser
@@ -63,5 +70,77 @@ describe("promoteToBoss", () => {
     it("carries the boss coin multiplier so drops pay out more on pickup", () => {
         expect(boss.coin_multiplier).toBe(BOSS_SCALING.coin_multiplier);
         expect(boss.coin_multiplier).toBeGreaterThan(base.coin_multiplier);
+    });
+});
+
+describe("resolveAreaTuning", () => {
+    const debugOn = { ...DEFAULT_SETTINGS, debug: true };
+
+    it("is the defaults when nothing is overridden", () => {
+        expect(resolveAreaTuning(DEFAULT_SETTINGS)).toEqual(DEFAULT_AREA_TUNING);
+        expect(resolveAreaTuning(debugOn)).toEqual(DEFAULT_AREA_TUNING);
+    });
+
+    it("applies every override while Debug mode is on", () => {
+        const tuning = resolveAreaTuning({
+            ...debugOn,
+            spawnRadiusOverride: 200,
+            liveCapOverride: 2,
+            killsToBossOverride: 3,
+            despawnDelaySeconds: 5,
+        });
+
+        expect(tuning).toEqual({
+            ...DEFAULT_AREA_TUNING,
+            radiusOverride: 200,
+            liveCap: 2,
+            killsToBoss: 3,
+            despawnDelayMs: 5000,
+        });
+    });
+
+    it("ignores every override while Debug mode is off", () => {
+        const tuning = resolveAreaTuning({
+            ...DEFAULT_SETTINGS,
+            debug: false,
+            spawnRadiusOverride: 200,
+            liveCapOverride: 2,
+            killsToBossOverride: 3,
+            despawnDelaySeconds: 5,
+        });
+
+        expect(tuning).toEqual(DEFAULT_AREA_TUNING);
+    });
+
+    it("keeps the default for zero, negative or non-numeric values", () => {
+        const tuning = resolveAreaTuning({
+            ...debugOn,
+            spawnRadiusOverride: 0,
+            liveCapOverride: -3,
+            killsToBossOverride: Number.NaN,
+            // A hand-edited payload could hold anything.
+            despawnDelaySeconds: "10" as unknown as number,
+        });
+
+        expect(tuning).toEqual(DEFAULT_AREA_TUNING);
+    });
+
+    it("rounds fractional counts down to whole enemies", () => {
+        const tuning = resolveAreaTuning({
+            ...debugOn,
+            liveCapOverride: 2.7,
+            killsToBossOverride: 4.2,
+        });
+
+        expect(tuning.liveCap).toBe(2);
+        expect(tuning.killsToBoss).toBe(4);
+    });
+
+    it("does not mutate the shared defaults", () => {
+        const before = { ...DEFAULT_AREA_TUNING };
+
+        resolveAreaTuning({ ...debugOn, liveCapOverride: 9 });
+
+        expect(DEFAULT_AREA_TUNING).toEqual(before);
     });
 });
