@@ -246,7 +246,7 @@ describe("BiomeScene.announceBoss", () => {
         const addText = vi.fn(() => text);
         Object.assign(scene, {
             add: { sprite: vi.fn(), text: addText },
-            tweens: { chain: vi.fn(() => ({ remove: vi.fn() })) },
+            tweens: { chain: vi.fn(() => ({ stop: vi.fn() })) },
             scale: { width: 800, height: 600 },
             cameras: { main: { zoom: 1, worldView: { x: 4600, y: 4700 } } },
         });

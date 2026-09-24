@@ -33,25 +33,28 @@ export function roarPosition(
     boss: ScreenPoint,
     padding: { x: number; y: number }
 ): ScreenPoint {
-    const on_screen = boss.x >= 0 && boss.x <= view.width && boss.y >= 0 && boss.y <= view.height;
-    if (on_screen) return { x: boss.x, y: boss.y - ROAR_ABOVE_BOSS };
-
-    const dx = boss.x - player.x;
-    const dy = boss.y - player.y;
     const left = padding.x;
     const right = view.width - padding.x;
     const top = padding.y;
     const bottom = view.height - padding.y;
+    const clamp = (p: ScreenPoint) => ({
+        x: Math.min(Math.max(p.x, left), right),
+        y: Math.min(Math.max(p.y, top), bottom),
+    });
+
+    const on_screen = boss.x >= 0 && boss.x <= view.width && boss.y >= 0 && boss.y <= view.height;
+    // Still clamped: a boss near the top edge would otherwise push it off screen.
+    if (on_screen) return clamp({ x: boss.x, y: boss.y - ROAR_ABOVE_BOSS });
+
+    const dx = boss.x - player.x;
+    const dy = boss.y - player.y;
 
     // How far along the ray each inset edge is; the nearest one is hit first.
     const along = (delta: number, low: number, high: number, from: number) =>
         delta > 0 ? (high - from) / delta : delta < 0 ? (low - from) / delta : Infinity;
     const t = Math.min(along(dx, left, right, player.x), along(dy, top, bottom, player.y));
 
-    return {
-        x: Math.min(Math.max(player.x + dx * t, left), right),
-        y: Math.min(Math.max(player.y + dy * t, top), bottom),
-    };
+    return clamp({ x: player.x + dx * t, y: player.y + dy * t });
 }
 
 export default class BossRoar {
@@ -104,33 +107,39 @@ export default class BossRoar {
                     ease: "Sine.easeIn",
                 },
             ],
-            // A finished chain is destroyed by the tween manager itself, and
-            // removing it from inside its own onComplete throws, so drop the
-            // reference first and only clear up the text.
-            onComplete: () => {
-                this.chain = null;
-                this.cleanup();
-            },
+            onComplete: () => this.cleanup(),
         });
 
         // The display list destroys the text on SHUTDOWN, but the chain lives
         // on the tween manager, so release both explicitly either way.
-        this.text.once(GameObjects.Events.DESTROY, this.cleanup, this);
+        this.text.once(GameObjects.Events.DESTROY, this.onTextDestroyed, this);
         this.scene_events.once(Scenes.Events.SHUTDOWN, this.cleanup, this);
+    }
+
+    // The text is already being destroyed (Phaser emits DESTROY before it
+    // clears `scene`, so destroying it again here would re-enter destroy()):
+    // drop the reference first so cleanup releases everything else.
+    private onTextDestroyed(): void {
+        this.text = null;
+        this.cleanup();
     }
 
     /** Stops the animation and removes the word. Idempotent. */
     cleanup(): void {
         this.scene_events.off(Scenes.Events.SHUTDOWN, this.cleanup, this);
 
+        // stop(), not remove(): TweenChain.remove(tween) removes a *child*
+        // tween, and called bare it throws. stop() is a no-op on a chain that
+        // has finished, is already pending removal, or was destroyed by the
+        // tween manager on scene shutdown — so it is safe on every path.
         const chain = this.chain;
         this.chain = null;
-        chain?.remove();
+        chain?.stop();
 
         const text = this.text;
         this.text = null;
         if (text) {
-            text.off(GameObjects.Events.DESTROY, this.cleanup, this);
+            text.off(GameObjects.Events.DESTROY, this.onTextDestroyed, this);
             text.destroy();
         }
     }

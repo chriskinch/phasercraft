@@ -47,6 +47,12 @@ describe("roarPosition", () => {
         expect(bearing(at)).toBeCloseTo(bearing(boss));
     });
 
+    it("keeps the word on screen when an on-screen boss is near the top edge", () => {
+        const at = roarPosition(view, player, { x: 650, y: 10 }, pad);
+
+        expect(at).toEqual({ x: 650, y: pad.y });
+    });
+
     it("goes just above the boss when the boss is already on screen", () => {
         expect(roarPosition(view, player, { x: 650, y: 200 }, pad)).toEqual({
             x: 650,
@@ -68,7 +74,7 @@ function makeScene() {
         setDepth: vi.fn(() => text),
         setAlpha: vi.fn(() => text),
     };
-    const chain = { remove: vi.fn() };
+    const chain = { stop: vi.fn() };
     const scene = {
         events: { once: vi.fn(), off: vi.fn() },
         add: { text: vi.fn(() => text) },
@@ -134,9 +140,8 @@ describe("BossRoar", () => {
         onComplete();
 
         expect(text.destroy).toHaveBeenCalledTimes(1);
-        // The finished chain is the tween manager's to destroy; removing it
-        // from inside its own onComplete throws in Phaser.
-        expect(chain.remove).not.toHaveBeenCalled();
+        // stop() is a guarded no-op on a finished chain in Phaser.
+        expect(chain.stop).toHaveBeenCalledTimes(1);
     });
 
     it("releases the tween and the text on scene shutdown", () => {
@@ -146,9 +151,34 @@ describe("BossRoar", () => {
         expect(scene.events.once).toHaveBeenCalledWith("shutdown", roar.cleanup, roar);
         roar.cleanup();
 
-        expect(chain.remove).toHaveBeenCalledTimes(1);
+        expect(chain.stop).toHaveBeenCalledTimes(1);
         expect(text.destroy).toHaveBeenCalledTimes(1);
         expect(scene.events.off).toHaveBeenCalledWith("shutdown", roar.cleanup, roar);
+    });
+
+    it("does not destroy the text again when released by the text's own DESTROY", () => {
+        // Phaser emits DESTROY before clearing the object's scene, so calling
+        // destroy() again from the handler would run the teardown twice. This
+        // is the scene-shutdown path: the display list destroys the text first.
+        const { scene, text, chain } = makeScene();
+        const roar = new BossRoar(scene as unknown as Scene, view, player, { x: 2000, y: 300 });
+        const [event, onDestroy, context] = text.once.mock.calls[0] as unknown as [
+            string,
+            () => void,
+            unknown,
+        ];
+        expect(event).toBe("destroy");
+
+        onDestroy.call(context);
+
+        expect(text.destroy).not.toHaveBeenCalled();
+        expect(chain.stop).toHaveBeenCalledTimes(1);
+        expect(scene.events.off).toHaveBeenCalledWith("shutdown", roar.cleanup, roar);
+
+        // A later SHUTDOWN or completion has nothing left to release.
+        roar.cleanup();
+        expect(chain.stop).toHaveBeenCalledTimes(1);
+        expect(text.destroy).not.toHaveBeenCalled();
     });
 
     it("is idempotent — cleanup after completion releases nothing twice", () => {
@@ -158,7 +188,7 @@ describe("BossRoar", () => {
         roar.cleanup();
         roar.cleanup();
 
-        expect(chain.remove).toHaveBeenCalledTimes(1);
+        expect(chain.stop).toHaveBeenCalledTimes(1);
         expect(text.destroy).toHaveBeenCalledTimes(1);
     });
 });
