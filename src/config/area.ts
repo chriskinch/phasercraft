@@ -1,14 +1,25 @@
 import enemyTypes from "@config/enemies.json";
 import type { EnemyConfig, EnemyType, LootTable } from "@/types/game";
 
-// A combat area holds a fixed pool of enemies. The player clears the pool, a
-// boss spawns, and killing the boss clears the area. Leaving and re-entering
-// rebuilds the pool from scratch, so none of this is persisted.
-export const AREA_TOTAL_ENEMIES = 20;
+// Enemies populate a combat area as the player moves through it. Once this many
+// have been killed the area's boss spawns, and killing the boss clears the
+// area. Despawned enemies do not count. Leaving and re-entering starts the
+// count again, so none of this is persisted.
+export const AREA_KILLS_TO_BOSS = 20;
 
-// How many pool enemies may be alive at once. Each death tops the area back up
-// to this cap until the pool is exhausted.
+// How many regular enemies may be alive at once.
 export const AREA_LIVE_CAP = 5;
+
+// While below the live cap, at most one enemy spawns per interval, so the area
+// fills gradually rather than in waves.
+export const SPAWN_INTERVAL_MS = 750;
+
+// An enemy further than the spawn radius from the player for this long,
+// continuously, despawns. The clock resets whenever it comes back within range.
+export const DESPAWN_DELAY_MS = 20000;
+
+// Candidate points tried per spawn tick before giving up until the next tick.
+export const SPAWN_ATTEMPTS_PER_TICK = 12;
 
 // Enemies spawn on a circle around the player, just off screen. By default the
 // radius is half the viewport diagonal (the corner distance) plus this margin,
@@ -22,6 +33,33 @@ export const SPAWN_CONE_HALF_ANGLE_DEG = 45;
 // Player speed (px/s) below which they count as standing still, and enemies
 // may spawn in any direction.
 export const SPAWN_MOVING_SPEED = 10;
+
+// Everything the spawn director reads, bundled so a run can be tuned as one
+// value (the Debug settings override some of these; see #462).
+export interface AreaTuning {
+    killsToBoss: number;
+    liveCap: number;
+    spawnIntervalMs: number;
+    despawnDelayMs: number;
+    attemptsPerTick: number;
+    // A fixed spawn radius in world px; 0 derives it from the viewport.
+    radiusOverride: number;
+    radiusMargin: number;
+    coneHalfAngleDeg: number;
+    movingSpeed: number;
+}
+
+export const DEFAULT_AREA_TUNING: Readonly<AreaTuning> = {
+    killsToBoss: AREA_KILLS_TO_BOSS,
+    liveCap: AREA_LIVE_CAP,
+    spawnIntervalMs: SPAWN_INTERVAL_MS,
+    despawnDelayMs: DESPAWN_DELAY_MS,
+    attemptsPerTick: SPAWN_ATTEMPTS_PER_TICK,
+    radiusOverride: 0,
+    radiusMargin: SPAWN_RADIUS_MARGIN,
+    coneHalfAngleDeg: SPAWN_CONE_HALF_ANGLE_DEG,
+    movingSpeed: SPAWN_MOVING_SPEED,
+};
 
 // Boss multipliers, derived from the two hand-authored entries in
 // `bosses.json` (kept as the reference for these numbers):
