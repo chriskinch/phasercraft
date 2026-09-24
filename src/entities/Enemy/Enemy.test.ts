@@ -121,12 +121,14 @@ interface LifecycleEnemyUnderTest {
     cleaned_up?: boolean;
     caution?: number;
     scene: {
-        physics: { world: { disable: ReturnType<typeof vi.fn> } };
         enemies: { remove: ReturnType<typeof vi.fn> };
         active_enemies: { remove: ReturnType<typeof vi.fn> };
     };
     scene_events: { off: ReturnType<typeof vi.fn>; emit: ReturnType<typeof vi.fn> };
-    physics_world: { removeCollider: ReturnType<typeof vi.fn> };
+    physics_world: {
+        disable: ReturnType<typeof vi.fn>;
+        removeCollider: ReturnType<typeof vi.fn>;
+    };
     wandering_looped_timer: { remove: ReturnType<typeof vi.fn> } | null;
     swing: { remove: ReturnType<typeof vi.fn> } | null;
     circling: { remove: ReturnType<typeof vi.fn> } | null;
@@ -150,12 +152,11 @@ function makeLifecycleEnemy(): LifecycleEnemyUnderTest {
     enemy.active = true;
     enemy.input = { enabled: true };
     enemy.scene = {
-        physics: { world: { disable: vi.fn() } },
         enemies: { remove: vi.fn() },
         active_enemies: { remove: vi.fn() },
     };
     enemy.scene_events = { off: vi.fn(), emit: vi.fn() };
-    enemy.physics_world = { removeCollider: vi.fn() };
+    enemy.physics_world = { disable: vi.fn(), removeCollider: vi.fn() };
     enemy.wandering_looped_timer = { remove: vi.fn() };
     enemy.swing = { remove: vi.fn() };
     enemy.circling = { remove: vi.fn() };
@@ -202,7 +203,7 @@ describe("Enemy.despawn", () => {
         enemy.despawn();
 
         expect(enemy.deselect).toHaveBeenCalledTimes(1);
-        expect(enemy.scene.physics.world.disable).toHaveBeenCalledWith(enemy);
+        expect(enemy.physics_world.disable).toHaveBeenCalledWith(enemy);
         expect(enemy.scene.enemies.remove).toHaveBeenCalledWith(enemy);
         expect(enemy.scene.active_enemies.remove).toHaveBeenCalledWith(enemy);
         expect(enemy.scene_events.emit).toHaveBeenCalledWith("enemy:despawned", enemy);

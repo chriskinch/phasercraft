@@ -365,7 +365,7 @@ class Enemy extends GameObjects.Container {
         this.alive = false;
         this.active = false;
         if (this.input) this.input.enabled = false;
-        this.scene.physics.world.disable(this);
+        this.physics_world.disable(this);
         (this.scene as GameSceneLike).enemies.remove(this);
         (this.scene as GameSceneLike).active_enemies.remove(this);
         this.decompose();
@@ -380,7 +380,7 @@ class Enemy extends GameObjects.Container {
         this.alive = false;
         this.active = false;
         if (this.input) this.input.enabled = false;
-        this.scene.physics.world.disable(this);
+        this.physics_world.disable(this);
         (this.scene as GameSceneLike).enemies.remove(this);
         (this.scene as GameSceneLike).active_enemies.remove(this);
         this.scene_events.emit("enemy:despawned", this);
