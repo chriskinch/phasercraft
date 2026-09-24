@@ -409,6 +409,57 @@ describe("SpawnDirector kills and the boss", () => {
     });
 });
 
+describe("SpawnDirector.debugView", () => {
+    it("reports the radius, cone and despawn delay the director is using", () => {
+        const { director, velocity } = makeDirector({ despawnDelayMs: 3000, coneHalfAngleDeg: 30 });
+        velocity.x = 50;
+
+        const view = director.debugView();
+
+        expect(view.radius).toBeCloseTo(RADIUS);
+        expect(view.direction).toEqual({ x: 1, y: 0 });
+        expect(view.halfAngle).toBeCloseTo(Math.PI / 6);
+        expect(view.despawnDelayMs).toBe(3000);
+    });
+
+    it("reports no direction while the player stands still", () => {
+        const { director } = makeDirector();
+
+        expect(director.debugView().direction).toBeNull();
+    });
+
+    it("lists every tracked enemy with its despawn clock", () => {
+        const { director, player, regulars } = makeDirector({ despawnDelayMs: 1000 });
+        director.tick();
+        player.x += 2000;
+        director.update(250);
+
+        expect(director.debugView().enemies).toEqual([{ enemy: regulars()[0], beyondMs: 250 }]);
+    });
+
+    it("records the last spawn attempt's candidates and which one fit", () => {
+        const isSpawnable = vi.fn().mockReturnValueOnce(false).mockReturnValueOnce(true);
+        const { director } = makeDirector({}, { isSpawnable });
+
+        director.tick();
+
+        const attempts = director.debugView().attempts;
+        expect(attempts.map((a) => a.ok)).toEqual([false, true]);
+    });
+
+    it("keeps only the most recent attempt's candidates", () => {
+        const { director } = makeDirector(
+            { attemptsPerTick: 3 },
+            { isSpawnable: vi.fn(() => false) }
+        );
+
+        director.tick();
+        director.tick();
+
+        expect(director.debugView().attempts).toHaveLength(3);
+    });
+});
+
 describe("SpawnDirector.stop", () => {
     it("freezes spawning, despawning and kill counting", () => {
         const { director, host, player, spawnRegular, regulars } = makeDirector({

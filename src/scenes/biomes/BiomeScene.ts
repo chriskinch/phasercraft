@@ -10,6 +10,7 @@ import { promoteToBoss, resolveAreaTuning } from "@config/area";
 import { readSettings } from "@services/settingsStorage";
 import { resolveBiome, type BiomeDefinition } from "./biomes";
 import SpawnDirector, { type SpawnHost } from "./SpawnDirector";
+import SpawnDebugOverlay from "./SpawnDebugOverlay";
 import { buildWalkability, isFootprintSpawnable, type WalkabilityGrid } from "@helpers/walkability";
 import { sample } from "lodash";
 import { fontConfig } from "../../config/fonts";
@@ -49,6 +50,9 @@ export default class BiomeScene extends Scene {
     // on game over and shutdown.
     private director!: SpawnDirector<Enemy, EnemyType>;
     private spawn_timer?: Phaser.Time.TimerEvent;
+    // Debug-only drawing of the director's state; absent unless Debug mode and
+    // its spawn overlay toggle are both on. Rebuilt per area, released on shutdown.
+    private spawn_overlay?: SpawnDebugOverlay<Enemy>;
     public depth_group: Record<string, number> = {
         BASE: 10,
         UI: 10000,
@@ -524,6 +528,7 @@ export default class BiomeScene extends Scene {
         if (this.player.alive) this.player.update(mouse, this.cursors, time, delta);
         // Despawn clocks advance on the scene's own delta, so they stop with it.
         if (!this.game_over) this.director.update(delta);
+        this.spawn_overlay?.draw(this.player);
 
         // After the characters have moved and re-set their own depths.
         this.sortCharactersByFeet();
@@ -550,8 +555,15 @@ export default class BiomeScene extends Scene {
 
         // Read once per area entry, so a Debug settings change applies the next
         // time an area is entered rather than mid-run.
-        const tuning = resolveAreaTuning(readSettings());
+        const settings = readSettings();
+        const tuning = resolveAreaTuning(settings);
         this.director = new SpawnDirector(tuning, this.spawnHost());
+
+        this.spawn_overlay?.cleanup();
+        this.spawn_overlay =
+            settings.debug && settings.spawnDebugOverlay
+                ? new SpawnDebugOverlay(this, this.director)
+                : undefined;
         // Resets the HUD: leaving mid-boss leaves `bossActive` set in the store,
         // which would make the fresh area read "BOSS".
         this.director.start();
@@ -756,6 +768,8 @@ export default class BiomeScene extends Scene {
 
         this.removeAreaClearedTimer();
         this.removeSpawnTimer();
+        this.spawn_overlay?.cleanup();
+        this.spawn_overlay = undefined;
 
         // Colliders registered against the tilemap layers. The Arcade plugin
         // tears its world down before the scene's own SHUTDOWN handler runs, so

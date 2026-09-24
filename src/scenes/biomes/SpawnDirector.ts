@@ -44,6 +44,19 @@ export interface SpawnHost<E extends SpawnedEnemy, Id extends string = string> {
     random(): number;
 }
 
+// What the spawn debug overlay (#464) draws. Read-only; built on demand.
+export interface SpawnDebugView<E> {
+    radius: number;
+    // Unit vector of the player's travel, or null while standing still.
+    direction: Point | null;
+    halfAngle: number;
+    despawnDelayMs: number;
+    // Every enemy the director tracks, and how long it has been beyond the radius.
+    enemies: { enemy: E; beyondMs: number }[];
+    // The candidates tried on the most recent spawn attempt, and whether each fit.
+    attempts: { point: Point; ok: boolean }[];
+}
+
 interface Tracked {
     boss: boolean;
     width: number;
@@ -59,6 +72,7 @@ export default class SpawnDirector<E extends SpawnedEnemy, Id extends string = s
     private boss: E | null = null;
     private cleared = false;
     private stopped = false;
+    private last_attempts: { point: Point; ok: boolean }[] = [];
 
     constructor(
         private readonly tuning: AreaTuning,
@@ -92,6 +106,19 @@ export default class SpawnDirector<E extends SpawnedEnemy, Id extends string = s
             margin: this.tuning.radiusMargin,
             override: this.tuning.radiusOverride,
         });
+    }
+
+    debugView(): SpawnDebugView<E> {
+        const enemies: { enemy: E; beyondMs: number }[] = [];
+        this.tracked.forEach((t, enemy) => enemies.push({ enemy, beyondMs: t.beyond }));
+        return {
+            radius: this.radius(),
+            direction: spawnDirection(this.host.playerVelocity(), this.tuning.movingSpeed),
+            halfAngle: (this.tuning.coneHalfAngleDeg * Math.PI) / 180,
+            despawnDelayMs: this.tuning.despawnDelayMs,
+            enemies,
+            attempts: [...this.last_attempts],
+        };
     }
 
     start(): void {
@@ -194,6 +221,7 @@ export default class SpawnDirector<E extends SpawnedEnemy, Id extends string = s
         const half_angle = (this.tuning.coneHalfAngleDeg * Math.PI) / 180;
         const radius = this.radius();
         const size = this.host.footprint(id, boss);
+        this.last_attempts = [];
 
         for (let attempt = 0; attempt < this.tuning.attemptsPerTick; attempt++) {
             const point = sampleSpawnPoint(player, radius, direction, half_angle, () =>
@@ -205,9 +233,9 @@ export default class SpawnDirector<E extends SpawnedEnemy, Id extends string = s
                 width: size.width,
                 height: size.height,
             };
-            if (this.host.isSpawnable(rect) && !this.overlapsLiveEnemy(rect)) {
-                return { point, size };
-            }
+            const ok = this.host.isSpawnable(rect) && !this.overlapsLiveEnemy(rect);
+            this.last_attempts.push({ point, ok });
+            if (ok) return { point, size };
         }
         return null;
     }

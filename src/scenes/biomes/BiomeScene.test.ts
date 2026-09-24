@@ -193,6 +193,41 @@ describe("BiomeScene.startArea", () => {
         });
     });
 
+    it("builds the spawn debug overlay only when Debug and its toggle are both on", () => {
+        const graphics = { setDepth: vi.fn(() => graphics), destroy: vi.fn() };
+        const withAdd = () => {
+            const { scene } = makeScene();
+            (scene as unknown as { add: object }).add = {
+                sprite: vi.fn(),
+                graphics: vi.fn(() => graphics),
+            };
+            return scene as SceneUnderTest & {
+                add: { graphics: ReturnType<typeof vi.fn> };
+                spawn_overlay?: object;
+            };
+        };
+
+        writeSettings({ ...DEFAULT_SETTINGS, debug: true, spawnDebugOverlay: false });
+        const off = withAdd();
+        off.startArea();
+        expect(off.spawn_overlay).toBeUndefined();
+
+        writeSettings({ ...DEFAULT_SETTINGS, debug: false, spawnDebugOverlay: true });
+        const debugOff = withAdd();
+        debugOff.startArea();
+        expect(debugOff.spawn_overlay).toBeUndefined();
+
+        writeSettings({ ...DEFAULT_SETTINGS, debug: true, spawnDebugOverlay: true });
+        const on = withAdd();
+        on.startArea();
+        expect(on.spawn_overlay).toBeDefined();
+        expect(on.add.graphics).toHaveBeenCalledTimes(1);
+
+        // Re-entry replaces it, releasing the old one.
+        on.startArea();
+        expect(graphics.destroy).toHaveBeenCalledTimes(1);
+    });
+
     it("ticks a fresh director on a looping, pause-aware scene timer", () => {
         const { scene, spawnTimer } = makeScene();
         const stale = scene.director;
@@ -425,6 +460,17 @@ describe("BiomeScene.shutdown", () => {
         const { scene } = makeScene();
 
         expect(() => scene.shutdown()).not.toThrow();
+    });
+
+    it("releases the spawn debug overlay, once", () => {
+        const { scene } = makeScene();
+        const overlay = { cleanup: vi.fn() };
+        (scene as unknown as { spawn_overlay?: object }).spawn_overlay = overlay;
+
+        scene.shutdown();
+        scene.shutdown();
+
+        expect(overlay.cleanup).toHaveBeenCalledTimes(1);
     });
 
     it("removes the spawn timer, once", () => {
