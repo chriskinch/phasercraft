@@ -7,6 +7,7 @@ import enemyTypes from "@config/enemies.json";
 import type { EnemyType } from "@/types/game";
 import { promoteToBoss } from "@config/area";
 import { resolveBiome, type BiomeDefinition } from "./biomes";
+import { buildWalkability, type WalkabilityGrid } from "@helpers/walkability";
 import { sample } from "lodash";
 import { fontConfig } from "../../config/fonts";
 
@@ -73,6 +74,9 @@ export default class BiomeScene extends Scene {
     // prop tiles near a character so they can sort against them individually.
     private prop_layers: Tilemaps.TilemapLayer[] = [];
     private prop_overlays: GameObjects.Sprite[] = [];
+    // Tiles an enemy may spawn on: pure land the player can reach on foot.
+    // Rebuilt in create() once the player's start is known.
+    public spawn_grid!: WalkabilityGrid;
     // Spawn ring around the player, in pixels. The lower bound keeps enemies
     // from materialising on top of the player; the upper bound is set per-spawn
     // from the viewport, so enemies arrive within sight.
@@ -177,6 +181,7 @@ export default class BiomeScene extends Scene {
             x: spawn.x,
             y: spawn.y,
         }) as PlayerType;
+        this.spawn_grid = this.buildSpawnGrid(spawn);
 
         this.enemies = this.add.group();
         this.enemies.runChildUpdate = true;
@@ -426,6 +431,62 @@ export default class BiomeScene extends Scene {
             this.physics.add.collider(this.player, layer),
             this.physics.add.collider(this.enemies, layer),
         ]);
+    }
+
+    /**
+     * Reads the map into the spawn grid. `water` comes from the generator's
+     * `water` tile property on any layer (shorelines included); `solid` is the
+     * same `collides` flag the player is stopped by, so the flood fill walks
+     * exactly where the player can. One pass over the map per area entry.
+     */
+    private buildSpawnGrid(start: { x: number; y: number }): WalkabilityGrid {
+        const scale = this.biome.map.scale;
+        const tile_w = this.map.tileWidth * scale;
+        const tile_h = this.map.tileHeight * scale;
+        const { width, height } = this.map;
+
+        const water = new Array<boolean>(width * height).fill(false);
+        const solid = new Array<boolean>(width * height).fill(false);
+
+        // Straight off each layer's tile rows: this touches every tile of every
+        // layer. Measured at roughly a third of what building the tilemap
+        // itself costs, once per area entry.
+        const mark = (
+            layers: Phaser.Tilemaps.Tile[][][],
+            out: boolean[],
+            test: (tile: Phaser.Tilemaps.Tile) => boolean
+        ) => {
+            for (const data of layers) {
+                for (let y = 0; y < height; y++) {
+                    const row = data[y];
+                    if (!row) continue;
+                    for (let x = 0; x < width; x++) {
+                        const tile = row[x];
+                        if (tile && test(tile)) out[y * width + x] = true;
+                    }
+                }
+            }
+        };
+        mark(
+            this.map.layers.map((layer) => layer.data),
+            water,
+            (tile) => (tile.properties as { water?: unknown } | undefined)?.water === true
+        );
+        mark(
+            this.collision_layers.map((layer) => layer.layer.data),
+            solid,
+            (tile) => tile.collides
+        );
+
+        return buildWalkability({
+            width,
+            height,
+            tileWidth: tile_w,
+            tileHeight: tile_h,
+            water,
+            solid,
+            start: { x: Math.floor(start.x / tile_w), y: Math.floor(start.y / tile_h) },
+        });
     }
 
     /** True when no collidable layer has a solid tile at this world position. */
