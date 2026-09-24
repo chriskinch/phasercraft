@@ -140,6 +140,8 @@ beforeEach(() => {
 
 afterEach(() => {
     vi.restoreAllMocks();
+    // Some tests persist Debug spawn overrides; never let them leak onward.
+    localStorage.clear();
 });
 
 describe("BiomeScene.startArea", () => {
@@ -177,7 +179,6 @@ describe("BiomeScene.startArea", () => {
             type: "SET_ENEMIES_REMAINING",
             payload: { value: 3 },
         });
-        localStorage.clear();
     });
 
     it("ignores the spawn overrides when Debug mode is off", () => {
@@ -190,7 +191,6 @@ describe("BiomeScene.startArea", () => {
             type: "SET_ENEMIES_REMAINING",
             payload: { value: AREA_KILLS_TO_BOSS },
         });
-        localStorage.clear();
     });
 
     it("ticks a fresh director on a looping, pause-aware scene timer", () => {
