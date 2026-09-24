@@ -102,8 +102,8 @@ class Enemy extends GameObjects.Container {
     public vector?: EntityWithVector;
 
     constructor(config: EnemyOptions) {
-        // Spawned where it stands: the spawner only picks points off screen on
-        // open land, so there is no drop-in and nothing to land on.
+        // Live where it stands: no drop-in from above and nothing to land on.
+        // Choosing an off-screen point on open land is the spawner's job.
         super(config.scene, config.x, config.y);
 
         this.uuid = uuid();
