@@ -233,6 +233,7 @@ describe("BiomeScene.shutdown", () => {
         const { scene, pending } = makeScene();
         scene.startArea();
         scene.areaCleared();
+        expect(scene.director).toBeDefined();
 
         scene.shutdown();
 
@@ -250,6 +251,7 @@ describe("BiomeScene.shutdown", () => {
         );
         expect(scene.UI.cleanup).toHaveBeenCalled();
         expect(scene.player.cleanup).toHaveBeenCalled();
+        expect(scene.director).toBeUndefined();
     });
 
     it("releases the travel-request store subscription", () => {
