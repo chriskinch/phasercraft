@@ -25,6 +25,7 @@ const SCENE_EVENTS = [
     "pointermove:game",
     "pointerup:game",
     "enemy:dead",
+    "enemy:despawned",
 ] as const;
 
 interface PlayerUnderTest {
@@ -42,6 +43,7 @@ interface PlayerUnderTest {
     gameMoveHandler(): void;
     gameUpHandler(): void;
     targetDead(): void;
+    targetDespawned(): void;
     cleanup(): void;
 }
 
@@ -93,6 +95,7 @@ describe("Player.cleanup", () => {
         expect(byEvent["pointermove:game"]).toBe(player.gameMoveHandler);
         expect(byEvent["pointerup:game"]).toBe(player.gameUpHandler);
         expect(byEvent["enemy:dead"]).toBe(player.targetDead);
+        expect(byEvent["enemy:despawned"]).toBe(player.targetDespawned);
     });
 
     it("does not reach for this.scene, which Phaser has already cleared", () => {
@@ -202,5 +205,46 @@ describe("Player.goToRange", () => {
         const coords = (m: typeof near.moveTo) => m.mock.calls[0].slice(1);
         expect(coords(far.moveTo)).toEqual(coords(near.moveTo));
         expect(coords(far.moveTo)).toEqual([enemy.x, enemy.y, 100]);
+    });
+});
+
+// A despawn is not a kill: no XP, and only the chased enemy's despawn stops the
+// player. Despawns happen far away while the player runs with nothing selected,
+// so idling on every one (as targetDead does) would halt the run.
+describe("Player.targetDespawned", () => {
+    function makeDespawnPlayer(selected: unknown) {
+        const player = Object.create(Player.prototype) as {
+            scene: { selected: unknown };
+            idle: ReturnType<typeof vi.fn>;
+            targetDespawned(enemy: unknown): void;
+        };
+        player.scene = { selected };
+        player.idle = vi.fn();
+        return player;
+    }
+
+    it("stops chasing when the despawned enemy was the target", () => {
+        const enemy = {};
+        const player = makeDespawnPlayer(enemy);
+
+        player.targetDespawned(enemy);
+
+        expect(player.idle).toHaveBeenCalledTimes(1);
+    });
+
+    it("keeps running when an unrelated enemy despawns", () => {
+        const player = makeDespawnPlayer(null);
+
+        player.targetDespawned({});
+
+        expect(player.idle).not.toHaveBeenCalled();
+    });
+
+    it("keeps chasing its own target when a different enemy despawns", () => {
+        const player = makeDespawnPlayer({});
+
+        player.targetDespawned({});
+
+        expect(player.idle).not.toHaveBeenCalled();
     });
 });

@@ -70,6 +70,9 @@ export default class BiomeScene extends Scene {
     private map!: Phaser.Tilemaps.Tilemap;
     private collision_layers: Phaser.Tilemaps.TilemapLayer[] = [];
     private map_colliders: Phaser.Physics.Arcade.Collider[] = [];
+    // Enemies bump off each other. One collider for the whole group, set up
+    // per area; enemies used to add a fresh one each as they spawned.
+    private enemy_collider?: Phaser.Physics.Arcade.Collider;
     // Prop layers, and the small recycled pool of sprites that redraws the few
     // prop tiles near a character so they can sort against them individually.
     private prop_layers: Tilemaps.TilemapLayer[] = [];
@@ -192,6 +195,7 @@ export default class BiomeScene extends Scene {
         // The groups have to exist first: an Arcade group collider covers
         // members added later, but only if the group is registered up front.
         this.setupMapCollisions();
+        this.enemy_collider = this.physics.add.collider(this.active_enemies, this.active_enemies);
         this.cameras.main.startFollow(this.player);
 
         this.setAreaClearedUI();
@@ -802,6 +806,8 @@ export default class BiomeScene extends Scene {
         // the travel subscription below never gets released.
         this.map_colliders.forEach((collider) => this.physics?.world?.removeCollider(collider));
         this.map_colliders = [];
+        if (this.enemy_collider) this.physics?.world?.removeCollider(this.enemy_collider);
+        this.enemy_collider = undefined;
         this.collision_layers = [];
 
         // The overlay pool is scene-owned, but scene instances are reused across
