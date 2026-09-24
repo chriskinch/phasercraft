@@ -49,10 +49,19 @@ export function roarPosition(
     const dx = boss.x - player.x;
     const dy = boss.y - player.y;
 
-    // How far along the ray each inset edge is; the nearest one is hit first.
-    const along = (delta: number, low: number, high: number, from: number) =>
-        delta > 0 ? (high - from) / delta : delta < 0 ? (low - from) / delta : Infinity;
-    const t = Math.min(along(dx, left, right, player.x), along(dy, top, bottom, player.y));
+    // How far along the ray the inset edge it is heading for lies; the nearest
+    // one is hit first. The camera stops at the map edge, so the player can sit
+    // inside the inset band, past the edge it is heading towards: that axis has
+    // no forward hit (a backward one would point the word the wrong way), so it
+    // is left to the other axis and the final clamp.
+    const along = (delta: number, low: number, high: number, from: number) => {
+        if (delta > 0) return from >= high ? Infinity : (high - from) / delta;
+        if (delta < 0) return from <= low ? Infinity : (low - from) / delta;
+        return Infinity;
+    };
+    const hit = Math.min(along(dx, left, right, player.x), along(dy, top, bottom, player.y));
+    // Past the band on both axes, heading further out: pin to the nearest corner.
+    const t = Number.isFinite(hit) ? hit : 0;
 
     return clamp({ x: player.x + dx * t, y: player.y + dy * t });
 }

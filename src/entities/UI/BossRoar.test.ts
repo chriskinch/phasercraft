@@ -47,6 +47,37 @@ describe("roarPosition", () => {
         expect(bearing(at)).toBeCloseTo(bearing(boss));
     });
 
+    describe("with the player inside the inset band (camera held at the map edge)", () => {
+        // The real inset for a 120x50 word: half-size + margin, plus the rise.
+        const band = { x: 76, y: 61 };
+
+        it("still points at a boss nearly straight up, from near the right edge", () => {
+            const at = roarPosition(view, { x: 780, y: 300 }, { x: 790, y: -500 }, band);
+
+            expect(at.y).toBe(band.y); // top edge, not the bottom-right
+            expect(at.x).toBe(800 - band.x);
+        });
+
+        it("still points at a boss up and to the right, from near the top edge", () => {
+            const at = roarPosition(view, { x: 400, y: 20 }, { x: 900, y: -10 }, band);
+
+            expect(at.x).toBe(800 - band.x); // right side, not the top-left
+            expect(at.y).toBe(band.y);
+        });
+
+        it("pins to the nearest corner when past the band on both axes, heading out", () => {
+            const at = roarPosition(view, { x: 790, y: 10 }, { x: 1500, y: -800 }, band);
+
+            expect(at).toEqual({ x: 800 - band.x, y: band.y });
+        });
+
+        it("still hits the far edge when heading back across the screen", () => {
+            const at = roarPosition(view, { x: 780, y: 300 }, { x: -2000, y: 300 }, band);
+
+            expect(at).toEqual({ x: band.x, y: 300 });
+        });
+    });
+
     it("keeps the word on screen when an on-screen boss is near the top edge", () => {
         const at = roarPosition(view, player, { x: 650, y: 10 }, pad);
 
