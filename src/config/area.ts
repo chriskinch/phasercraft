@@ -1,14 +1,30 @@
 import enemyTypes from "@config/enemies.json";
 import type { EnemyConfig, EnemyType, LootTable } from "@/types/game";
 
-// A combat area holds a fixed pool of enemies. The player clears the pool, a
-// boss spawns, and killing the boss clears the area. Leaving and re-entering
-// rebuilds the pool from scratch, so none of this is persisted.
-export const AREA_TOTAL_ENEMIES = 20;
+export interface AreaTuning {
+    killsToBoss: number;
+    liveCap: number;
+    spawnIntervalMs: number;
+    despawnDelayMs: number;
+    spawnAttemptsPerTick: number;
+}
 
-// How many pool enemies may be alive at once. Each death tops the area back up
-// to this cap until the pool is exhausted.
+// A combat area keeps trickling enemies in until the player has earned the boss
+// by kill count. Leaving and re-entering rebuilds that progress from scratch, so
+// none of it is persisted.
+export const AREA_KILLS_TO_BOSS = 20;
 export const AREA_LIVE_CAP = 5;
+export const SPAWN_INTERVAL_MS = 750;
+export const DESPAWN_DELAY_MS = 20000;
+export const SPAWN_ATTEMPTS_PER_TICK = 12;
+
+export const DEFAULT_AREA_TUNING: AreaTuning = {
+    killsToBoss: AREA_KILLS_TO_BOSS,
+    liveCap: AREA_LIVE_CAP,
+    spawnIntervalMs: SPAWN_INTERVAL_MS,
+    despawnDelayMs: DESPAWN_DELAY_MS,
+    spawnAttemptsPerTick: SPAWN_ATTEMPTS_PER_TICK,
+};
 
 // Boss multipliers, derived from the two hand-authored entries in
 // `bosses.json` (kept as the reference for these numbers):

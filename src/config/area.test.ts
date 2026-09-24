@@ -1,6 +1,16 @@
 import { describe, it, expect } from "vitest";
 import enemyTypes from "@config/enemies.json";
-import { BOSS_SCALING, promoteToBoss, scaleLootTable } from "./area";
+import {
+    AREA_KILLS_TO_BOSS,
+    AREA_LIVE_CAP,
+    BOSS_SCALING,
+    DEFAULT_AREA_TUNING,
+    DESPAWN_DELAY_MS,
+    SPAWN_ATTEMPTS_PER_TICK,
+    SPAWN_INTERVAL_MS,
+    promoteToBoss,
+    scaleLootTable,
+} from "./area";
 import type { EnemyConfig, LootTable } from "@/types/game";
 
 // `promoteToBoss` and `scaleLootTable` are pure config factories — no Phaser
@@ -52,6 +62,18 @@ describe("promoteToBoss", () => {
     it("drops more of every entry than the creature it was promoted from", () => {
         boss.loot_table.forEach((item, i) => {
             expect(item.rate).toBeGreaterThan(base.loot_table[i].rate);
+        });
+    });
+
+    describe("DEFAULT_AREA_TUNING", () => {
+        it("exposes the global spawn-director defaults", () => {
+            expect(DEFAULT_AREA_TUNING).toEqual({
+                killsToBoss: AREA_KILLS_TO_BOSS,
+                liveCap: AREA_LIVE_CAP,
+                spawnIntervalMs: SPAWN_INTERVAL_MS,
+                despawnDelayMs: DESPAWN_DELAY_MS,
+                spawnAttemptsPerTick: SPAWN_ATTEMPTS_PER_TICK,
+            });
         });
     });
 
