@@ -392,7 +392,8 @@ export interface EnemyOptions {
 
 // How a spell acquires its target when cast:
 // - "self":   always the casting player, no target tap needed
-// - "enemy":  the selected enemy, or the next tapped enemy while primed
+// - "enemy":  the selected enemy, else the closest live enemy (auto-selected),
+//             else the next tapped enemy while primed
 // - "ground": a world point chosen by the next tap while primed
 // - "none":   no target at all (PBAoE / auras) — cast fires immediately
 export type TargetKind = "self" | "enemy" | "ground" | "none";

@@ -2,6 +2,7 @@ import { Math as PhaserMath, Scenes } from "phaser";
 import TargetReticle from "@entities/UI/TargetReticle";
 import type { CombatType, TargetKind, TargetType } from "@/types/game";
 import type { GameSceneLike } from "@/types/scene";
+import type Enemy from "@entities/Enemy/Enemy";
 
 // The subset of Spell the controller drives. Kept narrow so tests can fake a
 // spell without booting Phaser, and so the controller never reaches into
@@ -63,8 +64,10 @@ interface CastingControllerOptions {
 //   idle → (button press) → primed | approaching | casting → idle
 //
 // - "none"/"self" spells cast immediately on button press.
-// - "enemy" spells cast at the selected enemy, or prime and commit on the
-//   next enemy tap; taps on the floor/player clear the prime.
+// - "enemy" spells cast at the selected enemy; with no live selection they
+//   select the closest enemy (exactly as a click would) and cast at it, and
+//   only prime (commit on the next enemy tap) when no enemy is alive. Taps
+//   on the floor/player clear the prime.
 // - "ground" spells prime and place at the next world tap (tap-to-place).
 // - Out-of-range commits queue as "approaching": the controller walks the
 //   player toward the target each update() and casts on arrival.
@@ -143,8 +146,9 @@ class CastingController {
                 break;
             case "enemy": {
                 const selected = this.scene.selected;
-                if (selected && selected.alive) {
-                    this.commit(spell, selected);
+                const target = selected && selected.alive ? selected : this.selectClosestEnemy();
+                if (target) {
+                    this.commit(spell, target);
                 } else {
                     this.prime(spell);
                 }
@@ -272,6 +276,35 @@ class CastingController {
         } else {
             this.player.moveToWorldPoint(target);
         }
+    }
+
+    // Auto-target for a damaging press with nothing selected: pick the live
+    // enemy nearest the player and select it the same way Enemy's pointerdown
+    // handler does (the emit deselects any previous pick, then select() sets
+    // scene.selected), so the player walks to it and auto-attacks as if it
+    // had been clicked. Returns null when there is no live enemy (e.g. town,
+    // which has no enemies group).
+    private selectClosestEnemy(): Enemy | null {
+        const enemies = (this.scene.enemies?.getChildren() ?? []) as Enemy[];
+        let closest: Enemy | null = null;
+        let best = Infinity;
+        for (const enemy of enemies) {
+            if (!enemy.alive) continue;
+            const distance = PhaserMath.Distance.Between(
+                this.player.x,
+                this.player.y,
+                enemy.x,
+                enemy.y
+            );
+            if (distance < best) {
+                best = distance;
+                closest = enemy;
+            }
+        }
+        if (!closest) return null;
+        this.scene.events.emit("pointerdown:enemy", closest);
+        closest.select();
+        return closest;
     }
 
     private prime(spell: CastableSpell): void {

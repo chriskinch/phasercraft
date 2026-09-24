@@ -23,6 +23,18 @@ interface SceneStub {
     time: { delayedCall: ReturnType<typeof vi.fn> };
     cameras: { main: { getWorldPoint: ReturnType<typeof vi.fn> } };
     selected: { x: number; y: number; alive: boolean } | null;
+    enemies?: { getChildren: () => EnemyStub[] };
+}
+
+interface EnemyStub {
+    x: number;
+    y: number;
+    alive: boolean;
+    select: ReturnType<typeof vi.fn>;
+}
+
+function makeEnemy(x: number, y: number, alive = true): EnemyStub {
+    return { x, y, alive, select: vi.fn() };
 }
 
 interface PlayerStub {
@@ -164,7 +176,89 @@ describe("CastingController.request — enemy target kind", () => {
         expect(controller.getState()).toBe("approaching");
     });
 
-    it("primes when no enemy is selected", () => {
+    it("with nothing selected, selects the closest live enemy and casts at it", () => {
+        const controller = makeController();
+        const far = makeEnemy(80, 0);
+        const near = makeEnemy(30, 40);
+        const deadCloser = makeEnemy(5, 0, false);
+        controller.scene.enemies = { getChildren: () => [far, deadCloser, near] };
+        const spell = makeSpell("enemy", { castRange: 100 });
+
+        controller.request(spell);
+
+        // Selected exactly as a click would: the tap event, then select().
+        expect(controller.scene.events.emit).toHaveBeenCalledWith("pointerdown:enemy", near);
+        expect(near.select).toHaveBeenCalled();
+        expect(far.select).not.toHaveBeenCalled();
+        expect(deadCloser.select).not.toHaveBeenCalled();
+        expect(spell.castSpell).toHaveBeenCalledWith(near);
+    });
+
+    it("walks toward the auto-selected enemy when it is out of range", () => {
+        const controller = makeController();
+        const enemy = makeEnemy(500, 0);
+        controller.scene.enemies = { getChildren: () => [enemy] };
+        const spell = makeSpell("enemy", { castRange: 100 });
+
+        controller.request(spell);
+        controller.update();
+
+        expect(enemy.select).toHaveBeenCalled();
+        expect(spell.castSpell).not.toHaveBeenCalled();
+        expect(controller.getState()).toBe("approaching");
+        expect(controller.player.moveToWorldPoint).toHaveBeenCalledWith(enemy);
+    });
+
+    it("replaces a dead selection with the closest live enemy", () => {
+        const controller = makeController();
+        controller.scene.selected = { x: 10, y: 0, alive: false };
+        const enemy = makeEnemy(50, 0);
+        controller.scene.enemies = { getChildren: () => [enemy] };
+        const spell = makeSpell("enemy", { castRange: 100 });
+
+        controller.request(spell);
+
+        expect(enemy.select).toHaveBeenCalled();
+        expect(spell.castSpell).toHaveBeenCalledWith(enemy);
+    });
+
+    it("keeps a live selection rather than switching to a closer enemy", () => {
+        const controller = makeController();
+        const selected = { x: 90, y: 0, alive: true };
+        controller.scene.selected = selected;
+        const closer = makeEnemy(10, 0);
+        controller.scene.enemies = { getChildren: () => [closer] };
+        const spell = makeSpell("enemy", { castRange: 100 });
+
+        controller.request(spell);
+
+        expect(closer.select).not.toHaveBeenCalled();
+        expect(spell.castSpell).toHaveBeenCalledWith(selected);
+    });
+
+    it("primes when only dead enemies remain", () => {
+        const controller = makeController();
+        controller.scene.enemies = { getChildren: () => [makeEnemy(10, 0, false)] };
+        const spell = makeSpell("enemy", { castRange: 100 });
+
+        controller.request(spell);
+
+        expect(controller.getState()).toBe("primed");
+    });
+
+    it("does not auto-select for non-enemy spells", () => {
+        const controller = makeController();
+        const enemy = makeEnemy(10, 0);
+        controller.scene.enemies = { getChildren: () => [enemy] };
+
+        controller.request(makeSpell("none"));
+        controller.request(makeSpell("self"));
+        controller.request(makeSpell("ground"));
+
+        expect(enemy.select).not.toHaveBeenCalled();
+    });
+
+    it("primes when no enemy is selected and none are alive", () => {
         const controller = makeController();
         const spell = makeSpell("enemy", { castRange: 100 });
 
