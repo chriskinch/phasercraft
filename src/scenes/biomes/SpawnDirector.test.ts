@@ -1,10 +1,14 @@
 import { describe, it, expect, vi } from "vitest";
-import SpawnDirector, { sampleSpawnPoint, type SpawnedEnemy } from "./SpawnDirector";
+import SpawnDirector, {
+    sampleSpawnPoint,
+    type SpawnDirectorEvents,
+    type SpawnedEnemy,
+} from "./SpawnDirector";
 import { DEFAULT_AREA_TUNING, type AreaTuning } from "@config/area";
 
-interface FakeEvents {
-    on: ReturnType<typeof vi.fn>;
-    off: ReturnType<typeof vi.fn>;
+interface FakeEvents extends SpawnDirectorEvents {
+    onMock: ReturnType<typeof vi.fn>;
+    offMock: ReturnType<typeof vi.fn>;
     emit(event: string, enemy: SpawnedEnemy): void;
 }
 
@@ -12,19 +16,30 @@ function makeEnemy(x: number, y: number): SpawnedEnemy {
     return { x, y, active: true, alive: true, despawn: vi.fn() };
 }
 
+function nextRandom(): () => number {
+    let i = 0;
+    return (): number => ((i += 1) % 10) / 10;
+}
+
 function makeEvents(): FakeEvents {
     const listeners = new Map<string, Array<(enemy: SpawnedEnemy) => void>>();
+    const onMock = vi.fn();
+    const offMock = vi.fn();
 
     return {
-        on: vi.fn((event: string, listener: (enemy: SpawnedEnemy) => void) => {
+        on(event: string, listener: (enemy: SpawnedEnemy) => void, _context?: unknown): void {
+            onMock(event, listener);
             listeners.set(event, [...(listeners.get(event) ?? []), listener]);
-        }),
-        off: vi.fn((event: string, listener: (enemy: SpawnedEnemy) => void) => {
+        },
+        off(event: string, listener: (enemy: SpawnedEnemy) => void, _context?: unknown): void {
+            offMock(event, listener);
             listeners.set(
                 event,
                 (listeners.get(event) ?? []).filter((registered) => registered !== listener)
             );
-        }),
+        },
+        onMock,
+        offMock,
         emit(event: string, enemy: SpawnedEnemy) {
             (listeners.get(event) ?? []).forEach((listener) => listener(enemy));
         },
@@ -33,13 +48,10 @@ function makeEvents(): FakeEvents {
 
 function makeDirector({
     tuning = DEFAULT_AREA_TUNING,
-    random = (() => {
-        let i = 0;
-        return () => ((i += 1) % 10) / 10;
-    })(),
+    random = nextRandom(),
     isFootprintSpawnable = vi.fn(() => true),
 } = {}) {
-    let tick = () => undefined;
+    let tick: () => void = () => undefined;
     const timer = { remove: vi.fn() };
     const clock = {
         addEvent: vi.fn(({ callback }: { callback: () => void }) => ((tick = callback), timer)),
@@ -268,7 +280,7 @@ describe("SpawnDirector", () => {
         director.cleanup();
 
         expect(timer.remove).toHaveBeenCalledWith(false);
-        expect(events.off).toHaveBeenCalledWith("enemy:dead", expect.any(Function), director);
-        expect(events.off).toHaveBeenCalledWith("enemy:despawned", expect.any(Function), director);
+        expect(events.offMock).toHaveBeenCalledWith("enemy:dead", expect.any(Function));
+        expect(events.offMock).toHaveBeenCalledWith("enemy:despawned", expect.any(Function));
     });
 });
