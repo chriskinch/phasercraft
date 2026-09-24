@@ -113,3 +113,117 @@ describe("Enemy.attack", () => {
         expect(enemy.scene.events.emit).not.toHaveBeenCalled();
     });
 });
+
+interface LifecycleEnemyUnderTest {
+    alive: boolean;
+    active: boolean;
+    input?: { enabled: boolean };
+    cleaned_up?: boolean;
+    caution?: number;
+    scene: {
+        enemies: { remove: ReturnType<typeof vi.fn> };
+        active_enemies: { remove: ReturnType<typeof vi.fn> };
+    };
+    scene_events: { off: ReturnType<typeof vi.fn>; emit: ReturnType<typeof vi.fn> };
+    physics_world: {
+        disable: ReturnType<typeof vi.fn>;
+        removeCollider: ReturnType<typeof vi.fn>;
+    };
+    wandering_looped_timer: { remove: ReturnType<typeof vi.fn> } | null;
+    swing: { remove: ReturnType<typeof vi.fn> } | null;
+    circling: { remove: ReturnType<typeof vi.fn> } | null;
+    player_collider: object | null;
+    deselect: ReturnType<typeof vi.fn>;
+    destroy: ReturnType<typeof vi.fn>;
+    dropLoot: ReturnType<typeof vi.fn>;
+    monster: { death: ReturnType<typeof vi.fn> };
+    cleanup(): void;
+    despawn(): void;
+    home: { x: number; y: number };
+    states: { movement: string };
+    destination?: { x: number; y: number };
+    move: ReturnType<typeof vi.fn>;
+    wander(): void;
+}
+
+function makeLifecycleEnemy(): LifecycleEnemyUnderTest {
+    const enemy = Object.create(Enemy.prototype) as LifecycleEnemyUnderTest;
+    enemy.alive = true;
+    enemy.active = true;
+    enemy.input = { enabled: true };
+    enemy.scene = {
+        enemies: { remove: vi.fn() },
+        active_enemies: { remove: vi.fn() },
+    };
+    enemy.scene_events = { off: vi.fn(), emit: vi.fn() };
+    enemy.physics_world = { disable: vi.fn(), removeCollider: vi.fn() };
+    enemy.wandering_looped_timer = { remove: vi.fn() };
+    enemy.swing = { remove: vi.fn() };
+    enemy.circling = { remove: vi.fn() };
+    enemy.player_collider = { id: "player" };
+    enemy.deselect = vi.fn();
+    enemy.destroy = vi.fn();
+    enemy.dropLoot = vi.fn();
+    enemy.monster = { death: vi.fn() };
+    enemy.home = { x: 100, y: 200 };
+    enemy.states = { movement: "idle" };
+    enemy.move = vi.fn();
+    return enemy;
+}
+
+describe("Enemy.cleanup", () => {
+    it("releases timers, scene listeners, and the player collider exactly once", () => {
+        const enemy = makeLifecycleEnemy();
+
+        enemy.cleanup();
+        enemy.cleanup();
+
+        expect(enemy.wandering_looped_timer).toBeNull();
+        expect(enemy.swing).toBeNull();
+        expect(enemy.circling).toBeNull();
+        expect(enemy.scene_events.off).toHaveBeenCalledWith(
+            "pointerdown:enemy",
+            enemy.deselect,
+            enemy
+        );
+        expect(enemy.scene_events.off).toHaveBeenCalledWith(
+            "pointerdown:game",
+            enemy.deselect,
+            enemy
+        );
+        expect(enemy.physics_world.removeCollider).toHaveBeenCalledWith({ id: "player" });
+        expect(enemy.physics_world.removeCollider).toHaveBeenCalledTimes(1);
+    });
+});
+
+describe("Enemy.despawn", () => {
+    it("silently removes the enemy without loot or enemy:dead", () => {
+        const enemy = makeLifecycleEnemy();
+
+        enemy.despawn();
+
+        expect(enemy.deselect).toHaveBeenCalledTimes(1);
+        expect(enemy.physics_world.disable).toHaveBeenCalledWith(enemy);
+        expect(enemy.scene.enemies.remove).toHaveBeenCalledWith(enemy);
+        expect(enemy.scene.active_enemies.remove).toHaveBeenCalledWith(enemy);
+        expect(enemy.scene_events.emit).toHaveBeenCalledWith("enemy:despawned", enemy);
+        expect(enemy.scene_events.emit).not.toHaveBeenCalledWith("enemy:dead", enemy);
+        expect(enemy.dropLoot).not.toHaveBeenCalled();
+        expect(enemy.monster.death).not.toHaveBeenCalled();
+        expect(enemy.destroy).toHaveBeenCalledTimes(1);
+    });
+});
+
+describe("Enemy.wander", () => {
+    it("wanders around the stored home anchor", () => {
+        const enemy = makeLifecycleEnemy();
+        const randomSpy = vi.spyOn(Math, "random").mockReturnValue(0);
+
+        enemy.wander();
+
+        expect(enemy.destination).toEqual({ x: 70, y: 170 });
+        expect(enemy.move).toHaveBeenCalledWith({ target: enemy.destination });
+        expect(enemy.states.movement).toBe("wandering");
+        randomSpy.mockRestore();
+    });
+});

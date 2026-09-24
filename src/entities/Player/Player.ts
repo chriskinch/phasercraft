@@ -195,6 +195,7 @@ class Player extends GameObjects.Container {
         scene.events.on("pointermove:game", this.gameMoveHandler, this);
         scene.events.on("pointerup:game", this.gameUpHandler, this);
         scene.events.on("enemy:dead", this.targetDead, this);
+        scene.events.on("enemy:despawned", this.targetDespawned, this);
         this.on("pointerdown", () => scene.events.emit("pointerdown:player", this));
 
         // mapStateToData("stats", s => this.stats = s);
@@ -442,7 +443,22 @@ class Player extends GameObjects.Container {
         // 	wander: 0,
         // 	gravity: 0
         // }))
-        if (!(this.scene as GameSceneLike).selected) this.idle();
+        this.clearTarget();
+    }
+
+    clearTarget(enemy?: Enemy): void {
+        const selected = (this.scene as GameSceneLike).selected;
+        if (!enemy) {
+            if (!selected) this.idle();
+            return;
+        }
+
+        if (selected && selected !== enemy) return;
+        this.idle();
+    }
+
+    targetDespawned(enemy: Enemy): void {
+        this.clearTarget(enemy);
     }
 
     setExperience(exp: number = store.getState().game.xp, count: number = 1): void {
@@ -541,6 +557,7 @@ class Player extends GameObjects.Container {
         this.scene_events.off("pointermove:game", this.gameMoveHandler, this);
         this.scene_events.off("pointerup:game", this.gameUpHandler, this);
         this.scene_events.off("enemy:dead", this.targetDead, this);
+        this.scene_events.off("enemy:despawned", this.targetDespawned, this);
 
         // Release the casting controller's scene listeners and timers
         // (idempotent — it also self-cleans on scene SHUTDOWN).

@@ -52,6 +52,7 @@ interface SceneUnderTest {
         };
         add?: { collider: ReturnType<typeof vi.fn> };
     };
+    active_enemy_collider?: object;
     map_colliders: object[];
     collision_layers: object[];
     prop_overlays: Array<{ destroy: ReturnType<typeof vi.fn> }>;
@@ -378,6 +379,18 @@ describe("BiomeScene.shutdown", () => {
             expect(scene.physics.world.removeCollider).toHaveBeenCalledWith(collider)
         );
         expect(scene.map_colliders).toEqual([]);
+    });
+
+    it("removes the shared active-enemy collider once on shutdown", () => {
+        const collider = { id: "active-enemies" };
+        const { scene } = makeScene({ active_enemy_collider: collider });
+
+        scene.shutdown();
+        scene.shutdown();
+
+        expect(scene.physics.world.removeCollider).toHaveBeenCalledWith(collider);
+        expect(scene.physics.world.removeCollider).toHaveBeenCalledTimes(1);
+        expect(scene.active_enemy_collider).toBeUndefined();
     });
 
     it("survives the Arcade world already being torn down", () => {

@@ -25,6 +25,7 @@ const SCENE_EVENTS = [
     "pointermove:game",
     "pointerup:game",
     "enemy:dead",
+    "enemy:despawned",
 ] as const;
 
 interface PlayerUnderTest {
@@ -42,6 +43,7 @@ interface PlayerUnderTest {
     gameMoveHandler(): void;
     gameUpHandler(): void;
     targetDead(): void;
+    targetDespawned(enemy: unknown): void;
     cleanup(): void;
 }
 
@@ -93,6 +95,7 @@ describe("Player.cleanup", () => {
         expect(byEvent["pointermove:game"]).toBe(player.gameMoveHandler);
         expect(byEvent["pointerup:game"]).toBe(player.gameUpHandler);
         expect(byEvent["enemy:dead"]).toBe(player.targetDead);
+        expect(byEvent["enemy:despawned"]).toBe(player.targetDespawned);
     });
 
     it("does not reach for this.scene, which Phaser has already cleared", () => {
@@ -124,6 +127,68 @@ describe("Player.cleanup", () => {
 
         player.cleanup();
         expect(() => player.cleanup()).not.toThrow();
+    });
+});
+
+describe("Player.targetDespawned", () => {
+    it("idles once a despawning enemy clears the current selection", () => {
+        const player = Object.create(Player.prototype) as {
+            scene: { selected: null };
+            idle: ReturnType<typeof vi.fn>;
+            targetDespawned(enemy: unknown): void;
+        };
+        player.scene = { selected: null };
+        player.idle = vi.fn();
+
+        player.targetDespawned({ id: "despawned-target" });
+
+        expect(player.idle).toHaveBeenCalledTimes(1);
+    });
+
+    it("idles when the despawned enemy is still the selected target", () => {
+        const selected = { id: "current-target" };
+        const player = Object.create(Player.prototype) as {
+            scene: { selected: { id: string } };
+            idle: ReturnType<typeof vi.fn>;
+            targetDespawned(enemy: { id: string }): void;
+        };
+        player.scene = { selected };
+        player.idle = vi.fn();
+
+        player.targetDespawned(selected);
+
+        expect(player.idle).toHaveBeenCalledTimes(1);
+    });
+
+    it("ignores despawns from some other enemy while a target is still selected", () => {
+        const selected = { id: "current-target" };
+        const player = Object.create(Player.prototype) as {
+            scene: { selected: { id: string } };
+            idle: ReturnType<typeof vi.fn>;
+            targetDespawned(enemy: { id: string }): void;
+        };
+        player.scene = { selected };
+        player.idle = vi.fn();
+
+        player.targetDespawned({ id: "other-enemy" });
+
+        expect(player.idle).not.toHaveBeenCalled();
+    });
+});
+
+describe("Player.clearTarget", () => {
+    it("keeps chasing an existing selection when no enemy argument is provided", () => {
+        const player = Object.create(Player.prototype) as {
+            scene: { selected: { id: string } };
+            idle: ReturnType<typeof vi.fn>;
+            clearTarget(): void;
+        };
+        player.scene = { selected: { id: "current-target" } };
+        player.idle = vi.fn();
+
+        player.clearTarget();
+
+        expect(player.idle).not.toHaveBeenCalled();
     });
 });
 
