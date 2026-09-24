@@ -118,6 +118,16 @@ const PATH_BY_MASK = {
 const SOLID_TERRAIN = [158]; // full water only — shorelines stay walkable
 
 /**
+ * Every terrain tile showing any water — the shorelines as well as the full
+ * water tile — written into the .tmj as `water: true`. Shorelines are walkable
+ * (see `SOLID_TERRAIN`), but enemies must only ever spawn on pure land, and
+ * this is how the game tells the two apart.
+ */
+const WATER_TERRAIN = Object.entries(WATER_BY_MASK)
+    .filter(([mask]) => Number(mask) !== 0)
+    .map(([, id]) => id);
+
+/**
  * Full-path tiles carrying a scatter of pebble flecks, in `<biome>Path_.png`.
  * Interchangeable with the plain path tile 28 — same edges, just detail in the
  * middle — so one can stand in for the other wherever the path is solid.
@@ -558,12 +568,20 @@ function generate(name, biome) {
 // the same files Vite serves to the game.
 const PUBLIC = "../fantasy";
 
-/** Tiled writes tile properties as a sparse `tiles` array keyed by local id. */
-function solidTiles(ids) {
-    return ids.map((id) => ({
-        id,
-        properties: [{ name: "collides", type: "bool", value: true }],
-    }));
+/**
+ * Tiled writes tile properties as a sparse `tiles` array keyed by local id.
+ * Takes the ids carrying each boolean property and merges them, so a tile in
+ * several sets (full water both collides and is water) gets one entry.
+ */
+function tileProperties(byName) {
+    const tiles = new Map();
+    for (const [name, ids] of Object.entries(byName)) {
+        for (const id of ids) {
+            if (!tiles.has(id)) tiles.set(id, []);
+            tiles.get(id).push({ name, type: "bool", value: true });
+        }
+    }
+    return [...tiles].map(([id, properties]) => ({ id, properties }));
 }
 
 function tilesets(biome) {
@@ -581,7 +599,7 @@ function tilesets(biome) {
             spacing: 0,
             tilecount: 198,
             tileheight: 16,
-            tiles: solidTiles(SOLID_TERRAIN),
+            tiles: tileProperties({ collides: SOLID_TERRAIN, water: WATER_TERRAIN }),
             tilewidth: 16,
         },
         {
@@ -608,7 +626,7 @@ function tilesets(biome) {
             spacing: 0,
             tilecount: 120,
             tileheight: 16,
-            tiles: solidTiles(solidProps),
+            tiles: tileProperties({ collides: solidProps }),
             tilewidth: 16,
         },
     ];

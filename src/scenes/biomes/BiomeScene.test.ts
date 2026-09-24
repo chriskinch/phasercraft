@@ -705,3 +705,70 @@ describe("BiomeScene pool sourcing", () => {
         });
     });
 });
+
+describe("BiomeScene.buildSpawnGrid", () => {
+    // Reads the tilemap into the pure walkability grid. The fake map is 4x1:
+    // start | shoreline (water, walkable) | land | tree (collides). Tiles are
+    // 16px art at the biome's 2x scale, so 32 world px each.
+    const WORLD_TILE = 32;
+
+    type TileLike = { properties: object; collides: boolean } | null;
+
+    function makeGridScene() {
+        const { scene } = makeScene();
+        const terrain: TileLike[] = [
+            { properties: {}, collides: false },
+            { properties: { water: true }, collides: false },
+            { properties: {}, collides: false },
+            { properties: {}, collides: false },
+        ];
+        const structure: TileLike[] = [null, null, null, { properties: {}, collides: true }];
+        const collisionLayer = (row: TileLike[]) => ({ layer: { data: [row] } });
+
+        const gridScene = scene as unknown as SceneUnderTest & {
+            map: {
+                width: number;
+                height: number;
+                tileWidth: number;
+                tileHeight: number;
+                layers: Array<{ data: TileLike[][] }>;
+            };
+            buildSpawnGrid(start: { x: number; y: number }): {
+                spawnable: Uint8Array;
+                tileWidth: number;
+            };
+        };
+        gridScene.map = {
+            width: 4,
+            height: 1,
+            tileWidth: 16,
+            tileHeight: 16,
+            layers: [{ data: [terrain] }, { data: [structure] }],
+        };
+        gridScene.collision_layers = [collisionLayer(terrain), collisionLayer(structure)];
+        return gridScene;
+    }
+
+    it("keeps reachable land and drops shoreline water and solid tiles", () => {
+        const scene = makeGridScene();
+
+        const grid = scene.buildSpawnGrid({ x: WORLD_TILE / 2, y: WORLD_TILE / 2 });
+
+        expect([...grid.spawnable]).toEqual([1, 0, 1, 0]);
+    });
+
+    it("sizes tiles in world px, applying the biome's render scale", () => {
+        const scene = makeGridScene();
+
+        expect(scene.buildSpawnGrid({ x: 0, y: 0 }).tileWidth).toBe(WORLD_TILE);
+    });
+
+    it("floods from the tile under the player's start position", () => {
+        const scene = makeGridScene();
+
+        // Starting on the solid tree tile reaches nothing.
+        const grid = scene.buildSpawnGrid({ x: WORLD_TILE * 3 + 1, y: 1 });
+
+        expect([...grid.spawnable]).toEqual([0, 0, 0, 0]);
+    });
+});
