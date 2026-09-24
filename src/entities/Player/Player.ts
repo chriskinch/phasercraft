@@ -449,7 +449,7 @@ class Player extends GameObjects.Container {
     clearTarget(enemy?: Enemy): void {
         const selected = (this.scene as GameSceneLike).selected;
         if (selected && selected !== enemy) return;
-        if (!selected) this.idle();
+        this.idle();
     }
 
     targetDespawned(enemy: Enemy): void {
