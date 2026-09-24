@@ -113,3 +113,211 @@ describe("Enemy.attack", () => {
         expect(enemy.scene.events.emit).not.toHaveBeenCalled();
     });
 });
+
+// Lifecycle (#459): enemies now spawn in place with no drop-in, register one
+// collider against the player (the enemy-vs-enemy one lives on BiomeScene), and
+// can be silently despawned. Same constructor-free fake on the real prototype.
+
+interface LifecycleEnemy {
+    alive: boolean;
+    active: boolean;
+    state: string;
+    selected: boolean;
+    home: { x: number; y: number };
+    states: { movement: string; attack: string };
+    graphics: { selected: { visible: boolean } };
+    banes: { timers: Record<string, { remove: ReturnType<typeof vi.fn> }> };
+    wandering_looped_timer: { remove: ReturnType<typeof vi.fn> } | null;
+    swing: { remove: ReturnType<typeof vi.fn> } | null;
+    circling: { remove: ReturnType<typeof vi.fn> } | null;
+    player_collider?: { destroy: ReturnType<typeof vi.fn> };
+    destination: { x: number; y: number } | null;
+    scene_events: {
+        on: ReturnType<typeof vi.fn>;
+        off: ReturnType<typeof vi.fn>;
+        emit: ReturnType<typeof vi.fn>;
+    };
+    scene: {
+        selected: unknown;
+        player: { hero: object };
+        enemies: { remove: ReturnType<typeof vi.fn> };
+        active_enemies: { remove: ReturnType<typeof vi.fn> };
+        physics: {
+            add: { collider: ReturnType<typeof vi.fn> };
+            accelerateToObject: ReturnType<typeof vi.fn>;
+        };
+        time: { addEvent: ReturnType<typeof vi.fn> };
+    };
+    body: { setAcceleration: ReturnType<typeof vi.fn>; maxVelocity: { x: number } };
+    stats: { speed: number };
+    on: ReturnType<typeof vi.fn>;
+    emit: ReturnType<typeof vi.fn>;
+    destroy: ReturnType<typeof vi.fn>;
+    dropLoot: ReturnType<typeof vi.fn>;
+    cleanup(): void;
+    despawn(): void;
+    enemySpawned(): void;
+    wander(): void;
+}
+
+function makeLifecycleEnemy(): LifecycleEnemy {
+    const enemy = Object.create(Enemy.prototype) as LifecycleEnemy;
+    const timer = () => ({ remove: vi.fn() });
+    enemy.alive = true;
+    enemy.active = true;
+    enemy.state = "spawned";
+    enemy.selected = false;
+    enemy.home = { x: 400, y: 300 };
+    enemy.states = { movement: "idle", attack: "primed" };
+    enemy.graphics = { selected: { visible: false } };
+    enemy.banes = { timers: { frostbolt: timer() } };
+    enemy.wandering_looped_timer = timer();
+    enemy.swing = timer();
+    enemy.circling = timer();
+    enemy.player_collider = { destroy: vi.fn() };
+    enemy.destination = null;
+    enemy.scene_events = { on: vi.fn(), off: vi.fn(), emit: vi.fn() };
+    enemy.scene = {
+        selected: null,
+        player: { hero: {} },
+        enemies: { remove: vi.fn() },
+        active_enemies: { remove: vi.fn() },
+        physics: {
+            add: { collider: vi.fn(() => ({ destroy: vi.fn() })) },
+            accelerateToObject: vi.fn(),
+        },
+        time: { addEvent: vi.fn(() => timer()) },
+    };
+    enemy.body = { setAcceleration: vi.fn(), maxVelocity: { x: 1000 } };
+    enemy.stats = { speed: 50 };
+    enemy.on = vi.fn();
+    enemy.emit = vi.fn();
+    enemy.destroy = vi.fn();
+    enemy.dropLoot = vi.fn();
+    return enemy;
+}
+
+describe("Enemy.cleanup", () => {
+    it("releases its timers, bane timers and player collider", () => {
+        const enemy = makeLifecycleEnemy();
+        const { wandering_looped_timer, swing, circling, player_collider } = enemy;
+        const bane = enemy.banes.timers.frostbolt;
+
+        enemy.cleanup();
+
+        expect(wandering_looped_timer!.remove).toHaveBeenCalled();
+        expect(swing!.remove).toHaveBeenCalled();
+        expect(circling!.remove).toHaveBeenCalled();
+        expect(bane.remove).toHaveBeenCalled();
+        expect(player_collider!.destroy).toHaveBeenCalledTimes(1);
+    });
+
+    it("removes each scene listener with the handler it registered", () => {
+        const enemy = makeLifecycleEnemy();
+
+        enemy.cleanup();
+
+        const off = enemy.scene_events.off.mock.calls;
+        expect(off).toContainEqual(["pointerdown:game", Enemy.prototype.deselect, enemy]);
+        expect(off).toContainEqual(["pointerdown:enemy", Enemy.prototype.deselect, enemy]);
+        expect(off).toContainEqual(["shutdown", Enemy.prototype.cleanup, enemy]);
+    });
+
+    it("is idempotent — the collider is only destroyed once", () => {
+        // destroy() nulls the collider's world, so a second call would throw.
+        const enemy = makeLifecycleEnemy();
+        const collider = enemy.player_collider!;
+
+        enemy.cleanup();
+        expect(() => enemy.cleanup()).not.toThrow();
+
+        expect(collider.destroy).toHaveBeenCalledTimes(1);
+        expect(enemy.wandering_looped_timer).toBeNull();
+        expect(enemy.swing).toBeNull();
+        expect(enemy.circling).toBeNull();
+    });
+});
+
+describe("Enemy.despawn", () => {
+    it("is silent: no enemy:dead, no loot", () => {
+        const enemy = makeLifecycleEnemy();
+
+        enemy.despawn();
+
+        expect(enemy.emit).not.toHaveBeenCalledWith("enemy:dead", expect.anything());
+        expect(enemy.scene_events.emit).not.toHaveBeenCalledWith("enemy:dead", expect.anything());
+        expect(enemy.dropLoot).not.toHaveBeenCalled();
+    });
+
+    it("announces enemy:despawned, leaves its groups and destroys itself", () => {
+        const enemy = makeLifecycleEnemy();
+
+        enemy.despawn();
+
+        expect(enemy.scene_events.emit).toHaveBeenCalledWith("enemy:despawned", enemy);
+        expect(enemy.scene.enemies.remove).toHaveBeenCalledWith(enemy);
+        expect(enemy.scene.active_enemies.remove).toHaveBeenCalledWith(enemy);
+        expect(enemy.destroy).toHaveBeenCalledTimes(1);
+        expect(enemy.alive).toBe(false);
+        expect(enemy.active).toBe(false);
+    });
+
+    it("announces the despawn while still selected, then deselects", () => {
+        // The player decides whether to stop chasing by comparing its target
+        // to the despawned enemy, so the event must fire before deselect().
+        const enemy = makeLifecycleEnemy();
+        enemy.selected = true;
+        enemy.graphics.selected.visible = true;
+        enemy.scene.selected = enemy;
+        let selected_at_emit: unknown;
+        enemy.scene_events.emit.mockImplementation(() => {
+            selected_at_emit = enemy.scene.selected;
+        });
+
+        enemy.despawn();
+
+        expect(selected_at_emit).toBe(enemy);
+        expect(enemy.scene.selected).toBeNull();
+        expect(enemy.graphics.selected.visible).toBe(false);
+    });
+
+    it("does nothing to an enemy that is already dead", () => {
+        // A dead enemy stays on screen decomposing; it must not also despawn.
+        const enemy = makeLifecycleEnemy();
+        enemy.alive = false;
+
+        enemy.despawn();
+
+        expect(enemy.scene_events.emit).not.toHaveBeenCalled();
+        expect(enemy.destroy).not.toHaveBeenCalled();
+    });
+});
+
+describe("Enemy.enemySpawned", () => {
+    it("stores the player collider rather than leaking it", () => {
+        const enemy = makeLifecycleEnemy();
+        enemy.player_collider = undefined;
+
+        enemy.enemySpawned();
+
+        expect(enemy.scene.physics.add.collider).toHaveBeenCalledTimes(1);
+        expect(enemy.scene.physics.add.collider).toHaveBeenCalledWith(
+            enemy.scene.player.hero,
+            enemy
+        );
+        expect(enemy.player_collider).toBe(enemy.scene.physics.add.collider.mock.results[0].value);
+        expect(enemy.state).toBe("spawned");
+    });
+});
+
+describe("Enemy.wander", () => {
+    it("wanders within 30px of where it spawned", () => {
+        const enemy = makeLifecycleEnemy();
+
+        for (let i = 0; i < 50; i++) {
+            enemy.wander();
+            expect(Math.abs(enemy.destination!.x - enemy.home.x)).toBeLessThanOrEqual(30);
+            expect(Math.abs(enemy.destination!.y - enemy.home.y)).toBeLessThanOrEqual(30);
+        }
+    });
+});

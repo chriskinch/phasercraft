@@ -380,6 +380,18 @@ describe("BiomeScene.shutdown", () => {
         expect(scene.map_colliders).toEqual([]);
     });
 
+    it("removes the enemy-vs-enemy group collider, once", () => {
+        const enemy_collider = { id: "enemies" };
+        const { scene } = makeScene();
+        (scene as unknown as { enemy_collider?: object }).enemy_collider = enemy_collider;
+
+        scene.shutdown();
+        scene.shutdown();
+
+        expect(scene.physics.world.removeCollider).toHaveBeenCalledTimes(1);
+        expect(scene.physics.world.removeCollider).toHaveBeenCalledWith(enemy_collider);
+    });
+
     it("survives the Arcade world already being torn down", () => {
         // Phaser's physics plugin shuts its world down before the scene's own
         // SHUTDOWN handler runs, so `physics.world` is routinely null here. A

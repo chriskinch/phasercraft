@@ -195,6 +195,7 @@ class Player extends GameObjects.Container {
         scene.events.on("pointermove:game", this.gameMoveHandler, this);
         scene.events.on("pointerup:game", this.gameUpHandler, this);
         scene.events.on("enemy:dead", this.targetDead, this);
+        scene.events.on("enemy:despawned", this.targetDespawned, this);
         this.on("pointerdown", () => scene.events.emit("pointerdown:player", this));
 
         // mapStateToData("stats", s => this.stats = s);
@@ -445,6 +446,14 @@ class Player extends GameObjects.Container {
         if (!(this.scene as GameSceneLike).selected) this.idle();
     }
 
+    // An enemy left far behind was removed. No XP, and only a despawn of the
+    // enemy being chased stops the player: unlike deaths, despawns happen
+    // while running with nothing selected, and must not halt the run. Fires
+    // before the enemy deselects itself, so `selected` still points at it.
+    targetDespawned(enemy: Enemy): void {
+        if ((this.scene as GameSceneLike).selected === enemy) this.idle();
+    }
+
     setExperience(exp: number = store.getState().game.xp, count: number = 1): void {
         const xpCurve = (l: number) => l * l + l * 10;
         const next = xpCurve(count);
@@ -541,6 +550,7 @@ class Player extends GameObjects.Container {
         this.scene_events.off("pointermove:game", this.gameMoveHandler, this);
         this.scene_events.off("pointerup:game", this.gameUpHandler, this);
         this.scene_events.off("enemy:dead", this.targetDead, this);
+        this.scene_events.off("enemy:despawned", this.targetDespawned, this);
 
         // Release the casting controller's scene listeners and timers
         // (idempotent — it also self-cleans on scene SHUTDOWN).

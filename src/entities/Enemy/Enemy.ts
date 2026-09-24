@@ -1,4 +1,14 @@
-import { Animations, Core, Math as PhaserMath, GameObjects, Geom, Physics, Types } from "phaser";
+import {
+    Animations,
+    Core,
+    Events as PhaserEvents,
+    Math as PhaserMath,
+    GameObjects,
+    Geom,
+    Physics,
+    Scenes,
+    Types,
+} from "phaser";
 import { v4 as uuid } from "uuid";
 import AssignResource, { AssignResourceType } from "@entities/Resources/AssignResource";
 import Monster from "./Monster";
@@ -70,7 +80,8 @@ class Enemy extends GameObjects.Container {
     public graphics: { [key: string]: GameObjects.Graphics };
     public health: AssignResourceType;
     public banes: Banes;
-    public spawn_stop: Physics.Arcade.Image;
+    // Where the enemy was spawned; it wanders around this point while idle.
+    public home: { x: number; y: number };
     public point!: PhaserMath.Vector2;
     public distance_to_player!: number;
     public destination!: PhaserMath.Vector2 | null;
@@ -80,13 +91,20 @@ class Enemy extends GameObjects.Container {
     public selected!: boolean;
     public swing: Phaser.Time.TimerEvent | null = null;
     public weapon!: Weapon;
-    public collider!: Physics.Arcade.Collider;
+    // The player-vs-enemy collider, removed in cleanup(). The enemy-vs-enemy
+    // collider is registered once for the whole group by BiomeScene.
+    public player_collider?: Physics.Arcade.Collider;
+    // Captured at construction: cleanup() can run from the scene's SHUTDOWN
+    // after the display list has already cleared `this.scene`.
+    private scene_events: PhaserEvents.EventEmitter;
     public body!: Physics.Arcade.Body;
     // Transient targeting vector cached by the Whirlwind/Multishot range scans.
     public vector?: EntityWithVector;
 
     constructor(config: EnemyOptions) {
-        super(config.scene, config.x, config.y - 300);
+        // Live where it stands: no drop-in from above and nothing to land on.
+        // Choosing an off-screen point on open land is the spawner's job.
+        super(config.scene, config.x, config.y);
 
         this.uuid = uuid();
 
@@ -102,7 +120,9 @@ class Enemy extends GameObjects.Container {
         this.setSize(this.monster.getBounds().width, this.monster.getBounds().height);
         config.scene.physics.world.enable(this);
         config.scene.add.existing(this);
-        this.body.setFriction(0, 0).setDrag(0).setGravityY(200).setBounce(0.2);
+        this.body.setFriction(0, 0).setDrag(300).setBounce(0.2);
+        this.home = { x: config.x, y: config.y };
+        this.scene_events = config.scene.events;
 
         this.key = config.key;
         this.target = config.target;
@@ -147,12 +167,6 @@ class Enemy extends GameObjects.Container {
 
         this.banes = new Banes(this.scene, this);
 
-        this.spawn_stop = this.scene.physics.add.staticImage(this.x, config.y, "blank-gif");
-        this.scene.physics.add.collider(this.spawn_stop, this);
-
-        this.setAlpha(0);
-        this.scene.tweens.add({ targets: this, alpha: 1, ease: "Power1", duration: 500 });
-
         // Odd bug where the hit box is offset by 14px. not sure why but compensating here.
         // Radius bumped from 15 to 18 (~20% larger) to make enemies easier to tap/select.
         this.setInteractive(new Geom.Circle(14, 14, 18), Geom.Circle.Contains);
@@ -163,12 +177,18 @@ class Enemy extends GameObjects.Container {
         this.weapon = new Weapon({ scene: this.scene, key: "weapon-swooch" });
         this.add(this.weapon);
 
-        this.scene.events.on("pointerdown:game", this.deselect, this);
-        this.scene.events.on("pointerdown:enemy", this.deselect, this);
+        this.scene_events.on("pointerdown:game", this.deselect, this);
+        this.scene_events.on("pointerdown:enemy", this.deselect, this);
         this.once("enemy:dead", this.death, this);
+        // Everything registered on other emitters is released in cleanup():
+        // on destroy (death, despawn, or the display list tearing the scene
+        // down) and, belt and braces, on the scene's own SHUTDOWN.
+        this.once(GameObjects.Events.DESTROY, this.cleanup, this);
+        this.scene_events.once(Scenes.Events.SHUTDOWN, this.cleanup, this);
 
         this.active_group.add(this);
         this.showDebugInfo();
+        this.enemySpawned();
     }
 
     update(time: number, delta: number): void {
@@ -210,8 +230,6 @@ class Enemy extends GameObjects.Container {
             }
 
             if (this.health.getValue() <= 0) this.emit("enemy:dead", this);
-        } else {
-            this.spawningEnemy();
         }
     }
 
@@ -264,14 +282,11 @@ class Enemy extends GameObjects.Container {
     }
 
     enemySpawned(): void {
-        this.body.setGravityY(0).setDrag(300);
-        this.spawn_stop.destroy();
         this.state = "spawned";
 
-        this.scene.physics.add.collider((this.scene as GameSceneLike).player.hero, this);
-        this.collider = this.scene.physics.add.collider(
-            (this.scene as GameSceneLike).active_enemies,
-            (this.scene as GameSceneLike).active_enemies
+        this.player_collider = this.scene.physics.add.collider(
+            (this.scene as GameSceneLike).player.hero,
+            this
         );
 
         this.on("pointerdown", () => {
@@ -283,10 +298,6 @@ class Enemy extends GameObjects.Container {
         this.setWandering();
     }
 
-    spawningEnemy(): void {
-        if (this.body.touching.down && this.body.wasTouching.down) this.enemySpawned();
-    }
-
     setIdle(): void {
         this.states.movement = "idle";
         this.body.setAcceleration(0);
@@ -295,8 +306,8 @@ class Enemy extends GameObjects.Container {
     wander(): void {
         this.states.movement = "wandering";
         const point = new PhaserMath.Vector2();
-        point.x = this.spawn_stop.x + Math.floor(Math.random() * 61) - 30;
-        point.y = this.spawn_stop.y + Math.floor(Math.random() * 61) - 30;
+        point.x = this.home.x + Math.floor(Math.random() * 61) - 30;
+        point.y = this.home.y + Math.floor(Math.random() * 61) - 30;
         this.destination = point;
         // this.scene.physics.add.staticImage(point.x, point.y, 'blank-gif');
 
@@ -393,12 +404,53 @@ class Enemy extends GameObjects.Container {
             alpha: 0,
             ease: "Power1",
             duration: 10000,
-            onComplete: this.cleanup.bind(this),
+            onComplete: () => this.destroy(),
         });
     }
 
-    cleanup(): void {
+    /**
+     * Silent removal for an enemy the player left far behind (#456): no loot,
+     * no XP, no death animation, and it does not count as a kill, so it never
+     * emits `enemy:dead`. `enemy:despawned` goes out first, while the enemy is
+     * still selected, so the player can tell whether it was chasing this one.
+     */
+    despawn(): void {
+        if (!this.alive) return;
+        this.alive = false;
+        this.state = "despawned";
+        this.active = false;
+
+        const scene = this.scene as GameSceneLike;
+        this.scene_events.emit("enemy:despawned", this);
+        this.deselect();
+        scene.enemies.remove(this);
+        scene.active_enemies.remove(this);
         this.destroy();
+    }
+
+    /**
+     * Releases everything the enemy registered outside itself. Idempotent: it
+     * runs on DESTROY and on scene SHUTDOWN, and either can come first.
+     * Listeners on the enemy's own emitter go with destroy().
+     */
+    cleanup(): void {
+        this.wandering_looped_timer?.remove();
+        this.wandering_looped_timer = null;
+        this.swing?.remove(false);
+        this.swing = null;
+        this.circling?.remove();
+        this.circling = null;
+        // Bane expiry timers live on the scene clock but only touch this enemy.
+        Object.values(this.banes?.timers ?? {}).forEach((timer) => timer.remove());
+
+        // Removal from a world that has already shut down is a safe no-op, but
+        // destroy() nulls the collider's world, so it must only run once.
+        this.player_collider?.destroy();
+        this.player_collider = undefined;
+
+        this.scene_events.off("pointerdown:game", this.deselect, this);
+        this.scene_events.off("pointerdown:enemy", this.deselect, this);
+        this.scene_events.off(Scenes.Events.SHUTDOWN, this.cleanup, this);
     }
 
     dropLoot(): void {
