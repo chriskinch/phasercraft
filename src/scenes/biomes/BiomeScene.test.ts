@@ -165,7 +165,7 @@ describe("BiomeScene.startArea", () => {
         });
         expect(store.dispatch).toHaveBeenCalledWith({
             type: "SET_ENEMIES_REMAINING",
-            payload: { value: 20 },
+            payload: { value: DEFAULT_AREA_TUNING.killsToBoss },
         });
     });
 });
