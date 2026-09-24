@@ -10,6 +10,19 @@ export const AREA_TOTAL_ENEMIES = 20;
 // to this cap until the pool is exhausted.
 export const AREA_LIVE_CAP = 5;
 
+// Enemies spawn on a circle around the player, just off screen. By default the
+// radius is half the viewport diagonal (the corner distance) plus this margin,
+// so even a spawn towards a corner lands outside the view. See `spawnRadius`.
+export const SPAWN_RADIUS_MARGIN = 64;
+
+// Half-width of the cone, around the player's direction of travel, that
+// enemies spawn in — so they appear ahead of the player rather than behind.
+export const SPAWN_CONE_HALF_ANGLE_DEG = 45;
+
+// Player speed (px/s) below which they count as standing still, and enemies
+// may spawn in any direction.
+export const SPAWN_MOVING_SPEED = 10;
+
 // Boss multipliers, derived from the two hand-authored entries in
 // `bosses.json` (kept as the reference for these numbers):
 //
