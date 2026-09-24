@@ -102,6 +102,11 @@ describe("isFootprintSpawnable", () => {
         expect(isFootprintSpawnable(g, { x: 10, y: 10, width: 10, height: 10 })).toBe(true);
     });
 
+    it("rejects a zero-size rect rather than passing it unchecked", () => {
+        expect(isFootprintSpawnable(g, { x: 10, y: 10, width: 0, height: 10 })).toBe(false);
+        expect(isFootprintSpawnable(g, { x: 10, y: 10, width: 10, height: 0 })).toBe(false);
+    });
+
     it("rejects rects reaching past any map edge", () => {
         expect(isFootprintSpawnable(g, { x: -1, y: 0, width: 8, height: 8 })).toBe(false);
         expect(isFootprintSpawnable(g, { x: 0, y: -1, width: 8, height: 8 })).toBe(false);

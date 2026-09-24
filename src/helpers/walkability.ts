@@ -85,6 +85,8 @@ export function buildWalkability(input: WalkabilityInput): WalkabilityGrid {
  */
 export function isFootprintSpawnable(grid: WalkabilityGrid, rect: Rect): boolean {
     const { width, height, tileWidth, tileHeight, spawnable } = grid;
+    // A degenerate rect overlaps no tile, which would otherwise pass unchecked.
+    if (rect.width <= 0 || rect.height <= 0) return false;
 
     const left = Math.floor(rect.x / tileWidth);
     const top = Math.floor(rect.y / tileHeight);
