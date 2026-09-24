@@ -293,6 +293,33 @@ describe("Enemy.despawn", () => {
     });
 });
 
+describe("Enemy.death", () => {
+    it("emits enemy:dead on the scene with the dying enemy itself", () => {
+        // The spawn director counts a kill by identity, so the payload must be
+        // this exact instance, not a copy or an id.
+        const enemy = makeLifecycleEnemy() as LifecycleEnemy & {
+            monster: { death: ReturnType<typeof vi.fn> };
+            health: { remove: ReturnType<typeof vi.fn> };
+            deselect(): void;
+            decompose: ReturnType<typeof vi.fn>;
+            death(): void;
+            input?: { enabled: boolean };
+        };
+        const emit = vi.fn();
+        Object.assign(enemy.scene, {
+            events: { emit, off: vi.fn() },
+            physics: { ...enemy.scene.physics, world: { disable: vi.fn() } },
+        });
+        enemy.monster = { death: vi.fn() };
+        enemy.health = { remove: vi.fn() };
+        enemy.decompose = vi.fn();
+
+        enemy.death();
+
+        expect(emit).toHaveBeenCalledWith("enemy:dead", enemy);
+    });
+});
+
 describe("Enemy.enemySpawned", () => {
     it("stores the player collider rather than leaking it", () => {
         const enemy = makeLifecycleEnemy();
@@ -307,6 +334,19 @@ describe("Enemy.enemySpawned", () => {
         );
         expect(enemy.player_collider).toBe(enemy.scene.physics.add.collider.mock.results[0].value);
         expect(enemy.state).toBe("spawned");
+    });
+});
+
+describe("Enemy.setWandering", () => {
+    it("replaces rather than orphans an existing wander loop", () => {
+        const enemy = makeLifecycleEnemy() as LifecycleEnemy & { setWandering(): void };
+        const first = enemy.wandering_looped_timer!;
+
+        enemy.setWandering();
+
+        expect(first.remove).toHaveBeenCalledTimes(1);
+        expect(enemy.wandering_looped_timer).not.toBe(first);
+        expect(enemy.wandering_looped_timer).toBe(enemy.scene.time.addEvent.mock.results[0].value);
     });
 });
 

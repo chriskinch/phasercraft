@@ -315,6 +315,11 @@ class Enemy extends GameObjects.Container {
     }
 
     setWandering(): void {
+        // One wander loop at a time. The boss is built already targeting the
+        // player, so its first update calls this again while the constructor's
+        // loop is live; overwriting the reference orphaned that loop, which kept
+        // calling move() after a despawn had destroyed the body.
+        this.wandering_looped_timer?.remove();
         this.wandering_looped_timer = this.scene.time.addEvent({
             delay: 2000 + Math.random() * 1000,
             callback: () => this.wander(),
