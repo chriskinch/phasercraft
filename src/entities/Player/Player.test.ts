@@ -176,6 +176,22 @@ describe("Player.targetDespawned", () => {
     });
 });
 
+describe("Player.clearTarget", () => {
+    it("keeps chasing an existing selection when no enemy argument is provided", () => {
+        const player = Object.create(Player.prototype) as {
+            scene: { selected: { id: string } };
+            idle: ReturnType<typeof vi.fn>;
+            clearTarget(): void;
+        };
+        player.scene = { selected: { id: "current-target" } };
+        player.idle = vi.fn();
+
+        player.clearTarget();
+
+        expect(player.idle).not.toHaveBeenCalled();
+    });
+});
+
 // Regression coverage for the double camera conversion in goToRange().
 //
 // An Enemy's x/y are world coordinates. goToRange() used to hand the enemy to

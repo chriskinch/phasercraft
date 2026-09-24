@@ -448,6 +448,11 @@ class Player extends GameObjects.Container {
 
     clearTarget(enemy?: Enemy): void {
         const selected = (this.scene as GameSceneLike).selected;
+        if (!enemy) {
+            if (!selected) this.idle();
+            return;
+        }
+
         if (selected && selected !== enemy) return;
         this.idle();
     }
