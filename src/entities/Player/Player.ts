@@ -446,12 +446,14 @@ class Player extends GameObjects.Container {
         this.clearTarget();
     }
 
-    clearTarget(): void {
-        if (!(this.scene as GameSceneLike).selected) this.idle();
+    clearTarget(enemy?: Enemy): void {
+        const selected = (this.scene as GameSceneLike).selected;
+        if (selected && selected !== enemy) return;
+        if (!selected) this.idle();
     }
 
-    targetDespawned(): void {
-        this.clearTarget();
+    targetDespawned(enemy: Enemy): void {
+        this.clearTarget(enemy);
     }
 
     setExperience(exp: number = store.getState().game.xp, count: number = 1): void {

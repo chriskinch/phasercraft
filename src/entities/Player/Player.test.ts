@@ -43,7 +43,7 @@ interface PlayerUnderTest {
     gameMoveHandler(): void;
     gameUpHandler(): void;
     targetDead(): void;
-    targetDespawned(): void;
+    targetDespawned(enemy: unknown): void;
     cleanup(): void;
 }
 
@@ -135,14 +135,29 @@ describe("Player.targetDespawned", () => {
         const player = Object.create(Player.prototype) as {
             scene: { selected: null };
             idle: ReturnType<typeof vi.fn>;
-            targetDespawned(): void;
+            targetDespawned(enemy: unknown): void;
         };
         player.scene = { selected: null };
         player.idle = vi.fn();
 
-        player.targetDespawned();
+        player.targetDespawned({ id: "despawned-target" });
 
         expect(player.idle).toHaveBeenCalledTimes(1);
+    });
+
+    it("ignores despawns from some other enemy while a target is still selected", () => {
+        const selected = { id: "current-target" };
+        const player = Object.create(Player.prototype) as {
+            scene: { selected: { id: string } };
+            idle: ReturnType<typeof vi.fn>;
+            targetDespawned(enemy: { id: string }): void;
+        };
+        player.scene = { selected };
+        player.idle = vi.fn();
+
+        player.targetDespawned({ id: "other-enemy" });
+
+        expect(player.idle).not.toHaveBeenCalled();
     });
 });
 
