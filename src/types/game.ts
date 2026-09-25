@@ -490,6 +490,16 @@ export interface CharacterData {
     components: ComponentStack[];
 }
 
+// Unused, and deliberately NOT kept in sync with the live game state.
+//
+// This models a speculative multi-character save (keyed `characters`,
+// `selected_character`, `loot` as a record) that nothing references — neither this
+// interface nor `CharacterData` above has a single consumer in `src/`. The real
+// state shape is `GameState` in `src/store/gameReducer.ts`, which is what
+// `store/index.ts`, `saveStorage` and every component import.
+//
+// So new persisted fields (the Blacksmith's `recipes`, and `components` before it)
+// are added there, not here. Retiring this pair is a separate cleanup.
 export interface GameState {
     characters: Record<string, CharacterData>;
     selected_character: string | null;
@@ -501,3 +511,147 @@ export interface GameState {
     inventory: LootItem[];
     components: ComponentStack[];
 }
+
+// --- Blacksmith crafting ------------------------------------------------------
+// A recipe turns a fixed bundle of components plus coins into one specific piece
+// of gear. Unlike the Armory — which sells randomly generated items — the
+// Blacksmith's output is known in advance: that is the whole point of the shop,
+// so `result` carries a hand-authored statline rather than rolling one.
+//
+// `result.stats` values sit at the TOP of the quality band's pool the armory
+// rolls within (fine 25–50, rare 40–80, epic 65–130 — see `getQualityMap` in
+// `api/armory/_lib/generateItem.ts`), so a crafted item is the best roll of its
+// tier. That premium is what the material cost buys.
+//
+// All material/coin numbers are placeholder balance values — tune in review.
+export interface RecipeResult {
+    name: string;
+    category: string;
+    set: string;
+    icon: string;
+    quality: string;
+    // Coin value of the finished item, used for the sell refund like any gear.
+    cost: number;
+    stats: Array<{ name: string; value: number }>;
+}
+
+export interface Recipe {
+    id: string;
+    materials: Partial<Record<ComponentType, number>>;
+    coins: number;
+    result: RecipeResult;
+}
+
+export const RECIPES: Recipe[] = [
+    {
+        id: "scrappers-blade",
+        materials: { scrap: 15, bone: 5 },
+        coins: 10,
+        result: {
+            name: "Scrapper's Blade",
+            category: ITEM_CATEGORIES.SWORD,
+            set: EQUIPMENT_SLOTS.WEAPON,
+            icon: "sword_7",
+            quality: "fine",
+            cost: 15,
+            stats: [
+                { name: STAT_NAMES.ATTACK_POWER, value: 35 },
+                { name: STAT_NAMES.CRITICAL_CHANCE, value: 15 },
+            ],
+        },
+    },
+    {
+        id: "padded-jerkin",
+        materials: { cloth: 12, scrap: 8 },
+        coins: 10,
+        result: {
+            name: "Padded Jerkin",
+            category: ITEM_CATEGORIES.ARMOR,
+            set: EQUIPMENT_SLOTS.BODY,
+            icon: "armor_12",
+            quality: "fine",
+            cost: 15,
+            stats: [
+                { name: STAT_NAMES.DEFENCE, value: 30 },
+                { name: STAT_NAMES.HEALTH_MAX, value: 20 },
+            ],
+        },
+    },
+    {
+        id: "bonecap-helm",
+        materials: { bone: 18, cloth: 6 },
+        coins: 10,
+        result: {
+            name: "Bonecap Helm",
+            category: ITEM_CATEGORIES.HELMET,
+            set: EQUIPMENT_SLOTS.HELM,
+            icon: "helmet_9",
+            quality: "fine",
+            cost: 15,
+            stats: [
+                { name: STAT_NAMES.DEFENCE, value: 25 },
+                { name: STAT_NAMES.HEALTH_REGEN_VALUE, value: 25 },
+            ],
+        },
+    },
+    {
+        id: "ichorbound-amulet",
+        materials: { ichor: 10, cloth: 15 },
+        coins: 30,
+        result: {
+            name: "Ichorbound Amulet",
+            category: ITEM_CATEGORIES.AMULET,
+            set: EQUIPMENT_SLOTS.AMULET,
+            icon: "amulet_2",
+            quality: "rare",
+            cost: 40,
+            stats: [
+                { name: STAT_NAMES.MAGIC_POWER, value: 45 },
+                { name: STAT_NAMES.HEALTH_REGEN_RATE, value: 20 },
+                { name: STAT_NAMES.SPEED, value: 15 },
+            ],
+        },
+    },
+    {
+        id: "marrow-greatsword",
+        materials: { bone: 30, scrap: 20 },
+        coins: 30,
+        result: {
+            name: "Marrow Greatsword",
+            category: ITEM_CATEGORIES.SWORD,
+            set: EQUIPMENT_SLOTS.WEAPON,
+            icon: "sword_18",
+            quality: "rare",
+            cost: 40,
+            stats: [
+                { name: STAT_NAMES.ATTACK_POWER, value: 50 },
+                { name: STAT_NAMES.ATTACK_SPEED, value: 30 },
+            ],
+        },
+    },
+    {
+        id: "ichor-forged-plate",
+        materials: { ichor: 25, cloth: 30, scrap: 20 },
+        coins: 80,
+        result: {
+            name: "Ichor-Forged Plate",
+            category: ITEM_CATEGORIES.ARMOR,
+            set: EQUIPMENT_SLOTS.BODY,
+            icon: "armor_23",
+            quality: "epic",
+            cost: 90,
+            stats: [
+                { name: STAT_NAMES.DEFENCE, value: 60 },
+                { name: STAT_NAMES.HEALTH_MAX, value: 50 },
+                { name: STAT_NAMES.HEALTH_REGEN_VALUE, value: 20 },
+            ],
+        },
+    },
+];
+
+// Recipes a new character already knows, so the Blacksmith teaches the shop's
+// purpose on the first visit rather than opening as an empty room. Everything
+// else is learnt from schematics (drops and the Blacksmith's rotating stock).
+export const INITIAL_RECIPES = ["scrappers-blade", "padded-jerkin", "bonecap-helm"];
+
+export const recipeById = (id: string): Recipe | undefined => RECIPES.find((r) => r.id === id);

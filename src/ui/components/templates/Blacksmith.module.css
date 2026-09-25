@@ -1,3 +1,135 @@
-.container {
+/* Three columns: the recipe list, the selected recipe's detail, and a fixed
+   actions column. The actions column is sized to content the same way the
+   Merchant's is, so the panels don't resize when the disabled reason appears. */
+.blacksmithContainer {
+    display: grid;
+    gap: 0.5rem 1rem;
+    height: 100%;
+    --actions-col: calc(6.5em + 1.5rem);
+    grid-template-columns: 1fr 1fr var(--actions-col);
+    grid-template-areas:
+        "recipes detail coins"
+        "recipes detail act";
+    grid-template-rows: min-content 1fr;
+}
+
+.coinsSection {
+    grid-area: coins;
+    align-self: center;
+    justify-self: end;
+}
+
+.recipesSection {
+    grid-area: recipes;
+    padding: 0.5em;
+    min-height: 0;
+    overflow-y: auto;
     display: flex;
+    flex-direction: column;
+    gap: 0.25rem;
+}
+
+.detailSection {
+    grid-area: detail;
+    padding: 0.5em;
+    min-height: 0;
+    overflow-y: auto;
+}
+
+.actionsSection {
+    grid-area: act;
+    align-self: start;
+    display: flex;
+    flex-direction: column;
+    align-items: stretch;
+    gap: 0.25rem;
+}
+
+/* Button is content-box; keep it inside the fixed column (same fix as Merchant). */
+.actionsSection button {
+    box-sizing: border-box;
+}
+
+.recipe {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 0.25rem;
+    background: none;
+    border: none;
+    cursor: pointer;
+    color: inherit;
+    font: inherit;
+    text-align: left;
+}
+
+/* A recipe the player hasn't learnt: visible as a silhouette so the catalog
+   reads as a collection, but unreadable and unselectable. */
+.locked {
+    cursor: default;
+    opacity: 0.35;
+}
+
+.locked img {
+    filter: brightness(0);
+}
+
+.recipeName {
+    font-size: 0.9rem;
+}
+
+.detailTitle {
+    margin: 0 0 0.5rem;
+    font-size: 1rem;
+}
+
+.stats,
+.materials {
+    list-style: none;
+    margin: 0 0 0.5rem;
+    padding: 0;
+    font-size: 0.9rem;
+}
+
+.stats li,
+.materials li {
+    display: flex;
+    align-items: center;
+    gap: 0.4rem;
+}
+
+.statValue {
+    margin-left: auto;
+    color: #ffc93e;
+    font-variant-numeric: tabular-nums;
+}
+
+.haveNeed {
+    margin-left: auto;
+    font-variant-numeric: tabular-nums;
+}
+
+/* A material the player is short of, and the coin cost they can't meet. */
+.short {
+    color: #ff6b6b;
+}
+
+.coinCost {
+    display: flex;
+    align-items: center;
+    gap: 0.4rem;
+    font-variant-numeric: tabular-nums;
+}
+
+.empty {
+    color: #a5b4c1;
+    font-size: 0.9rem;
+}
+
+/* Why Craft is disabled. Small and wrap-friendly for the fixed actions column. */
+.reason {
+    font-size: 0.85rem;
+    text-align: center;
+    color: #a5b4c1;
+    margin-bottom: 0.25rem;
 }
