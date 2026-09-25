@@ -46,6 +46,10 @@ interface MenuConfig {
     // When set, the close button navigates back to the previous screen instead
     // of closing the whole overlay (e.g. Settings opened from the main menu).
     back?: boolean;
+    // Keeps the framed container within the screen and scrolls the screen's
+    // content inside it, for screens that can outgrow the viewport (Settings).
+    // Opt-in: other screens' tooltips and drag layers must not be clipped.
+    scroll?: boolean;
     type?: string;
 }
 
@@ -139,6 +143,7 @@ const UI: React.FC = () => {
             title: "Settings",
             close: true,
             back: true,
+            scroll: true,
         },
         system: {
             component: asMenuComponent(System),
@@ -166,6 +171,9 @@ const UI: React.FC = () => {
               margin: "0 auto",
               padding: "calc(1em + 6px) 1em 1em",
               width: isSystem ? "200px" : "100%",
+              // A flex item won't shrink below its content by default; let it,
+              // so the background stops at the bottom of the screen.
+              ...(CurrentMenu.scroll ? { minHeight: 0 } : {}),
           };
 
     // Screens flagged `back` return to the previous screen on close; everything
@@ -197,7 +205,13 @@ const UI: React.FC = () => {
                     >
                         {!isTitle && <CustomDragLayer />}
                         <MenuContext.Provider value={menu || "equipment"}>
-                            <CurrentMenu.component {...CurrentMenu.props} />
+                            {CurrentMenu.scroll ? (
+                                <div className={styles.menuScroll} data-testid="menu-scroll">
+                                    <CurrentMenu.component {...CurrentMenu.props} />
+                                </div>
+                            ) : (
+                                <CurrentMenu.component {...CurrentMenu.props} />
+                            )}
                         </MenuContext.Provider>
                     </div>
                 </div>

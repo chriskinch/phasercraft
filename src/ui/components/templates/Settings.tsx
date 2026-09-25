@@ -1,6 +1,7 @@
 import React, { useState } from "react";
 import Button from "@components/Button";
 import { DEFAULT_AREA_TUNING } from "@config/area";
+import { spawnRadius } from "@helpers/spawnGeometry";
 import {
     readSettings,
     writeSettings,
@@ -30,6 +31,9 @@ const subsectionStyle: React.CSSProperties = {
 
 const hintStyle: React.CSSProperties = { opacity: 0.7 };
 
+// Every number input shares one short width, sized for the values they hold.
+const numberInputStyle: React.CSSProperties = { width: "6em", flex: "none" };
+
 // Coerce a number input to a non-negative integer; empty or invalid becomes 0.
 const toNonNegativeInt = (value: string): number => {
     const parsed = Number.parseInt(value, 10);
@@ -42,25 +46,113 @@ type SpawnNumberField =
     | "killsToBossOverride"
     | "despawnDelaySeconds";
 
-// One numeric spawn override per row. `hint` says what 0 falls back to.
-const SPAWN_FIELDS: { field: SpawnNumberField; label: string; hint: string }[] = [
-    { field: "spawnRadiusOverride", label: "Spawn radius (px)", hint: "0 = just off screen" },
+// The radius has no fixed default: it is derived from the viewport so enemies
+// spawn just off screen. Show what that works out to for this window (the game
+// camera is unzoomed), so the input starts from the value actually in use.
+const autoSpawnRadius = (): number =>
+    Math.round(
+        spawnRadius({
+            viewWidth: window.innerWidth,
+            viewHeight: window.innerHeight,
+            zoom: 1,
+            margin: DEFAULT_AREA_TUNING.radiusMargin,
+            override: 0,
+        })
+    );
+
+// One numeric spawn override per row. Each is stored as 0 when it follows its
+// codified default, so a change to the default in config/area.ts carries
+// through; the input shows the default itself rather than the 0.
+const SPAWN_FIELDS: {
+    field: SpawnNumberField;
+    label: string;
+    defaultValue: () => number;
+    hint: string;
+}[] = [
+    {
+        field: "spawnRadiusOverride",
+        label: "Spawn radius (px)",
+        defaultValue: autoSpawnRadius,
+        hint: "Default: just off screen",
+    },
     {
         field: "liveCapOverride",
         label: "Live cap",
-        hint: `0 = default (${DEFAULT_AREA_TUNING.liveCap})`,
+        defaultValue: () => DEFAULT_AREA_TUNING.liveCap,
+        hint: `Default: ${DEFAULT_AREA_TUNING.liveCap}`,
     },
     {
         field: "killsToBossOverride",
         label: "Kills to boss",
-        hint: `0 = default (${DEFAULT_AREA_TUNING.killsToBoss})`,
+        defaultValue: () => DEFAULT_AREA_TUNING.killsToBoss,
+        hint: `Default: ${DEFAULT_AREA_TUNING.killsToBoss}`,
     },
     {
         field: "despawnDelaySeconds",
         label: "Despawn delay (s)",
-        hint: `0 = default (${DEFAULT_AREA_TUNING.despawnDelayMs / 1000})`,
+        defaultValue: () => DEFAULT_AREA_TUNING.despawnDelayMs / 1000,
+        hint: `Default: ${DEFAULT_AREA_TUNING.despawnDelayMs / 1000}`,
     },
 ];
+
+interface SpawnOverrideRowProps {
+    field: SpawnNumberField;
+    label: string;
+    hint: string;
+    // The stored override; 0 means "use the default".
+    value: number;
+    defaultValue: number;
+    onChange: (value: number) => void;
+}
+
+/**
+ * One override: shows the value in effect (the override, or the default when
+ * there is none), and a Reset that returns it to the codified default.
+ *
+ * While the field is being edited it shows exactly what was typed, so clearing
+ * it to type a new number does not snap back to the default mid-edit. An empty
+ * or non-positive entry, or the default itself, is stored as 0 (follow the
+ * default).
+ */
+const SpawnOverrideRow: React.FC<SpawnOverrideRowProps> = ({
+    field,
+    label,
+    hint,
+    value,
+    defaultValue,
+    onChange,
+}) => {
+    const [draft, setDraft] = useState<string | null>(null);
+    const effective = value > 0 ? value : defaultValue;
+
+    const onInput = (event: React.ChangeEvent<HTMLInputElement>) => {
+        setDraft(event.target.value);
+        const parsed = toNonNegativeInt(event.target.value);
+        onChange(parsed === defaultValue ? 0 : parsed);
+    };
+
+    const reset = () => {
+        setDraft(null);
+        onChange(0);
+    };
+
+    return (
+        <div role="group" aria-label={`${label} setting`} style={rowStyle}>
+            <label htmlFor={field}>{label}</label>
+            <input
+                id={field}
+                type="number"
+                min={0}
+                style={numberInputStyle}
+                value={draft ?? effective}
+                onChange={onInput}
+                onBlur={() => setDraft(null)}
+            />
+            <span style={hintStyle}>{hint}</span>
+            <Button text="Reset" size={1} disabled={value === 0} onClick={reset} />
+        </div>
+    );
+};
 
 const Settings: React.FC = () => {
     const [settings, setSettings] = useState<SettingsData>(() => readSettings());
@@ -105,20 +197,16 @@ const Settings: React.FC = () => {
                             onClick={toggleSpawnOverlay}
                         />
                     </div>
-                    {SPAWN_FIELDS.map(({ field, label, hint }) => (
-                        <div style={rowStyle} key={field}>
-                            <label htmlFor={field}>{label}</label>
-                            <input
-                                id={field}
-                                type="number"
-                                min={0}
-                                value={settings[field]}
-                                onChange={(event) =>
-                                    update({ [field]: toNonNegativeInt(event.target.value) })
-                                }
-                            />
-                            <span style={hintStyle}>{hint}</span>
-                        </div>
+                    {SPAWN_FIELDS.map(({ field, label, hint, defaultValue }) => (
+                        <SpawnOverrideRow
+                            key={field}
+                            field={field}
+                            label={label}
+                            hint={hint}
+                            value={settings[field]}
+                            defaultValue={defaultValue()}
+                            onChange={(value) => update({ [field]: value })}
+                        />
                     ))}
                 </div>
             )}
@@ -128,6 +216,7 @@ const Settings: React.FC = () => {
                     id="starting-coins"
                     type="number"
                     min={0}
+                    style={numberInputStyle}
                     value={settings.startingCoins}
                     onChange={onStartingCoinsChange}
                 />

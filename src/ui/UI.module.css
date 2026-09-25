@@ -16,6 +16,16 @@
     flex-direction: column;
 }
 
+/* Scrolls a screen's content inside its framed container (menus flagged
+   `scroll`). The container's pixel edges are drawn outside it, so the scroll
+   lives on this inner box rather than on the container, which would clip them. */
+.menuScroll {
+    box-sizing: border-box;
+    height: 100%;
+    overflow-y: auto;
+    overscroll-behavior: contain;
+}
+
 .headerContainer {
     margin-bottom: 14px;
 }
