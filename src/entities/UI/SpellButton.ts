@@ -43,6 +43,7 @@ class SpellButton {
             .text(-2, -2, cooldown.toString(), styles)
             .setOrigin(0.5)
             .setDepth((scene as GameSceneLike).depth_group.UI)
+            .setScrollFactor(0)
             .setVisible(false);
 
         Display.Align.In.BottomLeft(this.sprite, (scene as GameSceneLike).UI.frames[slot]);
