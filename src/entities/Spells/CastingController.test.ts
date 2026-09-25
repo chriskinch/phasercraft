@@ -194,7 +194,7 @@ describe("CastingController.request — enemy target kind", () => {
         expect(spell.castSpell).toHaveBeenCalledWith(near);
     });
 
-    it("walks toward the auto-selected enemy when it is out of range", () => {
+    it("primes without selecting when no live enemy is within range", () => {
         const controller = makeController();
         const enemy = makeEnemy(500, 0);
         controller.scene.enemies = { getChildren: () => [enemy] };
@@ -203,10 +203,23 @@ describe("CastingController.request — enemy target kind", () => {
         controller.request(spell);
         controller.update();
 
-        expect(enemy.select).toHaveBeenCalled();
+        expect(enemy.select).not.toHaveBeenCalled();
+        expect(controller.scene.events.emit).not.toHaveBeenCalledWith("pointerdown:enemy", enemy);
         expect(spell.castSpell).not.toHaveBeenCalled();
-        expect(controller.getState()).toBe("approaching");
-        expect(controller.player.moveToWorldPoint).toHaveBeenCalledWith(enemy);
+        expect(controller.getState()).toBe("primed");
+        expect(controller.player.moveToWorldPoint).not.toHaveBeenCalled();
+    });
+
+    it("auto-selects an enemy exactly at the edge of range", () => {
+        const controller = makeController();
+        const enemy = makeEnemy(100, 0);
+        controller.scene.enemies = { getChildren: () => [enemy] };
+        const spell = makeSpell("enemy", { castRange: 100 });
+
+        controller.request(spell);
+
+        expect(enemy.select).toHaveBeenCalled();
+        expect(spell.castSpell).toHaveBeenCalledWith(enemy);
     });
 
     it("replaces a dead selection with the closest live enemy", () => {

@@ -65,9 +65,9 @@ interface CastingControllerOptions {
 //
 // - "none"/"self" spells cast immediately on button press.
 // - "enemy" spells cast at the selected enemy; with no live selection they
-//   select the closest enemy (exactly as a click would) and cast at it, and
-//   only prime (commit on the next enemy tap) when no enemy is alive. Taps
-//   on the floor/player clear the prime.
+//   select the closest enemy within castRange (exactly as a click would) and
+//   cast at it, and prime (commit on the next enemy tap) when no live enemy
+//   is in range. Taps on the floor/player clear the prime.
 // - "ground" spells prime and place at the next world tap (tap-to-place).
 // - Out-of-range commits queue as "approaching": the controller walks the
 //   player toward the target each update() and casts on arrival.
@@ -146,7 +146,10 @@ class CastingController {
                 break;
             case "enemy": {
                 const selected = this.scene.selected;
-                const target = selected && selected.alive ? selected : this.selectClosestEnemy();
+                const target =
+                    selected && selected.alive
+                        ? selected
+                        : this.selectClosestEnemy(spell.castRange);
                 if (target) {
                     this.commit(spell, target);
                 } else {
@@ -279,12 +282,12 @@ class CastingController {
     }
 
     // Auto-target for a damaging press with nothing selected: pick the live
-    // enemy nearest the player and select it the same way Enemy's pointerdown
-    // handler does (the emit deselects any previous pick, then select() sets
-    // scene.selected), so the player walks to it and auto-attacks as if it
-    // had been clicked. Returns null when there is no live enemy (e.g. town,
-    // which has no enemies group).
-    private selectClosestEnemy(): Enemy | null {
+    // enemy nearest the player within the spell's castRange and select it the
+    // same way Enemy's pointerdown handler does (the emit deselects any
+    // previous pick, then select() sets scene.selected), so the player
+    // auto-attacks it as if it had been clicked. Returns null when no live
+    // enemy is in range (or none exist, e.g. town, which has no enemies group).
+    private selectClosestEnemy(range: number = Infinity): Enemy | null {
         const enemies = (this.scene.enemies?.getChildren() ?? []) as Enemy[];
         let closest: Enemy | null = null;
         let best = Infinity;
@@ -296,7 +299,7 @@ class CastingController {
                 enemy.x,
                 enemy.y
             );
-            if (distance < best) {
+            if (distance <= range && distance < best) {
                 best = distance;
                 closest = enemy;
             }

@@ -1,4 +1,5 @@
 import { describe, it, expect, vi } from "vitest";
+import { Display, type Scene } from "phaser";
 import SpellButton from "./SpellButton";
 
 // SpellButton owns the spell's HUD input bindings (pointer events on its
@@ -152,5 +153,58 @@ describe("SpellButton presentation", () => {
 
         button.hideCooldown();
         expect(button.text.setVisible).toHaveBeenCalledWith(false);
+    });
+});
+
+// A chainable stand-in for a Phaser game object: every setter records its
+// call and returns the object so the constructor's fluent chains work.
+function makeChainable() {
+    const obj = {
+        setInteractive: vi.fn(),
+        setDepth: vi.fn(),
+        setAlpha: vi.fn(),
+        setScale: vi.fn(),
+        setScrollFactor: vi.fn(),
+        setOrigin: vi.fn(),
+        setVisible: vi.fn(),
+    };
+    for (const fn of Object.values(obj)) fn.mockReturnValue(obj);
+    return obj;
+}
+
+describe("SpellButton construction", () => {
+    it("pins the cooldown text to the camera like its icon", () => {
+        // The biome camera follows the player, so HUD elements must use
+        // scroll factor 0 — otherwise the cooldown text renders in world
+        // space and scrolls off-screen while the icon stays put.
+        const sprite = makeChainable();
+        const text = makeChainable();
+        const scene = {
+            add: { sprite: vi.fn(() => sprite), text: vi.fn(() => text) },
+            depth_group: { UI: 10 },
+            UI: { frames: [{}] },
+        } as unknown as Scene;
+        const bottomLeft = vi
+            .spyOn(Display.Align.In, "BottomLeft")
+            .mockImplementation(() => sprite as never);
+        const center = vi.spyOn(Display.Align.In, "Center").mockImplementation(() => text as never);
+
+        const button = new SpellButton({
+            scene,
+            icon_name: "fireball",
+            slot: 0,
+            hotkey: "ONE",
+            cooldown: 5,
+            onPress: vi.fn(),
+        });
+
+        expect(button.text).toBe(text);
+        expect(text.setScrollFactor).toHaveBeenCalledWith(0);
+        expect(sprite.setScrollFactor).toHaveBeenCalledWith(0);
+        expect(text.setDepth).toHaveBeenCalledWith(10);
+        expect(text.setVisible).toHaveBeenCalledWith(false);
+
+        bottomLeft.mockRestore();
+        center.mockRestore();
     });
 });
