@@ -142,6 +142,18 @@ describe("Settings template", () => {
             );
         });
 
+        it("gives every number input the same short width", () => {
+            writeSettings({ ...DEFAULT_SETTINGS, debug: true });
+
+            renderWithProviders(<Settings />);
+
+            const widths = screen
+                .getAllByRole("spinbutton")
+                .map((input) => (input as HTMLInputElement).style.width);
+            expect(widths).toHaveLength(5);
+            expect(new Set(widths)).toEqual(new Set(["6em"]));
+        });
+
         it("shows a stored override instead of the default", () => {
             writeSettings({ ...DEFAULT_SETTINGS, debug: true, liveCapOverride: 2 });
 

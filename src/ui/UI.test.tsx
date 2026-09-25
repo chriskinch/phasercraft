@@ -63,3 +63,26 @@ describe("UI overlay close/back navigation", () => {
         expect(store.getState().game.showUi).toBe(false);
     });
 });
+
+describe("UI overlay scrolling screens", () => {
+    it("Settings scrolls inside a container that may shrink to the screen", () => {
+        renderWithProviders(<UI />, {
+            preloadedGame: { showUi: true, menu: "settings", previousMenu: "menu" },
+        });
+
+        const container = screen.getByTestId("menu-container");
+        const scroll = screen.getByTestId("menu-scroll");
+        expect(container).toContainElement(scroll);
+        expect(scroll).toContainElement(screen.getByText("Debug mode"));
+        expect(container.style.minHeight).toBe("0px");
+    });
+
+    it("screens not flagged `scroll` keep the unwrapped container", () => {
+        renderWithProviders(<UI />, {
+            preloadedGame: { showUi: true, menu: "save", previousMenu: "menu" },
+        });
+
+        expect(screen.queryByTestId("menu-scroll")).toBeNull();
+        expect(screen.getByTestId("menu-container").style.minHeight).toBe("");
+    });
+});

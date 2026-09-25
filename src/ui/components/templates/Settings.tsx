@@ -31,6 +31,9 @@ const subsectionStyle: React.CSSProperties = {
 
 const hintStyle: React.CSSProperties = { opacity: 0.7 };
 
+// Every number input shares one short width, sized for the values they hold.
+const numberInputStyle: React.CSSProperties = { width: "6em", flex: "none" };
+
 // Coerce a number input to a non-negative integer; empty or invalid becomes 0.
 const toNonNegativeInt = (value: string): number => {
     const parsed = Number.parseInt(value, 10);
@@ -140,6 +143,7 @@ const SpawnOverrideRow: React.FC<SpawnOverrideRowProps> = ({
                 id={field}
                 type="number"
                 min={0}
+                style={numberInputStyle}
                 value={draft ?? effective}
                 onChange={onInput}
                 onBlur={() => setDraft(null)}
@@ -212,6 +216,7 @@ const Settings: React.FC = () => {
                     id="starting-coins"
                     type="number"
                     min={0}
+                    style={numberInputStyle}
                     value={settings.startingCoins}
                     onChange={onStartingCoinsChange}
                 />
