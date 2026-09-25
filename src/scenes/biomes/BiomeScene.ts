@@ -4,6 +4,7 @@ import AssignType from "@entities/Enemy/AssignType";
 import Boss, { BOSS_SCALE } from "@entities/Enemy/Boss";
 import type Enemy from "@entities/Enemy/Enemy";
 import UI from "@entities/UI/HUD";
+import BossRoar from "@entities/UI/BossRoar";
 import enemyTypes from "@config/enemies.json";
 import type { EnemyType } from "@/types/game";
 import { promoteToBoss, resolveAreaTuning } from "@config/area";
@@ -547,6 +548,8 @@ export default class BiomeScene extends Scene {
         // run before re-registering (same handler + context, so `off` matches).
         this.events.off("enemy:dead", this.onEnemyDead, this);
         this.events.on("enemy:dead", this.onEnemyDead, this);
+        this.events.off("boss:spawned", this.announceBoss, this);
+        this.events.on("boss:spawned", this.announceBoss, this);
 
         // Read once per area entry, so a Debug settings change applies the next
         // time an area is entered rather than mid-run.
@@ -567,6 +570,25 @@ export default class BiomeScene extends Scene {
     onEnemyDead(enemy: Enemy): void {
         if (this.game_over) return;
         this.director.onEnemyDead(enemy);
+    }
+
+    /**
+     * "ROAR!" at the screen edge in the boss's direction, on every boss spawn
+     * (its first, and each respawn after a despawn). Positions are converted to
+     * screen px, since the word is pinned to the camera.
+     */
+    announceBoss(boss: { x: number; y: number }): void {
+        const camera = this.cameras.main;
+        const toScreen = (p: { x: number; y: number }) => ({
+            x: (p.x - camera.worldView.x) * camera.zoom,
+            y: (p.y - camera.worldView.y) * camera.zoom,
+        });
+        new BossRoar(
+            this,
+            { width: this.scale.width, height: this.scale.height },
+            toScreen(this.player),
+            toScreen(boss)
+        );
     }
 
     /** The scene side of the spawn director: everything it reads or creates. */
@@ -753,6 +775,7 @@ export default class BiomeScene extends Scene {
 
         this.events.off("player:dead");
         this.events.off("enemy:dead", this.onEnemyDead, this);
+        this.events.off("boss:spawned", this.announceBoss, this);
 
         this.removeAreaClearedTimer();
         this.removeSpawnTimer();
