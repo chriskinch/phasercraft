@@ -5,6 +5,7 @@ import type { SpawnHost } from "./SpawnDirector";
 import type { WalkabilityGrid } from "@helpers/walkability";
 import { AREA_KILLS_TO_BOSS, SPAWN_INTERVAL_MS } from "@config/area";
 import { BOSS_SCALE } from "@entities/Enemy/Boss";
+import { ROAR_EDGE_MARGIN } from "@entities/UI/BossRoar";
 import { DEFAULT_SETTINGS, writeSettings } from "@services/settingsStorage";
 import { BIOMES, BIOME_IDS, DEFAULT_BIOME, resolveBiome } from "./biomes";
 import store from "@store";
@@ -44,6 +45,7 @@ interface SceneUnderTest {
     init(config: { type?: string; biome?: string }): void;
     startArea(): void;
     onEnemyDead(enemy: object): void;
+    announceBoss(boss: { x: number; y: number }): void;
     areaCleared(): void;
     removeAreaClearedTimer(): void;
     gameOver(): void;
@@ -214,6 +216,56 @@ describe("BiomeScene.startArea", () => {
         scene.startArea();
 
         expect(first.remove).toHaveBeenCalledWith(false);
+    });
+});
+
+describe("BiomeScene.announceBoss", () => {
+    it("listens for boss:spawned once per area entry", () => {
+        const { scene } = makeScene();
+
+        scene.startArea();
+
+        expect(scene.events.off).toHaveBeenCalledWith("boss:spawned", scene.announceBoss, scene);
+        expect(scene.events.on).toHaveBeenCalledWith("boss:spawned", scene.announceBoss, scene);
+    });
+
+    it("puts ROAR! at the screen edge towards an off-screen boss", () => {
+        const { scene } = makeScene();
+        const text = {
+            width: 120,
+            height: 50,
+            setPosition: vi.fn(() => text),
+            once: vi.fn(),
+            off: vi.fn(),
+            destroy: vi.fn(),
+            setOrigin: vi.fn(() => text),
+            setScrollFactor: vi.fn(() => text),
+            setDepth: vi.fn(() => text),
+            setAlpha: vi.fn(() => text),
+        };
+        const addText = vi.fn(() => text);
+        Object.assign(scene, {
+            add: { sprite: vi.fn(), text: addText },
+            tweens: { chain: vi.fn(() => ({ stop: vi.fn() })) },
+            scale: { width: 800, height: 600 },
+            cameras: { main: { zoom: 1, worldView: { x: 4600, y: 4700 } } },
+        });
+        scene.player = { ...scene.player, x: 5000, y: 5000 };
+
+        // Due right of the player, well off the 800px-wide screen.
+        scene.announceBoss({ x: 6000, y: 5000 });
+
+        // Screen: player centred at (400, 300), boss due right; the word is
+        // inset from the right edge by half its 120px width plus the margin.
+        expect(text.setPosition).toHaveBeenCalledWith(800 - 60 - ROAR_EDGE_MARGIN, 300);
+    });
+
+    it("stops listening on shutdown", () => {
+        const { scene } = makeScene();
+
+        scene.shutdown();
+
+        expect(scene.events.off).toHaveBeenCalledWith("boss:spawned", scene.announceBoss, scene);
     });
 });
 
