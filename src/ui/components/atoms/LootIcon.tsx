@@ -1,4 +1,5 @@
 import React from "react";
+import { ICON_TILE } from "@ui/themes";
 import iconStyles from "./LootIcon.module.css";
 
 interface LootIconStyles {
@@ -11,24 +12,18 @@ interface LootIconProps {
     color: string;
     icon: string;
     selected?: boolean;
-    // Outer box size in px (border and padding included). When set the icon
-    // renders as a square tile with the thicker `.tile` border, e.g. to fill an
-    // equipment slot; otherwise `styles.width` sizes the image content.
-    size?: number;
     styles?: LootIconStyles;
 }
 
-const LootIcon: React.FC<LootIconProps> = ({
-    category,
-    color,
-    icon,
-    selected,
-    size,
-    styles = {},
-}) => {
+const LootIcon: React.FC<LootIconProps> = ({ category, color, icon, selected, styles = {} }) => {
     // The optional `override` is a raw "property: value" CSS declaration with a
     // dynamic property *name*, so it can't be a CSS variable — parse it into an
     // inline style entry (camel-casing the property for React).
+    // Every icon renders as the shared square tile (the equipment-slot size) so
+    // gear, parts and shop grids all match. `styles.width` opts out for small
+    // inline thumbnails (DetailedLoot), which keep the plain rounded border.
+    const size = styles.width ? undefined : ICON_TILE;
+
     const overrideStyle: React.CSSProperties = {};
     if (styles.override) {
         const [prop, ...rest] = styles.override.split(":");

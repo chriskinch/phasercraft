@@ -76,7 +76,6 @@ const LootListDrag: React.FC<LootListDragProps> = ({ cols = 6, list, name }) => 
                     loot={props.loot}
                     isSelected={props.isSelected}
                     setSelected={props.setSelected}
-                    size={ICON_TILE}
                 />
             </div>
         );

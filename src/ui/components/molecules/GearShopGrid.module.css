@@ -10,7 +10,7 @@
     min-height: 0;
     overflow: hidden;
     display: grid;
-    gap: 1rem;
-    grid-template-columns: repeat(var(--cols), 1fr);
+    gap: var(--gap);
+    grid-template-columns: repeat(var(--cols), var(--cell));
     align-content: start;
 }

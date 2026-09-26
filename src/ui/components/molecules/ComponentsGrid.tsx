@@ -72,7 +72,6 @@ const ComponentsGrid: React.FC<ComponentsGridProps> = ({ selectedId, onSelectSta
                                 color="#bbbbbb"
                                 icon={def.icon}
                                 selected={isSelected}
-                                size={ICON_TILE}
                             />
                             <span className={styles.badge}>{stack.quantity}</span>
                         </button>

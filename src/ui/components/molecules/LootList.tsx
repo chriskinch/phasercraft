@@ -5,6 +5,7 @@ import { selectLoot } from "@store/gameReducer";
 import { useSelector, useDispatch } from "react-redux";
 import type { LootItem } from "@/types/game";
 import type { RootState } from "@store";
+import { ICON_TILE, ICON_TILE_GAP } from "@ui/themes";
 import styles from "./LootList.module.css";
 
 interface LootListProps {
@@ -35,7 +36,16 @@ const LootList: React.FC<LootListProps> = ({ cols = 4, list }) => {
     }
 
     return (
-        <div className={styles.lootList} style={{ "--cols": cols } as React.CSSProperties}>
+        <div
+            className={styles.lootList}
+            style={
+                {
+                    "--cols": cols,
+                    "--cell": `${ICON_TILE}px`,
+                    "--gap": `${ICON_TILE_GAP}px`,
+                } as React.CSSProperties
+            }
+        >
             {list && items}
         </div>
     );

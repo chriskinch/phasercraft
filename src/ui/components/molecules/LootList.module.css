@@ -1,7 +1,8 @@
 .lootList {
     display: grid;
-    gap: 0.5rem;
+    gap: var(--gap);
     overflow-y: scroll;
-    grid-template-columns: repeat(var(--cols), 1fr);
+    grid-template-columns: repeat(var(--cols), var(--cell));
+    align-content: start;
     height: calc(100vh - 158px);
 }
