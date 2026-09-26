@@ -4,3 +4,13 @@
     padding: 0.25rem;
     background-color: white;
 }
+
+/* Square tile sized by the `size` prop (border and padding included). Block
+   display drops the inline descender gap so rows sit exactly one grid gap apart. */
+.tile {
+    display: block;
+    box-sizing: border-box;
+    border-width: 4px;
+    padding: 4px;
+    image-rendering: pixelated;
+}

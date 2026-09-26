@@ -1,7 +1,7 @@
 import React from "react";
 
 import Loot from "@components/Loot";
-import { pixelEmbossVars } from "@ui/themes";
+import { ICON_TILE, pixelEmbossVars } from "@ui/themes";
 import theme from "@ui/themes.module.css";
 import { useDrop } from "react-dnd";
 import { connect } from "react-redux";
@@ -39,7 +39,11 @@ const DroppableSlot: React.FC<DroppableSlotProps> = ({ loot, slot, unequipLoot }
             data-testid="droppable-slot"
             onClick={() => loot && unequipLoot(loot)}
         >
-            {loot && <Loot loot={loot} />}
+            {loot && (
+                <div className={styles.icon}>
+                    <Loot loot={loot} size={ICON_TILE} />
+                </div>
+            )}
         </div>
     );
 };

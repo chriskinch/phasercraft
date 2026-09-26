@@ -7,6 +7,7 @@ import { useSelector, useDispatch } from "react-redux";
 import { equipLoot, selectLoot, unequipLoot } from "@store/gameReducer";
 import type { LootItem } from "@/types/game";
 import type { RootState } from "@store";
+import { ICON_TILE, ICON_TILE_GAP } from "@ui/themes";
 import styles from "./LootListDrag.module.css";
 
 interface LootListDragProps {
@@ -75,6 +76,7 @@ const LootListDrag: React.FC<LootListDragProps> = ({ cols = 6, list, name }) => 
                     loot={props.loot}
                     isSelected={props.isSelected}
                     setSelected={props.setSelected}
+                    size={ICON_TILE}
                 />
             </div>
         );
@@ -91,7 +93,13 @@ const LootListDrag: React.FC<LootListDragProps> = ({ cols = 6, list, name }) => 
                 drop(node);
             }}
             className={styles.lootGrid}
-            style={{ "--cols": cols } as React.CSSProperties}
+            style={
+                {
+                    "--cols": cols,
+                    "--cell": `${ICON_TILE}px`,
+                    "--gap": `${ICON_TILE_GAP}px`,
+                } as React.CSSProperties
+            }
             data-testid="loot-grid"
         >
             {list &&

@@ -4,11 +4,10 @@ import LootListDrag from "@components/LootListDrag";
 import PaginationControls from "@components/PaginationControls";
 import { usePagination, useMeasuredPageSize } from "@ui/hooks/usePagination";
 import type { RootState } from "@store";
+import { ICON_TILE, ICON_TILE_GAP } from "@ui/themes";
 import styles from "./GearGrid.module.css";
 
 // Match ComponentsGrid so both tabs feel consistent.
-const CELL = 44;
-const GAP = 16;
 const FALLBACK = 12;
 
 // The gear inventory (post-overhaul `inventory` holds only equippable gear —
@@ -16,7 +15,12 @@ const FALLBACK = 12;
 // the existing LootListDrag.
 const GearGrid: React.FC = () => {
     const inventory = useSelector((state: RootState) => state.game.inventory);
-    const { ref, cols, pageSize } = useMeasuredPageSize(CELL, CELL, GAP, FALLBACK);
+    const { ref, cols, pageSize } = useMeasuredPageSize(
+        ICON_TILE,
+        ICON_TILE,
+        ICON_TILE_GAP,
+        FALLBACK
+    );
     const { pageItems, page, pageCount, hasPrev, hasNext, next, prev } = usePagination(
         inventory,
         pageSize

@@ -2,6 +2,7 @@ import React from "react";
 
 import { useDragLayer } from "react-dnd";
 import LootIcon from "@components/LootIcon";
+import { ICON_TILE } from "@ui/themes";
 import styles from "./CustomDragLayer.module.css";
 
 interface Offset {
@@ -37,7 +38,7 @@ const CustomDragLayer: React.FC = () => {
     }));
 
     const renderItem = () => {
-        return <LootIcon {...item} />;
+        return <LootIcon {...item} size={ICON_TILE} />;
     };
 
     if (!isDragging) {

@@ -11,10 +11,21 @@ interface LootIconProps {
     color: string;
     icon: string;
     selected?: boolean;
+    // Outer box size in px (border and padding included). When set the icon
+    // renders as a square tile with the thicker `.tile` border, e.g. to fill an
+    // equipment slot; otherwise `styles.width` sizes the image content.
+    size?: number;
     styles?: LootIconStyles;
 }
 
-const LootIcon: React.FC<LootIconProps> = ({ category, color, icon, selected, styles = {} }) => {
+const LootIcon: React.FC<LootIconProps> = ({
+    category,
+    color,
+    icon,
+    selected,
+    size,
+    styles = {},
+}) => {
     // The optional `override` is a raw "property: value" CSS declaration with a
     // dynamic property *name*, so it can't be a CSS variable — parse it into an
     // inline style entry (camel-casing the property for React).
@@ -28,13 +39,14 @@ const LootIcon: React.FC<LootIconProps> = ({ category, color, icon, selected, st
 
     return (
         <img
-            className={iconStyles.styledLootIcon}
+            className={`${iconStyles.styledLootIcon} ${size ? iconStyles.tile : ""}`}
             src={`graphics/images/loot/${category}/${icon}.png`}
             alt="Loot!"
             style={
                 {
                     "--loot-border": selected ? "red" : color,
-                    width: `${styles.width || 24}px`,
+                    width: `${size || styles.width || 24}px`,
+                    height: size ? `${size}px` : undefined,
                     ...overrideStyle,
                 } as React.CSSProperties
             }

@@ -8,9 +8,10 @@ interface LootProps {
     loot: LootItem & { isHidden?: boolean };
     isSelected?: boolean;
     setSelected?: () => void;
+    size?: number;
 }
 
-const Loot: React.FC<LootProps> = ({ loot, loot: { id }, isSelected, setSelected }) => {
+const Loot: React.FC<LootProps> = ({ loot, loot: { id }, isSelected, setSelected, size }) => {
     if (loot.isHidden) return null;
 
     return (
@@ -22,7 +23,7 @@ const Loot: React.FC<LootProps> = ({ loot, loot: { id }, isSelected, setSelected
                 onContextMenu={(e) => e.preventDefault()}
                 className="leading-none"
             >
-                <LootIcon {...loot} selected={isSelected} />
+                <LootIcon {...loot} selected={isSelected} size={size} />
             </div>
         </>
     );
