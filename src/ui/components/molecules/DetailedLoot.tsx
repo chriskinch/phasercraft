@@ -18,7 +18,7 @@ const DetailedLoot: React.FC<DetailedLootProps> = ({ id, loot, compare }) => {
                 category={loot.category || "default"}
                 color={loot.color || "#000"}
                 icon={loot.icon || "default"}
-                styles={{ width: 16, override: "margin-right:0.5em;" }}
+                styles={{ override: "margin-right:0.5em;" }}
             />
             <Stats styles={{ width: "100%" }}>{loot.stats}</Stats>
         </div>

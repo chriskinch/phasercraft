@@ -2,26 +2,27 @@ import { describe, it, expect } from "vitest";
 import { render, screen } from "@testing-library/react";
 import LootIcon from "@components/LootIcon";
 import { ICON_TILE } from "@ui/themes";
-import iconStyles from "./LootIcon.module.css";
 
 const props = { category: "helmet", color: "#abcdef", icon: "helmet_1" };
 
 describe("LootIcon", () => {
-    it("renders as the shared square tile by default", () => {
-        // Guard: CSS-module class names must resolve in tests for the class checks.
-        expect(iconStyles.tile).toBeTruthy();
+    it("renders every icon as the shared square tile", () => {
         render(<LootIcon {...props} />);
         const img = screen.getByAltText("Loot!");
-        expect(img).toHaveClass(iconStyles.tile);
         expect(img.style.width).toBe(`${ICON_TILE}px`);
         expect(img.style.height).toBe(`${ICON_TILE}px`);
     });
 
-    it("opts out of the tile when styles.width is set (inline thumbnails)", () => {
-        render(<LootIcon {...props} styles={{ width: 16 }} />);
+    it("uses the item colour for the border, or red when selected", () => {
+        const { rerender } = render(<LootIcon {...props} />);
         const img = screen.getByAltText("Loot!");
-        expect(img).not.toHaveClass(iconStyles.tile);
-        expect(img.style.width).toBe("16px");
-        expect(img.style.height).toBe("");
+        expect(img.style.getPropertyValue("--loot-border")).toBe("#abcdef");
+        rerender(<LootIcon {...props} selected />);
+        expect(img.style.getPropertyValue("--loot-border")).toBe("red");
+    });
+
+    it("applies a raw override declaration as an inline style", () => {
+        render(<LootIcon {...props} styles={{ override: "margin-right:0.5em;" }} />);
+        expect(screen.getByAltText("Loot!").style.marginRight).toBe("0.5em");
     });
 });

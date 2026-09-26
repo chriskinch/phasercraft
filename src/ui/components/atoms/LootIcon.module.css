@@ -1,33 +1,15 @@
+/* Every item icon is this square tile, sized inline to ICON_TILE. Block display
+   drops the inline descender gap so rows sit exactly one grid gap apart. The
+   4px border is an inset shadow, and a 6px square notch (the equipment slots'
+   emboss notch size) is clipped off each corner for a pixel-art look. */
 .styledLootIcon {
-    border: 2px solid var(--loot-border);
-    border-radius: 0.25rem;
-    padding: 0.25rem;
-    background-color: white;
-}
-
-/* Square tile (every icon except inline thumbnails). Block display drops the
-   inline descender gap so rows sit exactly one grid gap apart. Pixel-art corners
-   match the equipment slots' emboss: a 6px square notch clipped off each outer
-   corner, and the white face (two overlapping rects) inset by notch + border
-   on the notched axis, so a full 4px of border runs along every notch edge and
-   steps round the corner instead of breaking. */
-.tile {
     --b: 4px;
     --n: 6px;
     display: block;
     box-sizing: border-box;
-    border: none;
-    border-radius: 0;
     padding: 8px;
-    background-color: var(--loot-border);
-    background-image: linear-gradient(white, white), linear-gradient(white, white);
-    background-repeat: no-repeat;
-    background-position:
-        calc(var(--n) + var(--b)) var(--b),
-        var(--b) calc(var(--n) + var(--b));
-    background-size:
-        calc(100% - 2 * (var(--n) + var(--b))) calc(100% - 2 * var(--b)),
-        calc(100% - 2 * var(--b)) calc(100% - 2 * (var(--n) + var(--b)));
+    background-color: white;
+    box-shadow: inset 0 0 0 var(--b) var(--loot-border);
     clip-path: polygon(
         var(--n) 0,
         calc(100% - var(--n)) 0,
