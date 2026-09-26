@@ -1,9 +1,9 @@
 /* Every item icon is this square tile, sized inline to ICON_TILE. Block display
    drops the inline descender gap so rows sit exactly one grid gap apart. The
-   4px border is an inset shadow, and a 6px square notch (the equipment slots'
+   6px border is an inset shadow, and a matching 6px square notch (the slots'
    emboss notch size) is clipped off each corner for a pixel-art look. */
 .styledLootIcon {
-    --b: 4px;
+    --b: 6px;
     --n: 6px;
     display: block;
     box-sizing: border-box;
