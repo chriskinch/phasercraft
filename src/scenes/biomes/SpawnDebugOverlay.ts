@@ -1,4 +1,5 @@
 import type { GameObjects, Scene } from "phaser";
+import { FONT_FAMILY } from "@config/fonts";
 import type { Point } from "@helpers/spawnGeometry";
 import type { SpawnDebugView } from "./SpawnDirector";
 
@@ -124,7 +125,7 @@ export default class SpawnDebugOverlay<E extends OverlayEnemy> {
             if (!label) {
                 label = this.scene.add
                     .text(0, 0, "", {
-                        fontFamily: "VT323",
+                        fontFamily: FONT_FAMILY,
                         fontSize: "16px",
                         color: "#ffe600",
                         stroke: "#000",

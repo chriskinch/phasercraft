@@ -1,4 +1,5 @@
 import { GameObjects, Types, Scene } from "phaser";
+import { FONT_FAMILY } from "@config/fonts";
 
 /**
  * Options for {@link createLogo}.
@@ -19,18 +20,13 @@ export interface LogoOptions {
 
 const WORDMARK = "PHASERCRAFT";
 
-// A chunky monospace reads as "pixel-ish" without shipping a webfont, and keeps
-// this placeholder trivial to swap for real art later.
-const FONT_FAMILY = '"Courier New", "Courier", monospace';
-
 /**
  * Builds the (placeholder) Phasercraft logo: a "PHASERCRAFT" wordmark with a
  * thick black bold outline plus an offset duplicate behind it for a pixel
  * 3D/drop-shadow effect, paired with a character sprite beneath it.
  *
- * Rendered with layered {@link GameObjects.Text} rather than the preloaded
- * `wayne-3d` retro font: bitmap/retro fonts can't take a stroke or shadow, so
- * styled Text is the cleaner fit for the requested black outline + pixel shadow.
+ * Rendered with layered {@link GameObjects.Text} in the BoldPixels webfont
+ * (preloaded by BootScene), which can take the black outline + pixel shadow.
  * Everything is grouped in a single {@link GameObjects.Container} so callers can
  * position, scale, or destroy the whole logo in one call.
  */
@@ -42,7 +38,6 @@ export default function createLogo(scene: Scene, options: LogoOptions): GameObje
     const baseStyle: Types.GameObjects.Text.TextStyle = {
         fontFamily: FONT_FAMILY,
         fontSize: "64px",
-        fontStyle: "bold",
         color: "#f4c542",
     };
 

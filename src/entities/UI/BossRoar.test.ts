@@ -115,7 +115,7 @@ function makeScene() {
 }
 
 describe("BossRoar", () => {
-    it("writes ROAR! in VT323, white with a chunky black stroke, pinned to the camera", () => {
+    it("writes ROAR! in BoldPixels, white with a chunky black stroke, pinned to the camera", () => {
         const { scene, text } = makeScene();
 
         new BossRoar(scene as unknown as Scene, view, player, { x: 2000, y: 300 });
@@ -128,7 +128,7 @@ describe("BossRoar", () => {
         ];
         expect(word).toBe("ROAR!");
         expect(style).toMatchObject({
-            fontFamily: "VT323",
+            fontFamily: "BoldPixels",
             color: "#ffffff",
             stroke: "#000000",
         });

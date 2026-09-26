@@ -14,7 +14,7 @@ import SpawnDirector, { type SpawnHost } from "./SpawnDirector";
 import SpawnDebugOverlay from "./SpawnDebugOverlay";
 import { buildWalkability, isFootprintSpawnable, type WalkabilityGrid } from "@helpers/walkability";
 import { sample } from "lodash";
-import { fontConfig } from "../../config/fonts";
+import { bannerStyle } from "@config/fonts";
 
 import {
     toggleHUD,
@@ -682,9 +682,8 @@ export default class BiomeScene extends Scene {
             .setVisible(false);
         Display.Align.In.Center(this.area_cleared_ui, this.zone);
 
-        this.cache.bitmapFont.add("wayne-3d", GameObjects.RetroFont.Parse(this, fontConfig));
         this.area_cleared_ui.add(
-            this.add.bitmapText(0, 0, "wayne-3d", "AREA CLEARED").setOrigin(0.5).setScale(2)
+            this.add.text(0, 0, "AREA CLEARED", bannerStyle(64)).setOrigin(0.5)
         );
     }
 
