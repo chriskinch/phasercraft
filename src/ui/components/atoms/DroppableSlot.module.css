@@ -1,3 +1,16 @@
 .droppableSlot {
     text-transform: capitalize;
+    /* Square slot: with the emboss' 6px top shadow the visual size is
+       56 x 56 (the 44px box plus its 6px side walls). */
+    height: 50px;
+}
+
+/* The equipped icon covers the whole slot, emboss walls included: offset past
+   the 6px top border + 6px shadow and the 6px left wall, and stack above the
+   ::after wall. */
+.icon {
+    position: absolute;
+    top: -12px;
+    left: -6px;
+    z-index: 1;
 }

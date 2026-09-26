@@ -5,6 +5,7 @@ import PartTooltip from "./PartTooltip";
 import { COMPONENT_DEFS, COMPONENT_TYPES, merchantPartsBase } from "@/types/game";
 import type { ComponentType } from "@/types/game";
 import type { RootState } from "@store";
+import { ICON_TILE, ICON_TILE_GAP } from "@ui/themes";
 import styles from "./PartsShopGrid.module.css";
 
 interface PartsShopGridProps {
@@ -24,7 +25,16 @@ const PartsShopGrid: React.FC<PartsShopGridProps> = ({ selectedType, onSelectTyp
         Math.max(0, merchantPartsBase(partsWindow, type) + (partsDelta[type] ?? 0));
 
     return (
-        <div className={styles.grid} data-testid="parts-shop-grid">
+        <div
+            className={styles.grid}
+            style={
+                {
+                    "--cell": `${ICON_TILE}px`,
+                    "--gap": `${ICON_TILE_GAP}px`,
+                } as React.CSSProperties
+            }
+            data-testid="parts-shop-grid"
+        >
             {COMPONENT_TYPES.map((type) => {
                 const def = COMPONENT_DEFS[type];
                 const stock = stockOf(type);

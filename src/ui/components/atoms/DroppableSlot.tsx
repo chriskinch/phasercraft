@@ -39,7 +39,11 @@ const DroppableSlot: React.FC<DroppableSlotProps> = ({ loot, slot, unequipLoot }
             data-testid="droppable-slot"
             onClick={() => loot && unequipLoot(loot)}
         >
-            {loot && <Loot loot={loot} />}
+            {loot && (
+                <div className={styles.icon}>
+                    <Loot loot={loot} />
+                </div>
+            )}
         </div>
     );
 };

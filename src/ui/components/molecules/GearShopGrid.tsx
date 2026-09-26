@@ -5,11 +5,10 @@ import PaginationControls from "@components/PaginationControls";
 import { selectLoot } from "@store/gameReducer";
 import { usePagination, useMeasuredPageSize } from "@ui/hooks/usePagination";
 import type { RootState } from "@store";
+import { ICON_TILE, ICON_TILE_GAP } from "@ui/themes";
 import styles from "./GearShopGrid.module.css";
 
 // Match the other inventory grids so the tabs feel consistent.
-const CELL = 44;
-const GAP = 16;
 const FALLBACK = 12;
 
 // The Merchant's buyable Gear — exactly the gear the player has sold this session
@@ -20,7 +19,12 @@ const GearShopGrid: React.FC = () => {
     const dispatch = useDispatch();
     const gearStock = useSelector((state: RootState) => state.game.merchant.gearStock);
     const selected = useSelector((state: RootState) => state.game.selected);
-    const { ref, cols, pageSize } = useMeasuredPageSize(CELL, CELL, GAP, FALLBACK);
+    const { ref, cols, pageSize } = useMeasuredPageSize(
+        ICON_TILE,
+        ICON_TILE,
+        ICON_TILE_GAP,
+        FALLBACK
+    );
     const { pageItems, page, pageCount, hasPrev, hasNext, next, prev } = usePagination(
         gearStock,
         pageSize
@@ -31,7 +35,13 @@ const GearShopGrid: React.FC = () => {
             <div
                 ref={ref}
                 className={styles.grid}
-                style={{ "--cols": cols } as React.CSSProperties}
+                style={
+                    {
+                        "--cols": cols,
+                        "--cell": `${ICON_TILE}px`,
+                        "--gap": `${ICON_TILE_GAP}px`,
+                    } as React.CSSProperties
+                }
                 data-testid="gear-shop-grid"
             >
                 {pageItems.map((loot) => (

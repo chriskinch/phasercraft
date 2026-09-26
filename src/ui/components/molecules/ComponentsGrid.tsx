@@ -5,12 +5,11 @@ import PaginationControls from "@components/PaginationControls";
 import { usePagination, useMeasuredPageSize } from "@ui/hooks/usePagination";
 import { COMPONENT_DEFS } from "@/types/game";
 import type { RootState } from "@store";
+import { ICON_TILE, ICON_TILE_GAP } from "@ui/themes";
 import styles from "./ComponentsGrid.module.css";
 
-// Approximate on-screen size of one slot (icon + border + padding) and the grid
-// gap, used to derive how many slots fit responsively — no placeholder cells.
-const CELL = 44;
-const GAP = 16;
+// Slot size and gap (shared with the gear grid) derive how many slots fit
+// responsively — no placeholder cells.
 const FALLBACK = 12;
 
 interface ComponentsGridProps {
@@ -31,7 +30,12 @@ const ComponentsGrid: React.FC<ComponentsGridProps> = ({ selectedId, onSelectSta
     const activeId = selectedId !== undefined ? selectedId : internalSelected;
     const select = (id: string) => (onSelectStack ? onSelectStack(id) : setInternalSelected(id));
 
-    const { ref, cols, pageSize } = useMeasuredPageSize(CELL, CELL, GAP, FALLBACK);
+    const { ref, cols, pageSize } = useMeasuredPageSize(
+        ICON_TILE,
+        ICON_TILE,
+        ICON_TILE_GAP,
+        FALLBACK
+    );
     const { pageItems, page, pageCount, hasPrev, hasNext, next, prev } = usePagination(
         components,
         pageSize
@@ -42,7 +46,13 @@ const ComponentsGrid: React.FC<ComponentsGridProps> = ({ selectedId, onSelectSta
             <div
                 ref={ref}
                 className={styles.grid}
-                style={{ "--cols": cols } as React.CSSProperties}
+                style={
+                    {
+                        "--cols": cols,
+                        "--cell": `${ICON_TILE}px`,
+                        "--gap": `${ICON_TILE_GAP}px`,
+                    } as React.CSSProperties
+                }
                 data-testid="components-grid"
             >
                 {pageItems.map((stack) => {
