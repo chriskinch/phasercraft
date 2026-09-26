@@ -8,8 +8,9 @@
 /* Square tile (every icon except inline thumbnails). Block display drops the
    inline descender gap so rows sit exactly one grid gap apart. Pixel-art corners
    match the equipment slots' emboss: a 6px square notch clipped off each outer
-   corner, and the white face (two overlapping rects) notched 2px so the 4px
-   border steps round the corner instead of breaking. */
+   corner, and the white face (two overlapping rects) inset by notch + border
+   on the notched axis, so a full 4px of border runs along every notch edge and
+   steps round the corner instead of breaking. */
 .tile {
     --b: 4px;
     --n: 6px;
@@ -22,11 +23,11 @@
     background-image: linear-gradient(white, white), linear-gradient(white, white);
     background-repeat: no-repeat;
     background-position:
-        var(--n) var(--b),
-        var(--b) var(--n);
+        calc(var(--n) + var(--b)) var(--b),
+        var(--b) calc(var(--n) + var(--b));
     background-size:
-        calc(100% - 2 * var(--n)) calc(100% - 2 * var(--b)),
-        calc(100% - 2 * var(--b)) calc(100% - 2 * var(--n));
+        calc(100% - 2 * (var(--n) + var(--b))) calc(100% - 2 * var(--b)),
+        calc(100% - 2 * var(--b)) calc(100% - 2 * (var(--n) + var(--b)));
     clip-path: polygon(
         var(--n) 0,
         calc(100% - var(--n)) 0,
