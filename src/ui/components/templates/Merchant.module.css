@@ -4,9 +4,9 @@
     height: 100%;
     /* Fixed actions column (same reasoning as Equipment.module.css): sizing it to
        content made the inventory grid resize when the tab changed, since "Sell All"
-       is wider than the Gear-tab controls. VT323 is monospace at 0.5em advance, the
-       buttons render at 1.5em (0.75em/char); "Sell All" is 8 chars plus the button's
-       0.75rem side padding, with a half-em of slack for the monospace fallback. */
+       is wider than the Gear-tab controls. In BoldPixels "Sell All" measures 3.69em;
+       the buttons render at 1.5em (~5.53em) plus the button's 0.75rem side padding,
+       with slack for the monospace fallback (0.5em/char → 6em). */
     --actions-col: calc(6.5em + 1.5rem);
     grid-template-columns: 1fr var(--actions-col);
     grid-template-areas:

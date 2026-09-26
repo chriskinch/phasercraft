@@ -2,7 +2,6 @@ import { Scene, GameObjects } from "phaser";
 import createAnimations from "../config/animations";
 import store from "@store";
 import { toggleUi } from "@store/gameReducer";
-import { fontConfig } from "../config/fonts";
 import createLogo from "./createLogo";
 
 export default class LoadScene extends Scene {
@@ -45,11 +44,6 @@ export default class LoadScene extends Scene {
         });
 
         this.load.setPath("graphics");
-        // wayne-3d + warrior are preloaded by BootScene for the splash; guard the
-        // re-declaration so the loader doesn't warn about duplicate texture keys.
-        if (!this.textures.exists("wayne-3d")) {
-            this.load.image("wayne-3d", "fonts/wayne-3d.png");
-        }
         this.load.image("resource-frame", "images/resource-frame.png");
         this.load.spritesheet("player", "spritesheets/player/noob.gif", {
             frameWidth: 24,

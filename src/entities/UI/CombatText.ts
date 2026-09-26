@@ -1,4 +1,5 @@
 import { GameObjects, Scene, Physics } from "phaser";
+import { FONT_FAMILY } from "@config/fonts";
 
 interface CombatTextConfig {
     x: number;
@@ -47,7 +48,7 @@ class CombatText extends GameObjects.Text {
         // values were passed in the original JS and rely on Phaser's internal
         // toString — preserve that by passing the value through unchanged.
         super(scene, x, y - 25, value as unknown as string, {
-            fontFamily: "VT323",
+            fontFamily: FONT_FAMILY,
             fontSize: crit ? "21px" : "16px",
             stroke: crit ? "#800" : "#000",
             color: type ? color[type] : "#fff",

@@ -1,4 +1,5 @@
 import { GameObjects, Scenes, type Scene, type Tweens } from "phaser";
+import { FONT_FAMILY } from "@config/fonts";
 
 // "ROAR!" in the direction of a boss that has just spawned (#465). The boss
 // arrives off screen, so the word sits at the screen edge on the line from
@@ -86,7 +87,7 @@ export default class BossRoar {
 
         this.text = scene.add
             .text(0, 0, "ROAR!", {
-                fontFamily: "VT323",
+                fontFamily: FONT_FAMILY,
                 fontSize: "56px",
                 color: "#ffffff",
                 stroke: "#000000",

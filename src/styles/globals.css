@@ -1,14 +1,15 @@
 /*
- * Global app styles, imported from src/main.tsx. The VT323 font is self-hosted
- * (vendored woff2) so it precaches for offline PWA play and no longer depends on
- * Google Fonts at runtime; these rules apply the family.
+ * Global app styles, imported from src/main.tsx. The BoldPixels font (by
+ * YukiPixels, CC BY-SA 4.0 — see ./fonts/BoldPixels-LICENSE.txt) is self-hosted
+ * (vendored woff2) so it precaches for offline PWA play; these rules apply the
+ * family. The canvas side loads the same file via src/config/fonts.ts.
  */
 @font-face {
-    font-family: "VT323";
+    font-family: "BoldPixels";
     font-style: normal;
     font-weight: 400;
     font-display: swap;
-    src: url("./fonts/vt323.woff2") format("woff2");
+    src: url("./fonts/boldpixels.woff2") format("woff2");
 }
 
 /*
@@ -39,11 +40,11 @@ body {
 body {
     margin: 0;
     font-size: 14px;
-    font-family: "VT323", monospace;
+    font-family: "BoldPixels", monospace;
 }
 
 button {
-    font-family: "VT323", monospace;
+    font-family: "BoldPixels", monospace;
     font-weight: bold;
 }
 

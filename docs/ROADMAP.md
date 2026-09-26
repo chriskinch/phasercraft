@@ -245,7 +245,7 @@ updates on refresh. Single focused PR.
 | Updates    | Silent auto-update on refresh (`autoUpdate` + skipWaiting + clientsClaim); no update-prompt UI. A tab held open across a deploy keeps old JS until a full reload.                                                      |
 | Install/UI | `display: fullscreen`, `orientation: landscape`, both Android + iPhone. iOS installs manually via the Share sheet (no `beforeinstallprompt`), ignores the orientation lock, and uses apple-meta tags; splash deferred. |
 | Canvas     | Approved runtime change: `Scale.RESIZE` + `innerWidth/innerHeight` replaces `outerWidth/outerHeight` + `fullscreen` so a standalone landscape install fills the screen. Scenes still read full-window pixel coords.    |
-| Font       | VT323 self-hosted (vendored woff2) — removes the Google Fonts runtime dependency so offline text renders.                                                                                                              |
+| Font       | BoldPixels (YukiPixels, CC BY-SA 4.0) self-hosted (vendored woff2), replacing VT323 + the wayne-3d bitmap font — offline text renders.                                                                                 |
 | Icons      | Placeholder icons generated from existing art; real Phasercraft square art is a follow-up.                                                                                                                             |
 
 ## Phase 12 — Spell system rework (casting, targeting, auto attack)
