@@ -7,7 +7,8 @@
     --n: 6px;
     display: block;
     box-sizing: border-box;
-    padding: 8px;
+    /* (56 - 32) / 2: the art sits at its native 32px, pixel-perfect. */
+    padding: 12px;
     background-color: white;
     box-shadow: inset 0 0 0 var(--b) var(--loot-border);
     clip-path: polygon(
