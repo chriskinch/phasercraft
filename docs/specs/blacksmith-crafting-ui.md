@@ -228,11 +228,8 @@ its first sound effect, so it needs a small foundation built as its own PR:
 - **Title chip**: `#44bff7`, white text.
 - **Primary button**: `#ffc93e`. Secondary (Done) `#44bff7`. The special item's
   **Use item** button is purple `#c9a3ff`.
-- **Have/need and stat values**: green `#047857`, red `#b91c1c`.
-    - These are darker than the Stat atom's `#10b981`/`#ef4444`, which don't reach
-      4.5:1 contrast on the pale panel.
-    - Changing the Stat atom globally is a separate decision; this screen uses the
-      darker pair.
+- **Have/need and stat values**: green `#047857`, red `#b91c1c`, the game-wide
+  `STAT_POSITIVE` / `STAT_NEGATIVE` in `src/ui/themes.ts` (decision 5).
 - **Special item accents** (labels, bonus rows): purple `#6a22b0` on the panel.
 
 ## Reconciling with Step 4a (PR #448)
@@ -282,8 +279,10 @@ The one exception is the locked-recipe silhouettes, which are removed (decision 
    test asserts `Object.keys(materials).length <= 4` for every recipe.
 4. **Sound is its own sub-step (4e).** It covers the SFX service, the clang asset
    (with its licence) and a mute/volume setting through `settingsStorage`.
-5. **Contrast colours: still open.** Until decided, this screen uses the darker
-   `#047857`/`#b91c1c` pair, and the Stat atom is unchanged everywhere else.
+5. **Contrast colours change everywhere.** The `Stat` and `Attribute` atoms now use
+   `#047857`/`#b91c1c` (`STAT_POSITIVE`/`STAT_NEGATIVE` in `themes.ts`) in place of
+   `#10b981`/`#ef4444`, which don't reach 4.5:1 contrast on the pale panel. The
+   Blacksmith uses the same constants.
 
 ## Proposed PR breakdown
 

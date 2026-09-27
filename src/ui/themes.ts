@@ -44,3 +44,9 @@ export const pixelEmbossVars = ({ rgb, a }: PixelEmbossOptions = {}): CSSPropert
 // the visual gap between stacked slots and keeps the inventory grid dense.
 export const ICON_TILE = 56;
 export const ICON_TILE_GAP = 6;
+
+// Stat gain/loss colours (Stat and Attribute atoms). Darker than the old
+// #10b981/#ef4444 so values clear 4.5:1 contrast on the pale #e4f6f7 panel and
+// white tooltips — agreed in the Blacksmith UI spec (decision 5).
+export const STAT_POSITIVE = "#047857";
+export const STAT_NEGATIVE = "#b91c1c";
