@@ -287,13 +287,13 @@ The one exception is the locked-recipe silhouettes, which are removed (decision 
 
 ## Proposed PR breakdown
 
-| Step | PR                                                                                                                                                                          | Depends on |
-| ---- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ---------- |
-| 4a   | #448 (open), reworked to this layout: forge line, recipe picker, square rarity-tinted slots, button states, success overlay (no sound), Craft another. Special slot hidden. | —          |
-| 4b   | Schematic drops (unchanged)                                                                                                                                                 | 4a         |
-| 4c   | Schematic shop (unchanged)                                                                                                                                                  | 4a         |
-| 4d   | Special items: catalog, save slice, source, special picker, bonus applied by `craftItem`, special slot shown                                                                | decision 2 |
-| 4e   | SFX foundation + anvil clang on the craft impact frame                                                                                                                      | decision 4 |
+| Step | PR                                                                                                                                                                                                                | Depends on |
+| ---- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ---------- |
+| 4a   | #448 (open), reworked to this layout: forge line, recipe picker, square rarity-tinted slots, button states, success overlay (no sound), Craft another. Special slot hidden. 4-material catalog test (decision 3). | —          |
+| 4b   | Schematic drops (unchanged)                                                                                                                                                                                       | 4a         |
+| 4c   | Schematic shop (unchanged)                                                                                                                                                                                        | 4a         |
+| 4d   | Special items: catalog, save slice, source, special picker, bonus applied by `craftItem`, special slot shown                                                                                                      | 4a         |
+| 4e   | SFX foundation + anvil clang on the craft impact frame                                                                                                                                                            | 4a         |
 
 ## Test plan (UI)
 
@@ -305,8 +305,11 @@ The one exception is the locked-recipe silhouettes, which are removed (decision 
     - Unused slots render empty.
     - Clearing the recipe empties them.
 - **have/need colour**: green at have ≥ need, red when short.
-- **Tap to remove**: clears the recipe (and so the components); clears the special
-  item.
+- **Tap to remove**: clears the recipe (and so the components).
+- **Special slot hidden (4a)**: neither the special slot nor the special picker is
+  rendered (decision 2).
+- **Recipe catalog (4a)**: every recipe in `RECIPES` has
+  `Object.keys(materials).length <= 4` (decision 3).
 - **Recipe picker**:
     - Lists only known recipes, and unknown recipes are absent (no silhouettes). "Use
       recipe" slots the selected one.
@@ -317,6 +320,9 @@ The one exception is the locked-recipe silhouettes, which are removed (decision 
     - The overlay has `role="status"`.
 - **Reduced motion**: the animation classes are inert under the media query
   (snapshot the computed `animation-name`, or assert the class toggle).
+- **Special items (4d)**: tapping the filled special slot clears it; the special
+  picker lists owned items, and "Use item" slots the selected one; the bonus shows in
+  the "You will craft" card and on the success overlay.
 - **Lifecycle**: the success overlay's timers or audio are released on unmount. There
   are no Phaser listeners on this screen; if the SFX service subscribes to settings,
   it follows the `cleanup()` rules.
