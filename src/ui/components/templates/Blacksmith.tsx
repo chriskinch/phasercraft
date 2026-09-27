@@ -23,6 +23,8 @@ import styles from "./Blacksmith.module.css";
 // Two things the spec defers, and this screen therefore does NOT render:
 //  - the SPECIAL item slot (Step 4d): hidden entirely, not shown disabled;
 //  - the anvil clang (Step 4e): the success overlay is silent.
+// The overlay's hammer-on-anvil animation is drawn in CSS (no sprite assets):
+// see the craft success overlay section of Blacksmith.module.css.
 // Unlearnt recipes are not shown at all — finding them is the discovery, so
 // there are no locked silhouettes.
 //
@@ -353,8 +355,13 @@ const Blacksmith: React.FC = () => {
                 <div className={theme.dialogOverlay} role="status" data-testid="craft-success">
                     <div className={styles.anvilScene} aria-hidden="true">
                         <span className={styles.anvil} />
+                        <span className={styles.tang} />
                         <span className={styles.blade} />
-                        <span className={styles.hammer} />
+                        <span className={styles.flash} />
+                        <span className={styles.hammer}>
+                            <i className={styles.handle} />
+                            <i className={styles.head} />
+                        </span>
                         {Array.from({ length: 14 }, (_, i) => (
                             <span key={i} className={styles.spark} data-spark={i} />
                         ))}

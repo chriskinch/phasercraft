@@ -221,6 +221,22 @@ describe("Blacksmith craft success", () => {
         expect(store.getState().game.inventory).toHaveLength(0);
     });
 
+    // The overlay's animation is CSS, so jsdom can't tell whether it *looks*
+    // right — but it can catch the parts being deleted. The impact flash is
+    // called for by the spec and was missing from the first cut, so it is the
+    // one worth pinning.
+    it("draws the anvil, blade, hammer and impact flash", () => {
+        const { container } = render({ components: materialsFor(2) });
+        slotRecipe();
+        fireEvent.click(screen.getByRole("button", { name: `Craft · ${recipe.coins} coins` }));
+
+        const scene = screen.getByTestId("craft-success");
+        for (const part of ["anvil", "blade", "hammer", "flash"]) {
+            expect(scene.querySelector(`[class*="${part}"]`)).toBeTruthy();
+        }
+        expect(container.querySelectorAll('[class*="spark"]')).toHaveLength(14);
+    });
+
     it("Craft another clears the forge", () => {
         render({ components: materialsFor(2) });
         slotRecipe();
