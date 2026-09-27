@@ -135,16 +135,16 @@ Touch targets are at least 44 px.
 The `Button` atom (yellow `#ffc93e`). It uses the atom's own disabled style (grey,
 `#444` text) whenever crafting isn't possible.
 
-| State           | Label              | Enabled |
-| --------------- | ------------------ | ------- |
-| No recipe       | "Choose a recipe"  | no      |
-| Materials short | "Missing parts"    | no      |
-| Coins short     | "Not enough coins" | no      |
-| Ready           | "Craft · N coins"  | yes     |
+| State           | Label                        | Enabled |
+| --------------- | ---------------------------- | ------- |
+| No recipe       | "Choose a recipe"            | no      |
+| Materials short | "Missing parts · N coins"    | no      |
+| Coins short     | "Not enough coins · N coins" | no      |
+| Ready           | "Craft · N coins"            | yes     |
 
-- When materials and coins are both short, the button says "Missing parts".
-- The coin cost stays visible on the button whenever a recipe is slotted. It is dimmed
-  when the button is disabled.
+- When materials and coins are both short, the button says "Missing parts · N coins".
+- The "· N coins" suffix is the recipe's coin cost. It shows whenever a recipe is
+  slotted, and is dimmed when the button is disabled.
 - The state comes from the same `missingMaterials` / `coins` check the reducer uses.
   #448 already does this, so the UI can't disagree with `craftItem`.
 
@@ -236,7 +236,8 @@ its first sound effect, so it needs a small foundation built as its own PR:
 
 ## Reconciling with Step 4a (PR #448)
 
-**Kept from #448, unchanged**:
+**Kept from #448, unchanged by the Step 4a UI rework** (Step 4d would extend `craftItem`
+if decision 2 below adds special items):
 
 - the `Recipe`/`RecipeResult` types, the `RECIPES` catalog and `INITIAL_RECIPES`;
 - the `recipes: string[]` save slice with its `loadGame` seeding;
