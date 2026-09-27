@@ -151,30 +151,35 @@ const SIGN = 97;
 // ── entrance ──────────────────────────────────────────────────────────────────
 
 /**
- * Where the player arrives: a wooden gateway in a fence line near the top-left
- * corner, with a road running out through it to the map's top edge. North of
- * the fence is a pocket of dense trees the road cuts through, so the road reads
- * as leading in from beyond the map; south of it is a clearing where the player
- * starts, with a trail winding on into the area.
+ * Where the player arrives: a wooden gateway right on the map's top edge near
+ * the left corner, in a fence line, with the road running in through it. The
+ * strip behind the fence is a row of trees; south of it is a clearing where
+ * the player starts, with a trail winding on into the area. Walking back out
+ * through the gateway is the way home: the map carries a `town-exit` POI over
+ * the opening, which BiomeScene turns into the return-to-town confirmation.
  *
  * All in tile coordinates. The pieces come from `<biome>_ [fencesAndWalls].png`
  * (15x12), whose layout is identical across the biomes like the other sheets:
- *   - gateway: a 3x4 frame (20-22 / 35-37 / 50,52 / 65,67). The middle column
- *     is beam only, so repeating it widens the opening — the stock frame's
- *     one-tile gap is narrower than a character.
+ *   - gateway: a 3x3 frame (20-22 / 35-37 / 50,52). The middle column is beam
+ *     only, so repeating it widens the opening — the stock frame's one-tile gap
+ *     is narrower than a character. (65/67 below it look like the posts' feet
+ *     but are separate T-junction pieces; stacked under the frame they leave a
+ *     visible break in each post.)
  *   - fence: 62 is a run with a post, 34 the vertical run, 48 the corner that
  *     joins a run coming from the west to one heading north.
  */
 const ENTRANCE = {
     // Left post column and the row the posts stand on; the fence runs along it.
+    // Row 2 puts the top of the frame on the map's first row, so the edge of
+    // the map sits just above the beam.
     gateX: 8,
-    gateY: 12,
+    gateY: 2,
     // Tiles of open road between the posts.
     opening: 3,
     // Column the fence turns north at, closing the pocket off from the east.
     fenceEndX: 22,
     // The player's start, in tiles: on the road, just inside the gate.
-    start: { x: 10, y: 15 },
+    start: { x: 10, y: 5 },
     // Radius, in tiles, of the prop-free clearing around the start.
     clearing: 5,
     // Chance a free pocket tile grows a tree — dense enough to read as a wall.
@@ -185,8 +190,7 @@ const ENTRANCE = {
 const GATE = {
     sliver: [20, 21, 22], // the top pixels of the beam, spilling up a row
     beam: [35, 36, 37], // post tops + beam
-    posts: [50, 52], // upper posts, left/right
-    feet: [65, 67], // post feet, with a fence stub facing outward
+    posts: [50, 52], // posts down to the ground, left/right
 };
 const FENCE_RUN = 62;
 const FENCE_VERTICAL = 34;
@@ -569,19 +573,17 @@ function buildEntrance(biome, random, { structure, structureProps, taken, free }
     // piece; the posts only stand at the two ends.
     for (let x = gateX; x <= rightPost; x++) {
         const piece = x === gateX ? 0 : x === rightPost ? 2 : 1;
-        put(structureProps, x, gateY - 3, fence(GATE.sliver[piece]));
-        put(structureProps, x, gateY - 2, fence(GATE.beam[piece]));
+        put(structureProps, x, gateY - 2, fence(GATE.sliver[piece]));
+        put(structureProps, x, gateY - 1, fence(GATE.beam[piece]));
         // Keep props out of the opening too.
-        taken[at(x, gateY - 1)] = 1;
         taken[at(x, gateY)] = 1;
     }
-    put(structure, gateX, gateY - 1, fence(GATE.posts[0]));
-    put(structure, rightPost, gateY - 1, fence(GATE.posts[1]));
-    put(structure, gateX, gateY, fence(GATE.feet[0]));
-    put(structure, rightPost, gateY, fence(GATE.feet[1]));
+    put(structure, gateX, gateY, fence(GATE.posts[0]));
+    put(structure, rightPost, gateY, fence(GATE.posts[1]));
 
     // The fence: west from the gate off the map's edge, east to the corner,
-    // then north off the top edge — closing the pocket on both open sides.
+    // then north off the top edge — closing off the strip behind it. The runs
+    // butt straight up against the posts.
     for (let x = 0; x < fenceEndX; x++) {
         if (x < gateX || x > rightPost) put(structure, x, gateY, fence(FENCE_RUN));
     }
@@ -599,7 +601,7 @@ function buildEntrance(biome, random, { structure, structureProps, taken, free }
     // A sign board beside the road, just inside the gate.
     put(structure, rightPost + 1, gateY + 2, SIGN);
 
-    // The pocket behind the fence, thick with trees either side of the road.
+    // The strip behind the fence, thick with trees either side of the road.
     for (let y = 1; y < gateY; y++) {
         for (let x = 0; x < fenceEndX; x++) {
             if (random() >= pocketDensity) continue;
@@ -758,20 +760,16 @@ function tileProperties(byName, ints = {}) {
  * The gateway's fence tiles that stop the player: the posts and every fence
  * run. The beam overhead is on `structure props` and is walked under.
  */
-const FENCE_SOLID = [...GATE.posts, ...GATE.feet, FENCE_RUN, FENCE_VERTICAL, FENCE_CORNER];
+const FENCE_SOLID = [...GATE.posts, FENCE_RUN, FENCE_VERTICAL, FENCE_CORNER];
 
 /**
  * `sortBase` on a `structure props` tile: how many tiles below it the prop
  * stands, for BiomeScene's per-tile depth sorting. A canopy or boulder top is
- * one tile above its base, which the game assumes when the property is absent;
- * the gateway's beam is two above its posts' feet, the sliver above it three.
- * Getting this right is what puts the beam in front of a player walking
- * through the gate.
+ * one tile above its base, which the game assumes when the property is absent
+ * — as it is for the gateway's beam, one above its posts. Only the sliver over
+ * the beam needs saying: it is two above.
  */
-const GATE_SORT_BASE = Object.fromEntries([
-    ...GATE.sliver.map((id) => [id, 3]),
-    ...GATE.beam.map((id) => [id, 2]),
-]);
+const GATE_SORT_BASE = Object.fromEntries(GATE.sliver.map((id) => [id, 2]));
 
 function tilesets(biome) {
     const solidProps = solidPropsFor(biome);
@@ -911,9 +909,35 @@ function build(name, biome) {
                 x: 0,
                 y: 0,
             },
+            // Interaction areas, read by BiomeScene the way the town reads its
+            // own POI layer. `town-exit` covers the gateway's opening, from the
+            // map's top edge down through the posts' row.
+            {
+                draworder: "topdown",
+                id: 8,
+                name: "POI",
+                objects: [
+                    {
+                        height: (ENTRANCE.gateY + 1) * TILE,
+                        id: 2,
+                        name: "town-exit",
+                        rotation: 0,
+                        type: "",
+                        visible: true,
+                        width: ENTRANCE.opening * TILE,
+                        x: (ENTRANCE.gateX + 1) * TILE,
+                        y: 0,
+                    },
+                ],
+                opacity: 1,
+                type: "objectgroup",
+                visible: true,
+                x: 0,
+                y: 0,
+            },
         ],
-        nextlayerid: 8,
-        nextobjectid: 2,
+        nextlayerid: 9,
+        nextobjectid: 3,
         orientation: "orthogonal",
         renderorder: "right-down",
         tiledversion: "1.11.2",

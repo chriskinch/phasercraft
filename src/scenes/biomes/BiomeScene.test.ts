@@ -963,3 +963,124 @@ describe("BiomeScene.findPlayerStart", () => {
         expect(scene.findPlayerStart()).toBeNull();
     });
 });
+
+describe("BiomeScene town exit", () => {
+    // The entrance gateway's opening is a `town-exit` POI. Walking into it opens
+    // the same return-to-town confirmation as the HUD button, once per entry.
+    type Rect = { x: number; y: number; width: number; height: number };
+    type PoiObject = { name: string; x: number; y: number; width: number; height: number };
+
+    function makeExitScene(objects: PoiObject[] | null) {
+        const { scene } = makeScene();
+        const exitScene = scene as unknown as SceneUnderTest & {
+            map: {
+                tileWidth: number;
+                tileHeight: number;
+                getObjectLayer: ReturnType<typeof vi.fn>;
+            };
+            exit_zones: Rect[];
+            in_exit: boolean;
+            readExitZones(): Rect[];
+            updateExitZone(): void;
+        };
+        exitScene.map = {
+            tileWidth: 16,
+            tileHeight: 16,
+            getObjectLayer: vi.fn((name: string) =>
+                name === "POI" && objects ? { objects } : null
+            ),
+        };
+        exitScene.in_exit = false;
+        // The zone is tested against the player's feet: y + height / 2.
+        exitScene.player = { ...exitScene.player, alive: true, x: 500, y: 500, height: 30 };
+        const moveTo = (feet: { x: number; y: number }) => {
+            exitScene.player.x = feet.x;
+            exitScene.player.y = feet.y - 15;
+        };
+        return { scene: exitScene, moveTo };
+    }
+
+    const GATE = { name: "town-exit", x: 144, y: 0, width: 48, height: 32 };
+    // The zone spans x 288-384, y 0-64 in world px.
+    const IN_GATE = { x: 330, y: 50 };
+    const AWAY = { x: 330, y: 300 };
+
+    beforeEach(() => {
+        vi.spyOn(store, "dispatch");
+    });
+
+    afterEach(() => {
+        vi.restoreAllMocks();
+    });
+
+    const confirmCalls = () =>
+        vi
+            .mocked(store.dispatch)
+            .mock.calls.filter(
+                ([action]) =>
+                    (action as { type?: string; payload?: { menu?: string } }).payload?.menu ===
+                    "confirmReturn"
+            );
+
+    it("reads town-exit rects off the POI layer, scaled to world px", () => {
+        const { scene } = makeExitScene([GATE, { ...GATE, name: "other" }]);
+
+        const zones = scene.readExitZones();
+
+        expect(zones).toHaveLength(1);
+        expect(zones[0]).toMatchObject({ x: 288, y: 0, width: 96, height: 64 });
+    });
+
+    it("has no exit zones when the map carries no POI layer", () => {
+        expect(makeExitScene(null).scene.readExitZones()).toEqual([]);
+    });
+
+    it("opens the return confirmation once on entering the gateway", () => {
+        const { scene, moveTo } = makeExitScene([GATE]);
+        scene.exit_zones = scene.readExitZones();
+
+        scene.updateExitZone();
+        expect(confirmCalls()).toHaveLength(0);
+
+        moveTo(IN_GATE);
+        scene.updateExitZone();
+        scene.updateExitZone();
+        expect(confirmCalls()).toHaveLength(1);
+    });
+
+    it("re-arms only after the player leaves the gateway", () => {
+        const { scene, moveTo } = makeExitScene([GATE]);
+        scene.exit_zones = scene.readExitZones();
+
+        moveTo(IN_GATE);
+        scene.updateExitZone();
+        moveTo(AWAY);
+        scene.updateExitZone();
+        moveTo(IN_GATE);
+        scene.updateExitZone();
+
+        expect(confirmCalls()).toHaveLength(2);
+    });
+
+    it("ignores a head under the beam while the feet are still outside", () => {
+        const { scene, moveTo } = makeExitScene([GATE]);
+        scene.exit_zones = scene.readExitZones();
+
+        // Middle of the body inside the zone, feet 15px lower and outside it.
+        moveTo({ x: 330, y: 70 });
+        scene.updateExitZone();
+
+        expect(confirmCalls()).toHaveLength(0);
+    });
+
+    it("does nothing once the player is dead", () => {
+        const { scene, moveTo } = makeExitScene([GATE]);
+        scene.exit_zones = scene.readExitZones();
+        scene.player.alive = false;
+
+        moveTo(IN_GATE);
+        scene.updateExitZone();
+
+        expect(confirmCalls()).toHaveLength(0);
+    });
+});

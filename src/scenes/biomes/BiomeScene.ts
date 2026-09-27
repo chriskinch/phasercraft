@@ -1,4 +1,4 @@
-import { Scene, Input, GameObjects, Display, Scenes, Tilemaps } from "phaser";
+import { Scene, Input, GameObjects, Display, Scenes, Tilemaps, Geom } from "phaser";
 import AssignClass from "@entities/Player/AssignClass";
 import AssignType from "@entities/Enemy/AssignType";
 import Boss, { BOSS_SCALE } from "@entities/Enemy/Boss";
@@ -22,6 +22,7 @@ import {
     setEnemiesRemaining,
     setBossActive,
     clearTravelRequest,
+    toggleUi,
 } from "@store/gameReducer";
 import mapStateToData from "@helpers/mapStateToData";
 import store from "@store";
@@ -82,6 +83,13 @@ export default class BiomeScene extends Scene {
     // Tiles an enemy may spawn on: pure land the player can reach on foot.
     // Rebuilt in create() once the player's start is known.
     public spawn_grid!: WalkabilityGrid;
+    // The map's `town-exit` POIs (the entrance gateway's opening), in world px,
+    // and the one the player is standing in, if any. As in the town, the
+    // interaction fires once on entry and re-arms only once the player leaves,
+    // so cancelling the confirmation while still in the gateway does not
+    // re-open it straight away. Plain geometry: nothing to release.
+    private exit_zones: Geom.Rectangle[] = [];
+    private in_exit: boolean = false;
 
     constructor() {
         super({ key: "BiomeScene" });
@@ -178,6 +186,8 @@ export default class BiomeScene extends Scene {
             y: spawn.y,
         }) as PlayerType;
         this.spawn_grid = this.buildSpawnGrid(spawn);
+        this.exit_zones = this.readExitZones();
+        this.in_exit = false;
 
         this.enemies = this.add.group();
         this.enemies.runChildUpdate = true;
@@ -504,6 +514,48 @@ export default class BiomeScene extends Scene {
     }
 
     /**
+     * The map's `town-exit` rectangles from its `POI` object layer, scaled to
+     * world px. Tiled stores them in unscaled map pixels, like the start.
+     */
+    private readExitZones(): Geom.Rectangle[] {
+        const layer = this.map.getObjectLayer("POI");
+        if (!layer) return [];
+
+        const scale = this.biome.map.scale;
+        return layer.objects
+            .filter((object) => object.name === "town-exit")
+            .map(
+                (object) =>
+                    new Geom.Rectangle(
+                        (object.x ?? 0) * scale,
+                        (object.y ?? 0) * scale,
+                        (object.width ?? 0) * scale,
+                        (object.height ?? 0) * scale
+                    )
+            );
+    }
+
+    /**
+     * Walking back out through the entrance gateway asks to return to town —
+     * the same confirmation the HUD's return button opens, so what happens next
+     * (the overlay pausing the scene, Return travelling, Cancel resuming) is
+     * exactly that path. Fires on entering the zone only; see `in_exit`.
+     */
+    private updateExitZone(): void {
+        if (!this.exit_zones.length || !this.player.alive || this.game_over) return;
+
+        // On the feet, as `sortCharactersByFeet` does: whole-body bounds put the
+        // player "in" the gateway as soon as their head passed under the beam.
+        const feet_x = this.player.x;
+        const feet_y = this.player.y + this.player.height / 2;
+        const inside = this.exit_zones.some((zone) => zone.contains(feet_x, feet_y));
+
+        if (inside === this.in_exit) return;
+        this.in_exit = inside;
+        if (inside) store.dispatch(toggleUi("confirmReturn"));
+    }
+
+    /**
      * The map's authored start: the `player-start` point on its `spawn` object
      * layer, just inside the entrance gateway (see the generator's
      * `ENTRANCE`). Tiled stores it in unscaled map pixels. Null when the map
@@ -559,6 +611,7 @@ export default class BiomeScene extends Scene {
         // After the characters have moved and re-set their own depths.
         this.sortCharactersByFeet();
         this.updatePropOverlays();
+        this.updateExitZone();
 
         if (this.cursors.esc?.isDown) {
             this.returnToTown();
