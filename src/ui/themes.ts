@@ -37,3 +37,10 @@ export const pixelEmbossVars = ({ rgb, a }: PixelEmbossOptions = {}): CSSPropert
         "--pe-shadow": `rgba(${r},${alpha * 3})`,
     } as CSSProperties;
 };
+
+// Equipment-screen icon tile: the full visual size of an equipment slot (the
+// 56px slot column, including the emboss' 6px side walls), so an equipped item
+// covers its slot and inventory gear renders at the same size. The gap matches
+// the visual gap between stacked slots and keeps the inventory grid dense.
+export const ICON_TILE = 56;
+export const ICON_TILE_GAP = 6;

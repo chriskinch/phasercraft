@@ -1,8 +1,8 @@
 import React from "react";
+import { ICON_TILE } from "@ui/themes";
 import iconStyles from "./LootIcon.module.css";
 
 interface LootIconStyles {
-    width?: number;
     override?: string;
 }
 
@@ -34,7 +34,10 @@ const LootIcon: React.FC<LootIconProps> = ({ category, color, icon, selected, st
             style={
                 {
                     "--loot-border": selected ? "red" : color,
-                    width: `${styles.width || 24}px`,
+                    // Every icon is the shared square tile (the equipment-slot size)
+                    // so all screens match.
+                    width: `${ICON_TILE}px`,
+                    height: `${ICON_TILE}px`,
                     ...overrideStyle,
                 } as React.CSSProperties
             }

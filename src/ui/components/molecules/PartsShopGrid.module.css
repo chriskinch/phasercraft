@@ -1,8 +1,8 @@
 .grid {
     height: 100%;
     display: grid;
-    gap: 1rem;
-    grid-template-columns: repeat(auto-fill, minmax(44px, 1fr));
+    gap: var(--gap);
+    grid-template-columns: repeat(auto-fill, var(--cell));
     align-content: start;
     /* The quantity badge is offset -4px past the icon's right/bottom; pad the grid
        (and don't clip) so the bottom row's badge isn't cut off. The sell grid
