@@ -25,6 +25,10 @@ import styles from "./Blacksmith.module.css";
 //  - the anvil clang (Step 4e): the success overlay is silent.
 // Unlearnt recipes are not shown at all — finding them is the discovery, so
 // there are no locked silhouettes.
+//
+// There is deliberately no <h2> heading in here either: the menu registry in
+// `UI.tsx` supplies the panel title ("Blacksmith"), exactly as it does for the
+// Merchant, so rendering one locally would print it twice.
 
 // Light rarity tints for a filled slot's emboss, from the spec's table. The
 // slot carries the item's rarity so the sprite can sit on it bare.
