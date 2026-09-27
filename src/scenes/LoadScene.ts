@@ -287,10 +287,11 @@ export default class LoadScene extends Scene {
     }
 
     /**
-     * Tilesets for the biome maps. Each biome uses the same three sheets —
-     * terrain, path and resources — which the fantasy_ pack ships in an
-     * identical layout per biome, so the keys follow one pattern:
-     * `<biome>Terrain` / `<biome>Path` / `<biome>Resources`.
+     * Tilesets for the biome maps. Each biome uses the same four sheets —
+     * terrain, path, resources, and fences for the entrance gateway — which the
+     * fantasy_ pack ships in an identical layout per biome, so the keys follow
+     * one pattern: `<biome>Terrain` / `<biome>Path` / `<biome>Resources` /
+     * `<biome>FencesAndWalls`.
      *
      * The maps themselves are *not* loaded here. At 300x300x5 layers they are
      * ~1MB of JSON each, and Phaser builds a Tile object per tile on parse —
@@ -298,9 +299,10 @@ export default class LoadScene extends Scene {
      * menu appeared, paid even by a player who never leaves town. BiomeScene
      * loads the one map it needs in its own `preload()` instead.
      *
-     * The forest keys (`forestTerrain`, `forestPath`, `forestResources`) are
-     * already loaded above for the town map and are deliberately not repeated —
-     * Phaser would warn about the duplicate key and keep the first.
+     * The forest keys (`forestTerrain`, `forestPath`, `forestResources`,
+     * `forestFencesAndWalls`) are already loaded above for the town map and are
+     * deliberately not repeated — Phaser would warn about the duplicate key and
+     * keep the first.
      */
     private loadBiomeTilesets(): void {
         for (const biome of ["desert", "tundra"] as const) {
@@ -308,6 +310,7 @@ export default class LoadScene extends Scene {
             this.load.image(`${biome}Terrain`, `${dir}/${biome}_.png`);
             this.load.image(`${biome}Path`, `${dir}/${biome}Path_.png`);
             this.load.image(`${biome}Resources`, `${dir}/${biome}_ [resources].png`);
+            this.load.image(`${biome}FencesAndWalls`, `${dir}/${biome}_ [fencesAndWalls].png`);
         }
 
         // The same resource sheets again, as spritesheets. BiomeScene draws a
@@ -319,6 +322,12 @@ export default class LoadScene extends Scene {
             this.load.spritesheet(
                 `${biome}Props`,
                 `tilesets/fantasy/${biome}_/${biome}_ [resources].png`,
+                { frameWidth: 16, frameHeight: 16 }
+            );
+            // The entrance gateway's beam sorts the same way. 240x192.
+            this.load.spritesheet(
+                `${biome}FenceProps`,
+                `tilesets/fantasy/${biome}_/${biome}_ [fencesAndWalls].png`,
                 { frameWidth: 16, frameHeight: 16 }
             );
         }

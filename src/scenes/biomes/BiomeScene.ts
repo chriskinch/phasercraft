@@ -171,7 +171,7 @@ export default class BiomeScene extends Scene {
         // to, and its collision data decides where the player can legally start.
         this.createBiomeEnvironment();
 
-        const spawn = this.findOpenSpawn();
+        const spawn = this.findPlayerStart() ?? this.findOpenSpawn();
         this.player = new AssignClass(this.config.type, {
             scene: this,
             x: spawn.x,
@@ -389,22 +389,31 @@ export default class BiomeScene extends Scene {
         const tileset = tile.tileset;
         if (!tileset) return used;
 
-        let sprite = this.prop_overlays[used];
-        if (!sprite) {
-            sprite = this.add.sprite(0, 0, this.biome.map.propsTexture).setOrigin(0, 0);
-            sprite.setScale(scale);
-            this.prop_overlays.push(sprite);
-        }
+        // The prop layer mixes sheets — resources and the entrance gateway —
+        // so each tile draws from its own tileset's spritesheet.
+        const texture = this.biome.map.propsTextures[tileset.name];
+        if (!texture) return used;
 
         const world = layer.tileToWorldXY(tile.x, tile.y);
         if (!world) return used;
 
-        sprite.setFrame(tile.index - tileset.firstgid);
+        let sprite = this.prop_overlays[used];
+        if (!sprite) {
+            sprite = this.add.sprite(0, 0, texture).setOrigin(0, 0);
+            sprite.setScale(scale);
+            this.prop_overlays.push(sprite);
+        }
+
+        sprite.setTexture(texture, tile.index - tileset.firstgid);
         sprite.setPosition(world.x, world.y);
-        // Sort on the bottom of the whole prop, not of this tile: these are the
-        // *upper* halves of two-tile props, so the base sits one tile lower.
-        // Matches the town's `sprite.y + sprite.height` convention.
-        sprite.setDepth(world.y + tile_h * 2);
+        // Sort on the bottom of the whole prop, not of this tile. Most of these
+        // are the *upper* halves of two-tile props, so the base sits one tile
+        // lower; taller props (the entrance gateway's beam) say how far down
+        // theirs is with a `sortBase` tile property. Matches the town's
+        // `sprite.y + sprite.height` convention.
+        const sort_base = (tile.properties as { sortBase?: unknown } | undefined)?.sortBase;
+        const tiles_below = typeof sort_base === "number" ? sort_base : 1;
+        sprite.setDepth(world.y + tile_h * (tiles_below + 1));
         sprite.setVisible(true);
         return used + 1;
     }
@@ -495,7 +504,23 @@ export default class BiomeScene extends Scene {
     }
 
     /**
-     * Somewhere legal to start. Walks outward in a spiral from the middle of the
+     * The map's authored start: the `player-start` point on its `spawn` object
+     * layer, just inside the entrance gateway (see the generator's
+     * `ENTRANCE`). Tiled stores it in unscaled map pixels. Null when the map
+     * carries none, or it sits on something solid, so the caller can fall back
+     * to `findOpenSpawn`.
+     */
+    private findPlayerStart(): { x: number; y: number } | null {
+        const marker = this.map.findObject("spawn", (object) => object.name === "player-start");
+        if (!marker || marker.x === undefined || marker.y === undefined) return null;
+
+        const scale = this.biome.map.scale;
+        const start = { x: marker.x * scale, y: marker.y * scale };
+        return this.isOpenAt(start.x, start.y) ? start : null;
+    }
+
+    /**
+     * Fallback for a map with no usable start marker. Walks outward in a spiral from the middle of the
      * map, which the generator keeps clear of the water margin, so in practice
      * this lands on the first tile it tries.
      */

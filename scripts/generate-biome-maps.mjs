@@ -145,6 +145,53 @@ const GROUND_DECO = [30, 31, 52, 53, 32, 33, 54, 55, 76, 77, 98, 99];
 // drawn across two layers; `flat` entries are single tiles.
 const BOULDER = { w: 2, h: 2, top: [38, 39], bottom: [50, 51] };
 
+// Resource-sheet sign board, planted beside the entrance road.
+const SIGN = 97;
+
+// ── entrance ──────────────────────────────────────────────────────────────────
+
+/**
+ * Where the player arrives: a wooden gateway in a fence line near the top-left
+ * corner, with a road running out through it to the map's top edge. North of
+ * the fence is a pocket of dense trees the road cuts through, so the road reads
+ * as leading in from beyond the map; south of it is a clearing where the player
+ * starts, with a trail winding on into the area.
+ *
+ * All in tile coordinates. The pieces come from `<biome>_ [fencesAndWalls].png`
+ * (15x12), whose layout is identical across the biomes like the other sheets:
+ *   - gateway: a 3x4 frame (20-22 / 35-37 / 50,52 / 65,67). The middle column
+ *     is beam only, so repeating it widens the opening — the stock frame's
+ *     one-tile gap is narrower than a character.
+ *   - fence: 62 is a run with a post, 34 the vertical run, 48 the corner that
+ *     joins a run coming from the west to one heading north.
+ */
+const ENTRANCE = {
+    // Left post column and the row the posts stand on; the fence runs along it.
+    gateX: 8,
+    gateY: 12,
+    // Tiles of open road between the posts.
+    opening: 3,
+    // Column the fence turns north at, closing the pocket off from the east.
+    fenceEndX: 22,
+    // The player's start, in tiles: on the road, just inside the gate.
+    start: { x: 10, y: 15 },
+    // Radius, in tiles, of the prop-free clearing around the start.
+    clearing: 5,
+    // Chance a free pocket tile grows a tree — dense enough to read as a wall.
+    pocketDensity: 0.75,
+};
+
+/** Tile ids in `<biome>_ [fencesAndWalls].png`. */
+const GATE = {
+    sliver: [20, 21, 22], // the top pixels of the beam, spilling up a row
+    beam: [35, 36, 37], // post tops + beam
+    posts: [50, 52], // upper posts, left/right
+    feet: [65, 67], // post feet, with a fence stub facing outward
+};
+const FENCE_RUN = 62;
+const FENCE_VERTICAL = 34;
+const FENCE_CORNER = 48;
+
 // ── biome table ───────────────────────────────────────────────────────────────
 
 /**
@@ -156,11 +203,12 @@ const BOULDER = { w: 2, h: 2, top: [38, 39], bottom: [50, 51] };
  *
  * Every tile a biome actually stands on the `structure` layer: the base tile of
  * each 2-tall plant, every single-tile scatter prop, and both halves of the
- * boulder's bottom row. The canopy/top tiles live on `structure props`, which
+ * boulder's bottom row, plus the entrance's sign board. The canopy/top tiles
+ * live on `structure props`, which
  * is not a collision layer, so they are deliberately absent.
  */
 function solidPropsFor({ vegetation, scatter }) {
-    return [...vegetation.map(([, base]) => base), ...scatter, ...BOULDER.bottom];
+    return [...vegetation.map(([, base]) => base), ...scatter, ...BOULDER.bottom, SIGN];
 }
 
 const BIOMES = {
@@ -352,10 +400,20 @@ function maskAt(grid, x, y) {
 }
 
 /**
+ * The block of the map the entrance owns — the fenced pocket, the gateway and
+ * the clearing below it, plus a few tiles of slack. Kept free of water, so the
+ * gateway and the start always stand on land. Works for tile and corner
+ * coordinates alike; the one-corner difference falls inside the slack.
+ */
+const inEntrance = (x, y) =>
+    x <= ENTRANCE.fenceEndX + 4 && y <= ENTRANCE.start.y + ENTRANCE.clearing + 2;
+
+/**
  * Water corner grid. The noise field is thresholded at whatever level yields the
  * requested coverage (so `coverage` means the same thing whatever the noise does
  * on a given seed), then the map edge is forced to land so the player can never
- * spawn or be pushed into water at the boundary.
+ * spawn or be pushed into water at the boundary. The entrance block is kept dry
+ * too, so the gateway and the start always stand on land.
  */
 function buildWaterCorners(random, { coverage, scale }) {
     const noise = valueNoise(random, CW, CH, scale);
@@ -371,7 +429,8 @@ function buildWaterCorners(random, { coverage, scale }) {
     for (let y = 0; y < CH; y++) {
         for (let x = 0; x < CW; x++) {
             const edge = x < MARGIN || y < MARGIN || x >= CW - MARGIN || y >= CH - MARGIN;
-            grid[y * CW + x] = !edge && field[y * CW + x] >= threshold ? 1 : 0;
+            const dry = edge || inEntrance(x, y);
+            grid[y * CW + x] = !dry && field[y * CW + x] >= threshold ? 1 : 0;
         }
     }
     removeDiagonals(grid);
@@ -423,31 +482,133 @@ function buildPathCorners(random, water, trails) {
         }
     };
 
-    for (let t = 0; t < trails; t++) {
-        // Enter from one of the four edges, heading roughly inward with up to
-        // ±45° of slant, so the trails fan out instead of stacking up.
-        const edge = t % 4;
-        let x = edge === 0 ? 0 : edge === 2 ? CW - 1 : random() * CW;
-        let y = edge === 1 ? 0 : edge === 3 ? CH - 1 : random() * CH;
-        let heading = (edge * Math.PI) / 2 + (random() - 0.5) * (Math.PI / 2);
-
-        // Mostly single-track; an occasional wider route reads as a main road.
-        const radius = random() < 0.25 ? 2 : 1;
-
+    // `target`, when given, pulls the heading gently towards a point, so the
+    // walk still meanders but is sure to arrive somewhere.
+    const walk = (x, y, heading, radius, target) => {
         // Generous cap — the walk normally exits the map long before this.
         for (let s = 0; s < WIDTH * 4; s++) {
             stamp(x, y, radius);
             // Small per-step turn: enough to meander over a few hundred tiles,
             // not enough to double back on itself.
             heading += (random() - 0.5) * 0.45;
+            if (target) {
+                if (Math.hypot(target.x - x, target.y - y) < 2) break;
+                const bearing = Math.atan2(target.y - y, target.x - x);
+                // Signed difference wrapped to -π..π, eased in a tenth a step.
+                heading +=
+                    Math.atan2(Math.sin(bearing - heading), Math.cos(bearing - heading)) * 0.1;
+            }
             x += Math.cos(heading);
             y += Math.sin(heading);
             if (x < -2 || y < -2 || x > CW + 2 || y > CH + 2) break;
         }
+    };
+
+    for (let t = 0; t < trails; t++) {
+        // Enter from one of the four edges, heading roughly inward with up to
+        // ±45° of slant, so the trails fan out instead of stacking up.
+        const edge = t % 4;
+        const x = edge === 0 ? 0 : edge === 2 ? CW - 1 : random() * CW;
+        const y = edge === 1 ? 0 : edge === 3 ? CH - 1 : random() * CH;
+        const heading = (edge * Math.PI) / 2 + (random() - 0.5) * (Math.PI / 2);
+
+        // Mostly single-track; an occasional wider route reads as a main road.
+        const radius = random() < 0.25 ? 2 : 1;
+
+        walk(x, y, heading, radius);
     }
+
+    // The entrance lays its own road, so wipe whatever the trails left behind
+    // the fence first — a trail wandering under it or through the pocket would
+    // read as a gap in both. Trails crossing the clearing are left be.
+    const { gateX, gateY, opening, fenceEndX, start } = ENTRANCE;
+    for (let y = 0; y <= gateY + 1; y++) {
+        for (let x = 0; x <= fenceEndX + 1; x++) grid[y * CW + x] = 0;
+    }
+
+    // The road: straight in from the top edge, through the gateway's opening,
+    // to just past the start. Its corners span the opening exactly, so the
+    // full path tiles sit between the posts and the grass edges under them.
+    for (let y = 0; y <= start.y + 1; y++) {
+        for (let x = gateX + 1; x <= gateX + 1 + opening; x++) grid[y * CW + x] = 1;
+    }
+    // …and on from there as one more trail, winding to the middle of the map
+    // so the road always leads somewhere.
+    walk(gateX + 1 + opening / 2, start.y, Math.PI / 4, 1, { x: CW / 2, y: CH / 2 });
 
     removeDiagonals(grid);
     return grid;
+}
+
+// ── entrance assembly ─────────────────────────────────────────────────────────
+
+/**
+ * Fence tiles share the `structure` layers with the resource props, and a layer
+ * is serialised against a single firstgid (the resource sheet's). Shifting a
+ * fence id by the gap between the two sheets' firstgids makes that one offset
+ * land it on the right gid.
+ */
+const fence = (id) => id + (FENCE_GID - RESOURCE_GID);
+
+/**
+ * Stamps the gateway, the fence and the sign, reserves the clearing, and fills
+ * the pocket behind the fence with trees. Runs before any random prop is
+ * placed, so everything it reserves stays clear. The road itself is laid with
+ * the other paths in `buildPathCorners`.
+ */
+function buildEntrance(biome, random, { structure, structureProps, taken, free }) {
+    const { gateX, gateY, opening, fenceEndX, start, clearing, pocketDensity } = ENTRANCE;
+    const rightPost = gateX + opening + 1;
+    const at = (x, y) => y * WIDTH + x;
+    const put = (layer, x, y, id) => {
+        layer[at(x, y)] = id;
+        taken[at(x, y)] = 1;
+    };
+
+    // Gateway: the beam spans every column, widened by repeating its middle
+    // piece; the posts only stand at the two ends.
+    for (let x = gateX; x <= rightPost; x++) {
+        const piece = x === gateX ? 0 : x === rightPost ? 2 : 1;
+        put(structureProps, x, gateY - 3, fence(GATE.sliver[piece]));
+        put(structureProps, x, gateY - 2, fence(GATE.beam[piece]));
+        // Keep props out of the opening too.
+        taken[at(x, gateY - 1)] = 1;
+        taken[at(x, gateY)] = 1;
+    }
+    put(structure, gateX, gateY - 1, fence(GATE.posts[0]));
+    put(structure, rightPost, gateY - 1, fence(GATE.posts[1]));
+    put(structure, gateX, gateY, fence(GATE.feet[0]));
+    put(structure, rightPost, gateY, fence(GATE.feet[1]));
+
+    // The fence: west from the gate off the map's edge, east to the corner,
+    // then north off the top edge — closing the pocket on both open sides.
+    for (let x = 0; x < fenceEndX; x++) {
+        if (x < gateX || x > rightPost) put(structure, x, gateY, fence(FENCE_RUN));
+    }
+    put(structure, fenceEndX, gateY, fence(FENCE_CORNER));
+    for (let y = 0; y < gateY; y++) put(structure, fenceEndX, y, fence(FENCE_VERTICAL));
+
+    // The clearing the player arrives in. Reserved, not placed: it just keeps
+    // the random props off it.
+    for (let y = gateY + 1; y <= start.y + clearing; y++) {
+        for (let x = 0; x <= start.x + clearing; x++) {
+            if (Math.hypot(x - start.x, y - start.y) <= clearing) taken[at(x, y)] = 1;
+        }
+    }
+
+    // A sign board beside the road, just inside the gate.
+    put(structure, rightPost + 1, gateY + 2, SIGN);
+
+    // The pocket behind the fence, thick with trees either side of the road.
+    for (let y = 1; y < gateY; y++) {
+        for (let x = 0; x < fenceEndX; x++) {
+            if (random() >= pocketDensity) continue;
+            if (!free(x, y) || !free(x, y - 1)) continue;
+            const [canopy, base] = biome.vegetation[Math.floor(random() * biome.vegetation.length)];
+            put(structure, x, y, base);
+            put(structureProps, x, y - 1, canopy);
+        }
+    }
 }
 
 // ── map assembly ──────────────────────────────────────────────────────────────
@@ -515,6 +676,8 @@ function generate(name, biome) {
     const free = (x, y) =>
         x >= 0 && y >= 0 && x < WIDTH && y < HEIGHT && open[y * WIDTH + x] && !taken[y * WIDTH + x];
 
+    buildEntrance(biome, random, { structure, structureProps, taken, free });
+
     // Boulders are 2x2 landmarks, placed first so they win the space.
     for (let y = 1; y < HEIGHT; y++) {
         for (let x = 0; x < WIDTH - 1; x++) {
@@ -573,16 +736,42 @@ const PUBLIC = "../fantasy";
  * Takes the ids carrying each boolean property and merges them, so a tile in
  * several sets (full water both collides and is water) gets one entry.
  */
-function tileProperties(byName) {
+function tileProperties(byName, ints = {}) {
     const tiles = new Map();
+    const add = (id, property) => {
+        if (!tiles.has(id)) tiles.set(id, []);
+        tiles.get(id).push(property);
+    };
     for (const [name, ids] of Object.entries(byName)) {
-        for (const id of ids) {
-            if (!tiles.has(id)) tiles.set(id, []);
-            tiles.get(id).push({ name, type: "bool", value: true });
+        for (const id of ids) add(id, { name, type: "bool", value: true });
+    }
+    // Integer properties, as { name: { id: value } }.
+    for (const [name, values] of Object.entries(ints)) {
+        for (const [id, value] of Object.entries(values)) {
+            add(Number(id), { name, type: "int", value });
         }
     }
-    return [...tiles].map(([id, properties]) => ({ id, properties }));
+    return [...tiles].sort(([a], [b]) => a - b).map(([id, properties]) => ({ id, properties }));
 }
+
+/**
+ * The gateway's fence tiles that stop the player: the posts and every fence
+ * run. The beam overhead is on `structure props` and is walked under.
+ */
+const FENCE_SOLID = [...GATE.posts, ...GATE.feet, FENCE_RUN, FENCE_VERTICAL, FENCE_CORNER];
+
+/**
+ * `sortBase` on a `structure props` tile: how many tiles below it the prop
+ * stands, for BiomeScene's per-tile depth sorting. A canopy or boulder top is
+ * one tile above its base, which the game assumes when the property is absent;
+ * the gateway's beam is two above its posts' feet, the sliver above it three.
+ * Getting this right is what puts the beam in front of a player walking
+ * through the gate.
+ */
+const GATE_SORT_BASE = Object.fromEntries([
+    ...GATE.sliver.map((id) => [id, 3]),
+    ...GATE.beam.map((id) => [id, 2]),
+]);
 
 function tilesets(biome) {
     const solidProps = solidPropsFor(biome);
@@ -629,12 +818,27 @@ function tilesets(biome) {
             tiles: tileProperties({ collides: solidProps }),
             tilewidth: 16,
         },
+        {
+            columns: 15,
+            firstgid: FENCE_GID,
+            image: `${PUBLIC}/${biome.dir}/${biome.prefix}_ [fencesAndWalls].png`,
+            imageheight: 192,
+            imagewidth: 240,
+            margin: 0,
+            name: `${biome.prefix}_ [fencesAndWalls]`,
+            spacing: 0,
+            tilecount: 180,
+            tileheight: 16,
+            tiles: tileProperties({ collides: FENCE_SOLID }, { sortBase: GATE_SORT_BASE }),
+            tilewidth: 16,
+        },
     ];
 }
 
 const TERRAIN_GID = 1;
 const PATH_GID = 199;
 const RESOURCE_GID = 239;
+const FENCE_GID = 359;
 
 const offset = (data, firstgid) => data.map((id) => (id === 0 ? 0 : id + firstgid));
 
@@ -681,9 +885,35 @@ function build(name, biome) {
                 x: 0,
                 y: 0,
             },
+            // Where the player arrives, read by BiomeScene. A point in map
+            // pixels (unscaled), at the centre of the start tile.
+            {
+                draworder: "topdown",
+                id: 7,
+                name: "spawn",
+                objects: [
+                    {
+                        height: 0,
+                        id: 1,
+                        name: "player-start",
+                        point: true,
+                        rotation: 0,
+                        type: "",
+                        visible: true,
+                        width: 0,
+                        x: (ENTRANCE.start.x + 0.5) * TILE,
+                        y: (ENTRANCE.start.y + 0.5) * TILE,
+                    },
+                ],
+                opacity: 1,
+                type: "objectgroup",
+                visible: true,
+                x: 0,
+                y: 0,
+            },
         ],
-        nextlayerid: 7,
-        nextobjectid: 1,
+        nextlayerid: 8,
+        nextobjectid: 2,
         orientation: "orthogonal",
         renderorder: "right-down",
         tiledversion: "1.11.2",

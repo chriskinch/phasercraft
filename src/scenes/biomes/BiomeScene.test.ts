@@ -702,13 +702,25 @@ describe("BiomeScene.updatePropOverlays", () => {
         const sprite = {
             setOrigin: vi.fn((_x: number, _y: number) => sprite),
             setScale: vi.fn((_s: number) => sprite),
-            setFrame: vi.fn((_f: number) => sprite),
+            setTexture: vi.fn((_key: string, _frame: number) => sprite),
             setPosition: vi.fn((_x: number, _y: number) => sprite),
             setDepth: vi.fn((_d: number) => sprite),
             setVisible: vi.fn((_v: boolean) => sprite),
             destroy: vi.fn(),
         };
-        const tile = { x: 3, y: 4, index: 250, tileset: { firstgid: 239 } };
+        const tile: {
+            x: number;
+            y: number;
+            index: number;
+            tileset: { firstgid: number; name: string };
+            properties: { sortBase?: number };
+        } = {
+            x: 3,
+            y: 4,
+            index: 250,
+            tileset: { firstgid: 239, name: "forest_ [resources]" },
+            properties: {},
+        };
         const layer = {
             layer: { name: "structure props" },
             getTileAtWorldXY: vi.fn(() => tile),
@@ -747,6 +759,36 @@ describe("BiomeScene.updatePropOverlays", () => {
         const in_front = world.y + TILE_PX * 3; // standing below the trunk
         expect(depth).toBeGreaterThan(behind_tree);
         expect(depth).toBeLessThan(in_front);
+    });
+
+    it("draws each tile from its own tileset's spritesheet", () => {
+        const { scene, sprite, tile } = makeOverlayScene({ x: 320, y: 640 });
+        tile.tileset = { firstgid: 359, name: "forest_ [fencesAndWalls]" };
+        tile.index = 359 + 36;
+
+        scene.updatePropOverlays();
+
+        expect(sprite.setTexture).toHaveBeenCalledWith("forestFenceProps", 36);
+    });
+
+    it("sorts a taller prop on the base its sortBase property names", () => {
+        // The entrance gateway's beam stands two tiles above its posts' feet.
+        const world = { x: 320, y: 640 };
+        const { scene, sprite, tile } = makeOverlayScene(world);
+        tile.properties = { sortBase: 2 };
+
+        scene.updatePropOverlays();
+
+        expect(sprite.setDepth).toHaveBeenCalledWith(world.y + TILE_PX * 3);
+    });
+
+    it("skips a tile from a sheet with no overlay spritesheet", () => {
+        const { scene, tile } = makeOverlayScene({ x: 320, y: 640 });
+        tile.tileset = { firstgid: 1, name: "forest_" };
+
+        scene.updatePropOverlays();
+
+        expect(scene.add.sprite).not.toHaveBeenCalled();
     });
 
     it("reuses the pool rather than creating a sprite per frame", () => {
@@ -879,5 +921,45 @@ describe("BiomeScene.buildSpawnGrid", () => {
         const grid = scene.buildSpawnGrid({ x: WORLD_TILE * 3 + 1, y: 1 });
 
         expect([...grid.spawnable]).toEqual([0, 0, 0, 0]);
+    });
+});
+
+describe("BiomeScene.findPlayerStart", () => {
+    // The map's `spawn` object layer carries a `player-start` point, in
+    // unscaled map pixels; the scene scales it to world px.
+    type Marker = { name: string; x?: number; y?: number };
+
+    function makeStartScene(marker: Marker | null, solid = false) {
+        const { scene } = makeScene();
+        const startScene = scene as unknown as SceneUnderTest & {
+            map: { findObject: ReturnType<typeof vi.fn> };
+            findPlayerStart(): { x: number; y: number } | null;
+        };
+        startScene.map = {
+            tileWidth: 16,
+            tileHeight: 16,
+            findObject: vi.fn((layer: string, test: (object: Marker) => boolean) =>
+                layer === "spawn" && marker && test(marker) ? marker : null
+            ),
+        };
+        startScene.collision_layers = [{ getTileAtWorldXY: vi.fn(() => ({ collides: solid })) }];
+        return startScene;
+    }
+
+    it("returns the marker scaled to world px", () => {
+        const scene = makeStartScene({ name: "player-start", x: 168, y: 248 });
+
+        expect(scene.findPlayerStart()).toEqual({ x: 336, y: 496 });
+    });
+
+    it("returns null when the map has no start marker", () => {
+        expect(makeStartScene(null).findPlayerStart()).toBeNull();
+        expect(makeStartScene({ name: "something-else", x: 1, y: 1 }).findPlayerStart()).toBeNull();
+    });
+
+    it("returns null when the marker sits on a solid tile", () => {
+        const scene = makeStartScene({ name: "player-start", x: 168, y: 248 }, true);
+
+        expect(scene.findPlayerStart()).toBeNull();
     });
 });
