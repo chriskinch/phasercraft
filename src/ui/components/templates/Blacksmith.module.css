@@ -185,9 +185,14 @@
 
 /* --- Recipe picker ------------------------------------------------------- */
 
+/* Desktop: a grid of recipe cards, per the design brief ("a grid on desktop, a
+   list on phone"). An auto-fill track sized off the card rather than a fixed
+   column count, so it reflows with the panel instead of breaking at one width;
+   the phone block below collapses it to the single-column list. */
 .pickerList {
-    display: flex;
-    flex-direction: column;
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+    align-content: start;
     gap: 0.25rem;
     overflow-y: auto;
     min-height: 0;
@@ -211,9 +216,18 @@
     background: rgba(0, 0, 0, 0.08);
 }
 
-.pickerName {
+/* Name over status, so a card stays legible once the grid narrows it. */
+.pickerText {
+    display: flex;
+    flex-direction: column;
     flex: 1;
     min-width: 0;
+}
+
+.pickerName {
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
 }
 
 .pickerDetail {
@@ -431,6 +445,10 @@
 
     .componentName {
         max-width: 100%;
+    }
+
+    .pickerList {
+        grid-template-columns: 1fr;
     }
 
     .pickerActions {

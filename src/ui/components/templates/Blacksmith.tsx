@@ -167,9 +167,11 @@ const Blacksmith: React.FC = () => {
                                     category={r.result.category}
                                     icon={r.result.icon}
                                 />
-                                <span className={styles.pickerName}>{r.result.name}</span>
-                                <span className={short ? styles.short : styles.ready}>
-                                    {short ? "Missing parts" : "Ready"}
+                                <span className={styles.pickerText}>
+                                    <span className={styles.pickerName}>{r.result.name}</span>
+                                    <span className={short ? styles.short : styles.ready}>
+                                        {short ? "Missing parts" : "Ready"}
+                                    </span>
                                 </span>
                             </button>
                         );
