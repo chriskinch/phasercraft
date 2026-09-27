@@ -346,9 +346,81 @@ The five shops (POI names already present in the town map):
 
 ### Step 4 — Blacksmith crafting
 
-- [ ] `Recipe` type + recipe catalog; `craftItem` reducer (consume `components` + coins →
-      `LootItem` into inventory); Blacksmith template (recipe list, have/need materials,
-      craft button). Recipe unlock model + balance agreed before build
+Split into five PRs (one concern each); decisions below agreed with the maintainer
+before build. The agreed **interface** design is
+[`docs/specs/blacksmith-crafting-ui.md`](specs/blacksmith-crafting-ui.md) — that spec
+is the source of truth for the screen; the table below covers the data model.
+
+| Topic          | Decision                                                                                                                                                                                                    |
+| -------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Crafted output | **Hand-authored fixed statline** per recipe, not armory-generated. The Blacksmith is the known-outcome counterpart to the Armory's gamble, and crafting stays working when `VITE_ARMORY_URL` is unset.      |
+| Stat payoff    | A recipe's stats sit at the **top of its quality band's pool** (fine 25–50 → 50, rare 40–80 → 80, epic 65–130 → 130). Targeting a known item buys you the best roll of that tier.                           |
+| Unlock model   | **Schematics.** `recipes: string[]` (known ids) in the save, seeded with `INITIAL_RECIPES`. Unlearnt recipes are **not shown at all** — finding them is the discovery (supersedes the earlier silhouettes). |
+| Schematic drop | **Boss: guaranteed. All other mobs: 1%.** Rolled at collect against the known set, weighted by the killed mob's level.                                                                                      |
+| Mob level      | New `level` integer per mob in `enemies.json`/`bosses.json` — enemies carried no level field, and biome tier would weight every mob in a biome identically.                                                 |
+| Schematic shop | Blacksmith also **sells** schematics on a **24h** rotating window (same wall-clock hash trick as the Merchant's parts). Price = **5×** the recipe's craft coin cost (`SCHEMATIC_PRICE_MULTIPLIER`).         |
+| Balance        | Recipe input value ≈ **3–4×** the armory coin cost of the tier. All numbers placeholder — tune in review.                                                                                                   |
+
+#### Step 4a — Crafting core (this PR)
+
+- [x] `Recipe`/`RecipeResult` types + `RECIPES` catalog + `INITIAL_RECIPES` in
+      `src/types/game.ts`, beside `COMPONENT_DEFS`
+- [x] `recipes: string[]` save slice, defaulted in `loadGame` so pre-Blacksmith saves
+      get the starters rather than being locked out of crafting
+- [x] `craftItem` reducer — all-or-nothing guard on materials **and** coins, consumes
+      across stacks smallest-first via `consumeComponent`, mints a `LootItem` with a
+      fresh uuid per craft; `componentTotal`/`missingMaterials` shared with the UI
+- [x] `Blacksmith.tsx` — the **forge line** per the UI spec: recipe card, four square
+      rarity-tinted component slots with name + have/need, a "You will craft" card
+      styled like `ItemTooltip`, and the four Craft button states
+- [x] Recipe picker as a view inside the Blacksmith menu (not a new `UI.tsx` menu),
+      listing **known recipes only**, with Ready/Missing status and Use recipe / Back
+- [x] Craft success overlay: `role="status"`, a pixel hammer-on-anvil CSS animation
+      with sparks and a `prefers-reduced-motion` fallback, Craft another / Done.
+      **Silent** — the clang is Step 4e
+- [x] `bare` `LootIcon` variant so a rarity-tinted slot carries the outline instead of
+      the icon doubling it
+- [x] Stats go through `appliedStatValue` + `formatStatValue`, so units match the
+      Character screen rather than printing raw pool values
+- [x] Special slot **hidden** (Step 4d), not shown disabled
+- [x] Catalog test: every recipe has `Object.keys(materials).length <= 4`
+- [x] Tests: reducer (consume/guard/no-op/unlearnt/unknown-id/partial-stack drain),
+      loadGame seeding, and the UI spec's test plan (button states, slot fill/clear,
+      have/need colour, picker, overlay, special slot hidden)
+
+#### Step 4b — Schematic drops
+
+- [ ] `schematic` loot type + `Schematic` entity (full `cleanup()` per the lifecycle
+      rules); **explicit `case` in `Enemy.dropLoot()`** — its `default:` branch routes
+      any unrecognised name to `Crafting`, so a schematic would silently mint a
+      component without one
+- [ ] `level` per mob in `enemies.json`/`bosses.json`; drop-table entries (boss 100,
+      others 1); `learnRecipe` action; all-recipes-known → converts to coins
+
+#### Step 4c — Schematic shop
+
+- [ ] Blacksmith buy tab: 24h rotating schematic stock, hash-picked from the full
+      catalog and filtered to the unlearnt. Buying learns the recipe permanently, so
+      "already bought" is implicit — **no delta state to persist** (unlike the
+      Merchant's `partsDelta`)
+
+#### Step 4d — Special items (#481)
+
+- [ ] Item type + catalog (id, name, sprite, rarity, bonus stat/value); an owned-specials
+      save slice (**save-format change**); a source (drops, Merchant stock or a
+      schematic-style rotation — decided in 4d); consumption on craft
+- [ ] `craftItem` applies the bonus: appended to the crafted item's `stats`, or added to
+      an existing stat of the same name
+- [ ] Special slot and special picker shown (they are hidden in 4a)
+
+#### Step 4e — Craft SFX (first audio in the game) (#482)
+
+- [ ] SFX service playable from React — routed through Phaser's global `game.sound` so it
+      keeps working while the town scene is paused behind the overlay
+- [ ] A short CC0/owned anvil clang, preloaded in `LoadScene`, licence noted beside the
+      asset (as for the BoldPixels font)
+- [ ] Mute/volume setting through the typed `settingsStorage` service; the clang fires on
+      the hammer's impact frame
 
 ### Step 5 — Arcanum spell shop (scrolls)
 

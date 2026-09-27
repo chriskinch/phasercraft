@@ -20,6 +20,9 @@ import {
     setMerchantMode,
     sellComponent,
     sellComponentStack,
+    craftItem,
+    componentTotal,
+    missingMaterials,
     loadGame,
     requestTravel,
     clearTravelRequest,
@@ -28,7 +31,13 @@ import {
     setBaseStats,
 } from "./gameReducer";
 import type { LootItem } from "@/types/game";
-import { COMPONENT_DEFS, componentBuyPrice, merchantPartsBase } from "@/types/game";
+import {
+    COMPONENT_DEFS,
+    INITIAL_RECIPES,
+    componentBuyPrice,
+    merchantPartsBase,
+    recipeById,
+} from "@/types/game";
 
 // A fixed restock window with a large positive stock delta layered on, so buy
 // tests never depend on the current wall-clock window's random base roll.
@@ -374,6 +383,123 @@ describe("gameReducer", () => {
         });
     });
 
+    describe("blacksmith crafting", () => {
+        // A recipe every crafting test works against, taken from the real catalog
+        // so the tests break if its materials change rather than drifting from it.
+        const RECIPE_ID = "scrappers-blade";
+        const recipe = recipeById(RECIPE_ID)!;
+
+        // State holding exactly `multiplier` × the recipe's materials, in one
+        // stack per type, plus enough coins. `multiplier` 1 is the exact cost.
+        const stocked = (multiplier = 1, coins = 999) => {
+            const initial = gameReducer(undefined, { type: "@@INIT" });
+            return {
+                ...initial,
+                coins,
+                components: Object.entries(recipe.materials).map(([type, count], i) => ({
+                    id: `stack-${i}`,
+                    type: type as "scrap",
+                    quantity: count * multiplier,
+                })),
+            };
+        };
+
+        it("seeds a new character with the starter recipes", () => {
+            const state = gameReducer(undefined, { type: "@@INIT" });
+            expect(state.recipes).toEqual(INITIAL_RECIPES);
+        });
+
+        it("componentTotal sums a type across every stack of it", () => {
+            const components = [
+                { id: "a", type: "scrap" as const, quantity: 99 },
+                { id: "b", type: "scrap" as const, quantity: 4 },
+                { id: "c", type: "cloth" as const, quantity: 7 },
+            ];
+            expect(componentTotal(components, "scrap")).toBe(103);
+            expect(componentTotal(components, "cloth")).toBe(7);
+            expect(componentTotal(components, "ichor")).toBe(0);
+        });
+
+        it("missingMaterials reports only the shortfall", () => {
+            const short = gameReducer(stocked(1), sellComponent("stack-0", 5));
+            expect(missingMaterials(short.components, recipe)).toEqual({ scrap: 5 });
+            expect(missingMaterials(stocked(1).components, recipe)).toEqual({});
+        });
+
+        it("craftItem consumes the materials and coins and adds the item", () => {
+            const before = stocked(2);
+            const next = gameReducer(before, craftItem(RECIPE_ID));
+
+            expect(next.coins).toBe(before.coins - recipe.coins);
+            expect(next.inventory).toHaveLength(1);
+            expect(next.inventory[0]).toMatchObject({
+                name: recipe.result.name,
+                category: recipe.result.category,
+                set: recipe.result.set,
+                cost: recipe.result.cost,
+            });
+            // One recipe's worth spent, one left.
+            for (const [type, count] of Object.entries(recipe.materials)) {
+                expect(componentTotal(next.components, type as "scrap")).toBe(count);
+            }
+        });
+
+        it("craftItem gives each craft a distinct id so copies don't collide", () => {
+            const once = gameReducer(stocked(2), craftItem(RECIPE_ID));
+            const twice = gameReducer(once, craftItem(RECIPE_ID));
+            expect(twice.inventory).toHaveLength(2);
+            expect(twice.inventory[0].id).not.toBe(twice.inventory[1].id);
+        });
+
+        it("craftItem drains partial stacks before breaking into a full one", () => {
+            const base = stocked(1);
+            const [first] = Object.entries(recipe.materials) as Array<["scrap", number]>;
+            const [type, count] = first;
+            // Same total, split into a small partial stack and a larger one.
+            const split = {
+                ...base,
+                components: [
+                    { id: "partial", type, quantity: 2 },
+                    { id: "full", type, quantity: count - 2 },
+                    ...base.components.filter((s) => s.type !== type),
+                ],
+            };
+            const next = gameReducer(split, craftItem(RECIPE_ID));
+            // Both stacks of that type are spent exactly, so neither survives.
+            expect(next.components.some((s) => s.type === type)).toBe(false);
+        });
+
+        it("craftItem is a no-op when materials are short", () => {
+            const short = gameReducer(stocked(1), sellComponent("stack-0", 1));
+            const next = gameReducer(short, craftItem(RECIPE_ID));
+            expect(next.inventory).toEqual([]);
+            expect(next.coins).toBe(short.coins);
+            expect(next.components).toEqual(short.components);
+        });
+
+        it("craftItem is a no-op when coins are short, leaving materials intact", () => {
+            const poor = stocked(1, recipe.coins - 1);
+            const next = gameReducer(poor, craftItem(RECIPE_ID));
+            expect(next.inventory).toEqual([]);
+            expect(next.coins).toBe(poor.coins);
+            expect(next.components).toEqual(poor.components);
+        });
+
+        it("craftItem refuses a recipe the player has not learnt", () => {
+            const unlearnt = { ...stocked(1), recipes: [] };
+            const next = gameReducer(unlearnt, craftItem(RECIPE_ID));
+            expect(next.inventory).toEqual([]);
+            expect(next.components).toEqual(unlearnt.components);
+        });
+
+        it("craftItem ignores an unknown recipe id", () => {
+            const before = stocked(1);
+            const next = gameReducer(before, craftItem("no-such-recipe"));
+            expect(next.inventory).toEqual([]);
+            expect(next.coins).toBe(before.coins);
+        });
+    });
+
     describe("merchant shop", () => {
         it("refreshMerchant wipes the parts delta only when the window changes", () => {
             const initial = gameReducer(undefined, { type: "@@INIT" });
@@ -501,6 +627,26 @@ describe("gameReducer", () => {
                 loadGame(legacySave as Parameters<typeof loadGame>[0])
             );
             expect(next.components).toEqual([]);
+        });
+
+        it("seeds the starter recipes into a save written before the Blacksmith", () => {
+            const initial = gameReducer(undefined, { type: "@@INIT" });
+            const legacySave = { ...initial } as Record<string, unknown>;
+            delete legacySave.recipes;
+
+            const next = gameReducer(
+                initial,
+                loadGame(legacySave as Parameters<typeof loadGame>[0])
+            );
+            expect(next.recipes).toEqual(INITIAL_RECIPES);
+        });
+
+        it("keeps the recipes a save already carries", () => {
+            const initial = gameReducer(undefined, { type: "@@INIT" });
+            const save = { ...initial, recipes: ["ichorbound-amulet"] };
+
+            const next = gameReducer(initial, loadGame(save));
+            expect(next.recipes).toEqual(["ichorbound-amulet"]);
         });
 
         it("drops the legacy wave counter and seeds the area-progress fields", () => {
