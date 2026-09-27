@@ -164,7 +164,8 @@ The `Button` atom (yellow `#ffc93e`). It uses the atom's own disabled style (gre
 - The details list **NEEDS** (have/need rows, green or red), **STATS** (fixed values)
   and the coin cost.
 - **Use recipe** slots it into the forge and returns there.
-- Locked recipes: see [Reconciling](#reconciling-with-step-4a-pr-448), point 1.
+- **Unknown recipes are not shown at all**: no greyed "???" silhouettes. Finding
+  recipes is part of the discovery (decision 1).
 
 **Special item picker**
 
@@ -236,8 +237,8 @@ its first sound effect, so it needs a small foundation built as its own PR:
 
 ## Reconciling with Step 4a (PR #448)
 
-**Kept from #448, unchanged by the Step 4a UI rework** (Step 4d would extend `craftItem`
-if decision 2 below adds special items):
+**Kept from #448, unchanged by the Step 4a UI rework** (Step 4d extends `craftItem` for
+special items, per decision 2 below):
 
 - the `Recipe`/`RecipeResult` types, the `RECIPES` catalog and `INITIAL_RECIPES`;
 - the `recipes: string[]` save slice with its `loadGame` seeding;
@@ -245,6 +246,8 @@ if decision 2 below adds special items):
 - `componentTotal` / `missingMaterials` as the single source for have/need;
 - the fixed statlines at the top of each quality band;
 - the schematic unlock model and Steps 4b/4c (drops, shop).
+
+The one exception is the locked-recipe silhouettes, which are removed (decision 1).
 
 **Changed by this spec** (the `Blacksmith.tsx` template and its CSS/tests):
 
@@ -257,40 +260,40 @@ if decision 2 below adds special items):
   line.
 - The success overlay is new, and so is **Craft another**.
 
-**Needs a maintainer decision before building**:
+**Decisions (maintainer, 2026-09-27)**:
 
-1. **Recipe quantity vs learnt recipes.**
-    - The mockups showed recipe counts (e.g. "x2"), as if recipes were consumable
-      items. #448's agreed model is learnt schematics: permanent and never consumed.
-    - **Proposal**: keep the #448 model and drop the counts. The picker lists known
-      recipes first, then locked ones as greyed "???" silhouettes that can't be
-      selected. That keeps #448's "catalog reads as a collection".
-2. **Special items: new system, not in #448.** They need:
-    - an item type and catalog (id, name, sprite, rarity, bonus stat/value);
-    - an owned-specials save slice (a save-format change);
-    - a source: drops, Merchant stock or schematic-style rotation;
-    - consumption on craft;
-    - bonus rules: the bonus is appended to the crafted item's `stats`, or added to an
-      existing stat of the same name.
-    - **Proposal**: build as its own sub-step. Until then, the special slot is
-      **hidden**, not shown disabled, so the forge ships complete without it.
-3. **At most 4 materials per recipe.** The UI has 4 component slots. Every current
-   recipe uses ≤ 3. Proposal: add a catalog test asserting
-   `Object.keys(materials).length <= 4`.
-4. **Sound foundation**: a new settings field and a new asset pipeline (see
-   [Sound](#sound-first-audio-in-the-game)).
-5. **Contrast colours**: the darker green/red pair on this screen only, or change the
-   Stat atom everywhere.
+1. **Recipes are learnt permanently, and unknown ones stay hidden.**
+    - #448's schematic model stands: a recipe is learnt permanently and never used
+      up. The mockups' recipe counts ("x2") are dropped.
+    - The picker lists **only known recipes**. Unlearnt recipes are **not shown**, not
+      even as greyed silhouettes, because finding them is part of the discovery.
+    - This replaces #448's locked "???" silhouettes; its "catalog reads as a
+      collection" decision is superseded.
+2. **Special items are their own sub-step (4d).**
+    - 4d needs:
+        - an item type and catalog (id, name, sprite, rarity, bonus stat/value);
+        - an owned-specials save slice (a save-format change);
+        - a source: drops, Merchant stock or schematic-style rotation, decided in 4d;
+        - consumption on craft;
+        - bonus rules: the bonus is appended to the crafted item's `stats`, or added to
+          an existing stat of the same name.
+    - Until 4d, the special slot is **hidden**, not shown disabled.
+3. **At most 4 materials per recipe.** This matches the 4 component slots. A catalog
+   test asserts `Object.keys(materials).length <= 4` for every recipe.
+4. **Sound is its own sub-step (4e).** It covers the SFX service, the clang asset
+   (with its licence) and a mute/volume setting through `settingsStorage`.
+5. **Contrast colours: still open.** Until decided, this screen uses the darker
+   `#047857`/`#b91c1c` pair, and the Stat atom is unchanged everywhere else.
 
 ## Proposed PR breakdown
 
-| Step | PR                                                                                                                                                                          | Depends on        |
-| ---- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ----------------- |
-| 4a   | #448 (open), reworked to this layout: forge line, recipe picker, square rarity-tinted slots, button states, success overlay (no sound), Craft another. Special slot hidden. | decisions 1, 3, 5 |
-| 4b   | Schematic drops (unchanged)                                                                                                                                                 | 4a                |
-| 4c   | Schematic shop (unchanged)                                                                                                                                                  | 4a                |
-| 4d   | Special items: catalog, save slice, source, special picker, bonus applied by `craftItem`, special slot shown                                                                | decision 2        |
-| 4e   | SFX foundation + anvil clang on the craft impact frame                                                                                                                      | decision 4        |
+| Step | PR                                                                                                                                                                          | Depends on |
+| ---- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ---------- |
+| 4a   | #448 (open), reworked to this layout: forge line, recipe picker, square rarity-tinted slots, button states, success overlay (no sound), Craft another. Special slot hidden. | —          |
+| 4b   | Schematic drops (unchanged)                                                                                                                                                 | 4a         |
+| 4c   | Schematic shop (unchanged)                                                                                                                                                  | 4a         |
+| 4d   | Special items: catalog, save slice, source, special picker, bonus applied by `craftItem`, special slot shown                                                                | decision 2 |
+| 4e   | SFX foundation + anvil clang on the craft impact frame                                                                                                                      | decision 4 |
 
 ## Test plan (UI)
 
@@ -305,7 +308,8 @@ if decision 2 below adds special items):
 - **Tap to remove**: clears the recipe (and so the components); clears the special
   item.
 - **Recipe picker**:
-    - Lists only known recipes as selectable; "Use recipe" slots the selected one.
+    - Lists only known recipes, and unknown recipes are absent (no silhouettes). "Use
+      recipe" slots the selected one.
     - Ready/Missing status matches `missingMaterials`.
 - **Success overlay**:
     - Appears after a successful `craftItem` and not on a refused one.
