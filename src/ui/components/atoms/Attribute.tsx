@@ -1,5 +1,6 @@
 import React from "react";
 import round from "lodash/round";
+import { STAT_POSITIVE, STAT_NEGATIVE } from "@ui/themes";
 import styles from "./Attribute.module.css";
 
 interface AttributeProps {
@@ -23,7 +24,7 @@ const Attribute: React.FC<AttributeProps> = ({
 }) => {
     const getColor = (): string => {
         if (!polarity) return "black";
-        return polarity > 0 ? "#10b981" : "#ef4444";
+        return polarity > 0 ? STAT_POSITIVE : STAT_NEGATIVE;
     };
 
     return (
