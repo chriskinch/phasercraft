@@ -145,8 +145,11 @@ const GROUND_DECO = [30, 31, 52, 53, 32, 33, 54, 55, 76, 77, 98, 99];
 // drawn across two layers; `flat` entries are single tiles.
 const BOULDER = { w: 2, h: 2, top: [38, 39], bottom: [50, 51] };
 
-// Resource-sheet sign board, planted beside the entrance road.
+// Resource-sheet sign board, planted beside the entrance road. The board's
+// top pixel row spills into the tile above it (85), which goes on
+// `structure props` like a canopy.
 const SIGN = 97;
+const SIGN_TOP = 85;
 
 // ── entrance ──────────────────────────────────────────────────────────────────
 
@@ -172,10 +175,13 @@ const ENTRANCE = {
     // Left post column and the row the posts stand on; the fence runs along it.
     // Row 2 puts the top of the frame on the map's first row, so the edge of
     // the map sits just above the beam.
-    gateX: 8,
+    gateX: 7,
     gateY: 2,
-    // Tiles of open road between the posts.
-    opening: 3,
+    // Tiles between the posts. The road runs down the middle with a tile of
+    // grass either side, so each post stands on plain ground: the posts' art
+    // carries a ground-coloured shadow at the foot that shows up as a smudge
+    // on the road's edge tiles.
+    opening: 5,
     // Column the fence turns north at, closing the pocket off from the east.
     fenceEndX: 22,
     // The player's start, in tiles: on the road, just inside the gate.
@@ -531,10 +537,11 @@ function buildPathCorners(random, water, trails) {
     }
 
     // The road: straight in from the top edge, through the gateway's opening,
-    // to just past the start. Its corners span the opening exactly, so the
-    // full path tiles sit between the posts and the grass edges under them.
+    // to just past the start. Its corners stop a tile inside each post, so
+    // the road's grass edges fall within the opening and the posts' own tiles
+    // stay plain ground.
     for (let y = 0; y <= start.y + 1; y++) {
-        for (let x = gateX + 1; x <= gateX + 1 + opening; x++) grid[y * CW + x] = 1;
+        for (let x = gateX + 2; x <= gateX + opening; x++) grid[y * CW + x] = 1;
     }
     // …and on from there as one more trail, winding to the middle of the map
     // so the road always leads somewhere.
@@ -600,6 +607,7 @@ function buildEntrance(biome, random, { structure, structureProps, taken, free }
 
     // A sign board beside the road, just inside the gate.
     put(structure, rightPost + 1, gateY + 2, SIGN);
+    put(structureProps, rightPost + 1, gateY + 1, SIGN_TOP);
 
     // The strip behind the fence, thick with trees either side of the road.
     for (let y = 1; y < gateY; y++) {
