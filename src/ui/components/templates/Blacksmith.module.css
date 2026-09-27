@@ -1,135 +1,439 @@
-/* Three columns: the recipe list, the selected recipe's detail, and a fixed
-   actions column. The actions column is sized to content the same way the
-   Merchant's is, so the panels don't resize when the disabled reason appears. */
-.blacksmithContainer {
+/* Blacksmith forge line — docs/specs/blacksmith-crafting-ui.md.
+   Desktop is two columns: the forge line on the left, the "You will craft" card
+   on the right at the spec's 280px. Unlike the first cut of this screen, the
+   right column is the ONLY fixed one and the left is the single flexible track,
+   so the row can't overflow its panel (the earlier `1fr 1fr <fixed>` did). */
+.blacksmith {
     display: grid;
-    gap: 0.5rem 1rem;
+    grid-template-columns: 1fr 280px;
+    gap: 1rem;
     height: 100%;
-    --actions-col: calc(6.5em + 1.5rem);
-    grid-template-columns: 1fr 1fr var(--actions-col);
-    grid-template-areas:
-        "recipes detail coins"
-        "recipes detail act";
-    grid-template-rows: min-content 1fr;
-}
-
-.coinsSection {
-    grid-area: coins;
-    align-self: center;
-    justify-self: end;
-}
-
-.recipesSection {
-    grid-area: recipes;
-    padding: 0.5em;
     min-height: 0;
-    overflow-y: auto;
+    position: relative;
+    color: #222;
+}
+
+.forgeLine {
     display: flex;
     flex-direction: column;
-    gap: 0.25rem;
+    gap: 0.5rem;
+    min-width: 0;
 }
 
-.detailSection {
-    grid-area: detail;
-    padding: 0.5em;
-    min-height: 0;
-    overflow-y: auto;
-}
+/* --- Recipe card --------------------------------------------------------- */
 
-.actionsSection {
-    grid-area: act;
-    align-self: start;
-    display: flex;
-    flex-direction: column;
-    align-items: stretch;
-    gap: 0.25rem;
-}
-
-/* Button is content-box; keep it inside the fixed column (same fix as Merchant). */
-.actionsSection button {
-    box-sizing: border-box;
-}
-
-.recipe {
+.recipeCard {
     display: flex;
     align-items: center;
-    gap: 0.5rem;
-    padding: 0.25rem;
-    background: none;
+    gap: 0.75rem;
+    width: 100%;
+    box-sizing: border-box;
+    padding: 0.5rem;
+    /* A slightly darker tone than the panel so the card reads as its own
+       surface without needing a border. */
+    background: rgba(0, 0, 0, 0.06);
     border: none;
-    cursor: pointer;
     color: inherit;
     font: inherit;
     text-align: left;
+    cursor: pointer;
+    /* The whole card is the tap target; the spec asks for at least 44px. */
+    min-height: 44px;
 }
 
-/* A recipe the player hasn't learnt: visible as a silhouette so the catalog
-   reads as a collection, but unreadable and unselectable. */
-.locked {
-    cursor: default;
-    opacity: 0.35;
-}
-
-.locked img {
-    filter: brightness(0);
+.recipeCardText {
+    display: flex;
+    flex-direction: column;
+    min-width: 0;
 }
 
 .recipeName {
-    font-size: 0.9rem;
-}
-
-.detailTitle {
-    margin: 0 0 0.5rem;
     font-size: 1rem;
 }
 
-.stats,
-.materials {
+.chevron,
+.removeBadge {
+    margin-left: auto;
+    flex: none;
+}
+
+.chevron {
+    font-size: 1.5rem;
+    color: #4d5d66;
+}
+
+/* 22px red square with a white pixel cross, per the spec. */
+.removeBadge {
+    width: 22px;
+    height: 22px;
+    line-height: 22px;
+    text-align: center;
+    background: #ef4444;
+    color: #fff;
+}
+
+/* --- Slots --------------------------------------------------------------- */
+
+/* Square footprint: the emboss adds 6px ears each side and a 6px top lip, so a
+   box of ICON_TILE wide renders as an ICON_TILE + 12 square overall — the same
+   footprint as every other item grid since #477. */
+.slot {
+    width: 56px;
+    height: 56px;
+    flex: none;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.slotEmpty {
+    font-size: 1.5rem;
+    color: #4d5d66;
+}
+
+.componentRow {
+    display: flex;
+    gap: 0.5rem;
+    list-style: none;
+    margin: 0;
+    padding: 0;
+}
+
+.componentSlot {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    font-size: 0.85rem;
+    min-width: 0;
+}
+
+.componentName {
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    max-width: 68px;
+}
+
+/* --- Result card --------------------------------------------------------- */
+
+/* Styled like ItemTooltip: a white face with a 5px border in the result's
+   rarity colour, fed by the --rarity custom property. */
+.resultCard {
+    background: #fff;
+    border: 5px solid var(--rarity, transparent);
+    padding: 0.5rem 0.75rem;
+    box-sizing: border-box;
+    overflow-y: auto;
+    min-height: 0;
+}
+
+.resultName {
+    margin: 0.25rem 0 0;
+    font-size: 1rem;
+}
+
+.resultMeta {
+    margin: 0 0 0.5rem;
+    color: #4d5d66;
+    font-size: 0.85rem;
+    text-transform: capitalize;
+}
+
+.sectionLabel {
+    margin: 0;
+    font-size: 0.75rem;
+    letter-spacing: 0.05em;
+    text-transform: uppercase;
+    color: #4d5d66;
+}
+
+.rows {
     list-style: none;
     margin: 0 0 0.5rem;
     padding: 0;
     font-size: 0.9rem;
 }
 
-.stats li,
-.materials li {
+.rows li {
     display: flex;
-    align-items: center;
-    gap: 0.4rem;
+    justify-content: space-between;
+    gap: 0.5rem;
 }
 
-.statValue {
-    margin-left: auto;
-    color: #ffc93e;
+.costLine {
+    margin: 0;
     font-variant-numeric: tabular-nums;
 }
 
-.haveNeed {
-    margin-left: auto;
+/* The spec's darker contrast pair. These reach 4.5:1 on the pale panel, which
+   the Stat atom's #10b981/#ef4444 do not — the atom is deliberately left alone
+   and this screen carries the darker pair locally (decision 5). */
+.ready {
+    color: #047857;
     font-variant-numeric: tabular-nums;
 }
 
-/* A material the player is short of, and the coin cost they can't meet. */
 .short {
-    color: #ff6b6b;
-}
-
-.coinCost {
-    display: flex;
-    align-items: center;
-    gap: 0.4rem;
+    color: #b91c1c;
     font-variant-numeric: tabular-nums;
 }
 
-.empty {
-    color: #a5b4c1;
-    font-size: 0.9rem;
+.muted {
+    color: #4d5d66;
+    font-size: 0.85rem;
 }
 
-/* Why Craft is disabled. Small and wrap-friendly for the fixed actions column. */
-.reason {
-    font-size: 0.85rem;
-    text-align: center;
-    color: #a5b4c1;
-    margin-bottom: 0.25rem;
+/* --- Recipe picker ------------------------------------------------------- */
+
+.pickerList {
+    display: flex;
+    flex-direction: column;
+    gap: 0.25rem;
+    overflow-y: auto;
+    min-height: 0;
+}
+
+.pickerRow {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 0.25rem;
+    background: none;
+    border: none;
+    color: inherit;
+    font: inherit;
+    text-align: left;
+    cursor: pointer;
+    min-height: 44px;
+}
+
+.pickerRow[aria-selected="true"] {
+    background: rgba(0, 0, 0, 0.08);
+}
+
+.pickerName {
+    flex: 1;
+    min-width: 0;
+}
+
+.pickerDetail {
+    overflow-y: auto;
+    min-height: 0;
+}
+
+.pickerActions {
+    grid-column: 1 / -1;
+    display: flex;
+    gap: 0.5rem;
+    justify-content: flex-end;
+}
+
+/* --- Craft success overlay ----------------------------------------------- */
+
+.overlayActions {
+    display: flex;
+    gap: 0.5rem;
+    justify-content: center;
+    margin-top: 0.5rem;
+}
+
+.anvilScene {
+    position: relative;
+    width: 96px;
+    height: 64px;
+    margin: 0 auto 0.5rem;
+}
+
+.anvil,
+.blade,
+.hammer,
+.spark {
+    position: absolute;
+    display: block;
+    image-rendering: pixelated;
+}
+
+.anvil {
+    left: 16px;
+    bottom: 0;
+    width: 64px;
+    height: 24px;
+    background: #4d5d66;
+}
+
+/* The hot part of the blade pulses while the overlay is up. */
+.blade {
+    left: 28px;
+    bottom: 24px;
+    width: 40px;
+    height: 8px;
+    background: #ffc93e;
+    animation: bladePulse 0.6s steps(2, end) infinite;
+}
+
+/* One swing, then it rests on the blade — the animation plays once per craft. */
+.hammer {
+    left: 40px;
+    bottom: 48px;
+    width: 24px;
+    height: 12px;
+    background: #bbb;
+    transform-origin: 0 100%;
+    animation: hammerSwing 0.5s steps(4, end) 1 forwards;
+}
+
+.spark {
+    left: 46px;
+    bottom: 30px;
+    width: 5px;
+    height: 5px;
+    background: #fff3b0;
+    opacity: 0;
+    animation: sparkFly 0.5s steps(5, end) 1 forwards;
+    animation-delay: 0.3s;
+}
+
+.spark[data-spark="1"],
+.spark[data-spark="5"],
+.spark[data-spark="9"],
+.spark[data-spark="13"] {
+    background: #ffc93e;
+}
+
+.spark[data-spark="2"],
+.spark[data-spark="6"],
+.spark[data-spark="10"] {
+    background: #ff9900;
+}
+
+/* Fan the sparks out: each one gets its own direction off the impact point. */
+.spark[data-spark="0"] {
+    --dx: -28px;
+    --dy: -18px;
+}
+.spark[data-spark="1"] {
+    --dx: -20px;
+    --dy: -26px;
+}
+.spark[data-spark="2"] {
+    --dx: -12px;
+    --dy: -30px;
+}
+.spark[data-spark="3"] {
+    --dx: -4px;
+    --dy: -32px;
+}
+.spark[data-spark="4"] {
+    --dx: 4px;
+    --dy: -32px;
+}
+.spark[data-spark="5"] {
+    --dx: 12px;
+    --dy: -30px;
+}
+.spark[data-spark="6"] {
+    --dx: 20px;
+    --dy: -26px;
+}
+.spark[data-spark="7"] {
+    --dx: 28px;
+    --dy: -18px;
+}
+.spark[data-spark="8"] {
+    --dx: -32px;
+    --dy: -6px;
+}
+.spark[data-spark="9"] {
+    --dx: 32px;
+    --dy: -6px;
+}
+.spark[data-spark="10"] {
+    --dx: -24px;
+    --dy: 4px;
+}
+.spark[data-spark="11"] {
+    --dx: 24px;
+    --dy: 4px;
+}
+.spark[data-spark="12"] {
+    --dx: -14px;
+    --dy: 10px;
+}
+.spark[data-spark="13"] {
+    --dx: 14px;
+    --dy: 10px;
+}
+
+@keyframes hammerSwing {
+    0% {
+        transform: rotate(-60deg);
+    }
+    60% {
+        transform: rotate(10deg);
+    }
+    100% {
+        transform: rotate(0deg);
+    }
+}
+
+@keyframes sparkFly {
+    0% {
+        opacity: 1;
+        transform: translate(0, 0);
+    }
+    100% {
+        opacity: 0;
+        transform: translate(var(--dx, 0), var(--dy, 0));
+    }
+}
+
+@keyframes bladePulse {
+    0%,
+    100% {
+        background: #ffc93e;
+    }
+    50% {
+        background: #fff3b0;
+    }
+}
+
+/* Reduced motion: no swing, no sparks, no pulse. The hammer is drawn resting on
+   the blade instead. */
+@media (prefers-reduced-motion: reduce) {
+    .hammer {
+        animation: none;
+        transform: rotate(0deg);
+    }
+
+    .blade {
+        animation: none;
+    }
+
+    .spark {
+        animation: none;
+        display: none;
+    }
+}
+
+/* --- Phone: one column --------------------------------------------------- */
+
+@media (max-width: 700px) {
+    .blacksmith {
+        grid-template-columns: 1fr;
+        overflow-y: auto;
+    }
+
+    .componentRow {
+        display: grid;
+        grid-template-columns: repeat(4, 1fr);
+        gap: 0.25rem;
+    }
+
+    .componentName {
+        max-width: 100%;
+    }
+
+    .pickerActions {
+        grid-column: auto;
+    }
 }

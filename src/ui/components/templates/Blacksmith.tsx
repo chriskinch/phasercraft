@@ -1,149 +1,375 @@
-import React, { useState } from "react";
+import React, { useMemo, useState } from "react";
 import { useSelector, useDispatch } from "react-redux";
 import { craftItem, componentTotal, missingMaterials } from "@store/gameReducer";
 import Button from "@components/Button";
-import Coins from "@components/Coins";
 import LootIcon from "@components/LootIcon";
 import { COMPONENT_DEFS, RECIPES } from "@/types/game";
-import type { ComponentType, Recipe } from "@/types/game";
+import type { ComponentType, Recipe, RecipeResult } from "@/types/game";
 import { colorForQuality } from "@/lib/armoryClient";
+import { appliedStatValue, conversionFor, formatStatValue } from "@/lib/statConversion";
+import { pixelEmbossVars } from "@ui/themes";
 import type { RootState } from "@store";
 import theme from "@ui/themes.module.css";
 import styles from "./Blacksmith.module.css";
 
-// The town Blacksmith: recipe-based crafting, the known-outcome counterpart to
-// the Armory's random stock. Every recipe in the catalog is listed, but the ones
-// the player has not learnt show as unnamed silhouettes — the collection is the
-// progression, so a locked recipe is visible without being readable.
+// The town Blacksmith, built to docs/specs/blacksmith-crafting-ui.md.
 //
-// A crafted item is minted by the `craftItem` reducer, which re-checks materials
-// and coins; this panel only mirrors that check so the button can explain itself.
+// The screen is a *forge line*: the player slots a recipe, the recipe fills the
+// component slots, and a card beside the line shows the item they will get. The
+// data model underneath is unchanged from Step 4a — `craftItem`,
+// `componentTotal` and `missingMaterials` are still the single source of truth,
+// so the button can never disagree with what the reducer will allow.
 //
-// No title is rendered here: the framed overlay container supplies it from the
-// `UI.tsx` menu registry (`title: "Blacksmith"`), the same way the Merchant panel
-// leaves its own header to the registry. The skeleton's `<h2>` is dropped for that
-// reason, not by oversight.
+// Two things the spec defers, and this screen therefore does NOT render:
+//  - the SPECIAL item slot (Step 4d): hidden entirely, not shown disabled;
+//  - the anvil clang (Step 4e): the success overlay is silent.
+// Unlearnt recipes are not shown at all — finding them is the discovery, so
+// there are no locked silhouettes.
+
+// Light rarity tints for a filled slot's emboss, from the spec's table. The
+// slot carries the item's rarity so the sprite can sit on it bare.
+const RARITY_TINT: Record<string, { rgb: string; a: number }> = {
+    common: { rgb: "187,187,187", a: 0.35 },
+    fine: { rgb: "0,221,0", a: 0.18 },
+    rare: { rgb: "0,119,255", a: 0.16 },
+    epic: { rgb: "153,0,255", a: 0.16 },
+    legendary: { rgb: "255,153,0", a: 0.2 },
+};
+
+// `pixelEmbossVars` derives the lip from the fill at 3x alpha, which matches the
+// spec's lip column closely enough to keep one seam rather than two.
+const tintVars = (quality: string) => pixelEmbossVars(RARITY_TINT[quality] ?? RARITY_TINT.common);
+
+// The four component slots are fixed; a recipe fills them in catalog order and
+// any it does not use stays empty.
+const SLOT_COUNT = 4;
+
+const materialEntries = (recipe: Recipe) =>
+    Object.entries(recipe.materials) as Array<[ComponentType, number]>;
+
+/** A stat row as the "You will craft" card and the success overlay show it. */
+const statRows = (result: RecipeResult) =>
+    result.stats.map((stat) => {
+        // Recipe statlines are in pool units, like a generated armory item, so they
+        // go through the same conversion the tooltip applies before formatting.
+        const applied = appliedStatValue(stat.name, stat.value);
+        return {
+            name: stat.name,
+            label: conversionFor(stat.name).label,
+            display: formatStatValue(stat.name, applied, { signed: true }),
+        };
+    });
+
+interface SlotProps {
+    quality?: string;
+    category?: string;
+    icon?: string;
+    empty?: React.ReactNode;
+}
+
+// One square slot on the forge line. Filled slots take a rarity-tinted emboss
+// and draw the sprite bare; empty ones keep the default emboss.
+const Slot: React.FC<SlotProps> = ({ quality, category, icon, empty }) => (
+    <div
+        className={`${theme.pixelEmboss} ${styles.slot}`}
+        style={quality ? tintVars(quality) : undefined}
+    >
+        {category && icon ? (
+            <LootIcon
+                bare
+                category={category}
+                color={colorForQuality(quality ?? "common")}
+                icon={icon}
+            />
+        ) : (
+            <span className={styles.slotEmpty}>{empty}</span>
+        )}
+    </div>
+);
+
 const Blacksmith: React.FC = () => {
     const dispatch = useDispatch();
     const { coins, components, recipes } = useSelector((state: RootState) => state.game);
 
-    const [selectedId, setSelectedId] = useState<string | null>(null);
+    const [view, setView] = useState<"forge" | "picker">("forge");
+    // The recipe on the forge line, and the one highlighted inside the picker.
+    const [slotted, setSlotted] = useState<string | null>(null);
+    const [previewed, setPreviewed] = useState<string | null>(null);
+    // Set from the item `craftItem` actually added, so the overlay can only ever
+    // appear after a craft the reducer accepted.
+    const [crafted, setCrafted] = useState<RecipeResult | null>(null);
 
-    const known = (recipe: Recipe) => recipes.includes(recipe.id);
-    const selected = RECIPES.find((r) => r.id === selectedId && known(r)) ?? null;
+    // Only recipes the player has learnt exist on this screen at all.
+    const known = useMemo(() => RECIPES.filter((r) => recipes.includes(r.id)), [recipes]);
+    const recipe = known.find((r) => r.id === slotted) ?? null;
+    const preview = known.find((r) => r.id === previewed) ?? null;
 
-    const missing = selected ? missingMaterials(components, selected) : {};
+    const missing = recipe ? missingMaterials(components, recipe) : {};
     const shortOnMaterials = Object.keys(missing).length > 0;
-    const shortOnCoins = !!selected && coins < selected.coins;
-    const canCraft = !!selected && !shortOnMaterials && !shortOnCoins;
+    const shortOnCoins = !!recipe && coins < recipe.coins;
 
-    // Why the Craft button is disabled, so the player isn't left guessing.
-    const reason = !selected
-        ? "Select a recipe"
+    // The button's label and enabled state, per the spec's table. Materials win
+    // when both are short.
+    const craftState = !recipe
+        ? { label: "Choose a recipe", enabled: false }
         : shortOnMaterials
-          ? "Missing materials"
+          ? { label: `Missing parts · ${recipe.coins} coins`, enabled: false }
           : shortOnCoins
-            ? "Not enough coins"
-            : null;
+            ? { label: `Not enough coins · ${recipe.coins} coins`, enabled: false }
+            : { label: `Craft · ${recipe.coins} coins`, enabled: true };
 
-    return (
-        <div className={styles.blacksmithContainer}>
-            <section className={styles.coinsSection}>
-                <Coins data-testid="blacksmith-coins" />
-            </section>
+    // The shortfall line on the card: the first missing material, else coins.
+    const shortfall = (() => {
+        if (!recipe) return null;
+        const [first] = Object.entries(missing) as Array<[ComponentType, number]>;
+        if (first) return `Need ${first[1]} more ${COMPONENT_DEFS[first[0]].name} to craft`;
+        if (shortOnCoins) return `Need ${recipe.coins - coins} more coins`;
+        return null;
+    })();
 
-            <section
-                className={`${theme.pixelEmboss} ${styles.recipesSection}`}
-                role="listbox"
-                aria-label="Recipes"
-                data-testid="recipe-list"
-            >
-                {RECIPES.map((recipe) => {
-                    const isKnown = known(recipe);
-                    const isSelected = recipe.id === selectedId && isKnown;
-                    return (
-                        <button
-                            key={recipe.id}
-                            type="button"
-                            role="option"
-                            aria-selected={isSelected}
-                            aria-label={isKnown ? recipe.result.name : "Unknown recipe"}
-                            className={`${styles.recipe} ${isKnown ? "" : styles.locked}`}
-                            disabled={!isKnown}
-                            onClick={() => setSelectedId(recipe.id)}
+    const clearForge = () => {
+        setSlotted(null);
+        setCrafted(null);
+    };
+
+    const onCraft = () => {
+        // `craftState.enabled` is computed from the same missingMaterials/coins
+        // check `craftItem` guards on, so a craft that passes here is one the
+        // reducer accepts. Re-checking rather than trusting the disabled button
+        // keeps the overlay off a refused craft even if called directly.
+        if (!recipe || !craftState.enabled) return;
+        dispatch(craftItem(recipe.id));
+        setCrafted(recipe.result);
+    };
+
+    // --- Recipe picker ------------------------------------------------------
+    if (view === "picker") {
+        return (
+            <div className={styles.blacksmith} data-testid="recipe-picker">
+                <section className={styles.pickerList} role="listbox" aria-label="Your recipes">
+                    {known.map((r) => {
+                        const short = Object.keys(missingMaterials(components, r)).length > 0;
+                        return (
+                            <button
+                                key={r.id}
+                                type="button"
+                                role="option"
+                                aria-selected={r.id === previewed}
+                                className={styles.pickerRow}
+                                onClick={() => setPreviewed(r.id)}
+                            >
+                                <Slot
+                                    quality={r.result.quality}
+                                    category={r.result.category}
+                                    icon={r.result.icon}
+                                />
+                                <span className={styles.pickerName}>{r.result.name}</span>
+                                <span className={short ? styles.short : styles.ready}>
+                                    {short ? "Missing parts" : "Ready"}
+                                </span>
+                            </button>
+                        );
+                    })}
+                </section>
+
+                <section className={styles.pickerDetail} data-testid="picker-detail">
+                    {preview ? (
+                        <div
+                            className={styles.resultCard}
+                            style={
+                                {
+                                    "--rarity": colorForQuality(preview.result.quality),
+                                } as React.CSSProperties
+                            }
                         >
-                            <LootIcon
-                                category={recipe.result.category}
-                                color={colorForQuality(recipe.result.quality)}
-                                icon={recipe.result.icon}
-                                selected={isSelected}
-                            />
-                            <span className={styles.recipeName}>
-                                {isKnown ? recipe.result.name : "???"}
-                            </span>
-                        </button>
-                    );
-                })}
+                            <h3 className={styles.resultName}>{preview.result.name}</h3>
+                            <p className={styles.resultMeta}>
+                                {preview.result.quality} · {preview.result.set}
+                            </p>
+                            <h4 className={styles.sectionLabel}>Needs</h4>
+                            <ul className={styles.rows}>
+                                {materialEntries(preview).map(([type, need]) => {
+                                    const have = componentTotal(components, type);
+                                    return (
+                                        <li key={type}>
+                                            <span>{COMPONENT_DEFS[type].name}</span>
+                                            <span
+                                                className={
+                                                    have >= need ? styles.ready : styles.short
+                                                }
+                                            >
+                                                {have}/{need}
+                                            </span>
+                                        </li>
+                                    );
+                                })}
+                            </ul>
+                            <h4 className={styles.sectionLabel}>Stats</h4>
+                            <ul className={styles.rows}>
+                                {statRows(preview.result).map((s) => (
+                                    <li key={s.name}>
+                                        <span>{s.label}</span>
+                                        <span className={styles.ready}>{s.display}</span>
+                                    </li>
+                                ))}
+                            </ul>
+                            <p className={styles.costLine}>{preview.coins} coins</p>
+                        </div>
+                    ) : (
+                        <p className={styles.muted}>Choose a recipe to see what it makes.</p>
+                    )}
+                </section>
+
+                <section className={styles.pickerActions}>
+                    <Button
+                        text="Use recipe"
+                        disabled={!preview}
+                        onClick={() => {
+                            if (!preview) return;
+                            setSlotted(preview.id);
+                            setView("forge");
+                        }}
+                    />
+                    <Button text="Back" onClick={() => setView("forge")} />
+                </section>
+            </div>
+        );
+    }
+
+    // --- Forge --------------------------------------------------------------
+    return (
+        <div className={styles.blacksmith} data-testid="forge">
+            <section className={styles.forgeLine}>
+                <button
+                    type="button"
+                    className={styles.recipeCard}
+                    data-testid="recipe-card"
+                    onClick={() => (recipe ? clearForge() : setView("picker"))}
+                >
+                    <Slot
+                        quality={recipe?.result.quality}
+                        category={recipe?.result.category}
+                        icon={recipe?.result.icon}
+                        empty="+"
+                    />
+                    <span className={styles.recipeCardText}>
+                        <span className={styles.sectionLabel}>Recipe</span>
+                        <span className={styles.recipeName}>
+                            {recipe ? recipe.result.name : "No recipe"}
+                        </span>
+                        <span className={styles.muted}>
+                            {recipe ? "Tap to remove" : "Tap to choose from your recipes"}
+                        </span>
+                    </span>
+                    <span
+                        className={recipe ? styles.removeBadge : styles.chevron}
+                        aria-hidden="true"
+                    >
+                        {recipe ? "✕" : "›"}
+                    </span>
+                </button>
+
+                <h4 className={styles.sectionLabel}>Components</h4>
+                <ul className={styles.componentRow} data-testid="component-slots">
+                    {Array.from({ length: SLOT_COUNT }, (_, i) => {
+                        const entry = recipe ? materialEntries(recipe)[i] : undefined;
+                        if (!entry) {
+                            return (
+                                <li key={i} className={styles.componentSlot}>
+                                    <Slot />
+                                    <span className={styles.muted}>Not needed</span>
+                                </li>
+                            );
+                        }
+                        const [type, need] = entry;
+                        const have = componentTotal(components, type);
+                        return (
+                            <li key={i} className={styles.componentSlot}>
+                                <Slot
+                                    quality="common"
+                                    category="crafting"
+                                    icon={COMPONENT_DEFS[type].icon}
+                                />
+                                <span className={styles.componentName}>
+                                    {COMPONENT_DEFS[type].name}
+                                </span>
+                                <span className={have >= need ? styles.ready : styles.short}>
+                                    {have}/{need}
+                                </span>
+                            </li>
+                        );
+                    })}
+                </ul>
+
+                <Button text={craftState.label} disabled={!craftState.enabled} onClick={onCraft} />
             </section>
 
             <section
-                className={`${theme.pixelEmboss} ${styles.detailSection}`}
-                data-testid="recipe-detail"
+                className={styles.resultCard}
+                data-testid="will-craft"
+                style={
+                    {
+                        "--rarity": recipe ? colorForQuality(recipe.result.quality) : "transparent",
+                    } as React.CSSProperties
+                }
             >
-                {selected ? (
+                {recipe ? (
                     <>
-                        <h3 className={styles.detailTitle}>{selected.result.name}</h3>
-                        <ul className={styles.stats}>
-                            {selected.result.stats.map((stat) => (
-                                <li key={stat.name}>
-                                    {stat.name.replace(/_/g, " ")}
-                                    <span className={styles.statValue}>+{stat.value}</span>
+                        <Slot
+                            quality={recipe.result.quality}
+                            category={recipe.result.category}
+                            icon={recipe.result.icon}
+                        />
+                        <h3 className={styles.resultName}>{recipe.result.name}</h3>
+                        <p className={styles.resultMeta}>
+                            {recipe.result.quality} · {recipe.result.set}
+                        </p>
+                        <ul className={styles.rows}>
+                            {statRows(recipe.result).map((s) => (
+                                <li key={s.name}>
+                                    <span>{s.label}</span>
+                                    <span className={styles.ready}>{s.display}</span>
                                 </li>
                             ))}
                         </ul>
-                        <ul className={styles.materials} data-testid="recipe-materials">
-                            {(
-                                Object.entries(selected.materials) as Array<[ComponentType, number]>
-                            ).map(([type, needed]) => {
-                                const held = componentTotal(components, type);
-                                return (
-                                    <li
-                                        key={type}
-                                        className={held < needed ? styles.short : undefined}
-                                    >
-                                        <LootIcon
-                                            category="crafting"
-                                            color="#bbbbbb"
-                                            icon={COMPONENT_DEFS[type].icon}
-                                        />
-                                        {COMPONENT_DEFS[type].name}
-                                        <span className={styles.haveNeed}>
-                                            {held}/{needed}
-                                        </span>
-                                    </li>
-                                );
-                            })}
-                        </ul>
-                        <div
-                            className={`${styles.coinCost} ${shortOnCoins ? styles.short : ""}`}
-                            data-testid="recipe-cost"
-                        >
-                            <img src="./UI/icons/coin.gif" alt="Cost:" /> {selected.coins}
-                        </div>
+                        {shortfall && (
+                            <p className={styles.short} data-testid="shortfall">
+                                {shortfall}
+                            </p>
+                        )}
                     </>
                 ) : (
-                    <p className={styles.empty}>Select a recipe to forge.</p>
+                    <p className={styles.muted}>Choose a recipe to see the item and its stats.</p>
                 )}
             </section>
 
-            <section className={styles.actionsSection} data-testid="blacksmith-actions">
-                {reason && <span className={styles.reason}>{reason}</span>}
-                <Button
-                    text="Craft"
-                    disabled={!canCraft}
-                    onClick={() => selected && dispatch(craftItem(selected.id))}
-                />
-            </section>
+            {crafted && (
+                <div className={theme.dialogOverlay} role="status" data-testid="craft-success">
+                    <div className={styles.anvilScene} aria-hidden="true">
+                        <span className={styles.anvil} />
+                        <span className={styles.blade} />
+                        <span className={styles.hammer} />
+                        {Array.from({ length: 14 }, (_, i) => (
+                            <span key={i} className={styles.spark} data-spark={i} />
+                        ))}
+                    </div>
+                    <h3>Crafted!</h3>
+                    <p className={styles.resultName}>{crafted.name}</p>
+                    <ul className={styles.rows}>
+                        {statRows(crafted).map((s) => (
+                            <li key={s.name}>
+                                <span>{s.label}</span>
+                                <span className={styles.ready}>{s.display}</span>
+                            </li>
+                        ))}
+                    </ul>
+                    <p>Added to your inventory</p>
+                    <div className={styles.overlayActions}>
+                        <Button text="Craft another" onClick={clearForge} />
+                        <Button text="Done" bg_color="#44bff7" onClick={() => setCrafted(null)} />
+                    </div>
+                </div>
+            )}
         </div>
     );
 };
