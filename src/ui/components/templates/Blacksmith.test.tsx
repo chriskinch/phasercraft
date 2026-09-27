@@ -3,6 +3,7 @@ import { fireEvent, screen, within } from "@testing-library/react";
 import { renderWithProviders } from "@ui/test-utils/renderWithProviders";
 import Blacksmith from "@components/Blacksmith";
 import { COMPONENT_DEFS, RECIPES, recipeById } from "@/types/game";
+import { STAT_POSITIVE, STAT_NEGATIVE } from "@ui/themes";
 import type { ComponentType } from "@/types/game";
 import type { GameState } from "@store/gameReducer";
 
@@ -38,6 +39,22 @@ describe("Blacksmith recipe catalog", () => {
         for (const r of RECIPES) {
             expect(Object.keys(r.materials).length).toBeLessThanOrEqual(4);
         }
+    });
+});
+
+describe("Blacksmith stat colours", () => {
+    // .ready/.short read these custom properties with no hex fallback, so if a
+    // root ever stopped supplying them the colours would silently go dark.
+    it("feeds the shared stat colours to both view roots", () => {
+        render();
+        const forge = screen.getByTestId("forge");
+        expect(forge.style.getPropertyValue("--stat-positive")).toBe(STAT_POSITIVE);
+        expect(forge.style.getPropertyValue("--stat-negative")).toBe(STAT_NEGATIVE);
+
+        fireEvent.click(screen.getByTestId("recipe-card"));
+        const picker = screen.getByTestId("recipe-picker");
+        expect(picker.style.getPropertyValue("--stat-positive")).toBe(STAT_POSITIVE);
+        expect(picker.style.getPropertyValue("--stat-negative")).toBe(STAT_NEGATIVE);
     });
 });
 
@@ -222,19 +239,32 @@ describe("Blacksmith craft success", () => {
     });
 
     // The overlay's animation is CSS, so jsdom can't tell whether it *looks*
-    // right — but it can catch the parts being deleted. The impact flash is
-    // called for by the spec and was missing from the first cut, so it is the
-    // one worth pinning.
-    it("draws the anvil, blade, hammer and impact flash", () => {
-        const { container } = render({ components: materialsFor(2) });
+    // right — but it can catch the parts being deleted. Matched against the
+    // scene's own children, and on whole class-name tokens: a bare
+    // `[class*="anvil"]` search also matches the `anvilScene` wrapper, so the
+    // anvil case would pass with no anvil in the tree.
+    it("draws every part of the anvil scene", () => {
+        render({ components: materialsFor(2) });
         slotRecipe();
         fireEvent.click(screen.getByRole("button", { name: `Craft · ${recipe.coins} coins` }));
 
-        const scene = screen.getByTestId("craft-success");
-        for (const part of ["anvil", "blade", "hammer", "flash"]) {
-            expect(scene.querySelector(`[class*="${part}"]`)).toBeTruthy();
+        const scene = screen
+            .getByTestId("craft-success")
+            .querySelector('[class*="anvilScene"]') as HTMLElement;
+        const partOf = (name: string) =>
+            Array.from(scene.children).filter((child) =>
+                new RegExp(`(^|[^A-Za-z])${name}([^A-Za-z]|$)`).test(child.className)
+            );
+
+        for (const part of ["anvil", "tang", "blade", "flash", "hammer"]) {
+            expect(partOf(part)).toHaveLength(1);
         }
-        expect(container.querySelectorAll('[class*="spark"]')).toHaveLength(14);
+        expect(partOf("spark")).toHaveLength(14);
+        // The hammer is a head on a handle, not a bar; both must be present or
+        // the swing has nothing to strike with.
+        const [hammer] = partOf("hammer");
+        expect(hammer.querySelector('[class*="head"]')).toBeTruthy();
+        expect(hammer.querySelector('[class*="handle"]')).toBeTruthy();
     });
 
     it("Craft another clears the forge", () => {

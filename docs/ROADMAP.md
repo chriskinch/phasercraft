@@ -404,7 +404,7 @@ is the source of truth for the screen; the table below covers the data model.
       "already bought" is implicit — **no delta state to persist** (unlike the
       Merchant's `partsDelta`)
 
-#### Step 4d — Special items
+#### Step 4d — Special items (#481)
 
 - [ ] Item type + catalog (id, name, sprite, rarity, bonus stat/value); an owned-specials
       save slice (**save-format change**); a source (drops, Merchant stock or a
@@ -413,7 +413,7 @@ is the source of truth for the screen; the table below covers the data model.
       an existing stat of the same name
 - [ ] Special slot and special picker shown (they are hidden in 4a)
 
-#### Step 4e — Craft SFX (first audio in the game)
+#### Step 4e — Craft SFX (first audio in the game) (#482)
 
 - [ ] SFX service playable from React — routed through Phaser's global `game.sound` so it
       keeps working while the town scene is paused behind the overlay

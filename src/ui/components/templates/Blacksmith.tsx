@@ -7,7 +7,7 @@ import { COMPONENT_DEFS, RECIPES } from "@/types/game";
 import type { ComponentType, Recipe, RecipeResult } from "@/types/game";
 import { colorForQuality } from "@/lib/armoryClient";
 import { appliedStatValue, conversionFor, formatStatValue } from "@/lib/statConversion";
-import { pixelEmbossVars } from "@ui/themes";
+import { pixelEmbossVars, STAT_POSITIVE, STAT_NEGATIVE } from "@ui/themes";
 import type { RootState } from "@store";
 import theme from "@ui/themes.module.css";
 import styles from "./Blacksmith.module.css";
@@ -48,6 +48,13 @@ const tintVars = (quality: string) => pixelEmbossVars(RARITY_TINT[quality] ?? RA
 
 // The four component slots are fixed; a recipe fills them in catalog order and
 // any it does not use stays empty.
+// The have/need and stat colours come from the shared constants rather than
+// being written into the stylesheet, so this screen tracks the Stat atom.
+const STAT_VARS = {
+    "--stat-positive": STAT_POSITIVE,
+    "--stat-negative": STAT_NEGATIVE,
+} as React.CSSProperties;
+
 const SLOT_COUNT = 4;
 
 const materialEntries = (recipe: Recipe) =>
@@ -151,7 +158,7 @@ const Blacksmith: React.FC = () => {
     // --- Recipe picker ------------------------------------------------------
     if (view === "picker") {
         return (
-            <div className={styles.blacksmith} data-testid="recipe-picker">
+            <div className={styles.blacksmith} style={STAT_VARS} data-testid="recipe-picker">
                 <section className={styles.pickerList} role="listbox" aria-label="Your recipes">
                     {known.map((r) => {
                         const short = Object.keys(missingMaterials(components, r)).length > 0;
@@ -246,7 +253,7 @@ const Blacksmith: React.FC = () => {
 
     // --- Forge --------------------------------------------------------------
     return (
-        <div className={styles.blacksmith} data-testid="forge">
+        <div className={styles.blacksmith} style={STAT_VARS} data-testid="forge">
             <section className={styles.forgeLine}>
                 <button
                     type="button"

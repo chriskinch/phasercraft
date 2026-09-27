@@ -165,16 +165,20 @@
     font-variant-numeric: tabular-nums;
 }
 
-/* The spec's darker contrast pair. These reach 4.5:1 on the pale panel, which
-   the Stat atom's #10b981/#ef4444 do not — the atom is deliberately left alone
-   and this screen carries the darker pair locally (decision 5). */
+/* The project-wide stat gain/loss pair, which #479 moved into `themes.ts` as
+   STAT_POSITIVE/STAT_NEGATIVE and switched the Stat and Attribute atoms to.
+   A CSS Module can't import TS, so the component feeds the two constants in as
+   custom properties (the same seam `pixelEmbossVars` uses). No hex is repeated
+   here, not even as a var() fallback: a fallback is another copy of the value
+   and would be free to drift from the atoms, which is the thing #479 set out
+   to stop. Both view roots set the vars, so there is nothing to fall back to. */
 .ready {
-    color: #047857;
+    color: var(--stat-positive);
     font-variant-numeric: tabular-nums;
 }
 
 .short {
-    color: #b91c1c;
+    color: var(--stat-negative);
     font-variant-numeric: tabular-nums;
 }
 
