@@ -772,7 +772,7 @@ describe("BiomeScene.updatePropOverlays", () => {
     });
 
     it("sorts a taller prop on the base its sortBase property names", () => {
-        // The entrance gateway's beam stands two tiles above its posts' feet.
+        // The sliver over the entrance gateway's beam stands two tiles above its posts.
         const world = { x: 320, y: 640 };
         const { scene, sprite, tile } = makeOverlayScene(world);
         tile.properties = { sortBase: 2 };
