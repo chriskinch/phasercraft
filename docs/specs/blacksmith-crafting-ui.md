@@ -266,7 +266,7 @@ The one exception is the locked-recipe silhouettes, which are removed (decision 
       even as greyed silhouettes, because finding them is part of the discovery.
     - This replaces #448's locked "???" silhouettes; its "catalog reads as a
       collection" decision is superseded.
-2. **Special items are their own sub-step (4d).**
+2. **Special items are their own sub-step (4d, #481).**
     - 4d needs:
         - an item type and catalog (id, name, sprite, rarity, bonus stat/value);
         - an owned-specials save slice (a save-format change);
@@ -277,7 +277,7 @@ The one exception is the locked-recipe silhouettes, which are removed (decision 
     - Until 4d, the special slot is **hidden**, not shown disabled.
 3. **At most 4 materials per recipe.** This matches the 4 component slots. A catalog
    test asserts `Object.keys(materials).length <= 4` for every recipe.
-4. **Sound is its own sub-step (4e).** It covers the SFX service, the clang asset
+4. **Sound is its own sub-step (4e, #482).** It covers the SFX service, the clang asset
    (with its licence) and a mute/volume setting through `settingsStorage`.
 5. **Contrast colours change everywhere.** The `Stat` and `Attribute` atoms now use
    `#047857`/`#b91c1c` (`STAT_POSITIVE`/`STAT_NEGATIVE` in `themes.ts`) in place of
@@ -291,8 +291,8 @@ The one exception is the locked-recipe silhouettes, which are removed (decision 
 | 4a   | #448 (open), reworked to this layout: forge line, recipe picker, square rarity-tinted slots, button states, success overlay (no sound), Craft another. Special slot hidden. 4-material catalog test (decision 3). | —          |
 | 4b   | Schematic drops (unchanged)                                                                                                                                                                                       | 4a         |
 | 4c   | Schematic shop (unchanged)                                                                                                                                                                                        | 4a         |
-| 4d   | Special items: catalog, save slice, source, special picker, bonus applied by `craftItem`, special slot shown                                                                                                      | 4a         |
-| 4e   | SFX foundation + anvil clang on the craft impact frame                                                                                                                                                            | 4a         |
+| 4d   | #481 — Special items: catalog, save slice, source, special picker, bonus applied by `craftItem`, special slot shown                                                                                               | 4a         |
+| 4e   | #482 — SFX foundation + anvil clang on the craft impact frame                                                                                                                                                     | 4a         |
 
 ## Test plan (UI)
 
