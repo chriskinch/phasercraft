@@ -228,11 +228,8 @@ its first sound effect, so it needs a small foundation built as its own PR:
 - **Title chip**: `#44bff7`, white text.
 - **Primary button**: `#ffc93e`. Secondary (Done) `#44bff7`. The special item's
   **Use item** button is purple `#c9a3ff`.
-- **Have/need and stat values**: green `#047857`, red `#b91c1c`.
-    - These are darker than the Stat atom's `#10b981`/`#ef4444`, which don't reach
-      4.5:1 contrast on the pale panel.
-    - Changing the Stat atom globally is a separate decision; this screen uses the
-      darker pair.
+- **Have/need and stat values**: green `#047857`, red `#b91c1c`, the game-wide
+  `STAT_POSITIVE` / `STAT_NEGATIVE` in `src/ui/themes.ts` (decision 5).
 - **Special item accents** (labels, bonus rows): purple `#6a22b0` on the panel.
 
 ## Reconciling with Step 4a (PR #448)
@@ -269,7 +266,7 @@ The one exception is the locked-recipe silhouettes, which are removed (decision 
       even as greyed silhouettes, because finding them is part of the discovery.
     - This replaces #448's locked "???" silhouettes; its "catalog reads as a
       collection" decision is superseded.
-2. **Special items are their own sub-step (4d).**
+2. **Special items are their own sub-step (4d, #481).**
     - 4d needs:
         - an item type and catalog (id, name, sprite, rarity, bonus stat/value);
         - an owned-specials save slice (a save-format change);
@@ -280,10 +277,12 @@ The one exception is the locked-recipe silhouettes, which are removed (decision 
     - Until 4d, the special slot is **hidden**, not shown disabled.
 3. **At most 4 materials per recipe.** This matches the 4 component slots. A catalog
    test asserts `Object.keys(materials).length <= 4` for every recipe.
-4. **Sound is its own sub-step (4e).** It covers the SFX service, the clang asset
+4. **Sound is its own sub-step (4e, #482).** It covers the SFX service, the clang asset
    (with its licence) and a mute/volume setting through `settingsStorage`.
-5. **Contrast colours: still open.** Until decided, this screen uses the darker
-   `#047857`/`#b91c1c` pair, and the Stat atom is unchanged everywhere else.
+5. **Contrast colours change everywhere.** The `Stat` and `Attribute` atoms now use
+   `#047857`/`#b91c1c` (`STAT_POSITIVE`/`STAT_NEGATIVE` in `themes.ts`) in place of
+   `#10b981`/`#ef4444`, which don't reach 4.5:1 contrast on the pale panel. The
+   Blacksmith uses the same constants.
 
 ## Proposed PR breakdown
 
@@ -292,8 +291,8 @@ The one exception is the locked-recipe silhouettes, which are removed (decision 
 | 4a   | #448 (open), reworked to this layout: forge line, recipe picker, square rarity-tinted slots, button states, success overlay (no sound), Craft another. Special slot hidden. 4-material catalog test (decision 3). | —          |
 | 4b   | Schematic drops (unchanged)                                                                                                                                                                                       | 4a         |
 | 4c   | Schematic shop (unchanged)                                                                                                                                                                                        | 4a         |
-| 4d   | Special items: catalog, save slice, source, special picker, bonus applied by `craftItem`, special slot shown                                                                                                      | 4a         |
-| 4e   | SFX foundation + anvil clang on the craft impact frame                                                                                                                                                            | 4a         |
+| 4d   | #481 — Special items: catalog, save slice, source, special picker, bonus applied by `craftItem`, special slot shown                                                                                               | 4a         |
+| 4e   | #482 — SFX foundation + anvil clang on the craft impact frame                                                                                                                                                     | 4a         |
 
 ## Test plan (UI)
 
