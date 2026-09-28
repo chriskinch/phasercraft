@@ -703,7 +703,7 @@
       "file_type": "code",
       "norm_label": "sfxkey",
       "source_file": "src/services/sfx.ts",
-      "source_location": "L35"
+      "source_location": "L37"
     },
     {
       "id": "src_types_game_adjustvalue",
@@ -6071,7 +6071,7 @@
       "file_type": "code",
       "norm_label": "setsfxmanager()",
       "source_file": "src/services/sfx.ts",
-      "source_location": "L40"
+      "source_location": "L42"
     },
     {
       "id": "src_services_sfx_sfxgain",
@@ -6083,7 +6083,7 @@
       "file_type": "code",
       "norm_label": "sfxgain()",
       "source_file": "src/services/sfx.ts",
-      "source_location": "L45"
+      "source_location": "L47"
     },
     {
       "id": "src_helpers_walkability_buildwalkability",
@@ -6395,7 +6395,7 @@
       "file_type": "code",
       "norm_label": "playsfx()",
       "source_file": "src/services/sfx.ts",
-      "source_location": "L56"
+      "source_location": "L59"
     },
     {
       "id": "api_armory_lib_itemstore_client",
@@ -19499,7 +19499,7 @@
       "file_type": "code",
       "norm_label": "sfx",
       "source_file": "src/services/sfx.ts",
-      "source_location": "L28"
+      "source_location": "L30"
     },
     {
       "id": "docs_specs_blacksmith_crafting_ui_sound_first_audio_in_the_game",
@@ -31046,7 +31046,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "src/services/sfx.ts",
-      "source_location": "L57",
+      "source_location": "L60",
       "weight": 1.0
     },
     {
@@ -31058,7 +31058,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "src/services/sfx.ts",
-      "source_location": "L46",
+      "source_location": "L48",
       "weight": 1.0
     },
     {
@@ -68755,7 +68755,7 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "src/services/sfx.ts",
-      "source_location": "L28",
+      "source_location": "L30",
       "weight": 1.0
     },
     {
@@ -68766,7 +68766,7 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "src/services/sfx.ts",
-      "source_location": "L35",
+      "source_location": "L37",
       "weight": 1.0
     },
     {
@@ -68777,7 +68777,7 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "src/services/sfx.ts",
-      "source_location": "L40",
+      "source_location": "L42",
       "weight": 1.0
     },
     {
@@ -68788,7 +68788,7 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "src/services/sfx.ts",
-      "source_location": "L45",
+      "source_location": "L47",
       "weight": 1.0
     },
     {
@@ -68799,7 +68799,7 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "src/services/sfx.ts",
-      "source_location": "L56",
+      "source_location": "L59",
       "weight": 1.0
     },
     {
@@ -79688,5 +79688,5 @@
     }
   ],
   "hyperedges": [],
-  "built_at_commit": "fda59e8cc9bbeeb1622c584c4df8fd166d9e7c89"
+  "built_at_commit": "cf15e316f9b5c3dccebbec5d27159c549f7f3827"
 }

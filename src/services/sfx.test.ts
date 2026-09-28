@@ -64,6 +64,16 @@ describe("playSfx", () => {
         expect(play).toHaveBeenNthCalledWith(2, "power-up", { volume: 0.1 });
     });
 
+    it("scales the volume by the effect's gain (coin is halved)", () => {
+        const { manager, play } = fakeManager();
+        setSfxManager(manager);
+        writeSettings({ ...DEFAULT_SETTINGS, sfxVolume: 80 });
+
+        playSfx("coin");
+
+        expect(play).toHaveBeenCalledWith("coin", { volume: 0.4 });
+    });
+
     it("is silent when muted", () => {
         const { manager, play } = fakeManager();
         setSfxManager(manager);
@@ -95,7 +105,7 @@ describe("playSfx", () => {
 
 describe("SFX catalog", () => {
     it("points every effect at a file under public/audio/sfx", () => {
-        for (const path of Object.values(SFX)) {
+        for (const { path } of Object.values(SFX)) {
             expect(path).toMatch(/^audio\/sfx\/.+\.wav$/);
         }
     });

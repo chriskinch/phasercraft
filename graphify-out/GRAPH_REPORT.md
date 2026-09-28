@@ -1,7 +1,7 @@
 # Graph Report - phasercraft  (2026-09-28)
 
 ## Corpus Check
-- 287 files · ~441,285 words
+- 287 files · ~441,375 words
 - Verdict: corpus is large enough that graph structure adds value.
 - Unclassified: 68 file(s) not represented in the graph (top: .css 43, (none) 8, .psd 5)
 
@@ -11,7 +11,7 @@
 - Token cost: 0 input · 0 output
 
 ## Graph Freshness
-- Built from commit: `fda59e8c`
+- Built from commit: `cf15e316`
 - Run `git rev-parse HEAD` and compare to check if the graph is stale.
 - Run `graphify update .` after code changes (no API cost).
 
@@ -560,7 +560,7 @@ Nodes (7): Coin, COIN_BASE_VALUE, CoinConfig, Collectable, coinValue(), playSfx(
 _Questions this graph is uniquely positioned to answer:_
 
 - **Why does `vitest` connect `vitest` to `gameReducer.ts`, `Item`, `generateItem.ts`, `Armory.tsx`, `fonts.ts`, `walkability.ts`, `UI`, `CastingController`, `playSfx`, `package.json`, `MerchantModeToggle.tsx`, `Enemy.test.ts`, `area.ts`, `handlers.test.ts`, `StatBar.tsx`, `classes.ts`, `generateItem.test.ts`, `Trap.ts`, `Multishot.ts`, `vite.config.ts`, `Spell.test.ts`, `BossRoar.ts`, `react`, `Spell.ts`, `SpawnDirector`, `TownScene.test.ts`, `operations/helpers.ts`, `UI.tsx`, `Resource.test.ts`, `CastBar`, `settingsStorage.ts`, `statConversion.ts`, `safeArea.ts`, `BiomeScene.test.ts`, `lodash`, `Player.test.ts`, `BiomeScene.ts`, `Invocation`, `store/index.ts`, `TargetReticle.test.ts`, `Gem`, `Crafting.ts`?**
-  _High betweenness centrality (0.224) - this node is a cross-community bridge._
+  _High betweenness centrality (0.225) - this node is a cross-community bridge._
 - **Why does `phaser` connect `phaser` to `LoadScene.ts`, `fonts.ts`, `Frostbolt.ts`, `game.ts`, `UI`, `CastingController`, `playSfx`, `package.json`, `Trap.ts`, `AssignClass.ts`, `Player.ts`, `Spell.test.ts`, `BossRoar.ts`, `Resource.ts`, `Spell.ts`, `SpawnDirector`, `TownScene.test.ts`, `CastBar`, `settingsStorage.ts`, `TownScene.ts`, `safeArea.ts`, `BiomeScene.test.ts`, `BiomeScene.ts`, `Hero`, `CombatText.ts`, `TargetReticle.test.ts`, `Crafting.ts`, `sfx.ts`?**
   _High betweenness centrality (0.089) - this node is a cross-community bridge._
 - **Why does `Enemy` connect `Enemy` to `AssignSpell.ts`, `Boons.ts`, `BiomeScene`, `Player`, `SiphonSoul`, `BiomeScene.ts`, `Frostbolt.ts`, `Multishot.ts`, `Player.ts`, `TargetType`, `game.ts`, `Consecration`, `CastingController`, `Crafting.ts`, `Frostbolt`, `Enemy.test.ts`, `phaser`, `area.ts`?**

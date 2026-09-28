@@ -288,7 +288,7 @@ export default class LoadScene extends Scene {
 
         // Sound effects live under public/audio, outside the graphics path.
         this.load.setPath("");
-        for (const [key, path] of Object.entries(SFX)) {
+        for (const [key, { path }] of Object.entries(SFX)) {
             this.load.audio(key, path);
         }
     }

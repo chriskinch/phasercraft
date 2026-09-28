@@ -17,19 +17,21 @@ import { DEFAULT_SETTINGS, readSettings } from "@services/settingsStorage";
 // therefore nothing to `cleanup()` here beyond detaching the manager.
 
 // Every effect the game can play, keyed by its Phaser cache key. Assets are
-// preloaded in LoadScene from these paths (relative to public/).
+// preloaded in LoadScene from `path` (relative to public/); `gain` balances
+// each effect against the others and scales the player's volume setting.
 //  - power-up: a successful Blacksmith craft
-//  - coin: picking up coins, gems and crafting components
+//  - coin: picking up coins, gems and crafting components (halved: the file
+//    is loud next to the rest)
 //  - explosion: Fireball/Frostbolt impacts, and ranged enemies' bolts
 //    hitting the player
 //  - hurt: every auto-attack hit — the player's (melee, or the Ranger's
 //    arrow on impact) and non-ranged enemies' hits on the player
 // public/audio/sfx/jump.wav is committed but unused, so it is not loaded.
 export const SFX = {
-    "power-up": "audio/sfx/power-up.wav",
-    coin: "audio/sfx/coin.wav",
-    explosion: "audio/sfx/explosion.wav",
-    hurt: "audio/sfx/hurt.wav",
+    "power-up": { path: "audio/sfx/power-up.wav", gain: 1 },
+    coin: { path: "audio/sfx/coin.wav", gain: 0.5 },
+    explosion: { path: "audio/sfx/explosion.wav", gain: 1 },
+    hurt: { path: "audio/sfx/hurt.wav", gain: 1 },
 } as const;
 
 export type SfxKey = keyof typeof SFX;
@@ -49,12 +51,13 @@ export function sfxGain(): number {
 }
 
 /**
- * Play a one-shot effect at the persisted volume. Returns whether it started:
+ * Play a one-shot effect at the persisted volume, scaled by the effect's own
+ * gain. Returns whether it started:
  * false when muted (volume 0), when no game is attached, or when the audio
  * has not loaded.
  */
 export function playSfx(key: SfxKey): boolean {
     const volume = sfxGain();
     if (volume === 0 || !manager || !manager.game.cache.audio.exists(key)) return false;
-    return manager.play(key, { volume });
+    return manager.play(key, { volume: volume * SFX[key].gain });
 }
