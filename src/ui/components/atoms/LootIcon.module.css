@@ -27,3 +27,14 @@
     );
     image-rendering: pixelated;
 }
+
+/* Bare variant: the sprite alone, for a slot that already carries the item's
+   rarity in its own tinted emboss (the Blacksmith forge line). Dropping the
+   face, the inset border and the corner notch stops the icon's chrome doubling
+   up on the slot's. The tile size and pixelated scaling stay, so a bare icon
+   still lines up with every other item grid. */
+.bare {
+    background-color: transparent;
+    box-shadow: none;
+    clip-path: none;
+}

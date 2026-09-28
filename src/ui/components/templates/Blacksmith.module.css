@@ -1,3 +1,740 @@
-.container {
+/* Blacksmith forge line — docs/specs/blacksmith-crafting-ui.md.
+   Desktop is two columns: the forge line on the left, the "You will craft" card
+   on the right at the spec's 280px. Unlike the first cut of this screen, the
+   right column is the ONLY fixed one and the left is the single flexible track,
+   so the row can't overflow its panel (the earlier `1fr 1fr <fixed>` did). */
+.blacksmith {
+    display: grid;
+    grid-template-columns: 1fr 280px;
+    gap: 1rem;
+    height: 100%;
+    min-height: 0;
+    position: relative;
+    color: #222;
+}
+
+.forgeLine {
     display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+    min-width: 0;
+}
+
+/* --- Recipe card --------------------------------------------------------- */
+
+.recipeCard {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    width: 100%;
+    box-sizing: border-box;
+    padding: 0.5rem;
+    /* A slightly darker tone than the panel so the card reads as its own
+       surface without needing a border. */
+    background: rgba(0, 0, 0, 0.06);
+    border: none;
+    color: inherit;
+    font: inherit;
+    text-align: left;
+    cursor: pointer;
+    /* The whole card is the tap target; the spec asks for at least 44px. */
+    min-height: 44px;
+}
+
+.recipeCardText {
+    display: flex;
+    flex-direction: column;
+    min-width: 0;
+}
+
+.recipeName {
+    font-size: 1rem;
+}
+
+.chevron,
+.removeBadge {
+    margin-left: auto;
+    flex: none;
+}
+
+.chevron {
+    font-size: 1.5rem;
+    color: #4d5d66;
+}
+
+/* 22px red square with a white pixel cross, per the spec. */
+.removeBadge {
+    width: 22px;
+    height: 22px;
+    line-height: 22px;
+    text-align: center;
+    background: #ef4444;
+    color: #fff;
+}
+
+/* --- Slots --------------------------------------------------------------- */
+
+/* Square footprint: the emboss adds 6px ears each side and a 6px top lip, so a
+   box of ICON_TILE wide renders as an ICON_TILE + 12 square overall — the same
+   footprint as every other item grid since #477. */
+.slot {
+    width: 56px;
+    height: 56px;
+    flex: none;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.slotEmpty {
+    font-size: 1.5rem;
+    color: #4d5d66;
+}
+
+.componentRow {
+    display: flex;
+    gap: 0.5rem;
+    list-style: none;
+    margin: 0;
+    padding: 0;
+}
+
+.componentSlot {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    font-size: 0.85rem;
+    min-width: 0;
+}
+
+.componentName {
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    max-width: 68px;
+}
+
+/* --- Result card --------------------------------------------------------- */
+
+/* Styled like ItemTooltip: a white face with a 5px border in the result's
+   rarity colour, fed by the --rarity custom property. */
+.resultCard {
+    background: #fff;
+    border: 5px solid var(--rarity, transparent);
+    padding: 0.5rem 0.75rem;
+    box-sizing: border-box;
+    overflow-y: auto;
+    min-height: 0;
+}
+
+.resultName {
+    margin: 0.25rem 0 0;
+    font-size: 1rem;
+}
+
+.resultMeta {
+    margin: 0 0 0.5rem;
+    color: #4d5d66;
+    font-size: 0.85rem;
+    text-transform: capitalize;
+}
+
+.sectionLabel {
+    margin: 0;
+    font-size: 0.75rem;
+    letter-spacing: 0.05em;
+    text-transform: uppercase;
+    color: #4d5d66;
+}
+
+.rows {
+    list-style: none;
+    margin: 0 0 0.5rem;
+    padding: 0;
+    font-size: 0.9rem;
+}
+
+.rows li {
+    display: flex;
+    justify-content: space-between;
+    gap: 0.5rem;
+}
+
+.costLine {
+    margin: 0;
+    font-variant-numeric: tabular-nums;
+}
+
+/* The project-wide stat gain/loss pair, which #479 moved into `themes.ts` as
+   STAT_POSITIVE/STAT_NEGATIVE and switched the Stat and Attribute atoms to.
+   A CSS Module can't import TS, so the component feeds the two constants in as
+   custom properties (the same seam `pixelEmbossVars` uses). No hex is repeated
+   here, not even as a var() fallback: a fallback is another copy of the value
+   and would be free to drift from the atoms, which is the thing #479 set out
+   to stop. Both view roots set the vars, so there is nothing to fall back to. */
+.ready {
+    color: var(--stat-positive);
+    font-variant-numeric: tabular-nums;
+}
+
+.short {
+    color: var(--stat-negative);
+    font-variant-numeric: tabular-nums;
+}
+
+.muted {
+    color: #4d5d66;
+    font-size: 0.85rem;
+}
+
+/* --- Recipe picker ------------------------------------------------------- */
+
+/* Desktop: a grid of recipe cards, per the design brief ("a grid on desktop, a
+   list on phone"). An auto-fill track sized off the card rather than a fixed
+   column count, so it reflows with the panel instead of breaking at one width;
+   the phone block below collapses it to the single-column list. */
+.pickerList {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+    align-content: start;
+    gap: 0.25rem;
+    overflow-y: auto;
+    min-height: 0;
+}
+
+.pickerRow {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 0.25rem;
+    background: none;
+    border: none;
+    color: inherit;
+    font: inherit;
+    text-align: left;
+    cursor: pointer;
+    min-height: 44px;
+}
+
+.pickerRow[aria-selected="true"] {
+    background: rgba(0, 0, 0, 0.08);
+}
+
+/* Name over status, so a card stays legible once the grid narrows it. */
+.pickerText {
+    display: flex;
+    flex-direction: column;
+    flex: 1;
+    min-width: 0;
+}
+
+.pickerName {
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+.pickerDetail {
+    overflow-y: auto;
+    min-height: 0;
+}
+
+.pickerActions {
+    grid-column: 1 / -1;
+    display: flex;
+    gap: 0.5rem;
+    justify-content: flex-end;
+}
+
+/* --- Craft success overlay ----------------------------------------------- */
+
+.overlayActions {
+    display: flex;
+    gap: 0.5rem;
+    justify-content: center;
+    margin-top: 0.5rem;
+}
+
+.anvilScene {
+    position: relative;
+    width: 192px;
+    height: 128px;
+    margin: 0 auto 0.5rem;
+}
+
+.anvil,
+.tang,
+.blade,
+.flash,
+.hammer,
+.handle,
+.head,
+.spark {
+    position: absolute;
+    display: block;
+    image-rendering: pixelated;
+}
+
+/* --- Anvil ---------------------------------------------------------------
+   Pixel art via the box-shadow grid trick: the element is the top-left 4px
+   pixel and every other pixel is one more shadow on it. Shadow rows run
+   downward, so `bottom` places the anvil's TOP face and the 13-row body
+   descends from there. Three greys separate face, body and base. */
+.anvil {
+    left: 48px;
+    bottom: 52px;
+    width: 4px;
+    height: 4px;
+    background: transparent;
+    box-shadow:
+        8px 0px 0 0 #9aa5ad,
+        12px 0px 0 0 #9aa5ad,
+        16px 0px 0 0 #9aa5ad,
+        20px 0px 0 0 #9aa5ad,
+        24px 0px 0 0 #9aa5ad,
+        28px 0px 0 0 #9aa5ad,
+        32px 0px 0 0 #9aa5ad,
+        36px 0px 0 0 #9aa5ad,
+        40px 0px 0 0 #9aa5ad,
+        44px 0px 0 0 #9aa5ad,
+        48px 0px 0 0 #9aa5ad,
+        52px 0px 0 0 #9aa5ad,
+        56px 0px 0 0 #9aa5ad,
+        60px 0px 0 0 #9aa5ad,
+        64px 0px 0 0 #9aa5ad,
+        68px 0px 0 0 #9aa5ad,
+        72px 0px 0 0 #9aa5ad,
+        76px 0px 0 0 #9aa5ad,
+        80px 0px 0 0 #9aa5ad,
+        84px 0px 0 0 #9aa5ad,
+        4px 4px 0 0 #6b7680,
+        8px 4px 0 0 #6b7680,
+        12px 4px 0 0 #6b7680,
+        16px 4px 0 0 #6b7680,
+        20px 4px 0 0 #6b7680,
+        24px 4px 0 0 #6b7680,
+        28px 4px 0 0 #6b7680,
+        32px 4px 0 0 #6b7680,
+        36px 4px 0 0 #6b7680,
+        40px 4px 0 0 #6b7680,
+        44px 4px 0 0 #6b7680,
+        48px 4px 0 0 #6b7680,
+        52px 4px 0 0 #6b7680,
+        56px 4px 0 0 #6b7680,
+        60px 4px 0 0 #6b7680,
+        64px 4px 0 0 #6b7680,
+        68px 4px 0 0 #6b7680,
+        72px 4px 0 0 #6b7680,
+        76px 4px 0 0 #6b7680,
+        80px 4px 0 0 #6b7680,
+        84px 4px 0 0 #6b7680,
+        0px 8px 0 0 #6b7680,
+        4px 8px 0 0 #6b7680,
+        8px 8px 0 0 #6b7680,
+        12px 8px 0 0 #6b7680,
+        16px 8px 0 0 #6b7680,
+        20px 8px 0 0 #6b7680,
+        24px 8px 0 0 #6b7680,
+        28px 8px 0 0 #6b7680,
+        32px 8px 0 0 #6b7680,
+        36px 8px 0 0 #6b7680,
+        40px 8px 0 0 #6b7680,
+        44px 8px 0 0 #6b7680,
+        48px 8px 0 0 #6b7680,
+        52px 8px 0 0 #6b7680,
+        56px 8px 0 0 #6b7680,
+        60px 8px 0 0 #6b7680,
+        64px 8px 0 0 #6b7680,
+        68px 8px 0 0 #6b7680,
+        72px 8px 0 0 #6b7680,
+        76px 8px 0 0 #6b7680,
+        80px 8px 0 0 #6b7680,
+        84px 8px 0 0 #6b7680,
+        4px 12px 0 0 #565f68,
+        8px 12px 0 0 #565f68,
+        12px 12px 0 0 #565f68,
+        16px 12px 0 0 #565f68,
+        20px 12px 0 0 #565f68,
+        24px 12px 0 0 #565f68,
+        28px 12px 0 0 #565f68,
+        32px 12px 0 0 #565f68,
+        36px 12px 0 0 #565f68,
+        40px 12px 0 0 #565f68,
+        44px 12px 0 0 #565f68,
+        48px 12px 0 0 #565f68,
+        52px 12px 0 0 #565f68,
+        56px 12px 0 0 #565f68,
+        60px 12px 0 0 #565f68,
+        64px 12px 0 0 #565f68,
+        68px 12px 0 0 #565f68,
+        72px 12px 0 0 #565f68,
+        76px 12px 0 0 #565f68,
+        80px 12px 0 0 #565f68,
+        84px 12px 0 0 #565f68,
+        16px 16px 0 0 #565f68,
+        20px 16px 0 0 #565f68,
+        24px 16px 0 0 #565f68,
+        28px 16px 0 0 #565f68,
+        32px 16px 0 0 #565f68,
+        36px 16px 0 0 #565f68,
+        40px 16px 0 0 #565f68,
+        44px 16px 0 0 #565f68,
+        48px 16px 0 0 #565f68,
+        52px 16px 0 0 #565f68,
+        56px 16px 0 0 #565f68,
+        60px 16px 0 0 #565f68,
+        64px 16px 0 0 #565f68,
+        68px 16px 0 0 #565f68,
+        24px 20px 0 0 #565f68,
+        28px 20px 0 0 #565f68,
+        32px 20px 0 0 #565f68,
+        36px 20px 0 0 #565f68,
+        40px 20px 0 0 #565f68,
+        44px 20px 0 0 #565f68,
+        48px 20px 0 0 #565f68,
+        52px 20px 0 0 #565f68,
+        56px 20px 0 0 #565f68,
+        60px 20px 0 0 #565f68,
+        32px 24px 0 0 #4a525a,
+        36px 24px 0 0 #4a525a,
+        40px 24px 0 0 #4a525a,
+        44px 24px 0 0 #4a525a,
+        48px 24px 0 0 #4a525a,
+        52px 24px 0 0 #4a525a,
+        32px 28px 0 0 #4a525a,
+        36px 28px 0 0 #4a525a,
+        40px 28px 0 0 #4a525a,
+        44px 28px 0 0 #4a525a,
+        48px 28px 0 0 #4a525a,
+        52px 28px 0 0 #4a525a,
+        28px 32px 0 0 #4a525a,
+        32px 32px 0 0 #4a525a,
+        36px 32px 0 0 #4a525a,
+        40px 32px 0 0 #4a525a,
+        44px 32px 0 0 #4a525a,
+        48px 32px 0 0 #4a525a,
+        52px 32px 0 0 #4a525a,
+        56px 32px 0 0 #4a525a,
+        24px 36px 0 0 #4a525a,
+        28px 36px 0 0 #4a525a,
+        32px 36px 0 0 #4a525a,
+        36px 36px 0 0 #4a525a,
+        40px 36px 0 0 #4a525a,
+        44px 36px 0 0 #4a525a,
+        48px 36px 0 0 #4a525a,
+        52px 36px 0 0 #4a525a,
+        56px 36px 0 0 #4a525a,
+        60px 36px 0 0 #4a525a,
+        16px 40px 0 0 #3d444b,
+        20px 40px 0 0 #3d444b,
+        24px 40px 0 0 #3d444b,
+        28px 40px 0 0 #3d444b,
+        32px 40px 0 0 #3d444b,
+        36px 40px 0 0 #3d444b,
+        40px 40px 0 0 #3d444b,
+        44px 40px 0 0 #3d444b,
+        48px 40px 0 0 #3d444b,
+        52px 40px 0 0 #3d444b,
+        56px 40px 0 0 #3d444b,
+        60px 40px 0 0 #3d444b,
+        64px 40px 0 0 #3d444b,
+        68px 40px 0 0 #3d444b,
+        8px 44px 0 0 #3d444b,
+        12px 44px 0 0 #3d444b,
+        16px 44px 0 0 #3d444b,
+        20px 44px 0 0 #3d444b,
+        24px 44px 0 0 #3d444b,
+        28px 44px 0 0 #3d444b,
+        32px 44px 0 0 #3d444b,
+        36px 44px 0 0 #3d444b,
+        40px 44px 0 0 #3d444b,
+        44px 44px 0 0 #3d444b,
+        48px 44px 0 0 #3d444b,
+        52px 44px 0 0 #3d444b,
+        56px 44px 0 0 #3d444b,
+        60px 44px 0 0 #3d444b,
+        64px 44px 0 0 #3d444b,
+        68px 44px 0 0 #3d444b,
+        72px 44px 0 0 #3d444b,
+        76px 44px 0 0 #3d444b,
+        8px 48px 0 0 #2f353b,
+        12px 48px 0 0 #2f353b,
+        16px 48px 0 0 #2f353b,
+        20px 48px 0 0 #2f353b,
+        24px 48px 0 0 #2f353b,
+        28px 48px 0 0 #2f353b,
+        32px 48px 0 0 #2f353b,
+        36px 48px 0 0 #2f353b,
+        40px 48px 0 0 #2f353b,
+        44px 48px 0 0 #2f353b,
+        48px 48px 0 0 #2f353b,
+        52px 48px 0 0 #2f353b,
+        56px 48px 0 0 #2f353b,
+        60px 48px 0 0 #2f353b,
+        64px 48px 0 0 #2f353b,
+        68px 48px 0 0 #2f353b,
+        72px 48px 0 0 #2f353b,
+        76px 48px 0 0 #2f353b;
+}
+
+/* The blade lies on the anvil's top face. The tang makes it read as a blade
+   rather than a bar, and the gradient puts the heat where the hammer lands. */
+.tang {
+    left: 40px;
+    bottom: 56px;
+    width: 16px;
+    height: 8px;
+    background: #6b4423;
+}
+
+.blade {
+    left: 56px;
+    bottom: 56px;
+    width: 72px;
+    height: 8px;
+    background: linear-gradient(
+        90deg,
+        #b9c2c9 0 12.5%,
+        #ffc93e 12.5% 30%,
+        #fff3b0 30% 70%,
+        #ffc93e 70% 88%,
+        #ff9900 88% 100%
+    );
+    animation: bladePulse 0.6s steps(2, end) infinite;
+}
+
+/* --- Hammer --------------------------------------------------------------
+   The pivot is the TOP of the shaft (where a hand would be) and the head is at
+   the bottom, so rotate(0) is the head resting ON the blade and the swing ends
+   in contact. Pivoting from the other end leaves the head in the air at rest,
+   which is what the first cut of this animation did. */
+.hammer {
+    left: 100px;
+    bottom: 64px;
+    width: 8px;
+    height: 56px;
+    transform-origin: 50% 0;
+    animation: hammerSwing 0.5s steps(5, end) 1 forwards;
+}
+
+.handle {
+    left: 0;
+    top: 0;
+    width: 8px;
+    height: 44px;
+    background: #8b5a2b;
+}
+
+.head {
+    left: -12px;
+    bottom: 0;
+    width: 32px;
+    height: 16px;
+    background: #7c868f;
+    box-shadow:
+        inset 0 4px 0 0 #9aa5ad,
+        inset 0 -4px 0 0 #565f68;
+}
+
+/* The spec's star-shaped impact flash: a centre pixel with arms thrown out on
+   both axes, scaled and faded over three steps, timed with the strike. */
+.flash {
+    left: 100px;
+    bottom: 62px;
+    width: 8px;
+    height: 8px;
+    background: #fff;
+    opacity: 0;
+    box-shadow:
+        -8px 0 0 0 #fff3b0,
+        8px 0 0 0 #fff3b0,
+        0 -8px 0 0 #fff3b0,
+        0 8px 0 0 #fff3b0,
+        -16px 0 0 0 #ffc93e,
+        16px 0 0 0 #ffc93e,
+        0 -16px 0 0 #ffc93e,
+        0 16px 0 0 #ffc93e;
+    animation: impactFlash 0.22s steps(3, end) 1 forwards;
+    animation-delay: 0.3s;
+}
+
+.spark {
+    left: 101px;
+    bottom: 63px;
+    width: 6px;
+    height: 6px;
+    background: #fff3b0;
+    opacity: 0;
+    animation: sparkFly 0.5s steps(6, end) 1 forwards;
+    animation-delay: 0.3s;
+}
+
+.spark[data-spark="1"],
+.spark[data-spark="5"],
+.spark[data-spark="9"],
+.spark[data-spark="13"] {
+    background: #ffc93e;
+}
+
+.spark[data-spark="2"],
+.spark[data-spark="6"],
+.spark[data-spark="10"] {
+    background: #ff9900;
+}
+
+/* Fan the sparks out: each one gets its own direction off the impact point. */
+.spark[data-spark="0"] {
+    --dx: -42px;
+    --dy: -26px;
+}
+.spark[data-spark="1"] {
+    --dx: -30px;
+    --dy: -40px;
+}
+.spark[data-spark="2"] {
+    --dx: -18px;
+    --dy: -46px;
+}
+.spark[data-spark="3"] {
+    --dx: -6px;
+    --dy: -50px;
+}
+.spark[data-spark="4"] {
+    --dx: 6px;
+    --dy: -50px;
+}
+.spark[data-spark="5"] {
+    --dx: 18px;
+    --dy: -46px;
+}
+.spark[data-spark="6"] {
+    --dx: 30px;
+    --dy: -40px;
+}
+.spark[data-spark="7"] {
+    --dx: 42px;
+    --dy: -26px;
+}
+.spark[data-spark="8"] {
+    --dx: -50px;
+    --dy: -8px;
+}
+.spark[data-spark="9"] {
+    --dx: 50px;
+    --dy: -8px;
+}
+.spark[data-spark="10"] {
+    --dx: -36px;
+    --dy: 6px;
+}
+.spark[data-spark="11"] {
+    --dx: 36px;
+    --dy: 6px;
+}
+.spark[data-spark="12"] {
+    --dx: -20px;
+    --dy: 14px;
+}
+.spark[data-spark="13"] {
+    --dx: 20px;
+    --dy: 14px;
+}
+
+@keyframes hammerSwing {
+    0% {
+        transform: rotate(-95deg);
+    }
+    50% {
+        transform: rotate(0deg);
+    }
+    65% {
+        transform: rotate(-16deg);
+    }
+    100% {
+        transform: rotate(0deg);
+    }
+}
+
+@keyframes impactFlash {
+    0% {
+        opacity: 1;
+        transform: scale(0.5);
+    }
+    40% {
+        opacity: 1;
+        transform: scale(1);
+    }
+    100% {
+        opacity: 0;
+        transform: scale(1.4);
+    }
+}
+
+@keyframes sparkFly {
+    0% {
+        opacity: 1;
+        transform: translate(0, 0);
+    }
+    100% {
+        opacity: 0;
+        transform: translate(var(--dx, 0), var(--dy, 0));
+    }
+}
+
+/* Brightness rather than a colour swap: the blade is a gradient now, so
+   swapping its background would throw the heat ramp away. */
+@keyframes bladePulse {
+    0%,
+    100% {
+        filter: brightness(1);
+    }
+    50% {
+        filter: brightness(1.45);
+    }
+}
+
+/* Reduced motion: no swing, no flash, no sparks, no pulse. The hammer is drawn
+   resting on the blade instead. */
+@media (prefers-reduced-motion: reduce) {
+    .hammer {
+        animation: none;
+        transform: rotate(0deg);
+    }
+
+    .blade {
+        animation: none;
+    }
+
+    .flash,
+    .spark {
+        animation: none;
+        display: none;
+    }
+}
+
+/* --- Phone: one column --------------------------------------------------- */
+
+@media (max-width: 700px) {
+    .blacksmith {
+        grid-template-columns: 1fr;
+        overflow-y: auto;
+    }
+
+    .componentRow {
+        display: grid;
+        grid-template-columns: repeat(4, 1fr);
+        gap: 0.25rem;
+    }
+
+    .componentName {
+        max-width: 100%;
+    }
+
+    .pickerList {
+        grid-template-columns: 1fr;
+    }
+
+    .pickerActions {
+        grid-column: auto;
+    }
 }
