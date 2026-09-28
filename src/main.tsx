@@ -5,6 +5,7 @@ import store from "@store";
 import { TouchBackend } from "react-dnd-touch-backend";
 import { DndProvider } from "react-dnd";
 import UI from "@ui/UI";
+import { enterFullscreenOnFirstTap } from "@helpers/fullscreenCutout";
 import "./styles/globals.css";
 
 // The Phaser engine is a large, browser-only dependency. Under Next it was
@@ -27,6 +28,10 @@ function App() {
         </Provider>
     );
 }
+
+// Installed Android app: extend under the camera cutout from the first tap
+// rather than only after the app is backgrounded and refocused.
+enterFullscreenOnFirstTap();
 
 const container = document.getElementById("root");
 if (!container) throw new Error('Root element "#root" not found');
