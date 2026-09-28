@@ -199,6 +199,11 @@ const GATE = {
     posts: [50, 52], // posts down to the ground, left/right
 };
 const FENCE_RUN = 62;
+// A run's end posts: 63 closes a run arriving from the west, 61 opens one
+// heading east. The gateway posts sit inset in their tiles, so a plain run
+// stopping beside them reads as cut off; these finish it on a post instead.
+const FENCE_END_WEST_OF_GATE = 63;
+const FENCE_END_EAST_OF_GATE = 61;
 const FENCE_VERTICAL = 34;
 const FENCE_CORNER = 48;
 
@@ -589,11 +594,13 @@ function buildEntrance(biome, random, { structure, structureProps, taken, free }
     put(structure, rightPost, gateY, fence(GATE.posts[1]));
 
     // The fence: west from the gate off the map's edge, east to the corner,
-    // then north off the top edge — closing off the strip behind it. The runs
-    // butt straight up against the posts.
+    // then north off the top edge — closing off the strip behind it. Each run
+    // ends on a post of its own beside the gateway.
     for (let x = 0; x < fenceEndX; x++) {
-        if (x < gateX || x > rightPost) put(structure, x, gateY, fence(FENCE_RUN));
+        if (x < gateX - 1 || x > rightPost + 1) put(structure, x, gateY, fence(FENCE_RUN));
     }
+    put(structure, gateX - 1, gateY, fence(FENCE_END_WEST_OF_GATE));
+    put(structure, rightPost + 1, gateY, fence(FENCE_END_EAST_OF_GATE));
     put(structure, fenceEndX, gateY, fence(FENCE_CORNER));
     for (let y = 0; y < gateY; y++) put(structure, fenceEndX, y, fence(FENCE_VERTICAL));
 
@@ -768,7 +775,14 @@ function tileProperties(byName, ints = {}) {
  * The gateway's fence tiles that stop the player: the posts and every fence
  * run. The beam overhead is on `structure props` and is walked under.
  */
-const FENCE_SOLID = [...GATE.posts, FENCE_RUN, FENCE_VERTICAL, FENCE_CORNER];
+const FENCE_SOLID = [
+    ...GATE.posts,
+    FENCE_RUN,
+    FENCE_END_WEST_OF_GATE,
+    FENCE_END_EAST_OF_GATE,
+    FENCE_VERTICAL,
+    FENCE_CORNER,
+];
 
 /**
  * `sortBase` on a `structure props` tile: how many tiles below it the prop

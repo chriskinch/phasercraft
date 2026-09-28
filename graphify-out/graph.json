@@ -4950,7 +4950,7 @@
       "file_type": "code",
       "norm_label": "build()",
       "source_file": "scripts/generate-biome-maps.mjs",
-      "source_location": "L866"
+      "source_location": "L880"
     },
     {
       "id": "scripts_generate_biome_maps_offset",
@@ -4962,7 +4962,7 @@
       "file_type": "code",
       "norm_label": "offset()",
       "source_file": "scripts/generate-biome-maps.mjs",
-      "source_location": "L849"
+      "source_location": "L863"
     },
     {
       "id": "scripts_generate_biome_maps_tilelayer",
@@ -4974,7 +4974,7 @@
       "file_type": "code",
       "norm_label": "tilelayer()",
       "source_file": "scripts/generate-biome-maps.mjs",
-      "source_location": "L851"
+      "source_location": "L865"
     },
     {
       "id": "src_entities_spells_whirlwind_whirlwind_animationupdate",
@@ -10818,7 +10818,7 @@
       "file_type": "code",
       "norm_label": "buildpathcorners()",
       "source_file": "scripts/generate-biome-maps.mjs",
-      "source_location": "L458"
+      "source_location": "L463"
     },
     {
       "id": "scripts_generate_biome_maps_buildwatercorners",
@@ -10830,7 +10830,7 @@
       "file_type": "code",
       "norm_label": "buildwatercorners()",
       "source_file": "scripts/generate-biome-maps.mjs",
-      "source_location": "L428"
+      "source_location": "L433"
     },
     {
       "id": "scripts_generate_biome_maps_cornerat",
@@ -10842,7 +10842,7 @@
       "file_type": "code",
       "norm_label": "cornerat()",
       "source_file": "scripts/generate-biome-maps.mjs",
-      "source_location": "L372"
+      "source_location": "L377"
     },
     {
       "id": "scripts_generate_biome_maps_generate",
@@ -10854,7 +10854,7 @@
       "file_type": "code",
       "norm_label": "generate()",
       "source_file": "scripts/generate-biome-maps.mjs",
-      "source_location": "L626"
+      "source_location": "L633"
     },
     {
       "id": "scripts_generate_biome_maps_inentrance",
@@ -10866,7 +10866,7 @@
       "file_type": "code",
       "norm_label": "inentrance()",
       "source_file": "scripts/generate-biome-maps.mjs",
-      "source_location": "L418"
+      "source_location": "L423"
     },
     {
       "id": "scripts_generate_biome_maps_maskat",
@@ -10878,7 +10878,7 @@
       "file_type": "code",
       "norm_label": "maskat()",
       "source_file": "scripts/generate-biome-maps.mjs",
-      "source_location": "L403"
+      "source_location": "L408"
     },
     {
       "id": "scripts_generate_biome_maps_removediagonals",
@@ -10890,7 +10890,7 @@
       "file_type": "code",
       "norm_label": "removediagonals()",
       "source_file": "scripts/generate-biome-maps.mjs",
-      "source_location": "L380"
+      "source_location": "L385"
     },
     {
       "id": "scripts_generate_biome_maps_rng",
@@ -10902,7 +10902,7 @@
       "file_type": "code",
       "norm_label": "rng()",
       "source_file": "scripts/generate-biome-maps.mjs",
-      "source_location": "L299"
+      "source_location": "L304"
     },
     {
       "id": "scripts_generate_biome_maps_valuenoise",
@@ -10914,7 +10914,7 @@
       "file_type": "code",
       "norm_label": "valuenoise()",
       "source_file": "scripts/generate-biome-maps.mjs",
-      "source_location": "L349"
+      "source_location": "L354"
     },
     {
       "id": "src_scenes_biomes_spawndebugoverlay_coneedges",
@@ -13098,7 +13098,7 @@
       "file_type": "code",
       "norm_label": "buildentrance()",
       "source_file": "scripts/generate-biome-maps.mjs",
-      "source_location": "L570"
+      "source_location": "L575"
     },
     {
       "id": "scripts_generate_biome_maps_fade",
@@ -13110,7 +13110,7 @@
       "file_type": "code",
       "norm_label": "fade()",
       "source_file": "scripts/generate-biome-maps.mjs",
-      "source_location": "L312"
+      "source_location": "L317"
     },
     {
       "id": "scripts_generate_biome_maps_fence",
@@ -13122,7 +13122,7 @@
       "file_type": "code",
       "norm_label": "fence()",
       "source_file": "scripts/generate-biome-maps.mjs",
-      "source_location": "L562"
+      "source_location": "L567"
     },
     {
       "id": "scripts_generate_biome_maps_lerp",
@@ -13134,7 +13134,7 @@
       "file_type": "code",
       "norm_label": "lerp()",
       "source_file": "scripts/generate-biome-maps.mjs",
-      "source_location": "L309"
+      "source_location": "L314"
     },
     {
       "id": "scripts_generate_biome_maps_octave",
@@ -13146,7 +13146,7 @@
       "file_type": "code",
       "norm_label": "octave()",
       "source_file": "scripts/generate-biome-maps.mjs",
-      "source_location": "L319"
+      "source_location": "L324"
     },
     {
       "id": "scripts_generate_biome_maps_solidpropsfor",
@@ -13158,7 +13158,7 @@
       "file_type": "code",
       "norm_label": "solidpropsfor()",
       "source_file": "scripts/generate-biome-maps.mjs",
-      "source_location": "L220"
+      "source_location": "L225"
     },
     {
       "id": "scripts_generate_biome_maps_tileproperties",
@@ -13170,7 +13170,7 @@
       "file_type": "code",
       "norm_label": "tileproperties()",
       "source_file": "scripts/generate-biome-maps.mjs",
-      "source_location": "L749"
+      "source_location": "L756"
     },
     {
       "id": "scripts_generate_biome_maps_tilesets",
@@ -13182,7 +13182,7 @@
       "file_type": "code",
       "norm_label": "tilesets()",
       "source_file": "scripts/generate-biome-maps.mjs",
-      "source_location": "L782"
+      "source_location": "L796"
     },
     {
       "id": "src_main_app",
@@ -22275,7 +22275,7 @@
       "file_type": "code",
       "norm_label": "biomes",
       "source_file": "scripts/generate-biome-maps.mjs",
-      "source_location": "L224"
+      "source_location": "L229"
     },
     {
       "id": "scripts_generate_biome_maps_boulder",
@@ -22308,7 +22308,7 @@
       "file_type": "code",
       "norm_label": "fence_solid",
       "source_file": "scripts/generate-biome-maps.mjs",
-      "source_location": "L771"
+      "source_location": "L778"
     },
     {
       "id": "scripts_generate_biome_maps_gate",
@@ -22330,7 +22330,7 @@
       "file_type": "code",
       "norm_label": "gate_sort_base",
       "source_file": "scripts/generate-biome-maps.mjs",
-      "source_location": "L780"
+      "source_location": "L794"
     },
     {
       "id": "scripts_generate_biome_maps_ground_deco",
@@ -22374,7 +22374,7 @@
       "file_type": "code",
       "norm_label": "requested",
       "source_file": "scripts/generate-biome-maps.mjs",
-      "source_location": "L961"
+      "source_location": "L975"
     },
     {
       "id": "scripts_generate_biome_maps_root",
@@ -24393,7 +24393,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "scripts/generate-biome-maps.mjs",
-      "source_location": "L867",
+      "source_location": "L881",
       "weight": 1.0
     },
     {
@@ -24405,7 +24405,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "scripts/generate-biome-maps.mjs",
-      "source_location": "L874",
+      "source_location": "L888",
       "weight": 1.0
     },
     {
@@ -24417,7 +24417,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "scripts/generate-biome-maps.mjs",
-      "source_location": "L953",
+      "source_location": "L967",
       "weight": 1.0
     },
     {
@@ -24429,7 +24429,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "scripts/generate-biome-maps.mjs",
-      "source_location": "L583",
+      "source_location": "L588",
       "weight": 1.0
     },
     {
@@ -24441,7 +24441,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "scripts/generate-biome-maps.mjs",
-      "source_location": "L550",
+      "source_location": "L555",
       "weight": 1.0
     },
     {
@@ -24453,7 +24453,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "scripts/generate-biome-maps.mjs",
-      "source_location": "L429",
+      "source_location": "L434",
       "weight": 1.0
     },
     {
@@ -24465,7 +24465,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "scripts/generate-biome-maps.mjs",
-      "source_location": "L442",
+      "source_location": "L447",
       "weight": 1.0
     },
     {
@@ -24477,7 +24477,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "scripts/generate-biome-maps.mjs",
-      "source_location": "L446",
+      "source_location": "L451",
       "weight": 1.0
     },
     {
@@ -24489,7 +24489,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "scripts/generate-biome-maps.mjs",
-      "source_location": "L627",
+      "source_location": "L634",
       "weight": 1.0
     },
     {
@@ -24501,7 +24501,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "scripts/generate-biome-maps.mjs",
-      "source_location": "L629",
+      "source_location": "L636",
       "weight": 1.0
     },
     {
@@ -24513,7 +24513,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "scripts/generate-biome-maps.mjs",
-      "source_location": "L630",
+      "source_location": "L637",
       "weight": 1.0
     },
     {
@@ -24525,7 +24525,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "scripts/generate-biome-maps.mjs",
-      "source_location": "L645",
+      "source_location": "L652",
       "weight": 1.0
     },
     {
@@ -24537,7 +24537,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "scripts/generate-biome-maps.mjs",
-      "source_location": "L674",
+      "source_location": "L681",
       "weight": 1.0
     },
     {
@@ -24549,7 +24549,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "scripts/generate-biome-maps.mjs",
-      "source_location": "L689",
+      "source_location": "L696",
       "weight": 1.0
     },
     {
@@ -24561,7 +24561,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "scripts/generate-biome-maps.mjs",
-      "source_location": "L405",
+      "source_location": "L410",
       "weight": 1.0
     },
     {
@@ -24573,7 +24573,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "scripts/generate-biome-maps.mjs",
-      "source_location": "L328",
+      "source_location": "L333",
       "weight": 1.0
     },
     {
@@ -24585,7 +24585,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "scripts/generate-biome-maps.mjs",
-      "source_location": "L331",
+      "source_location": "L336",
       "weight": 1.0
     },
     {
@@ -24597,7 +24597,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "scripts/generate-biome-maps.mjs",
-      "source_location": "L385",
+      "source_location": "L390",
       "weight": 1.0
     },
     {
@@ -24609,7 +24609,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "scripts/generate-biome-maps.mjs",
-      "source_location": "L853",
+      "source_location": "L867",
       "weight": 1.0
     },
     {
@@ -24621,7 +24621,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "scripts/generate-biome-maps.mjs",
-      "source_location": "L783",
+      "source_location": "L797",
       "weight": 1.0
     },
     {
@@ -24633,7 +24633,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "scripts/generate-biome-maps.mjs",
-      "source_location": "L797",
+      "source_location": "L811",
       "weight": 1.0
     },
     {
@@ -24645,7 +24645,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "scripts/generate-biome-maps.mjs",
-      "source_location": "L356",
+      "source_location": "L361",
       "weight": 1.0
     },
     {
@@ -62523,7 +62523,7 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "scripts/generate-biome-maps.mjs",
-      "source_location": "L220",
+      "source_location": "L225",
       "weight": 1.0
     },
     {
@@ -62534,7 +62534,7 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "scripts/generate-biome-maps.mjs",
-      "source_location": "L224",
+      "source_location": "L229",
       "weight": 1.0
     },
     {
@@ -62545,7 +62545,7 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "scripts/generate-biome-maps.mjs",
-      "source_location": "L299",
+      "source_location": "L304",
       "weight": 1.0
     },
     {
@@ -62556,7 +62556,7 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "scripts/generate-biome-maps.mjs",
-      "source_location": "L309",
+      "source_location": "L314",
       "weight": 1.0
     },
     {
@@ -62567,7 +62567,7 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "scripts/generate-biome-maps.mjs",
-      "source_location": "L312",
+      "source_location": "L317",
       "weight": 1.0
     },
     {
@@ -62578,7 +62578,7 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "scripts/generate-biome-maps.mjs",
-      "source_location": "L319",
+      "source_location": "L324",
       "weight": 1.0
     },
     {
@@ -62589,7 +62589,7 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "scripts/generate-biome-maps.mjs",
-      "source_location": "L349",
+      "source_location": "L354",
       "weight": 1.0
     },
     {
@@ -62600,7 +62600,7 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "scripts/generate-biome-maps.mjs",
-      "source_location": "L372",
+      "source_location": "L377",
       "weight": 1.0
     },
     {
@@ -62611,7 +62611,7 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "scripts/generate-biome-maps.mjs",
-      "source_location": "L380",
+      "source_location": "L385",
       "weight": 1.0
     },
     {
@@ -62622,7 +62622,7 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "scripts/generate-biome-maps.mjs",
-      "source_location": "L403",
+      "source_location": "L408",
       "weight": 1.0
     },
     {
@@ -62633,7 +62633,7 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "scripts/generate-biome-maps.mjs",
-      "source_location": "L418",
+      "source_location": "L423",
       "weight": 1.0
     },
     {
@@ -62644,7 +62644,7 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "scripts/generate-biome-maps.mjs",
-      "source_location": "L428",
+      "source_location": "L433",
       "weight": 1.0
     },
     {
@@ -62655,7 +62655,7 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "scripts/generate-biome-maps.mjs",
-      "source_location": "L458",
+      "source_location": "L463",
       "weight": 1.0
     },
     {
@@ -62677,7 +62677,7 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "scripts/generate-biome-maps.mjs",
-      "source_location": "L562",
+      "source_location": "L567",
       "weight": 1.0
     },
     {
@@ -62688,7 +62688,7 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "scripts/generate-biome-maps.mjs",
-      "source_location": "L570",
+      "source_location": "L575",
       "weight": 1.0
     },
     {
@@ -62699,7 +62699,7 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "scripts/generate-biome-maps.mjs",
-      "source_location": "L626",
+      "source_location": "L633",
       "weight": 1.0
     },
     {
@@ -62721,7 +62721,7 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "scripts/generate-biome-maps.mjs",
-      "source_location": "L749",
+      "source_location": "L756",
       "weight": 1.0
     },
     {
@@ -62732,7 +62732,7 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "scripts/generate-biome-maps.mjs",
-      "source_location": "L771",
+      "source_location": "L778",
       "weight": 1.0
     },
     {
@@ -62743,7 +62743,7 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "scripts/generate-biome-maps.mjs",
-      "source_location": "L780",
+      "source_location": "L794",
       "weight": 1.0
     },
     {
@@ -62754,18 +62754,7 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "scripts/generate-biome-maps.mjs",
-      "source_location": "L782",
-      "weight": 1.0
-    },
-    {
-      "source": "scripts_generate_biome_maps",
-      "target": "scripts_generate_biome_maps_offset",
-      "relation": "contains",
-      "_origin": "ast",
-      "confidence": "EXTRACTED",
-      "confidence_score": 1.0,
-      "source_file": "scripts/generate-biome-maps.mjs",
-      "source_location": "L849",
+      "source_location": "L796",
       "weight": 1.0
     },
     {
@@ -62781,13 +62770,24 @@
     },
     {
       "source": "scripts_generate_biome_maps",
+      "target": "scripts_generate_biome_maps_offset",
+      "relation": "contains",
+      "_origin": "ast",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "scripts/generate-biome-maps.mjs",
+      "source_location": "L863",
+      "weight": 1.0
+    },
+    {
+      "source": "scripts_generate_biome_maps",
       "target": "scripts_generate_biome_maps_tilelayer",
       "relation": "contains",
       "_origin": "ast",
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "scripts/generate-biome-maps.mjs",
-      "source_location": "L851",
+      "source_location": "L865",
       "weight": 1.0
     },
     {
@@ -62798,7 +62798,7 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "scripts/generate-biome-maps.mjs",
-      "source_location": "L866",
+      "source_location": "L880",
       "weight": 1.0
     },
     {
@@ -62809,7 +62809,7 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "scripts/generate-biome-maps.mjs",
-      "source_location": "L961",
+      "source_location": "L975",
       "weight": 1.0
     },
     {
@@ -76917,5 +76917,5 @@
     }
   ],
   "hyperedges": [],
-  "built_at_commit": "8e74881697882c3d3fd2cd436bf587904ed89b8f"
+  "built_at_commit": "9b734fbb5d4b3393eaa9ba01ae9af4fbdd3cc3d8"
 }

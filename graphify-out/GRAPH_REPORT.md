@@ -1,7 +1,7 @@
 # Graph Report - phasercraft  (2026-09-28)
 
 ## Corpus Check
-- 278 files · ~434,748 words
+- 278 files · ~434,826 words
 - Verdict: corpus is large enough that graph structure adds value.
 - Unclassified: 68 file(s) not represented in the graph (top: .css 43, (none) 8, .psd 5)
 
@@ -11,7 +11,7 @@
 - Token cost: 0 input · 0 output
 
 ## Graph Freshness
-- Built from commit: `8e748816`
+- Built from commit: `9b734fbb`
 - Run `git rev-parse HEAD` and compare to check if the graph is stale.
 - Run `graphify update .` after code changes (no API cost).
 
