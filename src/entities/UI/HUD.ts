@@ -114,10 +114,15 @@ class UI extends GameObjects.Container {
         const right = Display.Bounds.GetRight(zone);
         const bottom = Display.Bounds.GetBottom(zone);
 
-        this.frames.forEach((frame, i) => frame.setPosition(left + this.spacing * i, bottom));
-        if (this.coins) Display.Align.In.TopRight(this.coins, zone, -80);
-        if (this.enemies) Display.Align.In.TopRight(this.enemies, zone, -190);
-        this.buttons.forEach((button, i) => button.setPosition(right - 35 * i, bottom));
+        // Right-anchored spell bar: the last slot sits on the zone's right edge
+        // and slot 0 stays leftmost, so slot order still reads left-to-right.
+        const spellsLeft = right - this.spacing * (this.spells - 1);
+        this.frames.forEach((frame, i) => frame.setPosition(spellsLeft + this.spacing * i, bottom));
+        if (this.coins) Display.Align.In.TopLeft(this.coins, zone, -110);
+        if (this.enemies) Display.Align.In.TopLeft(this.enemies, zone);
+        // System/character buttons run left-to-right from the bottom-left
+        // corner; the spell bar owns the bottom-right.
+        this.buttons.forEach((button, i) => button.setPosition(left + 35 * i, bottom));
 
         this.emit(HUD_LAYOUT);
     }

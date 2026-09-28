@@ -546,7 +546,8 @@ export default class BiomeScene extends Scene {
     private returnToTown(): void {
         console.log("Returning to town...");
         store.dispatch(setCurrentArea("town"));
-        this.scene.start("TownScene", this.config);
+        // Arrive back at the gate the player left through.
+        this.scene.start("TownScene", { ...this.config, arrival: "gate" });
     }
 
     // Seeds the area: subscribe to enemy deaths, then start the spawn director

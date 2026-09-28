@@ -251,11 +251,12 @@ describe("UI.setButtonsEnabled", () => {
 // layout() re-places every HUD element against the scene's safe zone; it runs
 // again whenever the zone is re-fitted (resize / safe-area inset change).
 describe("UI.layout", () => {
-    it("pins spell frames bottom-left and buttons bottom-right of the zone, then notifies", () => {
+    it("anchors the spell bar bottom-right and buttons bottom-left of the zone, then notifies", () => {
         const hud = Object.create(UI.prototype) as UI;
         const frames = [0, 1].map(() => ({ setPosition: vi.fn() }));
         const buttons = [0, 1].map(() => ({ setPosition: vi.fn() }));
         Object.assign(hud, {
+            spells: 5,
             spacing: 60,
             frames,
             buttons,
@@ -265,10 +266,11 @@ describe("UI.layout", () => {
 
         hud.layout();
 
-        expect(frames[0].setPosition).toHaveBeenCalledWith(87, 329);
-        expect(frames[1].setPosition).toHaveBeenCalledWith(147, 329);
-        expect(buttons[0].setPosition).toHaveBeenCalledWith(757, 329);
-        expect(buttons[1].setPosition).toHaveBeenCalledWith(722, 329);
+        // Right edge 757, five 60px slots: slot 0 at 757 - 4 * 60.
+        expect(frames[0].setPosition).toHaveBeenCalledWith(517, 329);
+        expect(frames[1].setPosition).toHaveBeenCalledWith(577, 329);
+        expect(buttons[0].setPosition).toHaveBeenCalledWith(87, 329);
+        expect(buttons[1].setPosition).toHaveBeenCalledWith(122, 329);
         expect(hud.emit).toHaveBeenCalledWith(HUD_LAYOUT);
     });
 });
