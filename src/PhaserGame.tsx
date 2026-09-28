@@ -29,8 +29,8 @@ const PhaserGame = () => {
             type: AUTO,
             backgroundColor: "#6e9c48",
             // Size to the real layout viewport and track resizes. RESIZE keeps the
-            // canvas matched to the window (and the safe-area-padded #phaser-game
-            // box) so an installed, landscape standalone PWA fills the screen
+            // canvas matched to the window (edge to edge; the HUD insets itself
+            // from the notch via src/helpers/safeArea.ts) so an installed, landscape standalone PWA fills the screen
             // correctly — unlike the old outerWidth/outerHeight + fullscreen flag,
             // which mis-measured in standalone mode. Scenes read this.scale.width/
             // height, so full-window pixel coordinates still hold.

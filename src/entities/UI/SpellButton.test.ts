@@ -1,6 +1,7 @@
 import { describe, it, expect, vi } from "vitest";
 import { Display, type Scene } from "phaser";
 import SpellButton from "./SpellButton";
+import { HUD_LAYOUT } from "./HUD";
 
 // SpellButton owns the spell's HUD input bindings (pointer events on its
 // sprite + the hotkey on the scene keyboard). Like the other lifecycle tests,
@@ -19,6 +20,7 @@ interface ButtonUnderTest {
         setText: ReturnType<typeof vi.fn>;
     };
     scene: { input: { keyboard: { on: ReturnType<typeof vi.fn>; off: ReturnType<typeof vi.fn> } } };
+    hud: { on: ReturnType<typeof vi.fn>; off: ReturnType<typeof vi.fn> };
     hotkey: string;
     onPress: ReturnType<typeof vi.fn>;
     handlePress(): void;
@@ -28,6 +30,7 @@ interface ButtonUnderTest {
     setCooldownText(seconds: number): void;
     hideCooldown(): void;
     cleanup(): void;
+    align(): void;
 }
 
 function makeButton(): ButtonUnderTest {
@@ -43,6 +46,7 @@ function makeButton(): ButtonUnderTest {
         setText: vi.fn(),
     };
     button.scene = { input: { keyboard: { on: vi.fn(), off: vi.fn() } } };
+    button.hud = { on: vi.fn(), off: vi.fn() };
     button.hotkey = "ONE";
     button.onPress = vi.fn();
     return button;
@@ -121,6 +125,19 @@ describe("SpellButton.cleanup", () => {
             button
         );
     });
+
+    it("stops following HUD re-layouts", () => {
+        const button = makeButton();
+
+        button.cleanup();
+        button.cleanup();
+
+        expect(button.hud.off).toHaveBeenCalledWith(
+            HUD_LAYOUT,
+            SpellButton.prototype.align,
+            button
+        );
+    });
 });
 
 describe("SpellButton presentation", () => {
@@ -182,7 +199,7 @@ describe("SpellButton construction", () => {
         const scene = {
             add: { sprite: vi.fn(() => sprite), text: vi.fn(() => text) },
             depth_group: { UI: 10 },
-            UI: { frames: [{}] },
+            UI: { frames: [{}], on: vi.fn(), off: vi.fn() },
         } as unknown as Scene;
         const bottomLeft = vi
             .spyOn(Display.Align.In, "BottomLeft")
@@ -203,6 +220,40 @@ describe("SpellButton construction", () => {
         expect(sprite.setScrollFactor).toHaveBeenCalledWith(0);
         expect(text.setDepth).toHaveBeenCalledWith(10);
         expect(text.setVisible).toHaveBeenCalledWith(false);
+
+        bottomLeft.mockRestore();
+        center.mockRestore();
+    });
+
+    it("re-aligns to its frame slot on every HUD layout", () => {
+        const sprite = makeChainable();
+        const text = makeChainable();
+        const frames = [{}, {}];
+        const hud = { frames, on: vi.fn(), off: vi.fn() };
+        const scene = {
+            add: { sprite: vi.fn(() => sprite), text: vi.fn(() => text) },
+            depth_group: { UI: 10 },
+            UI: hud,
+        } as unknown as Scene;
+        const bottomLeft = vi
+            .spyOn(Display.Align.In, "BottomLeft")
+            .mockImplementation(() => sprite as never);
+        const center = vi.spyOn(Display.Align.In, "Center").mockImplementation(() => text as never);
+
+        const button = new SpellButton({
+            scene,
+            icon_name: "fireball",
+            slot: 1,
+            hotkey: "TWO",
+            cooldown: 5,
+            onPress: vi.fn(),
+        });
+
+        expect(hud.on).toHaveBeenCalledWith(HUD_LAYOUT, SpellButton.prototype.align, button);
+        bottomLeft.mockClear();
+        const [, relayout, context] = hud.on.mock.calls[0];
+        relayout.call(context);
+        expect(bottomLeft).toHaveBeenCalledWith(sprite, frames[1]);
 
         bottomLeft.mockRestore();
         center.mockRestore();
