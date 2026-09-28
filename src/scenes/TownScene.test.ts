@@ -25,7 +25,10 @@ interface SceneUnderTest {
         cleanup: ReturnType<typeof vi.fn>;
         getBounds?: () => Geom.Rectangle;
     };
-    config: { type?: string; biome?: string };
+    config: { type?: string; biome?: string; arrival?: string };
+    arrivingAtGate?: boolean;
+    townMap?: unknown;
+    getGateSpawn(): { x: number; y: number } | null;
     UI: { cleanup: ReturnType<typeof vi.fn> };
     input: { off: ReturnType<typeof vi.fn> };
     collisionIdleTimer?: { destroy: ReturnType<typeof vi.fn> };
@@ -35,7 +38,7 @@ interface SceneUnderTest {
     scene: { start: ReturnType<typeof vi.fn> };
     shutdown(): void;
     onTravelRequest(destination: string | null): void;
-    init(config: { type?: string; biome?: string } | undefined): void;
+    init(config: { type?: string; biome?: string; arrival?: string } | undefined): void;
     handleInteraction(type: string, poi: string, displayName: string): void;
     updateInteractions(): void;
 }
@@ -135,6 +138,50 @@ describe("TownScene.init", () => {
             type: "Mage",
             biome: "forest",
         });
+    });
+});
+
+describe("TownScene gate arrival", () => {
+    it("flags a gate arrival and does not forward `arrival` to BiomeScene", () => {
+        const scene = makeScene();
+
+        scene.init({ type: "Warrior", biome: "forest", arrival: "gate" });
+
+        expect(scene.arrivingAtGate).toBe(true);
+        expect(scene.config).toEqual({ type: "Warrior", biome: "forest" });
+    });
+
+    it("uses the default spawn when started without `arrival`", () => {
+        const scene = makeScene();
+
+        scene.init({ type: "Warrior" });
+
+        expect(scene.arrivingAtGate).toBe(false);
+    });
+
+    it("places the gate spawn just north of the entrance POI, clear of its zone", () => {
+        const scene = makeScene();
+        scene.townMap = {
+            getObjectLayer: () => ({
+                objects: [
+                    { name: "home", x: 45, y: 103.5 },
+                    { name: "entrance", x: 296.5, y: 479.5 },
+                ],
+            }),
+        };
+
+        const spawn = scene.getGateSpawn();
+
+        // POIs are scaled 2x; the entrance zone is 32px centred on the POI.
+        expect(spawn?.x).toBe(593);
+        expect(spawn!.y).toBeLessThan(959 - 16);
+    });
+
+    it("returns null when the map has no entrance POI", () => {
+        const scene = makeScene();
+        scene.townMap = { getObjectLayer: () => ({ objects: [] }) };
+
+        expect(scene.getGateSpawn()).toBeNull();
     });
 });
 

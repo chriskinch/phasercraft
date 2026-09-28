@@ -8,6 +8,9 @@ export interface GameSceneConfig {
     type?: PlayerName;
     // Which biome to load when starting BiomeScene. Absent means the default.
     biome?: BiomeId;
+    // Where the player appears in the town. "gate" places them at the town
+    // gate (returning from a biome); absent uses the default spawn.
+    arrival?: "gate";
 }
 
 export default class SelectScene extends Scene {
