@@ -1,8 +1,8 @@
 import type { Sound } from "phaser";
 import { DEFAULT_SETTINGS, readSettings } from "@services/settingsStorage";
 
-// Sound effects service (#482): lets React (and later the Phaser side) play a
-// named effect without holding a reference to the game.
+// Sound effects service (#482): lets React and Phaser entities play a named
+// effect without holding a reference to the game.
 //
 // Playback goes through Phaser's global sound manager (`game.sound`), not a
 // scene's: it keeps playing while the town scene is paused behind a menu, and
@@ -18,8 +18,17 @@ import { DEFAULT_SETTINGS, readSettings } from "@services/settingsStorage";
 
 // Every effect the game can play, keyed by its Phaser cache key. Assets are
 // preloaded in LoadScene from these paths (relative to public/).
+//  - power-up: a successful Blacksmith craft
+//  - coin: picking up coins, gems and crafting components
+//  - explosion: Fireball/Frostbolt and ranged basic-attack impacts (player
+//    and enemy)
+//  - hurt: every melee swing (player and enemy), via Weapon.swoosh()
+// public/audio/sfx/jump.wav is committed but unused, so it is not loaded.
 export const SFX = {
-    "anvil-clang": "audio/sfx/anvil-clang.wav",
+    "power-up": "audio/sfx/power-up.wav",
+    coin: "audio/sfx/coin.wav",
+    explosion: "audio/sfx/explosion.wav",
+    hurt: "audio/sfx/hurt.wav",
 } as const;
 
 export type SfxKey = keyof typeof SFX;

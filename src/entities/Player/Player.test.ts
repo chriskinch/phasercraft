@@ -1,5 +1,10 @@
 import { describe, it, expect, vi } from "vitest";
 import Player from "./Player";
+import Projectile from "@entities/Weapons/Projectile";
+import { playSfx } from "@services/sfx";
+
+vi.mock("@entities/Weapons/Projectile", () => ({ default: vi.fn() }));
+vi.mock("@services/sfx", () => ({ playSfx: vi.fn(() => true) }));
 
 // Regression coverage for the scene-restart listener leak.
 //
@@ -246,5 +251,57 @@ describe("Player.targetDespawned", () => {
         player.targetDespawned({});
 
         expect(player.idle).not.toHaveBeenCalled();
+    });
+});
+
+// Ranged classes' basic attack is a projectile: the explosion sound plays when
+// it lands. Melee swings sound through Weapon.swoosh() (see Weapon.test.ts).
+describe("Player.attack sound", () => {
+    function makeAttacker(ranged: boolean) {
+        const player = Object.create(Player.prototype) as {
+            x: number;
+            y: number;
+            stats: { attack_power: number; attack_speed: number; critical_chance: number };
+            attack_projectile?: { key: string; frame: number; speed: number };
+            weapon: { swoosh: ReturnType<typeof vi.fn> };
+            positionWeapon: ReturnType<typeof vi.fn>;
+            scene: {
+                time: { addEvent: ReturnType<typeof vi.fn> };
+                events: { emit: ReturnType<typeof vi.fn> };
+            };
+            attack(target: object): void;
+        };
+        player.x = 0;
+        player.y = 0;
+        player.stats = { attack_power: 10, attack_speed: 1, critical_chance: 0 };
+        if (ranged) player.attack_projectile = { key: "multishot-effect", frame: 0, speed: 500 };
+        player.weapon = { swoosh: vi.fn() };
+        player.positionWeapon = vi.fn();
+        player.scene = { time: { addEvent: vi.fn() }, events: { emit: vi.fn() } };
+        return player;
+    }
+
+    it("ranged plays the explosion sound on impact, not on firing", () => {
+        vi.mocked(playSfx).mockClear();
+        const player = makeAttacker(true);
+        const enemy = { hit: vi.fn() };
+
+        player.attack(enemy);
+        expect(playSfx).not.toHaveBeenCalled();
+
+        vi.mocked(Projectile).mock.calls[0][0].onImpact(enemy as never);
+
+        expect(playSfx).toHaveBeenCalledWith("explosion");
+        expect(enemy.hit).toHaveBeenCalledWith({ power: 10, crit: false });
+    });
+
+    it("melee swings the weapon, which carries the sound", () => {
+        vi.mocked(playSfx).mockClear();
+        const player = makeAttacker(false);
+
+        player.attack({ hit: vi.fn() });
+
+        expect(player.weapon.swoosh).toHaveBeenCalledTimes(1);
+        expect(playSfx).not.toHaveBeenCalled();
     });
 });

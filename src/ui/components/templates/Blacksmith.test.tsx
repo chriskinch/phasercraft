@@ -8,7 +8,7 @@ import type { ComponentType } from "@/types/game";
 import type { GameState } from "@store/gameReducer";
 import { playSfx } from "@services/sfx";
 
-// The clang (Step 4e) goes through the SFX service; stub it so the tests can
+// The craft sound (Step 4e) goes through the SFX service; stub it so the tests can
 // count plays without a Phaser game.
 vi.mock("@services/sfx", () => ({ playSfx: vi.fn(() => true) }));
 
@@ -295,7 +295,7 @@ describe("Blacksmith craft success", () => {
     });
 });
 
-describe("Blacksmith craft clang", () => {
+describe("Blacksmith craft sound", () => {
     beforeEach(() => {
         vi.useFakeTimers();
         vi.mocked(playSfx).mockClear();
@@ -307,7 +307,7 @@ describe("Blacksmith craft clang", () => {
     const craft = () =>
         fireEvent.click(screen.getByRole("button", { name: `Craft · ${recipe.coins} coins` }));
 
-    it("plays the clang once, on the hammer's impact frame, for an accepted craft", () => {
+    it("plays the craft sound once, on the hammer's impact frame, for an accepted craft", () => {
         render({ components: materialsFor(2) });
         slotRecipe();
         craft();
@@ -316,7 +316,7 @@ describe("Blacksmith craft clang", () => {
         expect(playSfx).not.toHaveBeenCalled();
         vi.advanceTimersByTime(1);
         expect(playSfx).toHaveBeenCalledTimes(1);
-        expect(playSfx).toHaveBeenCalledWith("anvil-clang");
+        expect(playSfx).toHaveBeenCalledWith("power-up");
 
         vi.advanceTimersByTime(5000);
         expect(playSfx).toHaveBeenCalledTimes(1);
@@ -343,7 +343,7 @@ describe("Blacksmith craft clang", () => {
         expect(playSfx).toHaveBeenCalledTimes(2);
     });
 
-    it("cancels a pending clang when the screen unmounts first", () => {
+    it("cancels a pending craft sound when the screen unmounts first", () => {
         const { unmount } = render({ components: materialsFor(2) });
         slotRecipe();
         craft();

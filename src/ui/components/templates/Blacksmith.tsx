@@ -58,7 +58,7 @@ const STAT_VARS = {
 const SLOT_COUNT = 4;
 
 // When the hammer lands in the success animation: the `animation-delay` of
-// the flash and sparks in Blacksmith.module.css. The clang plays on this frame.
+// the flash and sparks in Blacksmith.module.css. The craft sound plays on this frame.
 const HAMMER_IMPACT_MS = 300;
 
 const materialEntries = (recipe: Recipe) =>
@@ -116,14 +116,14 @@ const Blacksmith: React.FC = () => {
     // appear after a craft the reducer accepted.
     const [crafted, setCrafted] = useState<RecipeResult | null>(null);
 
-    // One anvil clang per accepted craft, on the hammer's impact frame. Keyed
+    // One craft sound per accepted craft, on the hammer's impact frame. Keyed
     // on `crafted`, which only turns non-null after a craft the reducer took,
     // so a refused craft is silent. Under reduced motion the animation is
-    // static but the clang still plays (the SFX volume setting mutes it). The
+    // static but the sound still plays (the SFX volume setting mutes it). The
     // timer is cleared if the overlay closes or the screen unmounts first.
     useEffect(() => {
         if (!crafted) return;
-        const timer = setTimeout(() => playSfx("anvil-clang"), HAMMER_IMPACT_MS);
+        const timer = setTimeout(() => playSfx("power-up"), HAMMER_IMPACT_MS);
         return () => clearTimeout(timer);
     }, [crafted]);
 

@@ -1,4 +1,5 @@
 import { GameObjects, Scene } from "phaser";
+import { playSfx } from "@services/sfx";
 
 interface WeaponConfig {
     scene: Scene;
@@ -14,8 +15,10 @@ class Weapon extends GameObjects.Sprite {
         this.setDepth(200);
     }
 
+    // Every melee swing, player's and enemy's, goes through here.
     swoosh(): void {
         this.anims.play("attack", true);
+        playSfx("hurt");
     }
 }
 

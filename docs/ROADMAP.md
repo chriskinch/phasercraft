@@ -377,7 +377,7 @@ is the source of truth for the screen; the table below covers the data model.
       listing **known recipes only**, with Ready/Missing status and Use recipe / Back
 - [x] Craft success overlay: `role="status"`, a pixel hammer-on-anvil CSS animation
       with sparks and a `prefers-reduced-motion` fallback, Craft another / Done.
-      The clang arrived in Step 4e
+      The craft sound arrived in Step 4e
 - [x] `bare` `LootIcon` variant so a rarity-tinted slot carries the outline instead of
       the icon doubling it
 - [x] Stats go through `appliedStatValue` + `formatStatValue`, so units match the
@@ -418,11 +418,14 @@ is the source of truth for the screen; the table below covers the data model.
 - [x] SFX service (`services/sfx.ts`) playable from React — routed through Phaser's global
       `game.sound` so it keeps working while the town scene is paused behind the overlay;
       one-shot plays self-destroy, nothing subscribed
-- [x] Anvil clang synthesized by `scripts/generate-anvil-clang.mjs` (owned, CC0),
-      preloaded in `LoadScene`, licence in `public/audio/sfx/LICENSE.txt`
+- [x] Maintainer-supplied SFX in `public/audio/sfx/` (licence note beside them), preloaded
+      in `LoadScene`: **power-up** on a successful craft; **coin** on picking up coins,
+      gems and components; **explosion** on Fireball/Frostbolt and ranged basic-attack
+      impacts (player and enemy); **hurt** on every melee swing (`Weapon.swoosh()`).
+      `jump.wav` committed, unused
 - [x] `sfxVolume` 0–100 (default 70, 0 mutes) through the typed `settingsStorage`
-      service, slider in Settings; the clang fires once on the hammer's impact frame
-      (300 ms), also under reduced motion. Clang only; UI sounds are a follow-up
+      service, slider in Settings; the craft sound fires once on the hammer's impact
+      frame (300 ms), also under reduced motion
 
 ### Step 5 — Arcanum spell shop (scrolls)
 

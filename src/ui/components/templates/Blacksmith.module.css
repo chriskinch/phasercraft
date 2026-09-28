@@ -555,7 +555,7 @@
         0 -16px 0 0 #ffc93e,
         0 16px 0 0 #ffc93e;
     animation: impactFlash 0.22s steps(3, end) 1 forwards;
-    /* The hammer's impact frame; keep in sync with HAMMER_IMPACT_MS (the clang). */
+    /* The hammer's impact frame; keep in sync with HAMMER_IMPACT_MS (the craft sound). */
     animation-delay: 0.3s;
 }
 

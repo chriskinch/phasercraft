@@ -1,5 +1,6 @@
 import { GameObjects, Scene } from "phaser";
 import store from "@store";
+import { playSfx } from "@services/sfx";
 import { addComponent } from "@store/gameReducer";
 import getRandomVelocity from "@helpers/getRandomVelocity";
 import type { GameSceneLike } from "@/types/scene";
@@ -47,6 +48,7 @@ class Crafting extends GameObjects.Sprite {
 
     collect(): void {
         store.dispatch(addComponent(this.name as ComponentType));
+        playSfx("coin");
 
         this.scene.tweens.add({
             targets: this,

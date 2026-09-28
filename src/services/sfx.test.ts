@@ -48,20 +48,20 @@ describe("playSfx", () => {
         setSfxManager(manager);
         writeSettings({ ...DEFAULT_SETTINGS, sfxVolume: 50 });
 
-        expect(playSfx("anvil-clang")).toBe(true);
-        expect(play).toHaveBeenCalledWith("anvil-clang", { volume: 0.5 });
+        expect(playSfx("power-up")).toBe(true);
+        expect(play).toHaveBeenCalledWith("power-up", { volume: 0.5 });
     });
 
     it("reads the volume on every play, so a change applies straight away", () => {
         const { manager, play } = fakeManager();
         setSfxManager(manager);
 
-        playSfx("anvil-clang");
+        playSfx("power-up");
         writeSettings({ ...DEFAULT_SETTINGS, sfxVolume: 10 });
-        playSfx("anvil-clang");
+        playSfx("power-up");
 
-        expect(play).toHaveBeenNthCalledWith(1, "anvil-clang", { volume: 0.7 });
-        expect(play).toHaveBeenNthCalledWith(2, "anvil-clang", { volume: 0.1 });
+        expect(play).toHaveBeenNthCalledWith(1, "power-up", { volume: 0.7 });
+        expect(play).toHaveBeenNthCalledWith(2, "power-up", { volume: 0.1 });
     });
 
     it("is silent when muted", () => {
@@ -69,18 +69,18 @@ describe("playSfx", () => {
         setSfxManager(manager);
         writeSettings({ ...DEFAULT_SETTINGS, sfxVolume: 0 });
 
-        expect(playSfx("anvil-clang")).toBe(false);
+        expect(playSfx("power-up")).toBe(false);
         expect(play).not.toHaveBeenCalled();
     });
 
     it("is a no-op before a game is attached or after it is detached", () => {
-        expect(playSfx("anvil-clang")).toBe(false);
+        expect(playSfx("power-up")).toBe(false);
 
         const { manager, play } = fakeManager();
         setSfxManager(manager);
         setSfxManager(null);
 
-        expect(playSfx("anvil-clang")).toBe(false);
+        expect(playSfx("power-up")).toBe(false);
         expect(play).not.toHaveBeenCalled();
     });
 
@@ -88,7 +88,7 @@ describe("playSfx", () => {
         const { manager, play } = fakeManager(false);
         setSfxManager(manager);
 
-        expect(playSfx("anvil-clang")).toBe(false);
+        expect(playSfx("power-up")).toBe(false);
         expect(play).not.toHaveBeenCalled();
     });
 });

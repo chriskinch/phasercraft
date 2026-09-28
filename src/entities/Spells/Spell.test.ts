@@ -1,6 +1,11 @@
 import { describe, it, expect, vi } from "vitest";
 import { Scenes } from "phaser";
 import Spell from "./Spell";
+import Projectile from "@entities/Weapons/Projectile";
+import { playSfx } from "@services/sfx";
+
+vi.mock("@entities/Weapons/Projectile", () => ({ default: vi.fn() }));
+vi.mock("@services/sfx", () => ({ playSfx: vi.fn(() => true) }));
 
 // Regression tests for the Phase 2 Spell lifecycle fix (issue #307). Spell
 // registers listeners on external emitters that Phaser does not remove on its
@@ -239,5 +244,34 @@ describe("Spell.onResourceChangeHandler", () => {
 
         expect(spell.disableSpell).toHaveBeenCalledWith("resource change");
         expect(spell.enableSpell).not.toHaveBeenCalled();
+    });
+});
+
+// Projectile spells (Fireball, Frostbolt) play the explosion sound when the
+// projectile lands, alongside the effect.
+describe("Spell.launchProjectile", () => {
+    it("plays the explosion sound on impact, not on launch", () => {
+        const spell = Object.create(Spell.prototype) as {
+            projectile: { key: string; frame: number; speed: number };
+            player: { x: number; y: number };
+            scene: object;
+            hasAnimation: boolean;
+            effect: ReturnType<typeof vi.fn>;
+            launchProjectile(target: object): void;
+        };
+        spell.projectile = { key: "fireball-effect", frame: 0, speed: 400 };
+        spell.player = { x: 0, y: 0 };
+        spell.scene = {};
+        spell.hasAnimation = false;
+        spell.effect = vi.fn();
+        const target = { x: 10, y: 10 };
+
+        spell.launchProjectile(target);
+        expect(playSfx).not.toHaveBeenCalled();
+
+        vi.mocked(Projectile).mock.calls[0][0].onImpact(target as never);
+
+        expect(playSfx).toHaveBeenCalledWith("explosion");
+        expect(spell.effect).toHaveBeenCalledWith(target);
     });
 });

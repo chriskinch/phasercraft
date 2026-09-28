@@ -10,6 +10,7 @@ import {
     Types,
 } from "phaser";
 import { v4 as uuid } from "uuid";
+import { playSfx } from "@services/sfx";
 import AssignResource, { AssignResourceType } from "@entities/Resources/AssignResource";
 import Monster from "./Monster";
 import Coin from "@entities/Loot/Coin";
@@ -507,6 +508,7 @@ class Enemy extends GameObjects.Container {
                     speed: 400,
                     target: player,
                     onImpact: () => {
+                        playSfx("explosion");
                         events.emit("enemy:attack", damage, combat_type);
                         this.impactBurst(player);
                     },

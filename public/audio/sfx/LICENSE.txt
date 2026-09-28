@@ -1,4 +1,2 @@
-anvil-clang.wav
-Synthesized for Phasercraft by scripts/generate-anvil-clang.mjs (no third-party
-samples). Released under CC0 1.0 Universal (public domain dedication):
-https://creativecommons.org/publicdomain/zero/1.0/
+coin.wav, explosion.wav, hurt.wav, jump.wav, power-up.wav
+Supplied by the Phasercraft maintainer for use in this project.

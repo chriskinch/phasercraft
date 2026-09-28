@@ -2,6 +2,7 @@ import { GameObjects, Scenes } from "phaser";
 import store from "@store";
 import SpellButton from "@entities/UI/SpellButton";
 import Projectile from "@entities/Weapons/Projectile";
+import { playSfx } from "@services/sfx";
 import type { ProjectileTarget } from "@entities/Weapons/Projectile";
 import type {
     SpellOptions,
@@ -210,6 +211,8 @@ class Spell extends GameObjects.Sprite {
             speed: this.projectile.speed,
             target,
             onImpact: (impacted) => {
+                // Projectile spells (Fireball, Frostbolt) land with a bang.
+                playSfx("explosion");
                 this.effect(impacted as TargetType);
                 this.animation = this.hasAnimation ? this.startAnimation() : null;
             },
