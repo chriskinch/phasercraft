@@ -15,7 +15,7 @@ import type Player from "@entities/Player/Player";
 import type { GameSceneConfig } from "@/scenes/SelectScene";
 import { BIOMES, type BiomeId } from "@/scenes/biomes/biomes";
 import UI from "@entities/UI/HUD";
-import { readSafeAreaInsets, safeZoneRect } from "@helpers/safeArea";
+import { addSafeZone } from "@/scenes/safeZone";
 
 export default class TownScene extends Scene {
     public player!: PlayerType;
@@ -26,6 +26,8 @@ export default class TownScene extends Scene {
     private townMap!: Tilemaps.Tilemap;
     private interactionZones!: GameObjects.Group;
     private zone!: GameObjects.Zone;
+    // Detaches the safe zone's resize/inset listeners; called from shutdown().
+    private release_safe_zone?: () => void;
     // POI the player is currently standing on, or null. Interactions fire once on
     // entry (when this changes to a non-null value) and re-arm only after the
     // player leaves the zone — so an overlay that pauses the scene does not
@@ -97,14 +99,11 @@ export default class TownScene extends Scene {
         const scene_padding = 40;
         this.global_game_width = this.scale.width;
         this.global_game_height = this.scale.height;
-        // Layout zone for the HUD: kept clear of the notch/home indicator.
-        const safe = safeZoneRect(
-            this.global_game_width,
-            this.global_game_height,
-            scene_padding,
-            readSafeAreaInsets()
-        );
-        this.zone = this.add.zone(safe.x, safe.y, safe.width, safe.height).setOrigin(0);
+        // Layout zone for the HUD: kept clear of the notch/home indicator and
+        // re-fitted (with the HUD re-aligned) on resize or inset changes.
+        const safe_zone = addSafeZone(this, scene_padding, () => this.UI.layout());
+        this.zone = safe_zone.zone;
+        this.release_safe_zone = safe_zone.release;
 
         // Town is a non-combat hub, so hide the spell slots and the whole combat
         // readout — both the enemy counter and the coin purse.
@@ -596,6 +595,7 @@ export default class TownScene extends Scene {
     shutdown(): void {
         // Runs from the SHUTDOWN event. Idempotent: every release below is a
         // no-op when it has already happened.
+        this.release_safe_zone?.();
         if (this.UI && this.UI.cleanup) {
             this.UI.cleanup();
         }

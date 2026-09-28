@@ -1,6 +1,5 @@
 import { Scene, Display } from "phaser";
 import { bannerStyle } from "@config/fonts";
-import { readSafeAreaInsets, safeZoneRect } from "@helpers/safeArea";
 
 export default class GameOverScene extends Scene {
     private global_game_width!: number;
@@ -18,14 +17,15 @@ export default class GameOverScene extends Scene {
         const scene_padding = 60;
         this.global_game_width = this.scale.width;
         this.global_game_height = this.scale.height;
-        // Layout zone for the HUD: kept clear of the notch/home indicator.
-        const safe = safeZoneRect(
-            this.global_game_width,
-            this.global_game_height,
-            scene_padding,
-            readSafeAreaInsets()
-        );
-        this.zone = this.add.zone(safe.x, safe.y, safe.width, safe.height).setOrigin(0);
+        // Only centres the banner, so the safe-area insets don't matter here.
+        this.zone = this.add
+            .zone(
+                scene_padding,
+                scene_padding,
+                this.global_game_width - scene_padding * 2,
+                this.global_game_height - scene_padding * 2
+            )
+            .setOrigin(0);
 
         this.game_over = this.add.container(0, 0);
         Display.Align.In.Center(this.game_over, this.zone);

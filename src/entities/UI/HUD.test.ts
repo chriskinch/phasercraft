@@ -1,5 +1,5 @@
 import { describe, it, expect, vi, beforeEach, afterEach } from "vitest";
-import UI from "./HUD";
+import UI, { HUD_LAYOUT } from "./HUD";
 import store from "@store";
 import { loadGame, setEnemiesRemaining, setBossActive, setCoins } from "@store/gameReducer";
 
@@ -245,5 +245,30 @@ describe("UI.setButtonsEnabled", () => {
             expect(button.setInteractive).toHaveBeenCalled();
             expect(button.disableInteractive).not.toHaveBeenCalled();
         });
+    });
+});
+
+// layout() re-places every HUD element against the scene's safe zone; it runs
+// again whenever the zone is re-fitted (resize / safe-area inset change).
+describe("UI.layout", () => {
+    it("pins spell frames bottom-left and buttons bottom-right of the zone, then notifies", () => {
+        const hud = Object.create(UI.prototype) as UI;
+        const frames = [0, 1].map(() => ({ setPosition: vi.fn() }));
+        const buttons = [0, 1].map(() => ({ setPosition: vi.fn() }));
+        Object.assign(hud, {
+            spacing: 60,
+            frames,
+            buttons,
+            scene: { zone: { x: 87, y: 40, width: 670, height: 289, originX: 0, originY: 0 } },
+            emit: vi.fn(),
+        });
+
+        hud.layout();
+
+        expect(frames[0].setPosition).toHaveBeenCalledWith(87, 329);
+        expect(frames[1].setPosition).toHaveBeenCalledWith(147, 329);
+        expect(buttons[0].setPosition).toHaveBeenCalledWith(757, 329);
+        expect(buttons[1].setPosition).toHaveBeenCalledWith(722, 329);
+        expect(hud.emit).toHaveBeenCalledWith(HUD_LAYOUT);
     });
 });
