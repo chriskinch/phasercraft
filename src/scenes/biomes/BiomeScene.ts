@@ -13,6 +13,7 @@ import { resolveBiome, type BiomeDefinition } from "./biomes";
 import SpawnDirector, { type SpawnHost } from "./SpawnDirector";
 import SpawnDebugOverlay from "./SpawnDebugOverlay";
 import { buildWalkability, isFootprintSpawnable, type WalkabilityGrid } from "@helpers/walkability";
+import { shoreCells } from "@helpers/shoreCollision";
 import { sample } from "lodash";
 import { bannerStyle } from "@config/fonts";
 
@@ -72,6 +73,9 @@ export default class BiomeScene extends Scene {
     private map!: Phaser.Tilemaps.Tilemap;
     private collision_layers: Phaser.Tilemaps.TilemapLayer[] = [];
     private map_colliders: Phaser.Physics.Arcade.Collider[] = [];
+    // Hidden half-tile grid blocking the water quadrants of shoreline tiles,
+    // which the whole-tile terrain collision leaves walkable. See buildShoreLayer().
+    private shore_layer?: Phaser.Tilemaps.TilemapLayer;
     // Enemies bump off each other. One collider for the whole group, set up
     // per area; enemies used to add a fresh one each as they spawned.
     private enemy_collider?: Phaser.Physics.Arcade.Collider;
@@ -271,10 +275,65 @@ export default class BiomeScene extends Scene {
             }
         });
 
+        this.shore_layer = this.buildShoreLayer();
+
         const width = this.map.widthInPixels * scale;
         const height = this.map.heightInPixels * scale;
         this.physics.world.setBounds(0, 0, width, height);
         this.cameras.main.setBounds(0, 0, width, height);
+    }
+
+    /**
+     * Arcade collides against whole tiles, so the terrain layer can only block
+     * full water; shoreline tiles, which are part water, stayed walkable and let
+     * characters wade up to a tile out into the lake. The generator tags each
+     * shoreline tile with its `waterCorners` mask, and this lays those out as an
+     * invisible tile layer at half the tile size, colliding exactly where the
+     * art is water.
+     */
+    private buildShoreLayer(): Tilemaps.TilemapLayer | undefined {
+        const terrain = this.map.getLayer("terrain");
+        if (!terrain) return undefined;
+
+        const { width, height } = this.map;
+        const masks = new Array<number | undefined>(width * height);
+        for (let y = 0; y < height; y++) {
+            const row = terrain.data[y];
+            if (!row) continue;
+            for (let x = 0; x < width; x++) {
+                const corners = (row[x]?.properties as { waterCorners?: unknown } | undefined)
+                    ?.waterCorners;
+                if (typeof corners === "number") masks[y * width + x] = corners;
+            }
+        }
+        const cells = shoreCells(width, height, masks);
+
+        const half_w = this.map.tileWidth / 2;
+        const half_h = this.map.tileHeight / 2;
+        const shore = this.make.tilemap({
+            tileWidth: half_w,
+            tileHeight: half_h,
+            width: width * 2,
+            height: height * 2,
+        });
+        // The layer is never drawn; any image will do as its tileset.
+        const tileset = shore.addTilesetImage(
+            "shore",
+            this.biome.map.tilesets[0].image,
+            half_w,
+            half_h
+        );
+        const layer = tileset ? shore.createBlankLayer("shore", tileset) : null;
+        if (!layer || !(layer instanceof Tilemaps.TilemapLayer)) {
+            throw Error(`${this.biome.id}: could not build the shoreline collision layer`);
+        }
+
+        cells.forEach((solid, i) => {
+            if (solid) layer.putTileAt(0, i % (width * 2), Math.floor(i / (width * 2)), false);
+        });
+        layer.setScale(this.biome.map.scale).setVisible(false);
+        layer.setCollision(0);
+        return layer;
     }
 
     /**
@@ -424,7 +483,10 @@ export default class BiomeScene extends Scene {
             return;
         }
 
-        this.map_colliders = this.collision_layers.flatMap((layer) => [
+        const layers = this.shore_layer
+            ? [...this.collision_layers, this.shore_layer]
+            : this.collision_layers;
+        this.map_colliders = layers.flatMap((layer) => [
             this.physics.add.collider(this.player, layer),
             this.physics.add.collider(this.enemies, layer),
         ]);
@@ -488,6 +550,7 @@ export default class BiomeScene extends Scene {
 
     /** True when no collidable layer has a solid tile at this world position. */
     private isOpenAt(x: number, y: number): boolean {
+        if (this.shore_layer?.getTileAtWorldXY(x, y)?.collides) return false;
         return this.collision_layers.every((layer) => {
             const tile = layer.getTileAtWorldXY(x, y);
             return !tile?.collides;
@@ -804,6 +867,7 @@ export default class BiomeScene extends Scene {
         if (this.enemy_collider) this.physics?.world?.removeCollider(this.enemy_collider);
         this.enemy_collider = undefined;
         this.collision_layers = [];
+        this.shore_layer = undefined;
 
         // The overlay pool is scene-owned, but scene instances are reused across
         // scene.start() and field initialisers do not re-run — so a stale pool

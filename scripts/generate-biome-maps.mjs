@@ -115,7 +115,21 @@ const PATH_BY_MASK = {
  * `solidPropsFor`) rather than hand-listed, so a prop can never be added to a
  * biome and silently stay walk-through.
  */
-const SOLID_TERRAIN = [158]; // full water only — shorelines stay walkable
+const SOLID_TERRAIN = [158]; // full water only — shorelines are handled below
+
+/**
+ * Shoreline tiles are drawn per corner: each quadrant of the 16px cell is
+ * either water or ground (see `WATER_BY_MASK`). Arcade can only collide with
+ * whole tiles, so rather than block or free the whole shoreline cell, each
+ * shoreline tile carries its corner mask as a `waterCorners` int property and
+ * BiomeScene builds a hidden half-tile collision layer from it — water quadrants
+ * block, ground quadrants stay walkable.
+ */
+const WATER_CORNERS = Object.fromEntries(
+    Object.entries(WATER_BY_MASK)
+        .filter(([mask]) => Number(mask) !== 0 && Number(mask) !== 15)
+        .map(([mask, id]) => [id, Number(mask)])
+);
 
 /**
  * Every terrain tile showing any water — the shorelines as well as the full
@@ -570,16 +584,23 @@ const PUBLIC = "../fantasy";
 
 /**
  * Tiled writes tile properties as a sparse `tiles` array keyed by local id.
- * Takes the ids carrying each boolean property and merges them, so a tile in
- * several sets (full water both collides and is water) gets one entry.
+ * Takes the ids carrying each boolean property (plus any int properties) and
+ * merges them, so a tile in several sets (full water both collides and is
+ * water) gets one entry.
  */
-function tileProperties(byName) {
+function tileProperties(byName, ints = {}) {
     const tiles = new Map();
+    const add = (id, property) => {
+        if (!tiles.has(id)) tiles.set(id, []);
+        tiles.get(id).push(property);
+    };
     for (const [name, ids] of Object.entries(byName)) {
-        for (const id of ids) {
-            if (!tiles.has(id)) tiles.set(id, []);
-            tiles.get(id).push({ name, type: "bool", value: true });
-        }
+        for (const id of ids) add(id, { name, type: "bool", value: true });
+    }
+    // `ints` maps a property name to { tileId: value }.
+    for (const [name, values] of Object.entries(ints)) {
+        for (const [id, value] of Object.entries(values))
+            add(Number(id), { name, type: "int", value });
     }
     return [...tiles].map(([id, properties]) => ({ id, properties }));
 }
@@ -599,7 +620,10 @@ function tilesets(biome) {
             spacing: 0,
             tilecount: 198,
             tileheight: 16,
-            tiles: tileProperties({ collides: SOLID_TERRAIN, water: WATER_TERRAIN }),
+            tiles: tileProperties(
+                { collides: SOLID_TERRAIN, water: WATER_TERRAIN },
+                { waterCorners: WATER_CORNERS }
+            ),
             tilewidth: 16,
         },
         {
