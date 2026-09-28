@@ -28,6 +28,9 @@ export interface Settings {
     liveCapOverride: number;
     killsToBossOverride: number;
     despawnDelaySeconds: number;
+    // Sound effect volume, 0–100; 0 mutes them. Read on every play, so a change
+    // applies straight away (see services/sfx.ts).
+    sfxVolume: number;
 }
 
 export const DEFAULT_SETTINGS: Settings = {
@@ -40,6 +43,7 @@ export const DEFAULT_SETTINGS: Settings = {
     liveCapOverride: 0,
     killsToBossOverride: 0,
     despawnDelaySeconds: 0,
+    sfxVolume: 70,
 };
 
 export const SETTINGS_KEY = "settings";

@@ -298,4 +298,32 @@ describe("Settings template", () => {
             expect(readSettings().liveCapOverride).toBe(2);
         });
     });
+
+    describe("sound effects volume", () => {
+        const slider = () => screen.getByLabelText("Sound effects");
+
+        it("defaults to 70%", () => {
+            renderWithProviders(<Settings />);
+
+            expect(slider()).toHaveValue("70");
+            expect(screen.getByText("70%")).toBeInTheDocument();
+        });
+
+        it("persists a new volume", () => {
+            renderWithProviders(<Settings />);
+
+            fireEvent.change(slider(), { target: { value: "35" } });
+
+            expect(readSettings().sfxVolume).toBe(35);
+            expect(screen.getByText("35%")).toBeInTheDocument();
+        });
+
+        it("shows Muted at 0", () => {
+            writeSettings({ ...DEFAULT_SETTINGS, sfxVolume: 0 });
+            renderWithProviders(<Settings />);
+
+            expect(slider()).toHaveValue("0");
+            expect(screen.getByText("Muted")).toBeInTheDocument();
+        });
+    });
 });

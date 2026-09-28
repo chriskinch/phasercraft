@@ -7,6 +7,7 @@ import TownScene from "@scenes/TownScene";
 import BiomeScene from "@scenes/biomes/BiomeScene";
 import GameOverScene from "@scenes/GameOverScene";
 import { readSettings } from "@services/settingsStorage";
+import { setSfxManager } from "@services/sfx";
 
 const PhaserGame = () => {
     const gameRef = useRef<Game | null>(null);
@@ -14,6 +15,7 @@ const PhaserGame = () => {
     useEffect(() => {
         if (gameRef.current) {
             console.log("Destroying existing Phaser game instance for hot reload...");
+            setSfxManager(null);
             gameRef.current.destroy(true, false);
             gameRef.current = null;
         }
@@ -60,10 +62,13 @@ const PhaserGame = () => {
         // after the DOM is committed, so the container already exists — create the
         // game synchronously rather than racing it behind a setTimeout.
         gameRef.current = new Game(config);
+        // React plays sound effects through the game's global sound manager.
+        setSfxManager(gameRef.current.sound);
 
         return () => {
             if (gameRef.current) {
                 console.log("Cleaning up Phaser game instance...");
+                setSfxManager(null);
                 gameRef.current.destroy(true, false);
                 gameRef.current = null;
             }

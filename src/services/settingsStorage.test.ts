@@ -32,6 +32,7 @@ describe("readSettings", () => {
             liveCapOverride: 2,
             killsToBossOverride: 3,
             despawnDelaySeconds: 5,
+            sfxVolume: 40,
         };
         expect(writeSettings(settings)).toBe(true);
         expect(readSettings()).toEqual(settings);
@@ -70,6 +71,7 @@ describe("readSettings", () => {
         expect(settings.liveCapOverride).toBe(0);
         expect(settings.killsToBossOverride).toBe(0);
         expect(settings.despawnDelaySeconds).toBe(0);
+        expect(settings.sfxVolume).toBe(70);
     });
 
     it("returns defaults for a non-object payload", () => {

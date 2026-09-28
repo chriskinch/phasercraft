@@ -3,6 +3,7 @@ import createAnimations from "../config/animations";
 import store from "@store";
 import { toggleUi } from "@store/gameReducer";
 import createLogo from "./createLogo";
+import { SFX } from "@services/sfx";
 
 export default class LoadScene extends Scene {
     private logo?: GameObjects.Container;
@@ -284,6 +285,12 @@ export default class LoadScene extends Scene {
         });
 
         this.loadBiomeTilesets();
+
+        // Sound effects live under public/audio, outside the graphics path.
+        this.load.setPath("");
+        for (const [key, path] of Object.entries(SFX)) {
+            this.load.audio(key, path);
+        }
     }
 
     /**

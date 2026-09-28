@@ -13,7 +13,7 @@ import {
 // Phaser physics config at boot (see PhaserGame.tsx), while `startingCoins` and
 // `startLocation` are read when a new game begins (CharacterCard / SelectScene).
 // The spawn tuning under Debug mode is read each time an area is entered (see
-// `resolveAreaTuning`). The layout is intentionally minimal (one row per
+// `resolveAreaTuning`), and the SFX volume on every sound played (services/sfx). The layout is intentionally minimal (one row per
 // setting) but structured so more rows drop in easily.
 const rowStyle: React.CSSProperties = {
     display: "flex",
@@ -172,10 +172,28 @@ const Settings: React.FC = () => {
     const onStartingCoinsChange = (event: React.ChangeEvent<HTMLInputElement>) =>
         update({ startingCoins: toNonNegativeInt(event.target.value) });
 
+    const onSfxVolumeChange = (event: React.ChangeEvent<HTMLInputElement>) =>
+        update({ sfxVolume: Math.min(100, toNonNegativeInt(event.target.value)) });
+
     const toggleSpawnOverlay = () => update({ spawnDebugOverlay: !settings.spawnDebugOverlay });
 
     return (
         <div style={{ display: "flex", flexDirection: "column", gap: "1em" }}>
+            <div style={rowStyle}>
+                <label htmlFor="sfx-volume">Sound effects</label>
+                <input
+                    id="sfx-volume"
+                    type="range"
+                    min={0}
+                    max={100}
+                    step={5}
+                    value={settings.sfxVolume}
+                    onChange={onSfxVolumeChange}
+                />
+                <span style={hintStyle}>
+                    {settings.sfxVolume === 0 ? "Muted" : `${settings.sfxVolume}%`}
+                </span>
+            </div>
             <div style={rowStyle}>
                 <span>Debug mode</span>
                 <Button
