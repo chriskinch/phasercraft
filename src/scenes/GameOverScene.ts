@@ -44,7 +44,10 @@ export default class GameOverScene extends Scene {
     }
 
     restartGame(): void {
-        this.scene.start("TownScene");
+        // Pass explicit (empty) data: Phaser keeps a scene's previous data when
+        // started without any, which would carry a stale `arrival: "gate"` from
+        // the last biome return. TownScene.init falls back to the store's class.
+        this.scene.start("TownScene", {});
     }
 
     shutdown(): void {
