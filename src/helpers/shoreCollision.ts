@@ -3,7 +3,7 @@
 // (NW=1, NE=2, SW=4, SE=8). Arcade can only collide with whole tiles, so
 // BiomeScene blocks shorelines with a hidden, finer collision grid built here.
 //
-// The rects do not stop at the corner midlines: the art draws a rim between
+// The blocked area does not stop at the corner midlines: the art draws a rim between
 // water and grass — a grass lip on north shores, a dirt cliff face on south
 // ones, a bank on east and west — and a character standing on it reads as
 // hovering over the water or standing on the cliff. So each edge is pulled in
