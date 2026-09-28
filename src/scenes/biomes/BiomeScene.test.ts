@@ -702,13 +702,25 @@ describe("BiomeScene.updatePropOverlays", () => {
         const sprite = {
             setOrigin: vi.fn((_x: number, _y: number) => sprite),
             setScale: vi.fn((_s: number) => sprite),
-            setFrame: vi.fn((_f: number) => sprite),
+            setTexture: vi.fn((_key: string, _frame: number) => sprite),
             setPosition: vi.fn((_x: number, _y: number) => sprite),
             setDepth: vi.fn((_d: number) => sprite),
             setVisible: vi.fn((_v: boolean) => sprite),
             destroy: vi.fn(),
         };
-        const tile = { x: 3, y: 4, index: 250, tileset: { firstgid: 239 } };
+        const tile: {
+            x: number;
+            y: number;
+            index: number;
+            tileset: { firstgid: number; name: string };
+            properties: { sortBase?: number };
+        } = {
+            x: 3,
+            y: 4,
+            index: 250,
+            tileset: { firstgid: 239, name: "forest_ [resources]" },
+            properties: {},
+        };
         const layer = {
             layer: { name: "structure props" },
             getTileAtWorldXY: vi.fn(() => tile),
@@ -747,6 +759,36 @@ describe("BiomeScene.updatePropOverlays", () => {
         const in_front = world.y + TILE_PX * 3; // standing below the trunk
         expect(depth).toBeGreaterThan(behind_tree);
         expect(depth).toBeLessThan(in_front);
+    });
+
+    it("draws each tile from its own tileset's spritesheet", () => {
+        const { scene, sprite, tile } = makeOverlayScene({ x: 320, y: 640 });
+        tile.tileset = { firstgid: 359, name: "forest_ [fencesAndWalls]" };
+        tile.index = 359 + 36;
+
+        scene.updatePropOverlays();
+
+        expect(sprite.setTexture).toHaveBeenCalledWith("forestFenceProps", 36);
+    });
+
+    it("sorts a taller prop on the base its sortBase property names", () => {
+        // The sliver over the entrance gateway's beam stands two tiles above its posts.
+        const world = { x: 320, y: 640 };
+        const { scene, sprite, tile } = makeOverlayScene(world);
+        tile.properties = { sortBase: 2 };
+
+        scene.updatePropOverlays();
+
+        expect(sprite.setDepth).toHaveBeenCalledWith(world.y + TILE_PX * 3);
+    });
+
+    it("skips a tile from a sheet with no overlay spritesheet", () => {
+        const { scene, tile } = makeOverlayScene({ x: 320, y: 640 });
+        tile.tileset = { firstgid: 1, name: "forest_" };
+
+        scene.updatePropOverlays();
+
+        expect(scene.add.sprite).not.toHaveBeenCalled();
     });
 
     it("reuses the pool rather than creating a sprite per frame", () => {
@@ -879,5 +921,166 @@ describe("BiomeScene.buildSpawnGrid", () => {
         const grid = scene.buildSpawnGrid({ x: WORLD_TILE * 3 + 1, y: 1 });
 
         expect([...grid.spawnable]).toEqual([0, 0, 0, 0]);
+    });
+});
+
+describe("BiomeScene.findPlayerStart", () => {
+    // The map's `spawn` object layer carries a `player-start` point, in
+    // unscaled map pixels; the scene scales it to world px.
+    type Marker = { name: string; x?: number; y?: number };
+
+    function makeStartScene(marker: Marker | null, solid = false) {
+        const { scene } = makeScene();
+        const startScene = scene as unknown as SceneUnderTest & {
+            map: { findObject: ReturnType<typeof vi.fn> };
+            findPlayerStart(): { x: number; y: number } | null;
+        };
+        startScene.map = {
+            tileWidth: 16,
+            tileHeight: 16,
+            findObject: vi.fn((layer: string, test: (object: Marker) => boolean) =>
+                layer === "spawn" && marker && test(marker) ? marker : null
+            ),
+        };
+        startScene.collision_layers = [{ getTileAtWorldXY: vi.fn(() => ({ collides: solid })) }];
+        return startScene;
+    }
+
+    it("returns the marker scaled to world px", () => {
+        const scene = makeStartScene({ name: "player-start", x: 168, y: 248 });
+
+        expect(scene.findPlayerStart()).toEqual({ x: 336, y: 496 });
+    });
+
+    it("returns null when the map has no start marker", () => {
+        expect(makeStartScene(null).findPlayerStart()).toBeNull();
+        expect(makeStartScene({ name: "something-else", x: 1, y: 1 }).findPlayerStart()).toBeNull();
+    });
+
+    it("returns null when the marker sits on a solid tile", () => {
+        const scene = makeStartScene({ name: "player-start", x: 168, y: 248 }, true);
+
+        expect(scene.findPlayerStart()).toBeNull();
+    });
+});
+
+describe("BiomeScene town exit", () => {
+    // The entrance gateway's opening is a `town-exit` POI. Walking into it opens
+    // the same return-to-town confirmation as the HUD button, once per entry.
+    type Rect = { x: number; y: number; width: number; height: number };
+    type PoiObject = { name: string; x: number; y: number; width: number; height: number };
+
+    function makeExitScene(objects: PoiObject[] | null) {
+        const { scene } = makeScene();
+        const exitScene = scene as unknown as SceneUnderTest & {
+            map: {
+                tileWidth: number;
+                tileHeight: number;
+                getObjectLayer: ReturnType<typeof vi.fn>;
+            };
+            exit_zones: Rect[];
+            in_exit: boolean;
+            readExitZones(): Rect[];
+            updateExitZone(): void;
+        };
+        exitScene.map = {
+            tileWidth: 16,
+            tileHeight: 16,
+            getObjectLayer: vi.fn((name: string) =>
+                name === "POI" && objects ? { objects } : null
+            ),
+        };
+        exitScene.in_exit = false;
+        // The zone is tested against the player's feet: y + height / 2.
+        exitScene.player = { ...exitScene.player, alive: true, x: 500, y: 500, height: 30 };
+        const moveTo = (feet: { x: number; y: number }) => {
+            exitScene.player.x = feet.x;
+            exitScene.player.y = feet.y - 15;
+        };
+        return { scene: exitScene, moveTo };
+    }
+
+    const GATE = { name: "town-exit", x: 144, y: 0, width: 48, height: 32 };
+    // The zone spans x 288-384, y 0-64 in world px.
+    const IN_GATE = { x: 330, y: 50 };
+    const AWAY = { x: 330, y: 300 };
+
+    beforeEach(() => {
+        vi.spyOn(store, "dispatch");
+    });
+
+    afterEach(() => {
+        vi.restoreAllMocks();
+    });
+
+    const confirmCalls = () =>
+        vi
+            .mocked(store.dispatch)
+            .mock.calls.filter(
+                ([action]) =>
+                    (action as { type?: string; payload?: { menu?: string } }).payload?.menu ===
+                    "confirmReturn"
+            );
+
+    it("reads town-exit rects off the POI layer, scaled to world px", () => {
+        const { scene } = makeExitScene([GATE, { ...GATE, name: "other" }]);
+
+        const zones = scene.readExitZones();
+
+        expect(zones).toHaveLength(1);
+        expect(zones[0]).toMatchObject({ x: 288, y: 0, width: 96, height: 64 });
+    });
+
+    it("has no exit zones when the map carries no POI layer", () => {
+        expect(makeExitScene(null).scene.readExitZones()).toEqual([]);
+    });
+
+    it("opens the return confirmation once on entering the gateway", () => {
+        const { scene, moveTo } = makeExitScene([GATE]);
+        scene.exit_zones = scene.readExitZones();
+
+        scene.updateExitZone();
+        expect(confirmCalls()).toHaveLength(0);
+
+        moveTo(IN_GATE);
+        scene.updateExitZone();
+        scene.updateExitZone();
+        expect(confirmCalls()).toHaveLength(1);
+    });
+
+    it("re-arms only after the player leaves the gateway", () => {
+        const { scene, moveTo } = makeExitScene([GATE]);
+        scene.exit_zones = scene.readExitZones();
+
+        moveTo(IN_GATE);
+        scene.updateExitZone();
+        moveTo(AWAY);
+        scene.updateExitZone();
+        moveTo(IN_GATE);
+        scene.updateExitZone();
+
+        expect(confirmCalls()).toHaveLength(2);
+    });
+
+    it("ignores a head under the beam while the feet are still outside", () => {
+        const { scene, moveTo } = makeExitScene([GATE]);
+        scene.exit_zones = scene.readExitZones();
+
+        // Middle of the body inside the zone, feet 15px lower and outside it.
+        moveTo({ x: 330, y: 70 });
+        scene.updateExitZone();
+
+        expect(confirmCalls()).toHaveLength(0);
+    });
+
+    it("does nothing once the player is dead", () => {
+        const { scene, moveTo } = makeExitScene([GATE]);
+        scene.exit_zones = scene.readExitZones();
+        scene.player.alive = false;
+
+        moveTo(IN_GATE);
+        scene.updateExitZone();
+
+        expect(confirmCalls()).toHaveLength(0);
     });
 });

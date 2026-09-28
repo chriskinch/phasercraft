@@ -23,7 +23,7 @@ export interface BiomeDefinition {
  * LoadScene; each `tilesets` entry pairs the tileset name *inside* the .tmj with
  * the image key the same scene preloaded under.
  *
- * The three sheets are identical in layout across the biomes (the fantasy_ pack
+ * The four sheets are identical in layout across the biomes (the fantasy_ pack
  * ships them that way), so `biomeMap` derives the whole thing from the id and
  * the only per-biome difference is the palette.
  */
@@ -41,9 +41,10 @@ export interface BiomeMap {
     // depth-sorted sprites, so walking up behind a tree puts its canopy in
     // front of you. See `BiomeScene.updatePropOverlays`.
     propLayers: string[];
-    // Spritesheet key for those overlay sprites: the same art as the layer's
-    // tileset, loaded with frames so a tile index can be drawn on its own.
-    propsTexture: string;
+    // Spritesheet keys for those overlay sprites, by tileset name: the same art
+    // as the tileset, loaded with frames so a tile index can be drawn on its
+    // own. The prop layer mixes the resource sheet with the entrance gateway.
+    propsTextures: Record<string, string>;
     // Tile art is 16px; the town renders its map at 2x and the biomes match, so
     // the player reads at the same size in both.
     scale: number;
@@ -56,11 +57,15 @@ function biomeMap(id: BiomeId): BiomeMap {
             { name: `${id}_`, image: `${id}Terrain` },
             { name: `${id}Path_`, image: `${id}Path` },
             { name: `${id}_ [resources]`, image: `${id}Resources` },
+            { name: `${id}_ [fencesAndWalls]`, image: `${id}FencesAndWalls` },
         ],
         layers: ["terrain", "terrain props", "paths", "structure", "structure props"],
         collisionLayers: ["terrain", "structure"],
         propLayers: ["structure props"],
-        propsTexture: `${id}Props`,
+        propsTextures: {
+            [`${id}_ [resources]`]: `${id}Props`,
+            [`${id}_ [fencesAndWalls]`]: `${id}FenceProps`,
+        },
         scale: 2,
     };
 }

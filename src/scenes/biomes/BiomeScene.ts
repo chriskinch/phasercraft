@@ -1,4 +1,4 @@
-import { Scene, Input, GameObjects, Display, Scenes, Tilemaps } from "phaser";
+import { Scene, Input, GameObjects, Display, Scenes, Tilemaps, Geom } from "phaser";
 import AssignClass from "@entities/Player/AssignClass";
 import AssignType from "@entities/Enemy/AssignType";
 import Boss, { BOSS_SCALE } from "@entities/Enemy/Boss";
@@ -23,6 +23,7 @@ import {
     setEnemiesRemaining,
     setBossActive,
     clearTravelRequest,
+    toggleUi,
 } from "@store/gameReducer";
 import mapStateToData from "@helpers/mapStateToData";
 import store from "@store";
@@ -89,6 +90,13 @@ export default class BiomeScene extends Scene {
     // Tiles an enemy may spawn on: pure land the player can reach on foot.
     // Rebuilt in create() once the player's start is known.
     public spawn_grid!: WalkabilityGrid;
+    // The map's `town-exit` POIs (the entrance gateway's opening), in world px,
+    // and the one the player is standing in, if any. As in the town, the
+    // interaction fires once on entry and re-arms only once the player leaves,
+    // so cancelling the confirmation while still in the gateway does not
+    // re-open it straight away. Plain geometry: nothing to release.
+    private exit_zones: Geom.Rectangle[] = [];
+    private in_exit: boolean = false;
 
     constructor() {
         super({ key: "BiomeScene" });
@@ -178,13 +186,15 @@ export default class BiomeScene extends Scene {
         // to, and its collision data decides where the player can legally start.
         this.createBiomeEnvironment();
 
-        const spawn = this.findOpenSpawn();
+        const spawn = this.findPlayerStart() ?? this.findOpenSpawn();
         this.player = new AssignClass(this.config.type, {
             scene: this,
             x: spawn.x,
             y: spawn.y,
         }) as PlayerType;
         this.spawn_grid = this.buildSpawnGrid(spawn);
+        this.exit_zones = this.readExitZones();
+        this.in_exit = false;
 
         this.enemies = this.add.group();
         this.enemies.runChildUpdate = true;
@@ -451,22 +461,31 @@ export default class BiomeScene extends Scene {
         const tileset = tile.tileset;
         if (!tileset) return used;
 
-        let sprite = this.prop_overlays[used];
-        if (!sprite) {
-            sprite = this.add.sprite(0, 0, this.biome.map.propsTexture).setOrigin(0, 0);
-            sprite.setScale(scale);
-            this.prop_overlays.push(sprite);
-        }
+        // The prop layer mixes sheets — resources and the entrance gateway —
+        // so each tile draws from its own tileset's spritesheet.
+        const texture = this.biome.map.propsTextures[tileset.name];
+        if (!texture) return used;
 
         const world = layer.tileToWorldXY(tile.x, tile.y);
         if (!world) return used;
 
-        sprite.setFrame(tile.index - tileset.firstgid);
+        let sprite = this.prop_overlays[used];
+        if (!sprite) {
+            sprite = this.add.sprite(0, 0, texture).setOrigin(0, 0);
+            sprite.setScale(scale);
+            this.prop_overlays.push(sprite);
+        }
+
+        sprite.setTexture(texture, tile.index - tileset.firstgid);
         sprite.setPosition(world.x, world.y);
-        // Sort on the bottom of the whole prop, not of this tile: these are the
-        // *upper* halves of two-tile props, so the base sits one tile lower.
-        // Matches the town's `sprite.y + sprite.height` convention.
-        sprite.setDepth(world.y + tile_h * 2);
+        // Sort on the bottom of the whole prop, not of this tile. Most of these
+        // are the *upper* halves of two-tile props, so the base sits one tile
+        // lower; taller props (the entrance gateway's beam) say how far down
+        // theirs is with a `sortBase` tile property. Matches the town's
+        // `sprite.y + sprite.height` convention.
+        const sort_base = (tile.properties as { sortBase?: unknown } | undefined)?.sortBase;
+        const tiles_below = typeof sort_base === "number" ? sort_base : 1;
+        sprite.setDepth(world.y + tile_h * (tiles_below + 1));
         sprite.setVisible(true);
         return used + 1;
     }
@@ -559,7 +578,65 @@ export default class BiomeScene extends Scene {
     }
 
     /**
-     * Somewhere legal to start. Walks outward in a spiral from the middle of the
+     * The map's `town-exit` rectangles from its `POI` object layer, scaled to
+     * world px. Tiled stores them in unscaled map pixels, like the start.
+     */
+    private readExitZones(): Geom.Rectangle[] {
+        const layer = this.map.getObjectLayer("POI");
+        if (!layer) return [];
+
+        const scale = this.biome.map.scale;
+        return layer.objects
+            .filter((object) => object.name === "town-exit")
+            .map(
+                (object) =>
+                    new Geom.Rectangle(
+                        (object.x ?? 0) * scale,
+                        (object.y ?? 0) * scale,
+                        (object.width ?? 0) * scale,
+                        (object.height ?? 0) * scale
+                    )
+            );
+    }
+
+    /**
+     * Walking back out through the entrance gateway asks to return to town —
+     * the same confirmation the HUD's return button opens, so what happens next
+     * (the overlay pausing the scene, Return travelling, Cancel resuming) is
+     * exactly that path. Fires on entering the zone only; see `in_exit`.
+     */
+    private updateExitZone(): void {
+        if (!this.exit_zones.length || !this.player.alive || this.game_over) return;
+
+        // On the feet, as `sortCharactersByFeet` does: whole-body bounds put the
+        // player "in" the gateway as soon as their head passed under the beam.
+        const feet_x = this.player.x;
+        const feet_y = this.player.y + this.player.height / 2;
+        const inside = this.exit_zones.some((zone) => zone.contains(feet_x, feet_y));
+
+        if (inside === this.in_exit) return;
+        this.in_exit = inside;
+        if (inside) store.dispatch(toggleUi("confirmReturn"));
+    }
+
+    /**
+     * The map's authored start: the `player-start` point on its `spawn` object
+     * layer, just inside the entrance gateway (see the generator's
+     * `ENTRANCE`). Tiled stores it in unscaled map pixels. Null when the map
+     * carries none, or it sits on something solid, so the caller can fall back
+     * to `findOpenSpawn`.
+     */
+    private findPlayerStart(): { x: number; y: number } | null {
+        const marker = this.map.findObject("spawn", (object) => object.name === "player-start");
+        if (!marker || marker.x === undefined || marker.y === undefined) return null;
+
+        const scale = this.biome.map.scale;
+        const start = { x: marker.x * scale, y: marker.y * scale };
+        return this.isOpenAt(start.x, start.y) ? start : null;
+    }
+
+    /**
+     * Fallback for a map with no usable start marker. Walks outward in a spiral from the middle of the
      * map, which the generator keeps clear of the water margin, so in practice
      * this lands on the first tile it tries.
      */
@@ -598,6 +675,7 @@ export default class BiomeScene extends Scene {
         // After the characters have moved and re-set their own depths.
         this.sortCharactersByFeet();
         this.updatePropOverlays();
+        this.updateExitZone();
 
         if (this.cursors.esc?.isDown) {
             this.returnToTown();

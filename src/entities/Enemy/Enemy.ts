@@ -121,6 +121,7 @@ class Enemy extends GameObjects.Container {
         this.setSize(this.monster.getBounds().width, this.monster.getBounds().height);
         config.scene.physics.world.enable(this);
         config.scene.add.existing(this);
+        this.body.collideWorldBounds = true;
         this.body.setFriction(0, 0).setDrag(300).setBounce(0.2);
         this.home = { x: config.x, y: config.y };
         this.scene_events = config.scene.events;
