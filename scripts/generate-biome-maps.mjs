@@ -118,12 +118,12 @@ const PATH_BY_MASK = {
 const SOLID_TERRAIN = [158]; // full water only — shorelines are handled below
 
 /**
- * Shoreline tiles are drawn per corner: each quadrant of the 16px cell is
- * either water or ground (see `WATER_BY_MASK`). Arcade can only collide with
- * whole tiles, so rather than block or free the whole shoreline cell, each
- * shoreline tile carries its corner mask as a `waterCorners` int property and
- * BiomeScene builds a hidden half-tile collision layer from it — water quadrants
- * block, ground quadrants stay walkable.
+ * Shoreline tiles are drawn per corner: each corner of the 16px cell is either
+ * water or ground (see `WATER_BY_MASK`). Arcade can only collide with whole
+ * tiles, so rather than block or free the whole shoreline cell, each shoreline
+ * tile carries its corner mask as a `waterCorners` int property and BiomeScene
+ * blocks the water side with a finer hidden collision grid (see
+ * src/helpers/shoreCollision.ts).
  */
 const WATER_CORNERS = Object.fromEntries(
     Object.entries(WATER_BY_MASK)
