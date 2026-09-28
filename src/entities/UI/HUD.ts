@@ -61,8 +61,10 @@ class UI extends GameObjects.Container {
 
         this.buttons.forEach((button) => this.add(button));
 
-        const { x, y, width, height } = (this.scene as GameSceneLike).zone;
-        Actions.IncXY(this.buttons, x + width, y + height, -35);
+        // System/character buttons run left-to-right from the bottom-left
+        // corner; the spell bar owns the bottom-right.
+        const { x, y, height } = (this.scene as GameSceneLike).zone;
+        Actions.IncXY(this.buttons, x, y + height, 35);
 
         // Maps coins, area progress and showUi sections of the store to various functions.
         this.subscriptions.push(mapStateToData("coins", () => this.renderCoinCount()));
@@ -102,8 +104,12 @@ class UI extends GameObjects.Container {
             .setScrollFactor(0);
     }
 
+    // Right-anchored spell bar: the last slot sits on the zone's right edge and
+    // slot 0 stays leftmost, so slot order still reads left-to-right.
     setSpellFrames(): void {
-        let x = Display.Bounds.GetLeft((this.scene as GameSceneLike).zone);
+        let x =
+            Display.Bounds.GetRight((this.scene as GameSceneLike).zone) -
+            this.spacing * (this.spells - 1);
         let y = Display.Bounds.GetBottom((this.scene as GameSceneLike).zone);
         for (let i = 0; i < this.spells; i++) {
             let frame = this.scene.add
@@ -117,7 +123,7 @@ class UI extends GameObjects.Container {
 
     setCoinCount(): void {
         this.coins = this.scene.add.container(0, 0) as LabelledContainer;
-        Display.Align.In.TopRight(this.coins, (this.scene as GameSceneLike).zone, -80);
+        Display.Align.In.TopLeft(this.coins, (this.scene as GameSceneLike).zone, -110);
 
         this.coins.add(this.scene.add.sprite(0, 0, "coin-spin"));
         this.coins.text = this.scene.add.text(15, 0, "Coins: ", styles).setOrigin(0, 0.5);
@@ -136,7 +142,7 @@ class UI extends GameObjects.Container {
 
     setEnemyCount(): void {
         this.enemies = this.scene.add.container(0, 0) as LabelledContainer;
-        Display.Align.In.TopRight(this.enemies, (this.scene as GameSceneLike).zone, -190);
+        Display.Align.In.TopLeft(this.enemies, (this.scene as GameSceneLike).zone);
 
         this.enemies.add(this.scene.add.sprite(0, 0, "dungeon", "ghast_baby"));
         this.enemies.text = this.scene.add.text(15, 0, "", styles).setOrigin(0, 0.5);

@@ -9,7 +9,7 @@ import type { Settings } from "@services/settingsStorage";
 export const AREA_KILLS_TO_BOSS = 20;
 
 // How many regular enemies may be alive at once.
-export const AREA_LIVE_CAP = 5;
+export const AREA_LIVE_CAP = 15;
 
 // While below the live cap, at most one enemy spawns per interval, so the area
 // fills gradually rather than in waves.
