@@ -1,5 +1,7 @@
+/* Inset from the notch: the canvas behind runs edge to edge. */
 .hudContainer {
-    padding: 0.5em 1em;
+    padding: calc(0.5em + env(safe-area-inset-top, 0px)) 1em 0.5em
+        calc(1em + env(safe-area-inset-left, 0px));
 }
 
 .levelInfo {

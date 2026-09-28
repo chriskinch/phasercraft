@@ -15,6 +15,7 @@ import type Player from "@entities/Player/Player";
 import type { GameSceneConfig } from "@/scenes/SelectScene";
 import { BIOMES, type BiomeId } from "@/scenes/biomes/biomes";
 import UI from "@entities/UI/HUD";
+import { readSafeAreaInsets, safeZoneRect } from "@helpers/safeArea";
 
 export default class TownScene extends Scene {
     public player!: PlayerType;
@@ -94,16 +95,16 @@ export default class TownScene extends Scene {
         store.dispatch(setCurrentArea("town"));
 
         const scene_padding = 40;
-        this.global_game_width = Number(this.sys.game.config.width);
-        this.global_game_height = Number(this.sys.game.config.height);
-        this.zone = this.add
-            .zone(
-                scene_padding,
-                scene_padding,
-                this.global_game_width - scene_padding * 2,
-                this.global_game_height - scene_padding * 2
-            )
-            .setOrigin(0);
+        this.global_game_width = this.scale.width;
+        this.global_game_height = this.scale.height;
+        // Layout zone for the HUD: kept clear of the notch/home indicator.
+        const safe = safeZoneRect(
+            this.global_game_width,
+            this.global_game_height,
+            scene_padding,
+            readSafeAreaInsets()
+        );
+        this.zone = this.add.zone(safe.x, safe.y, safe.width, safe.height).setOrigin(0);
 
         // Town is a non-combat hub, so hide the spell slots and the whole combat
         // readout — both the enemy counter and the coin purse.

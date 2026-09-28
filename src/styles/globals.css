@@ -15,8 +15,7 @@
 /*
  * Standalone PWA fills the viewport: lock scrolling/overscroll (no pull-to-
  * refresh) and size the Phaser canvas to the dynamic viewport height (100dvh
- * dodges the mobile browser toolbar crop). Safe-area insets keep the canvas
- * clear of notches when launched full-screen.
+ * dodges the mobile browser toolbar crop).
  */
 html,
 body {
@@ -31,10 +30,16 @@ body {
     height: 100dvh;
 }
 
-#phaser-game {
-    padding: env(safe-area-inset-top) env(safe-area-inset-right) env(safe-area-inset-bottom)
-        env(safe-area-inset-left);
-    box-sizing: border-box;
+/*
+ * The canvas runs edge to edge (under the notch); the HUD keeps clear of it
+ * instead. Phaser can't read env() directly, so mirror the insets into custom
+ * properties that src/helpers/safeArea.ts reads via getComputedStyle.
+ */
+:root {
+    --safe-area-top: env(safe-area-inset-top, 0px);
+    --safe-area-right: env(safe-area-inset-right, 0px);
+    --safe-area-bottom: env(safe-area-inset-bottom, 0px);
+    --safe-area-left: env(safe-area-inset-left, 0px);
 }
 
 body {
