@@ -20,6 +20,9 @@ function makeDoc() {
     return { doc, requestFullscreen, tap };
 }
 
+const ANDROID = "Mozilla/5.0 (Linux; Android 14) Chrome/130.0 Mobile";
+const DESKTOP = "Mozilla/5.0 (Windows NT 10.0; Win64; x64) Chrome/130.0";
+
 describe("enterFullscreenOnFirstTap", () => {
     afterEach(() => vi.unstubAllGlobals());
 
@@ -27,7 +30,7 @@ describe("enterFullscreenOnFirstTap", () => {
         stubDisplayMode(true);
         const { doc, requestFullscreen, tap } = makeDoc();
 
-        enterFullscreenOnFirstTap(doc as unknown as Document);
+        enterFullscreenOnFirstTap(doc as unknown as Document, ANDROID);
         expect(doc.addEventListener).toHaveBeenCalledWith("pointerdown", expect.any(Function), {
             once: true,
             capture: true,
@@ -37,11 +40,20 @@ describe("enterFullscreenOnFirstTap", () => {
         expect(requestFullscreen).toHaveBeenCalledWith({ navigationUI: "hide" });
     });
 
+    it("does nothing in an installed app off Android", () => {
+        stubDisplayMode(true);
+        const { doc } = makeDoc();
+
+        enterFullscreenOnFirstTap(doc as unknown as Document, DESKTOP);
+
+        expect(doc.addEventListener).not.toHaveBeenCalled();
+    });
+
     it("does nothing in a plain browser tab", () => {
         stubDisplayMode(false);
         const { doc } = makeDoc();
 
-        enterFullscreenOnFirstTap(doc as unknown as Document);
+        enterFullscreenOnFirstTap(doc as unknown as Document, ANDROID);
 
         expect(doc.addEventListener).not.toHaveBeenCalled();
     });
@@ -51,7 +63,7 @@ describe("enterFullscreenOnFirstTap", () => {
         const { doc, requestFullscreen, tap } = makeDoc();
         doc.fullscreenElement = {} as Element;
 
-        enterFullscreenOnFirstTap(doc as unknown as Document);
+        enterFullscreenOnFirstTap(doc as unknown as Document, ANDROID);
         tap();
 
         expect(requestFullscreen).not.toHaveBeenCalled();

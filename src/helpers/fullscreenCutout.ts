@@ -3,11 +3,16 @@
 // is, and the page only extends under it (viewport-fit=cover) after a window
 // relayout such as leaving and returning to the app. Entering fullscreen
 // forces that relayout, so the installed app does it on the first tap
-// (requestFullscreen needs a user gesture). Plain browser tabs are left alone.
+// (requestFullscreen needs a user gesture). Android only; plain browser tabs
+// and other platforms' installed apps are left alone.
 
 const INSTALLED = "(display-mode: fullscreen), (display-mode: standalone)";
 
-export function enterFullscreenOnFirstTap(doc: Document = document): void {
+export function enterFullscreenOnFirstTap(
+    doc: Document = document,
+    userAgent: string = navigator.userAgent
+): void {
+    if (!/Android/i.test(userAgent)) return;
     if (!window.matchMedia?.(INSTALLED).matches) return;
     const root = doc.documentElement;
     if (!root.requestFullscreen) return;
