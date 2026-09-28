@@ -32,6 +32,7 @@ import type Player from "@entities/Player/Player";
 import type { GameSceneConfig } from "@/scenes/SelectScene";
 import type { PlayerType } from "@entities/Player/AssignClass";
 import { throwError } from "rxjs";
+import { addSafeZone } from "@/scenes/safeZone";
 
 export default class BiomeScene extends Scene {
     private global_tick: number = 42;
@@ -40,6 +41,8 @@ export default class BiomeScene extends Scene {
     private global_game_width!: number;
     private global_game_height!: number;
     private zone!: Phaser.GameObjects.Zone;
+    // Detaches the safe zone's resize/inset listeners; called from shutdown().
+    private release_safe_zone?: () => void;
     public player!: PlayerType;
     public enemies!: Phaser.GameObjects.Group;
     public active_enemies!: Phaser.GameObjects.Group;
@@ -130,16 +133,16 @@ export default class BiomeScene extends Scene {
         this.cameras.main.setBackgroundColor(this.biome.backgroundColor);
 
         const scene_padding = 40;
-        this.global_game_width = Number(this.sys.game.config.width);
-        this.global_game_height = Number(this.sys.game.config.height);
-        this.zone = this.add
-            .zone(
-                scene_padding,
-                scene_padding,
-                this.global_game_width - scene_padding * 2,
-                this.global_game_height - scene_padding * 2
-            )
-            .setOrigin(0);
+        this.global_game_width = this.scale.width;
+        this.global_game_height = this.scale.height;
+        // Layout zone for the HUD: kept clear of the notch/home indicator and
+        // re-fitted (with the HUD re-aligned) on resize or inset changes.
+        const safe_zone = addSafeZone(this, scene_padding, () => {
+            this.UI.layout();
+            if (this.area_cleared_ui) Display.Align.In.Center(this.area_cleared_ui, this.zone);
+        });
+        this.zone = safe_zone.zone;
+        this.release_safe_zone = safe_zone.release;
 
         // Only the biome scenes get the return-to-town button — the town has
         // nowhere to teleport back to.
@@ -834,6 +837,7 @@ export default class BiomeScene extends Scene {
     }
 
     shutdown(): void {
+        this.release_safe_zone?.();
         if (this.UI && this.UI.cleanup) {
             this.UI.cleanup();
         }

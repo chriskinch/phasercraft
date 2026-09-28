@@ -1,5 +1,7 @@
 import { GameObjects, Display, Scene } from "phaser";
 import type { GameSceneLike } from "@/types/scene";
+import { HUD_LAYOUT } from "@entities/UI/HUD";
+import type UI from "@entities/UI/HUD";
 
 export interface SpellButtonOptions {
     scene: Scene;
@@ -18,11 +20,15 @@ class SpellButton {
     public sprite: GameObjects.Sprite;
     public text: GameObjects.Text;
     private scene: Scene;
+    private hud: UI;
+    private slot: number;
     private hotkey: string;
     private onPress: () => void;
 
     constructor({ scene, icon_name, slot, hotkey, cooldown, onPress }: SpellButtonOptions) {
         this.scene = scene;
+        this.hud = (scene as GameSceneLike).UI;
+        this.slot = slot;
         this.hotkey = hotkey;
         this.onPress = onPress;
 
@@ -46,7 +52,14 @@ class SpellButton {
             .setScrollFactor(0)
             .setVisible(false);
 
-        Display.Align.In.BottomLeft(this.sprite, (scene as GameSceneLike).UI.frames[slot]);
+        this.align();
+        // Follow the frame slot when the HUD re-lays out (resize / safe-area
+        // change). The HUD is an external emitter, so cleanup() removes this.
+        this.hud.on(HUD_LAYOUT, this.align, this);
+    }
+
+    align(): void {
+        Display.Align.In.BottomLeft(this.sprite, this.hud.frames[this.slot]);
         Display.Align.In.Center(this.text, this.sprite, 0, 0);
     }
 
@@ -94,6 +107,7 @@ class SpellButton {
     cleanup(): void {
         // Idempotent: off() is a no-op when the listener is already gone.
         this.setEvents("off");
+        this.hud.off(HUD_LAYOUT, this.align, this);
     }
 }
 

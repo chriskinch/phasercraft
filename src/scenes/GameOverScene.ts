@@ -15,8 +15,9 @@ export default class GameOverScene extends Scene {
 
     create(): void {
         const scene_padding = 60;
-        this.global_game_width = this.sys.game.config.width as number;
-        this.global_game_height = this.sys.game.config.height as number;
+        this.global_game_width = this.scale.width;
+        this.global_game_height = this.scale.height;
+        // Only centres the banner, so the safe-area insets don't matter here.
         this.zone = this.add
             .zone(
                 scene_padding,
