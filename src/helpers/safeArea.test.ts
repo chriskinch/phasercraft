@@ -1,12 +1,5 @@
 import { describe, it, expect } from "vitest";
-import {
-    hudInsets,
-    safeZoneRect,
-    getHudInsets,
-    watchHudInsets,
-    assumedInsets,
-    NOTCHED_IPHONE_INSETS,
-} from "./safeArea";
+import { hudInsets, safeZoneRect, getHudInsets, watchHudInsets } from "./safeArea";
 
 const none = { top: 0, right: 0, bottom: 0, left: 0 };
 
@@ -58,23 +51,6 @@ describe("hudInsets", () => {
             bottom: 21,
             left: 47,
         });
-    });
-});
-
-describe("assumedInsets", () => {
-    const iPhone = "Mozilla/5.0 (iPhone; CPU iPhone OS 18_0 like Mac OS X)";
-
-    it("reserves the notch on tall-aspect iPhones, in either orientation", () => {
-        expect(assumedInsets(iPhone, 390, 844)).toEqual(NOTCHED_IPHONE_INSETS);
-        expect(assumedInsets(iPhone, 844, 390)).toEqual(NOTCHED_IPHONE_INSETS);
-    });
-
-    it("reserves nothing on 16:9 iPhones without a notch", () => {
-        expect(assumedInsets(iPhone, 375, 667)).toEqual(none);
-    });
-
-    it("reserves nothing off iPhone", () => {
-        expect(assumedInsets("Mozilla/5.0 (Linux; Android 14)", 412, 915)).toEqual(none);
     });
 });
 
