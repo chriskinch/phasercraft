@@ -71,28 +71,24 @@ Check each of the following. For every failure, write a specific, actionable fin
 
 Call `mcp__github__pull_request_review_write` with method=`create`, owner=`chriskinch`, repo=`phasercraft`, pullNumber=$ARGUMENTS, and **event=`COMMENT`** (never `APPROVE` or `REQUEST_CHANGES` — those are rejected on your own PR).
 
-Begin the review body with exactly:
+The review body is the header, one metadata line, then findings. Nothing else.
 
 ```
 [QA] PR #$ARGUMENTS reviewed against scope contract.
-Verdict: APPROVE
+Verdict: APPROVE | REQUEST_CHANGES
+Scope: #N | PR body · Reviewed: <short sha> · Excluded: <count> generated
+1. path:line — problem → fix
 ```
 
-or
-
-```
-[QA] PR #$ARGUMENTS reviewed against scope contract.
-Verdict: REQUEST_CHANGES
-```
-
-- Use the **APPROVE** verdict only if ALL checks pass and the PR completely addresses the scope contract within scope.
-- Use the **REQUEST_CHANGES** verdict if any check fails. List findings as a numbered list. Each item must include the file path and line number where possible.
-- State the scope contract you reviewed against (issue #N, or "Scope: section").
-- List any generated files you excluded in Step 4, so the maintainer can see the review was intentional and complete.
+- **APPROVE** only if ALL checks pass and the PR completely addresses the scope contract within scope. An APPROVE body is the first three lines only.
+- **REQUEST_CHANGES** if any check fails: one numbered line per finding, `path:line — problem → fix`. Sub-bullets only to list required test cases.
+- **Re-review** (an earlier `[QA]` review exists): first list each earlier finding as `#N fixed` or `#N not fixed — why`, one line each, then any new findings.
+- **Needs you:** a single final line, only for a decision that only the maintainer can make (behavior, balance, save format). Omit otherwise.
 
 ## Comment style rules
 
-- Specific and actionable only: "File `src/entities/Foo.ts` line 42 uses `setTimeout` — replace with `scene.time.delayedCall` per lifecycle discipline."
-- No style commentary beyond the checks above.
+- Report failures only. Never list passing checks, map the diff to the scope, restate the scope contract, or describe the change.
+- No "please confirm" notes. If a doubt can be settled from the PR's changed files, settle it and make it a finding or drop it; otherwise it goes in `Needs you:`. Never carry notes between reviews.
+- No headings, bold, praise, or style commentary beyond the checks above.
 - No suggestions outside the scope contract.
-- If the verdict is APPROVE, briefly state which scope requirement each part of the diff satisfies.
+- Example finding: "1. `src/entities/Foo.ts:42` — raw `setTimeout` → `scene.time.delayedCall`, removed in `cleanup()`."

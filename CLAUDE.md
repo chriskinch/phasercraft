@@ -27,6 +27,14 @@ before starting work; link PRs to the relevant phase issue.
 - `npm run typecheck` · `npm run lint` · `npm test` · `npm run format:check`
 - `npm run build` — static export (CI runs all five)
 
+## Reply style
+
+- Extremely concise; sacrifice grammar for concision.
+- No preamble, recaps, restating the question, selling the work, or unactionable info.
+- Lead with what the maintainer must do or decide. Questions last, on their own line.
+- Mirrored by an inline `UserPromptSubmit` hook in `.claude/settings.json` (the
+  `concise-replies` plugin doesn't sync in the web container — same as #449).
+
 ## Workflow rules
 
 - **Branch names** follow Conventional Commits types in kebab-case:
@@ -45,7 +53,9 @@ before starting work; link PRs to the relevant phase issue.
 - If existing code looks like a bug, preserve behavior and flag it — don't silently
   "fix" gameplay.
 - Every PR: `typecheck`, `lint`, `test`, and `build` must pass locally before push.
-  PR descriptions include risk notes and test evidence.
+  PR descriptions: bare minimum — what changed, risk, test evidence, one line each
+  where possible. No narrative, no recap of the diff. PR comments and replies: same,
+  one or two lines.
 - Agent teams: use parallel read-only subagents for exploration, audits, and review;
   keep a single writer per branch/PR to avoid conflicting edits.
 - **QA gate (agent-authored PRs only):** after pushing a branch and opening a PR, every
