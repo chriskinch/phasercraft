@@ -115,7 +115,21 @@ const PATH_BY_MASK = {
  * `solidPropsFor`) rather than hand-listed, so a prop can never be added to a
  * biome and silently stay walk-through.
  */
-const SOLID_TERRAIN = [158]; // full water only — shorelines stay walkable
+const SOLID_TERRAIN = [158]; // full water only — shorelines are handled below
+
+/**
+ * Shoreline tiles are drawn per corner: each corner of the 16px cell is either
+ * water or ground (see `WATER_BY_MASK`). Arcade can only collide with whole
+ * tiles, so rather than block or free the whole shoreline cell, each shoreline
+ * tile carries its corner mask as a `waterCorners` int property and BiomeScene
+ * blocks the water side with a finer hidden collision grid (see
+ * src/helpers/shoreCollision.ts).
+ */
+const WATER_CORNERS = Object.fromEntries(
+    Object.entries(WATER_BY_MASK)
+        .filter(([mask]) => Number(mask) !== 0 && Number(mask) !== 15)
+        .map(([mask, id]) => [id, Number(mask)])
+);
 
 /**
  * Every terrain tile showing any water — the shorelines as well as the full
@@ -750,8 +764,9 @@ const PUBLIC = "../fantasy";
 
 /**
  * Tiled writes tile properties as a sparse `tiles` array keyed by local id.
- * Takes the ids carrying each boolean property and merges them, so a tile in
- * several sets (full water both collides and is water) gets one entry.
+ * Takes the ids carrying each boolean property (plus any int properties) and
+ * merges them, so a tile in several sets (full water both collides and is
+ * water) gets one entry.
  */
 function tileProperties(byName, ints = {}) {
     const tiles = new Map();
@@ -808,7 +823,10 @@ function tilesets(biome) {
             spacing: 0,
             tilecount: 198,
             tileheight: 16,
-            tiles: tileProperties({ collides: SOLID_TERRAIN, water: WATER_TERRAIN }),
+            tiles: tileProperties(
+                { collides: SOLID_TERRAIN, water: WATER_TERRAIN },
+                { waterCorners: WATER_CORNERS }
+            ),
             tilewidth: 16,
         },
         {

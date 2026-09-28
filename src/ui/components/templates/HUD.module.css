@@ -1,5 +1,8 @@
+/* Inset from the notch: the canvas behind runs edge to edge. --hud-inset-* are
+   the settled (sticky, symmetric) insets from src/helpers/safeArea.ts, shared
+   with the Phaser HUD so both sit the same distance from the edge. */
 .hudContainer {
-    padding: 0.5em 1em;
+    padding: calc(0.5em + var(--hud-inset-top, 0px)) 1em 0.5em calc(1em + var(--hud-inset-x, 0px));
 }
 
 .levelInfo {

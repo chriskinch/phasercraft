@@ -15,6 +15,12 @@ import type Player from "@entities/Player/Player";
 import type { GameSceneConfig } from "@/scenes/SelectScene";
 import { BIOMES, type BiomeId } from "@/scenes/biomes/biomes";
 import UI from "@entities/UI/HUD";
+import { addSafeZone } from "@/scenes/safeZone";
+
+// World px north of the entrance POI where a returning player appears. Clears
+// the 32px interaction zone plus the player's height, and stays south of the
+// town wall the gate opens through.
+const GATE_SPAWN_OFFSET = 70;
 
 export default class TownScene extends Scene {
     public player!: PlayerType;
@@ -25,11 +31,15 @@ export default class TownScene extends Scene {
     private townMap!: Tilemaps.Tilemap;
     private interactionZones!: GameObjects.Group;
     private zone!: GameObjects.Zone;
+    // Detaches the safe zone's resize/inset listeners; called from shutdown().
+    private release_safe_zone?: () => void;
     // POI the player is currently standing on, or null. Interactions fire once on
     // entry (when this changes to a non-null value) and re-arm only after the
     // player leaves the zone — so an overlay that pauses the scene does not
     // re-open the instant the player closes it while still standing on the spot.
     private activePoi: string | null = null;
+    // Set when returning from a biome: create() moves the player to the gate.
+    private arrivingAtGate = false;
     public depth_group: Record<string, number> = {
         BASE: 10,
         UI: 10000,
@@ -84,9 +94,13 @@ export default class TownScene extends Scene {
         // GameOverScene's restart passes none, and Phaser only replaces a
         // scene's data when new data is given, so if the town was never
         // started with a class (e.g. Start Location "combat") it has none.
+        // `arrival` is consumed here and not kept on the config, so it is not
+        // forwarded to BiomeScene on the next travel.
+        const { arrival, ...rest } = config ?? {};
+        this.arrivingAtGate = arrival === "gate";
         this.config = {
-            ...config,
-            type: config?.type || store.getState().game.character || undefined,
+            ...rest,
+            type: rest.type || store.getState().game.character || undefined,
         };
     }
 
@@ -94,16 +108,13 @@ export default class TownScene extends Scene {
         store.dispatch(setCurrentArea("town"));
 
         const scene_padding = 40;
-        this.global_game_width = Number(this.sys.game.config.width);
-        this.global_game_height = Number(this.sys.game.config.height);
-        this.zone = this.add
-            .zone(
-                scene_padding,
-                scene_padding,
-                this.global_game_width - scene_padding * 2,
-                this.global_game_height - scene_padding * 2
-            )
-            .setOrigin(0);
+        this.global_game_width = this.scale.width;
+        this.global_game_height = this.scale.height;
+        // Layout zone for the HUD: kept clear of the notch/home indicator and
+        // re-fitted (with the HUD re-aligned) on resize or inset changes.
+        const safe_zone = addSafeZone(this, scene_padding, () => this.UI.layout());
+        this.zone = safe_zone.zone;
+        this.release_safe_zone = safe_zone.release;
 
         // Town is a non-combat hub, so hide the spell slots and the whole combat
         // readout — both the enemy counter and the coin purse.
@@ -143,6 +154,11 @@ export default class TownScene extends Scene {
 
         // Create town map first to set up world bounds
         this.createTownEnvironment();
+
+        if (this.arrivingAtGate) {
+            const gate = this.getGateSpawn();
+            if (gate) this.player.setPosition(gate.x, gate.y);
+        }
 
         if (this.input.mouse) {
             (this.input.mouse as Input.Mouse.MouseManager & { capture: boolean }).capture = true;
@@ -390,6 +406,16 @@ export default class TownScene extends Scene {
         }
     }
 
+    // Just inside the town gate (the "entrance" POI), far enough north of its
+    // interaction zone that arriving does not immediately reopen the picker.
+    private getGateSpawn(): { x: number; y: number } | null {
+        const entrance = this.townMap
+            .getObjectLayer("POI")
+            ?.objects.find((poi) => poi.name === "entrance");
+        if (!entrance) return null;
+        return { x: entrance.x! * 2, y: entrance.y! * 2 - GATE_SPAWN_OFFSET };
+    }
+
     private setupCollisions(): void {
         const collisionLayer = this.townMap.getObjectLayer("collision map");
         if (!collisionLayer) throw Error("Collision layer failed to load!");
@@ -595,6 +621,7 @@ export default class TownScene extends Scene {
     shutdown(): void {
         // Runs from the SHUTDOWN event. Idempotent: every release below is a
         // no-op when it has already happened.
+        this.release_safe_zone?.();
         if (this.UI && this.UI.cleanup) {
             this.UI.cleanup();
         }
