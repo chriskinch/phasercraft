@@ -40,6 +40,24 @@ export function hudInsets(raw: SafeAreaInsets, previous: SafeAreaInsets): SafeAr
     };
 }
 
+// iOS standalone web apps report 0 insets at launch and only the real values
+// after the app is refocused (a WebKit bug), so the watcher can't see the notch
+// on first start. On iPhones with a notch / Dynamic Island (screen aspect > 2,
+// e.g. 844x390; older 16:9 models are ~1.78 and have none) reserve the largest
+// landscape insets those devices report up front, so the HUD starts clear of
+// the notch and never has to move.
+export const NOTCHED_IPHONE_INSETS: SafeAreaInsets = { top: 0, right: 62, bottom: 21, left: 62 };
+
+export function assumedInsets(
+    userAgent: string,
+    screenWidth: number,
+    screenHeight: number
+): SafeAreaInsets {
+    if (!/iPhone/.test(userAgent)) return NO_INSETS;
+    const aspect = Math.max(screenWidth, screenHeight) / Math.min(screenWidth, screenHeight);
+    return aspect > 2 ? NOTCHED_IPHONE_INSETS : NO_INSETS;
+}
+
 // The layout rect for a width x height canvas: inset by the safe area, then by
 // the scene's own padding on every side.
 export function safeZoneRect(
@@ -63,6 +81,7 @@ const sameInsets = (a: SafeAreaInsets, b: SafeAreaInsets): boolean =>
 // page's lifetime (the probes and document listeners are page-level, like the
 // Phaser game itself); scenes attach and detach listeners.
 let current: SafeAreaInsets = NO_INSETS;
+let floor: SafeAreaInsets = NO_INSETS;
 let probes: { topLeft: HTMLElement; bottomRight: HTMLElement } | null = null;
 const listeners = new Set<() => void>();
 
@@ -90,7 +109,7 @@ function readRawInsets(): SafeAreaInsets {
 }
 
 function refresh(): void {
-    const next = hudInsets(readRawInsets(), current);
+    const next = hudInsets(readRawInsets(), hudInsets(floor, current));
     if (sameInsets(next, current)) return;
     current = next;
     const root = document.documentElement.style;
@@ -102,6 +121,7 @@ function refresh(): void {
 
 function ensureWatching(): void {
     if (probes || typeof document === "undefined") return;
+    floor = assumedInsets(navigator.userAgent, screen.width, screen.height);
     probes = {
         topLeft: makeProbe("env(safe-area-inset-left, 0px)", "env(safe-area-inset-top, 0px)"),
         bottomRight: makeProbe(
