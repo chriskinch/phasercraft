@@ -254,8 +254,8 @@ describe("Player.targetDespawned", () => {
     });
 });
 
-// Ranged classes' basic attack is a projectile: the explosion sound plays when
-// it lands. Melee swings sound through Weapon.swoosh() (see Weapon.test.ts).
+// Every auto-attack hit plays the hurt sound: at once for melee, and when the
+// projectile lands for ranged classes (the Ranger's arrow).
 describe("Player.attack sound", () => {
     function makeAttacker(ranged: boolean) {
         const player = Object.create(Player.prototype) as {
@@ -281,7 +281,7 @@ describe("Player.attack sound", () => {
         return player;
     }
 
-    it("ranged plays the explosion sound on impact, not on firing", () => {
+    it("ranged plays the hurt sound on impact, not on firing", () => {
         vi.mocked(playSfx).mockClear();
         const player = makeAttacker(true);
         const enemy = { hit: vi.fn() };
@@ -291,17 +291,20 @@ describe("Player.attack sound", () => {
 
         vi.mocked(Projectile).mock.calls[0][0].onImpact(enemy as never);
 
-        expect(playSfx).toHaveBeenCalledWith("explosion");
+        expect(playSfx).toHaveBeenCalledTimes(1);
+        expect(playSfx).toHaveBeenCalledWith("hurt");
         expect(enemy.hit).toHaveBeenCalledWith({ power: 10, crit: false });
     });
 
-    it("melee swings the weapon, which carries the sound", () => {
+    it("melee plays the hurt sound with the hit", () => {
         vi.mocked(playSfx).mockClear();
         const player = makeAttacker(false);
+        const enemy = { hit: vi.fn() };
 
-        player.attack({ hit: vi.fn() });
+        player.attack(enemy);
 
-        expect(player.weapon.swoosh).toHaveBeenCalledTimes(1);
-        expect(playSfx).not.toHaveBeenCalled();
+        expect(enemy.hit).toHaveBeenCalledTimes(1);
+        expect(playSfx).toHaveBeenCalledTimes(1);
+        expect(playSfx).toHaveBeenCalledWith("hurt");
     });
 });

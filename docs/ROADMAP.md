@@ -420,8 +420,9 @@ is the source of truth for the screen; the table below covers the data model.
       one-shot plays self-destroy, nothing subscribed
 - [x] Maintainer-supplied SFX in `public/audio/sfx/` (licence note beside them), preloaded
       in `LoadScene`: **power-up** on a successful craft; **coin** on picking up coins,
-      gems and components; **explosion** on Fireball/Frostbolt and ranged basic-attack
-      impacts (player and enemy); **hurt** on every melee swing (`Weapon.swoosh()`).
+      gems and components; **explosion** on Fireball/Frostbolt impacts and ranged enemy
+      bolts hitting the player; **hurt** on every auto-attack hit (player melee,
+      Ranger arrow on impact, non-ranged enemies hitting the player).
       `jump.wav` committed, unused
 - [x] `sfxVolume` 0–100 (default 70, 0 mutes) through the typed `settingsStorage`
       service, slider in Settings; the craft sound fires once on the hammer's impact

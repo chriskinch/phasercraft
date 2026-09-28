@@ -74,6 +74,8 @@ describe("Enemy.attack", () => {
         expect(ProjectileMock).not.toHaveBeenCalled();
         expect(enemy.scene.add.sprite).not.toHaveBeenCalled();
         expect(enemy.scene.events.emit).toHaveBeenCalledWith("enemy:attack", 12, type);
+        expect(playSfx).toHaveBeenCalledTimes(1);
+        expect(playSfx).toHaveBeenCalledWith("hurt");
     });
 
     it("ranged fires a bolt at the player and hits on impact", () => {

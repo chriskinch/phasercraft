@@ -514,8 +514,11 @@ class Enemy extends GameObjects.Container {
                     },
                 });
             } else {
+                // Melee (and healer) auto-attacks land at once: the hit sound
+                // plays with them. Ranged bolts explode on impact above.
                 this.swipe(player);
                 this.scene.events.emit("enemy:attack", damage, combat_type);
+                playSfx("hurt");
             }
             this.attack_ready = false;
             this.swing = this.scene.time.addEvent({

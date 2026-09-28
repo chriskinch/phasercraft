@@ -390,7 +390,7 @@ class Player extends GameObjects.Container {
                 speed: this.attack_projectile.speed,
                 target,
                 onImpact: (impacted) => {
-                    playSfx("explosion");
+                    playSfx("hurt");
                     (impacted as Enemy).hit({ power: damage, crit: crit });
                 },
             });
@@ -398,6 +398,7 @@ class Player extends GameObjects.Container {
             this.weapon.swoosh();
             this.positionWeapon(target);
             target.hit({ power: damage, crit: crit });
+            playSfx("hurt");
         }
 
         this.attack_ready = false;

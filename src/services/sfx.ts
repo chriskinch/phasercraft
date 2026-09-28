@@ -20,9 +20,10 @@ import { DEFAULT_SETTINGS, readSettings } from "@services/settingsStorage";
 // preloaded in LoadScene from these paths (relative to public/).
 //  - power-up: a successful Blacksmith craft
 //  - coin: picking up coins, gems and crafting components
-//  - explosion: Fireball/Frostbolt and ranged basic-attack impacts (player
-//    and enemy)
-//  - hurt: every melee swing (player and enemy), via Weapon.swoosh()
+//  - explosion: Fireball/Frostbolt impacts, and ranged enemies' bolts
+//    hitting the player
+//  - hurt: every auto-attack hit — the player's (melee, or the Ranger's
+//    arrow on impact) and non-ranged enemies' hits on the player
 // public/audio/sfx/jump.wav is committed but unused, so it is not loaded.
 export const SFX = {
     "power-up": "audio/sfx/power-up.wav",
