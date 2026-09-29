@@ -29,7 +29,7 @@ describe("CharacterCard", () => {
     });
 
     it("grants the starter kit while Starter items is on", () => {
-        writeSettings({ ...DEFAULT_SETTINGS, starterItems: true });
+        writeSettings({ ...DEFAULT_SETTINGS, godMode: true, starterItems: true });
         const { store } = renderWithProviders(<CharacterCard type="Cleric" />);
 
         fireEvent.click(screen.getByRole("button", { name: "Cleric" }));

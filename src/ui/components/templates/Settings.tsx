@@ -4,8 +4,8 @@ import { DEFAULT_AREA_TUNING } from "@config/area";
 import { spawnRadius } from "@helpers/spawnGeometry";
 import { STARTER_ITEMS } from "@store/gameReducer";
 import {
-    DEFAULT_SETTINGS,
     readSettings,
+    withGodModeGate,
     writeSettings,
     type Settings as SettingsData,
 } from "@services/settingsStorage";
@@ -181,17 +181,7 @@ const Settings: React.FC = () => {
     // debug setting keeps taking effect. Anything a game already received (e.g.
     // starter items, now in a save) is untouched.
     const toggleGodMode = () =>
-        update(
-            settings.godMode
-                ? {
-                      godMode: false,
-                      debug: DEFAULT_SETTINGS.debug,
-                      spawnDebugOverlay: DEFAULT_SETTINGS.spawnDebugOverlay,
-                      starterItems: DEFAULT_SETTINGS.starterItems,
-                      startLocation: DEFAULT_SETTINGS.startLocation,
-                  }
-                : { godMode: true }
-        );
+        update(withGodModeGate({ ...settings, godMode: !settings.godMode }));
 
     const toggleStartLocation = () =>
         update({ startLocation: settings.startLocation === "combat" ? "default" : "combat" });

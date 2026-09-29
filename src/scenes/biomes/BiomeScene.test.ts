@@ -172,7 +172,7 @@ describe("BiomeScene.startArea", () => {
     });
 
     it("applies the spawn overrides on area entry, Debug mode off", () => {
-        writeSettings({ ...DEFAULT_SETTINGS, debug: false, killsToBossOverride: 3 });
+        writeSettings({ ...DEFAULT_SETTINGS, godMode: true, debug: false, killsToBossOverride: 3 });
         const { scene } = makeScene();
 
         scene.startArea();
@@ -197,17 +197,27 @@ describe("BiomeScene.startArea", () => {
             };
         };
 
-        writeSettings({ ...DEFAULT_SETTINGS, debug: true, spawnDebugOverlay: false });
+        writeSettings({
+            ...DEFAULT_SETTINGS,
+            godMode: true,
+            debug: true,
+            spawnDebugOverlay: false,
+        });
         const off = withAdd();
         off.startArea();
         expect(off.spawn_overlay).toBeUndefined();
 
-        writeSettings({ ...DEFAULT_SETTINGS, debug: false, spawnDebugOverlay: true });
+        writeSettings({
+            ...DEFAULT_SETTINGS,
+            godMode: true,
+            debug: false,
+            spawnDebugOverlay: true,
+        });
         const debugOff = withAdd();
         debugOff.startArea();
         expect(debugOff.spawn_overlay).toBeUndefined();
 
-        writeSettings({ ...DEFAULT_SETTINGS, debug: true, spawnDebugOverlay: true });
+        writeSettings({ ...DEFAULT_SETTINGS, godMode: true, debug: true, spawnDebugOverlay: true });
         const on = withAdd();
         on.startArea();
         expect(on.spawn_overlay).toBeDefined();

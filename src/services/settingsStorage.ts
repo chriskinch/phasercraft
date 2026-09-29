@@ -52,6 +52,20 @@ export const DEFAULT_SETTINGS: Settings = {
 
 export const SETTINGS_KEY = "settings";
 
+// With God mode off, every setting behind it is at its default: the Settings
+// screen resets them when God mode is switched off, and readSettings() applies
+// this to any stored payload (e.g. one saved before God mode existed).
+export function withGodModeGate(settings: Settings): Settings {
+    if (settings.godMode) return settings;
+    return {
+        ...settings,
+        debug: DEFAULT_SETTINGS.debug,
+        spawnDebugOverlay: DEFAULT_SETTINGS.spawnDebugOverlay,
+        starterItems: DEFAULT_SETTINGS.starterItems,
+        startLocation: DEFAULT_SETTINGS.startLocation,
+    };
+}
+
 // Read the persisted settings, merged over the defaults. A missing key, corrupt
 // JSON, a non-object payload, or any environment where localStorage is
 // unavailable all fall back to the defaults — never throws.
@@ -67,7 +81,7 @@ export function readSettings(): Settings {
         }
         // Merge stored fields over the defaults so a partial or forward-compatible
         // payload still yields a complete, well-typed Settings object.
-        return { ...DEFAULT_SETTINGS, ...(parsed as Partial<Settings>) };
+        return withGodModeGate({ ...DEFAULT_SETTINGS, ...(parsed as Partial<Settings>) });
     } catch (error) {
         console.warn("Ignoring corrupt settings data", error);
         return { ...DEFAULT_SETTINGS };

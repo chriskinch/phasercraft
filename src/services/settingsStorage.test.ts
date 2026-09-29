@@ -51,9 +51,9 @@ describe("readSettings", () => {
     it("merges a partial stored object over the defaults", () => {
         // Store a payload missing most fields; the defaults should fill them in
         // while the one provided field is preserved.
-        localStorage.setItem(SETTINGS_KEY, JSON.stringify({ starterItems: true }));
+        localStorage.setItem(SETTINGS_KEY, JSON.stringify({ sfxVolume: 40 }));
 
-        expect(readSettings()).toEqual({ ...DEFAULT_SETTINGS, starterItems: true });
+        expect(readSettings()).toEqual({ ...DEFAULT_SETTINGS, sfxVolume: 40 });
         expect(readSettings().debug).toBe(false);
         expect(readSettings().installBannerDismissed).toBe(false);
         expect(readSettings().startLocation).toBe("default");
@@ -75,6 +75,21 @@ describe("readSettings", () => {
         expect(settings.killsToBossOverride).toBe(0);
         expect(settings.despawnDelaySeconds).toBe(0);
         expect(settings.sfxVolume).toBe(70);
+    });
+
+    it("resets the debug settings while God mode is off, e.g. in an older payload", () => {
+        localStorage.setItem(
+            SETTINGS_KEY,
+            JSON.stringify({
+                debug: true,
+                spawnDebugOverlay: true,
+                starterItems: true,
+                startLocation: "combat",
+                liveCapOverride: 2,
+            })
+        );
+
+        expect(readSettings()).toEqual({ ...DEFAULT_SETTINGS, liveCapOverride: 2 });
     });
 
     it("returns defaults for a non-object payload", () => {
