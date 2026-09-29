@@ -1,0 +1,2 @@
+coin.wav, explosion.wav, hurt.wav, jump.wav, power-up.wav
+Supplied by the Phasercraft maintainer for use in this project.

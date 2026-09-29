@@ -1,4 +1,4 @@
-import React, { useMemo, useState } from "react";
+import React, { useEffect, useMemo, useState } from "react";
 import { useSelector, useDispatch } from "react-redux";
 import { craftItem, componentTotal, missingMaterials } from "@store/gameReducer";
 import Button from "@components/Button";
@@ -7,6 +7,7 @@ import { COMPONENT_DEFS, RECIPES } from "@/types/game";
 import type { ComponentType, Recipe, RecipeResult } from "@/types/game";
 import { colorForQuality } from "@/lib/armoryClient";
 import { appliedStatValue, conversionFor, formatStatValue } from "@/lib/statConversion";
+import { playSfx } from "@services/sfx";
 import { pixelEmbossVars, STAT_POSITIVE, STAT_NEGATIVE } from "@ui/themes";
 import type { RootState } from "@store";
 import theme from "@ui/themes.module.css";
@@ -20,9 +21,8 @@ import styles from "./Blacksmith.module.css";
 // `componentTotal` and `missingMaterials` are still the single source of truth,
 // so the button can never disagree with what the reducer will allow.
 //
-// Two things the spec defers, and this screen therefore does NOT render:
-//  - the SPECIAL item slot (Step 4d): hidden entirely, not shown disabled;
-//  - the anvil clang (Step 4e): the success overlay is silent.
+// The spec defers the SPECIAL item slot (Step 4d), so this screen does NOT
+// render it: hidden entirely, not shown disabled.
 // The overlay's hammer-on-anvil animation is drawn in CSS (no sprite assets):
 // see the craft success overlay section of Blacksmith.module.css.
 // Unlearnt recipes are not shown at all — finding them is the discovery, so
@@ -56,6 +56,10 @@ const STAT_VARS = {
 } as React.CSSProperties;
 
 const SLOT_COUNT = 4;
+
+// When the hammer lands in the success animation: the `animation-delay` of
+// the flash and sparks in Blacksmith.module.css. The craft sound plays on this frame.
+const HAMMER_IMPACT_MS = 300;
 
 const materialEntries = (recipe: Recipe) =>
     Object.entries(recipe.materials) as Array<[ComponentType, number]>;
@@ -111,6 +115,17 @@ const Blacksmith: React.FC = () => {
     // Set from the item `craftItem` actually added, so the overlay can only ever
     // appear after a craft the reducer accepted.
     const [crafted, setCrafted] = useState<RecipeResult | null>(null);
+
+    // One craft sound per accepted craft, on the hammer's impact frame. Keyed
+    // on `crafted`, which only turns non-null after a craft the reducer took,
+    // so a refused craft is silent. Under reduced motion the animation is
+    // static but the sound still plays (the SFX volume setting mutes it). The
+    // timer is cleared if the overlay closes or the screen unmounts first.
+    useEffect(() => {
+        if (!crafted) return;
+        const timer = setTimeout(() => playSfx("power-up"), HAMMER_IMPACT_MS);
+        return () => clearTimeout(timer);
+    }, [crafted]);
 
     // Only recipes the player has learnt exist on this screen at all.
     const known = useMemo(() => RECIPES.filter((r) => recipes.includes(r.id)), [recipes]);

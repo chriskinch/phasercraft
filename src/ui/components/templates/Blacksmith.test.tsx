@@ -1,4 +1,4 @@
-import { describe, it, expect } from "vitest";
+import { describe, it, expect, vi, beforeEach, afterEach } from "vitest";
 import { fireEvent, screen, within } from "@testing-library/react";
 import { renderWithProviders } from "@ui/test-utils/renderWithProviders";
 import Blacksmith from "@components/Blacksmith";
@@ -6,6 +6,11 @@ import { COMPONENT_DEFS, RECIPES, recipeById } from "@/types/game";
 import { STAT_POSITIVE, STAT_NEGATIVE } from "@ui/themes";
 import type { ComponentType } from "@/types/game";
 import type { GameState } from "@store/gameReducer";
+import { playSfx } from "@services/sfx";
+
+// The craft sound (Step 4e) goes through the SFX service; stub it so the tests can
+// count plays without a Phaser game.
+vi.mock("@services/sfx", () => ({ playSfx: vi.fn(() => true) }));
 
 // Covers the test plan in docs/specs/blacksmith-crafting-ui.md. Every test works
 // against a real recipe from the catalog, so a change to its materials breaks
@@ -287,5 +292,64 @@ describe("Blacksmith craft success", () => {
         // The name shows on both the recipe card and the result card, so scope
         // the check to the card that proves the recipe is still slotted.
         expect(within(screen.getByTestId("will-craft")).getByText(recipe.result.name)).toBeTruthy();
+    });
+});
+
+describe("Blacksmith craft sound", () => {
+    beforeEach(() => {
+        vi.useFakeTimers();
+        vi.mocked(playSfx).mockClear();
+    });
+    afterEach(() => {
+        vi.useRealTimers();
+    });
+
+    const craft = () =>
+        fireEvent.click(screen.getByRole("button", { name: `Craft · ${recipe.coins} coins` }));
+
+    it("plays the craft sound once, on the hammer's impact frame, for an accepted craft", () => {
+        render({ components: materialsFor(2) });
+        slotRecipe();
+        craft();
+
+        vi.advanceTimersByTime(299);
+        expect(playSfx).not.toHaveBeenCalled();
+        vi.advanceTimersByTime(1);
+        expect(playSfx).toHaveBeenCalledTimes(1);
+        expect(playSfx).toHaveBeenCalledWith("power-up");
+
+        vi.advanceTimersByTime(5000);
+        expect(playSfx).toHaveBeenCalledTimes(1);
+    });
+
+    it("stays silent for a craft the reducer refuses", () => {
+        render({ components: [] });
+        slotRecipe();
+        fireEvent.click(screen.getByRole("button", { name: /Missing parts/ }));
+
+        vi.advanceTimersByTime(5000);
+        expect(playSfx).not.toHaveBeenCalled();
+    });
+
+    it("plays again for the next craft", () => {
+        render({ components: materialsFor(2) });
+        slotRecipe();
+        craft();
+        vi.advanceTimersByTime(300);
+        fireEvent.click(screen.getByRole("button", { name: "Done" }));
+        craft();
+        vi.advanceTimersByTime(300);
+
+        expect(playSfx).toHaveBeenCalledTimes(2);
+    });
+
+    it("cancels a pending craft sound when the screen unmounts first", () => {
+        const { unmount } = render({ components: materialsFor(2) });
+        slotRecipe();
+        craft();
+        unmount();
+
+        vi.advanceTimersByTime(5000);
+        expect(playSfx).not.toHaveBeenCalled();
     });
 });

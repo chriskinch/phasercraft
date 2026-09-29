@@ -2,6 +2,7 @@ import { describe, it, expect, vi, beforeEach } from "vitest";
 import Enemy from "./Enemy";
 import Projectile from "@entities/Weapons/Projectile";
 import type { CombatType } from "@/types/game";
+import { playSfx } from "@services/sfx";
 
 // Enemy.attack VFX: melee/healer enemies play the player's swoosh angled at the
 // player and hit immediately; ranged enemies fire a homing bolt and the hit
@@ -9,6 +10,7 @@ import type { CombatType } from "@/types/game";
 // Projectile module mocked at the entity seam.
 
 vi.mock("@entities/Weapons/Projectile", () => ({ default: vi.fn() }));
+vi.mock("@services/sfx", () => ({ playSfx: vi.fn(() => true) }));
 
 interface EnemyUnderTest {
     x: number;
@@ -57,7 +59,10 @@ function makeEnemy(combat_type: CombatType): EnemyUnderTest {
 const ProjectileMock = vi.mocked(Projectile);
 
 describe("Enemy.attack", () => {
-    beforeEach(() => ProjectileMock.mockClear());
+    beforeEach(() => {
+        ProjectileMock.mockClear();
+        vi.mocked(playSfx).mockClear();
+    });
 
     it.each(["melee", "healer"] as const)("%s swings the swoosh at the player and hits", (type) => {
         const enemy = makeEnemy(type);
@@ -69,6 +74,8 @@ describe("Enemy.attack", () => {
         expect(ProjectileMock).not.toHaveBeenCalled();
         expect(enemy.scene.add.sprite).not.toHaveBeenCalled();
         expect(enemy.scene.events.emit).toHaveBeenCalledWith("enemy:attack", 12, type);
+        expect(playSfx).toHaveBeenCalledTimes(1);
+        expect(playSfx).toHaveBeenCalledWith("hurt");
     });
 
     it("ranged fires a bolt at the player and hits on impact", () => {
@@ -89,6 +96,17 @@ describe("Enemy.attack", () => {
         expect(enemy.scene.add.sprite).toHaveBeenCalledWith(0, 100, "enemy-bolt", 0);
         const burst = enemy.scene.add.sprite.mock.results[0].value;
         expect(burst.play).toHaveBeenCalledWith("enemy-bolt-impact");
+    });
+
+    it("ranged plays the explosion sound on impact, not on firing", () => {
+        const enemy = makeEnemy("ranged");
+        enemy.attack();
+        expect(playSfx).not.toHaveBeenCalled();
+
+        ProjectileMock.mock.calls[0][0].onImpact(enemy.scene.player);
+
+        expect(playSfx).toHaveBeenCalledTimes(1);
+        expect(playSfx).toHaveBeenCalledWith("explosion");
     });
 
     it("ranged impact burst removes itself when its animation completes", () => {

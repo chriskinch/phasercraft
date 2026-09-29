@@ -10,6 +10,7 @@ import {
     Types,
 } from "phaser";
 import { v4 as uuid } from "uuid";
+import { playSfx } from "@services/sfx";
 import AssignResource, { AssignResourceType } from "@entities/Resources/AssignResource";
 import Monster from "./Monster";
 import Coin from "@entities/Loot/Coin";
@@ -508,13 +509,17 @@ class Enemy extends GameObjects.Container {
                     speed: 400,
                     target: player,
                     onImpact: () => {
+                        playSfx("explosion");
                         events.emit("enemy:attack", damage, combat_type);
                         this.impactBurst(player);
                     },
                 });
             } else {
+                // Melee (and healer) auto-attacks land at once: the hit sound
+                // plays with them. Ranged bolts explode on impact above.
                 this.swipe(player);
                 this.scene.events.emit("enemy:attack", damage, combat_type);
+                playSfx("hurt");
             }
             this.attack_ready = false;
             this.swing = this.scene.time.addEvent({

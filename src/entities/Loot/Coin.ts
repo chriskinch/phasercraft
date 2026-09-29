@@ -1,5 +1,6 @@
 import { GameObjects, Scene, Physics } from "phaser";
 import store from "@store";
+import { playSfx } from "@services/sfx";
 import { addCoins } from "@store/gameReducer";
 import getRandomVelocity from "@helpers/getRandomVelocity";
 import coinValue from "@helpers/coinValue";
@@ -50,6 +51,7 @@ class Coin extends GameObjects.Sprite {
 
     collect(): void {
         store.dispatch(addCoins(this.value));
+        playSfx("coin");
         this.scene.tweens.add({
             targets: this,
             y: {

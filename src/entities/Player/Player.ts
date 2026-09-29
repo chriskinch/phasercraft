@@ -2,6 +2,7 @@ import { Math as PhaserMath, GameObjects, Scene, Physics, Display } from "phaser
 import { v4 as uuid } from "uuid";
 import Hero from "./Hero";
 import Weapon from "@entities/Weapon";
+import { playSfx } from "@services/sfx";
 import AssignSpell from "@entities/Spells/AssignSpell";
 import CastingController from "@entities/Spells/CastingController";
 import AssignResource, {
@@ -388,12 +389,16 @@ class Player extends GameObjects.Container {
                 frame: this.attack_projectile.frame,
                 speed: this.attack_projectile.speed,
                 target,
-                onImpact: (impacted) => (impacted as Enemy).hit({ power: damage, crit: crit }),
+                onImpact: (impacted) => {
+                    playSfx("hurt");
+                    (impacted as Enemy).hit({ power: damage, crit: crit });
+                },
             });
         } else {
             this.weapon.swoosh();
             this.positionWeapon(target);
             target.hit({ power: damage, crit: crit });
+            playSfx("hurt");
         }
 
         this.attack_ready = false;

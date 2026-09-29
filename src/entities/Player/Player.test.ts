@@ -1,5 +1,10 @@
 import { describe, it, expect, vi } from "vitest";
 import Player from "./Player";
+import Projectile from "@entities/Weapons/Projectile";
+import { playSfx } from "@services/sfx";
+
+vi.mock("@entities/Weapons/Projectile", () => ({ default: vi.fn() }));
+vi.mock("@services/sfx", () => ({ playSfx: vi.fn(() => true) }));
 
 // Regression coverage for the scene-restart listener leak.
 //
@@ -246,5 +251,60 @@ describe("Player.targetDespawned", () => {
         player.targetDespawned({});
 
         expect(player.idle).not.toHaveBeenCalled();
+    });
+});
+
+// Every auto-attack hit plays the hurt sound: at once for melee, and when the
+// projectile lands for ranged classes (the Ranger's arrow).
+describe("Player.attack sound", () => {
+    function makeAttacker(ranged: boolean) {
+        const player = Object.create(Player.prototype) as {
+            x: number;
+            y: number;
+            stats: { attack_power: number; attack_speed: number; critical_chance: number };
+            attack_projectile?: { key: string; frame: number; speed: number };
+            weapon: { swoosh: ReturnType<typeof vi.fn> };
+            positionWeapon: ReturnType<typeof vi.fn>;
+            scene: {
+                time: { addEvent: ReturnType<typeof vi.fn> };
+                events: { emit: ReturnType<typeof vi.fn> };
+            };
+            attack(target: object): void;
+        };
+        player.x = 0;
+        player.y = 0;
+        player.stats = { attack_power: 10, attack_speed: 1, critical_chance: 0 };
+        if (ranged) player.attack_projectile = { key: "multishot-effect", frame: 0, speed: 500 };
+        player.weapon = { swoosh: vi.fn() };
+        player.positionWeapon = vi.fn();
+        player.scene = { time: { addEvent: vi.fn() }, events: { emit: vi.fn() } };
+        return player;
+    }
+
+    it("ranged plays the hurt sound on impact, not on firing", () => {
+        vi.mocked(playSfx).mockClear();
+        const player = makeAttacker(true);
+        const enemy = { hit: vi.fn() };
+
+        player.attack(enemy);
+        expect(playSfx).not.toHaveBeenCalled();
+
+        vi.mocked(Projectile).mock.calls[0][0].onImpact(enemy as never);
+
+        expect(playSfx).toHaveBeenCalledTimes(1);
+        expect(playSfx).toHaveBeenCalledWith("hurt");
+        expect(enemy.hit).toHaveBeenCalledWith({ power: 10, crit: false });
+    });
+
+    it("melee plays the hurt sound with the hit", () => {
+        vi.mocked(playSfx).mockClear();
+        const player = makeAttacker(false);
+        const enemy = { hit: vi.fn() };
+
+        player.attack(enemy);
+
+        expect(enemy.hit).toHaveBeenCalledTimes(1);
+        expect(playSfx).toHaveBeenCalledTimes(1);
+        expect(playSfx).toHaveBeenCalledWith("hurt");
     });
 });
