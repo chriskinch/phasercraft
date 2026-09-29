@@ -33,6 +33,11 @@
                 "name": "ichor",
                 "rate": 10,
                 "bonus": 0
+            },
+            {
+                "name": "special",
+                "rate": 1,
+                "bonus": 0
             }
         ]
     },
@@ -69,6 +74,11 @@
             {
                 "name": "ichor",
                 "rate": 10,
+                "bonus": 0
+            },
+            {
+                "name": "special",
+                "rate": 1,
                 "bonus": 0
             }
         ]
@@ -107,6 +117,11 @@
                 "name": "ichor",
                 "rate": 10,
                 "bonus": 0
+            },
+            {
+                "name": "special",
+                "rate": 1,
+                "bonus": 0
             }
         ]
     },
@@ -144,6 +159,11 @@
                 "name": "ichor",
                 "rate": 10,
                 "bonus": 0
+            },
+            {
+                "name": "special",
+                "rate": 1,
+                "bonus": 0
             }
         ]
     },
@@ -180,6 +200,11 @@
             {
                 "name": "ichor",
                 "rate": 10,
+                "bonus": 0
+            },
+            {
+                "name": "special",
+                "rate": 1,
                 "bonus": 0
             }
         ]
@@ -223,6 +248,11 @@
                 "name": "ichor",
                 "rate": 10,
                 "bonus": 0
+            },
+            {
+                "name": "special",
+                "rate": 1,
+                "bonus": 0
             }
         ]
     },
@@ -259,6 +289,11 @@
             {
                 "name": "ichor",
                 "rate": 10,
+                "bonus": 0
+            },
+            {
+                "name": "special",
+                "rate": 1,
                 "bonus": 0
             }
         ]

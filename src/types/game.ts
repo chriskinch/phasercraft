@@ -280,7 +280,7 @@ export interface LootStat {
     abbreviation?: string;
 }
 
-type LootType = "coin" | "gem" | "scrap" | "cloth" | "ichor" | "bone";
+type LootType = "coin" | "gem" | "scrap" | "cloth" | "ichor" | "bone" | "special";
 
 // The stackable subset of loot (currency — coin, gem — is excluded; it credits coins
 // directly rather than entering the inventory).
@@ -655,3 +655,73 @@ export const RECIPES: Recipe[] = [
 export const INITIAL_RECIPES = ["scrappers-blade", "padded-jerkin", "bonecap-helm"];
 
 export const recipeById = (id: string): Recipe | undefined => RECIPES.find((r) => r.id === id);
+
+// --- Special items (Blacksmith Step 4d) ---------------------------------------
+// A rare drop the player can slot into one craft to add a bonus stat to the
+// finished item. Owned specials persist in the save as `specials` (id → count).
+// Consumed only by a successful craft; the bonus is appended to the crafted
+// item's stats, or added to an existing stat of the same name, and `cost` is
+// added to the crafted item's coin value (so it sells for more). One bonus stat
+// per special; a special never changes the crafted item's rarity.
+//
+// Content is placeholder, not agreed: the names, bonuses and costs are tuning
+// values. `bonus.value` is in pool units like a recipe statline (so
+// critical_chance 50 reads +5%). Sprites come from the loot/misc pack.
+export interface SpecialItem {
+    id: string;
+    name: string;
+    // Sprite under graphics/images/loot/misc/, and the Phaser texture key
+    // `special-<id>` the world drop uses.
+    icon: string;
+    quality: string;
+    description: string;
+    bonus: { name: string; value: number };
+    cost: number;
+}
+
+export const SPECIAL_ITEMS: SpecialItem[] = [
+    {
+        id: "void-pearl",
+        name: "Void Pearl",
+        icon: "misc_2",
+        quality: "epic",
+        description: "A pearl that swallows the light around it.",
+        bonus: { name: STAT_NAMES.CRITICAL_CHANCE, value: 50 },
+        cost: 20,
+    },
+    {
+        id: "ember-core",
+        name: "Ember Core",
+        icon: "misc_9",
+        quality: "rare",
+        description: "Still warm from the heart of a fire elemental.",
+        bonus: { name: STAT_NAMES.ATTACK_POWER, value: 20 },
+        cost: 12,
+    },
+    {
+        id: "frost-shard",
+        name: "Frost Shard",
+        icon: "misc_5",
+        quality: "rare",
+        description: "A splinter of ice that never melts.",
+        bonus: { name: STAT_NAMES.DEFENCE, value: 20 },
+        cost: 12,
+    },
+    {
+        id: "troll-heart",
+        name: "Troll Heart",
+        icon: "misc_7",
+        quality: "epic",
+        description: "It keeps beating long after the troll stopped.",
+        bonus: { name: STAT_NAMES.HEALTH_MAX, value: 25 },
+        cost: 20,
+    },
+];
+
+export const specialById = (id: string): SpecialItem | undefined =>
+    SPECIAL_ITEMS.find((s) => s.id === id);
+
+// Drop rates for the `special` loot-table entry, in `Enemy.dropLoot`'s "drops
+// per kill x 100" units: the same odds as schematic drops (docs/ROADMAP.md,
+// Step 4b) — 1% from a regular mob, one guaranteed from a boss.
+export const SPECIAL_DROP_RATE = { mob: 1, boss: 100 } as const;

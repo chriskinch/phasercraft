@@ -3,8 +3,8 @@ import { useSelector, useDispatch } from "react-redux";
 import { craftItem, componentTotal, missingMaterials } from "@store/gameReducer";
 import Button from "@components/Button";
 import LootIcon from "@components/LootIcon";
-import { COMPONENT_DEFS, RECIPES } from "@/types/game";
-import type { ComponentType, Recipe, RecipeResult } from "@/types/game";
+import { COMPONENT_DEFS, RECIPES, SPECIAL_ITEMS } from "@/types/game";
+import type { ComponentType, Recipe, RecipeResult, SpecialItem } from "@/types/game";
 import { colorForQuality } from "@/lib/armoryClient";
 import { appliedStatValue, conversionFor, formatStatValue } from "@/lib/statConversion";
 import { playSfx } from "@services/sfx";
@@ -21,8 +21,9 @@ import styles from "./Blacksmith.module.css";
 // `componentTotal` and `missingMaterials` are still the single source of truth,
 // so the button can never disagree with what the reducer will allow.
 //
-// The spec defers the SPECIAL item slot (Step 4d), so this screen does NOT
-// render it: hidden entirely, not shown disabled.
+// After the four component slots comes one optional SPECIAL slot (Step 4d): a
+// special item adds a bonus stat to the crafted gear. It opens its own picker,
+// and tapping it when filled clears it — the picker has no "None" entry.
 // The overlay's hammer-on-anvil animation is drawn in CSS (no sprite assets):
 // see the craft success overlay section of Blacksmith.module.css.
 // Unlearnt recipes are not shown at all — finding them is the discovery, so
@@ -57,6 +58,11 @@ const STAT_VARS = {
 
 const SLOT_COUNT = 4;
 
+// Special items read in purple throughout (spec: bonus rows #6a22b0, the Use
+// item button #c9a3ff, the empty slot a faint purple emboss).
+const SPECIAL_BUTTON = "#c9a3ff";
+const EMPTY_SPECIAL_TINT = pixelEmbossVars({ rgb: "153,0,255", a: 0.08 });
+
 // When the hammer lands in the success animation: the `animation-delay` of
 // the flash and sparks in Blacksmith.module.css. The craft sound plays on this frame.
 const HAMMER_IMPACT_MS = 300;
@@ -77,19 +83,31 @@ const statRows = (result: RecipeResult) =>
         };
     });
 
+/** A special's bonus as a stat row, formatted like the recipe's own stats. */
+const bonusRow = (special: SpecialItem) => {
+    const { name, value } = special.bonus;
+    return {
+        name,
+        label: conversionFor(name).label,
+        display: formatStatValue(name, appliedStatValue(name, value), { signed: true }),
+    };
+};
+
 interface SlotProps {
     quality?: string;
     category?: string;
     icon?: string;
     empty?: React.ReactNode;
+    emptyTint?: React.CSSProperties;
 }
 
 // One square slot on the forge line. Filled slots take a rarity-tinted emboss
-// and draw the sprite bare; empty ones keep the default emboss.
-const Slot: React.FC<SlotProps> = ({ quality, category, icon, empty }) => (
+// and draw the sprite bare; empty ones keep the default emboss unless given
+// their own tint (the special slot's faint purple).
+const Slot: React.FC<SlotProps> = ({ quality, category, icon, empty, emptyTint }) => (
     <div
         className={`${theme.pixelEmboss} ${styles.slot}`}
-        style={quality ? tintVars(quality) : undefined}
+        style={quality ? tintVars(quality) : emptyTint}
     >
         {category && icon ? (
             <LootIcon
@@ -106,15 +124,21 @@ const Slot: React.FC<SlotProps> = ({ quality, category, icon, empty }) => (
 
 const Blacksmith: React.FC = () => {
     const dispatch = useDispatch();
-    const { coins, components, recipes } = useSelector((state: RootState) => state.game);
+    const { coins, components, recipes, specials } = useSelector((state: RootState) => state.game);
 
-    const [view, setView] = useState<"forge" | "picker">("forge");
+    const [view, setView] = useState<"forge" | "picker" | "specials">("forge");
     // The recipe on the forge line, and the one highlighted inside the picker.
     const [slotted, setSlotted] = useState<string | null>(null);
     const [previewed, setPreviewed] = useState<string | null>(null);
+    // The same pair for the special slot and its picker.
+    const [slottedSpecial, setSlottedSpecial] = useState<string | null>(null);
+    const [previewedSpecial, setPreviewedSpecial] = useState<string | null>(null);
     // Set from the item `craftItem` actually added, so the overlay can only ever
     // appear after a craft the reducer accepted.
-    const [crafted, setCrafted] = useState<RecipeResult | null>(null);
+    const [crafted, setCrafted] = useState<{
+        result: RecipeResult;
+        special: SpecialItem | null;
+    } | null>(null);
 
     // One craft sound per accepted craft, on the hammer's impact frame. Keyed
     // on `crafted`, which only turns non-null after a craft the reducer took,
@@ -131,6 +155,12 @@ const Blacksmith: React.FC = () => {
     const known = useMemo(() => RECIPES.filter((r) => recipes.includes(r.id)), [recipes]);
     const recipe = known.find((r) => r.id === slotted) ?? null;
     const preview = known.find((r) => r.id === previewed) ?? null;
+
+    // Only specials the player owns can be picked, and a slotted one the player
+    // no longer owns drops off the slot on its own.
+    const owned = SPECIAL_ITEMS.filter((s) => (specials[s.id] ?? 0) > 0);
+    const special = owned.find((s) => s.id === slottedSpecial) ?? null;
+    const previewSpecial = owned.find((s) => s.id === previewedSpecial) ?? null;
 
     const missing = recipe ? missingMaterials(components, recipe) : {};
     const shortOnMaterials = Object.keys(missing).length > 0;
@@ -157,6 +187,7 @@ const Blacksmith: React.FC = () => {
 
     const clearForge = () => {
         setSlotted(null);
+        setSlottedSpecial(null);
         setCrafted(null);
     };
 
@@ -166,9 +197,94 @@ const Blacksmith: React.FC = () => {
         // reducer accepts. Re-checking rather than trusting the disabled button
         // keeps the overlay off a refused craft even if called directly.
         if (!recipe || !craftState.enabled) return;
-        dispatch(craftItem(recipe.id));
-        setCrafted(recipe.result);
+        dispatch(craftItem(recipe.id, special?.id));
+        setCrafted({ result: recipe.result, special });
+        // The special is used up by the craft, so it leaves the slot.
+        setSlottedSpecial(null);
     };
+
+    // --- Special item picker -----------------------------------------------
+    if (view === "specials") {
+        return (
+            <div className={styles.blacksmith} style={STAT_VARS} data-testid="special-picker">
+                <section
+                    className={styles.pickerList}
+                    role="listbox"
+                    aria-label="Your special items"
+                >
+                    {owned.length === 0 && (
+                        <p className={styles.muted}>
+                            No special items yet. Monsters rarely drop them, and every boss drops
+                            one.
+                        </p>
+                    )}
+                    {owned.map((s) => (
+                        <button
+                            key={s.id}
+                            type="button"
+                            role="option"
+                            aria-selected={s.id === previewedSpecial}
+                            className={styles.pickerRow}
+                            onClick={() => setPreviewedSpecial(s.id)}
+                        >
+                            <Slot quality={s.quality} category="misc" icon={s.icon} />
+                            <span className={styles.pickerText}>
+                                <span className={styles.pickerName}>{s.name}</span>
+                                <span className={styles.muted}>x{specials[s.id]}</span>
+                                <span className={`${styles.bonus} ${styles.pickerBonus}`}>
+                                    {bonusRow(s).display} {bonusRow(s).label}
+                                </span>
+                            </span>
+                        </button>
+                    ))}
+                </section>
+
+                <section className={styles.pickerDetail} data-testid="special-detail">
+                    {previewSpecial ? (
+                        <div
+                            className={styles.resultCard}
+                            style={
+                                {
+                                    "--rarity": colorForQuality(previewSpecial.quality),
+                                } as React.CSSProperties
+                            }
+                        >
+                            <h3 className={styles.resultName}>{previewSpecial.name}</h3>
+                            <p className={styles.resultMeta}>{previewSpecial.quality}</p>
+                            <p>{previewSpecial.description}</p>
+                            <h4 className={styles.sectionLabel}>Adds to item</h4>
+                            <ul className={styles.rows}>
+                                <li>
+                                    <span className={styles.bonus}>
+                                        {bonusRow(previewSpecial).label}
+                                    </span>
+                                    <span className={styles.bonus}>
+                                        {bonusRow(previewSpecial).display}
+                                    </span>
+                                </li>
+                            </ul>
+                        </div>
+                    ) : (
+                        <p className={styles.muted}>Choose an item to see what it adds.</p>
+                    )}
+                </section>
+
+                <section className={styles.pickerActions}>
+                    <Button
+                        text="Use item"
+                        bg_color={SPECIAL_BUTTON}
+                        disabled={!previewSpecial}
+                        onClick={() => {
+                            if (!previewSpecial) return;
+                            setSlottedSpecial(previewSpecial.id);
+                            setView("forge");
+                        }}
+                    />
+                    <Button text="Back" onClick={() => setView("forge")} />
+                </section>
+            </div>
+        );
+    }
 
     // --- Recipe picker ------------------------------------------------------
     if (view === "picker") {
@@ -299,37 +415,83 @@ const Blacksmith: React.FC = () => {
                     </span>
                 </button>
 
-                <h4 className={styles.sectionLabel}>Components</h4>
-                <ul className={styles.componentRow} data-testid="component-slots">
-                    {Array.from({ length: SLOT_COUNT }, (_, i) => {
-                        const entry = recipe ? materialEntries(recipe)[i] : undefined;
-                        if (!entry) {
-                            return (
-                                <li key={i} className={styles.componentSlot}>
-                                    <Slot />
-                                    <span className={styles.muted}>Not needed</span>
-                                </li>
-                            );
-                        }
-                        const [type, need] = entry;
-                        const have = componentTotal(components, type);
-                        return (
-                            <li key={i} className={styles.componentSlot}>
+                <div className={styles.parts}>
+                    <div>
+                        <h4 className={styles.sectionLabel}>Components</h4>
+                        <ul className={styles.componentRow} data-testid="component-slots">
+                            {Array.from({ length: SLOT_COUNT }, (_, i) => {
+                                const entry = recipe ? materialEntries(recipe)[i] : undefined;
+                                if (!entry) {
+                                    return (
+                                        <li key={i} className={styles.componentSlot}>
+                                            <Slot />
+                                            <span className={styles.muted}>Not needed</span>
+                                        </li>
+                                    );
+                                }
+                                const [type, need] = entry;
+                                const have = componentTotal(components, type);
+                                return (
+                                    <li key={i} className={styles.componentSlot}>
+                                        <Slot
+                                            quality="common"
+                                            category="crafting"
+                                            icon={COMPONENT_DEFS[type].icon}
+                                        />
+                                        <span className={styles.componentName}>
+                                            {COMPONENT_DEFS[type].name}
+                                        </span>
+                                        <span
+                                            className={have >= need ? styles.ready : styles.short}
+                                        >
+                                            {have}/{need}
+                                        </span>
+                                    </li>
+                                );
+                            })}
+                        </ul>
+                    </div>
+
+                    <span className={styles.partsPlus} aria-hidden="true">
+                        +
+                    </span>
+
+                    <div>
+                        <h4 className={styles.sectionLabel}>Special</h4>
+                        <button
+                            type="button"
+                            className={styles.specialSlot}
+                            data-testid="special-slot"
+                            onClick={() => {
+                                if (special) setSlottedSpecial(null);
+                                else setView("specials");
+                            }}
+                        >
+                            <span className={styles.specialSlotIcon}>
                                 <Slot
-                                    quality="common"
-                                    category="crafting"
-                                    icon={COMPONENT_DEFS[type].icon}
+                                    quality={special?.quality}
+                                    category={special ? "misc" : undefined}
+                                    icon={special?.icon}
+                                    empty="+"
+                                    emptyTint={EMPTY_SPECIAL_TINT}
                                 />
+                                {special && (
+                                    <span className={styles.removeBadge} aria-hidden="true">
+                                        ✕
+                                    </span>
+                                )}
+                            </span>
+                            <span className={styles.specialText}>
                                 <span className={styles.componentName}>
-                                    {COMPONENT_DEFS[type].name}
+                                    {special ? special.name : "Optional"}
                                 </span>
-                                <span className={have >= need ? styles.ready : styles.short}>
-                                    {have}/{need}
+                                <span className={styles.muted}>
+                                    {special ? "Tap to remove" : "Tap to add"}
                                 </span>
-                            </li>
-                        );
-                    })}
-                </ul>
+                            </span>
+                        </button>
+                    </div>
+                </div>
 
                 <Button text={craftState.label} disabled={!craftState.enabled} onClick={onCraft} />
             </section>
@@ -362,6 +524,23 @@ const Blacksmith: React.FC = () => {
                                 </li>
                             ))}
                         </ul>
+                        {special && (
+                            <>
+                                <h4 className={`${styles.sectionLabel} ${styles.bonus}`}>
+                                    From {special.name}
+                                </h4>
+                                <ul className={styles.rows} data-testid="special-bonus">
+                                    <li>
+                                        <span className={styles.bonus}>
+                                            {bonusRow(special).label}
+                                        </span>
+                                        <span className={styles.bonus}>
+                                            {bonusRow(special).display}
+                                        </span>
+                                    </li>
+                                </ul>
+                            </>
+                        )}
                         {shortfall && (
                             <p className={styles.short} data-testid="shortfall">
                                 {shortfall}
@@ -389,15 +568,20 @@ const Blacksmith: React.FC = () => {
                         ))}
                     </div>
                     <h3>Crafted!</h3>
-                    <p className={styles.resultName}>{crafted.name}</p>
+                    <p className={styles.resultName}>{crafted.result.name}</p>
                     <ul className={styles.rows}>
-                        {statRows(crafted).map((s) => (
+                        {statRows(crafted.result).map((s) => (
                             <li key={s.name}>
                                 <span>{s.label}</span>
                                 <span className={styles.ready}>{s.display}</span>
                             </li>
                         ))}
                     </ul>
+                    {crafted.special && (
+                        <p className={styles.overlayBonus} data-testid="success-bonus">
+                            {`${bonusRow(crafted.special).label} ${bonusRow(crafted.special).display} (${crafted.special.name})`}
+                        </p>
+                    )}
                     <p>Added to your inventory</p>
                     <div className={styles.overlayActions}>
                         <Button text="Craft another" onClick={clearForge} />

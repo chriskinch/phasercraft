@@ -2,7 +2,7 @@ import { describe, it, expect, vi, beforeEach, afterEach } from "vitest";
 import { fireEvent, screen, within } from "@testing-library/react";
 import { renderWithProviders } from "@ui/test-utils/renderWithProviders";
 import Blacksmith from "@components/Blacksmith";
-import { COMPONENT_DEFS, RECIPES, recipeById } from "@/types/game";
+import { COMPONENT_DEFS, RECIPES, recipeById, specialById } from "@/types/game";
 import { STAT_POSITIVE, STAT_NEGATIVE } from "@ui/themes";
 import type { ComponentType } from "@/types/game";
 import type { GameState } from "@store/gameReducer";
@@ -212,12 +212,96 @@ describe("Blacksmith recipe picker", () => {
 });
 
 describe("Blacksmith special slot", () => {
-    // Decision 2: special items are Step 4d, and the slot is hidden until then.
-    it("renders neither the special slot nor its picker", () => {
+    const pearl = specialById("void-pearl")!;
+    const craft = () =>
+        fireEvent.click(screen.getByRole("button", { name: `Craft · ${recipe.coins} coins` }));
+
+    /** Open the special picker, choose the Void Pearl and slot it. */
+    const slotPearl = () => {
+        fireEvent.click(screen.getByTestId("special-slot"));
+        fireEvent.click(screen.getByRole("option", { name: /Void Pearl/ }));
+        fireEvent.click(screen.getByRole("button", { name: "Use item" }));
+    };
+
+    it("starts empty and optional", () => {
         render();
+        const slot = screen.getByTestId("special-slot");
+        expect(slot.textContent).toContain("Optional");
+        expect(slot.textContent).toContain("Tap to add");
+    });
+
+    it("lists only owned specials in the picker, with their counts", () => {
+        render({ specials: { "void-pearl": 2 } });
+        fireEvent.click(screen.getByTestId("special-slot"));
+        const options = screen.getAllByRole("option");
+        expect(options).toHaveLength(1);
+        expect(options[0].textContent).toContain("Void Pearl");
+        expect(options[0].textContent).toContain("x2");
+    });
+
+    it("says how to find specials when none are owned", () => {
+        render();
+        fireEvent.click(screen.getByTestId("special-slot"));
+        expect(screen.queryAllByRole("option")).toHaveLength(0);
+        expect(screen.getByTestId("special-picker").textContent).toContain("No special items yet");
+    });
+
+    it("shows the item's details and what it adds", () => {
+        render({ specials: { "void-pearl": 1 } });
+        fireEvent.click(screen.getByTestId("special-slot"));
+        fireEvent.click(screen.getByRole("option", { name: /Void Pearl/ }));
+        const detail = screen.getByTestId("special-detail");
+        expect(detail.textContent).toContain(pearl.description);
+        expect(detail.textContent).toContain("Adds to item");
+        expect(detail.textContent).toContain("Critical Chance");
+    });
+
+    it("Use item slots the chosen special and returns to the forge", () => {
+        render({ specials: { "void-pearl": 1 } });
+        slotPearl();
+        const slot = screen.getByTestId("special-slot");
+        expect(slot.textContent).toContain("Void Pearl");
+        expect(slot.textContent).toContain("Tap to remove");
+    });
+
+    it("tapping the filled slot clears it", () => {
+        render({ specials: { "void-pearl": 1 } });
+        slotPearl();
+        fireEvent.click(screen.getByTestId("special-slot"));
+        expect(screen.getByTestId("special-slot").textContent).toContain("Optional");
+        expect(screen.getByTestId("forge")).toBeTruthy();
+    });
+
+    it("shows the bonus in the You will craft card", () => {
+        render({ specials: { "void-pearl": 1 } });
         slotRecipe();
-        expect(screen.queryByText(/special/i)).toBeNull();
-        expect(screen.queryByText("Optional")).toBeNull();
+        slotPearl();
+        const card = screen.getByTestId("will-craft");
+        expect(card.textContent).toContain("From Void Pearl");
+        expect(screen.getByTestId("special-bonus").textContent).toContain("Critical Chance");
+    });
+
+    it("consumes the special on craft and shows the bonus on the success overlay", () => {
+        const { store } = render({ components: materialsFor(2), specials: { "void-pearl": 1 } });
+        slotRecipe();
+        slotPearl();
+        craft();
+
+        expect(store.getState().game.specials).toEqual({});
+        const bonus = screen.getByTestId("success-bonus");
+        expect(bonus.textContent).toMatch(/^Critical Chance \+.+ \(Void Pearl\)$/);
+        // Used up, so it leaves the slot.
+        expect(screen.getByTestId("special-slot").textContent).toContain("Optional");
+    });
+
+    it("Craft another leaves both the recipe and the special slot empty", () => {
+        render({ components: materialsFor(3), specials: { "void-pearl": 2 } });
+        slotRecipe();
+        slotPearl();
+        craft();
+        fireEvent.click(screen.getByRole("button", { name: "Craft another" }));
+        expect(screen.getByText("No recipe")).toBeTruthy();
+        expect(screen.getByTestId("special-slot").textContent).toContain("Optional");
     });
 });
 

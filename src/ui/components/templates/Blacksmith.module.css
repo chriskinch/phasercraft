@@ -114,6 +114,73 @@
     max-width: 68px;
 }
 
+/* --- Special slot (Step 4d) ---------------------------------------------- */
+
+/* Components, a "+" and the special slot sit on one row on desktop; the phone
+   block below stacks them. */
+.parts {
+    display: flex;
+    align-items: flex-start;
+    gap: 0.5rem;
+    flex-wrap: wrap;
+}
+
+.partsPlus {
+    align-self: center;
+    font-size: 1.25rem;
+    color: #4d5d66;
+}
+
+.specialSlot {
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding: 0;
+    background: none;
+    border: none;
+    color: inherit;
+    font: inherit;
+    font-size: 0.85rem;
+    cursor: pointer;
+    min-width: 44px;
+}
+
+/* The ✕ sits on the slot's top-right corner rather than trailing the text. */
+.specialSlotIcon {
+    position: relative;
+}
+
+.specialSlot .removeBadge {
+    position: absolute;
+    top: -4px;
+    right: -4px;
+    margin: 0;
+}
+
+.specialText {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
+
+/* Special item bonus text: the spec's purple. */
+.bonus {
+    color: #6a22b0;
+}
+
+/* The same bonus on the dark success overlay needs the light purple to read. */
+.overlayBonus {
+    color: #c9a3ff;
+}
+
+/* The phone list shows each special's bonus inline; desktop has the details
+   panel for that, so it is hidden there. */
+.pickerBonus {
+    display: none;
+    font-size: 0.85rem;
+}
+
 /* --- Result card --------------------------------------------------------- */
 
 /* Styled like ItemTooltip: a white face with a 5px border in the result's
@@ -733,6 +800,28 @@
 
     .pickerList {
         grid-template-columns: 1fr;
+    }
+
+    .parts {
+        flex-direction: column;
+        align-items: stretch;
+    }
+
+    .partsPlus {
+        display: none;
+    }
+
+    .specialSlot {
+        flex-direction: row;
+        gap: 0.75rem;
+    }
+
+    .specialText {
+        align-items: flex-start;
+    }
+
+    .pickerBonus {
+        display: inline;
     }
 
     .pickerActions {

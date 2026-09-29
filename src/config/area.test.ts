@@ -8,6 +8,7 @@ import {
     scaleLootTable,
 } from "./area";
 import { DEFAULT_SETTINGS } from "@services/settingsStorage";
+import { SPECIAL_DROP_RATE } from "@/types/game";
 import type { EnemyConfig, LootTable } from "@/types/game";
 
 // `promoteToBoss` and `scaleLootTable` are pure config factories — no Phaser
@@ -52,13 +53,25 @@ describe("promoteToBoss", () => {
     const base = enemyTypes["baby-ghoul"] as EnemyConfig;
     const boss = promoteToBoss("baby-ghoul");
 
+    const notSpecial = (t: LootTable) => t.filter((item) => item.name !== "special");
+
     it("scales the base creature's loot table by BOSS_SCALING.loot", () => {
-        expect(boss.loot_table).toEqual(scaleLootTable(base.loot_table, BOSS_SCALING.loot));
+        expect(notSpecial(boss.loot_table)).toEqual(
+            notSpecial(scaleLootTable(base.loot_table, BOSS_SCALING.loot))
+        );
     });
 
     it("drops more of every entry than the creature it was promoted from", () => {
         boss.loot_table.forEach((item, i) => {
             expect(item.rate).toBeGreaterThan(base.loot_table[i].rate);
+        });
+    });
+
+    it("drops exactly one special item, unscaled", () => {
+        expect(boss.loot_table.find((item) => item.name === "special")).toEqual({
+            name: "special",
+            rate: SPECIAL_DROP_RATE.boss,
+            bonus: 0,
         });
     });
 
@@ -142,5 +155,17 @@ describe("resolveAreaTuning", () => {
         resolveAreaTuning({ ...debugOn, liveCapOverride: 9 });
 
         expect(DEFAULT_AREA_TUNING).toEqual(before);
+    });
+});
+
+describe("special item drops", () => {
+    it("gives every regular mob the special drop at the mob rate", () => {
+        for (const config of Object.values(enemyTypes) as EnemyConfig[]) {
+            expect(config.loot_table.find((item) => item.name === "special")).toEqual({
+                name: "special",
+                rate: SPECIAL_DROP_RATE.mob,
+                bonus: 0,
+            });
+        }
     });
 });

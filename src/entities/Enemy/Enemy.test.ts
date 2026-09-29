@@ -3,6 +3,8 @@ import Enemy from "./Enemy";
 import Projectile from "@entities/Weapons/Projectile";
 import type { CombatType } from "@/types/game";
 import { playSfx } from "@services/sfx";
+import Special from "@entities/Loot/Special";
+import Crafting from "@entities/Loot/Crafting";
 
 // Enemy.attack VFX: melee/healer enemies play the player's swoosh angled at the
 // player and hit immediately; ranged enemies fire a homing bolt and the hit
@@ -11,6 +13,8 @@ import { playSfx } from "@services/sfx";
 
 vi.mock("@entities/Weapons/Projectile", () => ({ default: vi.fn() }));
 vi.mock("@services/sfx", () => ({ playSfx: vi.fn(() => true) }));
+vi.mock("@entities/Loot/Special", () => ({ default: vi.fn() }));
+vi.mock("@entities/Loot/Crafting", () => ({ default: vi.fn() }));
 
 interface EnemyUnderTest {
     x: number;
@@ -377,5 +381,29 @@ describe("Enemy.wander", () => {
             expect(Math.abs(enemy.destination!.x - enemy.home.x)).toBeLessThanOrEqual(30);
             expect(Math.abs(enemy.destination!.y - enemy.home.y)).toBeLessThanOrEqual(30);
         }
+    });
+});
+
+// A `special` entry must drop a Special, not fall through dropLoot's default
+// branch into a Crafting component.
+describe("Enemy.dropLoot", () => {
+    it("drops a Special for a special entry", () => {
+        const enemy = Object.create(Enemy.prototype) as {
+            x: number;
+            y: number;
+            scene: object;
+            loot_table: Array<{ name: string; rate: number; bonus: number }>;
+            dropLoot(): void;
+        };
+        enemy.x = 5;
+        enemy.y = 6;
+        enemy.scene = {};
+        enemy.loot_table = [{ name: "special", rate: 100, bonus: 0 }];
+
+        enemy.dropLoot();
+
+        expect(vi.mocked(Special)).toHaveBeenCalledTimes(1);
+        expect(vi.mocked(Special)).toHaveBeenCalledWith({ scene: enemy.scene, x: 5, y: 6 });
+        expect(vi.mocked(Crafting)).not.toHaveBeenCalled();
     });
 });

@@ -4,6 +4,8 @@ import store from "@store";
 import { toggleUi } from "@store/gameReducer";
 import createLogo from "./createLogo";
 import { SFX } from "@services/sfx";
+import { SPECIAL_ITEMS } from "@/types/game";
+import { specialTextureKey } from "@entities/Loot/Special";
 
 export default class LoadScene extends Scene {
     private logo?: GameObjects.Container;
@@ -285,6 +287,11 @@ export default class LoadScene extends Scene {
         });
 
         this.loadBiomeTilesets();
+
+        // Special item world drops reuse their UI sprites from the loot pack.
+        for (const special of SPECIAL_ITEMS) {
+            this.load.image(specialTextureKey(special.id), `images/loot/misc/${special.icon}.png`);
+        }
 
         // Sound effects live under public/audio, outside the graphics path.
         this.load.setPath("");
