@@ -4,6 +4,7 @@ import { sellLoot, sellComponent, sellComponentStack } from "@store/gameReducer"
 import Button from "@components/Button";
 import GearGrid from "@components/GearGrid";
 import ComponentsGrid from "@components/ComponentsGrid";
+import SpecialsGrid from "@components/SpecialsGrid";
 import DroppableSlot from "@components/DroppableSlot";
 import GroupedAttributes from "@components/GroupedAttributes";
 import StatBar from "@components/StatBar";
@@ -12,9 +13,9 @@ import type { RootState } from "@store";
 import theme from "@ui/themes.module.css";
 import styles from "./Equipment.module.css";
 
-type Tab = "gear" | "parts";
+type Tab = "gear" | "parts" | "special";
 
-// The equipment screen owns the inventory filter (Gear | Parts) and the sell
+// The equipment screen owns the inventory filter (Gear | Parts | Special) and the sell
 // controls together: both grids share the single Sell button in the actions
 // column, so the tab, the selected component stack and the sell quantity all
 // live here rather than inside the inventory panel.
@@ -42,8 +43,11 @@ const Equipment: React.FC = () => {
     const stack = components.find((s) => s.id === selectedComponentId) ?? null;
     const qty = stack ? Math.min(Math.max(1, rawQty), stack.quantity) : 1;
     const onParts = tab === "parts";
+    // Specials are spent at the Blacksmith, never sold, so Sell is off here.
+    const onSpecial = tab === "special";
 
     const sell = () => {
+        if (onSpecial) return;
         if (onParts) {
             stack && dispatch(sellComponent(stack.id, qty));
             return;
@@ -80,13 +84,16 @@ const Equipment: React.FC = () => {
                         selectedId={selectedComponentId}
                         onSelectStack={setSelectedComponentId}
                     />
+                ) : onSpecial ? (
+                    <SpecialsGrid />
                 ) : (
                     <GearGrid />
                 )}
             </section>
             <section className={styles.filtersSection} role="tablist">
-                <Button text="Gear" on={!onParts} onClick={() => setTab("gear")} />
+                <Button text="Gear" on={tab === "gear"} onClick={() => setTab("gear")} />
                 <Button text="Parts" on={onParts} onClick={() => setTab("parts")} />
+                <Button text="Special" on={onSpecial} onClick={() => setTab("special")} />
             </section>
             <section className={styles.actionsSection}>
                 {onParts && stack && (
@@ -112,7 +119,7 @@ const Equipment: React.FC = () => {
                 )}
                 <Button
                     text={onParts && qty > 1 ? `Sell ${qty}` : "Sell"}
-                    disabled={onParts && !stack}
+                    disabled={onSpecial || (onParts && !stack)}
                     onClick={sell}
                 />
                 {onParts && (
