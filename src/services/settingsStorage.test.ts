@@ -86,10 +86,11 @@ describe("readSettings", () => {
                 starterItems: true,
                 startLocation: "combat",
                 liveCapOverride: 2,
+                sfxVolume: 40,
             })
         );
 
-        expect(readSettings()).toEqual({ ...DEFAULT_SETTINGS, liveCapOverride: 2 });
+        expect(readSettings()).toEqual({ ...DEFAULT_SETTINGS, sfxVolume: 40 });
     });
 
     it("returns defaults for a non-object payload", () => {

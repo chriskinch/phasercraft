@@ -12,8 +12,8 @@
 export type StartLocation = "default" | "combat";
 
 export interface Settings {
-    // Reveals the debug settings on the Settings screen; switching it off resets
-    // them to their defaults (see Settings.tsx).
+    // Reveals every setting except sfxVolume on the Settings screen; while it is
+    // off those are at their defaults (see withGodModeGate).
     godMode: boolean;
     debug: boolean;
     installBannerDismissed: boolean;
@@ -23,7 +23,8 @@ export interface Settings {
     startLocation: StartLocation;
     // Only read while `debug` is on.
     spawnDebugOverlay: boolean;
-    // Spawn tuning for the enemy spawner (#456), independent of `debug`.
+    // Spawn tuning for the enemy spawner (#456), independent of `debug` (but,
+    // like every setting except sfxVolume, behind God mode).
     // Each number is 0 for "use the default", so these stay flat fields the
     // shallow merge in readSettings() can fill in.
     // A fixed spawn/despawn radius in world px; 0 derives it from the viewport.
@@ -63,6 +64,10 @@ export function withGodModeGate(settings: Settings): Settings {
         spawnDebugOverlay: DEFAULT_SETTINGS.spawnDebugOverlay,
         starterItems: DEFAULT_SETTINGS.starterItems,
         startLocation: DEFAULT_SETTINGS.startLocation,
+        spawnRadiusOverride: DEFAULT_SETTINGS.spawnRadiusOverride,
+        liveCapOverride: DEFAULT_SETTINGS.liveCapOverride,
+        killsToBossOverride: DEFAULT_SETTINGS.killsToBossOverride,
+        despawnDelaySeconds: DEFAULT_SETTINGS.despawnDelaySeconds,
     };
 }
 

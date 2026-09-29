@@ -49,7 +49,7 @@ describe("Settings template", () => {
             expect(debugGroup()).toBeNull();
         });
 
-        it("switches every debug setting off when switched off, leaving spawn tuning", () => {
+        it("resets every setting behind it when switched off, leaving the volume", () => {
             writeSettings({
                 ...DEFAULT_SETTINGS,
                 godMode: true,
@@ -58,12 +58,13 @@ describe("Settings template", () => {
                 starterItems: true,
                 startLocation: "combat",
                 liveCapOverride: 2,
+                sfxVolume: 40,
             });
             renderWithProviders(<Settings />);
 
             fireEvent.click(toggleFor("God mode"));
 
-            expect(readSettings()).toEqual({ ...DEFAULT_SETTINGS, liveCapOverride: 2 });
+            expect(readSettings()).toEqual({ ...DEFAULT_SETTINGS, sfxVolume: 40 });
 
             // Revealed again, every setting reads Off.
             fireEvent.click(toggleFor("God mode"));
@@ -92,13 +93,13 @@ describe("Settings template", () => {
 
         it("shows the spawn debug overlay only while Debug mode is on, and persists it", () => {
             renderWithProviders(<Settings />);
-            expect(screen.queryByText("Spawn debug overlay")).toBeNull();
+            expect(screen.queryByText("Spawn overlay")).toBeNull();
 
             fireEvent.click(toggleFor("Debug mode"));
-            fireEvent.click(toggleFor("Spawn debug overlay"));
+            fireEvent.click(toggleFor("Spawn overlay"));
 
             expect(readSettings().spawnDebugOverlay).toBe(true);
-            expect(toggleFor("Spawn debug overlay")).toHaveTextContent("On");
+            expect(toggleFor("Spawn overlay")).toHaveTextContent("On");
         });
 
         it("toggles and persists Starter items", () => {
@@ -134,8 +135,16 @@ describe("Settings template", () => {
         });
     });
 
-    describe("spawn tuning (independent of God mode and Debug mode)", () => {
-        it("is visible with God mode and Debug mode off", () => {
+    describe("spawn tuning (under God mode, independent of Debug mode)", () => {
+        it("is hidden while God mode is off", () => {
+            renderWithProviders(<Settings />);
+
+            expect(screen.queryByRole("group", { name: "Enemy spawning" })).toBeNull();
+            expect(screen.queryByLabelText("Live cap")).toBeNull();
+        });
+
+        it("is shown with God mode on and Debug mode off", () => {
+            writeSettings({ ...DEFAULT_SETTINGS, godMode: true });
             renderWithProviders(<Settings />);
 
             expect(screen.getByRole("group", { name: "Enemy spawning" })).toBeInTheDocument();
@@ -147,7 +156,7 @@ describe("Settings template", () => {
         const AUTO_RADIUS = 704;
 
         it("shows each override's codified default, not 0", () => {
-            writeSettings({ ...DEFAULT_SETTINGS });
+            writeSettings({ ...DEFAULT_SETTINGS, godMode: true });
 
             renderWithProviders(<Settings />);
 
@@ -161,20 +170,18 @@ describe("Settings template", () => {
             );
         });
 
-        it("gives every number input the same short width", () => {
-            writeSettings({ ...DEFAULT_SETTINGS });
+        it("styles every number input the same (one grid column width)", () => {
+            writeSettings({ ...DEFAULT_SETTINGS, godMode: true });
 
             renderWithProviders(<Settings />);
 
-            const widths = screen
-                .getAllByRole("spinbutton")
-                .map((input) => (input as HTMLInputElement).style.width);
-            expect(widths).toHaveLength(4);
-            expect(new Set(widths)).toEqual(new Set(["6em"]));
+            const classes = screen.getAllByRole("spinbutton").map((input) => input.className);
+            expect(classes).toHaveLength(4);
+            expect(new Set(classes).size).toBe(1);
         });
 
         it("shows a stored override instead of the default", () => {
-            writeSettings({ ...DEFAULT_SETTINGS, liveCapOverride: 2 });
+            writeSettings({ ...DEFAULT_SETTINGS, godMode: true, liveCapOverride: 2 });
 
             renderWithProviders(<Settings />);
 
@@ -182,7 +189,7 @@ describe("Settings template", () => {
         });
 
         it("persists each numeric override", () => {
-            writeSettings({ ...DEFAULT_SETTINGS });
+            writeSettings({ ...DEFAULT_SETTINGS, godMode: true });
             renderWithProviders(<Settings />);
 
             fireEvent.change(screen.getByLabelText("Spawn radius (px)"), {
@@ -204,7 +211,7 @@ describe("Settings template", () => {
         });
 
         it("stores entering the default value itself as following the default", () => {
-            writeSettings({ ...DEFAULT_SETTINGS, liveCapOverride: 2 });
+            writeSettings({ ...DEFAULT_SETTINGS, godMode: true, liveCapOverride: 2 });
             renderWithProviders(<Settings />);
 
             fireEvent.change(screen.getByLabelText("Live cap"), {
@@ -215,7 +222,7 @@ describe("Settings template", () => {
         });
 
         it("lets a field be cleared while typing, and shows the default again on blur", () => {
-            writeSettings({ ...DEFAULT_SETTINGS, liveCapOverride: 4 });
+            writeSettings({ ...DEFAULT_SETTINGS, godMode: true, liveCapOverride: 4 });
             renderWithProviders(<Settings />);
             const input = screen.getByLabelText("Live cap");
 
@@ -229,7 +236,7 @@ describe("Settings template", () => {
         });
 
         it("stores a negative entry as following the default", () => {
-            writeSettings({ ...DEFAULT_SETTINGS });
+            writeSettings({ ...DEFAULT_SETTINGS, godMode: true });
             renderWithProviders(<Settings />);
 
             fireEvent.change(screen.getByLabelText("Kills to boss"), { target: { value: "-5" } });
@@ -245,7 +252,7 @@ describe("Settings template", () => {
                 );
 
             it("is disabled while the field already follows its default", () => {
-                writeSettings({ ...DEFAULT_SETTINGS });
+                writeSettings({ ...DEFAULT_SETTINGS, godMode: true });
                 renderWithProviders(<Settings />);
 
                 for (const label of [
@@ -259,7 +266,7 @@ describe("Settings template", () => {
             });
 
             it("returns an overridden field to its codified default", () => {
-                writeSettings({ ...DEFAULT_SETTINGS, killsToBossOverride: 3 });
+                writeSettings({ ...DEFAULT_SETTINGS, godMode: true, killsToBossOverride: 3 });
                 renderWithProviders(<Settings />);
 
                 fireEvent.click(resetFor("Kills to boss"));
@@ -272,7 +279,7 @@ describe("Settings template", () => {
             });
 
             it("returns the radius to automatic, showing the value auto works out to", () => {
-                writeSettings({ ...DEFAULT_SETTINGS, spawnRadiusOverride: 200 });
+                writeSettings({ ...DEFAULT_SETTINGS, godMode: true, spawnRadiusOverride: 200 });
                 renderWithProviders(<Settings />);
 
                 fireEvent.click(resetFor("Spawn radius (px)"));
@@ -284,6 +291,7 @@ describe("Settings template", () => {
             it("only resets its own field", () => {
                 writeSettings({
                     ...DEFAULT_SETTINGS,
+                    godMode: true,
                     liveCapOverride: 2,
                     killsToBossOverride: 3,
                 });

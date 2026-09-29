@@ -10,39 +10,17 @@ import {
     type Settings as SettingsData,
 } from "@services/settingsStorage";
 
+import styles from "./Settings.module.css";
+
 // Settings screen (#379). Reads the persisted settings on mount and lets the
-// player tweak them. The spawn tuning is read each time an area is entered (see
-// `resolveAreaTuning`) and the SFX volume on every sound played (services/sfx).
-// The debug settings sit behind God mode, which reveals them (and resets
-// them when switched off): `debug`
-// feeds the Phaser physics config at boot (see PhaserGame.tsx), while
-// `starterItems` and `startLocation` are read when a new game begins
-// (CharacterCard / SelectScene). The layout is intentionally minimal (one row
-// per setting) but structured so more rows drop in easily.
-const rowStyle: React.CSSProperties = {
-    display: "flex",
-    alignItems: "center",
-    gap: "1em",
-};
-
-const sectionStyle: React.CSSProperties = {
-    display: "flex",
-    flexDirection: "column",
-    gap: "1em",
-};
-
-// Indented under God mode: only shown while it is on.
-const subsectionStyle: React.CSSProperties = {
-    display: "flex",
-    flexDirection: "column",
-    gap: "1em",
-    marginLeft: "2em",
-};
-
-const hintStyle: React.CSSProperties = { opacity: 0.7 };
-
-// Every number input shares one short width, sized for the values they hold.
-const numberInputStyle: React.CSSProperties = { width: "6em", flex: "none" };
+// player tweak them. Only the SFX volume (read on every sound, services/sfx) is
+// always shown; everything else sits behind God mode, which reveals it and
+// resets it when switched off (see `withGodModeGate`). The spawn tuning is read
+// each time an area is entered (`resolveAreaTuning`); `debug` feeds the Phaser
+// physics config at boot (PhaserGame.tsx); `starterItems` and `startLocation`
+// are read when a new game begins (CharacterCard / SelectScene). Rows share one
+// grid (label | control | hint | action) and the two sections sit side by side
+// when there is room.
 
 // Coerce a number input to a non-negative integer; empty or invalid becomes 0.
 const toNonNegativeInt = (value: string): number => {
@@ -147,18 +125,20 @@ const SpawnOverrideRow: React.FC<SpawnOverrideRowProps> = ({
     };
 
     return (
-        <div role="group" aria-label={`${label} setting`} style={rowStyle}>
-            <label htmlFor={field}>{label}</label>
+        <div role="group" aria-label={`${label} setting`} className={styles.row}>
+            <label htmlFor={field} className={styles.label}>
+                {label}
+            </label>
             <input
                 id={field}
                 type="number"
                 min={0}
-                style={numberInputStyle}
+                className={styles.input}
                 value={draft ?? effective}
                 onChange={onInput}
                 onBlur={() => setDraft(null)}
             />
-            <span style={hintStyle}>{hint}</span>
+            <span className={styles.hint}>{hint}</span>
             <Button text="Reset" size={1} disabled={value === 0} onClick={reset} />
         </div>
     );
@@ -189,84 +169,97 @@ const Settings: React.FC = () => {
     const onSfxVolumeChange = (event: React.ChangeEvent<HTMLInputElement>) =>
         update({ sfxVolume: Math.min(100, toNonNegativeInt(event.target.value)) });
 
+    // A labelled On/Off toggle row, with an optional hint beside it.
+    const toggleRow = (
+        label: string,
+        on: boolean,
+        onClick: () => void,
+        hint?: string,
+        className = styles.row
+    ) => (
+        <div className={className}>
+            <span className={styles.label}>{label}</span>
+            <Button text={on ? "On" : "Off"} on={on} onClick={onClick} />
+            {hint && <span className={styles.hint}>{hint}</span>}
+        </div>
+    );
+
     return (
-        <div style={{ display: "flex", flexDirection: "column", gap: "1em" }}>
-            <div style={rowStyle}>
-                <label htmlFor="sfx-volume">Sound effects</label>
-                <input
-                    id="sfx-volume"
-                    type="range"
-                    min={0}
-                    max={100}
-                    step={5}
-                    value={settings.sfxVolume}
-                    onChange={onSfxVolumeChange}
-                />
-                <span style={hintStyle}>
-                    {settings.sfxVolume === 0 ? "Muted" : `${settings.sfxVolume}%`}
-                </span>
-            </div>
-            <div role="group" aria-label="Enemy spawning" style={sectionStyle}>
-                <span style={hintStyle}>Spawn tuning applies the next time you enter an area.</span>
-                {SPAWN_FIELDS.map(({ field, label, hint, defaultValue }) => (
-                    <SpawnOverrideRow
-                        key={field}
-                        field={field}
-                        label={label}
-                        hint={hint}
-                        value={settings[field]}
-                        defaultValue={defaultValue()}
-                        onChange={(value) => update({ [field]: value })}
+        <div className={styles.settings}>
+            <div className={styles.row}>
+                <label htmlFor="sfx-volume" className={styles.label}>
+                    Sound effects
+                </label>
+                <div className={styles.wide}>
+                    <input
+                        id="sfx-volume"
+                        type="range"
+                        min={0}
+                        max={100}
+                        step={5}
+                        value={settings.sfxVolume}
+                        onChange={onSfxVolumeChange}
                     />
-                ))}
+                    <span className={styles.hint}>
+                        {settings.sfxVolume === 0 ? "Muted" : `${settings.sfxVolume}%`}
+                    </span>
+                </div>
             </div>
-            <div style={rowStyle}>
-                <span>God mode</span>
-                <Button
-                    text={settings.godMode ? "On" : "Off"}
-                    on={settings.godMode}
-                    onClick={toggleGodMode}
-                />
-            </div>
+            {toggleRow(
+                "God mode",
+                settings.godMode,
+                toggleGodMode,
+                "Shows the testing settings; off resets them."
+            )}
             {settings.godMode && (
-                <div role="group" aria-label="Debug settings" style={subsectionStyle}>
-                    <div style={rowStyle}>
-                        <span>Debug mode</span>
-                        <Button
-                            text={settings.debug ? "On" : "Off"}
-                            on={settings.debug}
-                            onClick={toggle("debug")}
-                        />
+                <div className={styles.sections}>
+                    <div role="group" aria-label="Enemy spawning" className={styles.section}>
+                        <h3 className={styles.heading}>Enemy spawning</h3>
+                        <span className={styles.hint}>
+                            Applies the next time you enter an area.
+                        </span>
+                        {SPAWN_FIELDS.map(({ field, label, hint, defaultValue }) => (
+                            <SpawnOverrideRow
+                                key={field}
+                                field={field}
+                                label={label}
+                                hint={hint}
+                                value={settings[field]}
+                                defaultValue={defaultValue()}
+                                onChange={(value) => update({ [field]: value })}
+                            />
+                        ))}
                     </div>
-                    {settings.debug && (
-                        <div style={{ ...rowStyle, marginLeft: "2em" }}>
-                            <span>Spawn debug overlay</span>
+                    <div role="group" aria-label="Debug settings" className={styles.section}>
+                        <h3 className={styles.heading}>Debug</h3>
+                        {toggleRow(
+                            "Debug mode",
+                            settings.debug,
+                            toggle("debug"),
+                            "Physics debug; applies on next launch."
+                        )}
+                        {settings.debug &&
+                            toggleRow(
+                                "Spawn overlay",
+                                settings.spawnDebugOverlay,
+                                toggle("spawnDebugOverlay"),
+                                undefined,
+                                `${styles.row} ${styles.nested}`
+                            )}
+                        {toggleRow(
+                            "Starter items",
+                            settings.starterItems,
+                            toggle("starterItems"),
+                            `${STARTER_ITEMS.coins} coins, ${STARTER_ITEMS.componentsEach} of each part, ${STARTER_ITEMS.specialsEach} of each special`
+                        )}
+                        <div className={styles.row}>
+                            <span className={styles.label}>Start location</span>
                             <Button
-                                text={settings.spawnDebugOverlay ? "On" : "Off"}
-                                on={settings.spawnDebugOverlay}
-                                onClick={toggle("spawnDebugOverlay")}
+                                text={settings.startLocation === "combat" ? "Combat" : "Default"}
+                                on={settings.startLocation === "combat"}
+                                onClick={toggleStartLocation}
                             />
                         </div>
-                    )}
-                    <div style={rowStyle}>
-                        <span>Starter items</span>
-                        <Button
-                            text={settings.starterItems ? "On" : "Off"}
-                            on={settings.starterItems}
-                            onClick={toggle("starterItems")}
-                        />
-                        <span style={hintStyle}>
-                            {STARTER_ITEMS.coins} coins, {STARTER_ITEMS.componentsEach} of each
-                            part, {STARTER_ITEMS.specialsEach} of each special
-                        </span>
-                    </div>
-                    <div style={rowStyle}>
-                        <span>Start location</span>
-                        <Button
-                            text={settings.startLocation === "combat" ? "Combat" : "Default"}
-                            on={settings.startLocation === "combat"}
-                            onClick={toggleStartLocation}
-                        />
                     </div>
                 </div>
             )}
