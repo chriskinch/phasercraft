@@ -1,4 +1,5 @@
-import type { GameObjects, Physics } from "phaser";
+import { GameObjects, Scenes } from "phaser";
+import type { Physics } from "phaser";
 
 interface DropInOptions {
     gravity?: number;
@@ -26,6 +27,16 @@ export function dropIn(
 
     item.scene.physics.add.collider(spawn_stop, item);
 
+    // Captured: destroy() clears item.scene, and the listener must still be
+    // released from the (reused) scene emitter afterwards.
+    const events = item.scene.events;
+
+    const release = () => {
+        events.off("update", updateHandler);
+        events.off(Scenes.Events.SHUTDOWN, release);
+        item.off(GameObjects.Events.DESTROY, release);
+    };
+
     const updateHandler = () => {
         if (item.body.touching.down && item.body.wasTouching.down) {
             item.body.immovable = immovable;
@@ -33,10 +44,14 @@ export function dropIn(
             item.body.setGravityY(0);
             spawn_stop.destroy();
             item.spawned = true;
-            item.scene.events.off("update", updateHandler);
+            release();
             item.emit(`${name}:spawned`);
         }
     };
 
-    item.scene.events.on("update", updateHandler);
+    events.on("update", updateHandler);
+    // An item destroyed (or a scene shut down) before it settles would leave
+    // the listener reading a destroyed body on the next update.
+    events.once(Scenes.Events.SHUTDOWN, release);
+    item.once(GameObjects.Events.DESTROY, release);
 }
