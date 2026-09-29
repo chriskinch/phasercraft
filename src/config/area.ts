@@ -37,7 +37,7 @@ export const SPAWN_CONE_HALF_ANGLE_DEG = 45;
 export const SPAWN_MOVING_SPEED = 10;
 
 // Everything the spawn director reads, bundled so a run can be tuned as one
-// value (the Debug settings override some of these; see #462).
+// value (the spawn settings override some of these; see #462).
 export interface AreaTuning {
     killsToBoss: number;
     liveCap: number;
@@ -64,15 +64,12 @@ export const DEFAULT_AREA_TUNING: Readonly<AreaTuning> = {
 };
 
 /**
- * The tuning an area runs with. Debug mode off, it is always the defaults, so a
- * player can never carry a test value into a real run. Debug mode on, each
- * override replaces its default when it is a positive number; 0 (or anything
- * a hand-edited settings payload might hold that is not a positive number)
- * keeps the default.
+ * The tuning an area runs with. Each override replaces its default when it is
+ * a positive number; 0 (or anything a hand-edited settings payload might hold
+ * that is not a positive number) keeps the default. Independent of Debug mode.
  */
 export function resolveAreaTuning(settings: Settings): AreaTuning {
     const tuning = { ...DEFAULT_AREA_TUNING };
-    if (!settings.debug) return tuning;
 
     const positive = (value: unknown): value is number =>
         typeof value === "number" && Number.isFinite(value) && value > 0;

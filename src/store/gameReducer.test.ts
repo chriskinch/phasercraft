@@ -30,10 +30,13 @@ import {
     unequipLoot,
     setBaseStats,
     addSpecial,
+    grantStarterItems,
+    STARTER_ITEMS,
 } from "./gameReducer";
 import type { LootItem } from "@/types/game";
 import {
     COMPONENT_DEFS,
+    SPECIAL_ITEMS,
     INITIAL_RECIPES,
     componentBuyPrice,
     merchantPartsBase,
@@ -808,5 +811,30 @@ describe("gameReducer", () => {
             const next = gameReducer(seeded(), equipLoot(item));
             expect(next.stats.attack_power).toBe(next.base_stats.attack_power);
         });
+    });
+});
+
+describe("grantStarterItems", () => {
+    it("replaces the purse, parts and specials with the starter kit", () => {
+        const before = {
+            ...gameReducer(undefined, { type: "@@INIT" }),
+            coins: 5,
+            components: [{ id: "old", type: "scrap" as const, quantity: 3 }],
+            specials: { "void-pearl": 1 },
+        };
+
+        const state = gameReducer(before, grantStarterItems());
+
+        expect(state.coins).toBe(STARTER_ITEMS.coins);
+        for (const type of Object.keys(COMPONENT_DEFS) as (keyof typeof COMPONENT_DEFS)[]) {
+            expect(componentTotal(state.components, type)).toBe(STARTER_ITEMS.componentsEach);
+            // Stacks respect each part's stackMax.
+            for (const stack of state.components.filter((s) => s.type === type)) {
+                expect(stack.quantity).toBeLessThanOrEqual(COMPONENT_DEFS[type].stackMax);
+            }
+        }
+        expect(state.specials).toEqual(
+            Object.fromEntries(SPECIAL_ITEMS.map((s) => [s.id, STARTER_ITEMS.specialsEach]))
+        );
     });
 });

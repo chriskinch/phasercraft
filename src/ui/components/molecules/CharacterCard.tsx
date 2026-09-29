@@ -1,5 +1,5 @@
 import React from "react";
-import { selectCharacter, setCoins } from "@store/gameReducer";
+import { grantStarterItems, selectCharacter, setCoins } from "@store/gameReducer";
 import { connect } from "react-redux";
 import { readSettings } from "@services/settingsStorage";
 import type { PlayerName } from "@entities/Player/AssignClass";
@@ -11,15 +11,22 @@ interface CharacterCardProps {
     // Injected by `connect`'s mapDispatchToProps; dispatch the actions below.
     selectCharacter: (character: PlayerName) => void;
     setCoins: (value: number) => void;
+    grantStarterItems: () => void;
     type: PlayerName;
 }
 
-const CharacterCard: React.FC<CharacterCardProps> = ({ selectCharacter, setCoins, type }) => {
+const CharacterCard: React.FC<CharacterCardProps> = ({
+    selectCharacter,
+    setCoins,
+    grantStarterItems,
+    type,
+}) => {
     // Picking a character here only happens on a fresh game (loading a save goes
     // through Save's Load button instead), so this is the seam to apply the
-    // configured starting-coins balance before the run begins.
+    // Starter items setting (or an empty purse) before the run begins.
     const startGame = () => {
-        setCoins(readSettings().startingCoins);
+        if (readSettings().starterItems) grantStarterItems();
+        else setCoins(0);
         selectCharacter(type);
     };
 
@@ -35,4 +42,4 @@ const CharacterCard: React.FC<CharacterCardProps> = ({ selectCharacter, setCoins
     );
 };
 
-export default connect(null, { selectCharacter, setCoins })(CharacterCard);
+export default connect(null, { selectCharacter, setCoins, grantStarterItems })(CharacterCard);

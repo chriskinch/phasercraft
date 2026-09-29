@@ -12,17 +12,21 @@
 export type StartLocation = "default" | "combat";
 
 export interface Settings {
+    // Reveals every setting except sfxVolume on the Settings screen; while it is
+    // off those are at their defaults (see withGodModeGate).
+    godMode: boolean;
     debug: boolean;
     installBannerDismissed: boolean;
-    // Coins a new game starts with. Defaults to 0; bump it from the Settings
-    // screen when testing shop/craft flows that need a balance up front.
-    startingCoins: number;
+    // A new game starts with the starter kit (see STARTER_ITEMS in the game
+    // reducer) instead of an empty purse, for testing shop/craft flows.
+    starterItems: boolean;
     startLocation: StartLocation;
-    // Spawn tuning for testing the enemy spawner (#456). Only read while
-    // `debug` is on; with it off the game always uses the config defaults.
+    // Only read while `debug` is on.
+    spawnDebugOverlay: boolean;
+    // Spawn tuning for the enemy spawner (#456), independent of `debug` (but,
+    // like every setting except sfxVolume, behind God mode).
     // Each number is 0 for "use the default", so these stay flat fields the
     // shallow merge in readSettings() can fill in.
-    spawnDebugOverlay: boolean;
     // A fixed spawn/despawn radius in world px; 0 derives it from the viewport.
     spawnRadiusOverride: number;
     liveCapOverride: number;
@@ -34,9 +38,10 @@ export interface Settings {
 }
 
 export const DEFAULT_SETTINGS: Settings = {
+    godMode: false,
     debug: false,
     installBannerDismissed: false,
-    startingCoins: 0,
+    starterItems: false,
     startLocation: "default",
     spawnDebugOverlay: false,
     spawnRadiusOverride: 0,
@@ -47,6 +52,24 @@ export const DEFAULT_SETTINGS: Settings = {
 };
 
 export const SETTINGS_KEY = "settings";
+
+// With God mode off, every setting behind it is at its default: the Settings
+// screen resets them when God mode is switched off, and readSettings() applies
+// this to any stored payload (e.g. one saved before God mode existed).
+export function withGodModeGate(settings: Settings): Settings {
+    if (settings.godMode) return settings;
+    return {
+        ...settings,
+        debug: DEFAULT_SETTINGS.debug,
+        spawnDebugOverlay: DEFAULT_SETTINGS.spawnDebugOverlay,
+        starterItems: DEFAULT_SETTINGS.starterItems,
+        startLocation: DEFAULT_SETTINGS.startLocation,
+        spawnRadiusOverride: DEFAULT_SETTINGS.spawnRadiusOverride,
+        liveCapOverride: DEFAULT_SETTINGS.liveCapOverride,
+        killsToBossOverride: DEFAULT_SETTINGS.killsToBossOverride,
+        despawnDelaySeconds: DEFAULT_SETTINGS.despawnDelaySeconds,
+    };
+}
 
 // Read the persisted settings, merged over the defaults. A missing key, corrupt
 // JSON, a non-object payload, or any environment where localStorage is
@@ -63,7 +86,7 @@ export function readSettings(): Settings {
         }
         // Merge stored fields over the defaults so a partial or forward-compatible
         // payload still yields a complete, well-typed Settings object.
-        return { ...DEFAULT_SETTINGS, ...(parsed as Partial<Settings>) };
+        return withGodModeGate({ ...DEFAULT_SETTINGS, ...(parsed as Partial<Settings>) });
     } catch (error) {
         console.warn("Ignoring corrupt settings data", error);
         return { ...DEFAULT_SETTINGS };

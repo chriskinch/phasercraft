@@ -87,16 +87,16 @@ describe("promoteToBoss", () => {
 });
 
 describe("resolveAreaTuning", () => {
-    const debugOn = { ...DEFAULT_SETTINGS, debug: true };
-
     it("is the defaults when nothing is overridden", () => {
         expect(resolveAreaTuning(DEFAULT_SETTINGS)).toEqual(DEFAULT_AREA_TUNING);
-        expect(resolveAreaTuning(debugOn)).toEqual(DEFAULT_AREA_TUNING);
+        expect(resolveAreaTuning({ ...DEFAULT_SETTINGS, debug: true })).toEqual(
+            DEFAULT_AREA_TUNING
+        );
     });
 
-    it("applies every override while Debug mode is on", () => {
+    it("applies every override", () => {
         const tuning = resolveAreaTuning({
-            ...debugOn,
+            ...DEFAULT_SETTINGS,
             spawnRadiusOverride: 200,
             liveCapOverride: 2,
             killsToBossOverride: 3,
@@ -112,22 +112,20 @@ describe("resolveAreaTuning", () => {
         });
     });
 
-    it("ignores every override while Debug mode is off", () => {
+    it("applies overrides regardless of Debug mode", () => {
         const tuning = resolveAreaTuning({
             ...DEFAULT_SETTINGS,
             debug: false,
-            spawnRadiusOverride: 200,
+            godMode: false,
             liveCapOverride: 2,
-            killsToBossOverride: 3,
-            despawnDelaySeconds: 5,
         });
 
-        expect(tuning).toEqual(DEFAULT_AREA_TUNING);
+        expect(tuning.liveCap).toBe(2);
     });
 
     it("keeps the default for zero, negative or non-numeric values", () => {
         const tuning = resolveAreaTuning({
-            ...debugOn,
+            ...DEFAULT_SETTINGS,
             spawnRadiusOverride: 0,
             liveCapOverride: -3,
             killsToBossOverride: Number.NaN,
@@ -140,7 +138,7 @@ describe("resolveAreaTuning", () => {
 
     it("rounds fractional counts down to whole enemies", () => {
         const tuning = resolveAreaTuning({
-            ...debugOn,
+            ...DEFAULT_SETTINGS,
             liveCapOverride: 2.7,
             killsToBossOverride: 4.2,
         });
@@ -152,7 +150,7 @@ describe("resolveAreaTuning", () => {
     it("does not mutate the shared defaults", () => {
         const before = { ...DEFAULT_AREA_TUNING };
 
-        resolveAreaTuning({ ...debugOn, liveCapOverride: 9 });
+        resolveAreaTuning({ ...DEFAULT_SETTINGS, liveCapOverride: 9 });
 
         expect(DEFAULT_AREA_TUNING).toEqual(before);
     });

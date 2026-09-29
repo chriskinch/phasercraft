@@ -73,7 +73,7 @@ describe("UI overlay scrolling screens", () => {
         const container = screen.getByTestId("menu-container");
         const scroll = screen.getByTestId("menu-scroll");
         expect(container).toContainElement(scroll);
-        expect(scroll).toContainElement(screen.getByText("Debug mode"));
+        expect(scroll).toContainElement(screen.getByText("God mode"));
         expect(container.style.minHeight).toBe("0px");
     });
 

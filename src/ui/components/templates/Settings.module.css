@@ -1,0 +1,88 @@
+.settings {
+    display: flex;
+    flex-direction: column;
+    gap: 1.5em;
+}
+
+/* The debug sections sit side by side when there is room, stacked otherwise. */
+.sections {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 1.5em 3em;
+}
+
+.section {
+    flex: 1 1 28em;
+    display: flex;
+    flex-direction: column;
+    gap: 0.75em;
+    margin: 0;
+    padding: 0;
+    border: none;
+    min-width: 0;
+}
+
+.heading {
+    margin: 0 0 0.25em;
+    font-size: 1.1em;
+}
+
+/* Every row shares one grid: label | control | hint | action. Buttons fill
+   their cell (Button is width: 100%), so the control column caps them. */
+.row {
+    display: grid;
+    grid-template-columns: 9em 6em minmax(0, 1fr) 5em;
+    align-items: center;
+    gap: 0.5em 1em;
+}
+
+.row > * {
+    margin-bottom: 0;
+}
+
+.label {
+    white-space: nowrap;
+}
+
+/* Spans control → action: a slider with its value beside it. */
+.wide {
+    grid-column: 2 / -1;
+    display: flex;
+    align-items: center;
+    gap: 1em;
+}
+
+.wide > input {
+    flex: 0 1 20em;
+    min-width: 0;
+}
+
+.input {
+    width: 100%;
+    box-sizing: border-box;
+}
+
+.hint {
+    opacity: 0.7;
+}
+
+/* Indent only the label, so the nested row's controls stay in their column. */
+.nested > .label {
+    padding-left: 1.5em;
+}
+
+/* Phone width: label | control | action, with the hint on its own line below. */
+@media (max-width: 600px) {
+    .row {
+        grid-template-columns: minmax(0, 1fr) 6em 5em;
+    }
+
+    .label {
+        white-space: normal;
+    }
+
+    .row > .hint {
+        grid-column: 1 / -1;
+        order: 1;
+    }
+}
