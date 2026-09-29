@@ -4,6 +4,7 @@ import { DEFAULT_AREA_TUNING } from "@config/area";
 import { spawnRadius } from "@helpers/spawnGeometry";
 import { STARTER_ITEMS } from "@store/gameReducer";
 import {
+    DEFAULT_SETTINGS,
     readSettings,
     writeSettings,
     type Settings as SettingsData,
@@ -12,7 +13,8 @@ import {
 // Settings screen (#379). Reads the persisted settings on mount and lets the
 // player tweak them. The spawn tuning is read each time an area is entered (see
 // `resolveAreaTuning`) and the SFX volume on every sound played (services/sfx).
-// The debug settings sit behind God mode, which only reveals them: `debug`
+// The debug settings sit behind God mode, which reveals them (and resets
+// them when switched off): `debug`
 // feeds the Phaser physics config at boot (see PhaserGame.tsx), while
 // `starterItems` and `startLocation` are read when a new game begins
 // (CharacterCard / SelectScene). The layout is intentionally minimal (one row
@@ -172,8 +174,24 @@ const Settings: React.FC = () => {
         setSettings(next);
     };
 
-    const toggle = (field: "godMode" | "debug" | "spawnDebugOverlay" | "starterItems") => () =>
+    const toggle = (field: "debug" | "spawnDebugOverlay" | "starterItems") => () =>
         update({ [field]: !settings[field] });
+
+    // Switching God mode off also switches off everything behind it, so no hidden
+    // debug setting keeps taking effect. Anything a game already received (e.g.
+    // starter items, now in a save) is untouched.
+    const toggleGodMode = () =>
+        update(
+            settings.godMode
+                ? {
+                      godMode: false,
+                      debug: DEFAULT_SETTINGS.debug,
+                      spawnDebugOverlay: DEFAULT_SETTINGS.spawnDebugOverlay,
+                      starterItems: DEFAULT_SETTINGS.starterItems,
+                      startLocation: DEFAULT_SETTINGS.startLocation,
+                  }
+                : { godMode: true }
+        );
 
     const toggleStartLocation = () =>
         update({ startLocation: settings.startLocation === "combat" ? "default" : "combat" });
@@ -217,7 +235,7 @@ const Settings: React.FC = () => {
                 <Button
                     text={settings.godMode ? "On" : "Off"}
                     on={settings.godMode}
-                    onClick={toggle("godMode")}
+                    onClick={toggleGodMode}
                 />
             </div>
             {settings.godMode && (

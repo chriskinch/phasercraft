@@ -12,8 +12,8 @@
 export type StartLocation = "default" | "combat";
 
 export interface Settings {
-    // Reveals the debug settings on the Settings screen. Visibility only: the
-    // settings behind it keep their values (and effects) while it is off.
+    // Reveals the debug settings on the Settings screen; switching it off resets
+    // them to their defaults (see Settings.tsx).
     godMode: boolean;
     debug: boolean;
     installBannerDismissed: boolean;

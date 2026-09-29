@@ -49,13 +49,27 @@ describe("Settings template", () => {
             expect(debugGroup()).toBeNull();
         });
 
-        it("keeps hidden settings' values when switched off", () => {
-            writeSettings({ ...DEFAULT_SETTINGS, godMode: true, debug: true, starterItems: true });
+        it("switches every debug setting off when switched off, leaving spawn tuning", () => {
+            writeSettings({
+                ...DEFAULT_SETTINGS,
+                godMode: true,
+                debug: true,
+                spawnDebugOverlay: true,
+                starterItems: true,
+                startLocation: "combat",
+                liveCapOverride: 2,
+            });
             renderWithProviders(<Settings />);
 
             fireEvent.click(toggleFor("God mode"));
 
-            expect(readSettings()).toMatchObject({ debug: true, starterItems: true });
+            expect(readSettings()).toEqual({ ...DEFAULT_SETTINGS, liveCapOverride: 2 });
+
+            // Revealed again, every setting reads Off.
+            fireEvent.click(toggleFor("God mode"));
+            expect(toggleFor("Debug mode")).toHaveTextContent("Off");
+            expect(toggleFor("Starter items")).toHaveTextContent("Off");
+            expect(screen.getByRole("button", { name: "Default" })).toBeInTheDocument();
         });
     });
 
