@@ -544,7 +544,11 @@ const Blacksmith: React.FC = () => {
             </section>
 
             {crafted && (
-                <div className={theme.dialogOverlay} role="status" data-testid="craft-success">
+                <div
+                    className={`${theme.dialogOverlay} ${styles.successOverlay}`}
+                    role="status"
+                    data-testid="craft-success"
+                >
                     <div className={styles.anvilScene} aria-hidden="true">
                         <span className={styles.anvil} />
                         <span className={styles.tang} />
