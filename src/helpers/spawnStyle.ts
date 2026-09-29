@@ -30,14 +30,20 @@ export function dropIn(
     // Captured: destroy() clears item.scene, and the listener must still be
     // released from the (reused) scene emitter afterwards.
     const events = item.scene.events;
+    let released = false;
 
     const release = () => {
+        released = true;
         events.off("update", updateHandler);
         events.off(Scenes.Events.SHUTDOWN, release);
         item.off(GameObjects.Events.DESTROY, release);
     };
 
     const updateHandler = () => {
+        // off() does not stop an emit already in progress: an item destroyed
+        // earlier in the same "update" (e.g. by its lifespan timer, which the
+        // scene clock fires from an earlier listener) is still called here.
+        if (released) return;
         if (item.body.touching.down && item.body.wasTouching.down) {
             item.body.immovable = immovable;
             item.body.setVelocity(0);

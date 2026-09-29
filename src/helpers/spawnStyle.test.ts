@@ -33,7 +33,9 @@ function makeBody(): FakeBody {
     return body;
 }
 
-function setup() {
+// `destroyOnUpdate` destroys the item from an "update" listener registered
+// before dropIn's, like the scene clock firing the trap's lifespan timer.
+function setup({ destroyOnUpdate = false } = {}) {
     const sceneEvents = new Events.EventEmitter();
     const spawnStop = { destroy: vi.fn() };
     const item = new Events.EventEmitter() as Events.EventEmitter & {
@@ -50,7 +52,6 @@ function setup() {
         events: sceneEvents,
         physics: { add: { staticImage: vi.fn(() => spawnStop), collider: vi.fn() } },
     };
-    dropIn("trap", item as unknown as Parameters<typeof dropIn>[1], 20, {});
     // Mirrors GameObject.destroy(): emit DESTROY, then clear scene and body.
     const destroy = () => {
         item.emit(GameObjects.Events.DESTROY, item, false);
@@ -58,6 +59,8 @@ function setup() {
         item.scene = undefined;
         item.body = undefined;
     };
+    if (destroyOnUpdate) sceneEvents.once("update", destroy);
+    dropIn("trap", item as unknown as Parameters<typeof dropIn>[1], 20, {});
     return { sceneEvents, spawnStop, item, destroy };
 }
 
@@ -81,6 +84,16 @@ describe("dropIn", () => {
         const { sceneEvents, destroy } = setup();
 
         destroy();
+
+        expect(() => sceneEvents.emit("update")).not.toThrow();
+        expect(sceneEvents.listenerCount("update")).toBe(0);
+    });
+
+    it("does not throw when the item is destroyed earlier in the same update", () => {
+        // A trap that never settles is destroyed by its lifespan timer; the
+        // clock's listener runs first, and removing dropIn's listener then
+        // does not stop the emit already in progress from calling it.
+        const { sceneEvents } = setup({ destroyOnUpdate: true });
 
         expect(() => sceneEvents.emit("update")).not.toThrow();
         expect(sceneEvents.listenerCount("update")).toBe(0);

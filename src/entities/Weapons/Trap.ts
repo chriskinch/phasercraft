@@ -2,6 +2,7 @@ import { GameObjects, Physics, Scene, Time, Types } from "phaser";
 import { dropIn } from "@helpers/spawnStyle";
 import type { ArcadeCollisionObject } from "@/types/game";
 import type { GameSceneLike } from "@/types/scene";
+import type Enemy from "@entities/Enemy/Enemy";
 
 class Trap extends GameObjects.Sprite {
     public body!: Physics.Arcade.Body;
@@ -15,7 +16,12 @@ class Trap extends GameObjects.Sprite {
         scene.physics.world.enable(this);
         scene.add.existing(this);
 
-        this.body.isCircle = true;
+        // A real circle (radius 12, centred on the 24x21 frame). A bare
+        // `isCircle = true` kept the 24x21 box but collided as a radius-12
+        // circle that reaches below it, so the drop-in stop caught the trap in
+        // that gap and pushed it back up on every contact. At 60Hz+ it never
+        // rested two steps running, so it bounced until expiry and never armed.
+        this.body.setCircle(this.width / 2, 0, (this.height - this.width) / 2);
 
         dropIn("trap", this, y + 20, { gravity: 500, bounce: 0.4 });
 
@@ -37,13 +43,11 @@ class Trap extends GameObjects.Sprite {
         this.once(GameObjects.Events.DESTROY, this.cleanup, this);
     }
 
-    // Arcade collide callback. Phaser types each colliding object as
-    // `GameObjectWithBody | Tile`. The original JS reads a `spawned` flag off the
-    // target before emitting; preserved exactly (no shipped colliding object
-    // actually sets `spawned`, so this guard is effectively always falsy — a
-    // pre-existing quirk left untouched per the "preserve & flag" rule).
+    // Arcade collide callback against `active_enemies`, so the object is an
+    // Enemy. Only a spawned enemy springs the trap. This used to read an
+    // Enemy `spawned` flag that became `state` long ago, so it never fired.
     collide(target: ArcadeCollisionObject): void {
-        if ((target as { spawned?: boolean }).spawned) {
+        if ((target as Enemy).state === "spawned") {
             this.emit("trap:collide", target);
             this.destroy();
         }
