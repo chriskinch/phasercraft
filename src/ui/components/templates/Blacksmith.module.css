@@ -315,6 +315,14 @@
 
 /* --- Craft success overlay ----------------------------------------------- */
 
+/* The shared dialogOverlay pads 35% each side, which leaves a phone ~30% of
+   its width; the phone block below narrows that padding for this overlay. It
+   scrolls rather than clipping if the result is long. */
+.successOverlay {
+    overflow-y: auto;
+    box-sizing: border-box;
+}
+
 .overlayActions {
     display: flex;
     gap: 0.5rem;
@@ -822,6 +830,11 @@
 
     .pickerBonus {
         display: inline;
+    }
+
+    .successOverlay {
+        padding: 1.5rem 1rem;
+        font-size: 1.2em;
     }
 
     .pickerActions {
