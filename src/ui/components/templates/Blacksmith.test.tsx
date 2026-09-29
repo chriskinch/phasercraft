@@ -314,7 +314,7 @@ describe("Blacksmith craft success", () => {
         const overlay = screen.getByTestId("craft-success");
         expect(overlay.getAttribute("role")).toBe("status");
         expect(overlay.textContent).toContain("Crafted!");
-        expect(overlay.textContent).toContain("Added to your inventory");
+        expect(overlay.textContent).not.toContain("Added to your inventory");
         expect(store.getState().game.inventory).toHaveLength(1);
     });
 
