@@ -1,3 +1,4 @@
+import { Geom } from "phaser";
 import Spell from "./Spell";
 import type { SpellOptions } from "@/types/game";
 import type Enemy from "@entities/Enemy/Enemy";
@@ -12,7 +13,7 @@ class SiphonSoul extends Spell {
     public durationAnimationTimer!: Phaser.Time.TimerEvent;
     public particleAnimationTimer!: Phaser.Time.TimerEvent;
     public debugGraphics!: Phaser.GameObjects.Graphics;
-    public deathZone: Phaser.Geom.Circle;
+    public deathZone: Geom.Circle;
 
     constructor(config: SpellOptions) {
         const defaults = {
@@ -39,7 +40,7 @@ class SiphonSoul extends Spell {
         // This is what the spell scales from. Player stats always include
         // magic_power; the `?? 0` only satisfies the optional type.
         this.power = (this.player.stats.magic_power ?? 0) / 10;
-        this.deathZone = new Phaser.Geom.Circle(this.player.x, this.player.y, 20);
+        this.deathZone = new Geom.Circle(this.player.x, this.player.y, 20);
         this.particleDuration = this.duration + this.cooldown;
     }
 
