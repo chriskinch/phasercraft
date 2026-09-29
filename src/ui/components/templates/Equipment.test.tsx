@@ -174,4 +174,16 @@ describe("Equipment template", () => {
             expect(state.coins).toBe(40);
         });
     });
+
+    it("shows owned specials under the Special tab, with Sell disabled", () => {
+        seed({ character: "Warrior", stats: {} as never, specials: { "ember-core": 3 } });
+        renderWithProviders(<Equipment />, { store });
+
+        fireEvent.click(screen.getByRole("button", { name: "Special" }));
+
+        expect(screen.getByTestId("specials-grid")).toBeInTheDocument();
+        expect(screen.getByRole("img", { name: /^Ember Core ×3/ })).toBeInTheDocument();
+        expect(screen.getByRole("button", { name: "Sell" })).toBeDisabled();
+        expect(screen.queryByRole("button", { name: "Sell All" })).not.toBeInTheDocument();
+    });
 });

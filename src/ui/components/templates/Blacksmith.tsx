@@ -7,6 +7,7 @@ import { COMPONENT_DEFS, RECIPES, SPECIAL_ITEMS } from "@/types/game";
 import type { ComponentType, Recipe, RecipeResult, SpecialItem } from "@/types/game";
 import { colorForQuality } from "@/lib/armoryClient";
 import { appliedStatValue, conversionFor, formatStatValue } from "@/lib/statConversion";
+import { specialBonusRow } from "@/lib/specialBonus";
 import { playSfx } from "@services/sfx";
 import { pixelEmbossVars, STAT_POSITIVE, STAT_NEGATIVE } from "@ui/themes";
 import type { RootState } from "@store";
@@ -82,16 +83,6 @@ const statRows = (result: RecipeResult) =>
             display: formatStatValue(stat.name, applied, { signed: true }),
         };
     });
-
-/** A special's bonus as a stat row, formatted like the recipe's own stats. */
-const bonusRow = (special: SpecialItem) => {
-    const { name, value } = special.bonus;
-    return {
-        name,
-        label: conversionFor(name).label,
-        display: formatStatValue(name, appliedStatValue(name, value), { signed: true }),
-    };
-};
 
 interface SlotProps {
     quality?: string;
@@ -232,7 +223,7 @@ const Blacksmith: React.FC = () => {
                                 <span className={styles.pickerName}>{s.name}</span>
                                 <span className={styles.muted}>x{specials[s.id]}</span>
                                 <span className={`${styles.bonus} ${styles.pickerBonus}`}>
-                                    {bonusRow(s).display} {bonusRow(s).label}
+                                    {specialBonusRow(s).display} {specialBonusRow(s).label}
                                 </span>
                             </span>
                         </button>
@@ -256,10 +247,10 @@ const Blacksmith: React.FC = () => {
                             <ul className={styles.rows}>
                                 <li>
                                     <span className={styles.bonus}>
-                                        {bonusRow(previewSpecial).label}
+                                        {specialBonusRow(previewSpecial).label}
                                     </span>
                                     <span className={styles.bonus}>
-                                        {bonusRow(previewSpecial).display}
+                                        {specialBonusRow(previewSpecial).display}
                                     </span>
                                 </li>
                             </ul>
@@ -532,10 +523,10 @@ const Blacksmith: React.FC = () => {
                                 <ul className={styles.rows} data-testid="special-bonus">
                                     <li>
                                         <span className={styles.bonus}>
-                                            {bonusRow(special).label}
+                                            {specialBonusRow(special).label}
                                         </span>
                                         <span className={styles.bonus}>
-                                            {bonusRow(special).display}
+                                            {specialBonusRow(special).display}
                                         </span>
                                     </li>
                                 </ul>
@@ -579,10 +570,9 @@ const Blacksmith: React.FC = () => {
                     </ul>
                     {crafted.special && (
                         <p className={styles.overlayBonus} data-testid="success-bonus">
-                            {`${bonusRow(crafted.special).label} ${bonusRow(crafted.special).display} (${crafted.special.name})`}
+                            {`${specialBonusRow(crafted.special).label} ${specialBonusRow(crafted.special).display} (${crafted.special.name})`}
                         </p>
                     )}
-                    <p>Added to your inventory</p>
                     <div className={styles.overlayActions}>
                         <Button text="Craft another" onClick={clearForge} />
                         <Button text="Done" bg_color="#44bff7" onClick={() => setCrafted(null)} />
