@@ -2,6 +2,7 @@ import React, { useState } from "react";
 import Button from "@components/Button";
 import { DEFAULT_AREA_TUNING } from "@config/area";
 import { spawnRadius } from "@helpers/spawnGeometry";
+import { STARTER_ITEMS } from "@store/gameReducer";
 import {
     readSettings,
     writeSettings,
@@ -9,19 +10,26 @@ import {
 } from "@services/settingsStorage";
 
 // Settings screen (#379). Reads the persisted settings on mount and lets the
-// player tweak them. Every setting applies on next launch: `debug` feeds the
-// Phaser physics config at boot (see PhaserGame.tsx), while `startingCoins` and
-// `startLocation` are read when a new game begins (CharacterCard / SelectScene).
-// The spawn tuning under Debug mode is read each time an area is entered (see
-// `resolveAreaTuning`), and the SFX volume on every sound played (services/sfx). The layout is intentionally minimal (one row per
-// setting) but structured so more rows drop in easily.
+// player tweak them. The spawn tuning is read each time an area is entered (see
+// `resolveAreaTuning`) and the SFX volume on every sound played (services/sfx).
+// The debug settings sit behind God mode, which only reveals them: `debug`
+// feeds the Phaser physics config at boot (see PhaserGame.tsx), while
+// `starterItems` and `startLocation` are read when a new game begins
+// (CharacterCard / SelectScene). The layout is intentionally minimal (one row
+// per setting) but structured so more rows drop in easily.
 const rowStyle: React.CSSProperties = {
     display: "flex",
     alignItems: "center",
     gap: "1em",
 };
 
-// Indented under Debug mode: these only exist, and only apply, while it is on.
+const sectionStyle: React.CSSProperties = {
+    display: "flex",
+    flexDirection: "column",
+    gap: "1em",
+};
+
+// Indented under God mode: only shown while it is on.
 const subsectionStyle: React.CSSProperties = {
     display: "flex",
     flexDirection: "column",
@@ -164,18 +172,14 @@ const Settings: React.FC = () => {
         setSettings(next);
     };
 
-    const toggleDebug = () => update({ debug: !settings.debug });
+    const toggle = (field: "godMode" | "debug" | "spawnDebugOverlay" | "starterItems") => () =>
+        update({ [field]: !settings[field] });
 
     const toggleStartLocation = () =>
         update({ startLocation: settings.startLocation === "combat" ? "default" : "combat" });
 
-    const onStartingCoinsChange = (event: React.ChangeEvent<HTMLInputElement>) =>
-        update({ startingCoins: toNonNegativeInt(event.target.value) });
-
     const onSfxVolumeChange = (event: React.ChangeEvent<HTMLInputElement>) =>
         update({ sfxVolume: Math.min(100, toNonNegativeInt(event.target.value)) });
-
-    const toggleSpawnOverlay = () => update({ spawnDebugOverlay: !settings.spawnDebugOverlay });
 
     return (
         <div style={{ display: "flex", flexDirection: "column", gap: "1em" }}>
@@ -194,59 +198,70 @@ const Settings: React.FC = () => {
                     {settings.sfxVolume === 0 ? "Muted" : `${settings.sfxVolume}%`}
                 </span>
             </div>
+            <div role="group" aria-label="Enemy spawning" style={sectionStyle}>
+                <span style={hintStyle}>Spawn tuning applies the next time you enter an area.</span>
+                {SPAWN_FIELDS.map(({ field, label, hint, defaultValue }) => (
+                    <SpawnOverrideRow
+                        key={field}
+                        field={field}
+                        label={label}
+                        hint={hint}
+                        value={settings[field]}
+                        defaultValue={defaultValue()}
+                        onChange={(value) => update({ [field]: value })}
+                    />
+                ))}
+            </div>
             <div style={rowStyle}>
-                <span>Debug mode</span>
+                <span>God mode</span>
                 <Button
-                    text={settings.debug ? "On" : "Off"}
-                    on={settings.debug}
-                    onClick={toggleDebug}
+                    text={settings.godMode ? "On" : "Off"}
+                    on={settings.godMode}
+                    onClick={toggle("godMode")}
                 />
             </div>
-            {settings.debug && (
-                <div role="group" aria-label="Spawn debugging" style={subsectionStyle}>
-                    <span style={hintStyle}>
-                        Spawn tuning applies the next time you enter an area.
-                    </span>
+            {settings.godMode && (
+                <div role="group" aria-label="Debug settings" style={subsectionStyle}>
                     <div style={rowStyle}>
-                        <span>Spawn debug overlay</span>
+                        <span>Debug mode</span>
                         <Button
-                            text={settings.spawnDebugOverlay ? "On" : "Off"}
-                            on={settings.spawnDebugOverlay}
-                            onClick={toggleSpawnOverlay}
+                            text={settings.debug ? "On" : "Off"}
+                            on={settings.debug}
+                            onClick={toggle("debug")}
                         />
                     </div>
-                    {SPAWN_FIELDS.map(({ field, label, hint, defaultValue }) => (
-                        <SpawnOverrideRow
-                            key={field}
-                            field={field}
-                            label={label}
-                            hint={hint}
-                            value={settings[field]}
-                            defaultValue={defaultValue()}
-                            onChange={(value) => update({ [field]: value })}
+                    {settings.debug && (
+                        <div style={{ ...rowStyle, marginLeft: "2em" }}>
+                            <span>Spawn debug overlay</span>
+                            <Button
+                                text={settings.spawnDebugOverlay ? "On" : "Off"}
+                                on={settings.spawnDebugOverlay}
+                                onClick={toggle("spawnDebugOverlay")}
+                            />
+                        </div>
+                    )}
+                    <div style={rowStyle}>
+                        <span>Starter items</span>
+                        <Button
+                            text={settings.starterItems ? "On" : "Off"}
+                            on={settings.starterItems}
+                            onClick={toggle("starterItems")}
                         />
-                    ))}
+                        <span style={hintStyle}>
+                            {STARTER_ITEMS.coins} coins, {STARTER_ITEMS.componentsEach} of each
+                            part, {STARTER_ITEMS.specialsEach} of each special
+                        </span>
+                    </div>
+                    <div style={rowStyle}>
+                        <span>Start location</span>
+                        <Button
+                            text={settings.startLocation === "combat" ? "Combat" : "Default"}
+                            on={settings.startLocation === "combat"}
+                            onClick={toggleStartLocation}
+                        />
+                    </div>
                 </div>
             )}
-            <div style={rowStyle}>
-                <label htmlFor="starting-coins">Starting coins</label>
-                <input
-                    id="starting-coins"
-                    type="number"
-                    min={0}
-                    style={numberInputStyle}
-                    value={settings.startingCoins}
-                    onChange={onStartingCoinsChange}
-                />
-            </div>
-            <div style={rowStyle}>
-                <span>Start location</span>
-                <Button
-                    text={settings.startLocation === "combat" ? "Combat" : "Default"}
-                    on={settings.startLocation === "combat"}
-                    onClick={toggleStartLocation}
-                />
-            </div>
         </div>
     );
 };

@@ -171,19 +171,7 @@ describe("BiomeScene.startArea", () => {
         });
     });
 
-    it("applies the Debug spawn overrides on area entry", () => {
-        writeSettings({ ...DEFAULT_SETTINGS, debug: true, killsToBossOverride: 3 });
-        const { scene } = makeScene();
-
-        scene.startArea();
-
-        expect(store.dispatch).toHaveBeenCalledWith({
-            type: "SET_ENEMIES_REMAINING",
-            payload: { value: 3 },
-        });
-    });
-
-    it("ignores the spawn overrides when Debug mode is off", () => {
+    it("applies the spawn overrides on area entry, Debug mode off", () => {
         writeSettings({ ...DEFAULT_SETTINGS, debug: false, killsToBossOverride: 3 });
         const { scene } = makeScene();
 
@@ -191,7 +179,7 @@ describe("BiomeScene.startArea", () => {
 
         expect(store.dispatch).toHaveBeenCalledWith({
             type: "SET_ENEMIES_REMAINING",
-            payload: { value: AREA_KILLS_TO_BOSS },
+            payload: { value: 3 },
         });
     });
 

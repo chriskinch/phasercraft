@@ -7,8 +7,8 @@ import { DEFAULT_AREA_TUNING } from "@config/area";
 
 // Template tests for the Settings screen (#379). Verify it reflects the
 // persisted settings on mount and that changing a control persists the new
-// value: the debug toggle, the starting-coins input, and the start-location
-// toggle.
+// value: God mode revealing the debug settings, the debug toggles, starter
+// items, start location, and the always-visible spawn tuning.
 
 beforeEach(() => {
     localStorage.clear();
@@ -18,109 +18,114 @@ afterEach(() => {
     localStorage.clear();
 });
 
+// The toggle button in the row labelled `label`.
+const toggleFor = (label: string) => {
+    const row = screen.getByText(label).parentElement as HTMLElement;
+    return within(row).getByRole("button");
+};
+const debugGroup = () => screen.queryByRole("group", { name: "Debug settings" });
+
 describe("Settings template", () => {
-    it("reflects the default (debug off) when nothing is persisted", () => {
-        renderWithProviders(<Settings />);
-
-        expect(screen.getByRole("button", { name: "Off" })).toBeInTheDocument();
-    });
-
-    it("reflects a persisted debug-on setting on mount", () => {
-        writeSettings({ ...DEFAULT_SETTINGS, debug: true });
-
-        renderWithProviders(<Settings />);
-
-        expect(screen.getByRole("button", { name: "On" })).toBeInTheDocument();
-    });
-
-    it("persists the new value and updates the control when toggled on", () => {
-        renderWithProviders(<Settings />);
-
-        fireEvent.click(screen.getByRole("button", { name: "Off" }));
-
-        // The write happened...
-        expect(readSettings().debug).toBe(true);
-        // ...and the control reflects it.
-        expect(screen.getByRole("button", { name: "On" })).toBeInTheDocument();
-    });
-
-    it("toggles back off and persists that too", () => {
-        writeSettings({ ...DEFAULT_SETTINGS, debug: true });
-
-        renderWithProviders(<Settings />);
-
-        fireEvent.click(screen.getByRole("button", { name: "On" }));
-
-        expect(readSettings().debug).toBe(false);
-        expect(screen.getByRole("button", { name: "Off" })).toBeInTheDocument();
-    });
-
-    it("reflects the persisted starting-coins value on mount", () => {
-        writeSettings({ ...DEFAULT_SETTINGS, startingCoins: 250 });
-
-        renderWithProviders(<Settings />);
-
-        expect(screen.getByLabelText("Starting coins")).toHaveValue(250);
-    });
-
-    it("persists an edited starting-coins value", () => {
-        renderWithProviders(<Settings />);
-
-        fireEvent.change(screen.getByLabelText("Starting coins"), { target: { value: "42" } });
-
-        expect(readSettings().startingCoins).toBe(42);
-        expect(screen.getByLabelText("Starting coins")).toHaveValue(42);
-    });
-
-    it("coerces an empty or invalid starting-coins entry to zero", () => {
-        renderWithProviders(<Settings />);
-
-        fireEvent.change(screen.getByLabelText("Starting coins"), { target: { value: "" } });
-
-        expect(readSettings().startingCoins).toBe(0);
-    });
-
-    it("defaults the start-location control to Default and toggles to Combat", () => {
-        renderWithProviders(<Settings />);
-
-        expect(screen.getByRole("button", { name: "Default" })).toBeInTheDocument();
-
-        fireEvent.click(screen.getByRole("button", { name: "Default" }));
-
-        expect(readSettings().startLocation).toBe("combat");
-        expect(screen.getByRole("button", { name: "Combat" })).toBeInTheDocument();
-    });
-
-    it("reflects a persisted combat start location and toggles back to default", () => {
-        writeSettings({ ...DEFAULT_SETTINGS, startLocation: "combat" });
-
-        renderWithProviders(<Settings />);
-
-        fireEvent.click(screen.getByRole("button", { name: "Combat" }));
-
-        expect(readSettings().startLocation).toBe("default");
-        expect(screen.getByRole("button", { name: "Default" })).toBeInTheDocument();
-    });
-
-    describe("spawn debugging (under Debug mode)", () => {
-        const spawnGroup = () => screen.getByRole("group", { name: "Spawn debugging" });
-
-        it("is hidden while Debug mode is off", () => {
+    describe("God mode", () => {
+        it("hides the debug settings by default", () => {
             renderWithProviders(<Settings />);
 
-            expect(screen.queryByRole("group", { name: "Spawn debugging" })).toBeNull();
-            expect(screen.queryByLabelText("Live cap")).toBeNull();
+            expect(toggleFor("God mode")).toHaveTextContent("Off");
+            expect(debugGroup()).toBeNull();
+            expect(screen.queryByText("Debug mode")).toBeNull();
+            expect(screen.queryByText("Starter items")).toBeNull();
+            expect(screen.queryByText("Start location")).toBeNull();
         });
 
-        it("appears when Debug mode is switched on, and hides again when it is off", () => {
+        it("reveals the debug settings when toggled on, persists it, and hides them again", () => {
             renderWithProviders(<Settings />);
 
-            fireEvent.click(screen.getByRole("button", { name: "Off" }));
-            expect(spawnGroup()).toBeInTheDocument();
+            fireEvent.click(toggleFor("God mode"));
+            expect(readSettings().godMode).toBe(true);
+            expect(debugGroup()).toBeInTheDocument();
 
-            // The Debug mode toggle is the first "On" button; the overlay's is inside the group.
-            fireEvent.click(screen.getAllByRole("button", { name: "On" })[0]);
-            expect(screen.queryByRole("group", { name: "Spawn debugging" })).toBeNull();
+            fireEvent.click(toggleFor("God mode"));
+            expect(readSettings().godMode).toBe(false);
+            expect(debugGroup()).toBeNull();
+        });
+
+        it("keeps hidden settings' values when switched off", () => {
+            writeSettings({ ...DEFAULT_SETTINGS, godMode: true, debug: true, starterItems: true });
+            renderWithProviders(<Settings />);
+
+            fireEvent.click(toggleFor("God mode"));
+
+            expect(readSettings()).toMatchObject({ debug: true, starterItems: true });
+        });
+    });
+
+    describe("debug settings (under God mode)", () => {
+        beforeEach(() => {
+            writeSettings({ ...DEFAULT_SETTINGS, godMode: true });
+        });
+
+        it("toggles and persists Debug mode", () => {
+            renderWithProviders(<Settings />);
+            expect(toggleFor("Debug mode")).toHaveTextContent("Off");
+
+            fireEvent.click(toggleFor("Debug mode"));
+            expect(readSettings().debug).toBe(true);
+            expect(toggleFor("Debug mode")).toHaveTextContent("On");
+
+            fireEvent.click(toggleFor("Debug mode"));
+            expect(readSettings().debug).toBe(false);
+        });
+
+        it("shows the spawn debug overlay only while Debug mode is on, and persists it", () => {
+            renderWithProviders(<Settings />);
+            expect(screen.queryByText("Spawn debug overlay")).toBeNull();
+
+            fireEvent.click(toggleFor("Debug mode"));
+            fireEvent.click(toggleFor("Spawn debug overlay"));
+
+            expect(readSettings().spawnDebugOverlay).toBe(true);
+            expect(toggleFor("Spawn debug overlay")).toHaveTextContent("On");
+        });
+
+        it("toggles and persists Starter items", () => {
+            renderWithProviders(<Settings />);
+            expect(toggleFor("Starter items")).toHaveTextContent("Off");
+
+            fireEvent.click(toggleFor("Starter items"));
+
+            expect(readSettings().starterItems).toBe(true);
+            expect(toggleFor("Starter items")).toHaveTextContent("On");
+        });
+
+        it("defaults the start-location control to Default and toggles to Combat", () => {
+            renderWithProviders(<Settings />);
+
+            expect(screen.getByRole("button", { name: "Default" })).toBeInTheDocument();
+
+            fireEvent.click(screen.getByRole("button", { name: "Default" }));
+
+            expect(readSettings().startLocation).toBe("combat");
+            expect(screen.getByRole("button", { name: "Combat" })).toBeInTheDocument();
+        });
+
+        it("reflects a persisted combat start location and toggles back to default", () => {
+            writeSettings({ ...DEFAULT_SETTINGS, godMode: true, startLocation: "combat" });
+
+            renderWithProviders(<Settings />);
+
+            fireEvent.click(screen.getByRole("button", { name: "Combat" }));
+
+            expect(readSettings().startLocation).toBe("default");
+            expect(screen.getByRole("button", { name: "Default" })).toBeInTheDocument();
+        });
+    });
+
+    describe("spawn tuning (independent of God mode and Debug mode)", () => {
+        it("is visible with God mode and Debug mode off", () => {
+            renderWithProviders(<Settings />);
+
+            expect(screen.getByRole("group", { name: "Enemy spawning" })).toBeInTheDocument();
+            expect(screen.getByLabelText("Live cap")).toBeInTheDocument();
         });
 
         // jsdom's default window is 1024x768: half its 1280px diagonal plus the
@@ -128,7 +133,7 @@ describe("Settings template", () => {
         const AUTO_RADIUS = 704;
 
         it("shows each override's codified default, not 0", () => {
-            writeSettings({ ...DEFAULT_SETTINGS, debug: true });
+            writeSettings({ ...DEFAULT_SETTINGS });
 
             renderWithProviders(<Settings />);
 
@@ -143,19 +148,19 @@ describe("Settings template", () => {
         });
 
         it("gives every number input the same short width", () => {
-            writeSettings({ ...DEFAULT_SETTINGS, debug: true });
+            writeSettings({ ...DEFAULT_SETTINGS });
 
             renderWithProviders(<Settings />);
 
             const widths = screen
                 .getAllByRole("spinbutton")
                 .map((input) => (input as HTMLInputElement).style.width);
-            expect(widths).toHaveLength(5);
+            expect(widths).toHaveLength(4);
             expect(new Set(widths)).toEqual(new Set(["6em"]));
         });
 
         it("shows a stored override instead of the default", () => {
-            writeSettings({ ...DEFAULT_SETTINGS, debug: true, liveCapOverride: 2 });
+            writeSettings({ ...DEFAULT_SETTINGS, liveCapOverride: 2 });
 
             renderWithProviders(<Settings />);
 
@@ -163,7 +168,7 @@ describe("Settings template", () => {
         });
 
         it("persists each numeric override", () => {
-            writeSettings({ ...DEFAULT_SETTINGS, debug: true });
+            writeSettings({ ...DEFAULT_SETTINGS });
             renderWithProviders(<Settings />);
 
             fireEvent.change(screen.getByLabelText("Spawn radius (px)"), {
@@ -185,7 +190,7 @@ describe("Settings template", () => {
         });
 
         it("stores entering the default value itself as following the default", () => {
-            writeSettings({ ...DEFAULT_SETTINGS, debug: true, liveCapOverride: 2 });
+            writeSettings({ ...DEFAULT_SETTINGS, liveCapOverride: 2 });
             renderWithProviders(<Settings />);
 
             fireEvent.change(screen.getByLabelText("Live cap"), {
@@ -196,7 +201,7 @@ describe("Settings template", () => {
         });
 
         it("lets a field be cleared while typing, and shows the default again on blur", () => {
-            writeSettings({ ...DEFAULT_SETTINGS, debug: true, liveCapOverride: 4 });
+            writeSettings({ ...DEFAULT_SETTINGS, liveCapOverride: 4 });
             renderWithProviders(<Settings />);
             const input = screen.getByLabelText("Live cap");
 
@@ -210,7 +215,7 @@ describe("Settings template", () => {
         });
 
         it("stores a negative entry as following the default", () => {
-            writeSettings({ ...DEFAULT_SETTINGS, debug: true });
+            writeSettings({ ...DEFAULT_SETTINGS });
             renderWithProviders(<Settings />);
 
             fireEvent.change(screen.getByLabelText("Kills to boss"), { target: { value: "-5" } });
@@ -226,7 +231,7 @@ describe("Settings template", () => {
                 );
 
             it("is disabled while the field already follows its default", () => {
-                writeSettings({ ...DEFAULT_SETTINGS, debug: true });
+                writeSettings({ ...DEFAULT_SETTINGS });
                 renderWithProviders(<Settings />);
 
                 for (const label of [
@@ -240,7 +245,7 @@ describe("Settings template", () => {
             });
 
             it("returns an overridden field to its codified default", () => {
-                writeSettings({ ...DEFAULT_SETTINGS, debug: true, killsToBossOverride: 3 });
+                writeSettings({ ...DEFAULT_SETTINGS, killsToBossOverride: 3 });
                 renderWithProviders(<Settings />);
 
                 fireEvent.click(resetFor("Kills to boss"));
@@ -253,7 +258,7 @@ describe("Settings template", () => {
             });
 
             it("returns the radius to automatic, showing the value auto works out to", () => {
-                writeSettings({ ...DEFAULT_SETTINGS, debug: true, spawnRadiusOverride: 200 });
+                writeSettings({ ...DEFAULT_SETTINGS, spawnRadiusOverride: 200 });
                 renderWithProviders(<Settings />);
 
                 fireEvent.click(resetFor("Spawn radius (px)"));
@@ -265,7 +270,6 @@ describe("Settings template", () => {
             it("only resets its own field", () => {
                 writeSettings({
                     ...DEFAULT_SETTINGS,
-                    debug: true,
                     liveCapOverride: 2,
                     killsToBossOverride: 3,
                 });
@@ -276,26 +280,6 @@ describe("Settings template", () => {
                 expect(readSettings().liveCapOverride).toBe(0);
                 expect(readSettings().killsToBossOverride).toBe(3);
             });
-        });
-
-        it("toggles and persists the spawn debug overlay", () => {
-            writeSettings({ ...DEFAULT_SETTINGS, debug: true });
-            renderWithProviders(<Settings />);
-
-            fireEvent.click(within(spawnGroup()).getByRole("button", { name: "Off" }));
-
-            expect(readSettings().spawnDebugOverlay).toBe(true);
-            expect(within(spawnGroup()).getByRole("button", { name: "On" })).toBeInTheDocument();
-        });
-
-        it("keeps the overrides when Debug mode is switched off, so they return with it", () => {
-            writeSettings({ ...DEFAULT_SETTINGS, debug: true, liveCapOverride: 2 });
-            renderWithProviders(<Settings />);
-
-            fireEvent.click(screen.getAllByRole("button", { name: "On" })[0]);
-
-            expect(readSettings().debug).toBe(false);
-            expect(readSettings().liveCapOverride).toBe(2);
         });
     });
 

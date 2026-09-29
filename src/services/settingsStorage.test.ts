@@ -23,9 +23,10 @@ describe("readSettings", () => {
 
     it("round-trips a written value", () => {
         const settings: Settings = {
+            godMode: true,
             debug: true,
             installBannerDismissed: true,
-            startingCoins: 250,
+            starterItems: true,
             startLocation: "combat",
             spawnDebugOverlay: true,
             spawnRadiusOverride: 200,
@@ -50,9 +51,9 @@ describe("readSettings", () => {
     it("merges a partial stored object over the defaults", () => {
         // Store a payload missing most fields; the defaults should fill them in
         // while the one provided field is preserved.
-        localStorage.setItem(SETTINGS_KEY, JSON.stringify({ startingCoins: 500 }));
+        localStorage.setItem(SETTINGS_KEY, JSON.stringify({ starterItems: true }));
 
-        expect(readSettings()).toEqual({ ...DEFAULT_SETTINGS, startingCoins: 500 });
+        expect(readSettings()).toEqual({ ...DEFAULT_SETTINGS, starterItems: true });
         expect(readSettings().debug).toBe(false);
         expect(readSettings().installBannerDismissed).toBe(false);
         expect(readSettings().startLocation).toBe("default");
@@ -66,6 +67,8 @@ describe("readSettings", () => {
         );
 
         const settings = readSettings();
+        expect(settings.godMode).toBe(false);
+        expect(settings.starterItems).toBe(false);
         expect(settings.spawnDebugOverlay).toBe(false);
         expect(settings.spawnRadiusOverride).toBe(0);
         expect(settings.liveCapOverride).toBe(0);
@@ -86,7 +89,7 @@ describe("writeSettings", () => {
         const settings: Settings = {
             ...DEFAULT_SETTINGS,
             debug: true,
-            startingCoins: 999,
+            starterItems: true,
         };
 
         expect(writeSettings(settings)).toBe(true);
@@ -99,9 +102,9 @@ describe("writeSettings", () => {
             throw new DOMException("quota exceeded", "QuotaExceededError");
         });
 
-        expect(
-            writeSettings({ ...DEFAULT_SETTINGS, debug: true, startingCoins: 999 })
-        ).toBe(false);
+        expect(writeSettings({ ...DEFAULT_SETTINGS, debug: true, starterItems: true })).toBe(
+            false
+        );
         expect(console.warn).toHaveBeenCalled();
     });
 });

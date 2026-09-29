@@ -1,62 +1,62 @@
 # Graph Report - phasercraft  (2026-09-29)
 
 ## Corpus Check
-- 289 files · ~444,047 words
+- 290 files · ~444,284 words
 - Verdict: corpus is large enough that graph structure adds value.
 - Unclassified: 68 file(s) not represented in the graph (top: .css 43, (none) 8, .psd 5)
 
 ## Summary
-- 2065 nodes · 4816 edges · 120 communities (93 shown, 27 thin omitted)
+- 2071 nodes · 4840 edges · 113 communities (89 shown, 24 thin omitted)
 - Extraction: 98% EXTRACTED · 2% INFERRED · 0% AMBIGUOUS · INFERRED: 113 edges (avg confidence: 0.92)
 - Token cost: 0 input · 0 output
 
 ## Graph Freshness
-- Built from commit: `816df18e`
+- Built from commit: `63d1a053`
 - Run `git rev-parse HEAD` and compare to check if the graph is stale.
 - Run `graphify update .` after code changes (no API cost).
 
 ## Community Hubs (Navigation)
-- AssignSpell.ts
+- Spell
 - UI
-- gameReducer.ts
+- Merchant.tsx
 - Item
 - LoadScene
 - generateItem.ts
 - compilerOptions
 - store/index.ts
-- PhaserGame.tsx
-- Frostbolt.ts
+- fonts.ts
+- Invocation.ts
 - devDependencies
 - CastingController.test.ts
 - game.ts
 - EnemyOptions
-- Save.tsx
+- HUD.ts
 - StoredItem
 - items/index.ts
 - SpellButton
-- Spell
+- PhaserGame.tsx
 - CastingController
 - Agentic Readiness Roadmap
 - Phasercraft
 - package.json
-- MerchantModeToggle.tsx
+- Stats.tsx
 - Enemy.test.ts
-- CastingController.ts
+- Tilemaps
 - area.ts
 - Blacksmith crafting UI — design spec
 - handlers.test.ts
 - scripts
 - What You Must Do When Invoked
-- Equipment.tsx
+- Character.tsx
 - dependencies
 - Enemy
 - BiomeScene
 - classes.ts
 - generateItem.test.ts
-- SnareTrap.ts
+- SnareTrap
 - AssignClass.ts
 - Blacksmith.tsx
-- Whirlwind.ts
+- Projectile
 - TargetReticle
 - .prettierrc.json
 - e2e/helpers.ts
@@ -73,13 +73,13 @@
 - react
 - vercel.json
 - Vercel deployment (Phase 6)
-- Projectile.test.ts
+- main.tsx
 - SiphonSoul
-- SpawnDebugOverlay.ts
+- SpawnDirector
 - qa-review.md
 - log.js
 - vite-env.d.ts
-- SpawnHost
+- walkability.ts
 - armoryClient.ts
 - operations/helpers.ts
 - Armory API (`/api/armory`)
@@ -89,10 +89,10 @@
 - generate-pwa-icons.mjs
 - UI.tsx
 - graphify reference: query, path, explain
-- SpawnDirector
+- CustomDragLayer.tsx
 - CastBar
-- settingsStorage.ts
-- BiomeScene.ts
+- Settings.tsx
+- TownScene.ts
 - Consecration
 - graphify reference: add a URL and watch a folder
 - graphify reference: commit hook and native CLAUDE.md integration
@@ -102,40 +102,33 @@
 - extraction-spec.md
 - ItemTooltip.tsx
 - repository
-- react-redux
+- LootItem
 - generate-biome-maps.mjs
 - safeArea.ts
 - BiomeScene.test.ts
 - lint-staged
 - Bug-Fix Agent — Instructions
-- Button
-- Boons.ts
-- SpellButton.test.ts
+- animations.ts
+- Faith
+- BootScene
 - Player
 - Stat.tsx
 - EarthShield
 - Player.test.ts
 - build
-- shoreCollision.ts
-- .constructor
-- Invocation
-- Price.tsx
-- SpawnDirector.ts
+- BiomeScene.ts
+- Hero
+- SelectScene
 - vitest
-- SpawnDirector.test.ts
-- Special
+- gameReducer.ts
 - TargetReticle.test.ts
-- Gem
-- CharacterCard.tsx
+- Button.tsx
 - CastBar.test.ts
-- spawnStyle.ts
-- Frostbolt
-- .setExperience
-- phaser
+- sfx.ts
 
 ## God Nodes (most connected - your core abstractions)
 1. `Enemy` - 84 edges
-2. `vitest` - 68 edges
+2. `vitest` - 69 edges
 3. `Player` - 68 edges
 4. `react` - 59 edges
 5. `Spell` - 58 edges
@@ -148,38 +141,38 @@
 ## Surprising Connections (you probably didn't know these)
 - `PR2 — New `/api/armory/*` on Vercel KV (gate: standalone verified)` --references--> `generateItem()`  [INFERRED]
   docs/ROADMAP.md → api/armory/_lib/generateItem.ts
+- `Workflow rules` --references--> `build()`  [INFERRED]
+  CLAUDE.md → scripts/generate-biome-maps.mjs
 - `Step 4b — Schematic drops` --references--> `Crafting`  [INFERRED]
   docs/ROADMAP.md → src/entities/Loot/Crafting.ts
-- `Code conventions` --references--> `mapStateToData()`  [INFERRED]
-  CLAUDE.md → src/helpers/mapStateToData.ts
 - `Step 4e — Craft SFX (first audio in the game) (#482)` --references--> `LoadScene`  [INFERRED]
   docs/ROADMAP.md → src/scenes/LoadScene.ts
-- `Phase 3 — TypeScript completion (done)` --references--> `GameSceneLike`  [INFERRED]
-  docs/ROADMAP.md → src/types/scene.ts
+- `Collision` --references--> `BiomeScene`  [INFERRED]
+  assets/tilesets/README.md → src/scenes/biomes/BiomeScene.ts
 
 ## Import Cycles
 - None detected.
 
-## Communities (120 total, 27 thin omitted)
+## Communities (113 total, 24 thin omitted)
 
-### Community 0 - "AssignSpell.ts"
-Cohesion: 0.09
-Nodes (12): MoveOptions, classes, Faith, Fireball, Heal, ManaShield, Smite, SpellValue (+4 more)
+### Community 0 - "Spell"
+Cohesion: 0.06
+Nodes (17): MoveOptions, AssignSpell, classes, Fireball, Frostbolt, FrostboltValue, Heal, ManaShield (+9 more)
 
 ### Community 1 - "UI"
 Cohesion: 0.07
 Nodes (7): UI, FakeZone, makeScene(), sceneStandingOn(), SceneUnderTest, TownScene, addLoot
 
-### Community 2 - "gameReducer.ts"
-Cohesion: 0.09
-Nodes (42): buyComponent, buyGear, consumeComponent(), craftedItem(), craftedStats(), freshMerchant(), gameReducer, initState (+34 more)
+### Community 2 - "Merchant.tsx"
+Cohesion: 0.12
+Nodes (28): buyComponent, buyGear, MerchantMode, MerchantState, refreshMerchant, sellComponent, sellLoot, COMPONENT_DEFS (+20 more)
 
 ### Community 3 - "Item"
 Cohesion: 0.09
 Nodes (16): Common, Epic, Fine, AdjustedStat, Item, ItemConfig, StatInfo, StatIterator (+8 more)
 
 ### Community 4 - "LoadScene"
-Cohesion: 0.29
+Cohesion: 0.33
 Nodes (3): Sound (first audio in the game), createLogo(), LoadScene
 
 ### Community 5 - "generateItem.ts"
@@ -191,16 +184,16 @@ Cohesion: 0.06
 Nodes (30): compilerOptions, allowJs, esModuleInterop, incremental, isolatedModules, jsx, lib, module (+22 more)
 
 ### Community 7 - "store/index.ts"
-Cohesion: 0.18
-Nodes (13): buyLoot, GameState, toggleFilter, RootState, ComponentStack, CoinsProps, src_ui_components_atoms_coins_module, Stock() (+5 more)
+Cohesion: 0.13
+Nodes (17): react-redux, @reduxjs/toolkit, GameState, setMerchantMode, RootState, ComponentStack, CoinsProps, src_ui_components_atoms_coins_module (+9 more)
 
-### Community 8 - "PhaserGame.tsx"
-Cohesion: 0.10
-Nodes (13): home_user_phasercraft_src_styles_fonts_boldpixels_woff2_url, ref_styles_fonts_boldpixels_woff2_url, bannerStyle(), FONT_FAMILY, FONT_URL, CombatTextConfig, PhaserGame(), BootScene (+5 more)
+### Community 8 - "fonts.ts"
+Cohesion: 0.27
+Nodes (6): home_user_phasercraft_src_styles_fonts_boldpixels_woff2_url, ref_styles_fonts_boldpixels_woff2_url, FONT_FAMILY, FONT_URL, CombatTextConfig, LogoOptions
 
-### Community 9 - "Frostbolt.ts"
-Cohesion: 0.12
-Nodes (8): Boon, Enrage, EnrageValue, FrostboltValue, InvocationValue, PowerInfusion, PowerInfusionValue, EffectValue
+### Community 9 - "Invocation.ts"
+Cohesion: 0.06
+Nodes (17): Deferred / backlog, Boon, Enrage, EnrageValue, Invocation, InvocationValue, InvocationUnderTest, PowerInfusion (+9 more)
 
 ### Community 10 - "devDependencies"
 Cohesion: 0.07
@@ -212,15 +205,15 @@ Nodes (10): CastableSpell, ControllerUnderTest, EnemyStub, makeController(), mak
 
 ### Community 12 - "game.ts"
 Cohesion: 0.09
-Nodes (24): AdjustValue, CHARACTER_BASE_STATS, CharacterData, COMBAT_TYPES, COMPONENT_BUY_MULTIPLIER, COMPONENT_TYPES, ComponentDef, Equipment (+16 more)
+Nodes (23): AdjustValue, CHARACTER_BASE_STATS, CharacterData, COMBAT_TYPES, COMPONENT_BUY_MULTIPLIER, COMPONENT_TYPES, ComponentDef, Equipment (+15 more)
 
 ### Community 13 - "EnemyOptions"
-Cohesion: 0.18
-Nodes (5): classes, Healer, Melee, Ranged, EnemyOptions
+Cohesion: 0.16
+Nodes (6): AssignType, classes, Healer, Melee, Ranged, EnemyOptions
 
-### Community 14 - "Save.tsx"
-Cohesion: 0.18
-Nodes (16): readAllSaves(), readSave(), removeSave(), SAVE_SLOTS, SaveData, SaveSlot, writeSave(), setSaveSlot (+8 more)
+### Community 14 - "HUD.ts"
+Cohesion: 0.15
+Nodes (19): LabelledContainer, styles, readAllSaves(), readSave(), removeSave(), SAVE_SLOTS, SaveData, SaveSlot (+11 more)
 
 ### Community 15 - "StoredItem"
 Cohesion: 0.14
@@ -231,8 +224,12 @@ Cohesion: 0.30
 Nodes (15): handler(), handler(), ApiRequest, ApiResponse, applyCors(), firstQueryValue(), handlePreflight(), methodNotAllowed() (+7 more)
 
 ### Community 17 - "SpellButton"
-Cohesion: 0.16
-Nodes (3): Decisions update (2026-07-01) — Spell rework, Phase 12 — Spell system rework (casting, targeting, auto attack), SpellButton
+Cohesion: 0.08
+Nodes (6): Decisions update (2026-07-01) — Spell rework, Phase 12 — Spell system rework (casting, targeting, auto attack), HUD_LAYOUT, HudUnderTest, SpellButton, ButtonUnderTest
+
+### Community 18 - "PhaserGame.tsx"
+Cohesion: 0.27
+Nodes (4): bannerStyle(), PhaserGame(), GameOverScene, setSfxManager()
 
 ### Community 20 - "Agentic Readiness Roadmap"
 Cohesion: 0.13
@@ -244,27 +241,27 @@ Nodes (21): Advanced Magic System, Available Commands, Code Quality, Combat Tips
 
 ### Community 22 - "package.json"
 Cohesion: 0.06
-Nodes (36): eslintConfig, description, engines, node, homepage, keywords, name, private (+28 more)
+Nodes (35): eslintConfig, description, engines, node, homepage, keywords, name, private (+27 more)
 
-### Community 23 - "MerchantModeToggle.tsx"
-Cohesion: 0.18
-Nodes (14): setMerchantMode, Title(), TitleProps, MERCHANT_ACTIVE_BLUE, MerchantModeToggle(), src_ui_components_molecules_merchantmodetoggle_module, tabStyle(), Navigation() (+6 more)
+### Community 23 - "Stats.tsx"
+Cohesion: 0.24
+Nodes (8): src_ui_components_molecules_stats_module, StatItem, Stats(), StatsProps, StatsStyles, GroupedStats(), GroupedStatsProps, StatItem
 
 ### Community 24 - "Enemy.test.ts"
 Cohesion: 0.17
 Nodes (6): EnemyUnderTest, LifecycleEnemy, makeBurst(), makeEnemy(), ProjectileMock, CombatType
 
-### Community 25 - "CastingController.ts"
-Cohesion: 0.22
-Nodes (6): ActiveCast, CasterLike, CastingControllerOptions, CastingState, CastTarget, PendingCast
+### Community 25 - "Tilemaps"
+Cohesion: 0.29
+Nodes (5): Collision, Layers, Loading, Regenerating the biome maps, Tilemaps
 
 ### Community 26 - "area.ts"
-Cohesion: 0.17
-Nodes (15): AREA_KILLS_TO_BOSS, AREA_LIVE_CAP, BOSS_SCALING, DESPAWN_DELAY_MS, promoteToBoss(), resolveAreaTuning(), scaleLootTable(), SPAWN_ATTEMPTS_PER_TICK (+7 more)
+Cohesion: 0.14
+Nodes (18): AREA_KILLS_TO_BOSS, AREA_LIVE_CAP, BOSS_SCALING, DESPAWN_DELAY_MS, promoteToBoss(), resolveAreaTuning(), scaleLootTable(), SPAWN_ATTEMPTS_PER_TICK (+10 more)
 
 ### Community 27 - "Blacksmith crafting UI — design spec"
-Cohesion: 0.17
-Nodes (16): Decisions update (2026-07-30) — Town shops, Blacksmith crafting UI — design spec, Colours and type, Craft button, Craft success, Layout — forge (phone), Pickers, Proposed PR breakdown (+8 more)
+Cohesion: 0.19
+Nodes (17): Step 4a — Crafting core (this PR), Blacksmith crafting UI — design spec, Colours and type, Craft button, Craft success, Layout — forge (phone), Pickers, Proposed PR breakdown (+9 more)
 
 ### Community 28 - "handlers.test.ts"
 Cohesion: 0.12
@@ -278,9 +275,9 @@ Nodes (19): scripts, armory:smoke, build, build-nolog, dev, dev-nolog, format, f
 Cohesion: 0.08
 Nodes (24): For /graphify add and --watch, For /graphify query, For the commit hook and native CLAUDE.md integration, For --update and --cluster-only, /graphify, Honesty Rules, Interpreter guard for subcommands, Part A - Structural extraction for code files (+16 more)
 
-### Community 31 - "Equipment.tsx"
-Cohesion: 0.09
-Nodes (26): polished, getResourceColour(), loadGame, PlayerStats, Slot(), DetailedLoot(), DetailedLootProps, src_ui_components_molecules_detailedloot_module (+18 more)
+### Community 31 - "Character.tsx"
+Cohesion: 0.12
+Nodes (18): polished, getResourceColour(), PlayerStats, Slot(), DetailedLoot(), DetailedLootProps, src_ui_components_molecules_detailedloot_module, src_ui_components_molecules_statbar_module (+10 more)
 
 ### Community 32 - "dependencies"
 Cohesion: 0.12
@@ -290,10 +287,6 @@ Nodes (17): dependencies, fantasy-content-generator, ioredis, lodash, number-to-
 Cohesion: 0.09
 Nodes (4): Enemy, Monster, MonsterConfig, AssignResource()
 
-### Community 34 - "BiomeScene"
-Cohesion: 0.06
-Nodes (16): Collision, Layers, Loading, Regenerating the biome maps, Tilemaps, AssignType, HudUnderTest, buildWalkability() (+8 more)
-
 ### Community 35 - "classes.ts"
 Cohesion: 0.21
 Nodes (13): ascended_classes, ascended_schools, AscendedClassType, AscendedSchoolType, class_schools, ClassType, CombatType, getAscendedClass() (+5 more)
@@ -302,7 +295,7 @@ Nodes (13): ascended_classes, ascended_schools, AscendedClassType, AscendedSchoo
 Cohesion: 0.08
 Nodes (26): Categories, Amulet, Armor, Axe, Bow, Gem, Helmet, Misc (+18 more)
 
-### Community 37 - "SnareTrap.ts"
+### Community 37 - "SnareTrap"
 Cohesion: 0.17
 Nodes (3): SnareTrap, TrapUnderTest, Trap
 
@@ -311,12 +304,12 @@ Cohesion: 0.18
 Nodes (9): classes, PlayerConfig, Cleric, Mage, Occultist, Ranger, Warrior, SpellType (+1 more)
 
 ### Community 39 - "Blacksmith.tsx"
-Cohesion: 0.17
-Nodes (16): colorForQuality(), componentTotal(), craftItem, RECIPES, Blacksmith(), EMPTY_SPECIAL_TINT, materialEntries(), src_ui_components_templates_blacksmith_module (+8 more)
+Cohesion: 0.18
+Nodes (15): colorForQuality(), craftItem, RECIPES, Blacksmith(), EMPTY_SPECIAL_TINT, materialEntries(), src_ui_components_templates_blacksmith_module, RARITY_TINT (+7 more)
 
-### Community 40 - "Whirlwind.ts"
-Cohesion: 0.15
-Nodes (7): Multishot, TODO: Abstract this capping functionality out as many spells might use., Whirlwind, clone(), targetVector(), TargetWithBody, VectorResult
+### Community 40 - "Projectile"
+Cohesion: 0.11
+Nodes (9): Multishot, Projectile, ProjectileOptions, ProjectileTarget, ProjectileUnderTest, clone(), targetVector(), TargetWithBody (+1 more)
 
 ### Community 42 - ".prettierrc.json"
 Cohesion: 0.22
@@ -327,8 +320,8 @@ Cohesion: 0.24
 Nodes (9): Character, CHARACTERS, expectGameCanvas(), makeSave(), SAVE_SLOTS, SavedComponentStack, seedSave(), PORT (+1 more)
 
 ### Community 44 - "Player.ts"
-Cohesion: 0.09
-Nodes (18): uuid, CirclingConfig, EnemyStates, EnemyStats, HitParams, HeroConfig, Destination, DrawBarOptions (+10 more)
+Cohesion: 0.08
+Nodes (28): phaser, uuid, CirclingConfig, EnemyStates, HitParams, PlayerType, HeroConfig, Destination (+20 more)
 
 ### Community 45 - "vite.config.ts"
 Cohesion: 0.22
@@ -348,11 +341,11 @@ Nodes (3): CooldownTimerStub, SpellCheckUnderTest, SpellUnderTest
 
 ### Community 49 - "Phase 13 — Town shops system (issue TBD)"
 Cohesion: 0.17
-Nodes (12): Later — presentation, Phase 13 — Town shops system (issue TBD), Step 2 — Armory on its POI (verify migration), Step 3 — Merchant shop, Step 4 — Blacksmith crafting, Step 4b — Schematic drops, Step 4c — Schematic shop, Step 4d — Special items (#481) (+4 more)
+Nodes (12): Decisions update (2026-07-30) — Town shops, Later — presentation, Phase 13 — Town shops system (issue TBD), Step 2 — Armory on its POI (verify migration), Step 4 — Blacksmith crafting, Step 4b — Schematic drops, Step 4c — Schematic shop, Step 4d — Special items (#481) (+4 more)
 
 ### Community 50 - "CLAUDE.md — Working agreement and project conventions"
 Cohesion: 0.29
-Nodes (6): CLAUDE.md — Working agreement and project conventions, Code conventions, Commands, graphify (codebase knowledge graph), Reply style, Versions and docs
+Nodes (6): CLAUDE.md — Working agreement and project conventions, Commands, graphify (codebase knowledge graph), Reply style, Versions and docs, Workflow rules
 
 ### Community 51 - "generate"
 Cohesion: 0.27
@@ -368,7 +361,7 @@ Nodes (20): AssignResourceName, classes, Energy, EnergyOptions, Health, HealthOp
 
 ### Community 54 - "react"
 Cohesion: 0.12
-Nodes (25): react, LootIcon(), LootIconProps, LootIconStyles, src_ui_components_atoms_looticon_module, props, ComponentsGrid(), ComponentsGridProps (+17 more)
+Nodes (29): react, sellComponentStack, LootIconProps, LootIconStyles, src_ui_components_atoms_looticon_module, props, ComponentsGrid(), ComponentsGridProps (+21 more)
 
 ### Community 55 - "vercel.json"
 Cohesion: 0.33
@@ -378,9 +371,13 @@ Nodes (5): buildCommand, framework, headers, outputDirectory, $schema
 Cohesion: 0.40
 Nodes (4): Notes, One-time maintainer steps (Vercel dashboard), Vercel deployment (Phase 6), What's config-as-code (already in the repo)
 
-### Community 59 - "SpawnDebugOverlay.ts"
-Cohesion: 0.21
-Nodes (10): coneEdges(), countdownLabel(), OverlayEnemy, SpawnDebugOverlay, SpawnDebugSource, fakeGraphics(), fakeText(), makeOverlay() (+2 more)
+### Community 57 - "main.tsx"
+Cohesion: 0.33
+Nodes (6): react-dnd-touch-backend, react-dom, App(), container, PhaserGame, src_styles_globals
+
+### Community 59 - "SpawnDirector"
+Cohesion: 0.05
+Nodes (28): AreaTuning, DEFAULT_AREA_TUNING, isBeyondRadius(), Point, sampleSpawnPoint(), spawnDirection(), spawnRadius(), SpawnRadiusOptions (+20 more)
 
 ### Community 60 - "qa-review.md"
 Cohesion: 0.40
@@ -390,13 +387,13 @@ Nodes (4): Comment style rules, Context restriction (CRITICAL — do not skip), 
 Cohesion: 0.33
 Nodes (4): fs, https, ref_fs, ref_https
 
-### Community 63 - "SpawnHost"
-Cohesion: 0.15
-Nodes (3): Point, Rect, SpawnHost
+### Community 63 - "walkability.ts"
+Cohesion: 0.43
+Nodes (4): buildWalkability(), isFootprintSpawnable(), grid(), WalkabilityInput
 
 ### Community 64 - "armoryClient.ts"
-Cohesion: 0.30
-Nodes (12): ApiItem, baseUrl(), isArmoryConfigured(), listItems(), qualityColors, removeItem(), restock(), StoreItem (+4 more)
+Cohesion: 0.33
+Nodes (11): ApiItem, baseUrl(), isArmoryConfigured(), listItems(), qualityColors, removeItem(), restock(), StoreItem (+3 more)
 
 ### Community 65 - "operations/helpers.ts"
 Cohesion: 0.28
@@ -416,19 +413,23 @@ Nodes (6): ref_node_url, sharp, BG, ICON_DIR, root, SOURCE
 
 ### Community 75 - "UI.tsx"
 Cohesion: 0.11
-Nodes (24): Step 1 — Shop skeletons: open & close every shop (this PR), react-dnd, react-dnd-touch-backend, react-dom, App(), container, PhaserGame, switchUi (+16 more)
+Nodes (31): Step 1 — Shop skeletons: open & close every shop (this PR), requestTravel, switchUi, toggleUi, Button(), Title(), TitleProps, Navigation() (+23 more)
 
 ### Community 76 - "graphify reference: query, path, explain"
 Cohesion: 0.33
 Nodes (5): For /graphify explain, For /graphify path, graphify reference: query, path, explain, Step 0 — Constrained query expansion (REQUIRED before traversal), Step 1 — Traversal
 
-### Community 79 - "settingsStorage.ts"
-Cohesion: 0.16
-Nodes (13): DEFAULT_SETTINGS, Settings, SETTINGS_KEY, StartLocation, writeSettings(), InstallBanner(), src_ui_components_molecules_installbanner_module, ShareIcon() (+5 more)
+### Community 77 - "CustomDragLayer.tsx"
+Cohesion: 0.40
+Nodes (5): react-dnd, CustomDragLayer(), getItemStyles(), src_ui_components_protons_customdraglayer_module, Offset
 
-### Community 80 - "BiomeScene.ts"
-Cohesion: 0.11
-Nodes (23): ref_console, lodash, rxjs, Boss, BOSS_SCALE, AssignClass, PlayerType, HUD_LAYOUT (+15 more)
+### Community 79 - "Settings.tsx"
+Cohesion: 0.09
+Nodes (27): DEFAULT_SETTINGS, readSettings(), Settings, SETTINGS_KEY, StartLocation, writeSettings(), sfxGain(), InstallBanner() (+19 more)
+
+### Community 80 - "TownScene.ts"
+Cohesion: 0.20
+Nodes (9): AssignClass, BIOME_IDS, BiomeDefinition, BiomeId, BiomeMap, DEFAULT_BIOME, resolveBiome(), GameSceneConfig (+1 more)
 
 ### Community 82 - "graphify reference: add a URL and watch a folder"
 Cohesion: 0.50
@@ -443,16 +444,16 @@ Cohesion: 0.50
 Nodes (3): For --cluster-only, For --update (incremental re-extraction), graphify reference: incremental update and cluster-only
 
 ### Community 88 - "ItemTooltip.tsx"
-Cohesion: 0.19
-Nodes (19): Step 4a — Crafting core (this PR), Layout — forge (desktop), appliedStatValue(), conversionFor(), CONVERSIONS, DEFAULT_CONVERSION, formatStatValue(), roundStat() (+11 more)
+Cohesion: 0.17
+Nodes (19): Layout — forge (desktop), appliedStatValue(), conversionFor(), CONVERSIONS, DEFAULT_CONVERSION, formatStatValue(), roundStat(), StatConversion (+11 more)
 
 ### Community 89 - "repository"
 Cohesion: 0.67
 Nodes (3): repository, type, url
 
-### Community 90 - "react-redux"
-Cohesion: 0.15
-Nodes (21): react-redux, equipLoot, selectLoot, unequipLoot, LootItem, DroppableSlot(), DroppableSlotProps, src_ui_components_atoms_droppableslot_module (+13 more)
+### Community 90 - "LootItem"
+Cohesion: 0.16
+Nodes (19): equipLoot, selectLoot, unequipLoot, LootItem, DroppableSlot(), DroppableSlotProps, src_ui_components_atoms_droppableslot_module, src_ui_components_atoms_slot_module (+11 more)
 
 ### Community 91 - "generate-biome-maps.mjs"
 Cohesion: 0.10
@@ -464,7 +465,7 @@ Nodes (16): ensureWatching(), getHudInsets(), hudInsets(), listeners, makeProbe(
 
 ### Community 93 - "BiomeScene.test.ts"
 Cohesion: 0.12
-Nodes (13): BIOMES, FakeDirector, FakeTimer, makeExitScene(), makeGridScene(), makeOverlayScene(), makeScene(), makeStartScene() (+5 more)
+Nodes (14): WalkabilityGrid, BIOMES, FakeDirector, FakeTimer, makeExitScene(), makeGridScene(), makeOverlayScene(), makeScene() (+6 more)
 
 ### Community 94 - "lint-staged"
 Cohesion: 0.67
@@ -474,85 +475,61 @@ Nodes (3): lint-staged, *.{json,md,css,yml,yaml}, *.{ts,tsx,js,jsx,mjs}
 Cohesion: 0.25
 Nodes (7): Bug-Fix Agent — Instructions, Hard stops — always ask the maintainer instead of proceeding, Step 1 — Understand the issue, Step 2 — Confidence assessment, Step 3 — Implement the fix, Step 4 — Verify locally, Step 5 — Open a PR
 
-### Community 96 - "Button"
-Cohesion: 0.13
-Nodes (21): BIOME_IDS, requestTravel, toggleUi, Button(), ButtonProps, src_ui_components_atoms_button_module, BiomeSelect(), src_ui_components_templates_biomeselect_module (+13 more)
-
-### Community 97 - "Boons.ts"
-Cohesion: 0.18
-Nodes (8): Deferred / backlog, Banes, IndexableStats, Boons, StatusEffect, StatusEffects, setStats, updateStats
+### Community 96 - "animations.ts"
+Cohesion: 0.33
+Nodes (4): AnimationConfig, createAnimations(), EnemyConfig, EnemyType
 
 ### Community 100 - "Stat.tsx"
-Cohesion: 0.11
-Nodes (20): Attribute(), AttributeProps, src_ui_components_atoms_attribute_module, src_ui_components_atoms_stat_module, Stat(), StatProps, Attributes(), AttributesProps (+12 more)
+Cohesion: 0.14
+Nodes (16): Attribute(), AttributeProps, src_ui_components_atoms_attribute_module, src_ui_components_atoms_stat_module, Stat(), StatProps, Attributes(), AttributesProps (+8 more)
 
 ### Community 102 - "Player.test.ts"
 Cohesion: 0.12
 Nodes (3): PlayerUnderTest, RangedPlayerUnderTest, SCENE_EVENTS
 
 ### Community 103 - "build"
-Cohesion: 0.22
-Nodes (9): Workflow rules, Phase 1 — CI quality gates, Phase 5 — Vite migration (issue TBD), Phase 8 — Frontend → REST, then teardown (issue TBD), PR3 — Swap the frontend to the REST API (gate: merchant UI identical), PR4 — Teardown (gate: only after PR2 + PR3 verified), build(), offset() (+1 more)
+Cohesion: 0.25
+Nodes (8): Phase 1 — CI quality gates, Phase 5 — Vite migration (issue TBD), Phase 8 — Frontend → REST, then teardown (issue TBD), PR3 — Swap the frontend to the REST API (gate: merchant UI identical), PR4 — Teardown (gate: only after PR2 + PR3 verified), build(), offset(), tileLayer()
 
-### Community 104 - "shoreCollision.ts"
-Cohesion: 0.27
-Nodes (12): bit(), isShoreBlocked(), NE, NW, SE, SHORE_ART_SIZE, SHORE_CELL, SHORE_EDGE (+4 more)
-
-### Community 105 - ".constructor"
-Cohesion: 0.17
-Nodes (3): Hero, AssignSpell, setBaseStats
-
-### Community 107 - "Price.tsx"
-Cohesion: 0.50
-Nodes (3): src_ui_components_atoms_price_module, PriceProps, MenuContext
-
-### Community 108 - "SpawnDirector.ts"
-Cohesion: 0.29
-Nodes (8): isBeyondRadius(), sampleSpawnPoint(), spawnDirection(), spawnRadius(), SpawnRadiusOptions, view, SpawnedEnemy, Tracked
+### Community 104 - "BiomeScene.ts"
+Cohesion: 0.14
+Nodes (20): Code conventions, ref_console, rxjs, Boss, BOSS_SCALE, MapStateOptions, mapStateToData(), state$ (+12 more)
 
 ### Community 109 - "vitest"
-Cohesion: 0.35
-Nodes (5): @testing-library/react, vitest, stacks, sampleItems, renderWithProviders()
+Cohesion: 0.16
+Nodes (10): @testing-library/react, vitest, helm, stacks, sampleItems, initialGame, seed(), seedParts() (+2 more)
 
-### Community 110 - "SpawnDirector.test.ts"
-Cohesion: 0.22
-Nodes (6): AreaTuning, DEFAULT_AREA_TUNING, FakeEnemy, killAll(), makeDirector(), seeded()
+### Community 111 - "gameReducer.ts"
+Cohesion: 0.11
+Nodes (28): Step 3 — Merchant shop, addComponent, addSpecial, addXP, buyLoot, clearTravelRequest, consumeComponent(), craftedItem() (+20 more)
 
-### Community 111 - "Special"
-Cohesion: 0.22
-Nodes (3): Special, SpecialUnderTest, addSpecial
+### Community 114 - "Button.tsx"
+Cohesion: 0.25
+Nodes (9): PlayerName, grantStarterItems, selectCharacter, setCoins, ButtonProps, src_ui_components_atoms_button_module, CharacterCard(), CharacterCardProps (+1 more)
 
-### Community 114 - "CharacterCard.tsx"
-Cohesion: 0.29
-Nodes (8): PlayerName, selectCharacter, setCoins, CharacterCard(), CharacterCardProps, src_ui_components_molecules_charactercard_module, CharacterSelect(), src_ui_components_templates_characterselect_module
-
-### Community 116 - "spawnStyle.ts"
-Cohesion: 0.40
-Nodes (3): dropIn(), DropInItem, DropInOptions
-
-### Community 149 - "phaser"
-Cohesion: 0.07
-Nodes (28): phaser, AnimationConfig, createAnimations(), EnemyConfig, EnemyType, Coin, COIN_BASE_VALUE, CoinConfig (+20 more)
+### Community 149 - "sfx.ts"
+Cohesion: 0.06
+Nodes (21): lodash, Coin, COIN_BASE_VALUE, CoinConfig, Crafting, CraftingConfig, Gem, GEM_BASE_VALUE (+13 more)
 
 ## Knowledge Gaps
-- **493 isolated node(s):** `semi`, `singleQuote`, `trailingComma`, `tabWidth`, `useTabs` (+488 more)
-  These have ≤1 connection - possible missing edges or undocumented components. (Counts symbols only; 789 node(s) total have ≤1 connection when file, concept and rationale nodes are included.)
-- **27 thin communities (<3 nodes) omitted from report** — run `graphify query` to explore isolated nodes.
+- **494 isolated node(s):** `semi`, `singleQuote`, `trailingComma`, `tabWidth`, `useTabs` (+489 more)
+  These have ≤1 connection - possible missing edges or undocumented components. (Counts symbols only; 792 node(s) total have ≤1 connection when file, concept and rationale nodes are included.)
+- **24 thin communities (<3 nodes) omitted from report** — run `graphify query` to explore isolated nodes.
 
 ## Suggested Questions
 _Questions this graph is uniquely positioned to answer:_
 
-- **Why does `vitest` connect `vitest` to `UI`, `gameReducer.ts`, `Item`, `generateItem.ts`, `PhaserGame.tsx`, `CastingController.test.ts`, `game.ts`, `Save.tsx`, `phaser`, `package.json`, `Enemy.test.ts`, `area.ts`, `handlers.test.ts`, `Equipment.tsx`, `BiomeScene`, `classes.ts`, `generateItem.test.ts`, `SnareTrap.ts`, `Blacksmith.tsx`, `Whirlwind.ts`, `vite.config.ts`, `Spell.test.ts`, `BossRoar.ts`, `Resource`, `react`, `Projectile.test.ts`, `SpawnDebugOverlay.ts`, `operations/helpers.ts`, `UI.tsx`, `settingsStorage.ts`, `ItemTooltip.tsx`, `react-redux`, `safeArea.ts`, `BiomeScene.test.ts`, `SpellButton.test.ts`, `Stat.tsx`, `Player.test.ts`, `shoreCollision.ts`, `Invocation`, `SpawnDirector.ts`, `SpawnDirector.test.ts`, `Special`, `TargetReticle.test.ts`, `Gem`, `CastBar.test.ts`?**
-  _High betweenness centrality (0.223) - this node is a cross-community bridge._
-- **Why does `phaser` connect `phaser` to `AssignSpell.ts`, `UI`, `PhaserGame.tsx`, `Frostbolt.ts`, `CastingController.test.ts`, `game.ts`, `package.json`, `CastingController.ts`, `Enemy`, `AssignClass.ts`, `Player.ts`, `Spell.test.ts`, `BossRoar.ts`, `Resource`, `SpawnDebugOverlay.ts`, `BiomeScene.ts`, `safeArea.ts`, `BiomeScene.test.ts`, `SpellButton.test.ts`, `TargetReticle.test.ts`, `CastBar.test.ts`, `spawnStyle.ts`?**
-  _High betweenness centrality (0.089) - this node is a cross-community bridge._
-- **Why does `Enemy` connect `Enemy` to `AssignSpell.ts`, `Boons.ts`, `BiomeScene`, `Player`, `SnareTrap.ts`, `Whirlwind.ts`, `Frostbolt.ts`, `Player.ts`, `EnemyOptions`, `game.ts`, `BiomeScene.ts`, `Consecration`, `CastingController`, `phaser`, `Frostbolt`, `Enemy.test.ts`, `CastingController.ts`, `SiphonSoul`?**
+- **Why does `vitest` connect `vitest` to `UI`, `Merchant.tsx`, `Item`, `generateItem.ts`, `fonts.ts`, `Invocation.ts`, `CastingController.test.ts`, `game.ts`, `HUD.ts`, `SpellButton`, `sfx.ts`, `package.json`, `Enemy.test.ts`, `area.ts`, `handlers.test.ts`, `Character.tsx`, `classes.ts`, `generateItem.test.ts`, `SnareTrap`, `Blacksmith.tsx`, `Projectile`, `vite.config.ts`, `Spell.test.ts`, `BossRoar.ts`, `Resource`, `react`, `SpawnDirector`, `walkability.ts`, `operations/helpers.ts`, `Settings.tsx`, `ItemTooltip.tsx`, `safeArea.ts`, `BiomeScene.test.ts`, `Stat.tsx`, `Player.test.ts`, `BiomeScene.ts`, `gameReducer.ts`, `TargetReticle.test.ts`, `CastBar.test.ts`?**
+  _High betweenness centrality (0.220) - this node is a cross-community bridge._
+- **Why does `phaser` connect `Player.ts` to `Spell`, `UI`, `fonts.ts`, `Invocation.ts`, `CastingController.test.ts`, `game.ts`, `HUD.ts`, `SpellButton`, `PhaserGame.tsx`, `sfx.ts`, `package.json`, `Enemy`, `AssignClass.ts`, `Projectile`, `Spell.test.ts`, `BossRoar.ts`, `Resource`, `SpawnDirector`, `Settings.tsx`, `TownScene.ts`, `safeArea.ts`, `BiomeScene.test.ts`, `animations.ts`, `BiomeScene.ts`, `TargetReticle.test.ts`, `CastBar.test.ts`?**
+  _High betweenness centrality (0.083) - this node is a cross-community bridge._
+- **Why does `Spell` connect `Spell` to `Faith`, `Player`, `EarthShield`, `SnareTrap`, `Projectile`, `Invocation.ts`, `Player.ts`, `Spell.test.ts`, `Consecration`, `SpellButton`, `Agentic Readiness Roadmap`, `SiphonSoul`?**
   _High betweenness centrality (0.058) - this node is a cross-community bridge._
 - **Are the 2 inferred relationships involving `Spell` (e.g. with `Phase 12 — Spell system rework (casting, targeting, auto attack)` and `Phase 4 — Test buildout (done)`) actually correct?**
   _`Spell` has 2 INFERRED edges - model-reasoned connections that need verification._
 - **What connects `semi`, `singleQuote`, `trailingComma` to the rest of the system?**
-  _493 weakly-connected nodes found - possible documentation gaps or missing edges._
-- **Should `AssignSpell.ts` be split into smaller, more focused modules?**
-  _Cohesion score 0.09365079365079365 - nodes in this community are weakly interconnected._
+  _494 weakly-connected nodes found - possible documentation gaps or missing edges._
+- **Should `Spell` be split into smaller, more focused modules?**
+  _Cohesion score 0.05859969558599695 - nodes in this community are weakly interconnected._
 - **Should `UI` be split into smaller, more focused modules?**
-  _Cohesion score 0.07102040816326531 - nodes in this community are weakly interconnected._
+  _Cohesion score 0.07312925170068027 - nodes in this community are weakly interconnected._

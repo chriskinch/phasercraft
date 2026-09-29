@@ -12,17 +12,20 @@
 export type StartLocation = "default" | "combat";
 
 export interface Settings {
+    // Reveals the debug settings on the Settings screen. Visibility only: the
+    // settings behind it keep their values (and effects) while it is off.
+    godMode: boolean;
     debug: boolean;
     installBannerDismissed: boolean;
-    // Coins a new game starts with. Defaults to 0; bump it from the Settings
-    // screen when testing shop/craft flows that need a balance up front.
-    startingCoins: number;
+    // A new game starts with the starter kit (see STARTER_ITEMS in the game
+    // reducer) instead of an empty purse, for testing shop/craft flows.
+    starterItems: boolean;
     startLocation: StartLocation;
-    // Spawn tuning for testing the enemy spawner (#456). Only read while
-    // `debug` is on; with it off the game always uses the config defaults.
+    // Only read while `debug` is on.
+    spawnDebugOverlay: boolean;
+    // Spawn tuning for the enemy spawner (#456), independent of `debug`.
     // Each number is 0 for "use the default", so these stay flat fields the
     // shallow merge in readSettings() can fill in.
-    spawnDebugOverlay: boolean;
     // A fixed spawn/despawn radius in world px; 0 derives it from the viewport.
     spawnRadiusOverride: number;
     liveCapOverride: number;
@@ -34,9 +37,10 @@ export interface Settings {
 }
 
 export const DEFAULT_SETTINGS: Settings = {
+    godMode: false,
     debug: false,
     installBannerDismissed: false,
-    startingCoins: 0,
+    starterItems: false,
     startLocation: "default",
     spawnDebugOverlay: false,
     spawnRadiusOverride: 0,

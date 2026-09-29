@@ -21,6 +21,7 @@ import {
     merchantPartsBase,
     recipeById,
     specialById,
+    SPECIAL_ITEMS,
 } from "@/types/game";
 import { appliedStatValue } from "@/lib/statConversion";
 import { colorForQuality } from "@/lib/armoryClient";
@@ -147,6 +148,12 @@ export const addCoins = createAction("ADD_COIN", (value: number) => ({
 export const setCoins = createAction("SET_COINS", (value: number) => ({
     payload: { value },
 }));
+
+// The starter kit a new game gets when the Starter items setting is on: a
+// testing aid for shop/craft flows. Replaces the purse, parts and specials.
+export const STARTER_ITEMS = { coins: 10000, componentsEach: 100, specialsEach: 10 } as const;
+
+export const grantStarterItems = createAction("GRANT_STARTER_ITEMS");
 
 export const addComponent = createAction("ADD_COMPONENT", (type: ComponentType) => ({
     payload: { type },
@@ -406,6 +413,18 @@ export const gameReducer = createReducer(initState, (builder) => {
         })
         .addCase(setCoins, (state, action: PayloadAction<{ value: number }>) => {
             state.coins = action.payload.value;
+        })
+        .addCase(grantStarterItems, (state) => {
+            state.coins = STARTER_ITEMS.coins;
+            state.components = [];
+            for (const type of Object.keys(COMPONENT_DEFS) as ComponentType[]) {
+                for (let i = 0; i < STARTER_ITEMS.componentsEach; i++) {
+                    stackComponent(state.components, type);
+                }
+            }
+            state.specials = Object.fromEntries(
+                SPECIAL_ITEMS.map((special) => [special.id, STARTER_ITEMS.specialsEach])
+            );
         })
         .addCase(addComponent, (state, action: PayloadAction<{ type: ComponentType }>) => {
             const { type } = action.payload;
