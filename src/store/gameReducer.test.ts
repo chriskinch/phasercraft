@@ -29,6 +29,7 @@ import {
     equipLoot,
     unequipLoot,
     setBaseStats,
+    addSpecial,
 } from "./gameReducer";
 import type { LootItem } from "@/types/game";
 import {
@@ -37,6 +38,7 @@ import {
     componentBuyPrice,
     merchantPartsBase,
     recipeById,
+    specialById,
 } from "@/types/game";
 
 // A fixed restock window with a large positive stock delta layered on, so buy
@@ -498,6 +500,79 @@ describe("gameReducer", () => {
             expect(next.inventory).toEqual([]);
             expect(next.coins).toBe(before.coins);
         });
+
+        describe("special items", () => {
+            // Scrapper's Blade rolls attack_power and critical_chance, so the Void
+            // Pearl (critical_chance) merges and the Frost Shard (defence) appends.
+            const pearl = specialById("void-pearl")!;
+            const shard = specialById("frost-shard")!;
+            const withSpecials = (specials: Record<string, number>, multiplier = 1) => ({
+                ...stocked(multiplier),
+                specials,
+            });
+
+            it("addSpecial counts owned specials and ignores unknown ids", () => {
+                const once = gameReducer(stocked(1), addSpecial("void-pearl"));
+                const twice = gameReducer(once, addSpecial("void-pearl"));
+                expect(twice.specials).toEqual({ "void-pearl": 2 });
+                expect(gameReducer(twice, addSpecial("bogus")).specials).toEqual(twice.specials);
+            });
+
+            it("consumes the special and merges its bonus into an existing stat", () => {
+                const next = gameReducer(
+                    withSpecials({ "void-pearl": 1 }),
+                    craftItem(RECIPE_ID, "void-pearl")
+                );
+                expect(next.specials).toEqual({});
+                const crit = next.inventory[0].stats.filter((s) => s.name === pearl.bonus.name);
+                const base = recipe.result.stats.find((s) => s.name === pearl.bonus.name)!;
+                expect(crit).toHaveLength(1);
+                expect(crit[0].value).toBe(base.value + pearl.bonus.value);
+            });
+
+            it("appends a bonus stat the recipe does not roll", () => {
+                const next = gameReducer(
+                    withSpecials({ "frost-shard": 2 }),
+                    craftItem(RECIPE_ID, "frost-shard")
+                );
+                expect(next.specials).toEqual({ "frost-shard": 1 });
+                expect(next.inventory[0].stats).toHaveLength(recipe.result.stats.length + 1);
+                expect(next.inventory[0].stats.at(-1)).toMatchObject(shard.bonus);
+            });
+
+            it("adds the special's worth to the crafted item's cost", () => {
+                const next = gameReducer(
+                    withSpecials({ "void-pearl": 1 }),
+                    craftItem(RECIPE_ID, "void-pearl")
+                );
+                expect(next.inventory[0].cost).toBe(recipe.result.cost + pearl.cost);
+            });
+
+            it("refuses the whole craft when the special is not owned", () => {
+                const before = withSpecials({});
+                const next = gameReducer(before, craftItem(RECIPE_ID, "void-pearl"));
+                expect(next.inventory).toEqual([]);
+                expect(next.coins).toBe(before.coins);
+                expect(next.components).toEqual(before.components);
+            });
+
+            it("refuses an unknown special id", () => {
+                const before = withSpecials({ bogus: 1 });
+                const next = gameReducer(before, craftItem(RECIPE_ID, "bogus"));
+                expect(next.inventory).toEqual([]);
+                expect(next.specials).toEqual({ bogus: 1 });
+            });
+
+            it("keeps the special when the craft is refused for materials", () => {
+                const short = {
+                    ...gameReducer(stocked(1), sellComponent("stack-0", 1)),
+                    specials: { "void-pearl": 1 },
+                };
+                const next = gameReducer(short, craftItem(RECIPE_ID, "void-pearl"));
+                expect(next.inventory).toEqual([]);
+                expect(next.specials).toEqual({ "void-pearl": 1 });
+            });
+        });
     });
 
     describe("merchant shop", () => {
@@ -627,6 +702,18 @@ describe("gameReducer", () => {
                 loadGame(legacySave as Parameters<typeof loadGame>[0])
             );
             expect(next.components).toEqual([]);
+        });
+
+        it("defaults a missing specials slice to none owned", () => {
+            const initial = gameReducer(undefined, { type: "@@INIT" });
+            const legacySave = { ...initial } as Record<string, unknown>;
+            delete legacySave.specials;
+
+            const next = gameReducer(
+                initial,
+                loadGame(legacySave as Parameters<typeof loadGame>[0])
+            );
+            expect(next.specials).toEqual({});
         });
 
         it("seeds the starter recipes into a save written before the Blacksmith", () => {

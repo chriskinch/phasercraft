@@ -11,6 +11,7 @@ import type {
     ComponentStack,
     ComponentType,
     Recipe,
+    SpecialItem,
 } from "@/types/game";
 import {
     COMPONENT_DEFS,
@@ -19,6 +20,7 @@ import {
     merchantWindow,
     merchantPartsBase,
     recipeById,
+    specialById,
 } from "@/types/game";
 import { appliedStatValue } from "@/lib/statConversion";
 import { colorForQuality } from "@/lib/armoryClient";
@@ -82,6 +84,9 @@ export interface GameState {
     // is permanent progress. Seeded with INITIAL_RECIPES; the rest are learnt
     // from schematics.
     recipes: string[];
+    // Special items the player owns (Blacksmith Step 4d), id → count. Persisted.
+    // A special at 0 is removed rather than kept as a zero entry.
+    specials: Record<string, number>;
     equipment: GameEquipment;
     coins: number;
     selected: LootItem | null;
@@ -116,6 +121,7 @@ const initState: GameState = {
     inventory: [],
     components: [],
     recipes: [...INITIAL_RECIPES],
+    specials: {},
     equipment: {
         amulet: null,
         body: null,
@@ -172,8 +178,13 @@ export const sellComponent = createAction("SELL_COMPONENT", (stackId: string, co
     payload: { stackId, count },
 }));
 
-export const craftItem = createAction("CRAFT_ITEM", (recipeId: string) => ({
-    payload: { recipeId },
+// `specialId` optionally slots one owned special item into the craft.
+export const craftItem = createAction("CRAFT_ITEM", (recipeId: string, specialId?: string) => ({
+    payload: { recipeId, specialId },
+}));
+
+export const addSpecial = createAction("ADD_SPECIAL", (id: string) => ({
+    payload: { id },
 }));
 
 export const sellComponentStack = createAction("SELL_COMPONENT_STACK", (stackId: string) => ({
@@ -354,7 +365,19 @@ const consumeComponent = (components: ComponentStack[], type: ComponentType, cou
 // same recipe distinct in the inventory (ids are how gear is selected, equipped
 // and sold). `color` comes from the same quality→border mapping the Armory uses,
 // so a crafted item sits beside a bought one without looking different.
-const craftedItem = (recipe: Recipe): LootItem => {
+// The recipe's fixed statline, plus the special's bonus when one is slotted:
+// added to an existing stat of the same name, else appended.
+export const craftedStats = (recipe: Recipe, special?: SpecialItem) => {
+    const stats = recipe.result.stats.map((stat) => ({ ...stat }));
+    if (special) {
+        const existing = stats.find((stat) => stat.name === special.bonus.name);
+        if (existing) existing.value += special.bonus.value;
+        else stats.push({ ...special.bonus });
+    }
+    return stats;
+};
+
+const craftedItem = (recipe: Recipe, special?: SpecialItem): LootItem => {
     const { result } = recipe;
     const id = uuid();
     return {
@@ -365,9 +388,14 @@ const craftedItem = (recipe: Recipe): LootItem => {
         category: result.category,
         set: result.set,
         icon: result.icon,
-        cost: result.cost,
+        // A special adds its own worth, so the crafted item sells for more.
+        cost: result.cost + (special?.cost ?? 0),
         color: colorForQuality(result.quality),
-        stats: result.stats.map((stat) => ({ id: uuid(), name: stat.name, value: stat.value })),
+        stats: craftedStats(recipe, special).map((stat) => ({
+            id: uuid(),
+            name: stat.name,
+            value: stat.value,
+        })),
     };
 };
 
@@ -451,26 +479,44 @@ export const gameReducer = createReducer(initState, (builder) => {
                 if (stack.quantity <= 0) remove(state.components, (s) => s.id === stackId);
             }
         )
-        .addCase(craftItem, (state, action: PayloadAction<{ recipeId: string }>) => {
-            const recipe = recipeById(action.payload.recipeId);
-            // Unknown id, or a recipe the player has not learnt — neither can be
-            // crafted. The Blacksmith only offers known recipes, but the reducer
-            // is the source of truth (same stance as buyComponent).
-            if (!recipe || !state.recipes.includes(recipe.id)) return;
-            // Materials and coins are both all-or-nothing: refuse outright rather
-            // than partially consuming, so a short craft can't eat the player's
-            // components or push coins negative.
-            if (Object.keys(missingMaterials(state.components, recipe)).length > 0) return;
-            if (state.coins < recipe.coins) return;
-
-            for (const [type, count] of Object.entries(recipe.materials) as Array<
-                [ComponentType, number]
-            >) {
-                consumeComponent(state.components, type, count);
-            }
-            state.coins -= recipe.coins;
-            state.inventory.push(craftedItem(recipe));
+        .addCase(addSpecial, (state, action: PayloadAction<{ id: string }>) => {
+            const { id } = action.payload;
+            // Unknown ids have no definition — ignore them, like addComponent.
+            if (!specialById(id)) return;
+            state.specials[id] = (state.specials[id] ?? 0) + 1;
         })
+        .addCase(
+            craftItem,
+            (state, action: PayloadAction<{ recipeId: string; specialId?: string }>) => {
+                const recipe = recipeById(action.payload.recipeId);
+                // Unknown id, or a recipe the player has not learnt — neither can be
+                // crafted. The Blacksmith only offers known recipes, but the reducer
+                // is the source of truth (same stance as buyComponent).
+                if (!recipe || !state.recipes.includes(recipe.id)) return;
+                // Materials and coins are both all-or-nothing: refuse outright rather
+                // than partially consuming, so a short craft can't eat the player's
+                // components or push coins negative.
+                if (Object.keys(missingMaterials(state.components, recipe)).length > 0) return;
+                if (state.coins < recipe.coins) return;
+                // A slotted special must be known and owned, or the whole craft is
+                // refused — all-or-nothing, like materials and coins.
+                const { specialId } = action.payload;
+                const special = specialId ? specialById(specialId) : undefined;
+                if (specialId && (!special || (state.specials[specialId] ?? 0) < 1)) return;
+
+                for (const [type, count] of Object.entries(recipe.materials) as Array<
+                    [ComponentType, number]
+                >) {
+                    consumeComponent(state.components, type, count);
+                }
+                state.coins -= recipe.coins;
+                if (special) {
+                    state.specials[special.id] -= 1;
+                    if (state.specials[special.id] <= 0) delete state.specials[special.id];
+                }
+                state.inventory.push(craftedItem(recipe, special));
+            }
+        )
         .addCase(sellComponentStack, (state, action: PayloadAction<{ stackId: string }>) => {
             const { stackId } = action.payload;
             const stack = state.components.find((s) => s.id === stackId);
@@ -538,6 +584,8 @@ export const gameReducer = createReducer(initState, (builder) => {
                 // them with the starters rather than an empty set, so an existing
                 // character isn't locked out of crafting until a schematic drops.
                 recipes: loaded.recipes ?? [...INITIAL_RECIPES],
+                // Saves written before special items (Step 4d) own none.
+                specials: loaded.specials ?? {},
                 enemiesRemaining: loaded.enemiesRemaining ?? 0,
                 bossActive: loaded.bossActive ?? false,
                 // Transient: a request captured mid-save would teleport the

@@ -406,12 +406,18 @@ is the source of truth for the screen; the table below covers the data model.
 
 #### Step 4d — Special items (#481)
 
-- [ ] Item type + catalog (id, name, sprite, rarity, bonus stat/value); an owned-specials
-      save slice (**save-format change**); a source (drops, Merchant stock or a
-      schematic-style rotation — decided in 4d); consumption on craft
-- [ ] `craftItem` applies the bonus: appended to the crafted item's `stats`, or added to
-      an existing stat of the same name
-- [ ] Special slot and special picker shown (they are hidden in 4a)
+- [x] `SpecialItem` type + `SPECIAL_ITEMS` catalog (placeholder content: Void Pearl,
+      Ember Core, Frost Shard, Troll Heart; sprites from `loot/misc`); owned
+      `specials` save slice (id → count, **save-format change**), defaulted to `{}`
+      in `loadGame`
+- [x] Source: rare drop, the schematic odds — `special` loot entry at 1% on every
+      mob, one guaranteed per boss (`promoteToBoss` pins it, unscaled); explicit
+      `case` in `Enemy.dropLoot()`; `Special` world drop with `cleanup()`
+- [x] `craftItem(recipeId, specialId?)`: all-or-nothing (must own it), consumed only on
+      a successful craft; bonus merged into an existing stat or appended; the
+      special's `cost` added to the item's; never changes rarity; one bonus stat each
+- [x] Special slot + special picker in `Blacksmith.tsx`; bonus in the "You will
+      craft" card and on the success overlay
 
 #### Step 4e — Craft SFX (first audio in the game) (#482)
 

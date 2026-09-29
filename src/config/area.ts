@@ -1,4 +1,5 @@
 import enemyTypes from "@config/enemies.json";
+import { SPECIAL_DROP_RATE } from "@/types/game";
 import type { EnemyConfig, EnemyType, LootTable } from "@/types/game";
 import type { Settings } from "@services/settingsStorage";
 
@@ -139,6 +140,9 @@ export function promoteToBoss(id: EnemyType): EnemyConfig {
         range: BOSS_SCALING.range,
         aggro_radius: BOSS_SCALING.aggro_radius,
         coin_multiplier: BOSS_SCALING.coin_multiplier,
-        loot_table: scaleLootTable(base.loot_table, BOSS_SCALING.loot),
+        // Special items are not scaled with the rest: a boss drops exactly one.
+        loot_table: scaleLootTable(base.loot_table, BOSS_SCALING.loot).map((item) =>
+            item.name === "special" ? { ...item, rate: SPECIAL_DROP_RATE.boss, bonus: 0 } : item
+        ),
     };
 }
