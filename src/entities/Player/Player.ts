@@ -568,6 +568,8 @@ class Player extends GameObjects.Container {
         this.health.cleanup();
         this.resource.cleanup();
         this.shield.cleanup();
+        // Pending boon expiry timers live on the scene clock.
+        this.boons.cleanup();
     }
 }
 
