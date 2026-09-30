@@ -85,6 +85,8 @@ post a comment on the issue explaining why and stop — do not open a broken PR.
 
 1. Push the branch and open a PR targeting `main`.
 2. Title: `fix: <concise description>` (Conventional Commits).
+   Open it as ready for review, not as a draft, unless the maintainer explicitly
+   requested a draft.
 3. PR body must include:
     - `Closes #<issue-number>`
     - A brief description of the root cause.

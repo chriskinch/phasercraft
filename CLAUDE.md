@@ -46,6 +46,9 @@ before starting work; link PRs to the relevant phase issue.
 - **Open PRs without asking when you're confident** nothing needs the maintainer's
   input: routine mechanical work may go straight to a PR. This does not relax the next
   bullet — behavior/balance/save-format/public-API changes still require asking first.
+- **Open agent-authored PRs as ready for review by default**, not as drafts. Use draft
+  status only when the maintainer explicitly requests it; set `draft: false` when the
+  PR tool/API otherwise defaults to drafts.
 - **Ask on behavior, decide on mechanics.** Anything that changes runtime behavior,
   game balance, save-data format, or public APIs: stop and ask the maintainer first.
   Pure mechanics (naming, file layout, test structure, type modeling): decide,
