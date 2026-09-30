@@ -1,0 +1,72 @@
+# Keeps open PRs up to date with main so their checks re-run automatically.
+# On every push to main, merges main into each open, non-draft PR that is behind.
+#
+# Requires a PR_UPDATE_TOKEN secret: a fine-grained PAT scoped to this repo with
+# Contents: read & write and Pull requests: read & write. The default GITHUB_TOKEN
+# can't be used: pushes made with it don't trigger other workflows, so CI wouldn't run.
+#
+# Skipped: drafts (agent still working), forks (no push access), and Dependabot
+# (it stops rebasing its own PRs once someone else pushes to them).
+name: Auto-update PRs
+
+on:
+    push:
+        branches: ["main"]
+    workflow_dispatch:
+
+permissions:
+    contents: read
+
+concurrency:
+    group: auto-update-prs
+    cancel-in-progress: true
+
+jobs:
+    update:
+        runs-on: ubuntu-latest
+        steps:
+            - name: Merge main into out-of-date PRs
+              uses: actions/github-script@v7
+              env:
+                  HAS_TOKEN: ${{ secrets.PR_UPDATE_TOKEN != '' }}
+              with:
+                  github-token: ${{ secrets.PR_UPDATE_TOKEN || secrets.GITHUB_TOKEN }}
+                  script: |
+                      if (process.env.HAS_TOKEN !== 'true') {
+                        core.warning('PR_UPDATE_TOKEN secret is not set; skipping PR auto-update.');
+                        return;
+                      }
+
+                      const { owner, repo } = context.repo;
+                      const pulls = await github.paginate(github.rest.pulls.list, {
+                        owner,
+                        repo,
+                        state: 'open',
+                        base: 'main',
+                        per_page: 100,
+                      });
+
+                      for (const pr of pulls) {
+                        if (pr.draft) continue;
+                        if (pr.user.login === 'dependabot[bot]') continue;
+                        if (pr.head.repo?.full_name !== `${owner}/${repo}`) continue;
+
+                        const { data: cmp } = await github.rest.repos.compareCommitsWithBasehead({
+                          owner,
+                          repo,
+                          basehead: `${pr.head.sha}...${context.sha}`,
+                        });
+                        if (cmp.ahead_by === 0) continue;
+
+                        try {
+                          await github.rest.pulls.updateBranch({
+                            owner,
+                            repo,
+                            pull_number: pr.number,
+                            expected_head_sha: pr.head.sha,
+                          });
+                          core.info(`Updated #${pr.number}`);
+                        } catch (error) {
+                          core.warning(`Could not update #${pr.number}: ${error.message}`);
+                        }
+                      }
