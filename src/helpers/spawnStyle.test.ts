@@ -33,9 +33,13 @@ function makeBody(): FakeBody {
     return body;
 }
 
-function setup() {
+// `destroyOnUpdate` destroys the item from an "update" listener registered
+// before dropIn's, like the scene clock firing the trap's lifespan timer.
+function setup({ destroyOnUpdate = false } = {}) {
     const sceneEvents = new Events.EventEmitter();
     const spawnStop = { destroy: vi.fn() };
+    const collider = {};
+    const removeCollider = vi.fn();
     const item = new Events.EventEmitter() as Events.EventEmitter & {
         scene?: object;
         body?: FakeBody;
@@ -48,9 +52,11 @@ function setup() {
     item.body = makeBody();
     item.scene = {
         events: sceneEvents,
-        physics: { add: { staticImage: vi.fn(() => spawnStop), collider: vi.fn() } },
+        physics: {
+            add: { staticImage: vi.fn(() => spawnStop), collider: vi.fn(() => collider) },
+            world: { removeCollider },
+        },
     };
-    dropIn("trap", item as unknown as Parameters<typeof dropIn>[1], 20, {});
     // Mirrors GameObject.destroy(): emit DESTROY, then clear scene and body.
     const destroy = () => {
         item.emit(GameObjects.Events.DESTROY, item, false);
@@ -58,12 +64,14 @@ function setup() {
         item.scene = undefined;
         item.body = undefined;
     };
-    return { sceneEvents, spawnStop, item, destroy };
+    if (destroyOnUpdate) sceneEvents.once("update", destroy);
+    dropIn("trap", item as unknown as Parameters<typeof dropIn>[1], 20, {});
+    return { sceneEvents, spawnStop, collider, removeCollider, item, destroy };
 }
 
 describe("dropIn", () => {
     it("settles: marks spawned, emits <name>:spawned and stops listening", () => {
-        const { sceneEvents, spawnStop, item } = setup();
+        const { sceneEvents, spawnStop, collider, removeCollider, item } = setup();
         const onSpawned = vi.fn();
         item.on("trap:spawned", onSpawned);
 
@@ -74,24 +82,39 @@ describe("dropIn", () => {
         expect(item.spawned).toBe(true);
         expect(onSpawned).toHaveBeenCalledTimes(1);
         expect(spawnStop.destroy).toHaveBeenCalled();
+        expect(removeCollider).toHaveBeenCalledWith(collider);
         expect(sceneEvents.listenerCount("update")).toBe(0);
     });
 
     it("does not throw on the next scene update after the item is destroyed mid-drop", () => {
-        const { sceneEvents, destroy } = setup();
+        const { sceneEvents, spawnStop, collider, removeCollider, destroy } = setup();
 
         destroy();
+
+        expect(spawnStop.destroy).toHaveBeenCalled();
+        expect(removeCollider).toHaveBeenCalledWith(collider);
+        expect(() => sceneEvents.emit("update")).not.toThrow();
+        expect(sceneEvents.listenerCount("update")).toBe(0);
+    });
+
+    it("does not throw when the item is destroyed earlier in the same update", () => {
+        // A trap that never settles is destroyed by its lifespan timer; the
+        // clock's listener runs first, and removing dropIn's listener then
+        // does not stop the emit already in progress from calling it.
+        const { sceneEvents } = setup({ destroyOnUpdate: true });
 
         expect(() => sceneEvents.emit("update")).not.toThrow();
         expect(sceneEvents.listenerCount("update")).toBe(0);
     });
 
     it("releases the update listener on scene SHUTDOWN", () => {
-        const { sceneEvents, item } = setup();
+        const { sceneEvents, item, spawnStop, collider, removeCollider } = setup();
 
         sceneEvents.emit(Scenes.Events.SHUTDOWN);
         item.body = undefined;
 
+        expect(spawnStop.destroy).toHaveBeenCalled();
+        expect(removeCollider).toHaveBeenCalledWith(collider);
         expect(() => sceneEvents.emit("update")).not.toThrow();
         expect(sceneEvents.listenerCount("update")).toBe(0);
     });

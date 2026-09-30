@@ -47,6 +47,8 @@ class SnareTrap extends Spell {
         this.scene.time.delayedCall(
             this.duration * 1000,
             () => {
+                // A despawned enemy is destroyed (no body) before this fires.
+                if (!target.body) return;
                 target.body.setMaxVelocity(10000);
                 target.monster.anims.resume();
                 target.body.checkCollision.none = false;
