@@ -132,7 +132,7 @@ before starting work; link PRs to the relevant phase issue.
 
 ## graphify (codebase knowledge graph)
 
-This repo has a committed knowledge graph at `graphify-out/graph.json` (+
+Agents use a local knowledge graph at `graphify-out/graph.json` (+
 `GRAPH_REPORT.md`) built by [Graphify](https://github.com/safishamsi/graphify) —
 community structure, hub nodes, and cross-file relationships for the whole codebase.
 The `graphify` skill lives in `.claude/skills/graphify/` and self-installs the CLI
@@ -147,8 +147,8 @@ Rules:
   you already intend to edit is fine.
 - Read `graphify-out/GRAPH_REPORT.md` only for broad architecture review or when
   query/path/explain don't surface enough context.
-- The report header records the commit the graph was built from — if it's stale,
-  or after your PR changes code structure, run `graphify update .` (AST-only, fast,
-  no API cost) and commit the refreshed `graph.json`/`GRAPH_REPORT.md` with your change.
-- `graphify-out/cache/`, `graph.html`, and `manifest.json` are gitignored and
-  regenerable; `graph.html` is an interactive visualization you can rebuild locally.
+- `graphify-out/` is gitignored and **never committed** (Graphify's default; committing
+  it put thousands of generated lines in every PR diff). If `graph.json` is missing or
+  stale, run `graphify update .` (AST-only, fast, no API cost) before querying.
+- Optional: `graphify hook install` once per clone rebuilds the graph on commit and
+  branch switch; run `graphify update .` after `git pull`.
