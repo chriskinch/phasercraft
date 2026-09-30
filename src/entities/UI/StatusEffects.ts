@@ -47,6 +47,13 @@ abstract class StatusEffects<TEntity = unknown> extends GameObjects.Group {
         this.calculate(this.getChildren() as StatusEffect[]);
     }
 
+    // Idempotent. Pending expiry timers live on the scene clock and would
+    // otherwise fire calculate() against a torn-down owner.
+    cleanup(): void {
+        Object.values(this.timers).forEach((timer) => timer.remove());
+        this.timers = {};
+    }
+
     resolveStats(
         keys: Record<string, EffectValue>,
         stats: Record<string, number | string | undefined>
