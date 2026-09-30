@@ -43,3 +43,49 @@ describe("Trap.cleanup", () => {
         expect(trap.scene.physics.world.removeCollider).not.toHaveBeenCalled();
     });
 });
+
+// The enemy collider hands collide() the Enemy. It used to check an Enemy
+// `spawned` flag that no longer exists, so no enemy ever sprang the trap.
+describe("Trap.collide", () => {
+    function makeArmedTrap() {
+        const trap = Object.create(Trap.prototype) as Trap;
+        trap.emit = vi.fn() as unknown as Trap["emit"];
+        trap.destroy = vi.fn() as unknown as Trap["destroy"];
+        return trap;
+    }
+
+    it("springs on a spawned enemy: emits trap:collide with it and destroys itself", () => {
+        const trap = makeArmedTrap();
+        const enemy = { state: "spawned" };
+
+        trap.collide(enemy as unknown as Parameters<Trap["collide"]>[0]);
+
+        expect(trap.emit).toHaveBeenCalledWith("trap:collide", enemy);
+        expect(trap.destroy).toHaveBeenCalledTimes(1);
+    });
+
+    it.each(["spawning", "dead", "despawned"])("ignores an enemy that is %s", (state) => {
+        const trap = makeArmedTrap();
+
+        trap.collide({ state } as unknown as Parameters<Trap["collide"]>[0]);
+
+        expect(trap.emit).not.toHaveBeenCalled();
+        expect(trap.destroy).not.toHaveBeenCalled();
+    });
+
+    it("does not destroy itself when the player touches it", () => {
+        const trap = Object.create(Trap.prototype) as Trap;
+        const player = {};
+        const collider = vi.fn();
+        trap.scene = {
+            physics: { add: { collider } },
+            player,
+            active_enemies: {},
+        } as unknown as Trap["scene"];
+
+        trap.spawnedHandler();
+
+        expect(collider).toHaveBeenCalledTimes(2);
+        expect(collider.mock.calls[1][2]).toBeUndefined();
+    });
+});

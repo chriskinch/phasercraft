@@ -1,4 +1,5 @@
-import type { GameObjects, Physics } from "phaser";
+import { GameObjects, Scenes } from "phaser";
+import type { Physics } from "phaser";
 
 interface DropInOptions {
     gravity?: number;
@@ -22,21 +23,43 @@ export function dropIn(
 ): void {
     item.body.setFriction(0, 0).setDrag(0).setGravityY(gravity).setBounce(bounce);
 
-    const spawn_stop = item.scene.physics.add.staticImage(item.x, offset, "blank-gif");
+    const scene = item.scene;
+    const spawn_stop = scene.physics.add.staticImage(item.x, offset, "blank-gif");
+    const collider = scene.physics.add.collider(spawn_stop, item);
 
-    item.scene.physics.add.collider(spawn_stop, item);
+    // Captured: destroy() clears item.scene, and the listener must still be
+    // released from the (reused) scene emitter afterwards.
+    const events = scene.events;
+    let released = false;
+
+    const release = () => {
+        if (released) return;
+        released = true;
+        events.off("update", updateHandler);
+        events.off(Scenes.Events.SHUTDOWN, release);
+        item.off(GameObjects.Events.DESTROY, release);
+        scene.physics.world.removeCollider(collider);
+        spawn_stop.destroy();
+    };
 
     const updateHandler = () => {
+        // off() does not stop an emit already in progress: an item destroyed
+        // earlier in the same "update" (e.g. by its lifespan timer, which the
+        // scene clock fires from an earlier listener) is still called here.
+        if (released) return;
         if (item.body.touching.down && item.body.wasTouching.down) {
             item.body.immovable = immovable;
             item.body.setVelocity(0);
             item.body.setGravityY(0);
-            spawn_stop.destroy();
             item.spawned = true;
-            item.scene.events.off("update", updateHandler);
+            release();
             item.emit(`${name}:spawned`);
         }
     };
 
-    item.scene.events.on("update", updateHandler);
+    events.on("update", updateHandler);
+    // An item destroyed (or a scene shut down) before it settles would leave
+    // the listener reading a destroyed body on the next update.
+    events.once(Scenes.Events.SHUTDOWN, release);
+    item.once(GameObjects.Events.DESTROY, release);
 }
