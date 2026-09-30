@@ -1,4 +1,4 @@
-import { GameObjects, Physics, Scene, Time, Types } from "phaser";
+import { GameObjects, Physics, Scene, Time } from "phaser";
 import { dropIn } from "@helpers/spawnStyle";
 import type { ArcadeCollisionObject } from "@/types/game";
 import type { GameSceneLike } from "@/types/scene";
@@ -61,14 +61,10 @@ class Trap extends GameObjects.Sprite {
             undefined,
             this
         );
-        // `this.destroy` is passed as the collide callback as in the original JS.
-        // Its signature `(fromScene?: boolean)` does not match ArcadePhysicsCallback
-        // (Phaser invokes it with the two colliding objects), so cast to preserve
-        // the existing runtime behavior without altering the call.
         this.playerCollider = this.scene.physics.add.collider(
             (this.scene as GameSceneLike).player,
             this,
-            this.destroy as unknown as Types.Physics.Arcade.ArcadePhysicsCallback,
+            undefined,
             undefined,
             this
         );

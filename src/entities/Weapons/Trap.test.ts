@@ -72,4 +72,20 @@ describe("Trap.collide", () => {
         expect(trap.emit).not.toHaveBeenCalled();
         expect(trap.destroy).not.toHaveBeenCalled();
     });
+
+    it("does not destroy itself when the player touches it", () => {
+        const trap = Object.create(Trap.prototype) as Trap;
+        const player = {};
+        const collider = vi.fn();
+        trap.scene = {
+            physics: { add: { collider } },
+            player,
+            active_enemies: {},
+        } as unknown as Trap["scene"];
+
+        trap.spawnedHandler();
+
+        expect(collider).toHaveBeenCalledTimes(2);
+        expect(collider.mock.calls[1][2]).toBeUndefined();
+    });
 });
