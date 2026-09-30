@@ -137,6 +137,10 @@ export default class LoadScene extends Scene {
             frameWidth: 32,
             frameHeight: 32,
         });
+        this.load.spritesheet("aimedshot-effect", "spritesheets/swoosh.png", {
+            frameWidth: 32,
+            frameHeight: 32,
+        });
         this.load.spritesheet("whirlwind-effect", "spritesheets/spells/whirlwind.png", {
             frameWidth: 32,
             frameHeight: 32,

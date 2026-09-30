@@ -1,3 +1,4 @@
+import AimedShot from "./AimedShot";
 import Consecration from "./Consecration";
 import EarthShield from "./EarthShield";
 import Enrage from "./Enrage";
@@ -16,6 +17,7 @@ import Whirlwind from "./Whirlwind";
 import type { SpellOptions } from "@/types/game";
 
 const classes = {
+    AimedShot,
     Consecration,
     EarthShield,
     Enrage,
