@@ -44,8 +44,9 @@ jobs:
                         { owner, repo, issueNumber }
                       );
 
+                      const copilotLogins = new Set(['copilot-swe-agent', 'copilot']);
                       const copilot = repository.suggestedActors.nodes.find(
-                        (node) => node.login === 'copilot-swe-agent'
+                        (node) => copilotLogins.has(node.login.toLowerCase())
                       );
 
                       if (!copilot) {
