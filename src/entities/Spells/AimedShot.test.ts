@@ -97,6 +97,23 @@ describe("AimedShot", () => {
         expect(adjustResource).toHaveBeenCalledWith(-50);
     });
 
+    it("impact applies the effect without playing a (nonexistent) impact animation", () => {
+        const { spell, controller, enemy, timers } = makeHarness();
+        const startAnimation = vi.fn(() => {
+            throw new Error("no aimed-shot-effect frames");
+        });
+        const effect = vi.fn();
+        Object.assign(spell, { startAnimation, effect });
+
+        controller.request(spell);
+        const { cb, ctx } = timers.at(-1)!;
+        cb.call(ctx);
+        vi.mocked(Projectile).mock.calls[0][0].onImpact(enemy as never);
+
+        expect(effect).toHaveBeenCalledWith(enemy);
+        expect(startAnimation).not.toHaveBeenCalled();
+    });
+
     it("interrupted mid-cast spawns no projectile and spends no resource", () => {
         const { spell, controller, adjustResource, timers } = makeHarness();
 

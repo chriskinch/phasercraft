@@ -27,6 +27,9 @@ class AimedShot extends Spell {
 
         super({ ...defaults, ...config });
         this.type = "physical";
+        // No "aimed-shot-effect" spritesheet: playing the empty impact
+        // animation on hit crashes, so the arrow itself is the only VFX.
+        this.hasAnimation = false;
     }
 
     effect(target: TargetType): void {
