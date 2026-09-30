@@ -45,7 +45,7 @@ Call `mcp__github__pull_request_read` with method=`get_files`, owner=`chriskinch
 
 Then **filter out generated / non-source artifacts** before reviewing — these are committed build output, not hand-written changes, and reviewing them wastes the budget and adds no signal. Exclude any changed file whose path:
 
-- is under `graphify-out/` (the committed knowledge graph)
+- is under `graphify-out/` (the local knowledge graph — should never be committed)
 - is under `dist/` or other build output
 - is a lockfile (`package-lock.json`, `pnpm-lock.yaml`, `yarn.lock`)
 
