@@ -133,7 +133,7 @@ describe("AimedShot", () => {
 
         spell.effect(target as never);
 
-        expect(setValue).toHaveBeenCalledWith({ base: 60, key: "attack_power" });
+        expect(setValue).toHaveBeenCalledWith({ base: 100, key: "attack_power" });
         expect(target.health.adjustValue).toHaveBeenCalledWith(-120, "physical", true);
     });
 });

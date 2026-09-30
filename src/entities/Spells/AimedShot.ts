@@ -34,7 +34,7 @@ class AimedShot extends Spell {
 
     effect(target: TargetType): void {
         if (!target || !("health" in target)) return;
-        const value = this.setValue({ base: 60, key: "attack_power" });
+        const value = this.setValue({ base: 100, key: "attack_power" });
         target.health.adjustValue(-value.amount, this.type, value.crit);
     }
 }
