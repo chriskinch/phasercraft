@@ -12,8 +12,9 @@ Always read `CLAUDE.md` first. Every convention there applies to your work.
 ## Step 1 — Understand the issue
 
 1. Read the issue title and body carefully.
-2. Use `graphify query "<symptom>"` to locate the relevant code before grepping or
-   reading whole files. Cross-reference with `graphify-out/GRAPH_REPORT.md` only if
+2. If `graphify-out/graph.json` is missing, run `graphify update .` (it is local-only,
+   never committed). Then use `graphify query "<symptom>"` to locate the relevant
+   code before grepping or reading whole files. Cross-reference with `graphify-out/GRAPH_REPORT.md` only if
    the query returns insufficient context.
 3. Identify the affected file(s) and the root cause.
 
@@ -84,6 +85,8 @@ post a comment on the issue explaining why and stop — do not open a broken PR.
 
 1. Push the branch and open a PR targeting `main`.
 2. Title: `fix: <concise description>` (Conventional Commits).
+   Open it as ready for review, not as a draft, unless the maintainer explicitly
+   requested a draft.
 3. PR body must include:
     - `Closes #<issue-number>`
     - A brief description of the root cause.

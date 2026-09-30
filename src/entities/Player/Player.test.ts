@@ -42,6 +42,7 @@ interface PlayerUnderTest {
     health: { cleanup: ReturnType<typeof vi.fn> };
     resource: { cleanup: ReturnType<typeof vi.fn> };
     shield: { cleanup: ReturnType<typeof vi.fn> };
+    boons: { cleanup: ReturnType<typeof vi.fn> };
     death(): void;
     hit(power: number): void;
     gameDownHandler(): void;
@@ -65,6 +66,7 @@ function makePlayer(): PlayerUnderTest {
     player.health = { cleanup: vi.fn() };
     player.resource = { cleanup: vi.fn() };
     player.shield = { cleanup: vi.fn() };
+    player.boons = { cleanup: vi.fn() };
     return player;
 }
 
@@ -125,6 +127,7 @@ describe("Player.cleanup", () => {
         expect(player.health.cleanup).toHaveBeenCalled();
         expect(player.resource.cleanup).toHaveBeenCalled();
         expect(player.shield.cleanup).toHaveBeenCalled();
+        expect(player.boons.cleanup).toHaveBeenCalled();
     });
 
     it("is idempotent — a second cleanup does not throw", () => {

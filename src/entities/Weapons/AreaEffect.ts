@@ -1,4 +1,4 @@
-import { GameObjects, Physics, Scene } from "phaser";
+import { GameObjects, Physics, Scene, Time } from "phaser";
 import type Enemy from "@entities/Enemy/Enemy";
 import type Player from "@entities/Player/Player";
 import type { ArcadeCollisionObject } from "@/types/game";
@@ -11,20 +11,23 @@ type OverlapTarget = Player | Enemy;
 class AreaEffect extends GameObjects.Sprite {
     public body!: Physics.Arcade.Body;
     public timestamps?: Record<string, number>;
+    public lifespanTimer?: Time.TimerEvent;
+    public enemyCollider?: Physics.Arcade.Collider;
+    public playerCollider?: Physics.Arcade.Collider;
 
     constructor(scene: Scene, x: number, y: number, lifespan: number, range: number) {
         super(scene, x, y - 7, "consecration");
         scene.physics.world.enable(this);
         scene.add.existing(this);
 
-        this.scene.physics.add.overlap(
+        this.enemyCollider = this.scene.physics.add.overlap(
             (this.scene as GameSceneLike).active_enemies,
             this,
             this.overlap,
             this.throttle,
             this
         );
-        this.scene.physics.add.overlap(
+        this.playerCollider = this.scene.physics.add.overlap(
             (this.scene as GameSceneLike).player,
             this,
             this.overlap,
@@ -41,7 +44,7 @@ class AreaEffect extends GameObjects.Sprite {
 
         this.timestamps = {};
 
-        this.scene.time.delayedCall(
+        this.lifespanTimer = this.scene.time.delayedCall(
             lifespan * 1000,
             () => {
                 delete this.timestamps;
@@ -50,6 +53,11 @@ class AreaEffect extends GameObjects.Sprite {
             [],
             this
         );
+
+        // Lifecycle: the lifespan timer and both overlap colliders outlive a
+        // plain destroy. Release them when the effect is destroyed so stale
+        // colliders don't accumulate over repeated casts within a run.
+        this.once(GameObjects.Events.DESTROY, this.cleanup, this);
     }
 
     // Arcade overlap callback. The bodies registered above are the player and
@@ -70,6 +78,18 @@ class AreaEffect extends GameObjects.Sprite {
         return this.timestamps![target.uuid]
             ? this.scene.game.getTime() - this.timestamps![target.uuid] > 1000
             : !this.timestamps![target.uuid];
+    }
+
+    // Idempotent. Collider.destroy() nulls its world, so each collider is
+    // released once and the reference cleared; removal from an already
+    // shut-down world is a safe no-op.
+    cleanup(): void {
+        this.lifespanTimer?.remove();
+        this.lifespanTimer = undefined;
+        this.enemyCollider?.destroy();
+        this.enemyCollider = undefined;
+        this.playerCollider?.destroy();
+        this.playerCollider = undefined;
     }
 }
 
