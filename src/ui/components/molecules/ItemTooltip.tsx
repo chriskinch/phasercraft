@@ -95,6 +95,7 @@ const ItemTooltip: React.FC<ItemTooltipProps> = ({ id, loot, equipment }) => {
         <Tooltip
             className={styles.tooltip}
             id={id}
+            style={{ zIndex: 10000 }}
             variant="light"
             globalCloseEvents={{ clickOutsideAnchor: true }}
             afterShow={afterShowHandler}
