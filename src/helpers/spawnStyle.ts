@@ -23,20 +23,23 @@ export function dropIn(
 ): void {
     item.body.setFriction(0, 0).setDrag(0).setGravityY(gravity).setBounce(bounce);
 
-    const spawn_stop = item.scene.physics.add.staticImage(item.x, offset, "blank-gif");
-
-    item.scene.physics.add.collider(spawn_stop, item);
+    const scene = item.scene;
+    const spawn_stop = scene.physics.add.staticImage(item.x, offset, "blank-gif");
+    const collider = scene.physics.add.collider(spawn_stop, item);
 
     // Captured: destroy() clears item.scene, and the listener must still be
     // released from the (reused) scene emitter afterwards.
-    const events = item.scene.events;
+    const events = scene.events;
     let released = false;
 
     const release = () => {
+        if (released) return;
         released = true;
         events.off("update", updateHandler);
         events.off(Scenes.Events.SHUTDOWN, release);
         item.off(GameObjects.Events.DESTROY, release);
+        scene.physics.world.removeCollider(collider);
+        spawn_stop.destroy();
     };
 
     const updateHandler = () => {
@@ -48,7 +51,6 @@ export function dropIn(
             item.body.immovable = immovable;
             item.body.setVelocity(0);
             item.body.setGravityY(0);
-            spawn_stop.destroy();
             item.spawned = true;
             release();
             item.emit(`${name}:spawned`);

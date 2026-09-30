@@ -38,6 +38,8 @@ function makeBody(): FakeBody {
 function setup({ destroyOnUpdate = false } = {}) {
     const sceneEvents = new Events.EventEmitter();
     const spawnStop = { destroy: vi.fn() };
+    const collider = {};
+    const removeCollider = vi.fn();
     const item = new Events.EventEmitter() as Events.EventEmitter & {
         scene?: object;
         body?: FakeBody;
@@ -50,7 +52,10 @@ function setup({ destroyOnUpdate = false } = {}) {
     item.body = makeBody();
     item.scene = {
         events: sceneEvents,
-        physics: { add: { staticImage: vi.fn(() => spawnStop), collider: vi.fn() } },
+        physics: {
+            add: { staticImage: vi.fn(() => spawnStop), collider: vi.fn(() => collider) },
+            world: { removeCollider },
+        },
     };
     // Mirrors GameObject.destroy(): emit DESTROY, then clear scene and body.
     const destroy = () => {
@@ -61,12 +66,12 @@ function setup({ destroyOnUpdate = false } = {}) {
     };
     if (destroyOnUpdate) sceneEvents.once("update", destroy);
     dropIn("trap", item as unknown as Parameters<typeof dropIn>[1], 20, {});
-    return { sceneEvents, spawnStop, item, destroy };
+    return { sceneEvents, spawnStop, collider, removeCollider, item, destroy };
 }
 
 describe("dropIn", () => {
     it("settles: marks spawned, emits <name>:spawned and stops listening", () => {
-        const { sceneEvents, spawnStop, item } = setup();
+        const { sceneEvents, spawnStop, collider, removeCollider, item } = setup();
         const onSpawned = vi.fn();
         item.on("trap:spawned", onSpawned);
 
@@ -77,14 +82,17 @@ describe("dropIn", () => {
         expect(item.spawned).toBe(true);
         expect(onSpawned).toHaveBeenCalledTimes(1);
         expect(spawnStop.destroy).toHaveBeenCalled();
+        expect(removeCollider).toHaveBeenCalledWith(collider);
         expect(sceneEvents.listenerCount("update")).toBe(0);
     });
 
     it("does not throw on the next scene update after the item is destroyed mid-drop", () => {
-        const { sceneEvents, destroy } = setup();
+        const { sceneEvents, spawnStop, collider, removeCollider, destroy } = setup();
 
         destroy();
 
+        expect(spawnStop.destroy).toHaveBeenCalled();
+        expect(removeCollider).toHaveBeenCalledWith(collider);
         expect(() => sceneEvents.emit("update")).not.toThrow();
         expect(sceneEvents.listenerCount("update")).toBe(0);
     });
@@ -100,11 +108,13 @@ describe("dropIn", () => {
     });
 
     it("releases the update listener on scene SHUTDOWN", () => {
-        const { sceneEvents, item } = setup();
+        const { sceneEvents, item, spawnStop, collider, removeCollider } = setup();
 
         sceneEvents.emit(Scenes.Events.SHUTDOWN);
         item.body = undefined;
 
+        expect(spawnStop.destroy).toHaveBeenCalled();
+        expect(removeCollider).toHaveBeenCalledWith(collider);
         expect(() => sceneEvents.emit("update")).not.toThrow();
         expect(sceneEvents.listenerCount("update")).toBe(0);
     });
