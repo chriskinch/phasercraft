@@ -1,17 +1,22 @@
 # Automated bug-fix agent.
-# Triggers when an issue is opened or labelled with 'bug'.
+# Triggers only when the 'bug' label is added to an issue. Removing and
+# re-adding the label starts a fresh Copilot session.
 # The issue is handed to the Copilot coding agent, which reads the issue,
 # assesses confidence, and opens a PR if it is confident it can fix the bug.
 name: Bug Fix Agent
 
 on:
     issues:
-        types: [opened, labeled]
+        types: [labeled]
+
+concurrency:
+    group: bug-fix-agent-${{ github.event.issue.number }}
+    cancel-in-progress: false
 
 jobs:
     bug-fix:
-        # Only run when the 'bug' label is present
-        if: contains(github.event.issue.labels.*.name, 'bug')
+        # Only run when the label just added is 'bug'
+        if: github.event.label.name == 'bug'
         runs-on: ubuntu-latest
         permissions:
             contents: write
@@ -44,8 +49,9 @@ jobs:
                         { owner, repo, issueNumber }
                       );
 
+                      const copilotLogins = new Set(['copilot-swe-agent', 'copilot']);
                       const copilot = repository.suggestedActors.nodes.find(
-                        (node) => node.login === 'copilot-swe-agent'
+                        (node) => copilotLogins.has(node.login.toLowerCase())
                       );
 
                       if (!copilot) {
@@ -57,14 +63,23 @@ jobs:
                         return;
                       }
 
-                      await github.graphql(
-                        `mutation($assignableId: ID!, $actorIds: [ID!]!) {
-                           replaceActorsForAssignable(input: { assignableId: $assignableId, actorIds: $actorIds }) {
-                             assignable { ... on Issue { number } }
-                           }
-                         }`,
-                        { assignableId: repository.issue.id, actorIds: [copilot.id] }
-                      );
+                      const replaceActors = (actorIds) =>
+                        github.graphql(
+                          `mutation($assignableId: ID!, $actorIds: [ID!]!) {
+                             replaceActorsForAssignable(input: { assignableId: $assignableId, actorIds: $actorIds }) {
+                               assignable { ... on Issue { number } }
+                             }
+                           }`,
+                          { assignableId: repository.issue.id, actorIds }
+                        );
+
+                      // Re-assigning an existing assignee is a no-op, so clear first to
+                      // guarantee a new Copilot session when the label is re-added.
+                      const assignees = context.payload.issue.assignees.map((a) => a.login);
+                      if (assignees.some((login) => login === 'Copilot' || login === 'copilot-swe-agent')) {
+                        await replaceActors([]);
+                      }
+                      await replaceActors([copilot.id]);
 
                       await github.rest.issues.createComment({
                         owner,
