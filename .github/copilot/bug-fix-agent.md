@@ -12,8 +12,9 @@ Always read `CLAUDE.md` first. Every convention there applies to your work.
 ## Step 1 — Understand the issue
 
 1. Read the issue title and body carefully.
-2. Use `graphify query "<symptom>"` to locate the relevant code before grepping or
-   reading whole files. Cross-reference with `graphify-out/GRAPH_REPORT.md` only if
+2. If `graphify-out/graph.json` is missing, run `graphify update .` (it is local-only,
+   never committed). Then use `graphify query "<symptom>"` to locate the relevant
+   code before grepping or reading whole files. Cross-reference with `graphify-out/GRAPH_REPORT.md` only if
    the query returns insufficient context.
 3. Identify the affected file(s) and the root cause.
 
