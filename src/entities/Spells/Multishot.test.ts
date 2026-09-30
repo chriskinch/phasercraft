@@ -129,6 +129,8 @@ describe("Multishot cast", () => {
             .mockReturnValueOnce(true);
 
         spell.castSpell(undefined);
+        // No roll at cast time — each arrow rolls when it lands.
+        expect(spell.player.isCritical).not.toHaveBeenCalled();
         landAllArrows();
 
         expect(spell.player.isCritical).toHaveBeenCalledTimes(3);
