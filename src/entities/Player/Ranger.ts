@@ -20,7 +20,7 @@ class Ranger extends Player {
                 health_regen_rate: 1,
             },
             resource_type: "Energy",
-            abilities: ["SnareTrap", "Multishot"],
+            abilities: ["SnareTrap", "Multishot", "AimedShot"],
             attack_projectile: { key: "multishot-effect", frame: 0, speed: 500 },
         };
 
