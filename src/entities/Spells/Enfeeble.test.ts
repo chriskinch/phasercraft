@@ -85,7 +85,7 @@ describe("Enfeeble", () => {
         expect(enemy.stats.damage).toBe(100);
         fire(timers[1]); // spell clearEffect
         expect(enemy.monster.clearTint).toHaveBeenCalled();
-        expect(spell.timer).toBeUndefined();
+        expect(spell.timers.size).toBe(0);
     });
 
     it("does not touch an enemy that died mid-debuff", () => {
@@ -102,6 +102,31 @@ describe("Enfeeble", () => {
         spell.cleanup();
         spell.cleanup();
         expect(timers[1].remove).toHaveBeenCalledTimes(1);
-        expect(spell.timer).toBeUndefined();
+        expect(spell.timers.size).toBe(0);
+    });
+
+    it("casting on a second enemy does not strand the first one's tint", () => {
+        const { spell, enemy, scene, timers, fire } = setup();
+        const other = makeEnemy(scene);
+        spell.effect(enemy);
+        spell.effect(other);
+        timers.forEach(fire);
+        expect(enemy.monster.clearTint).toHaveBeenCalled();
+        expect(other.monster.clearTint).toHaveBeenCalled();
+        expect(enemy.stats.damage).toBe(100);
+        expect(other.stats.damage).toBe(100);
+    });
+
+    it("repeat casts on the same enemy fully revert and never corrupt base damage", () => {
+        const { spell, enemy, timers, fire } = setup();
+        for (let i = 0; i < 3; i++) {
+            const start = timers.length;
+            spell.effect(enemy);
+            expect(enemy.stats.damage).toBeCloseTo(10);
+            timers.slice(start).forEach(fire);
+            expect(enemy.stats.damage).toBe(100);
+            expect(enemy.base_stats.damage).toBe(100);
+        }
+        expect(enemy.monster.clearTint).toHaveBeenCalledTimes(3);
     });
 });

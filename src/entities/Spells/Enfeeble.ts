@@ -16,7 +16,9 @@ class Enfeeble extends Spell {
     public type: string;
     public duration: number;
     public value: EnfeebleValue;
-    public timer?: Phaser.Time.TimerEvent;
+    // One clear-tint timer per debuffed enemy; recasting on another enemy
+    // must not cancel the first one's (it would stay tinted forever).
+    public timers = new Map<Enemy, Phaser.Time.TimerEvent>();
 
     constructor(config: SpellOptions) {
         const defaults = {
@@ -49,25 +51,26 @@ class Enfeeble extends Spell {
         target.banes.addEffect(this);
         target.monster.setTint(ENFEEBLE_TINT);
 
-        this.timer?.remove();
-        this.timer = this.scene.time.addEvent({
+        this.timers.get(target)?.remove();
+        const timer = this.scene.time.addEvent({
             delay: this.duration * 1000 + 1, // Extra ms to ensure the bane has expired first
             callback: this.clearEffect,
             callbackScope: this,
             args: [target],
         });
+        this.timers.set(target, timer);
     }
 
     clearEffect(target: Enemy): void {
-        this.timer = undefined;
+        this.timers.delete(target);
         // A dead/despawned enemy's banes are torn down with it; leave it alone.
         if (!target.alive) return;
         if (!target.banes.contains(this)) target.monster.clearTint();
     }
 
     cleanup(): void {
-        this.timer?.remove();
-        this.timer = undefined;
+        this.timers.forEach((timer) => timer.remove());
+        this.timers.clear();
         super.cleanup();
     }
 
