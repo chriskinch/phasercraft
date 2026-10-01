@@ -23,7 +23,7 @@ class Enfeeble extends Spell {
     constructor(config: SpellOptions) {
         const defaults = {
             name: "enfeeble",
-            icon_name: "icon_0021_charm",
+            icon_name: "icon_0028_enfeeble",
             cooldown: 5,
             cost: {
                 rage: 10,

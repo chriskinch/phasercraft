@@ -24,7 +24,7 @@ class Focus extends Boon {
     constructor(config: SpellOptions) {
         const defaults = {
             name: "focus",
-            icon_name: "icon_0019_fire-wall",
+            icon_name: "icon_0030_focus",
             cooldown: 20,
             cost: {
                 rage: 15,

@@ -28,7 +28,7 @@ class BattleStomp extends Spell {
     constructor(config: SpellOptions) {
         const defaults = {
             name: "battlestomp",
-            icon_name: "icon_0005_coil",
+            icon_name: "icon_0027_battle-stomp",
             cooldown: 6,
             cost: {
                 rage: 30,
