@@ -53,33 +53,35 @@ traced from in-game screenshots of Character, Equipment, Blacksmith and Merchant
 - Pale `pixelBackground` panel (`#e4f6f7`) with the Equipment grid: **170 px
   character column** (Level, portrait, HP/RP bars, stats) | content | **fixed
   action column** (`--actions-col`), toggles at the top, actions at the bottom.
-- Content area is a `pixelEmboss` well holding **56 px `LootIcon` tiles** (white face,
-  6 px border, notched corners), black count/number `badge` pills, red border on the
-  selected tile.
+- Content area is a `pixelEmboss` well on the 56 px item grid. **Abilities show the
+  bare spell icon only** — no white face, no border, no slot numbers. Selection is a
+  faint darker notched square behind the icon.
 - Details are **tooltips** (white card, 5 px border in the item's colour, as
   `ItemTooltip`/`PartTooltip`/`SpecialTooltip`), not a side panel.
 - Labels are the Blacksmith `sectionLabel` (0.75rem uppercase `#4d5d66`).
-- Level colour reuses the quality palette: **L1 common `#bbbbbb`, L2 rare
-  `#0077ff`, L3 epic `#9900ff`** (tile border + tooltip border).
+- **Scrolls** are a new 32 px pixel scroll sprite (parchment) with a 16 px spell icon
+  on top; no border. Tint by level: **L1 plain parchment, L2 green, L3 blue**.
+  Black count badge as Parts. Tooltip border matches: L1 `#bbbbbb`, L2 `#00dd00`
+  (fine), L3 `#0077ff` (rare).
 - Spell art is the existing `atlas-icons` frame each spell already uses on the HUD.
 - Buttons are the `Button` atom; purple `#c9a3ff` for Read (as Blacksmith "Use
   item"); disabled = grey.
 
-| Screen            | Content well                                                      | Action column                                     |
-| ----------------- | ----------------------------------------------------------------- | ------------------------------------------------- |
-| Abilities (main)  | ACTIVE row of 5 tiles (number badge 1–5), PASSIVE row of 5 locked | Change / Remove (bottom)                          |
-| Ability picker    | Grid of learned abilities                                         | Equip or Swap / Back (bottom)                     |
-| Equipment Scrolls | Grid of scroll stacks (count badge)                               | Gear / Parts / Special / **Scrolls**; Read / Sell |
+| Screen            | Content well                                                            | Action column                                     |
+| ----------------- | ----------------------------------------------------------------------- | ------------------------------------------------- |
+| Abilities (main)  | ACTIVE row of 5 icons (left→right = HUD order), PASSIVE row of 5 locked | Change / Remove (bottom)                          |
+| Ability picker    | Grid of learned abilities                                               | Equip or Swap / Back (bottom)                     |
+| Equipment Scrolls | Grid of scroll stacks (count badge)                                     | Gear / Parts / Special / **Scrolls**; Read / Sell |
 
 The picker is a **view inside the Abilities menu** (like the Blacksmith recipe
 picker), not a new `UI.tsx` menu.
 
 ### Abilities (main)
 
-1. **ACTIVE** label, then **5 tiles** with a number badge 1–5 (HUD order / hotkey).
-    - Filled: spell icon on a white tile, border = level colour.
+1. **ACTIVE** label, then **5 slots**, left → right = HUD order / hotkey.
+    - Filled: the bare spell icon.
     - Empty: emboss square with `+`.
-    - Tap selects (red border) and shows the [ability tooltip](#ability-tooltip).
+    - Tap selects (faint darker square) and shows the [ability tooltip](#ability-tooltip).
 2. **PASSIVE · COMING SOON** label, then **5 locked squares** (faint, padlock). Not
    tappable.
 3. Action column: **Change** (empty slot: **Choose**) opens the picker; **Remove**
@@ -89,10 +91,9 @@ picker), not a new `UI.tsx` menu.
 
 ### Ability picker
 
-- Label "CHOOSE FOR SLOT N", then a grid of **learned, on-class** ability tiles.
-  Equipped ones carry their slot-number badge; a purple **New** pill top-left until
-  first tapped.
-- Tap selects + tooltip.
+- Label "CHOOSE FOR SLOT N", then a grid of **learned, on-class** ability icons. A
+  purple **New** pill top-left until first tapped.
+- Tap selects + tooltip; the tooltip adds "Equipped in slot N" when it is slotted.
 - Action column: **Equip** (or **Swap** when the ability sits in another slot — the
   two slots trade places), **Back**.
 - Empty state: "Read scrolls to learn new abilities."
@@ -101,8 +102,8 @@ picker), not a new `UI.tsx` menu.
 
 - New toggle after **Special** in the filter column: Gear | Parts | Special |
   **Scrolls** (active = lime, as today).
-- Grid of scroll stacks, one per spell + level: spell icon, border = level colour,
-  count badge.
+- Grid of scroll stacks, one per spell + level: tinted scroll sprite + small spell
+  icon, count badge.
 - Tap → tooltip: "Fireball Scroll", "Level 1 · Mage, Occultist", effect, then a hint
   line (purple when readable, red when not):
 
@@ -122,7 +123,7 @@ picker), not a new `UI.tsx` menu.
 ### Ability tooltip
 
 Shared by Abilities, the picker and the Scrolls tab. Same card as the part/special
-tooltips: white, 5 px border in the level colour, max-width 16rem.
+tooltips: white, 5 px border in the level colour (grey / green / blue), max-width 16rem.
 
 - **Name**; "Level 2 · Mage, Occultist" (muted).
 - **Description** (italic `#444`, like part lore) and **effect** text.
@@ -186,5 +187,5 @@ count)`. Combining is #386's `combineScrolls`.
 4. Picker **sort order**: equipped first, then by name? Or by level?
 5. Effect text: hand-written per spell, or templated from `setValue` base numbers so
    it tracks balance changes?
-6. Scroll sprite: mockups reuse the spell's atlas icon on a level-coloured tile. Keep, or commission a scroll sprite?
+6. Scroll sprite: mockup uses a placeholder 32 px scroll drawn for the design; needs final art (parchment, L2 green / L3 blue tints).
 7. **Equipment action column overflows at 390 px tall.** It fits 6 button rows today (Parts: 3 filters + stepper + Sell + Sell All). A 4th filter makes Parts 7 rows. Options: (a) move Gear/Parts/Special/Scrolls to a horizontal tab strip above the grid; (b) drop the stepper and keep Sell + Sell All; (c) shrink buttons. Scrolls tab shown with Read + Sell only (6 rows).
