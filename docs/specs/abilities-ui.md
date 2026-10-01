@@ -4,7 +4,7 @@ Issue #519. Agreed design from the Abilities design session (2026-10). It **laye
 the scroll-economy epic #384**: this spec is the loadout UI (replaces Track C, #43 +
 #19) and refines Tracks A/B/D/E/F where noted in [Changes to #384](#changes-to-384).
 
-Design canvas (mockups, phone landscape primary, desktop secondary):
+Design canvas (mockups, phone landscape 844 × 390, built on the in-game menu chrome):
 https://claude.ai/artifact/VxckXN8u7BmWXfUCzzdXq5. Private until shared from its Share menu.
 
 ## Summary
@@ -40,90 +40,95 @@ level happens at the **Arcanum** (#386).
 
 ## Screens
 
-**Mobile first, landscape only.** The reference frame is a landscape phone,
-**844 × 390** CSS px; layouts must also fit **667 × 375** (smallest supported) without
-horizontal scroll. No portrait layout. Desktop is the same two-column layout scaled
-up, not a separate design.
+**Mobile first, landscape only.** Reference frame: landscape phone **844 × 390** CSS
+px; must also fit **667 × 375** without horizontal scroll. No portrait layout.
+Desktop is the same screen at a larger size, not a separate design.
 
-Landscape rules:
+**Built from the existing menu chrome, no new visual language.** Mockups were
+traced from in-game screenshots of Character, Equipment, Blacksmith and Merchant at
+844 × 390:
 
-- Horizontal padding clears the notch: use the `--hud-inset-*` safe-area values
-  (`src/helpers/safeArea.ts`), ~44 px each side on notched phones.
-- Vertical space is the constraint (~290 px of panel). Every screen is **two
-  columns side by side**, never stacked: controls left, detail card right.
-- Only the detail card and long lists scroll (inside their own column); the nav row,
-  slots and action buttons never scroll off.
-- Touch targets ≥ 44 px (nav tabs, close, list rows, action buttons). Active slots
-  64 px, passive slots 64 × 52 px.
-- Nav tabs shrink to 16 px text / 44 px tall; the dungeon banner sits in the nav row
-  rather than taking a row of its own.
+- Overlay over the game world, `Navigation` pixel tabs (orange `#ffa53d`, active blue
+  `#44bff7`, 2em BoldPixels, white), yellow `Button` "X" top right.
+- Pale `pixelBackground` panel (`#e4f6f7`) with the Equipment grid: **170 px
+  character column** (Level, portrait, HP/RP bars, stats) | content | **fixed
+  action column** (`--actions-col`), toggles at the top, actions at the bottom.
+- Content area is a `pixelEmboss` well holding **56 px `LootIcon` tiles** (white face,
+  6 px border, notched corners), black count/number `badge` pills, red border on the
+  selected tile.
+- Details are **tooltips** (white card, 5 px border in the item's colour, as
+  `ItemTooltip`/`PartTooltip`/`SpecialTooltip`), not a side panel.
+- Labels are the Blacksmith `sectionLabel` (0.75rem uppercase `#4d5d66`).
+- Level colour reuses the quality palette: **L1 common `#bbbbbb`, L2 rare
+  `#0077ff`, L3 epic `#9900ff`** (tile border + tooltip border).
+- Spell art is the existing `atlas-icons` frame each spell already uses on the HUD.
+- Buttons are the `Button` atom; purple `#c9a3ff` for Read (as Blacksmith "Use
+  item"); disabled = grey.
 
-| Screen           | Left column (fixed ~368 px)                                                                 | Right column (fills)                                   |
-| ---------------- | ------------------------------------------------------------------------------------------- | ------------------------------------------------------ |
-| Abilities (main) | ACTIVE row (5), PASSIVE row (5 locked), hint line                                           | Ability card for the selected slot                     |
-| Ability picker   | Scrolling list of learned abilities                                                         | Ability card, then Equip / Remove / Back row (44 px)   |
-| Scrolls tab      | Existing character/gear column, then scroll grid (4 cols) + Gear/Parts/Special/Scrolls tabs | Scroll card, Read button, then − / + / Sell / Sell All |
+| Screen            | Content well                                                      | Action column                                     |
+| ----------------- | ----------------------------------------------------------------- | ------------------------------------------------- |
+| Abilities (main)  | ACTIVE row of 5 tiles (number badge 1–5), PASSIVE row of 5 locked | Change / Remove (bottom)                          |
+| Ability picker    | Grid of learned abilities                                         | Equip or Swap / Back (bottom)                     |
+| Equipment Scrolls | Grid of scroll stacks (count badge)                               | Gear / Parts / Special / **Scrolls**; Read / Sell |
 
 The picker is a **view inside the Abilities menu** (like the Blacksmith recipe
 picker), not a new `UI.tsx` menu.
 
 ### Abilities (main)
 
-1. **ACTIVE** label, then **5 square slots** numbered 1–5 (HUD order / hotkey).
-    - Filled: spell icon + level pips (●○○). Tap → picker for that slot.
-    - Empty: `+`. Tap → picker for that slot.
-    - Selected slot is outlined; the detail card shows its spell.
-2. **PASSIVE** label, then **5 locked slots** (greyed, padlock), caption "Coming
-   soon". Not tappable.
-3. **Detail card**: the [ability card](#ability-card) for the selected slot, or "Tap a
-   slot to choose an ability."
-4. **In a dungeon**: a banner "Change abilities in town". Slots still open the
-   picker in read-only mode (browse + card, no Equip/Remove).
+1. **ACTIVE** label, then **5 tiles** with a number badge 1–5 (HUD order / hotkey).
+    - Filled: spell icon on a white tile, border = level colour.
+    - Empty: emboss square with `+`.
+    - Tap selects (red border) and shows the [ability tooltip](#ability-tooltip).
+2. **PASSIVE · COMING SOON** label, then **5 locked squares** (faint, padlock). Not
+   tappable.
+3. Action column: **Change** (empty slot: **Choose**) opens the picker; **Remove**
+   empties the slot.
+4. **In a dungeon**: muted "Change in town" above the buttons; Change/Remove
+   disabled. Tooltips still work.
 
 ### Ability picker
 
-- List of **learned, on-class** abilities: icon, name, level pips, tag "Slot 3" if
-  equipped, "New" badge until first viewed.
-- Detail card for the highlighted ability.
-- Actions:
-    - **Equip** — into the target slot. If the ability is in another slot, the two
-      slots swap (target's previous ability moves to the source slot, or source
-      becomes empty).
-    - **Remove** — only when the target slot is filled; empties it.
-    - **Back**.
-- Empty state (none learned besides equipped): "Read scrolls to learn new abilities."
+- Label "CHOOSE FOR SLOT N", then a grid of **learned, on-class** ability tiles.
+  Equipped ones carry their slot-number badge; a purple **New** pill top-left until
+  first tapped.
+- Tap selects + tooltip.
+- Action column: **Equip** (or **Swap** when the ability sits in another slot — the
+  two slots trade places), **Back**.
+- Empty state: "Read scrolls to learn new abilities."
 
 ### Equipment → Scrolls tab
 
-- New tab after **Special**: Gear | Parts | Special | **Scrolls**.
-- Grid of scroll stacks, one per spell+level: scroll sprite tinted by spell school,
-  level badge (`L2`), count badge (`×3`).
-- Tap → tooltip ([ability card](#ability-card) + scroll state line) and the actions
-  column shows:
+- New toggle after **Special** in the filter column: Gear | Parts | Special |
+  **Scrolls** (active = lime, as today).
+- Grid of scroll stacks, one per spell + level: spell icon, border = level colour,
+  count badge.
+- Tap → tooltip: "Fireball Scroll", "Level 1 · Mage, Occultist", effect, then a hint
+  line (purple when readable, red when not):
 
-| State                                | Read button         | Hint line                                   |
-| ------------------------------------ | ------------------- | ------------------------------------------- |
-| On-class, not learned                | **Learn** (enabled) | "Learns Fireball at L1"                     |
-| On-class, scroll level > spell level | **Read** (enabled)  | "Upgrades Fireball L1 → L2"                 |
-| On-class, scroll level ≤ spell level | disabled            | "Combine 3 at the Arcanum to make L2"       |
-| On-class, spell at L3, L3 scroll     | disabled            | "Max level — sell or keep for recipes"      |
-| Off-class                            | disabled            | "Warrior only — sell or use at the Arcanum" |
+| State                                | Read button | Hint line                                         |
+| ------------------------------------ | ----------- | ------------------------------------------------- |
+| On-class, not learned                | **Learn**   | "Learns Fireball at L1 and fills…empty slot."     |
+| On-class, scroll level > spell level | **Read**    | "Upgrades Fireball L1 → L2."                      |
+| On-class, scroll level ≤ spell level | disabled    | "Combine 3 at the Arcanum to make L2."            |
+| On-class, spell at L3, L3 scroll     | disabled    | "Max level — sell or keep for recipes."           |
+| Off-class                            | disabled    | "Warrior only. Sell it or use it at the Arcanum." |
 
-- **Sell** reuses the Parts stepper (Sell 1 / Sell N / Sell All). Sell value per level
-  is balance (see open questions).
+- Action column: **Read** (purple), **Sell** (one at a time). See open question 7
+  on column height.
 - Learn result: toast "Learned Fireball (L1) — equipped in slot 4" or "… — open
   Abilities to equip" when no slot is empty.
 
-### Ability card
+### Ability tooltip
 
-Shared by the Abilities detail, the picker and the Scrolls tooltip.
+Shared by Abilities, the picker and the Scrolls tab. Same card as the part/special
+tooltips: white, 5 px border in the level colour, max-width 16rem.
 
-- Icon, **name**, level pips + "Level 2", class tag.
-- **Description** (flavour) and **effect** text (plain language, e.g. "Hurls a
-  fireball dealing 45 magic damage").
-- **Cost** (in the player's resource), **cooldown**, **range** (cast range; "Self" for
+- **Name**; "Level 2 · Mage, Occultist" (muted).
+- **Description** (italic `#444`, like part lore) and **effect** text.
+- **Cost** (player's resource) / **Cooldown** / **Range** rows ("Self" for
   self-target).
-- **Next level**: "L3: 180% power" (from the Track D multiplier table). Hidden at L3.
+- **Next: L3 · 180% power** in purple (Track D table). Hidden at L3.
 
 ## Data model (mechanics — open to override)
 
@@ -181,5 +186,5 @@ count)`. Combining is #386's `combineScrolls`.
 4. Picker **sort order**: equipped first, then by name? Or by level?
 5. Effect text: hand-written per spell, or templated from `setValue` base numbers so
    it tracks balance changes?
-6. Scroll sprite: one sprite tinted per school, or per-spell icon on a scroll frame?
-7. Equipment's current landscape-phone layout: does a 4th inventory tab fit beside the character/gear column at 667 px, or does the gear column need collapsing?
+6. Scroll sprite: mockups reuse the spell's atlas icon on a level-coloured tile. Keep, or commission a scroll sprite?
+7. **Equipment action column overflows at 390 px tall.** It fits 6 button rows today (Parts: 3 filters + stepper + Sell + Sell All). A 4th filter makes Parts 7 rows. Options: (a) move Gear/Parts/Special/Scrolls to a horizontal tab strip above the grid; (b) drop the stepper and keep Sell + Sell All; (c) shrink buttons. Scrolls tab shown with Read + Sell only (6 rows).
