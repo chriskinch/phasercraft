@@ -12,8 +12,10 @@ class Banes extends StatusEffects<Enemy> {
     }
 
     calculate(banes: StatusEffect[]): void {
-        // If the banes list is empy set it back to the enemies base stats.
-        if (banes.length === 0) this.entity.stats = this.entity.base_stats;
+        // Rebuild from a fresh copy of the base stats every time: aliasing
+        // base_stats let later banes overwrite it permanently, and stale
+        // modifiers from expired banes lingered while others were active.
+        this.entity.stats = { ...this.entity.base_stats };
         const stats = this.entity.stats as unknown as IndexableStats;
         const base_stats = this.entity.base_stats as unknown as IndexableStats;
         banes.forEach((bane) => {
