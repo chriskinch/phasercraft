@@ -6,6 +6,7 @@ import Enrage from "./Enrage";
 import Enfeeble from "./Enfeeble";
 import Faith from "./Faith";
 import Fireball from "./Fireball";
+import Focus from "./Focus";
 import Frostbolt from "./Frostbolt";
 import Heal from "./Heal";
 import Invocation from "./Invocation";
@@ -27,6 +28,7 @@ const classes = {
     Enfeeble,
     Faith,
     Fireball,
+    Focus,
     Frostbolt,
     Heal,
     Invocation,
