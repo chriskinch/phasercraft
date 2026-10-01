@@ -2,6 +2,7 @@ import AimedShot from "./AimedShot";
 import Consecration from "./Consecration";
 import EarthShield from "./EarthShield";
 import Enrage from "./Enrage";
+import Enfeeble from "./Enfeeble";
 import Faith from "./Faith";
 import Fireball from "./Fireball";
 import Frostbolt from "./Frostbolt";
@@ -21,6 +22,7 @@ const classes = {
     Consecration,
     EarthShield,
     Enrage,
+    Enfeeble,
     Faith,
     Fireball,
     Frostbolt,
