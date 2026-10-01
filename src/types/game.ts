@@ -121,7 +121,7 @@ export const COMPONENT_DEFS: Record<ComponentType, ComponentDef> = {
         sellValue: 2,
         icon: "scrap",
         name: "Scrap",
-        lore: "Salvage from the fallen garrison of Ashmoor. The smiths who forged it are long gone; only their stubborn iron remains, waiting to be made whole again.",
+        lore: "Bent iron from a broken fence. Nobody misses it.",
         description: "Bent nails and busted buckles. One smith's junk is another's jackpot.",
     },
     cloth: {
@@ -129,7 +129,7 @@ export const COMPONENT_DEFS: Record<ComponentType, ComponentDef> = {
         sellValue: 3,
         icon: "cloth",
         name: "Cloth",
-        lore: "Torn from the banners of a forgotten pilgrimage. The sigil has faded, but the weave still remembers the oath it was carried to keep.",
+        lore: "A scrap of old tunic. It has seen better days.",
         description: "Softer than it looks, tougher than it smells. Great for patching heroes.",
     },
     ichor: {
@@ -137,7 +137,7 @@ export const COMPONENT_DEFS: Record<ComponentType, ComponentDef> = {
         sellValue: 8,
         icon: "ichor",
         name: "Ichor",
-        lore: "The lifeblood of things that should not live. Alchemists of the old court drank it seeking eternity, and found only hunger.",
+        lore: "Sticky, dark and faintly warm. Best not to ask where it came from.",
         description: "Still faintly glowing. Try not to think about where it came from.",
     },
     bone: {
@@ -145,7 +145,7 @@ export const COMPONENT_DEFS: Record<ComponentType, ComponentDef> = {
         sellValue: 2,
         icon: "bone",
         name: "Bone",
-        lore: "Remains of a beast that once hunted the hollow woods. Even stripped bare, it bears the marks of a long and hungry life.",
+        lore: "Picked clean by crows. Still sturdy enough to be useful.",
         description: "Ethically sourced from things that were already trying to eat you.",
     },
 };

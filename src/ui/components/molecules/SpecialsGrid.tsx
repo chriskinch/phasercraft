@@ -56,6 +56,7 @@ const SpecialsGrid: React.FC = () => {
                             <div
                                 data-tooltip-id={tooltipId}
                                 className={styles.slot}
+                                onContextMenu={(e) => e.preventDefault()}
                                 role="img"
                                 aria-label={label}
                             >

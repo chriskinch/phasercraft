@@ -67,6 +67,7 @@ const ComponentsGrid: React.FC<ComponentsGridProps> = ({ selectedId, onSelectSta
                                 type="button"
                                 data-tooltip-id={tooltipId}
                                 className={styles.slot}
+                                onContextMenu={(e) => e.preventDefault()}
                                 aria-pressed={isSelected}
                                 aria-label={`${def.name} ×${stack.quantity}`}
                                 onClick={() => select(stack.id)}

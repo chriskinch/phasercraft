@@ -86,3 +86,11 @@ describe("ComponentsGrid tooltip", () => {
         expect(first).toHaveAttribute("data-tooltip-id", "part-lore-a");
     });
 });
+
+describe("ComponentsGrid long-press", () => {
+    it("suppresses the browser context menu on a stack", () => {
+        renderWithProviders(<ComponentsGrid />, { preloadedGame: { components: stacks } });
+        const [first] = within(screen.getByTestId("components-grid")).getAllByRole("button");
+        expect(fireEvent.contextMenu(first)).toBe(false);
+    });
+});

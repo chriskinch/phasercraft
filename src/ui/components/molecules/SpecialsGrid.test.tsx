@@ -1,5 +1,5 @@
 import { describe, it, expect } from "vitest";
-import { screen, within } from "@testing-library/react";
+import { fireEvent, screen, within } from "@testing-library/react";
 import { renderWithProviders } from "@ui/test-utils/renderWithProviders";
 import SpecialsGrid from "./SpecialsGrid";
 
@@ -34,5 +34,15 @@ describe("SpecialsGrid tooltip", () => {
             name: /Void Pearl/,
         });
         expect(tile).toHaveAttribute("data-tooltip-id", "special-void-pearl");
+    });
+});
+
+describe("SpecialsGrid long-press", () => {
+    it("suppresses the browser context menu on a tile", () => {
+        renderWithProviders(<SpecialsGrid />, { preloadedGame: { specials: { "void-pearl": 1 } } });
+        const tile = within(screen.getByTestId("specials-grid")).getByRole("img", {
+            name: /Void Pearl/,
+        });
+        expect(fireEvent.contextMenu(tile)).toBe(false);
     });
 });
