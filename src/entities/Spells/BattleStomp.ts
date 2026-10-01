@@ -1,5 +1,6 @@
 import { Geom } from "phaser";
 import Spell from "./Spell";
+import { playSfx } from "@services/sfx";
 import targetVector from "@helpers/targetVector";
 import type { SpellOptions } from "@/types/game";
 import type Enemy from "@entities/Enemy/Enemy";
@@ -7,9 +8,8 @@ import type { EffectValue } from "@entities/UI/StatusEffects";
 import type { GameSceneLike } from "@/types/scene";
 
 const STOMP_PIXEL = "battlestomp-pixel";
-const STOMP_RINGS = [0.35, 0.65, 1];
-const STOMP_RING_DELAY = 70; // ms between rings
-const STOMP_RING_PIXELS = 40;
+const STOMP_PIXEL_SIZE = 4;
+const STOMP_RING_PIXELS = 64;
 const STOMP_LIFESPAN = { min: 450, max: 750 };
 const STOMP_FEET_OFFSET = 12;
 const STOMP_COLOURS = [0xffffff, 0xe8d8a8, 0xc8a870];
@@ -76,42 +76,35 @@ class BattleStomp extends Spell {
     // No spritesheet: the shockwave is built from particles in startAnimation().
     setAnimation(): void {}
 
-    // Shockwave VFX: rings of pixels erupt from the ground at growing radii,
-    // drift upwards and fade to nothing.
+    // Shockwave VFX: a ring of pixels appears at full radius on impact, pops
+    // upwards and fades to nothing.
     startAnimation(): void {
         this.clearVfx();
         if (!this.scene.textures.exists(STOMP_PIXEL)) {
             const g = this.scene.make.graphics({}, false);
-            g.fillStyle(0xffffff).fillRect(0, 0, 2, 2);
-            g.generateTexture(STOMP_PIXEL, 2, 2);
+            g.fillStyle(0xffffff).fillRect(0, 0, STOMP_PIXEL_SIZE, STOMP_PIXEL_SIZE);
+            g.generateTexture(STOMP_PIXEL, STOMP_PIXEL_SIZE, STOMP_PIXEL_SIZE);
             g.destroy();
         }
 
         const x = this.player.x;
         const y = this.player.y + STOMP_FEET_OFFSET;
-        STOMP_RINGS.forEach((ratio, i) => {
-            this.vfxTimers.push(
-                this.scene.time.delayedCall(i * STOMP_RING_DELAY, () => this.burst(x, y, ratio))
-            );
-        });
+        playSfx("explosion");
+        this.burst(x, y);
         this.vfxTimers.push(
-            this.scene.time.delayedCall(
-                STOMP_RINGS.length * STOMP_RING_DELAY + STOMP_LIFESPAN.max,
-                this.clearVfx,
-                [],
-                this
-            )
+            this.scene.time.delayedCall(STOMP_LIFESPAN.max, this.clearVfx, [], this)
         );
     }
 
-    burst(x: number, y: number, ratio: number): void {
-        const radius = this.range * ratio;
+    burst(x: number, y: number): void {
+        const radius = this.range;
         const emitter = this.scene.add.particles(x, y, STOMP_PIXEL, {
             emitting: false,
             lifespan: STOMP_LIFESPAN,
             speedX: { min: -8, max: 8 },
-            speedY: { min: -40, max: -15 },
-            gravityY: -30,
+            // Fast upward pop that decelerates: the impact.
+            speedY: { min: -110, max: -50 },
+            gravityY: 90,
             alpha: { start: 1, end: 0 },
             scale: { start: 1.5, end: 0.5 },
             tint: STOMP_COLOURS,

@@ -1,5 +1,8 @@
 import { describe, it, expect, vi } from "vitest";
 import BattleStomp from "./BattleStomp";
+import { playSfx } from "@services/sfx";
+
+vi.mock("@services/sfx", () => ({ playSfx: vi.fn(() => true) }));
 
 vi.mock("@store", () => ({
     default: { getState: () => ({ game: { stats: { attack_power: 0 } } }) },
@@ -129,14 +132,14 @@ describe("BattleStomp shockwave VFX", () => {
         return { spell, calls, timers, emitters };
     }
 
-    it("erupts rings of pixels and tears them down when done", () => {
+    it("bursts one full-radius ring with a bang and tears it down when done", () => {
         const { spell, calls, timers, emitters } = setupVfx();
 
         spell.startAnimation();
-        calls.slice(0, -1).forEach((fire) => fire());
 
-        expect(emitters).toHaveLength(3);
-        emitters.forEach((e) => expect(e.explode).toHaveBeenCalled());
+        expect(playSfx).toHaveBeenCalledWith("explosion");
+        expect(emitters).toHaveLength(1);
+        expect(emitters[0].explode).toHaveBeenCalled();
 
         calls[calls.length - 1]();
 
@@ -152,7 +155,6 @@ describe("BattleStomp shockwave VFX", () => {
         );
 
         spell.startAnimation();
-        calls[0]();
         spell.cleanup();
 
         expect(emitters[0].destroy).toHaveBeenCalled();
