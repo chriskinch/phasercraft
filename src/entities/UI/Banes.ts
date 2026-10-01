@@ -7,6 +7,8 @@ import type Enemy from "@entities/Enemy/Enemy";
 type IndexableStats = Record<string, number | string | undefined>;
 
 class Banes extends StatusEffects<Enemy> {
+    public stunned = false;
+
     addEffect(bane: StatusEffect): void {
         super.addEffect(bane);
     }
@@ -16,6 +18,7 @@ class Banes extends StatusEffects<Enemy> {
         // base_stats let later banes overwrite it permanently, and stale
         // modifiers from expired banes lingered while others were active.
         this.entity.stats = { ...this.entity.base_stats };
+        this.stunned = banes.some((bane) => bane.stun === true);
         const stats = this.entity.stats as unknown as IndexableStats;
         const base_stats = this.entity.base_stats as unknown as IndexableStats;
         banes.forEach((bane) => {
