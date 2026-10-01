@@ -9,7 +9,8 @@ import type { GameSceneLike } from "@/types/scene";
 
 const STOMP_PIXEL = "battlestomp-pixel";
 const STOMP_PIXEL_SIZE = 4;
-const STOMP_RING_PIXELS = 64;
+const STOMP_RINGS = [0.35, 0.65, 1];
+const STOMP_RING_PIXELS = 48;
 const STOMP_LIFESPAN = { min: 450, max: 750 };
 const STOMP_FEET_OFFSET = 12;
 const STOMP_COLOURS = [0xffffff, 0xe8d8a8, 0xc8a870];
@@ -60,7 +61,7 @@ class BattleStomp extends Spell {
 
         // Same pack cap as Whirlwind (duplicated; see the TODO there).
         const mod = this.powerCap(enemiesInRange);
-        const value = this.setValue({ base: 25, key: "attack_power" });
+        const value = this.setValue({ base: 19, key: "attack_power" });
 
         enemiesInRange.forEach((enemy: Enemy) => {
             if (!enemy?.health) return;
@@ -76,7 +77,7 @@ class BattleStomp extends Spell {
     // No spritesheet: the shockwave is built from particles in startAnimation().
     setAnimation(): void {}
 
-    // Shockwave VFX: a ring of pixels appears at full radius on impact, pops
+    // Shockwave VFX: concentric rings of pixels (outer = spell range) appear on impact, pops
     // upwards and fades to nothing.
     startAnimation(): void {
         this.clearVfx();
@@ -90,14 +91,14 @@ class BattleStomp extends Spell {
         const x = this.player.x;
         const y = this.player.y + STOMP_FEET_OFFSET;
         playSfx("explosion");
-        this.burst(x, y);
+        STOMP_RINGS.forEach((ratio) => this.burst(x, y, ratio));
         this.vfxTimers.push(
             this.scene.time.delayedCall(STOMP_LIFESPAN.max, this.clearVfx, [], this)
         );
     }
 
-    burst(x: number, y: number): void {
-        const radius = this.range;
+    burst(x: number, y: number, ratio: number): void {
+        const radius = this.range * ratio;
         const emitter = this.scene.add.particles(x, y, STOMP_PIXEL, {
             emitting: false,
             lifespan: STOMP_LIFESPAN,
@@ -110,8 +111,8 @@ class BattleStomp extends Spell {
             tint: STOMP_COLOURS,
             emitZone: {
                 type: "edge",
-                // Flattened ellipse reads as a ring on the ground plane.
-                source: new Geom.Ellipse(0, 0, radius * 2, radius),
+                // Circle matches targetVector's circular range check.
+                source: new Geom.Circle(0, 0, radius),
                 quantity: STOMP_RING_PIXELS,
             },
         });

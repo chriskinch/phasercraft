@@ -132,14 +132,14 @@ describe("BattleStomp shockwave VFX", () => {
         return { spell, calls, timers, emitters };
     }
 
-    it("bursts one full-radius ring with a bang and tears it down when done", () => {
+    it("bursts three concentric rings at once with a bang and tears them down when done", () => {
         const { spell, calls, timers, emitters } = setupVfx();
 
         spell.startAnimation();
 
         expect(playSfx).toHaveBeenCalledWith("explosion");
-        expect(emitters).toHaveLength(1);
-        expect(emitters[0].explode).toHaveBeenCalled();
+        expect(emitters).toHaveLength(3);
+        emitters.forEach((e) => expect(e.explode).toHaveBeenCalled());
 
         calls[calls.length - 1]();
 
