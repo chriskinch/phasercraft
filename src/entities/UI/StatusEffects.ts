@@ -12,6 +12,9 @@ export interface StatusEffect extends GameObjects.GameObject {
     name: string;
     duration: number;
     value: Record<string, EffectValue>;
+    // Banes only: while any active bane sets this, the enemy can neither move
+    // nor attack (see Banes.stunned / Enemy.update).
+    stun?: boolean;
 }
 
 // The owning entity is the Player (for Boons) or an Enemy (for Banes); it is
