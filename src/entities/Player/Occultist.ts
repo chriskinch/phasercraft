@@ -20,7 +20,7 @@ class Occultist extends Player {
                 health_regen_rate: 0.9,
             },
             resource_type: "Mana",
-            abilities: ["Fireball", "SiphonSoul", "Enfeeble"],
+            abilities: ["Fireball", "SiphonSoul", "Enfeeble", "BloodFurnace"],
         };
 
         super({ ...defaults, ...config });
