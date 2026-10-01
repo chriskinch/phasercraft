@@ -332,13 +332,22 @@
 	"spriteSourceSize": {"x":0,"y":0,"w":32,"h":32},
 	"sourceSize": {"w":32,"h":32},
 	"pivot": {"x":0.5,"y":0.5}
+},
+{
+	"filename": "icon_0036_blood-furnace",
+	"frame": {"x":1172,"y":0,"w":32,"h":32},
+	"rotated": false,
+	"trimmed": false,
+	"spriteSourceSize": {"x":0,"y":0,"w":32,"h":32},
+	"sourceSize": {"w":32,"h":32},
+	"pivot": {"x":0.5,"y":0.5}
 }],
 "meta": {
 	"app": "https://www.codeandweb.com/texturepacker",
 	"version": "1.0",
 	"image": "atlas-icons.png",
 	"format": "RGBA8888",
-	"size": {"w":1172,"h":32},
+	"size": {"w":1204,"h":32},
 	"scale": "1",
 	"smartupdate": "$TexturePacker:SmartUpdate:b9c089b8967f758c9eac5e92839370aa:c42ba37f7102d35a63848bfafeef0da6:d857f462efb1a389268361056da812ff$"
 }

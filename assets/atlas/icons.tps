@@ -214,6 +214,7 @@
             <key type="filename">icons/icon_0033_kill-command.png</key>
             <key type="filename">icons/icon_0034_command-beast.png</key>
             <key type="filename">icons/icon_0035_raise-corpse.png</key>
+            <key type="filename">icons/icon_0036_blood-furnace.png</key>
             <struct type="IndividualSpriteSettings">
                 <key>pivotPoint</key>
                 <point_f>0.5,0.5</point_f>
@@ -308,6 +309,7 @@
             <filename>icons/icon_0033_kill-command.png</filename>
             <filename>icons/icon_0034_command-beast.png</filename>
             <filename>icons/icon_0035_raise-corpse.png</filename>
+            <filename>icons/icon_0036_blood-furnace.png</filename>
         </array>
         <key>ignoreFileList</key>
         <array/>
