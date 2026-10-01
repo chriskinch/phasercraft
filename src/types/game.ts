@@ -121,6 +121,7 @@ export const COMPONENT_DEFS: Record<ComponentType, ComponentDef> = {
         sellValue: 2,
         icon: "scrap",
         name: "Scrap",
+        lore: "Bent iron from a broken fence. Nobody misses it.",
         description: "Bent nails and busted buckles. One smith's junk is another's jackpot.",
     },
     cloth: {
@@ -128,6 +129,7 @@ export const COMPONENT_DEFS: Record<ComponentType, ComponentDef> = {
         sellValue: 3,
         icon: "cloth",
         name: "Cloth",
+        lore: "A scrap of old tunic. It has seen better days.",
         description: "Softer than it looks, tougher than it smells. Great for patching heroes.",
     },
     ichor: {
@@ -135,6 +137,7 @@ export const COMPONENT_DEFS: Record<ComponentType, ComponentDef> = {
         sellValue: 8,
         icon: "ichor",
         name: "Ichor",
+        lore: "Sticky, dark and faintly warm. Best not to ask where it came from.",
         description: "Still faintly glowing. Try not to think about where it came from.",
     },
     bone: {
@@ -142,6 +145,7 @@ export const COMPONENT_DEFS: Record<ComponentType, ComponentDef> = {
         sellValue: 2,
         icon: "bone",
         name: "Bone",
+        lore: "Picked clean by crows. Still sturdy enough to be useful.",
         description: "Ethically sourced from things that were already trying to eat you.",
     },
 };
@@ -301,6 +305,8 @@ export interface ComponentDef {
     name: string;
     // Short flavour blurb shown in the Merchant's buy tooltip.
     description: string;
+    // Story text shown in the inventory Parts tooltip.
+    lore: string;
 }
 export interface LootDropRate {
     name: LootType;

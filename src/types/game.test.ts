@@ -49,3 +49,11 @@ describe("merchant restock helpers", () => {
         expect(values.size).toBeGreaterThan(1);
     });
 });
+
+describe("component lore", () => {
+    it("gives every component type non-empty lore text", () => {
+        for (const type of COMPONENT_TYPES) {
+            expect(COMPONENT_DEFS[type].lore.length).toBeGreaterThan(0);
+        }
+    });
+});

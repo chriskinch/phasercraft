@@ -1,6 +1,7 @@
 import React from "react";
 import { useSelector } from "react-redux";
 import LootIcon from "@components/LootIcon";
+import SpecialTooltip from "./SpecialTooltip";
 import PaginationControls from "@components/PaginationControls";
 import { usePagination, useMeasuredPageSize } from "@ui/hooks/usePagination";
 import { SPECIAL_ITEMS } from "@/types/game";
@@ -48,21 +49,25 @@ const SpecialsGrid: React.FC = () => {
                 {pageItems.map((special) => {
                     const bonus = specialBonusRow(special);
                     const label = `${special.name} ×${specials[special.id]}: ${bonus.display} ${bonus.label}`;
+                    const tooltipId = `special-${special.id}`;
                     return (
-                        <div
-                            key={special.id}
-                            className={styles.slot}
-                            role="img"
-                            aria-label={label}
-                            title={label}
-                        >
-                            <LootIcon
-                                category="misc"
-                                color={colorForQuality(special.quality)}
-                                icon={special.icon}
-                            />
-                            <span className={styles.badge}>{specials[special.id]}</span>
-                        </div>
+                        <React.Fragment key={special.id}>
+                            <SpecialTooltip id={tooltipId} special={special} />
+                            <div
+                                data-tooltip-id={tooltipId}
+                                className={styles.slot}
+                                onContextMenu={(e) => e.preventDefault()}
+                                role="img"
+                                aria-label={label}
+                            >
+                                <LootIcon
+                                    category="misc"
+                                    color={colorForQuality(special.quality)}
+                                    icon={special.icon}
+                                />
+                                <span className={styles.badge}>{specials[special.id]}</span>
+                            </div>
+                        </React.Fragment>
                     );
                 })}
             </div>

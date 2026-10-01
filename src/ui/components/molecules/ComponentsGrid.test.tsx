@@ -78,3 +78,19 @@ describe("ComponentsGrid", () => {
         expect(controls.textContent).not.toEqual(indicatorBefore);
     });
 });
+
+describe("ComponentsGrid tooltip", () => {
+    it("anchors each stack to a lore tooltip", () => {
+        renderWithProviders(<ComponentsGrid />, { preloadedGame: { components: stacks } });
+        const [first] = within(screen.getByTestId("components-grid")).getAllByRole("button");
+        expect(first).toHaveAttribute("data-tooltip-id", "part-lore-a");
+    });
+});
+
+describe("ComponentsGrid long-press", () => {
+    it("suppresses the browser context menu on a stack", () => {
+        renderWithProviders(<ComponentsGrid />, { preloadedGame: { components: stacks } });
+        const [first] = within(screen.getByTestId("components-grid")).getAllByRole("button");
+        expect(fireEvent.contextMenu(first)).toBe(false);
+    });
+});
