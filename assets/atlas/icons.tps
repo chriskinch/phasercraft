@@ -205,6 +205,16 @@
             <key type="filename">icons/icon_0025_dash.png</key>
             <key type="filename">icons/icon_0026_regen.png</key>
             <key type="filename">icons/icon_blank.png</key>
+            <key type="filename">icons/icon_0027_battle-stomp.png</key>
+            <key type="filename">icons/icon_0028_enfeeble.png</key>
+            <key type="filename">icons/icon_0029_aimed-shot.png</key>
+            <key type="filename">icons/icon_0030_focus.png</key>
+            <key type="filename">icons/icon_0031_charge.png</key>
+            <key type="filename">icons/icon_0032_retaliation.png</key>
+            <key type="filename">icons/icon_0033_kill-command.png</key>
+            <key type="filename">icons/icon_0034_command-beast.png</key>
+            <key type="filename">icons/icon_0035_raise-corpse.png</key>
+            <key type="filename">icons/icon_0036_blood-furnace.png</key>
             <struct type="IndividualSpriteSettings">
                 <key>pivotPoint</key>
                 <point_f>0.5,0.5</point_f>
@@ -290,6 +300,16 @@
             <filename>icons/icon_0025_dash.png</filename>
             <filename>icons/icon_0026_regen.png</filename>
             <filename>icons/icon_blank.png</filename>
+            <filename>icons/icon_0027_battle-stomp.png</filename>
+            <filename>icons/icon_0028_enfeeble.png</filename>
+            <filename>icons/icon_0029_aimed-shot.png</filename>
+            <filename>icons/icon_0030_focus.png</filename>
+            <filename>icons/icon_0031_charge.png</filename>
+            <filename>icons/icon_0032_retaliation.png</filename>
+            <filename>icons/icon_0033_kill-command.png</filename>
+            <filename>icons/icon_0034_command-beast.png</filename>
+            <filename>icons/icon_0035_raise-corpse.png</filename>
+            <filename>icons/icon_0036_blood-furnace.png</filename>
         </array>
         <key>ignoreFileList</key>
         <array/>

@@ -20,7 +20,7 @@ class BloodFurnace extends Spell {
     constructor(config: SpellOptions) {
         const defaults = {
             name: "bloodfurnace",
-            icon_name: "icon_0000_death",
+            icon_name: "icon_0036_blood-furnace",
             cooldown: 15,
             cost: {
                 rage: 0,
