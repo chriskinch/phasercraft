@@ -9,7 +9,7 @@ class AimedShot extends Spell {
     constructor(config: SpellOptions) {
         const defaults = {
             name: "aimed-shot",
-            icon_name: "icon_0025_dash",
+            icon_name: "icon_0029_aimed-shot",
             cooldown: 6,
             cost: {
                 rage: 40,
