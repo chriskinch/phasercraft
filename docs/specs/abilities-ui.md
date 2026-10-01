@@ -4,7 +4,7 @@ Issue #519. Agreed design from the Abilities design session (2026-10). It **laye
 the scroll-economy epic #384**: this spec is the loadout UI (replaces Track C, #43 +
 #19) and refines Tracks A/B/D/E/F where noted in [Changes to #384](#changes-to-384).
 
-Design canvas (mockups, desktop + phone):
+Design canvas (mockups, phone landscape primary, desktop secondary):
 https://claude.ai/artifact/VxckXN8u7BmWXfUCzzdXq5. Private until shared from its Share menu.
 
 ## Summary
@@ -40,11 +40,29 @@ level happens at the **Arcanum** (#386).
 
 ## Screens
 
-| Screen           | Desktop                                                        | Phone (390 px)                                         |
-| ---------------- | -------------------------------------------------------------- | ------------------------------------------------------ |
-| Abilities (main) | Slots column left (Active row, Passive row), detail card right | One column: Active row, Passive row, detail card below |
-| Ability picker   | List left, detail card right, actions under                    | List, detail summary, actions pinned to bottom         |
-| Scrolls tab      | 4th Equipment inventory tab beside Gear / Parts / Special      | Same                                                   |
+**Mobile first, landscape only.** The reference frame is a landscape phone,
+**844 × 390** CSS px; layouts must also fit **667 × 375** (smallest supported) without
+horizontal scroll. No portrait layout. Desktop is the same two-column layout scaled
+up, not a separate design.
+
+Landscape rules:
+
+- Horizontal padding clears the notch: use the `--hud-inset-*` safe-area values
+  (`src/helpers/safeArea.ts`), ~44 px each side on notched phones.
+- Vertical space is the constraint (~290 px of panel). Every screen is **two
+  columns side by side**, never stacked: controls left, detail card right.
+- Only the detail card and long lists scroll (inside their own column); the nav row,
+  slots and action buttons never scroll off.
+- Touch targets ≥ 44 px (nav tabs, close, list rows, action buttons). Active slots
+  64 px, passive slots 64 × 52 px.
+- Nav tabs shrink to 16 px text / 44 px tall; the dungeon banner sits in the nav row
+  rather than taking a row of its own.
+
+| Screen           | Left column (fixed ~368 px)                                                                 | Right column (fills)                                   |
+| ---------------- | ------------------------------------------------------------------------------------------- | ------------------------------------------------------ |
+| Abilities (main) | ACTIVE row (5), PASSIVE row (5 locked), hint line                                           | Ability card for the selected slot                     |
+| Ability picker   | Scrolling list of learned abilities                                                         | Ability card, then Equip / Remove / Back row (44 px)   |
+| Scrolls tab      | Existing character/gear column, then scroll grid (4 cols) + Gear/Parts/Special/Scrolls tabs | Scroll card, Read button, then − / + / Sell / Sell All |
 
 The picker is a **view inside the Abilities menu** (like the Blacksmith recipe
 picker), not a new `UI.tsx` menu.
@@ -164,3 +182,4 @@ count)`. Combining is #386's `combineScrolls`.
 5. Effect text: hand-written per spell, or templated from `setValue` base numbers so
    it tracks balance changes?
 6. Scroll sprite: one sprite tinted per school, or per-spell icon on a scroll frame?
+7. Equipment's current landscape-phone layout: does a 4th inventory tab fit beside the character/gear column at 667 px, or does the gear column need collapsing?
