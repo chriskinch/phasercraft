@@ -56,7 +56,7 @@ function setup(enemies: FakeEnemy[]) {
 }
 
 describe("BattleStomp.effect", () => {
-    it("damages and slows in-range enemies only", () => {
+    it("damages and stuns in-range enemies only", () => {
         const near = makeEnemy(50);
         const far = makeEnemy(150);
         const { spell } = setup([near, far]);
@@ -81,7 +81,7 @@ describe("BattleStomp.effect", () => {
         });
     });
 
-    it("clears tints when the slow expires", () => {
+    it("clears tints when the stun expires", () => {
         const near = makeEnemy(50);
         const { spell, fire } = setup([near]);
 

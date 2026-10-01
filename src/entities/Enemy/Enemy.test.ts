@@ -407,3 +407,50 @@ describe("Enemy.dropLoot", () => {
         expect(vi.mocked(Crafting)).not.toHaveBeenCalled();
     });
 });
+
+describe("Enemy stun", () => {
+    function makeStunnable(stunned: boolean) {
+        const enemy = Object.create(Enemy.prototype) as Enemy;
+        const attack = vi.fn();
+        const accelerateToObject = vi.fn();
+        Object.assign(enemy, {
+            state: "spawned",
+            x: 0,
+            y: 0,
+            attack_radius: 100,
+            states: { attack: "primed", movement: "chasing" },
+            banes: { stunned },
+            health: { update: vi.fn(), getValue: () => 10 },
+            body: { setAcceleration: vi.fn(), setVelocity: vi.fn(), maxVelocity: { x: 100 } },
+            monster: { idle: vi.fn() },
+            stats: { speed: 50 },
+            target: {},
+            setDepth: vi.fn(),
+            attack,
+            scene: { player: { x: 10, y: 0 }, physics: { accelerateToObject } },
+        });
+        return { enemy, attack, accelerateToObject };
+    }
+
+    it("a stunned enemy halts and neither attacks nor moves", () => {
+        const { enemy, attack, accelerateToObject } = makeStunnable(true);
+
+        enemy.update(0, 16);
+        enemy.move();
+
+        expect(attack).not.toHaveBeenCalled();
+        expect(accelerateToObject).not.toHaveBeenCalled();
+        expect(enemy.body.setVelocity).toHaveBeenCalledWith(0, 0);
+    });
+
+    it("an unstunned enemy in range attacks", () => {
+        const { enemy, attack } = makeStunnable(false);
+        Object.assign(enemy, {
+            movementAnimationHandler: vi.fn(),
+            isInAggroDistance: () => false,
+            destination: null,
+        });
+        enemy.update(0, 16);
+        expect(attack).toHaveBeenCalled();
+    });
+});

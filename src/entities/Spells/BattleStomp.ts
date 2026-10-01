@@ -5,21 +5,13 @@ import type Enemy from "@entities/Enemy/Enemy";
 import type { EffectValue } from "@entities/UI/StatusEffects";
 import type { GameSceneLike } from "@/types/scene";
 
-interface BattleStompValue {
-    [key: string]: EffectValue;
-    speed: (baseSpeed: number) => number;
-}
-
-const BATTLE_STOMP_VALUE: BattleStompValue = {
-    speed: (bs: number) => -bs * 0.5,
-};
-
 class BattleStomp extends Spell {
     public type: string;
     public range: number;
     public cap: number;
     public duration: number;
-    public value: BattleStompValue;
+    public value: Record<string, EffectValue> = {};
+    public stun = true;
     public timer?: Phaser.Time.TimerEvent;
     public slowed: Enemy[] = [];
 
@@ -36,9 +28,8 @@ class BattleStomp extends Spell {
             type: "physical",
             range: 100,
             cap: 5,
-            duration: 2,
+            duration: 1.5,
             targetKind: "self" as const,
-            value: BATTLE_STOMP_VALUE,
         };
 
         super({ ...defaults, ...config });
@@ -47,8 +38,7 @@ class BattleStomp extends Spell {
         this.type = "physical";
         this.range = 100;
         this.cap = 5;
-        this.duration = 2;
-        this.value = BATTLE_STOMP_VALUE;
+        this.duration = 1.5;
     }
 
     effect(): void {
@@ -67,7 +57,7 @@ class BattleStomp extends Spell {
             if (!enemy?.health) return;
             enemy.health.adjustValue(-value.amount * mod, this.type, value.crit);
             enemy.banes.addEffect(this);
-            enemy.monster.setTint(0x9999ff);
+            enemy.monster.setTint(0xffff66);
         });
 
         this.slowed = enemiesInRange;

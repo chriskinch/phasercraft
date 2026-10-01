@@ -208,6 +208,14 @@ class Enemy extends GameObjects.Container {
                 (this.scene as GameSceneLike).player
             );
 
+            if (this.isStunned()) {
+                this.body.setAcceleration(0, 0);
+                this.body.setVelocity(0, 0);
+                this.monster.idle();
+                if (this.health.getValue() <= 0) this.emit("enemy:dead", this);
+                return;
+            }
+
             if (this.distance_to_player < this.attack_radius && this.states.attack === "primed")
                 this.attack();
 
@@ -277,8 +285,12 @@ class Enemy extends GameObjects.Container {
         return this.distance_to_player <= this.aggro_radius;
     }
 
+    isStunned(): boolean {
+        return this.banes?.stunned === true;
+    }
+
     move({ target = this.target, bias = 1 }: MoveOptions = {}): void {
-        if (!target) return;
+        if (!target || this.isStunned()) return;
         const physicsTarget = target as GameObjects.GameObject;
         const speed = Math.min(this.body.maxVelocity.x, this.stats.speed);
         this.scene.physics.accelerateToObject(this, physicsTarget, 200 * bias, speed, speed);
