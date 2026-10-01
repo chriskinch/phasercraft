@@ -90,3 +90,72 @@ describe("BattleStomp.effect", () => {
         expect(near.monster.setTint).not.toHaveBeenCalled();
     });
 });
+
+describe("BattleStomp shockwave VFX", () => {
+    function setupVfx() {
+        const calls: Array<() => void> = [];
+        const timers: Array<{ remove: ReturnType<typeof vi.fn> }> = [];
+        const emitters: Array<{
+            destroy: ReturnType<typeof vi.fn>;
+            explode: ReturnType<typeof vi.fn>;
+        }> = [];
+        const spell = Object.create(BattleStomp.prototype) as BattleStomp;
+        Object.assign(spell, {
+            range: 100,
+            emitters: [],
+            vfxTimers: [],
+            player: { x: 0, y: 0 },
+            scene: {
+                textures: { exists: () => true },
+                add: {
+                    particles: vi.fn(() => {
+                        const e = { destroy: vi.fn(), explode: vi.fn(), setDepth: vi.fn() };
+                        emitters.push(e);
+                        return e;
+                    }),
+                },
+                time: {
+                    delayedCall: vi.fn(
+                        (_d: number, cb: () => void, _a?: unknown[], ctx?: unknown) => {
+                            calls.push(() => cb.call(ctx));
+                            const t = { remove: vi.fn() };
+                            timers.push(t);
+                            return t;
+                        }
+                    ),
+                },
+            },
+        });
+        return { spell, calls, timers, emitters };
+    }
+
+    it("erupts rings of pixels and tears them down when done", () => {
+        const { spell, calls, timers, emitters } = setupVfx();
+
+        spell.startAnimation();
+        calls.slice(0, -1).forEach((fire) => fire());
+
+        expect(emitters).toHaveLength(3);
+        emitters.forEach((e) => expect(e.explode).toHaveBeenCalled());
+
+        calls[calls.length - 1]();
+
+        emitters.forEach((e) => expect(e.destroy).toHaveBeenCalled());
+        timers.forEach((t) => expect(t.remove).toHaveBeenCalled());
+        expect(spell.emitters).toEqual([]);
+    });
+
+    it("cleanup releases pending rings and live emitters", () => {
+        const { spell, calls, timers, emitters } = setupVfx();
+        vi.spyOn(Object.getPrototypeOf(BattleStomp.prototype), "cleanup").mockImplementation(
+            () => {}
+        );
+
+        spell.startAnimation();
+        calls[0]();
+        spell.cleanup();
+
+        expect(emitters[0].destroy).toHaveBeenCalled();
+        timers.forEach((t) => expect(t.remove).toHaveBeenCalled());
+    });
+});
