@@ -13,7 +13,7 @@ describe("SpecialsGrid", () => {
         expect(tiles).toHaveLength(2);
 
         const pearl = within(grid).getByRole("img", { name: /^Void Pearl ×2/ });
-        expect(pearl.getAttribute("title")).toMatch(/Critical Chance/);
+        expect(pearl.getAttribute("aria-label")).toMatch(/Critical Chance/);
         expect(within(pearl).getByText("2")).toBeInTheDocument();
         expect(pearl.querySelector("img")?.getAttribute("src")).toBe(
             "graphics/images/loot/misc/misc_2.png"
@@ -24,5 +24,15 @@ describe("SpecialsGrid", () => {
         renderWithProviders(<SpecialsGrid />, { preloadedGame: { specials: {} } });
         const grid = screen.getByTestId("specials-grid");
         expect(within(grid).queryAllByRole("img", { name: /×/ })).toHaveLength(0);
+    });
+});
+
+describe("SpecialsGrid tooltip", () => {
+    it("anchors each tile to a special tooltip", () => {
+        renderWithProviders(<SpecialsGrid />, { preloadedGame: { specials: { "void-pearl": 1 } } });
+        const tile = within(screen.getByTestId("specials-grid")).getByRole("img", {
+            name: /Void Pearl/,
+        });
+        expect(tile).toHaveAttribute("data-tooltip-id", "special-void-pearl");
     });
 });

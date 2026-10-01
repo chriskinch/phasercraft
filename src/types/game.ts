@@ -121,6 +121,7 @@ export const COMPONENT_DEFS: Record<ComponentType, ComponentDef> = {
         sellValue: 2,
         icon: "scrap",
         name: "Scrap",
+        lore: "Salvage from the fallen garrison of Ashmoor. The smiths who forged it are long gone; only their stubborn iron remains, waiting to be made whole again.",
         description: "Bent nails and busted buckles. One smith's junk is another's jackpot.",
     },
     cloth: {
@@ -128,6 +129,7 @@ export const COMPONENT_DEFS: Record<ComponentType, ComponentDef> = {
         sellValue: 3,
         icon: "cloth",
         name: "Cloth",
+        lore: "Torn from the banners of a forgotten pilgrimage. The sigil has faded, but the weave still remembers the oath it was carried to keep.",
         description: "Softer than it looks, tougher than it smells. Great for patching heroes.",
     },
     ichor: {
@@ -135,6 +137,7 @@ export const COMPONENT_DEFS: Record<ComponentType, ComponentDef> = {
         sellValue: 8,
         icon: "ichor",
         name: "Ichor",
+        lore: "The lifeblood of things that should not live. Alchemists of the old court drank it seeking eternity, and found only hunger.",
         description: "Still faintly glowing. Try not to think about where it came from.",
     },
     bone: {
@@ -142,6 +145,7 @@ export const COMPONENT_DEFS: Record<ComponentType, ComponentDef> = {
         sellValue: 2,
         icon: "bone",
         name: "Bone",
+        lore: "Remains of a beast that once hunted the hollow woods. Even stripped bare, it bears the marks of a long and hungry life.",
         description: "Ethically sourced from things that were already trying to eat you.",
     },
 };
@@ -301,6 +305,8 @@ export interface ComponentDef {
     name: string;
     // Short flavour blurb shown in the Merchant's buy tooltip.
     description: string;
+    // Story text shown in the inventory Parts tooltip.
+    lore: string;
 }
 export interface LootDropRate {
     name: LootType;

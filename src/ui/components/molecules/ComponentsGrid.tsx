@@ -1,6 +1,7 @@
 import React, { useState } from "react";
 import { useSelector } from "react-redux";
 import LootIcon from "@components/LootIcon";
+import PartLoreTooltip from "./PartLoreTooltip";
 import PaginationControls from "@components/PaginationControls";
 import { usePagination, useMeasuredPageSize } from "@ui/hooks/usePagination";
 import { COMPONENT_DEFS } from "@/types/game";
@@ -58,23 +59,27 @@ const ComponentsGrid: React.FC<ComponentsGridProps> = ({ selectedId, onSelectSta
                 {pageItems.map((stack) => {
                     const def = COMPONENT_DEFS[stack.type];
                     const isSelected = stack.id === activeId;
+                    const tooltipId = `part-lore-${stack.id}`;
                     return (
-                        <button
-                            key={stack.id}
-                            type="button"
-                            className={styles.slot}
-                            aria-pressed={isSelected}
-                            aria-label={`${def.name} ×${stack.quantity}`}
-                            onClick={() => select(stack.id)}
-                        >
-                            <LootIcon
-                                category="crafting"
-                                color="#bbbbbb"
-                                icon={def.icon}
-                                selected={isSelected}
-                            />
-                            <span className={styles.badge}>{stack.quantity}</span>
-                        </button>
+                        <React.Fragment key={stack.id}>
+                            <PartLoreTooltip id={tooltipId} type={stack.type} />
+                            <button
+                                type="button"
+                                data-tooltip-id={tooltipId}
+                                className={styles.slot}
+                                aria-pressed={isSelected}
+                                aria-label={`${def.name} ×${stack.quantity}`}
+                                onClick={() => select(stack.id)}
+                            >
+                                <LootIcon
+                                    category="crafting"
+                                    color="#bbbbbb"
+                                    icon={def.icon}
+                                    selected={isSelected}
+                                />
+                                <span className={styles.badge}>{stack.quantity}</span>
+                            </button>
+                        </React.Fragment>
                     );
                 })}
             </div>
