@@ -12,8 +12,6 @@ class BattleStomp extends Spell {
     public duration: number;
     public value: Record<string, EffectValue> = {};
     public stun = true;
-    public timer?: Phaser.Time.TimerEvent;
-    public slowed: Enemy[] = [];
 
     constructor(config: SpellOptions) {
         const defaults = {
@@ -57,35 +55,11 @@ class BattleStomp extends Spell {
             if (!enemy?.health) return;
             enemy.health.adjustValue(-value.amount * mod, this.type, value.crit);
             enemy.banes.addEffect(this);
-            enemy.monster.setTint(0xffff66);
-        });
-
-        this.slowed = enemiesInRange;
-        this.timer?.remove();
-        this.timer = this.scene.time.addEvent({
-            delay: this.duration * 1000 + 1, // Extra ms to ensure effect is over before clearing
-            callback: this.clearEffect,
-            callbackScope: this,
         });
     }
 
     powerCap(enemies: Enemy[]): number {
         return this.cap / Math.max(this.cap, enemies.length);
-    }
-
-    clearEffect(): void {
-        this.timer = undefined;
-        this.slowed.forEach((enemy) => {
-            if (enemy.active && !enemy.banes.contains(this)) enemy.monster.clearTint();
-        });
-        this.slowed = [];
-    }
-
-    cleanup(): void {
-        this.timer?.remove();
-        this.timer = undefined;
-        this.slowed = [];
-        super.cleanup();
     }
 
     animationUpdate(): void {

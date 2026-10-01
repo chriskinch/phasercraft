@@ -211,10 +211,12 @@ class Enemy extends GameObjects.Container {
             if (this.isStunned()) {
                 this.body.setAcceleration(0, 0);
                 this.body.setVelocity(0, 0);
-                this.monster.idle();
+                this.monster.freeze();
                 if (this.health.getValue() <= 0) this.emit("enemy:dead", this);
                 return;
             }
+
+            this.monster.unfreeze();
 
             if (this.distance_to_player < this.attack_radius && this.states.attack === "primed")
                 this.attack();

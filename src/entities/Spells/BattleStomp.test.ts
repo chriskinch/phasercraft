@@ -81,28 +81,12 @@ describe("BattleStomp.effect", () => {
         });
     });
 
-    it("clears tints when the stun expires", () => {
+    it("does not tint stunned enemies", () => {
         const near = makeEnemy(50);
-        const { spell, fire } = setup([near]);
+        const { spell } = setup([near]);
 
         spell.effect();
-        fire();
 
-        expect(near.monster.clearTint).toHaveBeenCalled();
-        expect(spell.timer).toBeUndefined();
-    });
-
-    it("cleanup removes the pending tint timer", () => {
-        const { spell, timer } = setup([makeEnemy(50)]);
-        const superCleanup = vi
-            .spyOn(Object.getPrototypeOf(BattleStomp.prototype), "cleanup")
-            .mockImplementation(() => {});
-
-        spell.effect();
-        spell.cleanup();
-
-        expect(timer.remove).toHaveBeenCalled();
-        expect(spell.timer).toBeUndefined();
-        expect(superCleanup).toHaveBeenCalled();
+        expect(near.monster.setTint).not.toHaveBeenCalled();
     });
 });

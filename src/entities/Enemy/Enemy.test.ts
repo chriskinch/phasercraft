@@ -422,7 +422,7 @@ describe("Enemy stun", () => {
             banes: { stunned },
             health: { update: vi.fn(), getValue: () => 10 },
             body: { setAcceleration: vi.fn(), setVelocity: vi.fn(), maxVelocity: { x: 100 } },
-            monster: { idle: vi.fn() },
+            monster: { freeze: vi.fn(), unfreeze: vi.fn() },
             stats: { speed: 50 },
             target: {},
             setDepth: vi.fn(),
@@ -441,6 +441,7 @@ describe("Enemy stun", () => {
         expect(attack).not.toHaveBeenCalled();
         expect(accelerateToObject).not.toHaveBeenCalled();
         expect(enemy.body.setVelocity).toHaveBeenCalledWith(0, 0);
+        expect(enemy.monster.freeze).toHaveBeenCalled();
     });
 
     it("an unstunned enemy in range attacks", () => {
@@ -452,5 +453,6 @@ describe("Enemy stun", () => {
         });
         enemy.update(0, 16);
         expect(attack).toHaveBeenCalled();
+        expect(enemy.monster.unfreeze).toHaveBeenCalled();
     });
 });
