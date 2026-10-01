@@ -10,8 +10,7 @@ interface SpecialTooltipProps {
     special: SpecialItem;
 }
 
-// Hover card for a special item: name and the effect it adds when slotted at
-// the Blacksmith.
+// Hover card for a special item: name and its effect.
 const SpecialTooltip: React.FC<SpecialTooltipProps> = ({ id, special }) => {
     const bonus = specialBonusRow(special);
 
@@ -25,7 +24,7 @@ const SpecialTooltip: React.FC<SpecialTooltipProps> = ({ id, special }) => {
             <div className={styles.card} style={{ borderColor: colorForQuality(special.quality) }}>
                 <h3 className={styles.title}>{special.name}</h3>
                 <p className={styles.effect}>
-                    Slot at the Blacksmith: {bonus.display} {bonus.label} on the crafted item.
+                    {bonus.display} {bonus.label}
                 </p>
             </div>
         </Tooltip>
