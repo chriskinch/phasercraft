@@ -1,5 +1,6 @@
 import Spell from "./Spell";
 import AreaEffect from "../Weapons/AreaEffect";
+import { spellDefDefaults } from "@/types/game";
 import type { SpellOptions } from "@/types/game";
 import type Enemy from "@entities/Enemy/Enemy";
 
@@ -13,18 +14,11 @@ class Consecration extends Spell {
     constructor(config: SpellOptions) {
         const defaults = {
             name: "consecration",
-            icon_name: "icon_0003_decay",
-            cooldown: 30,
-            cost: {
-                rage: 60,
-                mana: 100,
-                energy: 70,
-            },
+            ...spellDefDefaults("Consecration"),
             type: "magic",
             range: 80,
             cap: 5,
             lifespan: 15,
-            targetKind: "none" as const,
         };
 
         super({ ...defaults, ...config });

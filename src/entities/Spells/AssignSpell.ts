@@ -18,7 +18,12 @@ import SiphonSoul from "./SiphonSoul";
 import Smite from "./Smite";
 import SnareTrap from "./SnareTrap";
 import Whirlwind from "./Whirlwind";
-import type { SpellOptions } from "@/types/game";
+import type Spell from "./Spell";
+import type { SpellOptions, SpellType } from "@/types/game";
+
+// `SpellType` lives in the Phaser-free `@/types/game` (alongside SPELL_DEFS);
+// `satisfies` keeps this class map and that union exactly in step.
+export type { SpellType };
 
 const classes = {
     AimedShot,
@@ -41,9 +46,8 @@ const classes = {
     Smite,
     SnareTrap,
     Whirlwind,
-};
+} satisfies Record<SpellType, new (opts: SpellOptions) => Spell>;
 
-export type SpellType = keyof typeof classes;
 class AssignSpell {
     constructor(className: SpellType, opts: SpellOptions) {
         return new classes[className](opts);

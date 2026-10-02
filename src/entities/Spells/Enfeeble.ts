@@ -1,4 +1,5 @@
 import Spell from "./Spell";
+import { spellDefDefaults } from "@/types/game";
 import type { SpellOptions } from "@/types/game";
 import type Enemy from "@entities/Enemy/Enemy";
 import type { EffectValue } from "@entities/UI/StatusEffects";
@@ -23,17 +24,9 @@ class Enfeeble extends Spell {
     constructor(config: SpellOptions) {
         const defaults = {
             name: "enfeeble",
-            icon_name: "icon_0028_enfeeble",
-            cooldown: 5,
-            cost: {
-                rage: 10,
-                mana: 15,
-                energy: 10,
-            },
+            ...spellDefDefaults("Enfeeble"),
             type: "magic",
             duration: 10,
-            targetKind: "enemy" as const,
-            castRange: 250,
             value: {
                 damage: (bd: number) => -bd * 0.9,
             },

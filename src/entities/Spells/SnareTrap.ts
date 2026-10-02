@@ -1,5 +1,6 @@
 import Spell from "./Spell";
 import Trap from "../Weapons/Trap";
+import { spellDefDefaults } from "@/types/game";
 import type { SpellOptions, TargetType } from "@/types/game";
 import type Enemy from "@entities/Enemy/Enemy";
 
@@ -12,18 +13,10 @@ class SnareTrap extends Spell {
     constructor(config: SpellOptions) {
         const defaults = {
             name: "snaretrap",
-            icon_name: "icon_0020_shackle",
-            cooldown: 0,
-            cost: {
-                rage: 20,
-                mana: 30,
-                energy: 20,
-            },
+            ...spellDefDefaults("SnareTrap"),
             type: "bleed",
             duration: 6,
             lifespan: 20,
-            targetKind: "ground" as const,
-            castRange: 300,
             aoeRadius: 20,
         };
 

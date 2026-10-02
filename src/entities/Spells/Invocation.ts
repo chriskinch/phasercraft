@@ -1,4 +1,5 @@
 import Boon from "./Boon";
+import { spellDefDefaults } from "@/types/game";
 import type { SpellOptions } from "@/types/game";
 import type { EffectValue } from "@entities/UI/StatusEffects";
 
@@ -19,16 +20,9 @@ class Invocation extends Boon {
     constructor(config: SpellOptions) {
         const defaults = {
             name: "invocation",
-            icon_name: "icon_0014_haste",
-            cooldown: 60,
-            cost: {
-                rage: 0,
-                mana: 0,
-                energy: 0,
-            },
+            ...spellDefDefaults("Invocation"),
             type: "magic",
             duration: 5,
-            targetKind: "self" as const,
             value: {
                 resource_regen_value: (bs: number) => bs * 4,
                 resource_regen_rate: -0.1, // Tick 0.1s more frequently

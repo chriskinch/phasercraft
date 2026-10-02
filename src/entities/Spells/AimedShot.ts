@@ -1,4 +1,5 @@
 import Spell from "./Spell";
+import { spellDefDefaults } from "@/types/game";
 import type { SpellOptions, TargetType } from "@/types/game";
 
 // Ranger single-target nuke: long interruptible wind-up, then a homing
@@ -9,16 +10,8 @@ class AimedShot extends Spell {
     constructor(config: SpellOptions) {
         const defaults = {
             name: "aimed-shot",
-            icon_name: "icon_0029_aimed-shot",
-            cooldown: 6,
-            cost: {
-                rage: 40,
-                mana: 60,
-                energy: 50,
-            },
+            ...spellDefDefaults("AimedShot"),
             type: "physical",
-            targetKind: "enemy" as const,
-            castRange: 300,
             // Wind-up: interruptible by moving, taking a hit, or casting
             // something else; the resource is only charged on completion.
             castTime: 1.25,

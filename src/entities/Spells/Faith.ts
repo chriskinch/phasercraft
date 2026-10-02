@@ -1,4 +1,5 @@
 import Spell from "./Spell";
+import { spellDefDefaults } from "@/types/game";
 import type { SpellOptions } from "@/types/game";
 import type Player from "@entities/Player/Player";
 
@@ -11,17 +12,10 @@ class Faith extends Spell {
     constructor(config: SpellOptions) {
         const defaults = {
             name: "faith",
-            icon_name: "icon_0026_regen",
-            cooldown: 20,
-            cost: {
-                rage: 15,
-                mana: 30,
-                energy: 20,
-            },
+            ...spellDefDefaults("Faith"),
             frequency: 2,
             duration: 10,
             type: "heal",
-            targetKind: "self" as const,
         };
 
         super({ ...defaults, ...config });

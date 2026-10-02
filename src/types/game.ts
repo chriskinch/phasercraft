@@ -1,7 +1,7 @@
 import type { Scene, GameObjects, Math as PhaserMath, Types, Physics, Tilemaps } from "phaser";
 import type Player from "@entities/Player/Player";
 import type Enemy from "@entities/Enemy/Enemy";
-import type { SpellType } from "@entities/Spells/AssignSpell";
+import type { PlayerName } from "@entities/Player/AssignClass";
 
 // The object Arcade physics passes to collide/overlap callbacks. Mirrors the
 // union in `Phaser.Types.Physics.Arcade.ArcadePhysicsCallback`; callbacks accept
@@ -731,6 +731,290 @@ export const specialById = (id: string): SpecialItem | undefined =>
 // per kill x 100" units: the same odds as schematic drops (docs/ROADMAP.md,
 // Step 4b) — 1% from a regular mob, one guaranteed from a boss.
 export const SPECIAL_DROP_RATE = { mob: 1, boss: 100 } as const;
+
+// --- Spell metadata (Abilities, Stage 1) --------------------------------------
+// Every spell the game can build. Defined here as a plain string-literal union
+// (not derived from AssignSpell's class map) so this module stays Phaser-free at
+// runtime; AssignSpell type-checks its class map against it.
+export type SpellType =
+    | "AimedShot"
+    | "BattleStomp"
+    | "BloodFurnace"
+    | "Consecration"
+    | "EarthShield"
+    | "Enrage"
+    | "Enfeeble"
+    | "Faith"
+    | "Fireball"
+    | "Focus"
+    | "Frostbolt"
+    | "Heal"
+    | "Invocation"
+    | "ManaShield"
+    | "Multishot"
+    | "PowerInfusion"
+    | "SiphonSoul"
+    | "Smite"
+    | "SnareTrap"
+    | "Whirlwind";
+
+// Resource cost per resource type; the casting player pays the entry matching
+// its own resource. A type alias (not an interface) so it stays assignable to
+// SpellOptions' `{ [key: string]: number }` cost.
+export type SpellCost = {
+    rage: number;
+    mana: number;
+    energy: number;
+};
+
+// Static, Phaser-free spell metadata: the single source of truth for the values
+// a spell instance reads at construction, readable by the React UI without
+// instantiating a Phaser object.
+export interface SpellDef {
+    // Display name. (The spell instance's own lowercase `name` is its animation /
+    // texture key and stays in the spell class.)
+    name: string;
+    description: string;
+    effect: string;
+    // Classes whose ability list includes the spell.
+    classes: PlayerName[];
+    icon_name: string;
+    cooldown: number;
+    cost: SpellCost;
+    // Max cast/placement distance in px; undefined = unlimited / not targeted.
+    castRange?: number;
+    targetKind: TargetKind;
+}
+
+// Description/effect copy is PLACEHOLDER — to be replaced with final copy.
+export const SPELL_DEFS: Record<SpellType, SpellDef> = {
+    AimedShot: {
+        name: "Aimed Shot",
+        description: "A steadied shot that hits hard.",
+        effect: "Wind-up, then fires a homing arrow at an enemy.",
+        classes: ["Ranger"],
+        icon_name: "icon_0029_aimed-shot",
+        cooldown: 6,
+        cost: { rage: 40, mana: 60, energy: 50 },
+        castRange: 300,
+        targetKind: "enemy",
+    },
+    BattleStomp: {
+        name: "Battle Stomp",
+        description: "Shake the ground underfoot.",
+        effect: "Stuns nearby enemies.",
+        classes: ["Warrior"],
+        icon_name: "icon_0027_battle-stomp",
+        cooldown: 6,
+        cost: { rage: 30, mana: 60, energy: 40 },
+        targetKind: "self",
+    },
+    BloodFurnace: {
+        name: "Blood Furnace",
+        description: "Burn your own blood for power.",
+        effect: "Trades health for mana over time.",
+        classes: ["Occultist"],
+        icon_name: "icon_0036_blood-furnace",
+        cooldown: 15,
+        cost: { rage: 0, mana: 0, energy: 0 },
+        targetKind: "self",
+    },
+    Consecration: {
+        name: "Consecration",
+        description: "Hallow the ground around you.",
+        effect: "Damages enemies standing in the area over time.",
+        classes: ["Cleric"],
+        icon_name: "icon_0003_decay",
+        cooldown: 30,
+        cost: { rage: 60, mana: 100, energy: 70 },
+        targetKind: "none",
+    },
+    EarthShield: {
+        name: "Earth Shield",
+        description: "Stone armour that soaks blows.",
+        effect: "Grants a recharging damage shield.",
+        classes: ["Mage"],
+        icon_name: "icon_0008_ki",
+        cooldown: 10,
+        cost: { rage: 75, mana: 120, energy: 70 },
+        targetKind: "self",
+    },
+    Enrage: {
+        name: "Enrage",
+        description: "Let the fury take over.",
+        effect: "Boosts crit, attack power and health regen for a short time.",
+        classes: ["Warrior"],
+        icon_name: "icon_0019_fire-wall",
+        cooldown: 10,
+        cost: { rage: 10, mana: 80, energy: 30 },
+        targetKind: "self",
+    },
+    Enfeeble: {
+        name: "Enfeeble",
+        description: "Sap an enemy's strength.",
+        effect: "Greatly reduces an enemy's damage for a time.",
+        classes: ["Occultist"],
+        icon_name: "icon_0028_enfeeble",
+        cooldown: 5,
+        cost: { rage: 10, mana: 15, energy: 10 },
+        castRange: 250,
+        targetKind: "enemy",
+    },
+    Faith: {
+        name: "Faith",
+        description: "Trust in the light.",
+        effect: "Heals you periodically for a time.",
+        classes: ["Cleric"],
+        icon_name: "icon_0026_regen",
+        cooldown: 20,
+        cost: { rage: 15, mana: 30, energy: 20 },
+        targetKind: "self",
+    },
+    Fireball: {
+        name: "Fireball",
+        description: "A ball of roaring flame.",
+        effect: "Launches a homing fireball at an enemy.",
+        classes: ["Mage", "Occultist"],
+        icon_name: "icon_0017_fire-ball",
+        cooldown: 1,
+        cost: { rage: 30, mana: 50, energy: 40 },
+        castRange: 250,
+        targetKind: "enemy",
+    },
+    Focus: {
+        name: "Focus",
+        description: "Steady your breathing.",
+        effect: "Boosts your combat stats for a short time.",
+        classes: ["Ranger"],
+        icon_name: "icon_0030_focus",
+        cooldown: 20,
+        cost: { rage: 15, mana: 80, energy: 25 },
+        targetKind: "self",
+    },
+    Frostbolt: {
+        name: "Frostbolt",
+        description: "A shard of biting ice.",
+        effect: "Damages and slows an enemy.",
+        classes: ["Mage"],
+        icon_name: "icon_0012_beam",
+        cooldown: 1,
+        cost: { rage: 20, mana: 35, energy: 25 },
+        castRange: 250,
+        targetKind: "enemy",
+    },
+    Heal: {
+        name: "Heal",
+        description: "Mend your wounds.",
+        effect: "Wind-up, then restores health.",
+        classes: ["Cleric"],
+        icon_name: "icon_0015_heal",
+        cooldown: 5,
+        cost: { rage: 25, mana: 40, energy: 30 },
+        targetKind: "self",
+    },
+    Invocation: {
+        name: "Invocation",
+        description: "Call on deep reserves.",
+        effect: "Greatly boosts resource regen for a short time.",
+        classes: ["Mage"],
+        icon_name: "icon_0014_haste",
+        cooldown: 60,
+        cost: { rage: 0, mana: 0, energy: 0 },
+        targetKind: "self",
+    },
+    ManaShield: {
+        name: "Mana Shield",
+        description: "A barrier woven from mana.",
+        effect: "Absorbs incoming damage.",
+        classes: ["Mage"],
+        icon_name: "icon_0011_freeze",
+        cooldown: 10,
+        cost: { rage: 75, mana: 120, energy: 70 },
+        targetKind: "self",
+    },
+    Multishot: {
+        name: "Multishot",
+        description: "Loose a volley of arrows.",
+        effect: "Fires at several nearby enemies at once.",
+        classes: ["Ranger"],
+        icon_name: "icon_0004_corpse-explode",
+        cooldown: 0,
+        cost: { rage: 50, mana: 100, energy: 60 },
+        targetKind: "none",
+    },
+    PowerInfusion: {
+        name: "Power Infusion",
+        description: "Radiant power floods your body.",
+        effect: "Boosts many of your stats for a time.",
+        classes: ["Cleric"],
+        icon_name: "icon_0009_blind",
+        cooldown: 30,
+        cost: { rage: 20, mana: 100, energy: 40 },
+        targetKind: "self",
+    },
+    SiphonSoul: {
+        name: "Siphon Soul",
+        description: "Drain the life from a foe.",
+        effect: "Channels damage into an enemy, healing you.",
+        classes: ["Occultist"],
+        icon_name: "icon_0000_death",
+        cooldown: 5,
+        cost: { rage: 60, mana: 100, energy: 60 },
+        castRange: 200,
+        targetKind: "enemy",
+    },
+    Smite: {
+        name: "Smite",
+        description: "Holy wrath strikes a foe.",
+        effect: "Damages an enemy.",
+        classes: ["Cleric"],
+        icon_name: "icon_0007_bolt",
+        cooldown: 3,
+        cost: { rage: 30, mana: 50, energy: 40 },
+        castRange: 300,
+        targetKind: "enemy",
+    },
+    SnareTrap: {
+        name: "Snare Trap",
+        description: "A hidden jaw of iron.",
+        effect: "Places a trap that roots and bleeds an enemy.",
+        classes: ["Ranger"],
+        icon_name: "icon_0020_shackle",
+        cooldown: 0,
+        cost: { rage: 20, mana: 30, energy: 20 },
+        castRange: 300,
+        targetKind: "ground",
+    },
+    Whirlwind: {
+        name: "Whirlwind",
+        description: "Spin into the fray.",
+        effect: "Strikes several nearby enemies.",
+        classes: ["Warrior"],
+        icon_name: "icon_0005_coil",
+        cooldown: 2,
+        cost: { rage: 50, mana: 80, energy: 60 },
+        targetKind: "none",
+    },
+};
+
+// Every spell type, as a runtime array (the union is compile-time only).
+export const SPELL_TYPES = Object.keys(SPELL_DEFS) as SpellType[];
+
+// The construction defaults a spell takes from its def. `cost` is copied so no
+// instance shares (or can mutate) the registry's object; `castRange` is only
+// set when the def has one, matching the old per-spell defaults exactly.
+export const spellDefDefaults = (
+    type: SpellType
+): Pick<SpellDef, "icon_name" | "cooldown" | "cost" | "targetKind"> & { castRange?: number } => {
+    const { icon_name, cooldown, cost, targetKind, castRange } = SPELL_DEFS[type];
+    return {
+        icon_name,
+        cooldown,
+        cost: { ...cost },
+        targetKind,
+        ...(castRange === undefined ? {} : { castRange }),
+    };
+};
 
 // --- Abilities (docs/specs/abilities-ui.md → Data model) ---
 
