@@ -1,5 +1,6 @@
 import Player from "./Player";
 import { PlayerOptions } from "@/types/game";
+import { CLASS_KITS } from "@/lib/classKits";
 
 class Cleric extends Player {
     constructor(config: PlayerOptions) {
@@ -20,7 +21,7 @@ class Cleric extends Player {
                 health_regen_rate: 1,
             },
             resource_type: "Mana",
-            abilities: ["Heal", "Smite", "PowerInfusion", "Consecration", "Faith"],
+            abilities: [...CLASS_KITS.Cleric],
         };
 
         super({ ...defaults, ...config });

@@ -12,6 +12,8 @@ import type {
     ComponentType,
     Recipe,
     SpecialItem,
+    SpellLevel,
+    PassiveType,
 } from "@/types/game";
 import {
     COMPONENT_DEFS,
@@ -22,10 +24,15 @@ import {
     recipeById,
     specialById,
     SPECIAL_ITEMS,
+    ABILITY_SLOTS,
+    SCROLL_SELL_VALUE,
+    SPELL_LEVELS,
 } from "@/types/game";
+import { CLASS_KITS, isKnownClass, isKnownSpell, isOnClass } from "@/lib/classKits";
 import { appliedStatValue } from "@/lib/statConversion";
 import { colorForQuality } from "@/lib/armoryClient";
 import type { PlayerName } from "@entities/Player/AssignClass";
+import type { SpellType } from "@entities/Spells/AssignSpell";
 import type { BiomeId } from "@/scenes/biomes/biomes";
 
 // Where the player has asked to travel. The React overlay writes it, the active
@@ -102,7 +109,94 @@ export interface GameState {
     travelRequest: TravelDestination | null;
     playerPosition: { x: number; y: number };
     merchant: MerchantState;
+    // Abilities (docs/specs/abilities-ui.md → Data model). All persisted.
+    // Spells the player has learned, at their current level.
+    learnedSpells: Partial<Record<SpellType, SpellLevel>>;
+    // Unread scroll items, spell → level → count. A 0 count is removed (like
+    // `specials`), and so is a spell with no scrolls left.
+    scrolls: Partial<Record<SpellType, Partial<Record<SpellLevel, number>>>>;
+    // Active slots, length ABILITY_SLOTS; index = HUD order. null = empty slot.
+    abilityLoadout: (SpellType | null)[];
+    // Passive slots, length ABILITY_SLOTS. Plumbing only: always all null.
+    passiveLoadout: (PassiveType | null)[];
 }
+
+export type ScrollStock = GameState["scrolls"];
+
+type AbilitySlices = Pick<
+    GameState,
+    "learnedSpells" | "scrolls" | "abilityLoadout" | "passiveLoadout"
+>;
+
+const emptySlots = (): null[] => Array.from({ length: ABILITY_SLOTS }, () => null);
+
+// The abilities a character starts with: the class kit learned at L1 and slotted
+// in kit order, remaining slots empty. Used for new characters and to migrate
+// saves written before abilities were stored.
+export const seedAbilities = (character: PlayerName | null): AbilitySlices => {
+    const kit = isKnownClass(character) ? CLASS_KITS[character] : [];
+    const learnedSpells: GameState["learnedSpells"] = {};
+    const abilityLoadout: (SpellType | null)[] = emptySlots();
+    kit.forEach((spell, i) => {
+        learnedSpells[spell] = 1;
+        if (i < ABILITY_SLOTS) abilityLoadout[i] = spell;
+    });
+    return { learnedSpells, scrolls: {}, abilityLoadout, passiveLoadout: emptySlots() };
+};
+
+const isRecord = (value: unknown): value is Record<string, unknown> =>
+    typeof value === "object" && value !== null && !Array.isArray(value);
+
+const isSpellLevel = (value: unknown): value is SpellLevel =>
+    SPELL_LEVELS.includes(value as SpellLevel);
+
+// Normalise the abilities slices of a loaded save. A field the save doesn't
+// carry falls back to the character's seed; unknown spell ids, bad levels and
+// non-positive counts are dropped; loadouts are forced to ABILITY_SLOTS length
+// and only hold learned spells, each at most once. Never throws.
+export const migrateAbilities = (
+    character: PlayerName | null,
+    loaded: Record<string, unknown>
+): AbilitySlices => {
+    const seed = seedAbilities(character);
+
+    const learnedSpells: GameState["learnedSpells"] = {};
+    if (isRecord(loaded.learnedSpells)) {
+        for (const [spell, level] of Object.entries(loaded.learnedSpells)) {
+            if (isKnownSpell(spell) && isSpellLevel(level)) learnedSpells[spell] = level;
+        }
+    } else {
+        Object.assign(learnedSpells, seed.learnedSpells);
+    }
+
+    const scrolls: ScrollStock = {};
+    if (isRecord(loaded.scrolls)) {
+        for (const [spell, byLevel] of Object.entries(loaded.scrolls)) {
+            if (!isKnownSpell(spell) || !isRecord(byLevel)) continue;
+            const kept: Partial<Record<SpellLevel, number>> = {};
+            for (const level of SPELL_LEVELS) {
+                const count = byLevel[level];
+                if (typeof count === "number" && Number.isInteger(count) && count > 0) {
+                    kept[level] = count;
+                }
+            }
+            if (Object.keys(kept).length > 0) scrolls[spell] = kept;
+        }
+    }
+
+    const source: unknown[] = Array.isArray(loaded.abilityLoadout)
+        ? loaded.abilityLoadout
+        : seed.abilityLoadout;
+    const abilityLoadout: (SpellType | null)[] = emptySlots();
+    source.slice(0, ABILITY_SLOTS).forEach((spell, i) => {
+        if (isKnownSpell(spell) && learnedSpells[spell] && !abilityLoadout.includes(spell)) {
+            abilityLoadout[i] = spell;
+        }
+    });
+
+    // No passives exist yet (PASSIVE_DEFS is empty), so every slot is empty.
+    return { learnedSpells, scrolls, abilityLoadout, passiveLoadout: emptySlots() };
+};
 
 const initState: GameState = {
     character: null,
@@ -139,6 +233,7 @@ const initState: GameState = {
     travelRequest: null,
     playerPosition: { x: 400, y: 300 },
     merchant: freshMerchant(),
+    ...seedAbilities(null),
 };
 
 export const addCoins = createAction("ADD_COIN", (value: number) => ({
@@ -307,6 +402,42 @@ export const setPlayerPosition = createAction(
         payload: { position },
     })
 );
+
+// Read one scroll: learn the spell at the scroll's level, or raise it to that
+// level. Refused (no-op) when the spell is off-class, the player holds no such
+// scroll, or the scroll is not above the spell's current level. A newly learned
+// spell fills the first empty active slot — allowed anywhere, even mid-run.
+export const readScroll = createAction("READ_SCROLL", (spell: SpellType, level: SpellLevel) => ({
+    payload: { spell, level },
+}));
+
+// Put a learned spell in an active slot (or empty it with null). A spell sits
+// in at most one slot: choosing one already slotted elsewhere swaps the two
+// slots. Refused outside town (loadout changes are town-only).
+export const equipAbility = createAction(
+    "EQUIP_ABILITY",
+    (slot: number, spell: SpellType | null) => ({
+        payload: { slot, spell },
+    })
+);
+
+// Sell `count` scrolls of a spell at a level (clamped to what is held).
+export const sellScroll = createAction(
+    "SELL_SCROLL",
+    (spell: SpellType, level: SpellLevel, count: number) => ({
+        payload: { spell, level, count },
+    })
+);
+
+// Remove `count` scrolls, dropping emptied level and spell entries.
+const takeScrolls = (scrolls: ScrollStock, spell: SpellType, level: SpellLevel, count: number) => {
+    const byLevel = scrolls[spell];
+    if (!byLevel) return;
+    const left = (byLevel[level] ?? 0) - count;
+    if (left > 0) byLevel[level] = left;
+    else delete byLevel[level];
+    if (Object.keys(byLevel).length === 0) delete scrolls[spell];
+};
 
 const syncStats = (state: GameState) => (state.stats = state.base_stats);
 
@@ -613,6 +744,12 @@ export const gameReducer = createReducer(initState, (builder) => {
                 // Ephemeral shop stock — loading a save is a reset, so the
                 // Merchant starts fresh rather than restoring any saved stock.
                 merchant: freshMerchant(),
+                // Saves written before abilities get the class kit at L1 and the
+                // kit loadout; unknown spell ids are dropped.
+                ...migrateAbilities(
+                    isKnownClass(loaded.character) ? loaded.character : null,
+                    loaded as unknown as Record<string, unknown>
+                ),
             } as GameState;
         })
         .addCase(setEnemiesRemaining, (state, action: PayloadAction<{ value: number }>) => {
@@ -625,8 +762,67 @@ export const gameReducer = createReducer(initState, (builder) => {
             state.selected = action.payload.loot;
         })
         .addCase(selectCharacter, (state, action: PayloadAction<{ character: PlayerName }>) => {
-            return { ...state, showUi: false, ...action.payload };
+            const { character } = action.payload;
+            // A different character means a new game: seed its class kit. Loading a
+            // save dispatches loadGame and then selectCharacter with the same
+            // character, so the loaded abilities are kept.
+            const abilities = state.character !== character ? seedAbilities(character) : {};
+            return { ...state, showUi: false, ...action.payload, ...abilities };
         })
+        .addCase(
+            readScroll,
+            (state, action: PayloadAction<{ spell: SpellType; level: SpellLevel }>) => {
+                const { spell, level } = action.payload;
+                if (!isKnownSpell(spell) || !isSpellLevel(level)) return;
+                if (!isOnClass(state.character, spell)) return;
+                if ((state.scrolls[spell]?.[level] ?? 0) < 1) return;
+                const current = state.learnedSpells[spell];
+                if (current !== undefined && level <= current) return;
+
+                state.learnedSpells[spell] = level;
+                takeScrolls(state.scrolls, spell, level, 1);
+                if (current === undefined && !state.abilityLoadout.includes(spell)) {
+                    const empty = state.abilityLoadout.indexOf(null);
+                    if (empty !== -1) state.abilityLoadout[empty] = spell;
+                }
+            }
+        )
+        .addCase(
+            equipAbility,
+            (state, action: PayloadAction<{ slot: number; spell: SpellType | null }>) => {
+                const { slot, spell } = action.payload;
+                if (state.currentArea !== "town") return;
+                if (!Number.isInteger(slot) || slot < 0 || slot >= ABILITY_SLOTS) return;
+                if (spell === null) {
+                    state.abilityLoadout[slot] = null;
+                    return;
+                }
+                if (!state.learnedSpells[spell]) return;
+                const from = state.abilityLoadout.indexOf(spell);
+                // Swap: the slot's previous occupant (or empty) moves to where the
+                // spell was.
+                if (from !== -1) state.abilityLoadout[from] = state.abilityLoadout[slot];
+                state.abilityLoadout[slot] = spell;
+            }
+        )
+        .addCase(
+            sellScroll,
+            (
+                state,
+                action: PayloadAction<{ spell: SpellType; level: SpellLevel; count: number }>
+            ) => {
+                const { spell, level, count } = action.payload;
+                if (!isSpellLevel(level)) return;
+                // NaN/Infinity would slip past the clamp and corrupt coins.
+                if (!Number.isFinite(count)) return;
+                const held = state.scrolls[spell]?.[level] ?? 0;
+                // Clamp to what is held; a non-positive count is a no-op.
+                const sold = Math.min(Math.max(Math.floor(count), 0), held);
+                if (sold === 0) return;
+                takeScrolls(state.scrolls, spell, level, sold);
+                state.coins += SCROLL_SELL_VALUE[level] * sold;
+            }
+        )
         .addCase(sellLoot, (state, action: PayloadAction<{ loot: LootItem }>) => {
             const { loot } = action.payload;
             remove(state.inventory, (l) => l.id === loot.id);

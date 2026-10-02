@@ -1,5 +1,6 @@
 import Player from "./Player";
 import { PlayerOptions } from "@/types/game";
+import { CLASS_KITS } from "@/lib/classKits";
 
 class Mage extends Player {
     constructor(config: PlayerOptions) {
@@ -20,7 +21,7 @@ class Mage extends Player {
                 health_regen_rate: 1,
             },
             resource_type: "Mana",
-            abilities: ["Fireball", "Frostbolt", "EarthShield", "ManaShield", "Invocation"],
+            abilities: [...CLASS_KITS.Mage],
         };
 
         super({ ...defaults, ...config });
