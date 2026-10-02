@@ -4,6 +4,7 @@ import { readFileSync } from "node:fs";
 import path from "node:path";
 import sharp from "sharp";
 import type { SpellType } from "@entities/Spells/AssignSpell";
+import { SPELL_DEFS } from "@/types/game";
 import {
     ATLAS_GUTTER,
     blitCells,
@@ -80,9 +81,8 @@ describe("scroll art", () => {
 });
 
 describe("SPELL_ICON_NAMES", () => {
-    it.each(SCROLL_SPELLS)("%s matches the icon_name its Spell class uses", (spell) => {
-        const src = readFileSync(path.join(ROOT, `src/entities/Spells/${spell}.ts`), "utf8");
-        expect(src).toMatch(new RegExp(`icon_name:\\s*"${SPELL_ICON_NAMES[spell]}"`));
+    it.each(SCROLL_SPELLS)("%s matches the icon_name in SPELL_DEFS", (spell) => {
+        expect(SPELL_ICON_NAMES[spell]).toBe(SPELL_DEFS[spell].icon_name);
     });
 
     it("covers every spell class registered in AssignSpell", () => {
