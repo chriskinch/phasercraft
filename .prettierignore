@@ -1,6 +1,9 @@
 # Build output
 .next
 dist
+dist-perf
+perf-results
+perf-base
 out
 
 # Playwright artifacts

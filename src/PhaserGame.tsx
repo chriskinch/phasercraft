@@ -62,6 +62,14 @@ const PhaserGame = () => {
         // after the DOM is committed, so the container already exists — create the
         // game synchronously rather than racing it behind a setTimeout.
         gameRef.current = new Game(config);
+        // Perf builds only (#526): the flag is replaced at build time, so a
+        // normal build drops this branch and never emits the harness chunk.
+        if (import.meta.env.VITE_PERF === "1") {
+            const game = gameRef.current;
+            void import("@/perf/harness").then(({ installPerfHarness }) =>
+                installPerfHarness(game)
+            );
+        }
         // React plays sound effects through the game's global sound manager.
         setSfxManager(gameRef.current.sound);
 

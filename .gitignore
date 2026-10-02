@@ -22,6 +22,11 @@
 /build
 /dist
 
+# perf harness (#526): VITE_PERF=1 build and its results
+/dist-perf
+/perf-results
+/perf-base
+
 # agent worktrees (ephemeral, created by Claude Code agent isolation)
 /.claude/worktrees/
 
