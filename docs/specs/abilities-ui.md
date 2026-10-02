@@ -60,13 +60,17 @@ traced from in-game screenshots of Character, Equipment, Blacksmith and Merchant
   (white, 5 px border in the level colour). Scrolls in Equipment keep **tooltips**
   like other inventory items.
 - Labels are the Blacksmith `sectionLabel` (0.75rem uppercase `#4d5d66`).
-- **Scrolls** use the reference scroll shape (stacked top roll with right-hand
-  curl, page band, lower roll with right-hand curl; 18 × 18 pixel grid drawn at 2×,
-  36 px), with the ink lines and seal removed so the spell icon (half size, **not**
-  tinted) sits on the page. **Level = scroll colour**, a full palette swap: L1
-  parchment, L2 green, L3 blue. Stack count is the Parts-style black `badge` pill, in
-  BoldPixels. Card/tooltip border matches: L1 `#bbbbbb`, L2 `#00dd00` (fine), L3
-  `#0077ff` (rare).
+- **Scrolls** are an original 20 × 20 sprite drawn at 2× (40 px): a top roll and a
+  lower roll, each with a curl on its right end, and a page between them. **Level =
+  scroll colour**, a full palette swap: L1 parchment, L2 green, L3 blue.
+- The page carries a **spell glyph**, not the button: the motif lifted from the spell's
+  `atlas-icons` frame at its native 16 px grid (frame and background removed), shrunk to
+  at most 7 × 7 when larger, corners cleared so it is never a square, ringed with the
+  scroll's outline colour. Same 2× pixel size as the scroll, so they never mismatch.
+  Glyph colours are not tinted. Generated per spell × level (build step or runtime
+  canvas, decided at build).
+- Stack count is the Parts-style black `badge` pill, in BoldPixels. Card/tooltip border
+  matches the level: L1 `#bbbbbb`, L2 `#00dd00` (fine), L3 `#0077ff` (rare).
 - Spell art is the existing `atlas-icons` frame each spell already uses on the HUD.
 - Buttons are the `Button` atom; purple `#c9a3ff` for Learn (as Blacksmith "Use
   item"); disabled = grey.
@@ -193,4 +197,4 @@ count)`. Combining is #386's `combineScrolls`.
 4. Picker **sort order**: equipped first, then by name? Or by level?
 5. Effect text: hand-written per spell, or templated from `setValue` base numbers so
    it tracks balance changes?
-6. Scroll sprite licence: the shape is traced from a PIXTA stock image (#107270041). Shipping it needs that licence, or a redraw.
+6. Weak glyphs on parchment: Consecration and Smite lose contrast when shrunk; may need a hand touch-up.
