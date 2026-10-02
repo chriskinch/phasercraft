@@ -40,7 +40,8 @@
         "format:check": "prettier --check .",
         "prepare": "simple-git-hooks",
         "armory:smoke": "tsx scripts/armory-smoke.ts",
-        "maps:biomes": "node scripts/generate-biome-maps.mjs"
+        "maps:biomes": "node scripts/generate-biome-maps.mjs",
+        "scrolls:build": "node --disable-warning=MODULE_TYPELESS_PACKAGE_JSON --disable-warning=ExperimentalWarning scripts/build-scroll-icons.ts"
     },
     "dependencies": {
         "@reduxjs/toolkit": "^2.8.2",
