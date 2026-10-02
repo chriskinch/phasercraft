@@ -1,5 +1,7 @@
 // Compares two perf reports (#526) and prints a Markdown table.
 //
+// Runs on Node 22 native type stripping (no tsx).
+//
 //   npm run perf:compare -- <base summary.json> <head summary.json>
 //   npm run perf:compare -- <summary.json>          (one report, no deltas)
 //

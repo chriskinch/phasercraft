@@ -35,7 +35,7 @@
         "build:perf": "VITE_PERF=1 vite build --outDir dist-perf",
         "perf": "npm run build:perf && npm run perf:run",
         "perf:run": "playwright test -c playwright.perf.config.ts",
-        "perf:compare": "tsx scripts/perf-compare.ts",
+        "perf:compare": "node --disable-warning=MODULE_TYPELESS_PACKAGE_JSON scripts/perf-compare.ts",
         "format": "prettier --write .",
         "format:check": "prettier --check .",
         "prepare": "simple-git-hooks",
