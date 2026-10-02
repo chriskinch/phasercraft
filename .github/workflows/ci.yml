@@ -36,6 +36,13 @@ jobs:
               run: npm run test:coverage
             - name: Build
               run: npm run build
+            # The perf harness (#526) is compiled in only when VITE_PERF=1.
+            - name: Perf harness excluded from production bundle
+              run: |
+                  if grep -rlE "__perf|installPerfHarness" dist; then
+                      echo "::error::perf harness code found in dist/"
+                      exit 1
+                  fi
 
     # Dependabot PRs only auto-merge once every quality gate is green.
     dependabot:

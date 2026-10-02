@@ -12,6 +12,9 @@ const eslintConfig = [
         ignores: [
             ".next/**",
             "dist/**",
+            "dist-perf/**",
+            "perf-results/**",
+            "perf-base/**",
             "out/**",
             "coverage/**",
             "playwright-report/**",

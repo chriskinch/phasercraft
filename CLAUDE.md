@@ -26,6 +26,8 @@ before starting work; link PRs to the relevant phase issue.
 - `npm run dev` — dev server on :8080 · `npm run armory:smoke` — local armory CRUD smoke
 - `npm run typecheck` · `npm run lint` · `npm test` · `npm run format:check`
 - `npm run build` — static export (CI runs all five)
+- `npm run perf` — perf harness: `VITE_PERF=1` build + Playwright frame-time matrix → `perf-results/`;
+  `npm run perf:compare -- base.json head.json` (#526). Report only; CI runs it on the `perf` PR label + nightly
 
 ## Reply style
 
