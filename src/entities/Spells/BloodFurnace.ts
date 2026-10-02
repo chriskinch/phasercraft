@@ -1,4 +1,5 @@
 import Spell from "./Spell";
+import { spellDefDefaults } from "@/types/game";
 import type { SpellOptions } from "@/types/game";
 
 // Proposed balance (tuned in PR review): 10 ticks over 5s, 300 HP → 250 Mana.
@@ -20,19 +21,12 @@ class BloodFurnace extends Spell {
     constructor(config: SpellOptions) {
         const defaults = {
             name: "bloodfurnace",
-            icon_name: "icon_0036_blood-furnace",
-            cooldown: 15,
-            cost: {
-                rage: 0,
-                mana: 0,
-                energy: 0,
-            },
+            ...spellDefDefaults("BloodFurnace"),
             type: "magic",
             duration: 5,
             tickInterval: BLOOD_FURNACE_TICK,
             hpPerTick: BLOOD_FURNACE_HP_PER_TICK,
             manaPerTick: BLOOD_FURNACE_MANA_PER_TICK,
-            targetKind: "self" as const,
         };
 
         super({ ...defaults, ...config });

@@ -1,5 +1,6 @@
 import Spell from "./Spell";
 import targetVector from "@helpers/targetVector";
+import { spellDefDefaults } from "@/types/game";
 import type { SpellOptions } from "@/types/game";
 import type Enemy from "@entities/Enemy/Enemy";
 import type { GameSceneLike } from "@/types/scene";
@@ -11,17 +12,10 @@ class Whirlwind extends Spell {
     constructor(config: SpellOptions) {
         const defaults = {
             name: "whirlwind",
-            icon_name: "icon_0005_coil",
-            cooldown: 2,
-            cost: {
-                rage: 50,
-                mana: 80,
-                energy: 60,
-            },
+            ...spellDefDefaults("Whirlwind"),
             type: "physical",
             range: 120,
             cap: 5,
-            targetKind: "none" as const,
         };
 
         super({ ...defaults, ...config });

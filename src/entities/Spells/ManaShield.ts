@@ -1,4 +1,5 @@
 import Spell from "./Spell";
+import { spellDefDefaults } from "@/types/game";
 import type { SpellOptions } from "@/types/game";
 import type Player from "@entities/Player/Player";
 
@@ -8,17 +9,10 @@ class ManaShield extends Spell {
     constructor(config: SpellOptions) {
         const defaults = {
             name: "manashield",
-            icon_name: "icon_0011_freeze",
-            cooldown: 10,
-            cost: {
-                rage: 75,
-                mana: 120,
-                energy: 70,
-            },
+            ...spellDefDefaults("ManaShield"),
             type: "magic",
             cooldownDelay: true,
             loop: true,
-            targetKind: "self" as const,
         };
         super({ ...defaults, ...config });
         this.setTint(0x8bc2f8).setAlpha(0.5);

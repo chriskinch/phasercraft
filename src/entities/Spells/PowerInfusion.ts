@@ -1,4 +1,5 @@
 import Boon from "./Boon";
+import { spellDefDefaults } from "@/types/game";
 import type { SpellOptions } from "@/types/game";
 import type { EffectValue } from "@entities/UI/StatusEffects";
 
@@ -23,16 +24,9 @@ class PowerInfusion extends Boon {
     constructor(config: SpellOptions) {
         const defaults = {
             name: "powerinfusion",
-            icon_name: "icon_0009_blind",
-            cooldown: 30,
-            cost: {
-                rage: 20,
-                mana: 100,
-                energy: 40,
-            },
+            ...spellDefDefaults("PowerInfusion"),
             type: "magical",
             duration: 15,
-            targetKind: "self" as const,
             value: {
                 critical_chance: 10,
                 attack_power: (bs: number) => bs * 0.2,
