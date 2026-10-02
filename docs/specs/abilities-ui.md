@@ -60,13 +60,13 @@ traced from in-game screenshots of Character, Equipment, Blacksmith and Merchant
   (white, 5 px border in the level colour). Scrolls in Equipment keep **tooltips**
   like other inventory items.
 - Labels are the Blacksmith `sectionLabel` (0.75rem uppercase `#4d5d66`).
-- **Scrolls** are an original 20 × 20 sprite drawn at 2× (40 px): a top roll and a
+- **Scrolls** are an original 15 × 15 sprite drawn at 3× (45 px, fits the 56 px slot): a top roll and a
   lower roll, each with a curl on its right end, and a page between them. **Level =
   scroll colour**, a full palette swap: L1 parchment, L2 green, L3 blue.
 - The page carries a **spell glyph**, not the button: the motif lifted from the spell's
   `atlas-icons` frame at its native 16 px grid (frame and background removed), shrunk to
-  at most 7 × 7 when larger, corners cleared so it is never a square, ringed with the
-  scroll's outline colour. Same 2× pixel size as the scroll, so they never mismatch.
+  at most 5 × 5, corners cleared so it is never a square, ringed with the
+  scroll's outline colour. Same 3× pixel size as the scroll, so they never mismatch.
   Glyph colours are not tinted. Generated per spell × level (build step or runtime
   canvas, decided at build).
 - Stack count is the Parts-style black `badge` pill, in BoldPixels. Card/tooltip border
