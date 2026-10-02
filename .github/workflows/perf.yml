@@ -71,7 +71,9 @@ jobs:
                   fi
                   npm ci
                   npm run build:perf
-                  PERF_OUT_DIR="$GITHUB_WORKSPACE/perf-base" npm run perf:run
+                  # A frame-time error is report-only: record snapshots anyway.
+                  PERF_OUT_DIR="$GITHUB_WORKSPACE/perf-base" npm run perf:run ||
+                      echo "::warning::base frame-time run failed"
                   if [ -f perf/equivalence.spec.ts ]; then
                       PERF_SNAPSHOTS=record npm run perf:equivalence
                   fi
@@ -89,10 +91,17 @@ jobs:
                   TOLERANCE: ${{ contains(github.event.pull_request.labels.*.name, 'perf-tolerance') }}
               run: |
                   [ -f dist-perf/index.html ] || npm run build:perf
-                  if [ -d "$PERF_SNAPSHOT_DIR" ]; then export PERF_SNAPSHOTS=compare; fi
                   if [ "$TOLERANCE" = "true" ] && [ -f ../base/perf/goldens/equivalence.json ]; then
+                      # Shifted AI timing moves enemies, so pixels cannot match:
+                      # outcomes are checked instead, screenshots skipped.
                       export PERF_EQUIVALENCE=tolerance
                       export PERF_GOLDENS=../base/perf/goldens/equivalence.json
+                      echo "Tolerance mode: screenshot diff skipped."
+                  elif [ -d "$PERF_SNAPSHOT_DIR" ]; then
+                      export PERF_SNAPSHOTS=compare
+                  elif [ -f ../base/perf/equivalence.spec.ts ]; then
+                      echo "::error::base has the equivalence spec but recorded no snapshots"
+                      exit 1
                   fi
                   npm run perf:equivalence
 
