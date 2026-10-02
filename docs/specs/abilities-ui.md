@@ -23,7 +23,7 @@ level happens at the **Arcanum** (#386).
 | ---------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------- |
 | Relation to #384 | Layer on. Levels (max 3) and the workshop stay.                                                                                                       |
 | Nav label        | **Abilities** (class-neutral). Sections: **Active**, **Passive**.                                                                                     |
-| Learning         | Manual. Picked-up scrolls go to Equipment → **Scrolls** tab; player taps **Read** to consume.                                                         |
+| Learning         | Manual. Picked-up scrolls go to Equipment → **Scrolls** tab; player taps **Learn** to consume.                                                        |
 | Scroll levels    | Scrolls are items with a level (L1/L2/L3). 3 same-spell same-level scrolls → 1 of the next level (3 L1 = L2, 9 L1 = L3).                              |
 | Reading          | First read learns the spell at the scroll's level. Reading a **higher** scroll raises the spell to that level. Same/lower: not readable, with a hint. |
 | Combining        | **Arcanum only** (town), via the #386 workshop. Not in the Scrolls tab, not on pickup.                                                                |
@@ -60,20 +60,20 @@ traced from in-game screenshots of Character, Equipment, Blacksmith and Merchant
   (white, 5 px border in the level colour). Scrolls in Equipment keep **tooltips**
   like other inventory items.
 - Labels are the Blacksmith `sectionLabel` (0.75rem uppercase `#4d5d66`).
-- **Scrolls** are a new 32 px pixel scroll sprite — unrolled parchment between two
-  offset rolls, muted palette — with the spell icon at half size drawn onto the page
-  (multiply blend, so it reads as ink); no border. Tint by level: **L1 plain parchment, L2 green, L3 blue**.
-  Black count badge as Parts. Tooltip border matches: L1 `#bbbbbb`, L2 `#00dd00`
-  (fine), L3 `#0077ff` (rare).
+- **Scrolls** are a new 40 px pixel sprite: a portrait page with a top-right curl
+  rolled back and a bottom-left curl rolled forward. The spell icon sits on the page
+  at half size and is **not** tinted. **Level = scroll colour**, a full palette swap:
+  L1 parchment, L2 green, L3 blue. No count badge. Card/tooltip border matches: L1
+  `#bbbbbb`, L2 `#00dd00` (fine), L3 `#0077ff` (rare).
 - Spell art is the existing `atlas-icons` frame each spell already uses on the HUD.
 - Buttons are the `Button` atom; purple `#c9a3ff` for Read (as Blacksmith "Use
   item"); disabled = grey.
 
-| Screen            | Main area                                                                                  | Action column                                     |
-| ----------------- | ------------------------------------------------------------------------------------------ | ------------------------------------------------- |
-| Abilities (main)  | ACTIVE row of 5 slots (left→right = HUD order), PASSIVE row of 5 locked; card to the right | Change / Remove (bottom)                          |
-| Ability picker    | Grid of learned abilities                                                                  | Equip or Swap / Back (bottom)                     |
-| Equipment Scrolls | Grid of scroll stacks (count badge)                                                        | Gear / Parts / Special / **Scrolls**; Read / Sell |
+| Screen            | Main area                                                                                  | Action column                                      |
+| ----------------- | ------------------------------------------------------------------------------------------ | -------------------------------------------------- |
+| Abilities (main)  | ACTIVE row of 5 slots (left→right = HUD order), PASSIVE row of 5 locked; card to the right | Change / Remove (bottom)                           |
+| Ability picker    | Grid of learned abilities                                                                  | Equip or Swap / Back (bottom)                      |
+| Equipment Scrolls | Grid of scroll stacks (count badge)                                                        | Gear / Parts / Special / **Scrolls**; Learn / Sell |
 
 The picker is a **view inside the Abilities menu** (like the Blacksmith recipe
 picker), not a new `UI.tsx` menu.
@@ -104,20 +104,20 @@ picker), not a new `UI.tsx` menu.
 
 - New toggle after **Special** in the filter column: Gear | Parts | Special |
   **Scrolls** (active = lime, as today).
-- Grid of scroll stacks, one per spell + level: tinted scroll sprite + small spell
-  icon, count badge.
+- Grid of scrolls, one tile per spell + level: coloured scroll sprite + small spell
+  icon. No count shown (the tooltip states how many).
 - Tap → tooltip: "Fireball Scroll", "Level 1 · Mage, Occultist", effect, then a hint
   line (purple when readable, red when not):
 
-| State                                | Read button | Hint line                                         |
-| ------------------------------------ | ----------- | ------------------------------------------------- |
-| On-class, not learned                | **Learn**   | "Learns Fireball at L1 and fills…empty slot."     |
-| On-class, scroll level > spell level | **Read**    | "Upgrades Fireball L1 → L2."                      |
-| On-class, scroll level ≤ spell level | disabled    | "Combine 3 at the Arcanum to make L2."            |
-| On-class, spell at L3, L3 scroll     | disabled    | "Max level — sell or keep for recipes."           |
-| Off-class                            | disabled    | "Warrior only. Sell it or use it at the Arcanum." |
+| State                                | Learn button | Hint line                                         |
+| ------------------------------------ | ------------ | ------------------------------------------------- |
+| On-class, not learned                | **Learn**    | "Learns Fireball at L1 and fills…empty slot."     |
+| On-class, scroll level > spell level | **Learn**    | "Upgrades Fireball L1 → L2."                      |
+| On-class, scroll level ≤ spell level | disabled     | "Merge 3 at the Arcanum to make L2."              |
+| On-class, spell at L3, L3 scroll     | disabled     | "Max level — sell or keep for recipes."           |
+| Off-class                            | disabled     | "Warrior only. Sell it or use it at the Arcanum." |
 
-- Action column: **Read** (purple), **Sell** (one at a time). See open question 7
+- Action column: **Learn** (purple; disabled with the hint when not learnable), **Sell** (one at a time). The Arcanum's equivalent action is **Merge**. See open question 7
   on column height.
 - Learn result: toast "Learned Fireball (L1) — equipped in slot 4" or "… — open
   Abilities to equip" when no slot is empty.
