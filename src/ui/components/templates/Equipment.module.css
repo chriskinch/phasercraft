@@ -84,9 +84,3 @@
 .actionsSection button {
     box-sizing: border-box;
 }
-
-.value {
-    text-align: center;
-    color: #ffc93e;
-    font-variant-numeric: tabular-nums;
-}
