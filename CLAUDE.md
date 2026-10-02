@@ -28,6 +28,8 @@ before starting work; link PRs to the relevant phase issue.
 - `npm run build` — static export (CI runs all five)
 - `npm run perf` — perf harness: `VITE_PERF=1` build + Playwright frame-time matrix → `perf-results/`;
   `npm run perf:compare -- base.json head.json` (#526). Report only; CI runs it on the `perf` PR label + nightly
+- `npm run perf:equivalence` — seeded fixed-step replays vs `perf/goldens/equivalence.json` (#527). Perf
+  stories must pass unchanged; `PERF_EQUIVALENCE=update` only for intended gameplay changes
 
 ## Reply style
 

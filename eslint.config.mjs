@@ -15,6 +15,7 @@ const eslintConfig = [
             "dist-perf/**",
             "perf-results/**",
             "perf-base/**",
+            "perf-snapshots/**",
             "out/**",
             "coverage/**",
             "playwright-report/**",

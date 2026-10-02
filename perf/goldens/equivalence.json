@@ -1,0 +1,125 @@
+{
+  "chase-15": [
+    {
+      "tick": 300,
+      "hash": "da1c43bb",
+      "aggregates": {
+        "kills": 0,
+        "damageTaken": 1398,
+        "attacks": 36
+      }
+    },
+    {
+      "tick": 600,
+      "hash": "f801e92f",
+      "aggregates": {
+        "kills": 0,
+        "damageTaken": 3252,
+        "attacks": 80
+      }
+    },
+    {
+      "tick": 900,
+      "hash": "972a6a1c",
+      "aggregates": {
+        "kills": 0,
+        "damageTaken": 5178,
+        "attacks": 125
+      }
+    }
+  ],
+  "combat-15": [
+    {
+      "tick": 300,
+      "hash": "d8f457df",
+      "aggregates": {
+        "kills": 4,
+        "damageTaken": 1272,
+        "attacks": 34
+      }
+    },
+    {
+      "tick": 600,
+      "hash": "9b098f89",
+      "aggregates": {
+        "kills": 11,
+        "damageTaken": 2484,
+        "attacks": 69
+      }
+    },
+    {
+      "tick": 900,
+      "hash": "59eb2a23",
+      "aggregates": {
+        "kills": 16,
+        "damageTaken": 4374,
+        "attacks": 123
+      }
+    },
+    {
+      "tick": 1200,
+      "hash": "1e6e5493",
+      "aggregates": {
+        "kills": 22,
+        "damageTaken": 6102,
+        "attacks": 177
+      }
+    },
+    {
+      "tick": 1500,
+      "hash": "55f42abe",
+      "aggregates": {
+        "kills": 29,
+        "damageTaken": 8028,
+        "attacks": 238
+      }
+    },
+    {
+      "tick": 1800,
+      "hash": "c693cbe9",
+      "aggregates": {
+        "kills": 33,
+        "damageTaken": 10068,
+        "attacks": 305
+      }
+    }
+  ],
+  "combat-50": [
+    {
+      "tick": 300,
+      "hash": "5d3fbb2b",
+      "aggregates": {
+        "kills": 2,
+        "damageTaken": 1986,
+        "attacks": 51
+      }
+    },
+    {
+      "tick": 600,
+      "hash": "f85bda9c",
+      "aggregates": {
+        "kills": 4,
+        "damageTaken": 4146,
+        "attacks": 106
+      }
+    },
+    {
+      "tick": 900,
+      "hash": "43ca5752",
+      "aggregates": {
+        "kills": 6,
+        "damageTaken": 6696,
+        "attacks": 168
+      }
+    },
+    {
+      "tick": 1200,
+      "hash": "a028fdfb",
+      "aggregates": {
+        "kills": 10,
+        "damageTaken": 9186,
+        "attacks": 231
+      }
+    }
+  ]
+}
