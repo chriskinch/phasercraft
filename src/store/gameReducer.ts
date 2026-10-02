@@ -813,6 +813,8 @@ export const gameReducer = createReducer(initState, (builder) => {
             ) => {
                 const { spell, level, count } = action.payload;
                 if (!isSpellLevel(level)) return;
+                // NaN/Infinity would slip past the clamp and corrupt coins.
+                if (!Number.isFinite(count)) return;
                 const held = state.scrolls[spell]?.[level] ?? 0;
                 // Clamp to what is held; a non-positive count is a no-op.
                 const sold = Math.min(Math.max(Math.floor(count), 0), held);

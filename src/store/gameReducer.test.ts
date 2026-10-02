@@ -1037,6 +1037,7 @@ describe("abilities", () => {
         it("ignores a non-positive count or a scroll not held", () => {
             const before = mage({ scrolls: { Fireball: { 1: 1 } } });
             expect(gameReducer(before, sellScroll("Fireball", 1, 0))).toEqual(before);
+            expect(gameReducer(before, sellScroll("Fireball", 1, NaN))).toEqual(before);
             expect(gameReducer(before, sellScroll("Fireball", 3, 1))).toEqual(before);
         });
     });
