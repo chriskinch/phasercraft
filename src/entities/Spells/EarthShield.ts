@@ -1,4 +1,5 @@
 import Spell from "./Spell";
+import { spellDefDefaults } from "@/types/game";
 import type { SpellOptions, ArcadeCollisionObject } from "@/types/game";
 import type Enemy from "@entities/Enemy/Enemy";
 import type { Types, Physics } from "phaser";
@@ -20,13 +21,7 @@ class EarthShield extends Spell {
     constructor(config: SpellOptions) {
         const defaults = {
             name: "earthshield",
-            icon_name: "icon_0008_ki",
-            cooldown: 10,
-            cost: {
-                rage: 75,
-                mana: 120,
-                energy: 70,
-            },
+            ...spellDefDefaults("EarthShield"),
             type: "magic",
             lifespan: 20,
             rate: 250,
@@ -34,7 +29,6 @@ class EarthShield extends Spell {
             charges: 8,
             ready: true,
             cooldownDelay: true,
-            targetKind: "self" as const,
         };
         super({ ...defaults, ...config });
 

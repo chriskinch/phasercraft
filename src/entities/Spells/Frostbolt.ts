@@ -1,4 +1,5 @@
 import Spell from "./Spell";
+import { spellDefDefaults } from "@/types/game";
 import type { SpellOptions } from "@/types/game";
 import type Enemy from "@entities/Enemy/Enemy";
 import type { EffectValue } from "@entities/UI/StatusEffects";
@@ -19,17 +20,9 @@ class Frostbolt extends Spell {
     constructor(config: SpellOptions) {
         const defaults = {
             name: "frostbolt",
-            icon_name: "icon_0012_beam",
-            cooldown: 1,
-            cost: {
-                rage: 20,
-                mana: 35,
-                energy: 25,
-            },
+            ...spellDefDefaults("Frostbolt"),
             type: "magic",
             duration: 7,
-            targetKind: "enemy" as const,
-            castRange: 250,
             projectile: { key: "frostbolt-effect", frame: 0, speed: 400 },
             value: {
                 speed: (bs: number) => -bs * 0.5,
