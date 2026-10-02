@@ -1,0 +1,28 @@
+/* Same card language as PartTooltip, pinned inside the inventory box. It never
+   takes clicks, so tiles underneath stay tappable. */
+.popup {
+    position: absolute;
+    right: 0.5em;
+    bottom: 0.5em;
+    z-index: 2;
+    display: flex;
+    align-items: center;
+    gap: 0.25em;
+    padding: 0.25em 0.5em;
+    background: white;
+    border: 5px solid #bbbbbb;
+    border-radius: 3px;
+    pointer-events: none;
+    font-size: 1.25em;
+}
+
+.popup img {
+    width: 16px;
+    height: 16px;
+}
+
+.value {
+    font-weight: bold;
+    color: #b8860b;
+    font-variant-numeric: tabular-nums;
+}
