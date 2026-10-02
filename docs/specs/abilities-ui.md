@@ -50,28 +50,30 @@ traced from in-game screenshots of Character, Equipment, Blacksmith and Merchant
 
 - Overlay over the game world, `Navigation` pixel tabs (orange `#ffa53d`, active blue
   `#44bff7`, 2em BoldPixels, white), yellow `Button` "X" top right.
-- Pale `pixelBackground` panel (`#e4f6f7`) with the Equipment grid: **170 px
-  character column** (Level, portrait, HP/RP bars, stats) | content | **fixed
-  action column** (`--actions-col`), toggles at the top, actions at the bottom.
-- Content area is a `pixelEmboss` well on the 56 px item grid. **Abilities show the
-  bare spell icon only** — no white face, no border, no slot numbers. Selection is a
-  faint darker notched square behind the icon.
-- Details are **tooltips** (white card, 5 px border in the item's colour, as
-  `ItemTooltip`/`PartTooltip`/`SpecialTooltip`), not a side panel.
+- Pale `pixelBackground` panel (`#e4f6f7`). **Abilities drops the character
+  column and equipment slots** (Equipment keeps them): slots | **ability card** |
+  fixed action column (`--actions-col`), actions at the bottom.
+- **Ability slots are the Equipment slots** (`DroppableSlot` look: `pixelEmboss`,
+  56 px footprint) holding the bare spell icon — no white face, border or numbers.
+  Selected slot = blue-tinted emboss (`pixelEmbossVars`).
+- **Ability card** sits right of the slots, always visible: Blacksmith `resultCard`
+  (white, 5 px border in the level colour). Scrolls in Equipment keep **tooltips**
+  like other inventory items.
 - Labels are the Blacksmith `sectionLabel` (0.75rem uppercase `#4d5d66`).
-- **Scrolls** are a new 32 px pixel scroll sprite (parchment) with a 16 px spell icon
-  on top; no border. Tint by level: **L1 plain parchment, L2 green, L3 blue**.
+- **Scrolls** are a new 32 px pixel scroll sprite — unrolled parchment between two
+  offset rolls, muted palette — with the spell icon at half size drawn onto the page
+  (multiply blend, so it reads as ink); no border. Tint by level: **L1 plain parchment, L2 green, L3 blue**.
   Black count badge as Parts. Tooltip border matches: L1 `#bbbbbb`, L2 `#00dd00`
   (fine), L3 `#0077ff` (rare).
 - Spell art is the existing `atlas-icons` frame each spell already uses on the HUD.
 - Buttons are the `Button` atom; purple `#c9a3ff` for Read (as Blacksmith "Use
   item"); disabled = grey.
 
-| Screen            | Content well                                                            | Action column                                     |
-| ----------------- | ----------------------------------------------------------------------- | ------------------------------------------------- |
-| Abilities (main)  | ACTIVE row of 5 icons (left→right = HUD order), PASSIVE row of 5 locked | Change / Remove (bottom)                          |
-| Ability picker    | Grid of learned abilities                                               | Equip or Swap / Back (bottom)                     |
-| Equipment Scrolls | Grid of scroll stacks (count badge)                                     | Gear / Parts / Special / **Scrolls**; Read / Sell |
+| Screen            | Main area                                                                                  | Action column                                     |
+| ----------------- | ------------------------------------------------------------------------------------------ | ------------------------------------------------- |
+| Abilities (main)  | ACTIVE row of 5 slots (left→right = HUD order), PASSIVE row of 5 locked; card to the right | Change / Remove (bottom)                          |
+| Ability picker    | Grid of learned abilities                                                                  | Equip or Swap / Back (bottom)                     |
+| Equipment Scrolls | Grid of scroll stacks (count badge)                                                        | Gear / Parts / Special / **Scrolls**; Read / Sell |
 
 The picker is a **view inside the Abilities menu** (like the Blacksmith recipe
 picker), not a new `UI.tsx` menu.
@@ -80,20 +82,20 @@ picker), not a new `UI.tsx` menu.
 
 1. **ACTIVE** label, then **5 slots**, left → right = HUD order / hotkey.
     - Filled: the bare spell icon.
-    - Empty: emboss square with `+`.
-    - Tap selects (faint darker square) and shows the [ability tooltip](#ability-tooltip).
-2. **PASSIVE · COMING SOON** label, then **5 locked squares** (faint, padlock). Not
+    - Empty: emboss slot with `+`.
+    - Tap selects (blue emboss); the [ability card](#ability-card) shows it.
+2. **PASSIVE · COMING SOON** label, then **5 locked slots** (faded, padlock). Not
    tappable.
 3. Action column: **Change** (empty slot: **Choose**) opens the picker; **Remove**
    empties the slot.
 4. **In a dungeon**: muted "Change in town" above the buttons; Change/Remove
-   disabled. Tooltips still work.
+   disabled. The card still works.
 
 ### Ability picker
 
 - Label "CHOOSE FOR SLOT N", then a grid of **learned, on-class** ability icons. A
   purple **New** pill top-left until first tapped.
-- Tap selects + tooltip; the tooltip adds "Equipped in slot N" when it is slotted.
+- Tap selects; the card adds "Equipped in slot N" when it is slotted.
 - Action column: **Equip** (or **Swap** when the ability sits in another slot — the
   two slots trade places), **Back**.
 - Empty state: "Read scrolls to learn new abilities."
@@ -120,10 +122,10 @@ picker), not a new `UI.tsx` menu.
 - Learn result: toast "Learned Fireball (L1) — equipped in slot 4" or "… — open
   Abilities to equip" when no slot is empty.
 
-### Ability tooltip
+### Ability card
 
-Shared by Abilities, the picker and the Scrolls tab. Same card as the part/special
-tooltips: white, 5 px border in the level colour (grey / green / blue), max-width 16rem.
+Panel right of the slots on Abilities and the picker; the same content is the Scrolls
+tab tooltip. White, 5 px border in the level colour (grey / green / blue).
 
 - **Name**; "Level 2 · Mage, Occultist" (muted).
 - **Description** (italic `#444`, like part lore) and **effect** text.
