@@ -149,9 +149,17 @@ src/
   runs Prettier and ESLint `--fix` on staged files. The hook is installed
   automatically after `npm install` via the `prepare` script.
 
+## 🎨 Credits
+
+Pixel art asset packs in `assets/source/` (the `fantasy_` series, `dungeon_`,
+`*Sprites_`, `fourSeasonsPlatformer_`, the pico-platformer tilesets in
+`picoPlatformer_/` and more) are by **Kevin's Mom's House** — get them at
+[kevins-moms-house.itch.io](https://kevins-moms-house.itch.io/). Thank you!
+
 ## 📜 License
 
-MIT License - see [LICENSE](LICENSE) file for details.
+MIT License - see [LICENSE](LICENSE) file for details. Third-party art assets
+remain under their creators' terms (see Credits).
 
 ---
 
