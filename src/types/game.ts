@@ -1015,3 +1015,28 @@ export const spellDefDefaults = (
         ...(castRange === undefined ? {} : { castRange }),
     };
 };
+
+// --- Abilities (docs/specs/abilities-ui.md → Data model) ---
+
+// A spell's level, raised by reading higher-level scrolls. Max 3.
+export type SpellLevel = 1 | 2 | 3;
+export const SPELL_LEVELS: readonly SpellLevel[] = [1, 2, 3];
+
+// Active and passive loadouts each have this many slots (slot 1–5 = HUD order).
+export const ABILITY_SLOTS = 5;
+
+// Coins per scroll sold, by scroll level. Placeholder, balance TBD (#544 open
+// question 1).
+export const SCROLL_SELL_VALUE: Record<SpellLevel, number> = { 1: 10, 2: 30, 3: 90 };
+
+// Passive abilities. Plumbing only: the registry is empty and passives have no
+// effects yet, so the union is empty (`never`). Add string literals here and
+// matching entries in PASSIVE_DEFS when the first passive lands.
+export type PassiveType = never;
+
+export interface PassiveDef {
+    name: string;
+    description: string;
+}
+
+export const PASSIVE_DEFS: Record<PassiveType, PassiveDef> = {};

@@ -32,9 +32,18 @@ import {
     addSpecial,
     grantStarterItems,
     STARTER_ITEMS,
+    selectCharacter,
+    readScroll,
+    equipAbility,
+    sellScroll,
 } from "./gameReducer";
+import type { GameState } from "./gameReducer";
 import type { LootItem } from "@/types/game";
+import type { PlayerName } from "@entities/Player/AssignClass";
+import { CLASS_KITS } from "@/lib/classKits";
 import {
+    ABILITY_SLOTS,
+    SCROLL_SELL_VALUE,
     COMPONENT_DEFS,
     SPECIAL_ITEMS,
     INITIAL_RECIPES,
@@ -836,5 +845,282 @@ describe("grantStarterItems", () => {
         expect(state.specials).toEqual(
             Object.fromEntries(SPECIAL_ITEMS.map((s) => [s.id, STARTER_ITEMS.specialsEach]))
         );
+    });
+});
+
+describe("abilities", () => {
+    const init = () => gameReducer(undefined, { type: "@@INIT" });
+    // A Mage with the seeded kit, standing in town.
+    const mage = (overrides: Partial<GameState> = {}): GameState => ({
+        ...gameReducer(init(), selectCharacter("Mage")),
+        currentArea: "town",
+        ...overrides,
+    });
+    const occultist = (overrides: Partial<GameState> = {}): GameState => ({
+        ...gameReducer(init(), selectCharacter("Occultist")),
+        ...overrides,
+    });
+
+    it("starts with no abilities and five empty active and passive slots", () => {
+        const state = init();
+        expect(state.learnedSpells).toEqual({});
+        expect(state.scrolls).toEqual({});
+        expect(state.abilityLoadout).toEqual([null, null, null, null, null]);
+        expect(state.passiveLoadout).toEqual([null, null, null, null, null]);
+    });
+
+    describe("seed on selectCharacter", () => {
+        it.each(Object.keys(CLASS_KITS) as PlayerName[])(
+            "%s learns its class kit at L1 and slots it in kit order",
+            (character) => {
+                const kit = CLASS_KITS[character];
+                const state = gameReducer(init(), selectCharacter(character));
+                expect(state.learnedSpells).toEqual(
+                    Object.fromEntries(kit.map((spell) => [spell, 1]))
+                );
+                expect(state.abilityLoadout).toHaveLength(ABILITY_SLOTS);
+                expect(state.abilityLoadout).toEqual([
+                    ...kit,
+                    ...Array(ABILITY_SLOTS - kit.length).fill(null),
+                ]);
+                expect(state.passiveLoadout).toEqual(Array(ABILITY_SLOTS).fill(null));
+                expect(state.scrolls).toEqual({});
+            }
+        );
+
+        it("leaves the trailing slots empty for smaller kits", () => {
+            expect(gameReducer(init(), selectCharacter("Warrior")).abilityLoadout).toEqual([
+                "Whirlwind",
+                "Enrage",
+                "BattleStomp",
+                null,
+                null,
+            ]);
+            expect(gameReducer(init(), selectCharacter("Ranger")).abilityLoadout[4]).toBeNull();
+            expect(gameReducer(init(), selectCharacter("Occultist")).abilityLoadout[4]).toBeNull();
+        });
+
+        it("keeps loaded abilities when Load re-selects the same character", () => {
+            const save = { ...mage(), learnedSpells: { Fireball: 3 as const } };
+            const loaded = gameReducer(init(), loadGame(save));
+            const next = gameReducer(loaded, selectCharacter("Mage"));
+            expect(next.learnedSpells).toEqual({ Fireball: 3 });
+        });
+    });
+
+    describe("readScroll", () => {
+        it("learns an on-class spell, consumes the scroll and fills the first empty slot", () => {
+            const before = occultist({
+                learnedSpells: { Fireball: 1, Enfeeble: 1 },
+                abilityLoadout: ["Fireball", null, "Enfeeble", null, null],
+                scrolls: { SiphonSoul: { 2: 1 } },
+            });
+            const state = gameReducer(before, readScroll("SiphonSoul", 2));
+            expect(state.learnedSpells.SiphonSoul).toBe(2);
+            expect(state.scrolls).toEqual({});
+            expect(state.abilityLoadout).toEqual([
+                "Fireball",
+                "SiphonSoul",
+                "Enfeeble",
+                null,
+                null,
+            ]);
+        });
+
+        it("auto-fills even outside town", () => {
+            const before = occultist({
+                currentArea: "forest",
+                learnedSpells: {},
+                abilityLoadout: [null, null, null, null, null],
+                scrolls: { Fireball: { 1: 1 } },
+            });
+            const state = gameReducer(before, readScroll("Fireball", 1));
+            expect(state.abilityLoadout[0]).toBe("Fireball");
+        });
+
+        it("upgrades a learned spell to a higher scroll level without moving it", () => {
+            const before = mage({ scrolls: { Frostbolt: { 3: 2, 1: 4 } } });
+            const state = gameReducer(before, readScroll("Frostbolt", 3));
+            expect(state.learnedSpells.Frostbolt).toBe(3);
+            expect(state.scrolls).toEqual({ Frostbolt: { 1: 4, 3: 1 } });
+            expect(state.abilityLoadout).toEqual(before.abilityLoadout);
+        });
+
+        it("refuses a scroll at or below the spell's level", () => {
+            const before = mage({
+                learnedSpells: { ...mage().learnedSpells, Fireball: 2 },
+                scrolls: { Fireball: { 1: 1, 2: 1 } },
+            });
+            expect(gameReducer(before, readScroll("Fireball", 2))).toEqual(before);
+            expect(gameReducer(before, readScroll("Fireball", 1))).toEqual(before);
+        });
+
+        it("refuses an off-class scroll", () => {
+            const before = mage({ scrolls: { Whirlwind: { 1: 1 } } });
+            expect(gameReducer(before, readScroll("Whirlwind", 1))).toEqual(before);
+        });
+
+        it("refuses a scroll the player doesn't hold", () => {
+            const before = mage({ learnedSpells: {}, scrolls: { Fireball: { 2: 1 } } });
+            expect(gameReducer(before, readScroll("Fireball", 1))).toEqual(before);
+        });
+
+        it("refuses when no character is selected", () => {
+            const before = { ...init(), scrolls: { Fireball: { 1: 1 } } };
+            expect(gameReducer(before, readScroll("Fireball", 1))).toEqual(before);
+        });
+    });
+
+    describe("equipAbility", () => {
+        it("puts a learned spell in an empty slot", () => {
+            const before = mage({ abilityLoadout: ["Fireball", null, null, null, null] });
+            const state = gameReducer(before, equipAbility(3, "Frostbolt"));
+            expect(state.abilityLoadout).toEqual(["Fireball", null, null, "Frostbolt", null]);
+        });
+
+        it("swaps when the spell already sits in another slot", () => {
+            const before = mage();
+            const state = gameReducer(before, equipAbility(0, "ManaShield"));
+            expect(state.abilityLoadout).toEqual([
+                "ManaShield",
+                "Frostbolt",
+                "EarthShield",
+                "Fireball",
+                "Invocation",
+            ]);
+        });
+
+        it("moves a slotted spell into an empty slot, leaving its old slot empty", () => {
+            const before = mage({ abilityLoadout: ["Fireball", null, null, null, null] });
+            const state = gameReducer(before, equipAbility(4, "Fireball"));
+            expect(state.abilityLoadout).toEqual([null, null, null, null, "Fireball"]);
+        });
+
+        it("empties a slot with null", () => {
+            const state = gameReducer(mage(), equipAbility(1, null));
+            expect(state.abilityLoadout[1]).toBeNull();
+        });
+
+        it("is refused outside town", () => {
+            const before = mage({ currentArea: "forest" });
+            expect(gameReducer(before, equipAbility(0, "ManaShield"))).toEqual(before);
+            expect(gameReducer(before, equipAbility(0, null))).toEqual(before);
+        });
+
+        it("refuses an unlearned spell", () => {
+            const before = mage({ learnedSpells: { Fireball: 1 } });
+            expect(gameReducer(before, equipAbility(4, "Frostbolt"))).toEqual(before);
+        });
+
+        it("refuses an out-of-range slot", () => {
+            const before = mage();
+            expect(gameReducer(before, equipAbility(5, "Fireball"))).toEqual(before);
+            expect(gameReducer(before, equipAbility(-1, null))).toEqual(before);
+        });
+    });
+
+    describe("sellScroll", () => {
+        it("adds the per-level sell value for each scroll sold", () => {
+            const before = mage({ coins: 0, scrolls: { Fireball: { 2: 3 } } });
+            const state = gameReducer(before, sellScroll("Fireball", 2, 2));
+            expect(state.coins).toBe(SCROLL_SELL_VALUE[2] * 2);
+            expect(state.scrolls).toEqual({ Fireball: { 2: 1 } });
+        });
+
+        it("clamps to the held count and removes emptied entries", () => {
+            const before = mage({ coins: 5, scrolls: { Whirlwind: { 1: 2 } } });
+            const state = gameReducer(before, sellScroll("Whirlwind", 1, 10));
+            expect(state.coins).toBe(5 + SCROLL_SELL_VALUE[1] * 2);
+            expect(state.scrolls).toEqual({});
+        });
+
+        it("ignores a non-positive count or a scroll not held", () => {
+            const before = mage({ scrolls: { Fireball: { 1: 1 } } });
+            expect(gameReducer(before, sellScroll("Fireball", 1, 0))).toEqual(before);
+            expect(gameReducer(before, sellScroll("Fireball", 1, NaN))).toEqual(before);
+            expect(gameReducer(before, sellScroll("Fireball", 3, 1))).toEqual(before);
+        });
+    });
+
+    describe("loadGame migration", () => {
+        const legacyFor = (character: PlayerName) => {
+            const save = { ...init(), character } as Record<string, unknown>;
+            delete save.learnedSpells;
+            delete save.scrolls;
+            delete save.abilityLoadout;
+            delete save.passiveLoadout;
+            return save as Parameters<typeof loadGame>[0];
+        };
+
+        it.each(Object.keys(CLASS_KITS) as PlayerName[])(
+            "seeds a legacy %s save exactly like a new character",
+            (character) => {
+                const loaded = gameReducer(init(), loadGame(legacyFor(character)));
+                const fresh = gameReducer(init(), selectCharacter(character));
+                expect(loaded.learnedSpells).toEqual(fresh.learnedSpells);
+                expect(loaded.abilityLoadout).toEqual(fresh.abilityLoadout);
+                expect(loaded.scrolls).toEqual({});
+                expect(loaded.passiveLoadout).toEqual(Array(ABILITY_SLOTS).fill(null));
+            }
+        );
+
+        it("loads a save with no character without throwing", () => {
+            const save = { ...init() } as Record<string, unknown>;
+            delete save.learnedSpells;
+            delete save.abilityLoadout;
+            const loaded = gameReducer(init(), loadGame(save as Parameters<typeof loadGame>[0]));
+            expect(loaded.learnedSpells).toEqual({});
+            expect(loaded.abilityLoadout).toEqual(Array(ABILITY_SLOTS).fill(null));
+        });
+
+        it("drops unknown spell ids, bad levels and counts, and normalises loadouts", () => {
+            const save = {
+                ...init(),
+                character: "Mage",
+                learnedSpells: { Fireball: 2, Meteor: 1, Frostbolt: 7 },
+                scrolls: { Fireball: { 1: 2, 2: 0, 3: -1 }, Meteor: { 1: 1 }, Heal: "x" },
+                abilityLoadout: ["Meteor", "Fireball", "Fireball", "Frostbolt"],
+                passiveLoadout: ["Ghost", null],
+            } as unknown as Parameters<typeof loadGame>[0];
+
+            const loaded = gameReducer(init(), loadGame(save));
+            expect(loaded.learnedSpells).toEqual({ Fireball: 2 });
+            expect(loaded.scrolls).toEqual({ Fireball: { 1: 2 } });
+            expect(loaded.abilityLoadout).toEqual([null, "Fireball", null, null, null]);
+            expect(loaded.passiveLoadout).toEqual(Array(ABILITY_SLOTS).fill(null));
+        });
+
+        it("never throws on malformed abilities fields", () => {
+            const save = {
+                ...init(),
+                character: "Warrior",
+                learnedSpells: null,
+                scrolls: [1, 2],
+                abilityLoadout: "Whirlwind",
+                passiveLoadout: 3,
+            } as unknown as Parameters<typeof loadGame>[0];
+
+            expect(() => gameReducer(init(), loadGame(save))).not.toThrow();
+            const loaded = gameReducer(init(), loadGame(save));
+            expect(loaded.scrolls).toEqual({});
+            expect(loaded.abilityLoadout).toHaveLength(ABILITY_SLOTS);
+        });
+
+        it("round-trips abilities through a JSON save", () => {
+            const played = gameReducer(
+                gameReducer(
+                    mage({ scrolls: { Fireball: { 3: 1, 2: 2 } } }),
+                    readScroll("Fireball", 3)
+                ),
+                equipAbility(4, "Fireball")
+            );
+            const save = JSON.parse(JSON.stringify(played)) as Parameters<typeof loadGame>[0];
+            const loaded = gameReducer(init(), loadGame(save));
+
+            expect(loaded.learnedSpells).toEqual(played.learnedSpells);
+            expect(loaded.scrolls).toEqual({ Fireball: { 2: 2 } });
+            expect(loaded.abilityLoadout).toEqual(played.abilityLoadout);
+            expect(loaded.passiveLoadout).toEqual(played.passiveLoadout);
+        });
     });
 });

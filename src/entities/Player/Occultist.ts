@@ -1,5 +1,6 @@
 import Player from "./Player";
 import { PlayerOptions } from "@/types/game";
+import { CLASS_KITS } from "@/lib/classKits";
 
 class Occultist extends Player {
     constructor(config: PlayerOptions) {
@@ -20,7 +21,7 @@ class Occultist extends Player {
                 health_regen_rate: 0.9,
             },
             resource_type: "Mana",
-            abilities: ["Fireball", "SiphonSoul", "Enfeeble", "BloodFurnace"],
+            abilities: [...CLASS_KITS.Occultist],
         };
 
         super({ ...defaults, ...config });

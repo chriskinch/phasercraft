@@ -1,5 +1,6 @@
 import Player from "./Player";
 import { PlayerOptions } from "@/types/game";
+import { CLASS_KITS } from "@/lib/classKits";
 
 class Ranger extends Player {
     constructor(config: PlayerOptions) {
@@ -20,7 +21,7 @@ class Ranger extends Player {
                 health_regen_rate: 1,
             },
             resource_type: "Energy",
-            abilities: ["SnareTrap", "Multishot", "AimedShot", "Focus"],
+            abilities: [...CLASS_KITS.Ranger],
             attack_projectile: { key: "multishot-effect", frame: 0, speed: 500 },
         };
 
