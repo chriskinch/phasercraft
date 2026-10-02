@@ -1,6 +1,10 @@
-# Perf harness (#526): frame-time scenarios on a VITE_PERF=1 build.
+# Perf harness on a VITE_PERF=1 build.
 #
-# Report only. It never fails on numbers, so it is not a required check.
+# Frame time (#526) is report only: it never fails on numbers.
+# Gameplay equivalence (#527) does fail: seeded replays must match the
+# committed goldens, and on a PR its screenshots must match the base's pixel
+# for pixel. A PR also labelled `perf-tolerance` (stories allowed to shift AI
+# timing, #537) is held to the base's goldens within ±10% instead.
 #   - nightly on main: records a baseline artifact.
 #   - PR labelled `perf` (and each push while labelled), or manual dispatch:
 #     runs the PR head and its base on the same runner, then posts the
@@ -17,9 +21,9 @@ on:
         - cron: "23 4 * * *"
     workflow_dispatch:
         inputs:
-            sample_seconds:
-                description: "Sample length per scenario (s)"
-                default: "60"
+            sample_frames:
+                description: "Sampled frames per scenario (one 1/60s game step each)"
+                default: "1200"
     pull_request:
         types: [labeled, synchronize, opened, reopened]
 
@@ -30,7 +34,8 @@ concurrency:
     cancel-in-progress: false
 
 env:
-    PERF_SAMPLE_SECONDS: ${{ inputs.sample_seconds || '60' }}
+    PERF_SAMPLE_FRAMES: ${{ inputs.sample_frames || '1200' }}
+    PERF_SNAPSHOT_DIR: ${{ github.workspace }}/perf-snapshots
 
 jobs:
     perf:
@@ -67,12 +72,29 @@ jobs:
                   npm ci
                   npm run build:perf
                   PERF_OUT_DIR="$GITHUB_WORKSPACE/perf-base" npm run perf:run
+                  if [ -f perf/equivalence.spec.ts ]; then
+                      PERF_SNAPSHOTS=record npm run perf:equivalence
+                  fi
 
             - name: Perf (head)
               continue-on-error: true
               run: |
                   npm run build:perf
                   npm run perf:run
+
+            # Not continue-on-error: a gameplay change fails the run.
+            - name: Gameplay equivalence
+              if: ${{ !cancelled() }}
+              env:
+                  TOLERANCE: ${{ contains(github.event.pull_request.labels.*.name, 'perf-tolerance') }}
+              run: |
+                  [ -f dist-perf/index.html ] || npm run build:perf
+                  if [ -d "$PERF_SNAPSHOT_DIR" ]; then export PERF_SNAPSHOTS=compare; fi
+                  if [ "$TOLERANCE" = "true" ] && [ -f ../base/perf/goldens/equivalence.json ]; then
+                      export PERF_EQUIVALENCE=tolerance
+                      export PERF_GOLDENS=../base/perf/goldens/equivalence.json
+                  fi
+                  npm run perf:equivalence
 
             - name: Summary
               if: ${{ !cancelled() }}
@@ -91,4 +113,6 @@ jobs:
                   path: |
                       perf-results/
                       perf-base/
+                      perf-snapshots/
+                      test-results/
                   retention-days: 30

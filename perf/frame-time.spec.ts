@@ -1,4 +1,4 @@
-import { test, type Page } from "@playwright/test";
+import { test } from "@playwright/test";
 import { execSync } from "node:child_process";
 import { mkdirSync, writeFileSync } from "node:fs";
 import path from "node:path";
@@ -8,6 +8,7 @@ import type {
     PerfScenarioName,
     PerfScenarioOptions,
 } from "../src/perf/types";
+import { enterBiome } from "./helpers";
 
 // Frame-time matrix (#526). Every scenario boots a fresh page, drops a Warrior
 // into the default biome via the "combat" start location, and hands the scene
@@ -16,7 +17,10 @@ import type {
 //
 // Tunable from the environment so a local run can be quick:
 //   PERF_SCENARIOS=chase,combat  PERF_ENEMIES=15,30,50  PERF_SEED=1
-//   PERF_WARMUP_SECONDS=5  PERF_SAMPLE_SECONDS=60  PERF_CPU_THROTTLE=4
+//   PERF_WARMUP_FRAMES=120  PERF_SAMPLE_FRAMES=1200  PERF_CPU_THROTTLE=4
+//
+// Frames, not seconds (#527): each frame advances the game one fixed 1/60s
+// step, so a run does identical work on a fast or slow machine and repeats.
 
 const list = (value: string | undefined, fallback: string) =>
     (value ?? fallback)
@@ -27,8 +31,8 @@ const list = (value: string | undefined, fallback: string) =>
 const SCENARIOS = list(process.env.PERF_SCENARIOS, "chase,combat") as PerfScenarioName[];
 const ENEMIES = list(process.env.PERF_ENEMIES, "15,30,50").map(Number);
 const SEED = Number(process.env.PERF_SEED ?? 1);
-const WARMUP_MS = Number(process.env.PERF_WARMUP_SECONDS ?? 5) * 1000;
-const SAMPLE_MS = Number(process.env.PERF_SAMPLE_SECONDS ?? 60) * 1000;
+const WARMUP_FRAMES = Number(process.env.PERF_WARMUP_FRAMES ?? 120);
+const SAMPLE_FRAMES = Number(process.env.PERF_SAMPLE_FRAMES ?? 1200);
 // Chromium's CPU throttle, a rough stand-in for a phone's slower cores. It
 // does not touch rendering, which headless Chromium does on the CPU anyway.
 const CPU_THROTTLE = Number(process.env.PERF_CPU_THROTTLE ?? 4);
@@ -48,24 +52,6 @@ function commit(): string | null {
     }
 }
 
-// Same menu path as the smoke pack: New Game → empty slot → Warrior. The
-// settings send a new game straight into the default biome, muted.
-async function enterBiome(page: Page): Promise<void> {
-    await page.addInitScript(() => {
-        window.localStorage.setItem(
-            "settings",
-            JSON.stringify({ godMode: true, startLocation: "combat", sfxVolume: 0 })
-        );
-    });
-    await page.goto("/");
-    await page.getByRole("button", { name: "New Game" }).click();
-    await page.getByRole("button", { name: "Select" }).first().click();
-    await page.getByRole("button", { name: "Warrior", exact: true }).click();
-    await page.waitForFunction(() => window.__perf?.ready() === true, null, {
-        timeout: 60_000,
-    });
-}
-
 test.describe("perf: frame time", () => {
     test.afterAll(() => {
         const report: PerfReport = {
@@ -82,7 +68,8 @@ test.describe("perf: frame time", () => {
     for (const scenario of SCENARIOS) {
         for (const enemies of ENEMIES) {
             test(`${scenario} × ${enemies}`, async ({ page }) => {
-                test.setTimeout(WARMUP_MS + SAMPLE_MS + 120_000);
+                // Throttled frames can run 4-6x the 16.7ms budget.
+                test.setTimeout((WARMUP_FRAMES + SAMPLE_FRAMES) * 250 + 120_000);
                 await enterBiome(page);
                 user_agent = await page.evaluate(() => navigator.userAgent);
 
@@ -93,8 +80,8 @@ test.describe("perf: frame time", () => {
                     scenario,
                     enemies,
                     seed: SEED,
-                    warmupMs: WARMUP_MS,
-                    sampleMs: SAMPLE_MS,
+                    warmupFrames: WARMUP_FRAMES,
+                    sampleFrames: SAMPLE_FRAMES,
                 };
                 const result = await page.evaluate((opts) => {
                     if (!window.__perf) throw Error("perf harness missing: not a perf build?");

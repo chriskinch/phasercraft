@@ -8,13 +8,38 @@
 // enemy count holds while corpses, loot, projectiles and combat text pile up.
 export type PerfScenarioName = "chase" | "combat";
 
-export interface PerfScenarioOptions {
+// What a run sets up: the scene is restarted under the seed and driven at a
+// fixed step, so the same options always produce the same world.
+export interface PerfPrepareOptions {
     scenario: PerfScenarioName;
     enemies: number;
     seed: number;
-    warmupMs: number;
-    sampleMs: number;
 }
+
+// Frame-time runs count game frames, not seconds: every frame advances the
+// simulation one fixed step, so a run does the same work however slow the
+// machine is.
+export interface PerfScenarioOptions extends PerfPrepareOptions {
+    warmupFrames: number;
+    sampleFrames: number;
+}
+
+// Cumulative outcomes since the run started (tolerance-mode comparison).
+export interface PerfAggregates {
+    kills: number;
+    // Raw damage of every enemy attack that landed on the player.
+    damageTaken: number;
+    attacks: number;
+}
+
+export interface ReplayCheckpoint {
+    tick: number;
+    hash: string;
+    aggregates: PerfAggregates;
+}
+
+// perf/goldens/equivalence.json: checkpoints per replay scenario.
+export type EquivalenceGoldens = Record<string, ReplayCheckpoint[]>;
 
 // Frame-time distribution in ms. `over*` count frames above each budget.
 export interface FrameSummary {
@@ -47,7 +72,7 @@ export interface PerfResult {
     scenario: PerfScenarioName;
     enemies: number;
     seed: number;
-    sampleMs: number;
+    sampleFrames: number;
     // rAF-to-rAF interval: what the player sees.
     frame: FrameSummary;
     // Phaser's own step + render time per game frame: headroom under the budget.
@@ -61,7 +86,14 @@ export interface PerfResult {
 export interface PerfApi {
     // True once the biome scene is running with a player in it.
     ready(): boolean;
+    // Frame-time run: prepare, measure on the real frame loop, finish.
     run(options: PerfScenarioOptions): Promise<PerfResult>;
+    // Replay (#527): prepare, then advance in fixed steps with the frame loop
+    // asleep. advance() renders only its last tick, so a screenshot taken
+    // afterwards shows exactly that checkpoint. finish() hands the game back.
+    prepare(options: PerfPrepareOptions): void;
+    advance(ticks: number): ReplayCheckpoint;
+    finish(): void;
 }
 
 declare global {

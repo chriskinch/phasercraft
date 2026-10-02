@@ -11,14 +11,34 @@ export function mulberry32(seed: number): () => number {
     };
 }
 
+// lodash (sample, random) captures `Math.random` when its modules load, so
+// replacing `Math.random` later misses every lodash roll (#527). The hook swaps
+// in a forwarding wrapper before anything else loads (see ./earlyHook), and
+// seeding then changes what the wrapper forwards to.
+let hooked = false;
+let source: (() => number) | null = null;
+
+export function installRandomHook(): void {
+    if (hooked) return;
+    hooked = true;
+    const native = Math.random;
+    Math.random = () => (source ? source() : native());
+}
+
 /**
- * Swaps `Math.random` for a seeded generator so every roll in the run (spawn
- * picks, loot, crits, wander points) repeats. Perf builds only. Returns the
- * function that puts the original back.
+ * Seeds every roll in the run (spawn picks, loot, crits, wander points).
+ * Perf builds only. Returns the function that puts the original back.
  */
 export function installSeededRandom(seed: number): () => void {
+    const seeded = mulberry32(seed);
+    if (hooked) {
+        source = seeded;
+        return () => {
+            source = null;
+        };
+    }
     const original = Math.random;
-    Math.random = mulberry32(seed);
+    Math.random = seeded;
     return () => {
         Math.random = original;
     };
