@@ -1,4 +1,5 @@
 import Spell from "./Spell";
+import { spellDefDefaults } from "@/types/game";
 import type { SpellOptions } from "@/types/game";
 import type Enemy from "@entities/Enemy/Enemy";
 
@@ -8,16 +9,8 @@ class Smite extends Spell {
     constructor(config: SpellOptions) {
         const defaults = {
             name: "smite",
-            icon_name: "icon_0007_bolt",
-            cooldown: 3,
-            cost: {
-                rage: 30,
-                mana: 50,
-                energy: 40,
-            },
+            ...spellDefDefaults("Smite"),
             type: "magic",
-            targetKind: "enemy" as const,
-            castRange: 300,
         };
 
         super({ ...defaults, ...config });

@@ -1,4 +1,5 @@
 import Boon from "./Boon";
+import { spellDefDefaults } from "@/types/game";
 import type { SpellOptions } from "@/types/game";
 import type { EffectValue } from "@entities/UI/StatusEffects";
 
@@ -21,16 +22,9 @@ class Enrage extends Boon {
     constructor(config: SpellOptions) {
         const defaults = {
             name: "enrage",
-            icon_name: "icon_0019_fire-wall",
-            cooldown: 10,
-            cost: {
-                rage: 10,
-                mana: 80,
-                energy: 30,
-            },
+            ...spellDefDefaults("Enrage"),
             type: "physical",
             duration: 5,
-            targetKind: "self" as const,
             value: {
                 critical_chance: 10,
                 attack_power: (bs: number) => bs * 0.2,

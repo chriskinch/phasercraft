@@ -1,6 +1,7 @@
 import Spell from "./Spell";
 import Projectile from "@entities/Weapons/Projectile";
 import targetVector from "@helpers/targetVector";
+import { spellDefDefaults } from "@/types/game";
 import type { SpellOptions } from "@/types/game";
 import type Enemy from "@entities/Enemy/Enemy";
 import type { GameSceneLike } from "@/types/scene";
@@ -13,17 +14,10 @@ class Multishot extends Spell {
     constructor(config: SpellOptions) {
         const defaults = {
             name: "multishot",
-            icon_name: "icon_0004_corpse-explode",
-            cooldown: 0,
-            cost: {
-                rage: 50,
-                mana: 100,
-                energy: 60,
-            },
+            ...spellDefDefaults("Multishot"),
             type: "physical",
             range: 360,
             cap: 3,
-            targetKind: "none" as const,
         };
 
         super({ ...defaults, ...config });

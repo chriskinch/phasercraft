@@ -2,6 +2,7 @@ import { Geom } from "phaser";
 import Spell from "./Spell";
 import { playSfx } from "@services/sfx";
 import targetVector from "@helpers/targetVector";
+import { spellDefDefaults } from "@/types/game";
 import type { SpellOptions } from "@/types/game";
 import type Enemy from "@entities/Enemy/Enemy";
 import type { EffectValue } from "@entities/UI/StatusEffects";
@@ -28,18 +29,11 @@ class BattleStomp extends Spell {
     constructor(config: SpellOptions) {
         const defaults = {
             name: "battlestomp",
-            icon_name: "icon_0027_battle-stomp",
-            cooldown: 6,
-            cost: {
-                rage: 30,
-                mana: 60,
-                energy: 40,
-            },
+            ...spellDefDefaults("BattleStomp"),
             type: "physical",
             range: 100,
             cap: 5,
             duration: 1.5,
-            targetKind: "self" as const,
         };
 
         super({ ...defaults, ...config });
