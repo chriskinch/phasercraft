@@ -119,8 +119,10 @@ picker), not a new `UI.tsx` menu.
 | On-class, spell at L3, L3 scroll     | disabled     | "Max level — sell or keep for recipes."           |
 | Off-class                            | disabled     | "Warrior only. Sell it or use it at the Arcanum." |
 
-- Action column: **Learn** (purple; disabled with the hint when not learnable), **Sell** (one at a time). The Arcanum's equivalent action is **Merge**. See open question 7
-  on column height.
+- Action column: **Learn** (purple; disabled with the hint when not learnable), **Sell** (one at a time).
+- **Sell value moves into a tooltip-style popup** (white card, coin + gold `+N`) in the
+  lower-right corner of the inventory box, for Parts and Scrolls alike. The gold line
+  in the action column goes, which frees the row the 4th filter (Scrolls) needs. The Arcanum's equivalent action is **Merge**.
 - Learn result: toast "Learned Fireball (L1) — equipped in slot 4" or "… — open
   Abilities to equip" when no slot is empty.
 
@@ -192,4 +194,3 @@ count)`. Combining is #386's `combineScrolls`.
 5. Effect text: hand-written per spell, or templated from `setValue` base numbers so
    it tracks balance changes?
 6. Scroll sprite licence: the shape is traced from a PIXTA stock image (#107270041). Shipping it needs that licence, or a redraw.
-7. **Equipment action column overflows at 390 px tall.** It fits 6 button rows today (Parts: 3 filters + stepper + Sell + Sell All). A 4th filter makes Parts 7 rows. Options: (a) move Gear/Parts/Special/Scrolls to a horizontal tab strip above the grid; (b) drop the stepper and keep Sell + Sell All; (c) shrink buttons. Scrolls tab shown with Learn + Sell only (6 rows).
