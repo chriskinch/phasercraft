@@ -8,6 +8,7 @@ import SpecialsGrid from "@components/SpecialsGrid";
 import DroppableSlot from "@components/DroppableSlot";
 import GroupedAttributes from "@components/GroupedAttributes";
 import StatBar from "@components/StatBar";
+import SellValuePopup from "@components/SellValuePopup";
 import { COMPONENT_DEFS } from "@/types/game";
 import type { RootState } from "@store";
 import theme from "@ui/themes.module.css";
@@ -89,6 +90,11 @@ const Equipment: React.FC = () => {
                 ) : (
                     <GearGrid />
                 )}
+                {/* Sell value lives in the inventory box, not the action column,
+                    so that column has room for a 4th filter. */}
+                {onParts && stack && (
+                    <SellValuePopup value={COMPONENT_DEFS[stack.type].sellValue * qty} />
+                )}
             </section>
             <section className={styles.filtersSection} role="tablist">
                 <Button text="Gear" on={tab === "gear"} onClick={() => setTab("gear")} />
@@ -96,11 +102,6 @@ const Equipment: React.FC = () => {
                 <Button text="Special" on={onSpecial} onClick={() => setTab("special")} />
             </section>
             <section className={styles.actionsSection}>
-                {onParts && stack && (
-                    <span className={styles.value} data-testid="sell-value">
-                        +{COMPONENT_DEFS[stack.type].sellValue * qty}
-                    </span>
-                )}
                 {onParts && (
                     // No quantity readout between the buttons — the number on the
                     // Sell button below is the counter.
