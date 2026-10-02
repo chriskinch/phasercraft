@@ -158,6 +158,52 @@ describe("Equipment template", () => {
             expect(state.coins).toBe(24);
         });
 
+        it("shows the sell value popup inside the inventory box, tracking the stepper", () => {
+            seedParts();
+
+            const popup = screen.getByTestId("sell-value");
+            // Lives in the inventory box, not the action column.
+            expect(popup.closest("section")).toContainElement(
+                screen.getByTestId("components-grid")
+            );
+            expect(popup).toHaveTextContent("+8");
+            expect(screen.getByRole("img", { name: "Sell value:" })).toHaveAttribute(
+                "src",
+                "./UI/icons/coin.gif"
+            );
+
+            fireEvent.click(screen.getByRole("button", { name: "+" }));
+            fireEvent.click(screen.getByRole("button", { name: "+" }));
+            fireEvent.click(screen.getByRole("button", { name: "+" }));
+            expect(screen.getByTestId("sell-value")).toHaveTextContent("+32");
+
+            fireEvent.click(screen.getByRole("button", { name: "-" }));
+            expect(screen.getByTestId("sell-value")).toHaveTextContent("+24");
+        });
+
+        it("hides the sell value popup with no stack selected", () => {
+            seed({
+                character: "Warrior",
+                components: [{ id: "stack-1", type: "ichor", quantity: 5 }],
+                stats: {} as never,
+            });
+            renderWithProviders(<Equipment />, { store });
+            fireEvent.click(screen.getByRole("button", { name: "Parts" }));
+
+            expect(screen.queryByTestId("sell-value")).not.toBeInTheDocument();
+        });
+
+        it("hides the sell value popup on the Gear and Special tabs", () => {
+            seedParts();
+            expect(screen.getByTestId("sell-value")).toBeInTheDocument();
+
+            fireEvent.click(screen.getByRole("button", { name: "Gear" }));
+            expect(screen.queryByTestId("sell-value")).not.toBeInTheDocument();
+
+            fireEvent.click(screen.getByRole("button", { name: "Special" }));
+            expect(screen.queryByTestId("sell-value")).not.toBeInTheDocument();
+        });
+
         it("clamps the stepper to the stack and sells the whole stack with Sell All", () => {
             seedParts();
 
