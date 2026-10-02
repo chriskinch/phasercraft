@@ -60,11 +60,13 @@ traced from in-game screenshots of Character, Equipment, Blacksmith and Merchant
   (white, 5 px border in the level colour). Scrolls in Equipment keep **tooltips**
   like other inventory items.
 - Labels are the Blacksmith `sectionLabel` (0.75rem uppercase `#4d5d66`).
-- **Scrolls** are a new 40 px pixel sprite: a portrait page with a top-right curl
-  rolled back and a bottom-left curl rolled forward. The spell icon sits on the page
-  at half size and is **not** tinted. **Level = scroll colour**, a full palette swap:
-  L1 parchment, L2 green, L3 blue. No count badge. Card/tooltip border matches: L1
-  `#bbbbbb`, L2 `#00dd00` (fine), L3 `#0077ff` (rare).
+- **Scrolls** are a new 40 px pixel sprite in the classic S shape: a top roll that
+  sticks out right, a bottom roll that sticks out left, and a leaning page between
+  them, with a dark outline and rounded roll ends. The spell icon sits on the page at
+  half size and is **not** tinted. **Level = scroll colour**, a full palette swap:
+  L1 parchment, L2 green, L3 blue. Stack count is the Parts-style black `badge`
+  pill, in BoldPixels. Card/tooltip border matches: L1 `#bbbbbb`, L2 `#00dd00`
+  (fine), L3 `#0077ff` (rare).
 - Spell art is the existing `atlas-icons` frame each spell already uses on the HUD.
 - Buttons are the `Button` atom; purple `#c9a3ff` for Learn (as Blacksmith "Use
   item"); disabled = grey.
@@ -105,7 +107,7 @@ picker), not a new `UI.tsx` menu.
 - New toggle after **Special** in the filter column: Gear | Parts | Special |
   **Scrolls** (active = lime, as today).
 - Grid of scrolls, one tile per spell + level: coloured scroll sprite + small spell
-  icon. No count shown (the tooltip states how many).
+  icon, count badge.
 - Tap → tooltip: "Fireball Scroll", "Level 1 · Mage, Occultist", effect, then a hint
   line (purple when readable, red when not):
 
@@ -189,5 +191,5 @@ count)`. Combining is #386's `combineScrolls`.
 4. Picker **sort order**: equipped first, then by name? Or by level?
 5. Effect text: hand-written per spell, or templated from `setValue` base numbers so
    it tracks balance changes?
-6. Scroll sprite: mockup uses a placeholder 32 px scroll drawn for the design; needs final art (parchment, L2 green / L3 blue tints).
+6. Scroll sprite: the mockup sprite (40 px, S shape, three palettes) is design-quality placeholder. Ship as is, or commission final art?
 7. **Equipment action column overflows at 390 px tall.** It fits 6 button rows today (Parts: 3 filters + stepper + Sell + Sell All). A 4th filter makes Parts 7 rows. Options: (a) move Gear/Parts/Special/Scrolls to a horizontal tab strip above the grid; (b) drop the stepper and keep Sell + Sell All; (c) shrink buttons. Scrolls tab shown with Learn + Sell only (6 rows).
