@@ -1,4 +1,5 @@
 import Boon from "./Boon";
+import { spellDefDefaults } from "@/types/game";
 import type { SpellOptions } from "@/types/game";
 import type { EffectValue } from "@entities/UI/StatusEffects";
 
@@ -24,16 +25,9 @@ class Focus extends Boon {
     constructor(config: SpellOptions) {
         const defaults = {
             name: "focus",
-            icon_name: "icon_0030_focus",
-            cooldown: 20,
-            cost: {
-                rage: 15,
-                mana: 80,
-                energy: 25,
-            },
+            ...spellDefDefaults("Focus"),
             type: "physical",
             duration: 6,
-            targetKind: "self" as const,
             value: FOCUS_VALUE,
         };
 

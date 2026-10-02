@@ -1,5 +1,6 @@
 import { Geom } from "phaser";
 import Spell from "./Spell";
+import { spellDefDefaults } from "@/types/game";
 import type { SpellOptions } from "@/types/game";
 import type Enemy from "@entities/Enemy/Enemy";
 
@@ -18,18 +19,10 @@ class SiphonSoul extends Spell {
     constructor(config: SpellOptions) {
         const defaults = {
             name: "siphonsoul",
-            icon_name: "icon_0000_death",
-            cooldown: 5,
-            cost: {
-                rage: 60,
-                mana: 100,
-                energy: 60,
-            },
+            ...spellDefDefaults("SiphonSoul"),
             type: "magic",
             duration: 5,
             cooldownDelayAll: true,
-            targetKind: "enemy" as const,
-            castRange: 200,
             // The controller holds the casting state for the channel and
             // breaks it (via interruptChannel) on move/hit/new cast.
             channelDuration: 5,

@@ -1,4 +1,5 @@
 import Spell from "./Spell";
+import { spellDefDefaults } from "@/types/game";
 import type { SpellOptions, TargetType } from "@/types/game";
 
 class Fireball extends Spell {
@@ -7,16 +8,8 @@ class Fireball extends Spell {
     constructor(config: SpellOptions) {
         const defaults = {
             name: "fireball",
-            icon_name: "icon_0017_fire-ball",
-            cooldown: 1,
-            cost: {
-                rage: 30,
-                mana: 50,
-                energy: 40,
-            },
+            ...spellDefDefaults("Fireball"),
             type: "magic",
-            targetKind: "enemy" as const,
-            castRange: 250,
             projectile: { key: "fireball-effect", frame: 0, speed: 400 },
         };
 

@@ -1,4 +1,5 @@
 import Spell from "./Spell";
+import { spellDefDefaults } from "@/types/game";
 import type { SpellOptions, TargetType } from "@/types/game";
 
 class Heal extends Spell {
@@ -7,15 +8,8 @@ class Heal extends Spell {
     constructor(config: SpellOptions) {
         const defaults = {
             name: "heal",
-            icon_name: "icon_0015_heal",
-            cooldown: 5,
-            cost: {
-                rage: 25,
-                mana: 40,
-                energy: 30,
-            },
+            ...spellDefDefaults("Heal"),
             type: "heal",
-            targetKind: "self" as const,
             // Wind-up: interruptible by moving, taking a hit, or casting
             // something else; the resource is only charged on completion.
             castTime: 1,
