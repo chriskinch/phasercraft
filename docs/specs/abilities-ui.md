@@ -66,7 +66,7 @@ traced from in-game screenshots of Character, Equipment, Blacksmith and Merchant
   L1 parchment, L2 green, L3 blue. No count badge. Card/tooltip border matches: L1
   `#bbbbbb`, L2 `#00dd00` (fine), L3 `#0077ff` (rare).
 - Spell art is the existing `atlas-icons` frame each spell already uses on the HUD.
-- Buttons are the `Button` atom; purple `#c9a3ff` for Read (as Blacksmith "Use
+- Buttons are the `Button` atom; purple `#c9a3ff` for Learn (as Blacksmith "Use
   item"); disabled = grey.
 
 | Screen            | Main area                                                                                  | Action column                                      |
@@ -190,4 +190,4 @@ count)`. Combining is #386's `combineScrolls`.
 5. Effect text: hand-written per spell, or templated from `setValue` base numbers so
    it tracks balance changes?
 6. Scroll sprite: mockup uses a placeholder 32 px scroll drawn for the design; needs final art (parchment, L2 green / L3 blue tints).
-7. **Equipment action column overflows at 390 px tall.** It fits 6 button rows today (Parts: 3 filters + stepper + Sell + Sell All). A 4th filter makes Parts 7 rows. Options: (a) move Gear/Parts/Special/Scrolls to a horizontal tab strip above the grid; (b) drop the stepper and keep Sell + Sell All; (c) shrink buttons. Scrolls tab shown with Read + Sell only (6 rows).
+7. **Equipment action column overflows at 390 px tall.** It fits 6 button rows today (Parts: 3 filters + stepper + Sell + Sell All). A 4th filter makes Parts 7 rows. Options: (a) move Gear/Parts/Special/Scrolls to a horizontal tab strip above the grid; (b) drop the stepper and keep Sell + Sell All; (c) shrink buttons. Scrolls tab shown with Learn + Sell only (6 rows).
