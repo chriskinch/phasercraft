@@ -13,9 +13,9 @@ type PlayerConfig = {
     x: number;
     y: number;
     immovable?: boolean;
-    // Overrides the class's default abilities. The town passes `[]` so the
+    // Overrides the stored ability loadout. The town passes `[]` so the
     // non-combat hub spawns no spells (and no ability buttons).
-    abilities?: SpellType[];
+    abilities?: (SpellType | null)[];
 };
 
 const classes = {

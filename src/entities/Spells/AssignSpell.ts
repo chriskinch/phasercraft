@@ -48,6 +48,10 @@ const classes = {
     Whirlwind,
 } satisfies Record<SpellType, new (opts: SpellOptions) => Spell>;
 
+// Build the concrete Spell for a spell id, typed as the Spell it returns.
+export const createSpell = (className: SpellType, opts: SpellOptions): Spell =>
+    new classes[className](opts);
+
 class AssignSpell {
     constructor(className: SpellType, opts: SpellOptions) {
         return new classes[className](opts);

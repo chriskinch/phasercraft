@@ -10,6 +10,7 @@ import type {
     PlayerStats,
     TargetKind,
     SpellProjectileConfig,
+    SpellLevel,
 } from "@/types/game";
 import type Player from "@entities/Player/Player";
 
@@ -20,7 +21,7 @@ interface SpellValue {
 
 class Spell extends GameObjects.Sprite {
     // The owning combatant. Every ability in the game is created by the Player
-    // (see Player's `abilities.map(...)`), and the spell reads Player-only members
+    // (see Player's `createSpell`), and the spell reads Player-only members
     // (resource/shield/isCritical/casting), so the seam is a Player.
     public player!: Player;
     public cost!: { [key: string]: number };
@@ -32,6 +33,9 @@ class Spell extends GameObjects.Sprite {
     public icon_name!: string;
     public hotkey!: string;
     public slot!: number;
+    // Learned level (1–3), live-updated by the Player when a higher scroll is
+    // read mid-run. Not yet read by any effect (power scaling is #387).
+    public level: SpellLevel = 1;
     public loop!: boolean;
     public cooldownDelay!: boolean;
     public cooldownDelayAll!: boolean;
@@ -106,6 +110,11 @@ class Spell extends GameObjects.Sprite {
         this.scene.events.off(Scenes.Events.SHUTDOWN, this.cleanup, this);
         this.player.resource.off("change", this.onResourceChangeHandler, this);
         this.button.cleanup();
+    }
+
+    // Apply a level change in place (cooldown, button and listeners untouched).
+    setLevel(level: SpellLevel): void {
+        this.level = level;
     }
 
     checkResource(): boolean {
