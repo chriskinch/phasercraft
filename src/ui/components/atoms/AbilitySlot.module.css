@@ -34,26 +34,22 @@
     cursor: default;
 }
 
-/* Corner pill sits over the emboss lip and walls (offsets reach past the 6px
-   top border / side walls), above the ::after wall. */
+/* Slot-number badge, styled like the Parts count badge: a black pill over the
+   emboss's bottom-right wall (offsets reach past the side wall), above the
+   ::after wall. */
 .slot > .badge {
     position: absolute;
     z-index: 2;
-    padding: 1px 4px;
-    font-size: 0.6rem;
-    line-height: 1;
-    border-radius: 0.6rem;
-    pointer-events: none;
-}
-
-/* The Parts count badge. */
-.slot > .badge {
     right: -10px;
     bottom: -4px;
     min-width: 0.6rem;
+    padding: 1px 4px;
+    border-radius: 0.6rem;
     background-color: #222;
     color: #fff;
     font-size: 0.7rem;
+    line-height: 1;
     text-align: center;
     font-variant-numeric: tabular-nums;
+    pointer-events: none;
 }
