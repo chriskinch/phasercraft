@@ -20,6 +20,8 @@ interface AbilityCardProps {
     resourceType: keyof SpellCost;
     // Shown when no spell is given (an empty slot).
     emptyText?: string;
+    // Extra line under the level (picker: "Equipped in slot N").
+    note?: string;
 }
 
 const formatRange = (spell: SpellType): string => {
@@ -35,6 +37,7 @@ const AbilityCard: React.FC<AbilityCardProps> = ({
     level,
     resourceType,
     emptyText = "Tap a slot to see its ability.",
+    note,
 }) => {
     if (!spell) {
         return (
@@ -58,6 +61,7 @@ const AbilityCard: React.FC<AbilityCardProps> = ({
             <p className={styles.muted}>
                 Level {level} · {def.classes.join(", ")}
             </p>
+            {note && <p className={styles.note}>{note}</p>}
             <p className={styles.description}>{def.description}</p>
             <p className={styles.effect}>{def.effect}</p>
             <dl className={styles.rows}>
