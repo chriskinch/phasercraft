@@ -1,0 +1,16 @@
+/* Tooltip-style card centred along the top of the inventory box. */
+.toast {
+    position: absolute;
+    top: 0.5em;
+    left: 50%;
+    transform: translateX(-50%);
+    z-index: 3;
+    max-width: calc(100% - 1em);
+    box-sizing: border-box;
+    padding: 0.25em 0.5em;
+    background: white;
+    border: 5px solid #c9a3ff;
+    border-radius: 3px;
+    pointer-events: none;
+    text-align: center;
+}
