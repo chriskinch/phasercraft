@@ -1,7 +1,9 @@
 /* The Blacksmith resultCard: white face, 5px border in the level colour (fed
    by --level-color). Scrolls inside its grid cell when the copy outgrows a
-   short landscape phone. */
+   short landscape phone; sized to its copy, not stretched to the cell. */
 .card {
+    align-self: start;
+    max-height: 100%;
     background: #fff;
     border: 5px solid var(--level-color, transparent);
     border-radius: 3px;
