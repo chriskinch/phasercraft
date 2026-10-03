@@ -23,11 +23,13 @@ const CharacterCard: React.FC<CharacterCardProps> = ({
 }) => {
     // Picking a character here only happens on a fresh game (loading a save goes
     // through Save's Load button instead), so this is the seam to apply the
-    // Starter items setting (or an empty purse) before the run begins.
+    // Starter items setting (or an empty purse) before the run begins. The
+    // character goes first: selecting it reseeds abilities (and empties scrolls),
+    // and the starter scrolls depend on its class.
     const startGame = () => {
+        selectCharacter(type);
         if (readSettings().starterItems) grantStarterItems();
         else setCoins(0);
-        selectCharacter(type);
     };
 
     return (

@@ -27,6 +27,7 @@ import {
     ABILITY_SLOTS,
     SCROLL_SELL_VALUE,
     SPELL_LEVELS,
+    SPELL_TYPES,
 } from "@/types/game";
 import { CLASS_KITS, isKnownClass, isKnownSpell, isOnClass } from "@/lib/classKits";
 import { appliedStatValue } from "@/lib/statConversion";
@@ -142,6 +143,20 @@ export const seedAbilities = (character: PlayerName | null): AbilitySlices => {
         if (i < ABILITY_SLOTS) abilityLoadout[i] = spell;
     });
     return { learnedSpells, scrolls: {}, abilityLoadout, passiveLoadout: emptySlots() };
+};
+
+// God-mode starter scrolls for the current class, one of each reading state:
+// 3× kit[0] L1 (already known → merge hint), kit[0] L2 (upgrade), kit[1] L3
+// (upgrade to max) and 2× the first off-class spell (off-class hint).
+export const starterScrolls = (character: PlayerName | null): GameState["scrolls"] => {
+    if (!isKnownClass(character)) return {};
+    const [first, second] = CLASS_KITS[character];
+    const offClass = SPELL_TYPES.find((s) => !isOnClass(character, s));
+    const scrolls: GameState["scrolls"] = {};
+    if (first) scrolls[first] = { 1: 3, 2: 1 };
+    if (second) scrolls[second] = { 3: 1 };
+    if (offClass) scrolls[offClass] = { 1: 2 };
+    return scrolls;
 };
 
 const isRecord = (value: unknown): value is Record<string, unknown> =>
@@ -556,6 +571,8 @@ export const gameReducer = createReducer(initState, (builder) => {
             state.specials = Object.fromEntries(
                 SPECIAL_ITEMS.map((special) => [special.id, STARTER_ITEMS.specialsEach])
             );
+            // Needs the class, so dispatch after selectCharacter (CharacterCard does).
+            state.scrolls = starterScrolls(state.character);
         })
         .addCase(addComponent, (state, action: PayloadAction<{ type: ComponentType }>) => {
             const { type } = action.payload;

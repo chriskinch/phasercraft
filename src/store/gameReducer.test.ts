@@ -31,6 +31,7 @@ import {
     setBaseStats,
     addSpecial,
     grantStarterItems,
+    starterScrolls,
     STARTER_ITEMS,
     selectCharacter,
     readScroll,
@@ -845,6 +846,29 @@ describe("grantStarterItems", () => {
         expect(state.specials).toEqual(
             Object.fromEntries(SPECIAL_ITEMS.map((s) => [s.id, STARTER_ITEMS.specialsEach]))
         );
+    });
+});
+
+describe("starterScrolls", () => {
+    it("covers merge, upgrade and off-class states for the class", () => {
+        // Mage kit: Fireball, Frostbolt, …; Aimed Shot is the first off-class spell.
+        expect(starterScrolls("Mage")).toEqual({
+            Fireball: { 1: 3, 2: 1 },
+            Frostbolt: { 3: 1 },
+            AimedShot: { 1: 2 },
+        });
+    });
+
+    it("grants none without a class", () => {
+        expect(starterScrolls(null)).toEqual({});
+    });
+
+    it("grantStarterItems gives the current class's starter scrolls", () => {
+        const mage = gameReducer(
+            gameReducer(undefined, { type: "@@INIT" }),
+            selectCharacter("Mage")
+        );
+        expect(gameReducer(mage, grantStarterItems()).scrolls).toEqual(starterScrolls("Mage"));
     });
 });
 
