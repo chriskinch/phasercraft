@@ -343,7 +343,10 @@ export interface PlayerOptions {
     scene: Scene;
     x: number;
     y: number;
-    abilities: SpellType[];
+    // Fixed spell list (slot order = HUD order) overriding the stored ability
+    // loadout; the town passes `[]`. Omitted: the player builds its spells from
+    // the store's `abilityLoadout` + `learnedSpells` and follows live changes.
+    abilities?: (SpellType | null)[];
     classification: string;
     stats?: PlayerStats;
     resource_type?: string;
@@ -449,6 +452,8 @@ export interface SpellOptions {
     icon_name?: string;
     hotkey: string;
     slot: number;
+    // Learned level (from `learnedSpells`); defaults to 1.
+    level?: SpellLevel;
     loop?: boolean;
     cooldownDelay?: boolean;
     cooldownDelayAll?: boolean;

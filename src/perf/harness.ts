@@ -1,7 +1,6 @@
 import { Core, GameObjects, Scenes, type Game } from "phaser";
 import type BiomeScene from "@scenes/biomes/BiomeScene";
 import type Enemy from "@entities/Enemy/Enemy";
-import type Spell from "@entities/Spells/Spell";
 import Coin from "@entities/Loot/Coin";
 import Crafting from "@entities/Loot/Crafting";
 import Gem from "@entities/Loot/Gem";
@@ -131,8 +130,7 @@ function drive(scene: BiomeScene): void {
     }
 
     if (player.casting.getState() !== "idle") return;
-    // AssignSpell's constructor returns the concrete Spell it builds.
-    for (const spell of player.spells as unknown as Spell[]) {
+    for (const spell of player.spells) {
         if (spell.targetKind === "ground" || !spell.checkReady()) continue;
         spell.press();
         break;
