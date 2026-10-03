@@ -232,4 +232,103 @@ describe("Equipment template", () => {
         expect(screen.getByRole("button", { name: "Sell" })).toBeDisabled();
         expect(screen.queryByRole("button", { name: "Sell All" })).not.toBeInTheDocument();
     });
+
+    describe("Scrolls tab", () => {
+        function openScrolls(partial: Partial<GameState>) {
+            seed({
+                character: "Mage",
+                stats: {} as never,
+                coins: 0,
+                learnedSpells: { Frostbolt: 1 },
+                abilityLoadout: ["Frostbolt", null, null, null, null],
+                ...partial,
+            });
+            renderWithProviders(<Equipment />, { store });
+            fireEvent.click(screen.getByRole("button", { name: "Scrolls" }));
+        }
+
+        it("adds a Scrolls filter after Special and shows Learn + Sell, disabled until a pick", () => {
+            openScrolls({ scrolls: { Fireball: { 1: 2 } } });
+
+            const filters = screen.getByRole("tablist");
+            expect(
+                Array.from(filters.querySelectorAll("button")).map((b) => b.textContent)
+            ).toEqual(["Gear", "Parts", "Special", "Scrolls"]);
+            expect(screen.getByTestId("scrolls-grid")).toBeInTheDocument();
+            expect(screen.getByRole("button", { name: "Learn" })).toBeDisabled();
+            expect(screen.getByRole("button", { name: "Sell" })).toBeDisabled();
+            expect(screen.queryByTestId("sell-value")).not.toBeInTheDocument();
+        });
+
+        it("Learn learns the spell, auto-equips it, decrements the stack and toasts", () => {
+            openScrolls({ scrolls: { Fireball: { 1: 2 } } });
+            fireEvent.click(screen.getByRole("button", { name: "Fireball Scroll L1 ×2" }));
+
+            const learn = screen.getByRole("button", { name: "Learn" });
+            expect(learn).toBeEnabled();
+            fireEvent.click(learn);
+
+            const state = store.getState().game;
+            expect(state.learnedSpells.Fireball).toBe(1);
+            expect(state.abilityLoadout).toEqual(["Frostbolt", "Fireball", null, null, null]);
+            expect(state.scrolls.Fireball?.[1]).toBe(1);
+            expect(screen.getByRole("status")).toHaveTextContent(
+                "Learned Fireball (L1) — equipped in slot 2"
+            );
+            // Count badge follows the store; the read L1 is now not readable.
+            expect(
+                screen.getByRole("button", { name: "Fireball Scroll L1 ×1" })
+            ).toBeInTheDocument();
+            expect(screen.getByRole("button", { name: "Learn" })).toBeDisabled();
+        });
+
+        it("Learn upgrades a learned spell to the scroll's level", () => {
+            openScrolls({
+                learnedSpells: { Frostbolt: 1 },
+                scrolls: { Frostbolt: { 3: 1 } },
+            });
+            fireEvent.click(screen.getByRole("button", { name: "Frostbolt Scroll L3 ×1" }));
+            fireEvent.click(screen.getByRole("button", { name: "Learn" }));
+
+            const state = store.getState().game;
+            expect(state.learnedSpells.Frostbolt).toBe(3);
+            expect(state.scrolls.Frostbolt).toBeUndefined();
+            expect(screen.getByRole("status")).toHaveTextContent("Upgraded Frostbolt to L3");
+        });
+
+        it("keeps Learn disabled off-class and at or below the learned level", () => {
+            openScrolls({
+                learnedSpells: { Frostbolt: 2 },
+                scrolls: { Whirlwind: { 1: 1 }, Frostbolt: { 2: 1 } },
+            });
+            fireEvent.click(screen.getByRole("button", { name: "Whirlwind Scroll L1 ×1" }));
+            expect(screen.getByRole("button", { name: "Learn" })).toBeDisabled();
+            fireEvent.click(screen.getByRole("button", { name: "Frostbolt Scroll L2 ×1" }));
+            expect(screen.getByRole("button", { name: "Learn" })).toBeDisabled();
+            expect(screen.getByRole("button", { name: "Sell" })).toBeEnabled();
+        });
+
+        it("Sell sells one scroll at a time, credits coins and shows the value", () => {
+            openScrolls({ scrolls: { Whirlwind: { 2: 2 } } });
+            fireEvent.click(screen.getByRole("button", { name: "Whirlwind Scroll L2 ×2" }));
+            expect(screen.getByTestId("sell-value")).toHaveTextContent("+30");
+
+            fireEvent.click(screen.getByRole("button", { name: "Sell" }));
+            expect(store.getState().game.coins).toBe(30);
+            expect(store.getState().game.scrolls.Whirlwind?.[2]).toBe(1);
+
+            fireEvent.click(screen.getByRole("button", { name: "Sell" }));
+            expect(store.getState().game.coins).toBe(60);
+            expect(store.getState().game.scrolls.Whirlwind).toBeUndefined();
+            // The emptied stack drops the selection.
+            expect(screen.getByRole("button", { name: "Sell" })).toBeDisabled();
+            expect(screen.queryByTestId("sell-value")).not.toBeInTheDocument();
+        });
+
+        it("hides Learn on the other tabs", () => {
+            openScrolls({});
+            fireEvent.click(screen.getByRole("button", { name: "Gear" }));
+            expect(screen.queryByRole("button", { name: "Learn" })).not.toBeInTheDocument();
+        });
+    });
 });

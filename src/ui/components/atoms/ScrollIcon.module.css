@@ -1,0 +1,7 @@
+/* LootIcon's tile (white face, 6px inset border, notched corners) with the
+   scroll sprite as an unscaled background instead of a 32px <img>. */
+.scrollIcon {
+    composes: styledLootIcon from "./LootIcon.module.css";
+    padding: 0;
+    background-repeat: no-repeat;
+}
