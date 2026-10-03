@@ -3,7 +3,8 @@ import type { SpellType } from "@entities/Spells/AssignSpell";
 
 // Each class's starting spells, in HUD order. Phaser-free so the store can read
 // class membership and seed new characters without importing the Player
-// classes; the class files spread these into their `abilities` default.
+// classes. Seed source only: the Player builds its spells from the stored
+// `abilityLoadout` (seeded from this kit).
 export const CLASS_KITS: Record<PlayerName, readonly SpellType[]> = {
     Cleric: ["Heal", "Smite", "PowerInfusion", "Consecration", "Faith"],
     Mage: ["Fireball", "Frostbolt", "EarthShield", "ManaShield", "Invocation"],

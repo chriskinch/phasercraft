@@ -86,3 +86,23 @@ describe("UI overlay scrolling screens", () => {
         expect(screen.getByTestId("menu-container").style.minHeight).toBe("");
     });
 });
+
+describe("UI overlay navigation tabs", () => {
+    it("lists Abilities after Equipment and opens the Abilities screen", () => {
+        const { store } = renderWithProviders(<UI />, {
+            preloadedGame: { showUi: true, menu: "character", stats: {} as never },
+        });
+
+        const tabs = screen
+            .getAllByRole("button")
+            .map((b) => b.textContent)
+            .filter((t) => ["Character", "Equipment", "Abilities"].includes(t ?? ""));
+        expect(tabs).toEqual(["Character", "Equipment", "Abilities"]);
+
+        fireEvent.click(screen.getByRole("button", { name: "Abilities" }));
+
+        expect(store.getState().game.menu).toBe("abilities");
+        expect(screen.getByTestId("menu-container")).toHaveAttribute("id", "abilities");
+        expect(screen.getByText("Passive · coming soon")).toBeInTheDocument();
+    });
+});

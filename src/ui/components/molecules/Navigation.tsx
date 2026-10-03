@@ -10,7 +10,7 @@ const Navigation = () => {
     const menu = useSelector((state: RootState) => state.game.menu);
     // Personal screens only. Shops (Armory, Arcanum, …) are POI-only from Phase 13:
     // they open by walking up to their building in town, not from these tabs.
-    const items = ["Character", "Equipment"];
+    const items = ["Character", "Equipment", "Abilities"];
 
     return (
         <nav>

@@ -343,7 +343,10 @@ export interface PlayerOptions {
     scene: Scene;
     x: number;
     y: number;
-    abilities: SpellType[];
+    // Fixed spell list (slot order = HUD order) overriding the stored ability
+    // loadout; the town passes `[]`. Omitted: the player builds its spells from
+    // the store's `abilityLoadout` + `learnedSpells` and follows live changes.
+    abilities?: (SpellType | null)[];
     classification: string;
     stats?: PlayerStats;
     resource_type?: string;
@@ -449,6 +452,8 @@ export interface SpellOptions {
     icon_name?: string;
     hotkey: string;
     slot: number;
+    // Learned level (from `learnedSpells`); defaults to 1.
+    level?: SpellLevel;
     loop?: boolean;
     cooldownDelay?: boolean;
     cooldownDelayAll?: boolean;
@@ -1021,6 +1026,11 @@ export const spellDefDefaults = (
 // A spell's level, raised by reading higher-level scrolls. Max 3.
 export type SpellLevel = 1 | 2 | 3;
 export const SPELL_LEVELS: readonly SpellLevel[] = [1, 2, 3];
+
+// Spell power multiplier by level: #387's proposed curve (L1 ×1.0, L2 ×1.35,
+// L3 ×1.8), balance TBD. Display only for now — the ability card's
+// "Next: L2 · 135% power" line reads it; #387 applies it in combat.
+export const SPELL_LEVEL_POWER: Record<SpellLevel, number> = { 1: 1, 2: 1.35, 3: 1.8 };
 
 // Active and passive loadouts each have this many slots (slot 1–5 = HUD order).
 export const ABILITY_SLOTS = 5;

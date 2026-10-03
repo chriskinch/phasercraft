@@ -1,0 +1,68 @@
+/* Slots | ability card | action column. No character column (Equipment keeps
+   that). The action column is the same fixed width as Equipment's
+   (--actions-col, sized off "Sell All"), so the two tabs line up. */
+.abilitiesContainer {
+    display: grid;
+    gap: 0.5rem 1rem;
+    height: 100%;
+    --actions-col: calc(6.5em + 1.5rem);
+    --slot-gap: 12px;
+    grid-template-columns: min-content minmax(0, 1fr) var(--actions-col);
+    grid-template-rows: minmax(0, 1fr);
+}
+
+/* 667px-wide phones: tighten the slot row to the inventory grid's gap so the
+   card keeps a readable width. */
+@media (max-width: 760px) {
+    .abilitiesContainer {
+        --slot-gap: 6px;
+        gap: 0.5rem 0.75rem;
+    }
+}
+
+.slotsSection {
+    display: flex;
+    flex-direction: column;
+    gap: 0.25rem;
+    min-height: 0;
+}
+
+/* The Blacksmith sectionLabel. */
+.sectionLabel {
+    margin: 0;
+    font-size: 0.75rem;
+    letter-spacing: 0.05em;
+    text-transform: uppercase;
+    color: #4d5d66;
+}
+
+.slotRow + .sectionLabel {
+    margin-top: 0.75rem;
+}
+
+/* Each slot's 6px emboss walls/shadow sit in its 6px margin, so the flex gap
+   is the visible gap between slots and the row's edge is the slot's edge. */
+.slotRow {
+    display: flex;
+    gap: var(--slot-gap);
+}
+
+.actionsSection {
+    align-self: end;
+    display: flex;
+    flex-direction: column;
+    align-items: stretch;
+    gap: 0.25rem;
+}
+
+.townNote {
+    margin: 0 0 0.25rem;
+    text-align: center;
+    color: #4d5d66;
+    font-size: 0.85rem;
+}
+
+/* Button is content-box; keep width:100% + padding inside the fixed column. */
+.actionsSection button {
+    box-sizing: border-box;
+}
