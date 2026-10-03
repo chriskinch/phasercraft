@@ -17,7 +17,7 @@ describe("scrollStatus", () => {
         expect(s.hint).toBe("Learns Fireball at L1 and fills the first empty slot.");
     });
 
-    it("not learned with a full loadout points at the Abilities tab", () => {
+    it("not learned with a full loadout has no slot clause", () => {
         const full = { ...mage, abilityLoadout: loadout("a", "b", "c", "d", "e") };
         expect(scrollStatus(full, "Fireball", 2).hint).toBe("Learns Fireball at L2.");
     });
@@ -63,7 +63,7 @@ describe("learnToast", () => {
         ).toBe("Learned Fireball (L1) — equipped in slot 2");
     });
 
-    it("points at Abilities when no slot is empty", () => {
+    it("full loadout: no slot clause", () => {
         expect(
             learnToast(
                 { learnedSpells: {}, abilityLoadout: loadout("a", "b", "c", "d", "e") },
