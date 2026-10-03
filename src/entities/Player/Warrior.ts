@@ -1,6 +1,5 @@
 import Player from "./Player";
 import { PlayerOptions } from "@/types/game";
-import { CLASS_KITS } from "@/lib/classKits";
 
 class Warrior extends Player {
     constructor(config: PlayerOptions) {
@@ -21,7 +20,6 @@ class Warrior extends Player {
                 health_regen_rate: 0.75,
             },
             resource_type: "Rage",
-            abilities: [...CLASS_KITS.Warrior],
         };
 
         super({ ...defaults, ...config });

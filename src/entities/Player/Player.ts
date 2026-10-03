@@ -3,7 +3,8 @@ import { v4 as uuid } from "uuid";
 import Hero from "./Hero";
 import Weapon from "@entities/Weapon";
 import { playSfx } from "@services/sfx";
-import AssignSpell from "@entities/Spells/AssignSpell";
+import { createSpell } from "@entities/Spells/AssignSpell";
+import type Spell from "@entities/Spells/Spell";
 import CastingController from "@entities/Spells/CastingController";
 import AssignResource, {
     AssignResourceType,
@@ -18,7 +19,15 @@ import mapStateToData from "@helpers/mapStateToData";
 import CombatText from "../UI/CombatText";
 import CastBar from "@entities/UI/CastBar";
 import Projectile from "@entities/Weapons/Projectile";
-import type { CombatType, PlayerOptions, PlayerStats, SpellProjectileConfig } from "@/types/game";
+import { ABILITY_SLOTS } from "@/types/game";
+import type {
+    CombatType,
+    PlayerOptions,
+    PlayerStats,
+    SpellLevel,
+    SpellProjectileConfig,
+    SpellType,
+} from "@/types/game";
 import type Enemy from "@entities/Enemy/Enemy";
 import type { GameSceneLike } from "@/types/scene";
 import * as converter from "number-to-words";
@@ -26,6 +35,12 @@ import * as converter from "number-to-words";
 interface Destination {
     x: number | null;
     y: number | null;
+}
+
+// A spell occupying a HUD slot, with the id it was built from.
+interface SlottedSpell {
+    type: SpellType;
+    spell: Spell;
 }
 
 interface DrawBarOptions {
@@ -56,7 +71,8 @@ class Player extends GameObjects.Container {
     public shield: AssignResourceType;
     public weapon: Weapon;
     public stats!: PlayerStats;
-    public spells: AssignSpell[];
+    // One entry per HUD slot (index = slot = hotkey order); null = empty slot.
+    private slotted: (SlottedSpell | null)[] = [];
     public mouse!: Phaser.Input.Pointer;
     public point!: PhaserMath.Vector2;
     public dragging!: boolean;
@@ -74,7 +90,7 @@ class Player extends GameObjects.Container {
         scene,
         x,
         y,
-        abilities = [],
+        abilities,
         classification = "",
         stats,
         resource_type,
@@ -177,17 +193,14 @@ class Player extends GameObjects.Container {
         });
         this.castBar = new CastBar(scene, this);
 
-        this.spells = abilities.map((spell, i) => {
-            return new AssignSpell(spell, {
-                player: this,
-                scene: scene,
-                x: this.x,
-                y: this.y,
-                key: `spell-${spell.toLowerCase()}`,
-                hotkey: converter.toWords(i + 1).toUpperCase(),
-                slot: i,
-            });
-        });
+        if (abilities) {
+            // Fixed list (the town passes []): levels still come from the store.
+            const learned = store.getState().game.learnedSpells;
+            this.syncSpells(abilities, (type) => learned[type] ?? 1);
+        } else {
+            this.syncFromStore();
+            this.watchLoadout();
+        }
 
         this.idle();
 
@@ -200,6 +213,77 @@ class Player extends GameObjects.Container {
         this.on("pointerdown", () => scene.events.emit("pointerdown:player", this));
 
         // mapStateToData("stats", s => this.stats = s);
+    }
+
+    // The live spells in HUD slot order (empty slots skipped).
+    get spells(): Spell[] {
+        return this.slotted.flatMap((entry) => (entry ? [entry.spell] : []));
+    }
+
+    // Follow loadout / level changes mid-run (a scroll read auto-equips into an
+    // empty slot or raises a level). Both fire for one readScroll; the second
+    // sync is a no-op. Released in cleanup() with the other subscriptions.
+    watchLoadout(): void {
+        const sync = () => this.syncFromStore();
+        this.subscriptions.push(mapStateToData("abilityLoadout", sync, { init: false }));
+        this.subscriptions.push(mapStateToData("learnedSpells", sync, { init: false }));
+    }
+
+    syncFromStore(): void {
+        // Released subscriptions can't call this, but never build onto a
+        // destroyed player.
+        if (!this.scene) return;
+        const { abilityLoadout, learnedSpells } = store.getState().game;
+        // A slotted spell that isn't learned is skipped (the store keeps the
+        // loadout a subset of learnedSpells; this only guards a bad state).
+        this.syncSpells(abilityLoadout, (type) => learnedSpells[type]);
+    }
+
+    // Reconcile the HUD slots with a loadout, touching only slots that changed:
+    // same spell -> level updated in place (cooldown kept); different spell ->
+    // old one removed, new one built; untouched slots keep their cooldowns.
+    syncSpells(
+        loadout: readonly (SpellType | null)[],
+        levelOf: (type: SpellType) => SpellLevel | undefined
+    ): void {
+        for (let slot = 0; slot < ABILITY_SLOTS; slot++) {
+            const wanted = loadout[slot] ?? null;
+            const level = wanted ? levelOf(wanted) : undefined;
+            const current = this.slotted[slot] ?? null;
+
+            if (wanted && level !== undefined && current?.type === wanted) {
+                if (current.spell.level !== level) current.spell.setLevel(level);
+                continue;
+            }
+            if (current) this.removeSpell(current.spell);
+            this.slotted[slot] =
+                wanted && level !== undefined
+                    ? { type: wanted, spell: this.createSpell(wanted, slot, level) }
+                    : null;
+        }
+    }
+
+    createSpell(type: SpellType, slot: number, level: SpellLevel): Spell {
+        return createSpell(type, {
+            player: this,
+            scene: this.scene,
+            x: this.x,
+            y: this.y,
+            key: `spell-${type.toLowerCase()}`,
+            hotkey: converter.toWords(slot + 1).toUpperCase(),
+            slot,
+            level,
+        });
+    }
+
+    // Take a spell off the HUD mid-scene: drop it from the cast flow, stop its
+    // cooldown tween (it writes to the button text), then destroy it (its
+    // DESTROY handler runs Spell.cleanup) and its button sprites.
+    removeSpell(spell: Spell): void {
+        this.casting.notifyDisabled(spell);
+        spell.cooldownTimer?.stop();
+        spell.destroy();
+        spell.button.destroy();
     }
 
     drawBar(opt: DrawBarOptions): GameObjects.Graphics {
