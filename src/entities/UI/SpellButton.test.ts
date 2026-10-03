@@ -30,6 +30,7 @@ interface ButtonUnderTest {
     setCooldownText(seconds: number): void;
     hideCooldown(): void;
     cleanup(): void;
+    destroy(): void;
     align(): void;
 }
 
@@ -137,6 +138,31 @@ describe("SpellButton.cleanup", () => {
             SpellButton.prototype.align,
             button
         );
+    });
+});
+
+describe("SpellButton.destroy", () => {
+    it("releases its listeners and destroys the icon and countdown text", () => {
+        const button = makeButton();
+        const spriteDestroy = vi.fn();
+        const textDestroy = vi.fn();
+        Object.assign(button.sprite, { destroy: spriteDestroy });
+        Object.assign(button.text, { destroy: textDestroy });
+
+        button.destroy();
+
+        expect(button.scene.input.keyboard.off).toHaveBeenCalledWith(
+            "keydown-ONE",
+            SpellButton.prototype.handlePress,
+            button
+        );
+        expect(button.hud.off).toHaveBeenCalledWith(
+            HUD_LAYOUT,
+            SpellButton.prototype.align,
+            button
+        );
+        expect(spriteDestroy).toHaveBeenCalled();
+        expect(textDestroy).toHaveBeenCalled();
     });
 });
 

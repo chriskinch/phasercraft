@@ -109,6 +109,14 @@ class SpellButton {
         this.setEvents("off");
         this.hud.off(HUD_LAYOUT, this.align, this);
     }
+
+    // Release listeners and remove the icon + countdown text, for a spell taken
+    // off the HUD mid-scene (scene shutdown destroys the display list itself).
+    destroy(): void {
+        this.cleanup();
+        this.sprite.destroy();
+        this.text.destroy();
+    }
 }
 
 export default SpellButton;
