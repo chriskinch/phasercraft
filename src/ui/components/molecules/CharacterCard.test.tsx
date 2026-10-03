@@ -2,7 +2,7 @@ import { describe, it, expect, beforeEach, afterEach } from "vitest";
 import { fireEvent, screen } from "@testing-library/react";
 import { renderWithProviders } from "@ui/test-utils/renderWithProviders";
 import { writeSettings, DEFAULT_SETTINGS } from "@services/settingsStorage";
-import { STARTER_ITEMS } from "@store/gameReducer";
+import { STARTER_ITEMS, starterScrolls } from "@store/gameReducer";
 import CharacterCard from "./CharacterCard";
 
 // Starting a new game applies the Starter items setting before the run begins.
@@ -25,6 +25,7 @@ describe("CharacterCard", () => {
         expect(game.coins).toBe(0);
         expect(game.components).toEqual([]);
         expect(game.specials).toEqual({});
+        expect(game.scrolls).toEqual({});
         expect(game.character).toBe("Cleric");
     });
 
@@ -39,5 +40,8 @@ describe("CharacterCard", () => {
         expect(game.components.length).toBeGreaterThan(0);
         expect(Object.values(game.specials)).toContain(STARTER_ITEMS.specialsEach);
         expect(game.character).toBe("Cleric");
+        // Granted after the class is set, so the starter scrolls survive its seed.
+        expect(game.scrolls).toEqual(starterScrolls("Cleric"));
+        expect(Object.keys(game.scrolls).length).toBeGreaterThan(0);
     });
 });
