@@ -181,7 +181,7 @@ count)`. Combining is #386's `combineScrolls`.
 
 ## Edge cases
 
-- Warrior seeds 2 abilities, Ranger/Occultist 4 → remaining slots empty.
+- Warrior seeds 3 abilities, Ranger/Occultist 4 → remaining slots empty.
 - Empty loadout is allowed; the player can enter a dungeon with no abilities.
 - A learned spell removed from the game later: dropped from loadout/learned on load.
 - Town spawns the player with no abilities (`TownScene`): unchanged; the tab still
