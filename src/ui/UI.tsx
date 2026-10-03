@@ -4,6 +4,7 @@ import { pixelBackgroundVars } from "@ui/themes";
 import theme from "@ui/themes.module.css";
 import styles from "./UI.module.css";
 import { switchUi, toggleUi } from "@store/gameReducer";
+import Abilities from "@components/Abilities";
 import Alchemist from "@components/Alchemist";
 import Arcanum from "@components/Arcanum";
 import Armory from "@components/Armory";
@@ -116,6 +117,11 @@ const UI: React.FC = () => {
         equipment: {
             component: asMenuComponent(Equipment),
             title: "Equipment",
+            navigation: true,
+        },
+        abilities: {
+            component: asMenuComponent(Abilities),
+            title: "Abilities",
             navigation: true,
         },
         load: {
