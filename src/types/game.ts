@@ -1022,6 +1022,11 @@ export const spellDefDefaults = (
 export type SpellLevel = 1 | 2 | 3;
 export const SPELL_LEVELS: readonly SpellLevel[] = [1, 2, 3];
 
+// Spell power multiplier by level: #387's proposed curve (L1 ×1.0, L2 ×1.35,
+// L3 ×1.8), balance TBD. Display only for now — the ability card's
+// "Next: L2 · 135% power" line reads it; #387 applies it in combat.
+export const SPELL_LEVEL_POWER: Record<SpellLevel, number> = { 1: 1, 2: 1.35, 3: 1.8 };
+
 // Active and passive loadouts each have this many slots (slot 1–5 = HUD order).
 export const ABILITY_SLOTS = 5;
 

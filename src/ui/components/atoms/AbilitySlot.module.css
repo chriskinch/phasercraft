@@ -1,0 +1,35 @@
+/* Same box as DroppableSlot: a 44 x 50 content box whose emboss (6px top
+   border + shadow, 6px side walls) makes the 56 x 56 footprint. Button
+   defaults (padding, side/bottom borders, font) are reset so the emboss is
+   the only chrome. */
+.slot {
+    flex: none;
+    width: 44px;
+    height: 50px;
+    padding: 0;
+    border-left: none;
+    border-right: none;
+    border-bottom: none;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-family: inherit;
+    font-size: 1.5em;
+    color: #4d5d66;
+    cursor: pointer;
+}
+
+/* The icon stacks above the emboss' ::after wall. */
+.slot > * {
+    position: relative;
+    z-index: 1;
+}
+
+.plus {
+    line-height: 1;
+}
+
+.locked {
+    opacity: 0.55;
+    cursor: default;
+}
