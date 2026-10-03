@@ -189,8 +189,8 @@ describe("Abilities picker", () => {
             "Fireball, in slot 1",
             "Frostbolt, in slot 2",
             "Mana Shield, in slot 4",
-            "Earth Shield, new",
-            "Invocation, new",
+            "Earth Shield",
+            "Invocation",
         ]);
     });
 
@@ -242,25 +242,6 @@ describe("Abilities picker", () => {
         open(1);
         expect(tile("Fireball")).toHaveAttribute("aria-pressed", "true");
         expect(screen.getByRole("button", { name: "Equip" })).toBeDisabled();
-    });
-
-    it("the New pill clears once tapped", () => {
-        renderWithProviders(<Abilities />, { preloadedGame: withSpare() });
-
-        open(3);
-        expect(tile("Earth Shield")).toHaveAccessibleName("Earth Shield, new");
-        expect(tile("Earth Shield")).toHaveTextContent("New");
-        // Slotted spells are not new.
-        expect(tile("Fireball")).not.toHaveTextContent("New");
-
-        fireEvent.click(tile("Earth Shield"));
-        expect(tile("Earth Shield")).toHaveAccessibleName("Earth Shield");
-        expect(tile("Earth Shield")).not.toHaveTextContent("New");
-
-        // Stays cleared after Back and reopening.
-        fireEvent.click(screen.getByRole("button", { name: "Back" }));
-        open(3);
-        expect(tile("Earth Shield")).not.toHaveTextContent("New");
     });
 
     it("marks spells already slotted with their slot number", () => {

@@ -46,9 +46,6 @@ const Abilities: React.FC = () => {
     const [view, setView] = useState<"slots" | "picker">("slots");
     // The spell highlighted inside the picker.
     const [previewed, setPreviewed] = useState<SpellType | null>(null);
-    // Spells tapped in the picker; an unslotted, untapped spell shows "New".
-    // Component state, so not saved (see the PR's open questions).
-    const [seen, setSeen] = useState<ReadonlySet<SpellType>>(() => new Set());
 
     // Learned, on-class spells (an off-class spell can't be learned anyway).
     const choices = useMemo(
@@ -94,25 +91,17 @@ const Abilities: React.FC = () => {
                         >
                             {choices.map((s) => {
                                 const at = loadout.indexOf(s);
-                                const isNew = at === -1 && !seen.has(s);
-                                const label = [
-                                    SPELL_DEFS[s].name,
-                                    at !== -1 ? `in slot ${at + 1}` : null,
-                                    isNew ? "new" : null,
-                                ]
-                                    .filter(Boolean)
-                                    .join(", ");
+                                const label =
+                                    at !== -1
+                                        ? `${SPELL_DEFS[s].name}, in slot ${at + 1}`
+                                        : SPELL_DEFS[s].name;
                                 return (
                                     <AbilitySlot
                                         key={s}
                                         label={label}
                                         selected={s === previewed}
-                                        isNew={isNew}
                                         badge={at !== -1 ? `${at + 1}` : undefined}
-                                        onClick={() => {
-                                            setPreviewed(s);
-                                            setSeen((prev) => new Set(prev).add(s));
-                                        }}
+                                        onClick={() => setPreviewed(s)}
                                     >
                                         <SpellIcon icon={SPELL_DEFS[s].icon_name} />
                                     </AbilitySlot>
