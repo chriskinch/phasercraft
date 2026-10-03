@@ -1,7 +1,8 @@
 import { describe, it, expect } from "vitest";
-import { fireEvent, screen, within } from "@testing-library/react";
+import { act, fireEvent, screen, within } from "@testing-library/react";
 import { renderWithProviders } from "@ui/test-utils/renderWithProviders";
 import Abilities from "@components/Abilities";
+import { setCurrentArea } from "@store/gameReducer";
 import type { GameState } from "@store/gameReducer";
 import type { PlayerStats } from "@/types/game";
 
@@ -104,7 +105,10 @@ describe("Abilities template", () => {
         });
 
         expect(screen.getByText("Change in town")).toBeInTheDocument();
-        expect(screen.getByRole("button", { name: "Change" })).toBeDisabled();
+        const change = screen.getByRole("button", { name: "Change" });
+        expect(change).toBeDisabled();
+        fireEvent.click(change);
+        expect(screen.queryByTestId("ability-picker")).not.toBeInTheDocument();
         const remove = screen.getByRole("button", { name: "Remove" });
         expect(remove).toBeDisabled();
         fireEvent.click(remove);
@@ -130,5 +134,151 @@ describe("Abilities template", () => {
         renderWithProviders(<Abilities />, { preloadedGame: mage() });
         expect(screen.queryByText("Change in town")).not.toBeInTheDocument();
         expect(screen.getByRole("button", { name: "Remove" })).toBeEnabled();
+    });
+});
+
+describe("Abilities picker", () => {
+    // Mage with Fireball (slot 1), Frostbolt (slot 2), Mana Shield (slot 4)
+    // slotted; Earth Shield learned but unslotted.
+    const withSpare = (overrides: Partial<GameState> = {}) =>
+        mage({
+            learnedSpells: { Fireball: 2, Frostbolt: 1, ManaShield: 3, EarthShield: 1 },
+            ...overrides,
+        });
+    const tile = (name: string) => screen.getByRole("button", { name: new RegExp(`^${name}`) });
+    const open = (n: number) => {
+        fireEvent.click(slot(n));
+        fireEvent.click(screen.getByRole("button", { name: /^(Change|Choose)$/ }));
+    };
+
+    it("Change opens the picker for the slot; Back returns", () => {
+        renderWithProviders(<Abilities />, { preloadedGame: withSpare() });
+
+        open(2);
+        expect(screen.getByText("Choose for slot 2")).toBeInTheDocument();
+        expect(screen.queryByRole("button", { name: /^Slot \d:/ })).not.toBeInTheDocument();
+        // The slot's current spell is preselected.
+        expect(tile("Frostbolt")).toHaveAttribute("aria-pressed", "true");
+        expect(card()).toHaveTextContent("Equipped in slot 2");
+
+        fireEvent.click(screen.getByRole("button", { name: "Back" }));
+        expect(screen.queryByTestId("ability-picker")).not.toBeInTheDocument();
+        expect(slot(2)).toHaveAttribute("aria-pressed", "true");
+    });
+
+    it("lists learned, on-class spells: equipped first in slot order, then by name", () => {
+        renderWithProviders(<Abilities />, {
+            preloadedGame: withSpare({
+                // An off-class (Warrior) spell is not offered.
+                learnedSpells: {
+                    Fireball: 2,
+                    Frostbolt: 1,
+                    ManaShield: 3,
+                    Invocation: 1,
+                    EarthShield: 1,
+                    Whirlwind: 1,
+                },
+            }),
+        });
+
+        open(1);
+        const names = within(screen.getByRole("group"))
+            .getAllByRole("button")
+            .map((b) => b.getAttribute("aria-label"));
+        expect(names).toEqual([
+            "Fireball, in slot 1",
+            "Frostbolt, in slot 2",
+            "Mana Shield, in slot 4",
+            "Earth Shield",
+            "Invocation",
+        ]);
+    });
+
+    it("equips into an empty slot", () => {
+        const { store } = renderWithProviders(<Abilities />, { preloadedGame: withSpare() });
+
+        open(3);
+        expect(screen.getByText("Choose for slot 3")).toBeInTheDocument();
+        expect(card()).toHaveTextContent("Tap an ability to see it.");
+        expect(screen.getByRole("button", { name: "Equip" })).toBeDisabled();
+        fireEvent.click(tile("Earth Shield"));
+        expect(within(card()).getByRole("heading", { name: "Earth Shield" })).toBeInTheDocument();
+        expect(card()).not.toHaveTextContent("Equipped in slot");
+        fireEvent.click(screen.getByRole("button", { name: "Equip" }));
+
+        expect(store.getState().game.abilityLoadout).toEqual([
+            "Fireball",
+            "Frostbolt",
+            "EarthShield",
+            "ManaShield",
+            null,
+        ]);
+        expect(screen.queryByTestId("ability-picker")).not.toBeInTheDocument();
+        expect(slot(3)).toHaveAccessibleName("Slot 3: Earth Shield");
+        expect(slot(3)).toHaveAttribute("aria-pressed", "true");
+    });
+
+    it("Swap trades places with the spell's other slot", () => {
+        const { store } = renderWithProviders(<Abilities />, { preloadedGame: withSpare() });
+
+        open(1);
+        fireEvent.click(tile("Mana Shield"));
+        expect(card()).toHaveTextContent("Equipped in slot 4");
+        expect(screen.queryByRole("button", { name: "Equip" })).not.toBeInTheDocument();
+        fireEvent.click(screen.getByRole("button", { name: "Swap" }));
+
+        expect(store.getState().game.abilityLoadout).toEqual([
+            "ManaShield",
+            "Frostbolt",
+            null,
+            "Fireball",
+            null,
+        ]);
+    });
+
+    it("Equip is disabled for the spell already in this slot", () => {
+        renderWithProviders(<Abilities />, { preloadedGame: withSpare() });
+
+        open(1);
+        expect(tile("Fireball")).toHaveAttribute("aria-pressed", "true");
+        expect(screen.getByRole("button", { name: "Equip" })).toBeDisabled();
+    });
+
+    it("marks spells already slotted with their slot number", () => {
+        renderWithProviders(<Abilities />, { preloadedGame: withSpare() });
+
+        open(3);
+        expect(tile("Mana Shield")).toHaveTextContent("4");
+        expect(tile("Mana Shield")).toHaveAccessibleName("Mana Shield, in slot 4");
+    });
+
+    it("shows the empty state when no abilities are learned", () => {
+        renderWithProviders(<Abilities />, {
+            preloadedGame: mage({
+                learnedSpells: {},
+                abilityLoadout: [null, null, null, null, null],
+            }),
+        });
+
+        open(1);
+        expect(screen.getByText("Read scrolls to learn new abilities.")).toBeInTheDocument();
+        expect(screen.getByRole("button", { name: "Equip" })).toBeDisabled();
+    });
+
+    it("town-only: leaving town with the picker open disables Equip", () => {
+        const { store } = renderWithProviders(<Abilities />, { preloadedGame: withSpare() });
+
+        open(3);
+        fireEvent.click(tile("Earth Shield"));
+        act(() => {
+            store.dispatch(setCurrentArea("forest"));
+        });
+
+        expect(screen.getByText("Change in town")).toBeInTheDocument();
+        const equip = screen.getByRole("button", { name: "Equip" });
+        expect(equip).toBeDisabled();
+        fireEvent.click(equip);
+        expect(store.getState().game.abilityLoadout[2]).toBeNull();
+        expect(screen.getByRole("button", { name: "Back" })).toBeEnabled();
     });
 });

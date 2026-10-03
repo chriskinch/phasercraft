@@ -33,3 +33,23 @@
     opacity: 0.55;
     cursor: default;
 }
+
+/* Slot-number badge, styled like the Parts count badge: a black pill over the
+   emboss's bottom-right wall (offsets reach past the side wall), above the
+   ::after wall. */
+.slot > .badge {
+    position: absolute;
+    z-index: 2;
+    right: -10px;
+    bottom: -4px;
+    min-width: 0.6rem;
+    padding: 1px 4px;
+    border-radius: 0.6rem;
+    background-color: #222;
+    color: #fff;
+    font-size: 0.7rem;
+    line-height: 1;
+    text-align: center;
+    font-variant-numeric: tabular-nums;
+    pointer-events: none;
+}
