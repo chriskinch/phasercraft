@@ -1,7 +1,22 @@
-/* LootIcon's tile (white face, 6px inset border, notched corners) with the
-   scroll sprite as an unscaled background instead of a 32px <img>. */
+/* The scroll sprite is the tile: LootIcon's 56px footprint and pixelated
+   scaling with the bare variant (no white face, border or corner notch). */
 .scrollIcon {
-    composes: styledLootIcon from "./LootIcon.module.css";
+    composes: styledLootIcon bare from "./LootIcon.module.css";
+    display: flex;
+    align-items: center;
+    justify-content: center;
     padding: 0;
+}
+
+/* The 45px atlas frame, unscaled. */
+.sprite {
+    display: block;
     background-repeat: no-repeat;
+    image-rendering: pixelated;
+}
+
+/* Selected: a 2px red pixel outline traced around the scroll's own shape. */
+.selected {
+    filter: drop-shadow(2px 0 0 red) drop-shadow(-2px 0 0 red) drop-shadow(0 2px 0 red)
+        drop-shadow(0 -2px 0 red);
 }

@@ -15,18 +15,14 @@ import styles from "./ScrollIcon.module.css";
 // between frames: the layout `buildScrollAtlas` writes and its test pins against
 // the committed scrolls.json, so the frame offset is derived rather than fetched.
 const STEP = SCROLL_FRAME + ATLAS_GUTTER;
-// Centre the 45px sprite in the 56px tile; the tile's inset border paints over
-// the sprite's outermost pixel, like LootIcon's art inside its border.
-const INSET = Math.floor((ICON_TILE - SCROLL_FRAME) / 2);
-
 interface ScrollIconProps {
     spell: SpellType;
     level: SpellLevel;
     selected?: boolean;
 }
 
-// A scroll item tile: LootIcon's white notched face (border only when selected —
-// the scroll's own tint shows its level) with the spell × level scroll sprite.
+// A scroll item: the spell × level scroll sprite alone (its tint shows the
+// level), with a red outline when selected.
 const ScrollIcon: React.FC<ScrollIconProps> = ({ spell, level, selected }) => {
     const x = SCROLL_SPELLS.indexOf(spell) * STEP;
     const y = (level - 1) * STEP;
@@ -34,16 +30,20 @@ const ScrollIcon: React.FC<ScrollIconProps> = ({ spell, level, selected }) => {
         <span
             className={styles.scrollIcon}
             data-frame={scrollFrameKey(spell, level)}
-            style={
-                {
-                    "--loot-border": selected ? "red" : "transparent",
-                    width: `${ICON_TILE}px`,
-                    height: `${ICON_TILE}px`,
+            style={{ width: `${ICON_TILE}px`, height: `${ICON_TILE}px` }}
+        >
+            {/* Clipped to the 45px frame so the 2px-gutter neighbours never show. */}
+            <span
+                className={`${styles.sprite} ${selected ? styles.selected : ""}`}
+                data-testid="scroll-sprite"
+                style={{
+                    width: `${SCROLL_FRAME}px`,
+                    height: `${SCROLL_FRAME}px`,
                     backgroundImage: `url(graphics/atlas/${ATLAS_IMAGE})`,
-                    backgroundPosition: `${INSET - x}px ${INSET - y}px`,
-                } as React.CSSProperties
-            }
-        />
+                    backgroundPosition: `${-x}px ${-y}px`,
+                }}
+            />
+        </span>
     );
 };
 
