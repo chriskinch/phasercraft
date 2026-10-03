@@ -59,3 +59,9 @@
     margin-top: 0.5em;
     color: #6a22b0;
 }
+
+.card .note {
+    margin-top: 0.25em;
+    color: #4d5d66;
+    font-weight: bold;
+}

@@ -33,3 +33,36 @@
     opacity: 0.55;
     cursor: default;
 }
+
+/* Corner pills sit over the emboss lip and walls (offsets reach past the 6px
+   top border / side walls), above the ::after wall. */
+.slot > .newPill,
+.slot > .badge {
+    position: absolute;
+    z-index: 2;
+    padding: 1px 4px;
+    font-size: 0.6rem;
+    line-height: 1;
+    border-radius: 0.6rem;
+    pointer-events: none;
+}
+
+/* The Learn/special purple (#c9a3ff). */
+.slot > .newPill {
+    top: -10px;
+    left: -10px;
+    background-color: #c9a3ff;
+    color: #222;
+}
+
+/* The Parts count badge. */
+.slot > .badge {
+    right: -10px;
+    bottom: -4px;
+    min-width: 0.6rem;
+    background-color: #222;
+    color: #fff;
+    font-size: 0.7rem;
+    text-align: center;
+    font-variant-numeric: tabular-nums;
+}

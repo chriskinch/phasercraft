@@ -66,3 +66,18 @@
 .actionsSection button {
     box-sizing: border-box;
 }
+
+/* Picker grid: the slot row's 5-column footprint, so the card keeps its
+   width whether 1 or 5 abilities are learned. Wraps past 5. */
+.pickerGrid {
+    display: grid;
+    grid-template-columns: repeat(5, 56px);
+    gap: var(--slot-gap);
+}
+
+.emptyNote {
+    margin: 0;
+    max-width: calc(5 * 56px + 4 * var(--slot-gap));
+    color: #4d5d66;
+    font-size: 0.85rem;
+}

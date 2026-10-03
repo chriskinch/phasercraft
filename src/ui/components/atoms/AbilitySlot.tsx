@@ -13,11 +13,23 @@ interface AbilitySlotProps {
     onClick?: () => void;
     // The slot's content (a bare SpellIcon); empty slots show "+".
     children?: React.ReactNode;
+    // Purple "New" pill, top-left (picker: learned but not yet looked at).
+    isNew?: boolean;
+    // Black count-style pill, bottom-right (picker: the slot number a spell
+    // already sits in). Decorative; fold its meaning into `label`.
+    badge?: string;
 }
 
 // An ability slot: the Equipment slot's emboss look (56px footprint, see
 // DroppableSlot) as a tappable button.
-export const AbilitySlot: React.FC<AbilitySlotProps> = ({ label, selected, onClick, children }) => (
+export const AbilitySlot: React.FC<AbilitySlotProps> = ({
+    label,
+    selected,
+    onClick,
+    children,
+    isNew,
+    badge,
+}) => (
     <button
         type="button"
         className={`${theme.pixelEmboss} ${styles.slot}`}
@@ -27,6 +39,16 @@ export const AbilitySlot: React.FC<AbilitySlotProps> = ({ label, selected, onCli
         onClick={onClick}
     >
         {children ?? <span className={styles.plus}>+</span>}
+        {isNew && (
+            <span className={styles.newPill} aria-hidden="true">
+                New
+            </span>
+        )}
+        {badge && (
+            <span className={styles.badge} aria-hidden="true">
+                {badge}
+            </span>
+        )}
     </button>
 );
 

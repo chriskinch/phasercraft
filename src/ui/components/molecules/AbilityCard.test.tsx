@@ -14,6 +14,15 @@ describe("AbilityCard", () => {
         expect(card().style.getPropertyValue("--level-color")).toBe("#0077ff");
     });
 
+    it("shows the optional note line only when given", () => {
+        const { rerender } = render(<AbilityCard spell="Fireball" level={1} resourceType="mana" />);
+        expect(card()).not.toHaveTextContent("Equipped in slot");
+        rerender(
+            <AbilityCard spell="Fireball" level={1} resourceType="mana" note="Equipped in slot 2" />
+        );
+        expect(screen.getByText("Equipped in slot 2")).toBeInTheDocument();
+    });
+
     it("shows name, level line, description, effect and stat rows", () => {
         render(<AbilityCard spell="Whirlwind" level={1} resourceType="rage" />);
         expect(screen.getByRole("heading", { name: "Whirlwind" })).toBeInTheDocument();
