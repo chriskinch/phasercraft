@@ -46,10 +46,16 @@ export function formatResult(result: PerfResult): string {
     ].join("\n");
 }
 
-function overlay(): {
+interface Overlay {
+    // Replaces the text and clears buttons, status and any JSON box.
     text(value: string): void;
     button(label: string, onClick: () => void): void;
-} {
+    status(value: string): void;
+    // A selectable box, for when the clipboard is unavailable.
+    textarea(value: string): void;
+}
+
+function overlay(): Overlay {
     const box = document.createElement("div");
     box.style.cssText =
         "position:fixed;top:8px;left:8px;z-index:2147483647;max-width:calc(100vw - 16px);" +
@@ -58,12 +64,16 @@ function overlay(): {
     const text = document.createElement("div");
     const buttons = document.createElement("div");
     buttons.style.cssText = "display:flex;gap:8px;margin-top:6px";
-    box.append(text, buttons);
+    const status = document.createElement("div");
+    const extra = document.createElement("div");
+    box.append(text, buttons, status, extra);
     document.body.append(box);
     return {
         text: (value) => {
             text.textContent = value;
             buttons.replaceChildren();
+            status.textContent = "";
+            extra.replaceChildren();
         },
         button: (label, onClick) => {
             const button = document.createElement("button");
@@ -72,7 +82,33 @@ function overlay(): {
             button.onclick = onClick;
             buttons.append(button);
         },
+        status: (value) => {
+            status.textContent = value;
+        },
+        textarea: (value) => {
+            const area = document.createElement("textarea");
+            area.value = value;
+            area.readOnly = true;
+            area.style.cssText = "width:100%;height:120px;margin-top:6px;font:11px monospace";
+            extra.replaceChildren(area);
+            area.focus();
+            area.select();
+        },
     };
+}
+
+// Clipboard writes need a secure context (https or localhost); a phone on a
+// LAN http:// build has none, so fall back to a box the user can copy from.
+export function copyJson(ui: Pick<Overlay, "status" | "textarea">, json: string): void {
+    const fallback = () => {
+        ui.status("Clipboard unavailable: copy from the box below.");
+        ui.textarea(json);
+    };
+    if (!navigator.clipboard) {
+        fallback();
+        return;
+    }
+    navigator.clipboard.writeText(json).then(() => ui.status("Copied."), fallback);
 }
 
 export function startDeviceRun(game: Game, api: PerfApi, options: PerfScenarioOptions): void {
@@ -91,9 +127,7 @@ export function startDeviceRun(game: Game, api: PerfApi, options: PerfScenarioOp
             api.run(options)
                 .then((result) => {
                     ui.text(formatResult(result));
-                    ui.button("Copy JSON", () => {
-                        void navigator.clipboard?.writeText(JSON.stringify(result, null, 2));
-                    });
+                    ui.button("Copy JSON", () => copyJson(ui, JSON.stringify(result, null, 2)));
                     ui.button("Run again", () =>
                         offerStart(`Perf ${label}: start a trace, then Start.`)
                     );

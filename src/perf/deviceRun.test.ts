@@ -1,5 +1,5 @@
-import { describe, it, expect } from "vitest";
-import { formatResult, parseDeviceRun } from "./deviceRun";
+import { describe, it, expect, vi, afterEach } from "vitest";
+import { copyJson, formatResult, parseDeviceRun } from "./deviceRun";
 import type { FrameSummary, PerfCounts, PerfResult } from "./types";
 
 describe("parseDeviceRun", () => {
@@ -76,5 +76,46 @@ describe("formatResult", () => {
                 "heap n/a",
             ].join("\n")
         );
+    });
+});
+
+describe("copyJson", () => {
+    const ui = () => ({ status: vi.fn(), textarea: vi.fn() });
+
+    afterEach(() => {
+        vi.unstubAllGlobals();
+    });
+
+    it("reports a successful copy", async () => {
+        const writeText = vi.fn().mockResolvedValue(undefined);
+        vi.stubGlobal("navigator", { clipboard: { writeText } });
+        const overlay = ui();
+        copyJson(overlay, "{}");
+        await Promise.resolve();
+        await Promise.resolve();
+        expect(writeText).toHaveBeenCalledWith("{}");
+        expect(overlay.status).toHaveBeenCalledWith("Copied.");
+        expect(overlay.textarea).not.toHaveBeenCalled();
+    });
+
+    it("falls back to a selectable box without a clipboard", () => {
+        vi.stubGlobal("navigator", {});
+        const overlay = ui();
+        copyJson(overlay, "{}");
+        expect(overlay.status).toHaveBeenCalledWith(
+            "Clipboard unavailable: copy from the box below."
+        );
+        expect(overlay.textarea).toHaveBeenCalledWith("{}");
+    });
+
+    it("falls back when the write is rejected", async () => {
+        vi.stubGlobal("navigator", {
+            clipboard: { writeText: vi.fn().mockRejectedValue(new Error("denied")) },
+        });
+        const overlay = ui();
+        copyJson(overlay, "{}");
+        await Promise.resolve();
+        await Promise.resolve();
+        expect(overlay.textarea).toHaveBeenCalledWith("{}");
     });
 });
