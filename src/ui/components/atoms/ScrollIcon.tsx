@@ -11,13 +11,6 @@ import {
 import { ICON_TILE } from "@ui/themes";
 import styles from "./ScrollIcon.module.css";
 
-// Card/tooltip border per scroll level (spec: L1 grey, L2 fine green, L3 rare blue).
-export const SCROLL_LEVEL_COLORS: Record<SpellLevel, string> = {
-    1: "#bbbbbb",
-    2: "#00dd00",
-    3: "#0077ff",
-};
-
 // The atlas is one column per spell (sorted) and one row per level, with a gutter
 // between frames: the layout `buildScrollAtlas` writes and its test pins against
 // the committed scrolls.json, so the frame offset is derived rather than fetched.
@@ -32,8 +25,8 @@ interface ScrollIconProps {
     selected?: boolean;
 }
 
-// A scroll item tile: LootIcon's white notched face and border (border = level
-// colour, red when selected) with the spell × level scroll sprite from the atlas.
+// A scroll item tile: LootIcon's white notched face (border only when selected —
+// the scroll's own tint shows its level) with the spell × level scroll sprite.
 const ScrollIcon: React.FC<ScrollIconProps> = ({ spell, level, selected }) => {
     const x = SCROLL_SPELLS.indexOf(spell) * STEP;
     const y = (level - 1) * STEP;
@@ -43,7 +36,7 @@ const ScrollIcon: React.FC<ScrollIconProps> = ({ spell, level, selected }) => {
             data-frame={scrollFrameKey(spell, level)}
             style={
                 {
-                    "--loot-border": selected ? "red" : SCROLL_LEVEL_COLORS[level],
+                    "--loot-border": selected ? "red" : "transparent",
                     width: `${ICON_TILE}px`,
                     height: `${ICON_TILE}px`,
                     backgroundImage: `url(graphics/atlas/${ATLAS_IMAGE})`,

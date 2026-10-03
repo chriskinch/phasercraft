@@ -41,10 +41,8 @@ export const scrollStatus = (
     }
     const current = learnedSpells[spell];
     if (current === undefined) {
-        const fills = abilityLoadout.includes(null)
-            ? "and fills the first empty slot."
-            : "— open Abilities to equip.";
-        return { state: "learn", readable: true, hint: `Learns ${def.name} at L${level} ${fills}` };
+        const fills = abilityLoadout.includes(null) ? " and fills the first empty slot" : "";
+        return { state: "learn", readable: true, hint: `Learns ${def.name} at L${level}${fills}.` };
     }
     if (level > current) {
         return {
@@ -75,7 +73,7 @@ export const learnToast = (
     const slotted = abilityLoadout.indexOf(spell);
     const slot = slotted !== -1 ? slotted : abilityLoadout.indexOf(null);
     return slot === -1
-        ? `Learned ${name} (L${level}) — open Abilities to equip`
+        ? `Learned ${name} (L${level})`
         : `Learned ${name} (L${level}) — equipped in slot ${slot + 1}`;
 };
 

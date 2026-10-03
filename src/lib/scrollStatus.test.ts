@@ -19,9 +19,7 @@ describe("scrollStatus", () => {
 
     it("not learned with a full loadout points at the Abilities tab", () => {
         const full = { ...mage, abilityLoadout: loadout("a", "b", "c", "d", "e") };
-        expect(scrollStatus(full, "Fireball", 2).hint).toBe(
-            "Learns Fireball at L2 — open Abilities to equip."
-        );
+        expect(scrollStatus(full, "Fireball", 2).hint).toBe("Learns Fireball at L2.");
     });
 
     it("on-class, scroll above spell level: readable upgrade", () => {
@@ -72,7 +70,7 @@ describe("learnToast", () => {
                 "Fireball",
                 1
             )
-        ).toBe("Learned Fireball (L1) — open Abilities to equip");
+        ).toBe("Learned Fireball (L1)");
     });
 
     it("reports an upgrade", () => {

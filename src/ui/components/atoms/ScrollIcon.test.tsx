@@ -15,10 +15,10 @@ describe("ScrollIcon", () => {
         expect(tile.style.width).toBe("56px");
     });
 
-    it("borders in the level colour, red when selected", () => {
+    it("has no border unless selected (red)", () => {
         const { container, rerender } = render(<ScrollIcon spell="Heal" level={3} />);
         const tile = () => container.firstElementChild as HTMLElement;
-        expect(tile().style.getPropertyValue("--loot-border")).toBe("#0077ff");
+        expect(tile().style.getPropertyValue("--loot-border")).toBe("transparent");
         rerender(<ScrollIcon spell="Heal" level={3} selected />);
         expect(tile().style.getPropertyValue("--loot-border")).toBe("red");
     });

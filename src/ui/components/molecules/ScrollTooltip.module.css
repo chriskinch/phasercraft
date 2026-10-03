@@ -1,3 +1,9 @@
+/* Never wider than the inventory box (ScrollsGrid is the size container), so
+   with edge columns opening inward the card stays inside the box. */
+.tooltip {
+    max-width: min(15rem, 100cqw) !important;
+}
+
 .muted {
     margin: 0;
     color: #4d5d66;

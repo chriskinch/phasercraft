@@ -4,7 +4,6 @@ import { SPELL_DEFS } from "@/types/game";
 import type { SpellCost, SpellLevel } from "@/types/game";
 import type { SpellType } from "@entities/Spells/AssignSpell";
 import type { ScrollStatus } from "@/lib/scrollStatus";
-import { SCROLL_LEVEL_COLORS } from "@components/ScrollIcon";
 import styles from "./PartTooltip.module.css";
 import own from "./ScrollTooltip.module.css";
 
@@ -15,6 +14,9 @@ interface ScrollTooltipProps {
     status: ScrollStatus;
     // The player's resource (mana / rage / energy); cost is shown in it.
     resource?: string;
+    // Anchor-relative placement; edge columns open inward so the card stays
+    // inside the inventory box.
+    place?: "top" | "top-start" | "top-end";
 }
 
 const isCostKey = (r: string | undefined): r is keyof SpellCost =>
@@ -22,19 +24,27 @@ const isCostKey = (r: string | undefined): r is keyof SpellCost =>
 
 // Hover/tap card for a scroll in the Equipment Scrolls tab: name, level and
 // classes, effect, cost and cooldown, then the readability hint (purple when
-// the scroll can be read, red when not). Border = level colour.
-const ScrollTooltip: React.FC<ScrollTooltipProps> = ({ id, spell, level, status, resource }) => {
+// the scroll can be read, red when not).
+const ScrollTooltip: React.FC<ScrollTooltipProps> = ({
+    id,
+    spell,
+    level,
+    status,
+    resource,
+    place = "top",
+}) => {
     const def = SPELL_DEFS[spell];
     const costKey = isCostKey(resource) ? resource : "mana";
 
     return (
         <Tooltip
-            className={styles.tooltip}
+            className={`${styles.tooltip} ${own.tooltip}`}
             id={id}
             variant="light"
+            place={place}
             globalCloseEvents={{ clickOutsideAnchor: true }}
         >
-            <div className={styles.card} style={{ borderColor: SCROLL_LEVEL_COLORS[level] }}>
+            <div className={styles.card}>
                 <h3 className={styles.title}>{def.name} Scroll</h3>
                 <p className={own.muted}>
                     Level {level} · {def.classes.join(", ")}

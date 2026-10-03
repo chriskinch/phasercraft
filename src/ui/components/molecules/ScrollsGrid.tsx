@@ -61,11 +61,18 @@ const ScrollsGrid: React.FC<ScrollsGridProps> = ({ selectedKey, onSelect }) => {
                         "--cols": cols,
                         "--cell": `${ICON_TILE}px`,
                         "--gap": `${ICON_TILE_GAP}px`,
+                        // Lets ScrollTooltip cap its width to the box (100cqw).
+                        containerType: "inline-size",
                     } as React.CSSProperties
                 }
                 data-testid="scrolls-grid"
             >
-                {pageItems.map(({ key, spell, level, count }) => {
+                {pageItems.map(({ key, spell, level, count }, i) => {
+                    // Open the card inward: left-half columns align its left edge to
+                    // the tile, right-half its right edge; an odd grid's middle centres.
+                    const col = i % cols;
+                    const mid = (cols - 1) / 2;
+                    const place = col < mid ? "top-start" : col > mid ? "top-end" : "top";
                     const isSelected = key === selectedKey;
                     const tooltipId = `scroll-${key}`;
                     const status = scrollStatus(
@@ -81,6 +88,7 @@ const ScrollsGrid: React.FC<ScrollsGridProps> = ({ selectedKey, onSelect }) => {
                                 level={level}
                                 status={status}
                                 resource={resource}
+                                place={place}
                             />
                             <button
                                 type="button"
