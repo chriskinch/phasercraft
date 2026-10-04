@@ -18,6 +18,7 @@ import Special from "@entities/Loot/Special";
 import Crafting from "@entities/Loot/Crafting";
 import Gem from "@entities/Loot/Gem";
 import Banes from "@entities/UI/Banes";
+import SelectionRing from "@entities/UI/SelectionRing";
 import Weapon from "@entities/Weapon";
 import Projectile from "@entities/Weapons/Projectile";
 import type {
@@ -79,7 +80,6 @@ class Enemy extends GameObjects.Container {
     public xp: number;
     public state: string;
     public states: EnemyStates;
-    public graphics: { [key: string]: GameObjects.Graphics };
     public health: AssignResourceType;
     public banes: Banes;
     // Where the enemy was spawned; it wanders around this point while idle.
@@ -154,10 +154,6 @@ class Enemy extends GameObjects.Container {
             movement: "spawning",
             attack: "primed",
         };
-
-        this.graphics = {};
-        this.graphics.selected = this.drawSelected();
-        this.add(this.graphics.selected);
 
         this.health = AssignResource("Health", {
             container: this,
@@ -371,26 +367,16 @@ class Enemy extends GameObjects.Container {
         return { ...attributes, ...stats } as EnemyAttributes;
     }
 
-    drawSelected(): GameObjects.Graphics {
-        let size = 5;
-        let graphics = this.scene.add.graphics();
-        graphics.scaleY = 0.5;
-        graphics.lineStyle(4, 0xb93f3c, 0.9);
-        graphics.strokeCircle(0, this.height / 2 + size, this.width / 2 + size);
-        graphics.setDepth(10);
-        graphics.visible = false;
-        return graphics;
-    }
-
+    // One ring per scene, moved to whichever enemy is selected (#533).
     select(): void {
-        this.graphics.selected.visible = true;
+        SelectionRing.for(this.scene).attach(this);
         this.selected = true;
         (this.scene as GameSceneLike).selected = this;
     }
 
     deselect(): void {
         if (this.selected) {
-            this.graphics.selected.visible = false;
+            SelectionRing.for(this.scene).detach(this);
             this.selected = false;
             (this.scene as GameSceneLike).selected = null;
         }

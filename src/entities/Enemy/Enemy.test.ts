@@ -15,6 +15,9 @@ vi.mock("@entities/Weapons/Projectile", () => ({ default: vi.fn() }));
 vi.mock("@services/sfx", () => ({ playSfx: vi.fn(() => true) }));
 vi.mock("@entities/Loot/Special", () => ({ default: vi.fn() }));
 vi.mock("@entities/Loot/Crafting", () => ({ default: vi.fn() }));
+// The scene's shared selection ring, at the module seam.
+const ring = vi.hoisted(() => ({ attach: vi.fn(), detach: vi.fn() }));
+vi.mock("@entities/UI/SelectionRing", () => ({ default: { for: vi.fn(() => ring) } }));
 
 interface EnemyUnderTest {
     x: number;
@@ -147,7 +150,6 @@ interface LifecycleEnemy {
     selected: boolean;
     home: { x: number; y: number };
     states: { movement: string; attack: string };
-    graphics: { selected: { visible: boolean } };
     banes: { timers: Record<string, { remove: ReturnType<typeof vi.fn> }> };
     wandering_looped_timer: { remove: ReturnType<typeof vi.fn> } | null;
     swing: { remove: ReturnType<typeof vi.fn> } | null;
@@ -191,7 +193,6 @@ function makeLifecycleEnemy(): LifecycleEnemy {
     enemy.selected = false;
     enemy.home = { x: 400, y: 300 };
     enemy.states = { movement: "idle", attack: "primed" };
-    enemy.graphics = { selected: { visible: false } };
     enemy.banes = { timers: { frostbolt: timer() } };
     enemy.wandering_looped_timer = timer();
     enemy.swing = timer();
@@ -289,8 +290,8 @@ describe("Enemy.despawn", () => {
         // to the despawned enemy, so the event must fire before deselect().
         const enemy = makeLifecycleEnemy();
         enemy.selected = true;
-        enemy.graphics.selected.visible = true;
         enemy.scene.selected = enemy;
+        ring.detach.mockClear();
         let selected_at_emit: unknown;
         enemy.scene_events.emit.mockImplementation(() => {
             selected_at_emit = enemy.scene.selected;
@@ -300,7 +301,7 @@ describe("Enemy.despawn", () => {
 
         expect(selected_at_emit).toBe(enemy);
         expect(enemy.scene.selected).toBeNull();
-        expect(enemy.graphics.selected.visible).toBe(false);
+        expect(ring.detach).toHaveBeenCalledWith(enemy);
     });
 
     it("does nothing to an enemy that is already dead", () => {

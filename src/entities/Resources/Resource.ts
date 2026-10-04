@@ -28,7 +28,9 @@ class Resource extends GameObjects.Sprite {
     public colour: number;
     public resources: Record<string, ResourceStats>;
     public stats: ResourceStats;
-    public graphics: { [key: string]: GameObjects.Graphics };
+    // The bar fill and its backing, as tinted white quads so they batch with
+    // the sprites around them (a Graphics per bar broke the batch, #533).
+    public bars!: { background: GameObjects.Image; current: GameObjects.Image };
     public tick: Phaser.Time.TimerEvent;
     private subscriptions: (() => void)[] = [];
 
@@ -72,26 +74,26 @@ class Resource extends GameObjects.Sprite {
 
         this.setOrigin(0, 0).setDepth(1000);
 
-        this.graphics = {};
-        this.graphics.background = this.drawBar({
-            type: "background",
-            colour: 0x111111,
-            width: this.width,
-            height: this.height,
-            depth: 998,
-        });
-        this.container.add(this.graphics.background);
+        this.bars = {
+            background: this.drawBar({
+                type: "background",
+                colour: 0x111111,
+                width: this.width,
+                height: this.height,
+                depth: 998,
+            }),
+            current: this.drawBar({
+                type: "current",
+                colour: this.colour,
+                width: this.width,
+                height: this.height,
+                depth: 999,
+            }),
+        };
+        this.container.add(this.bars.background);
+        this.container.add(this.bars.current);
 
-        this.graphics.current = this.drawBar({
-            type: "current",
-            colour: this.colour,
-            width: this.width,
-            height: this.height,
-            depth: 999,
-        });
-        this.container.add(this.graphics.current);
-
-        this.graphics.current.scaleX = this.resourcePercent();
+        this.fillBar();
         // Regeneration timer starts paused so that players and enemies both have it.
         this.tick = this.setRegenerationRate();
         // If regen_rate is 0 delay is 0 (very fast) but timer won't unpause.
@@ -116,7 +118,7 @@ class Resource extends GameObjects.Sprite {
         } else {
             this.stats.value = Math.ceil(new_value);
         }
-        this.graphics.current.scaleX = this.resourcePercent();
+        this.fillBar();
 
         this.stats.missing = this.stats.max - this.stats.value;
 
@@ -135,23 +137,28 @@ class Resource extends GameObjects.Sprite {
         return this.stats.value > 0 ? this.stats.value / this.stats.max : 0;
     }
 
-    drawBar(opt: DrawBarOptions): GameObjects.Graphics {
+    // Phaser's built-in white texture, tinted and stretched over the same
+    // rect the Graphics fillRect covered.
+    drawBar(opt: DrawBarOptions): GameObjects.Image {
         const { colour, width, height, depth } = opt;
-        let graphics = this.scene.add.graphics();
-        graphics.fillStyle(colour, 1);
-        graphics.fillRect(0, 0, width, height);
-        graphics.setDepth(depth);
-        graphics.x = this.x;
-        graphics.y = this.y;
+        return this.scene.add
+            .image(this.x, this.y, "__WHITE")
+            .setOrigin(0, 0)
+            .setDisplaySize(width, height)
+            .setTint(colour)
+            .setDepth(depth);
+    }
 
-        return graphics;
+    /** Scales the fill to the current value, from its left edge. */
+    fillBar(): void {
+        this.bars.current.setDisplaySize(this.width * this.resourcePercent(), this.height);
     }
 
     lockGraphicsXY(): void {
-        for (let graphic in this.graphics) {
-            this.graphics[graphic].x = this.container.x + this.x;
-            this.graphics[graphic].y = this.container.y + this.y;
-        }
+        Object.values(this.bars).forEach((bar) => {
+            bar.x = this.container.x + this.x;
+            bar.y = this.container.y + this.y;
+        });
     }
 
     regenerate(): void {
@@ -200,9 +207,8 @@ class Resource extends GameObjects.Sprite {
     }
 
     remove(): void {
-        for (let graphic in this.graphics) {
-            this.graphics[graphic].clear();
-        }
+        // The Graphics bars were cleared (left empty) here; hiding draws the same.
+        Object.values(this.bars).forEach((bar) => bar.setVisible(false));
         this.destroy();
     }
 }
