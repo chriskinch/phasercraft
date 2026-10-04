@@ -4,6 +4,7 @@ import type Enemy from "@entities/Enemy/Enemy";
 import Coin from "@entities/Loot/Coin";
 import Crafting from "@entities/Loot/Crafting";
 import Gem from "@entities/Loot/Gem";
+import Scroll from "@entities/Loot/Scroll";
 import Special from "@entities/Loot/Special";
 import { isFootprintSpawnable } from "@helpers/walkability";
 import type { EnemyType } from "@/types/game";
@@ -157,7 +158,8 @@ function lootOf(scene: BiomeScene): { key: string; x: number; y: number }[] {
             child instanceof Coin ||
             child instanceof Gem ||
             child instanceof Crafting ||
-            child instanceof Special
+            child instanceof Special ||
+            child instanceof Scroll
         ) {
             loot.push({ key: child.texture.key, x: child.x, y: child.y });
         }
