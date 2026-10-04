@@ -62,9 +62,12 @@ class Scroll extends GameObjects.Sprite {
         );
     }
 
+    // Idempotent: each handle is released once, then dropped.
     cleanup(): void {
         if (this.activateTimer) this.activateTimer.remove();
         if (this.collider) this.scene.physics.world.removeCollider(this.collider);
+        this.activateTimer = undefined;
+        this.collider = undefined;
     }
 
     touch(): void {

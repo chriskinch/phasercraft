@@ -58,13 +58,28 @@ describe("Scroll", () => {
 
     it("cleanup removes the activate timer and the collider", () => {
         const scroll = makeScroll();
-        scroll.activateTimer = { remove: vi.fn() };
-        scroll.collider = { id: "collider" };
+        const timer = { remove: vi.fn() };
+        const collider = { id: "collider" };
+        scroll.activateTimer = timer;
+        scroll.collider = collider;
 
         scroll.cleanup();
 
-        expect(scroll.activateTimer.remove).toHaveBeenCalledTimes(1);
-        expect(scroll.scene.physics.world.removeCollider).toHaveBeenCalledWith(scroll.collider);
+        expect(timer.remove).toHaveBeenCalledTimes(1);
+        expect(scroll.scene.physics.world.removeCollider).toHaveBeenCalledWith(collider);
+    });
+
+    it("cleanup is idempotent: a repeat call releases nothing twice", () => {
+        const scroll = makeScroll();
+        const timer = { remove: vi.fn() };
+        scroll.activateTimer = timer;
+        scroll.collider = { id: "collider" };
+
+        scroll.cleanup();
+        scroll.cleanup();
+
+        expect(timer.remove).toHaveBeenCalledTimes(1);
+        expect(scroll.scene.physics.world.removeCollider).toHaveBeenCalledTimes(1);
     });
 
     it("cleanup does not throw when the collider was never created", () => {
