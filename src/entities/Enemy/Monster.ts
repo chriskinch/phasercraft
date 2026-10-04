@@ -1,6 +1,7 @@
 import { GameObjects, Scene } from "phaser";
 import Player from "@entities/Player/Player";
 import Enemy from "@entities/Enemy/Enemy";
+import { animationKeys } from "./animationKeys";
 interface MonsterConfig {
     scene: Scene;
     key: string;
@@ -28,14 +29,14 @@ class Monster extends GameObjects.Sprite {
     }
 
     idle(): void {
-        this.anims.play(this.key + "-idle", true);
+        this.anims.play(animationKeys(this.key).idle, true);
     }
 
     // Stun pose: first idle frame, paused, so the monster is fully static.
     freeze(): void {
         if (this.frozen) return;
         this.frozen = true;
-        this.anims.play(this.key + "-idle");
+        this.anims.play(animationKeys(this.key).idle);
         this.anims.pause(this.anims.currentAnim?.frames[0]);
     }
 
@@ -47,7 +48,7 @@ class Monster extends GameObjects.Sprite {
 
     death(): void {
         this.unfreeze();
-        this.anims.play(this.key + "-death");
+        this.anims.play(animationKeys(this.key).death);
     }
 }
 

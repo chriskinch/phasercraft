@@ -68,13 +68,20 @@ interface SceneUnderTest {
     collision_layers: object[];
     prop_overlays: Array<{ destroy: ReturnType<typeof vi.fn> }>;
     prop_layers: object[];
+    overlay_characters: Array<{ x: number; y: number }>;
+    overlay_seen: Set<number>;
     setupMapCollisions(): void;
     updatePropOverlays(): void;
     sortCharactersByFeet(): void;
     add: { sprite: ReturnType<typeof vi.fn> };
-    map: { tileWidth: number; tileHeight: number };
+    map: { tileWidth: number; tileHeight: number; width?: number; height?: number };
     scale: { width: number; height: number };
-    enemies: { runChildUpdate: boolean; getChildren: ReturnType<typeof vi.fn>; name?: string };
+    enemies: {
+        runChildUpdate: boolean;
+        getChildren: ReturnType<typeof vi.fn>;
+        children?: Set<object>;
+        name?: string;
+    };
     UI: { cleanup: ReturnType<typeof vi.fn> };
     player: {
         cleanup: ReturnType<typeof vi.fn>;
@@ -123,6 +130,8 @@ function makeScene(overrides: Partial<SceneUnderTest> = {}): {
     scene.collision_layers = [];
     scene.prop_overlays = [];
     scene.prop_layers = [];
+    scene.overlay_characters = [];
+    scene.overlay_seen = new Set();
     scene.add = { sprite: vi.fn() };
     scene.enemies = { runChildUpdate: true, getChildren: vi.fn(() => []) };
     scene.UI = { cleanup: vi.fn() };
@@ -770,12 +779,12 @@ describe("BiomeScene.updatePropOverlays", () => {
             tileToWorldXY: vi.fn(() => tileWorld),
         };
 
-        scene.map = { tileWidth: TILE, tileHeight: TILE };
+        scene.map = { tileWidth: TILE, tileHeight: TILE, width: 100, height: 100 };
         scene.biome = { ...scene.biome, map: { ...scene.biome.map, scale: SCALE } };
         scene.prop_layers = [layer];
         scene.prop_overlays = [];
         scene.player = { ...scene.player, x: 500, y: 500 };
-        scene.enemies = { ...scene.enemies, getChildren: vi.fn(() => []) };
+        scene.enemies = { ...scene.enemies, getChildren: vi.fn(() => []), children: new Set() };
         scene.add = { sprite: vi.fn(() => sprite) };
         return { scene, sprite, tile, layer };
     }
@@ -845,6 +854,30 @@ describe("BiomeScene.updatePropOverlays", () => {
         expect(scene.add.sprite).toHaveBeenCalledTimes(1);
         expect(scene.prop_overlays).toHaveLength(1);
         expect(sprite.setVisible).toHaveBeenCalledWith(true);
+    });
+
+    it("draws the same cell once per prop layer", () => {
+        const { scene, layer } = makeOverlayScene({ x: 320, y: 640 });
+        scene.prop_layers = [layer, { ...layer, layer: { name: "more props" } }];
+
+        scene.updatePropOverlays();
+
+        // Twelve lookups per layer all land on cell (3, 4): one sprite each.
+        expect(scene.prop_overlays).toHaveLength(2);
+    });
+
+    it("looks around every live enemy as well as the player", () => {
+        const { scene, layer } = makeOverlayScene({ x: 320, y: 640 });
+        const alive = { x: 900, y: 300, active: true };
+        const dead = { x: 1700, y: 1100, active: false };
+        scene.enemies = { ...scene.enemies, children: new Set([alive, dead]) };
+
+        scene.updatePropOverlays();
+
+        const looked_at = layer.getTileAtWorldXY.mock.calls as unknown as Array<[number, number]>;
+        expect(looked_at).toContainEqual([alive.x, alive.y]);
+        expect(looked_at).not.toContainEqual([dead.x, dead.y]);
+        expect(looked_at).toHaveLength(12 * 2);
     });
 
     it("does nothing when the biome has no prop layers", () => {

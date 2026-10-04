@@ -13,6 +13,7 @@ import { v4 as uuid } from "uuid";
 import { playSfx } from "@services/sfx";
 import AssignResource, { AssignResourceType } from "@entities/Resources/AssignResource";
 import Monster from "./Monster";
+import { animationKeys } from "./animationKeys";
 import Coin from "@entities/Loot/Coin";
 import Special from "@entities/Loot/Special";
 import Scroll from "@entities/Loot/Scroll";
@@ -85,7 +86,6 @@ class Enemy extends GameObjects.Container {
     public banes: Banes;
     // Where the enemy was spawned; it wanders around this point while idle.
     public home: { x: number; y: number };
-    public point!: PhaserMath.Vector2;
     public distance_to_player!: number;
     public destination!: PhaserMath.Vector2 | null;
     public caution!: number;
@@ -198,9 +198,6 @@ class Enemy extends GameObjects.Container {
         if (this.state === "spawned") {
             this.health.update(this);
 
-            this.point = new PhaserMath.Vector2();
-            this.point.x = this.x;
-            this.point.y = this.y;
             this.distance_to_player = PhaserMath.Distance.BetweenPoints(
                 this,
                 (this.scene as GameSceneLike).player
@@ -355,8 +352,12 @@ class Enemy extends GameObjects.Container {
 
     movementAnimationHandler(): void {
         const is_moving = this.body.velocity.x !== 0;
-        const direction = this.body.velocity.x < 0 ? "left-down" : "right-up";
-        is_moving ? this.monster.walk(`${this.key}-${direction}`) : this.monster.idle();
+        if (!is_moving) {
+            this.monster.idle();
+            return;
+        }
+        const keys = animationKeys(this.key);
+        this.monster.walk(this.body.velocity.x < 0 ? keys.walkLeft : keys.walkRight);
     }
 
     setStats(attributes: EnemyAttributes, wave_multiplier: number): EnemyStats {

@@ -103,6 +103,11 @@ export default class BiomeScene extends Scene {
     // prop tiles near a character so they can sort against them individually.
     private prop_layers: Tilemaps.TilemapLayer[] = [];
     private prop_overlays: GameObjects.Sprite[] = [];
+    // Scratch for updatePropOverlays(), reused every frame rather than
+    // reallocated: the characters it looks around, and the prop tiles already
+    // drawn (as numeric layer/cell keys).
+    private overlay_characters: Array<{ x: number; y: number }> = [];
+    private overlay_seen = new Set<number>();
     // Tiles an enemy may spawn on: pure land the player can reach on foot.
     // Rebuilt in create() once the player's start is known.
     public spawn_grid!: WalkabilityGrid;
@@ -436,17 +441,25 @@ export default class BiomeScene extends Scene {
         const tile_w = this.map.tileWidth * scale;
         const tile_h = this.map.tileHeight * scale;
 
-        const characters: Array<{ x: number; y: number }> = [this.player];
-        this.enemies.getChildren().forEach((enemy) => {
+        // `enemies.children` is the group's own Set, read in place: Phaser 4's
+        // getChildren() copies it into a fresh array on every call.
+        const characters = this.overlay_characters;
+        characters.length = 0;
+        characters.push(this.player);
+        for (const enemy of this.enemies.children) {
             const body = enemy as unknown as { x: number; y: number; active: boolean };
             if (body.active) characters.push(body);
-        });
+        }
 
-        const seen = new Set<string>();
+        const seen = this.overlay_seen;
+        seen.clear();
+        const map_w = this.map.width;
+        const layer_cells = map_w * this.map.height;
         let used = 0;
 
         for (const character of characters) {
-            for (const layer of this.prop_layers) {
+            for (let l = 0; l < this.prop_layers.length; l++) {
+                const layer = this.prop_layers[l];
                 // A prop is two tiles tall and a character about the same, so a
                 // 3-wide by 4-tall window around them covers everything that can
                 // overlap. Cheap: a few dozen lookups a frame.
@@ -457,7 +470,10 @@ export default class BiomeScene extends Scene {
                         const tile = layer.getTileAtWorldXY(world_x, world_y);
                         if (!tile || tile.index < 0) continue;
 
-                        const key = `${layer.layer.name}:${tile.x},${tile.y}`;
+                        // One key per layer and cell, as the old
+                        // `${layer name}:${x},${y}` string was; layer names are
+                        // unique within a map, so the index identifies it too.
+                        const key = l * layer_cells + tile.y * map_w + tile.x;
                         if (seen.has(key)) continue;
                         seen.add(key);
 
@@ -976,6 +992,9 @@ export default class BiomeScene extends Scene {
         this.prop_overlays.forEach((sprite) => sprite.destroy());
         this.prop_overlays = [];
         this.prop_layers = [];
+        // Drop the last frame's character references along with the pool.
+        this.overlay_characters.length = 0;
+        this.overlay_seen.clear();
 
         // Release the travel-request subscription.
         if (this.travel_subscription) {

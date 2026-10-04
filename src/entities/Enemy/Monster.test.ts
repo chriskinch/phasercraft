@@ -75,3 +75,15 @@ describe("Monster stun pose", () => {
         expect(monster.frozen).toBe(false);
     });
 });
+
+describe("Monster animations", () => {
+    it("idles and dies on its own key's animations", () => {
+        const { monster, anims } = makeMonster();
+
+        monster.idle();
+        monster.death();
+
+        expect(anims.play).toHaveBeenNthCalledWith(1, "imp-idle", true);
+        expect(anims.play).toHaveBeenNthCalledWith(2, "imp-death");
+    });
+});

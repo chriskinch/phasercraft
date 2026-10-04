@@ -510,3 +510,33 @@ describe("Enemy depth", () => {
         expect(setDepth).not.toHaveBeenCalled();
     });
 });
+
+describe("Enemy.movementAnimationHandler", () => {
+    function makeWalker(vx: number) {
+        const enemy = Object.create(Enemy.prototype) as Enemy;
+        const monster = { walk: vi.fn(), idle: vi.fn() };
+        Object.assign(enemy, { key: "imp", monster, body: { velocity: { x: vx, y: 0 } } });
+        return { enemy, monster };
+    }
+
+    it.each([
+        [-40, "imp-left-down"],
+        [40, "imp-right-up"],
+    ])("walks with velocity x %d as %s", (vx, anim) => {
+        const { enemy, monster } = makeWalker(vx);
+
+        enemy.movementAnimationHandler();
+
+        expect(monster.walk).toHaveBeenCalledWith(anim);
+        expect(monster.idle).not.toHaveBeenCalled();
+    });
+
+    it("idles when not moving sideways", () => {
+        const { enemy, monster } = makeWalker(0);
+
+        enemy.movementAnimationHandler();
+
+        expect(monster.idle).toHaveBeenCalledTimes(1);
+        expect(monster.walk).not.toHaveBeenCalled();
+    });
+});
