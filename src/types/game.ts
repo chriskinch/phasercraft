@@ -284,7 +284,7 @@ export interface LootStat {
     abbreviation?: string;
 }
 
-type LootType = "coin" | "gem" | "scrap" | "cloth" | "ichor" | "bone" | "special";
+type LootType = "coin" | "gem" | "scrap" | "cloth" | "ichor" | "bone" | "special" | "scroll";
 
 // The stackable subset of loot (currency — coin, gem — is excluded; it credits coins
 // directly rather than entering the inventory).
