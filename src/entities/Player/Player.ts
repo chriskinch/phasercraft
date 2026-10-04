@@ -173,11 +173,15 @@ class Player extends GameObjects.Container {
             })
         );
         this.subscriptions.push(
-            mapStateToData("level.currentLevel", (level: unknown) => {
-                if (typeof level === "number") {
-                    this.LevelUp(level);
-                }
-            })
+            mapStateToData(
+                "level.currentLevel",
+                (level: unknown) => {
+                    if (typeof level === "number") {
+                        this.LevelUp(level);
+                    }
+                },
+                { init: false }
+            )
         );
 
         this.scene_events = scene.events;
