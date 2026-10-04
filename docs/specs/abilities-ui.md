@@ -171,7 +171,9 @@ count)`. Combining is #386's `combineScrolls`.
 - **Track A (#385)**: scrolls drop as levelled items into `scrolls`, not straight
   into owned spells. Confirmed: `scroll` loot entry at 5% per mob, exactly 1 per
   boss; always L1; every spell (off-class too) equally weighted in
-  `SCROLL_DROP_WEIGHTS` (`src/lib/scrollDrops.ts`).
+  `SCROLL_DROP_WEIGHTS` (`src/lib/scrollDrops.ts`). On the ground every scroll
+  shows one generic 16 × 16 sealed scroll (`scroll-drop.png`); the spell shows in
+  the Scrolls tab.
 - **Track B (#386)**: workshop lives in the **Arcanum**; combine is 3 scrolls → 1
   scroll of the next level (not "level the spell up" directly).
 - **Track C (#43, #19)**: superseded by this spec.

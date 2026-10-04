@@ -9,7 +9,11 @@ import {
     ATLAS_GUTTER,
     blitCells,
     buildScrollAtlas,
+    buildScrollDrop,
     composeScrollCells,
+    DROP_ART,
+    DROP_IMAGE,
+    DROP_SIZE,
     extractGlyph,
     GLYPH_MAX,
     GLYPH_OVERRIDES,
@@ -35,9 +39,10 @@ import {
 
 const ROOT = path.resolve(__dirname, "../..");
 const ATLAS_DIR = path.join(ROOT, "public/graphics/atlas");
+const IMAGES_DIR = path.join(ROOT, "public/graphics/images");
 
-const decode = async (file: string): Promise<RgbaImage> => {
-    const { data, info } = await sharp(path.join(ATLAS_DIR, file))
+const decode = async (file: string, dir = ATLAS_DIR): Promise<RgbaImage> => {
+    const { data, info } = await sharp(path.join(dir, file))
         .ensureAlpha()
         .raw()
         .toBuffer({ resolveWithObject: true });
@@ -237,5 +242,24 @@ describe("committed atlas (public/graphics/atlas/scrolls.*)", () => {
         const png = await decode("scrolls.png");
         expect([png.width, png.height]).toEqual([built.image.width, built.image.height]);
         expect(Buffer.from(png.data).equals(Buffer.from(built.image.data))).toBe(true);
+    });
+});
+
+describe("world drop sprite (public/graphics/images/scroll-drop.png)", () => {
+    it("is 16 × 16 and every key has a colour", () => {
+        expect(DROP_ART.rows).toHaveLength(DROP_SIZE);
+        for (const row of DROP_ART.rows) {
+            expect(row).toHaveLength(DROP_SIZE);
+            for (const key of row) {
+                if (key !== ".") expect(DROP_ART.colours[key], key).toBeDefined();
+            }
+        }
+    });
+
+    it("is up to date with the generator (run `npm run scrolls:build`)", async () => {
+        const built = buildScrollDrop();
+        const png = await decode(DROP_IMAGE, IMAGES_DIR);
+        expect([png.width, png.height]).toEqual([built.width, built.height]);
+        expect(Buffer.from(png.data).equals(Buffer.from(built.data))).toBe(true);
     });
 });

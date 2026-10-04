@@ -3,8 +3,7 @@ import { readFileSync } from "node:fs";
 import path from "node:path";
 import { SPELL_TYPES } from "@/types/game";
 import type { SpellType } from "@/types/game";
-import { scrollFrameKey, type ScrollAtlasJson } from "@helpers/scrollSprites";
-import { SCROLL_DROP_LEVEL, SCROLL_DROP_WEIGHTS, rollScrollSpell } from "./scrollDrops";
+import { SCROLL_DROP_WEIGHTS, rollScrollSpell } from "./scrollDrops";
 
 // The scroll loot table must keep up with the spell roster: a spell missing from
 // SCROLL_DROP_WEIGHTS can never drop, so adding a spell without adding it here
@@ -13,10 +12,6 @@ import { SCROLL_DROP_LEVEL, SCROLL_DROP_WEIGHTS, rollScrollSpell } from "./scrol
 const ROOT = path.resolve(__dirname, "../..");
 
 const POOL = Object.keys(SCROLL_DROP_WEIGHTS).sort();
-
-const ATLAS = JSON.parse(
-    readFileSync(path.join(ROOT, "public/graphics/atlas/scrolls.json"), "utf8")
-) as ScrollAtlasJson;
 
 // Spell ids in AssignSpell's class map — every spell the game can build. Read
 // from source, as scrollSprites.test.ts does, so no Phaser is loaded.
@@ -62,10 +57,6 @@ describe("scroll loot table", () => {
         const { from, to } = bands().find((band) => band.spell === spell)!;
         expect(to).toBeGreaterThan(from);
         expect(rollScrollSpell((from + to) / 2)).toBe(spell);
-    });
-
-    it.each(SPELL_TYPES)("has a drop-level atlas frame for %s", (spell) => {
-        expect(ATLAS.frames[scrollFrameKey(spell, SCROLL_DROP_LEVEL)]).toBeDefined();
     });
 });
 

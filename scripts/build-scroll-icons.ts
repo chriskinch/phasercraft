@@ -1,5 +1,6 @@
 // Builds the scroll × level × spell atlas (#547):
-//   public/graphics/atlas/scrolls.png + scrolls.json, frames keyed `<SpellType>_l<level>`.
+//   public/graphics/atlas/scrolls.png + scrolls.json, frames keyed `<SpellType>_l<level>`;
+// and the generic scroll world drop (#385): public/graphics/images/scroll-drop.png.
 //
 //   npm run scrolls:build                      # regenerate the committed atlas
 //   npm run scrolls:build -- --preview out.png # also write a 2× preview sheet
@@ -15,12 +16,15 @@ import sharp from "sharp";
 import {
     ATLAS_IMAGE,
     buildScrollAtlas,
+    buildScrollDrop,
+    DROP_IMAGE,
     type FrameRect,
     type RgbaImage,
 } from "../src/helpers/scrollSprites.ts";
 
 const root = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "..");
 const ATLAS_DIR = path.join(root, "public/graphics/atlas");
+const IMAGES_DIR = path.join(root, "public/graphics/images");
 
 interface IconAtlasJson {
     frames: { filename: string; frame: FrameRect }[];
@@ -96,6 +100,10 @@ writeFileSync(path.join(ATLAS_DIR, "scrolls.json"), JSON.stringify(json, null, 4
 console.log(
     `wrote ${ATLAS_IMAGE} (${image.width}x${image.height}, ${Object.keys(json.frames).length} frames)`
 );
+
+const drop = buildScrollDrop();
+writeFileSync(path.join(IMAGES_DIR, DROP_IMAGE), encodePng(drop));
+console.log(`wrote ${DROP_IMAGE} (${drop.width}x${drop.height})`);
 
 const previewIdx = process.argv.indexOf("--preview");
 if (previewIdx > 0 && process.argv[previewIdx + 1]) {

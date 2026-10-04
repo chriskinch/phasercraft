@@ -3,13 +3,12 @@ import store from "@store";
 import { playSfx } from "@services/sfx";
 import { addScroll } from "@store/gameReducer";
 import getRandomVelocity from "@helpers/getRandomVelocity";
-import { SCROLL_SCALE, scrollFrameKey } from "@helpers/scrollSprites";
 import { SCROLL_DROP_LEVEL, rollScrollSpell } from "@/lib/scrollDrops";
 import type { SpellLevel, SpellType } from "@/types/game";
 import type { GameSceneLike } from "@/types/scene";
 
-// Phaser texture key for the scroll atlas (loaded in LoadScene).
-export const SCROLL_TEXTURE = "scrolls";
+// Phaser texture key for the world-drop sprite (loaded in LoadScene).
+export const SCROLL_TEXTURE = "scroll-drop";
 
 interface ScrollConfig {
     scene: Scene;
@@ -20,8 +19,9 @@ interface ScrollConfig {
     level?: SpellLevel;
 }
 
-// A spell scroll (#385) dropped in the world. Collected by walking over it,
-// like a special; picking it up adds one unread scroll to the save.
+// A spell scroll (#385) dropped in the world. Every spell shares one generic
+// sprite; the spell shows once it is in the Scrolls tab. Collected by walking
+// over it, like a special; picking it up adds one unread scroll to the save.
 class Scroll extends GameObjects.Sprite {
     public body!: Physics.Arcade.Body;
     public activateTimer?: Time.TimerEvent;
@@ -32,14 +32,12 @@ class Scroll extends GameObjects.Sprite {
     constructor(config: ScrollConfig) {
         const spell = config.spell ?? rollScrollSpell();
         const level = config.level ?? SCROLL_DROP_LEVEL;
-        super(config.scene, config.x, config.y, SCROLL_TEXTURE, scrollFrameKey(spell, level));
+        super(config.scene, config.x, config.y, SCROLL_TEXTURE);
         this.spell = spell;
         this.level = level;
         config.scene.physics.world.enable(this);
         config.scene.add.existing(this).setDepth((this.scene as GameSceneLike).depth_group.UI);
 
-        // Atlas frames are the 15 × 15 art drawn at 3×; shown at its native size.
-        this.setScale(1 / SCROLL_SCALE);
         this.body.setVelocity(getRandomVelocity(25, 50), getRandomVelocity(25, 50)).setDrag(100);
         this.body.immovable = true;
 

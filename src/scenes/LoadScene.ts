@@ -7,6 +7,7 @@ import { SFX } from "@services/sfx";
 import { SPECIAL_ITEMS } from "@/types/game";
 import { specialTextureKey } from "@entities/Loot/Special";
 import { SCROLL_TEXTURE } from "@entities/Loot/Scroll";
+import { DROP_IMAGE } from "@helpers/scrollSprites";
 
 export default class LoadScene extends Scene {
     private logo?: GameObjects.Container;
@@ -92,8 +93,8 @@ export default class LoadScene extends Scene {
         this.load.atlas("enemy", "atlas/atlas-enemy.png", "atlas/atlas-enemy.json");
         this.load.atlas("icon", "atlas/atlas-icons.png", "atlas/atlas-icons.json");
         this.load.atlas("crafting", "atlas/crafting.png", "atlas/crafting.json");
-        // Scroll world drops share the Scrolls tab's generated atlas (#547).
-        this.load.atlas(SCROLL_TEXTURE, "atlas/scrolls.png", "atlas/scrolls.json");
+        // Every scroll world drop shares one generic sprite (#385).
+        this.load.image(SCROLL_TEXTURE, `images/${DROP_IMAGE}`);
         this.load.spritesheet("heal-effect", "spritesheets/spells/heal.png", {
             frameWidth: 192,
             frameHeight: 192,
