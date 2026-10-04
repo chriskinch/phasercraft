@@ -12,6 +12,7 @@ import type { GameSceneLike } from "@/types/scene";
 import { installSeededRandom } from "./rng";
 import { installVirtualDateNow } from "./virtualClock";
 import { digest } from "./digest";
+import { parseDeviceRun, startDeviceRun } from "./deviceRun";
 import { maxCounts, summarizeFrames } from "./frameStats";
 import { nearestIndex, ringPlacements, type Point } from "./placement";
 import type {
@@ -380,4 +381,7 @@ export function installPerfHarness(game: Game): void {
         finish: () => session?.finish(),
     };
     window.__perf = api;
+
+    const device = parseDeviceRun(window.location.search);
+    if (device) startDeviceRun(game, api, device);
 }
