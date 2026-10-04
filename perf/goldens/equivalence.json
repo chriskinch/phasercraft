@@ -31,7 +31,7 @@
   "combat-15": [
     {
       "tick": 300,
-      "hash": "41c5afc0",
+      "hash": "09ae8c1d",
       "aggregates": {
         "kills": 4,
         "damageTaken": 1392,
@@ -40,7 +40,7 @@
     },
     {
       "tick": 600,
-      "hash": "79704065",
+      "hash": "14f4fb1d",
       "aggregates": {
         "kills": 10,
         "damageTaken": 3174,
@@ -49,7 +49,7 @@
     },
     {
       "tick": 900,
-      "hash": "7ca5d1f5",
+      "hash": "b8752386",
       "aggregates": {
         "kills": 16,
         "damageTaken": 5124,
@@ -58,7 +58,7 @@
     },
     {
       "tick": 1200,
-      "hash": "07e44aaa",
+      "hash": "484dfedf",
       "aggregates": {
         "kills": 20,
         "damageTaken": 7062,
@@ -67,7 +67,7 @@
     },
     {
       "tick": 1500,
-      "hash": "6ff4157e",
+      "hash": "6926cda3",
       "aggregates": {
         "kills": 25,
         "damageTaken": 9018,
@@ -76,7 +76,7 @@
     },
     {
       "tick": 1800,
-      "hash": "1a0f1d1b",
+      "hash": "1d848446",
       "aggregates": {
         "kills": 28,
         "damageTaken": 10878,
