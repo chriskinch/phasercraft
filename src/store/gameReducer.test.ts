@@ -35,11 +35,12 @@ import {
     STARTER_ITEMS,
     selectCharacter,
     readScroll,
+    addScroll,
     equipAbility,
     sellScroll,
 } from "./gameReducer";
 import type { GameState } from "./gameReducer";
-import type { LootItem } from "@/types/game";
+import type { LootItem, SpellLevel, SpellType } from "@/types/game";
 import type { PlayerName } from "@entities/Player/AssignClass";
 import { CLASS_KITS } from "@/lib/classKits";
 import {
@@ -992,6 +993,34 @@ describe("abilities", () => {
         it("refuses when no character is selected", () => {
             const before = { ...init(), scrolls: { Fireball: { 1: 1 } } };
             expect(gameReducer(before, readScroll("Fireball", 1))).toEqual(before);
+        });
+    });
+
+    describe("addScroll", () => {
+        it("adds one unread scroll at its level, keeping other levels and spells", () => {
+            const before = mage({ scrolls: { Fireball: { 2: 1 } } });
+            const once = gameReducer(before, addScroll("Fireball", 1));
+            const twice = gameReducer(once, addScroll("Fireball", 1));
+            expect(twice.scrolls).toEqual({ Fireball: { 1: 2, 2: 1 } });
+            expect(gameReducer(twice, addScroll("Whirlwind", 1)).scrolls).toEqual({
+                Fireball: { 1: 2, 2: 1 },
+                Whirlwind: { 1: 1 },
+            });
+        });
+
+        it("leaves learned spells and the loadout alone", () => {
+            const before = mage();
+            const state = gameReducer(before, addScroll("Smite", 1));
+            expect(state.learnedSpells).toEqual(before.learnedSpells);
+            expect(state.abilityLoadout).toEqual(before.abilityLoadout);
+        });
+
+        it("ignores unknown spells and levels", () => {
+            const before = mage({ scrolls: { Fireball: { 1: 1 } } });
+            const bogusSpell = addScroll("Bogus" as SpellType, 1);
+            const bogusLevel = addScroll("Fireball", 4 as SpellLevel);
+            expect(gameReducer(before, bogusSpell)).toEqual(before);
+            expect(gameReducer(before, bogusLevel)).toEqual(before);
         });
     });
 

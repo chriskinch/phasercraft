@@ -9,7 +9,8 @@ import {
 } from "./area";
 import { DEFAULT_SETTINGS } from "@services/settingsStorage";
 import { SPECIAL_DROP_RATE } from "@/types/game";
-import type { EnemyConfig, LootTable } from "@/types/game";
+import { SCROLL_DROP_RATE } from "@/lib/scrollDrops";
+import type { EnemyConfig, EnemyType, LootTable } from "@/types/game";
 
 // `promoteToBoss` and `scaleLootTable` are pure config factories — no Phaser
 // construction involved — so they're tested directly.
@@ -53,11 +54,13 @@ describe("promoteToBoss", () => {
     const base = enemyTypes["baby-ghoul"] as EnemyConfig;
     const boss = promoteToBoss("baby-ghoul");
 
-    const notSpecial = (t: LootTable) => t.filter((item) => item.name !== "special");
+    // Specials and scrolls are pinned to one per boss rather than scaled.
+    const scaled = (t: LootTable) =>
+        t.filter((item) => item.name !== "special" && item.name !== "scroll");
 
     it("scales the base creature's loot table by BOSS_SCALING.loot", () => {
-        expect(notSpecial(boss.loot_table)).toEqual(
-            notSpecial(scaleLootTable(base.loot_table, BOSS_SCALING.loot))
+        expect(scaled(boss.loot_table)).toEqual(
+            scaled(scaleLootTable(base.loot_table, BOSS_SCALING.loot))
         );
     });
 
@@ -165,5 +168,23 @@ describe("special item drops", () => {
                 bonus: 0,
             });
         }
+    });
+});
+
+describe("scroll drops", () => {
+    it.each(Object.keys(enemyTypes) as EnemyType[])(
+        "gives %s one scroll entry at the mob rate",
+        (id) => {
+            const { loot_table } = enemyTypes[id] as EnemyConfig;
+            expect(loot_table.filter((item) => item.name === "scroll")).toEqual([
+                { name: "scroll", rate: SCROLL_DROP_RATE.mob, bonus: 0 },
+            ]);
+        }
+    );
+
+    it.each(Object.keys(enemyTypes) as EnemyType[])("gives a %s boss exactly one scroll", (id) => {
+        expect(promoteToBoss(id).loot_table.filter((item) => item.name === "scroll")).toEqual([
+            { name: "scroll", rate: SCROLL_DROP_RATE.boss, bonus: 0 },
+        ]);
     });
 });

@@ -1,6 +1,7 @@
 import enemyTypes from "@config/enemies.json";
 import { SPECIAL_DROP_RATE } from "@/types/game";
-import type { EnemyConfig, EnemyType, LootTable } from "@/types/game";
+import { SCROLL_DROP_RATE } from "@/lib/scrollDrops";
+import type { EnemyConfig, EnemyType, LootDropRate, LootTable } from "@/types/game";
 import type { Settings } from "@services/settingsStorage";
 
 // Enemies populate a combat area as the player moves through it. Once this many
@@ -124,6 +125,12 @@ export function scaleLootTable(loot_table: LootTable, multiplier: number): LootT
     }));
 }
 
+// Loot a boss drops exactly one of, unscaled, whatever its creature's own rate.
+const BOSS_PINNED_RATES: Partial<Record<LootDropRate["name"], number>> = {
+    special: SPECIAL_DROP_RATE.boss,
+    scroll: SCROLL_DROP_RATE.boss,
+};
+
 // Promotes one of the area's own creatures into that area's boss.
 export function promoteToBoss(id: EnemyType): EnemyConfig {
     const base = enemyTypes[id] as EnemyConfig;
@@ -137,9 +144,10 @@ export function promoteToBoss(id: EnemyType): EnemyConfig {
         range: BOSS_SCALING.range,
         aggro_radius: BOSS_SCALING.aggro_radius,
         coin_multiplier: BOSS_SCALING.coin_multiplier,
-        // Special items are not scaled with the rest: a boss drops exactly one.
-        loot_table: scaleLootTable(base.loot_table, BOSS_SCALING.loot).map((item) =>
-            item.name === "special" ? { ...item, rate: SPECIAL_DROP_RATE.boss, bonus: 0 } : item
-        ),
+        // Special items and scrolls are not scaled with the rest (BOSS_PINNED_RATES).
+        loot_table: scaleLootTable(base.loot_table, BOSS_SCALING.loot).map((item) => {
+            const rate = BOSS_PINNED_RATES[item.name];
+            return rate === undefined ? item : { ...item, rate, bonus: 0 };
+        }),
     };
 }

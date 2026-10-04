@@ -4,6 +4,7 @@ import Projectile from "@entities/Weapons/Projectile";
 import type { CombatType } from "@/types/game";
 import { playSfx } from "@services/sfx";
 import Special from "@entities/Loot/Special";
+import Scroll from "@entities/Loot/Scroll";
 import Crafting from "@entities/Loot/Crafting";
 
 // Enemy.attack VFX: melee/healer enemies play the player's swoosh angled at the
@@ -14,6 +15,7 @@ import Crafting from "@entities/Loot/Crafting";
 vi.mock("@entities/Weapons/Projectile", () => ({ default: vi.fn() }));
 vi.mock("@services/sfx", () => ({ playSfx: vi.fn(() => true) }));
 vi.mock("@entities/Loot/Special", () => ({ default: vi.fn() }));
+vi.mock("@entities/Loot/Scroll", () => ({ default: vi.fn() }));
 vi.mock("@entities/Loot/Crafting", () => ({ default: vi.fn() }));
 // The scene's shared selection ring, at the module seam.
 const ring = vi.hoisted(() => ({ attach: vi.fn(), detach: vi.fn() }));
@@ -385,10 +387,10 @@ describe("Enemy.wander", () => {
     });
 });
 
-// A `special` entry must drop a Special, not fall through dropLoot's default
-// branch into a Crafting component.
+// `special` and `scroll` entries must drop their own entity, not fall through
+// dropLoot's default branch into a Crafting component.
 describe("Enemy.dropLoot", () => {
-    it("drops a Special for a special entry", () => {
+    const dropOne = (name: string) => {
         const enemy = Object.create(Enemy.prototype) as {
             x: number;
             y: number;
@@ -399,12 +401,24 @@ describe("Enemy.dropLoot", () => {
         enemy.x = 5;
         enemy.y = 6;
         enemy.scene = {};
-        enemy.loot_table = [{ name: "special", rate: 100, bonus: 0 }];
-
+        enemy.loot_table = [{ name, rate: 100, bonus: 0 }];
         enemy.dropLoot();
+        return enemy;
+    };
+
+    it("drops a Special for a special entry", () => {
+        const enemy = dropOne("special");
 
         expect(vi.mocked(Special)).toHaveBeenCalledTimes(1);
         expect(vi.mocked(Special)).toHaveBeenCalledWith({ scene: enemy.scene, x: 5, y: 6 });
+        expect(vi.mocked(Crafting)).not.toHaveBeenCalled();
+    });
+
+    it("drops a Scroll for a scroll entry", () => {
+        const enemy = dropOne("scroll");
+
+        expect(vi.mocked(Scroll)).toHaveBeenCalledTimes(1);
+        expect(vi.mocked(Scroll)).toHaveBeenCalledWith({ scene: enemy.scene, x: 5, y: 6 });
         expect(vi.mocked(Crafting)).not.toHaveBeenCalled();
     });
 });

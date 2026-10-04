@@ -426,6 +426,11 @@ export const readScroll = createAction("READ_SCROLL", (spell: SpellType, level: 
     payload: { spell, level },
 }));
 
+// Pick up one scroll item (#385): it goes unread into `scrolls` at its level.
+export const addScroll = createAction("ADD_SCROLL", (spell: SpellType, level: SpellLevel) => ({
+    payload: { spell, level },
+}));
+
 // Put a learned spell in an active slot (or empty it with null). A spell sits
 // in at most one slot: choosing one already slotted elsewhere swaps the two
 // slots. Refused outside town (loadout changes are town-only).
@@ -802,6 +807,17 @@ export const gameReducer = createReducer(initState, (builder) => {
                     const empty = state.abilityLoadout.indexOf(null);
                     if (empty !== -1) state.abilityLoadout[empty] = spell;
                 }
+            }
+        )
+        .addCase(
+            addScroll,
+            (state, action: PayloadAction<{ spell: SpellType; level: SpellLevel }>) => {
+                const { spell, level } = action.payload;
+                // Unknown spells or levels have no scroll — ignore them, like addSpecial.
+                if (!isKnownSpell(spell) || !isSpellLevel(level)) return;
+                const byLevel = state.scrolls[spell] ?? {};
+                byLevel[level] = (byLevel[level] ?? 0) + 1;
+                state.scrolls[spell] = byLevel;
             }
         )
         .addCase(
