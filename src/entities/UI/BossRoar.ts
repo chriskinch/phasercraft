@@ -1,5 +1,5 @@
 import { GameObjects, Scenes, type Scene, type Tweens } from "phaser";
-import { FONT_FAMILY } from "@config/fonts";
+import { FONTS, pixelFontSize } from "@config/fonts";
 
 // "ROAR!" in the direction of a boss that has just spawned (#465). The boss
 // arrives off screen, so the word sits at the screen edge on the line from
@@ -68,7 +68,7 @@ export function roarPosition(
 }
 
 export default class BossRoar {
-    private text: GameObjects.Text | null;
+    private text: GameObjects.BitmapText | null;
     private chain: Tweens.TweenChain | null;
     private readonly scene_events: Phaser.Events.EventEmitter;
 
@@ -86,13 +86,7 @@ export default class BossRoar {
         this.scene_events = scene.events;
 
         this.text = scene.add
-            .text(0, 0, "ROAR!", {
-                fontFamily: FONT_FAMILY,
-                fontSize: "56px",
-                color: "#ffffff",
-                stroke: "#000000",
-                strokeThickness: 10,
-            })
+            .bitmapText(0, 0, FONTS.outline, "ROAR!", pixelFontSize(5))
             .setOrigin(0.5)
             .setScrollFactor(0)
             .setDepth(DEPTH)

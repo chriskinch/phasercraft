@@ -15,7 +15,8 @@ import SpawnDebugOverlay from "./SpawnDebugOverlay";
 import { buildWalkability, isFootprintSpawnable, type WalkabilityGrid } from "@helpers/walkability";
 import { SHORE_ART_SIZE, SHORE_CELL, SHORE_OFFSET, shoreGrid } from "@helpers/shoreCollision";
 import { sample } from "lodash";
-import { bannerStyle } from "@config/fonts";
+import { addBanner } from "@scenes/pixelFonts";
+import { pixelFontSize } from "@config/fonts";
 
 import {
     toggleHUD,
@@ -825,9 +826,7 @@ export default class BiomeScene extends Scene {
             .setVisible(false);
         Display.Align.In.Center(this.area_cleared_ui, this.zone);
 
-        this.area_cleared_ui.add(
-            this.add.text(0, 0, "AREA CLEARED", bannerStyle(64)).setOrigin(0.5)
-        );
+        this.area_cleared_ui.add(addBanner(this, 0, 0, "AREA CLEARED", pixelFontSize(5)));
     }
 
     // The boss is down: show the banner. The director spawns nothing more — the

@@ -1,5 +1,5 @@
 import { GameObjects, Scene, Physics } from "phaser";
-import { FONT_FAMILY } from "@config/fonts";
+import { combatFont, pixelFontSize } from "@config/fonts";
 
 interface CombatTextConfig {
     x: number;
@@ -16,7 +16,7 @@ interface CombatTextConfig {
     gravity?: number;
 }
 
-class CombatText extends GameObjects.Text {
+class CombatText extends GameObjects.BitmapText {
     public body!: Physics.Arcade.Body;
 
     constructor(
@@ -33,35 +33,12 @@ class CombatText extends GameObjects.Text {
             gravity = 200,
         }: CombatTextConfig
     ) {
-        const color: Record<string, string> = {
-            physical: "#fff",
-            magic: "#ef0",
-            burn: "#fa0",
-            bleed: "#f33",
-            poison: "#5c5",
-            heal: "#7c6",
-            health: "#9c6",
-            level: "#8f0",
-        };
-
-        // Phaser's Text constructor types `text` as string | string[]; numeric
-        // values were passed in the original JS and rely on Phaser's internal
-        // toString — preserve that by passing the value through unchanged.
-        super(scene, x, y - 25, value as unknown as string, {
-            fontFamily: FONT_FAMILY,
-            fontSize: crit ? "21px" : "16px",
-            stroke: crit ? "#800" : "#000",
-            color: type ? color[type] : "#fff",
-            strokeThickness: 5,
-            shadow: {
-                offsetX: 1,
-                offsetY: 1,
-                color: "#000",
-                blur: 1,
-                stroke: true,
-                fill: false,
-            },
-        });
+        // Bitmap text (#534): no canvas or texture upload per hit. Crits are
+        // larger with a baked dark-red outline; the rest tint a black-outlined
+        // white font by combat type.
+        const { font, tint } = combatFont(type, crit);
+        super(scene, x, y - 25, font, String(value), pixelFontSize(crit ? 3 : 2));
+        this.setTint(tint);
 
         this.scene.physics.world.enable(this);
 

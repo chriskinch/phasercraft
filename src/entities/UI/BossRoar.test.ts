@@ -108,31 +108,19 @@ function makeScene() {
     const chain = { stop: vi.fn() };
     const scene = {
         events: { once: vi.fn(), off: vi.fn() },
-        add: { text: vi.fn(() => text) },
+        add: { bitmapText: vi.fn(() => text) },
         tweens: { chain: vi.fn(() => chain) },
     };
     return { scene, text, chain };
 }
 
 describe("BossRoar", () => {
-    it("writes ROAR! in BoldPixels, white with a chunky black stroke, pinned to the camera", () => {
+    it("writes ROAR! in the white, black-outlined bitmap font, pinned to the camera", () => {
         const { scene, text } = makeScene();
 
         new BossRoar(scene as unknown as Scene, view, player, { x: 2000, y: 300 });
 
-        const [, , word, style] = scene.add.text.mock.calls[0] as unknown as [
-            number,
-            number,
-            string,
-            Record<string, unknown>,
-        ];
-        expect(word).toBe("ROAR!");
-        expect(style).toMatchObject({
-            fontFamily: "BoldPixels",
-            color: "#ffffff",
-            stroke: "#000000",
-        });
-        expect(style.strokeThickness as number).toBeGreaterThanOrEqual(6);
+        expect(scene.add.bitmapText).toHaveBeenCalledWith(0, 0, "bitbybit-outline", "ROAR!", 40);
         expect(text.setScrollFactor).toHaveBeenCalledWith(0);
         expect(text.setAlpha).toHaveBeenCalledWith(0);
     });

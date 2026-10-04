@@ -223,7 +223,7 @@ describe("SpellButton construction", () => {
         const sprite = makeChainable();
         const text = makeChainable();
         const scene = {
-            add: { sprite: vi.fn(() => sprite), text: vi.fn(() => text) },
+            add: { sprite: vi.fn(() => sprite), bitmapText: vi.fn(() => text) },
             depth_group: { UI: 10 },
             UI: { frames: [{}], on: vi.fn(), off: vi.fn() },
         } as unknown as Scene;
@@ -257,7 +257,7 @@ describe("SpellButton construction", () => {
         const frames = [{}, {}];
         const hud = { frames, on: vi.fn(), off: vi.fn() };
         const scene = {
-            add: { sprite: vi.fn(() => sprite), text: vi.fn(() => text) },
+            add: { sprite: vi.fn(() => sprite), bitmapText: vi.fn(() => text) },
             depth_group: { UI: 10 },
             UI: hud,
         } as unknown as Scene;
