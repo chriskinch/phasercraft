@@ -35,6 +35,21 @@ import type { GameSceneConfig } from "@/scenes/SelectScene";
 import type { PlayerType } from "@entities/Player/AssignClass";
 import { throwError } from "rxjs";
 import { addSafeZone } from "@/scenes/safeZone";
+import { setDepthIfChanged, type DepthTarget } from "@helpers/setDepthIfChanged";
+
+interface FeetSortable extends DepthTarget {
+    y: number;
+    height: number;
+}
+
+// sortCharactersByFeet's per-frame callbacks, hoisted so a frame allocates none.
+function sortOnFeet(character: FeetSortable): void {
+    setDepthIfChanged(character, character.y + character.height / 2);
+}
+
+function sortEnemyOnFeet(enemy: GameObjects.GameObject): void {
+    if (enemy.active) sortOnFeet(enemy as unknown as FeetSortable);
+}
 
 export default class BiomeScene extends Scene {
     private global_tick: number = 42;
@@ -353,9 +368,10 @@ export default class BiomeScene extends Scene {
     /**
      * Re-sorts the characters on their feet instead of their middle.
      *
-     * `Player` and `Enemy` both set their own depth to `this.y`, and both are
-     * Containers holding a Sprite at (0, 0) with the default 0.5 origin — so
-     * `y` is the *middle* of the visible character, not the ground it stands on.
+     * `Player` sets its own depth to `this.y` (Enemy used to as well; this is
+     * now the only write to an enemy's depth in a biome). Both are Containers
+     * holding a Sprite at (0, 0) with the default 0.5 origin — so `y` is the
+     * *middle* of the visible character, not the ground it stands on.
      * Props sort on their base, the bottom of the two-tile prop. Mixing the two
      * references is what let a bush level with the player draw over them: its
      * base sat just below the player's middle, though well above the player's
@@ -367,21 +383,14 @@ export default class BiomeScene extends Scene {
      * `setDepthByY(player)` idea; the town can use `y + height` because it only
      * ever sorts the player against object sprites, whereas here the characters
      * must also stay correct against each other, so it is the true half-height.
+     *
+     * Runs every frame, so it allocates nothing: module-level callback over the
+     * group's own Set (no `getChildren()` copy), and an unchanged depth is not
+     * rewritten — Phaser queues a display-list sort on every depth write.
      */
     private sortCharactersByFeet(): void {
-        const onFeet = (character: { y: number; height: number; setDepth(d: number): unknown }) =>
-            character.setDepth(character.y + character.height / 2);
-
-        onFeet(this.player);
-        this.enemies.getChildren().forEach((enemy) => {
-            const character = enemy as unknown as {
-                y: number;
-                height: number;
-                active: boolean;
-                setDepth(d: number): unknown;
-            };
-            if (character.active) onFeet(character);
-        });
+        sortOnFeet(this.player);
+        this.enemies.children.forEach(sortEnemyOnFeet);
     }
 
     /**

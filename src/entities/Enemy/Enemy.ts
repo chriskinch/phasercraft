@@ -192,8 +192,9 @@ class Enemy extends GameObjects.Container {
     }
 
     update(time: number, delta: number): void {
-        this.setDepth(this.y);
-
+        // No depth write here: BiomeScene.sortCharactersByFeet sets every live
+        // enemy's depth (on its feet) after this runs, before the frame renders;
+        // death() pins the corpse's.
         if (this.state === "spawned") {
             this.health.update(this);
 
@@ -388,6 +389,10 @@ class Enemy extends GameObjects.Container {
     }
 
     death(): void {
+        // The corpse leaves the feet sort (BiomeScene.sortCharactersByFeet
+        // skips inactive enemies), so pin it where it has always decomposed:
+        // its middle, the depth update() used to write in the frame it died.
+        this.setDepth(this.y);
         this.state = "dead";
         if (this.circling) this.circling.remove();
         if (this.wandering_looped_timer) this.wandering_looped_timer.remove();

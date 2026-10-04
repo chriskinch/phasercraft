@@ -640,15 +640,30 @@ describe("BiomeScene.sortCharactersByFeet", () => {
     // Player and Enemy are Containers holding a Sprite at (0,0) with the default
     // 0.5 origin, so `y` is the character's middle. Props sort on their base.
     // Mixing those references let a bush level with the player draw over them.
-    function character(y: number, height: number) {
-        return { y, height, active: true, setDepth: vi.fn() };
+    function character(y: number, height: number, depth = 0) {
+        const fake = {
+            y,
+            height,
+            depth,
+            active: true,
+            setDepth: vi.fn((d: number) => {
+                fake.depth = d;
+                return fake;
+            }),
+        };
+        return fake;
+    }
+
+    // The scene iterates the group's own Set rather than a getChildren() copy.
+    function withEnemies(scene: { enemies: object }, enemies: object[]): void {
+        Object.assign(scene.enemies, { children: new Set(enemies) });
     }
 
     it("moves the player's depth from its middle to its feet", () => {
         const { scene } = makeScene();
         const player = { ...scene.player, ...character(500, 40) };
         scene.player = player;
-        scene.enemies = { ...scene.enemies, getChildren: vi.fn(() => []) };
+        withEnemies(scene, []);
 
         scene.sortCharactersByFeet();
 
@@ -660,7 +675,7 @@ describe("BiomeScene.sortCharactersByFeet", () => {
         scene.player = { ...scene.player, ...character(500, 40) };
         const alive = character(300, 30);
         const dead = { ...character(400, 30), active: false };
-        scene.enemies = { ...scene.enemies, getChildren: vi.fn(() => [alive, dead]) };
+        withEnemies(scene, [alive, dead]);
 
         scene.sortCharactersByFeet();
 
@@ -674,13 +689,43 @@ describe("BiomeScene.sortCharactersByFeet", () => {
         const { scene } = makeScene();
         const player = { ...scene.player, ...character(500, 40) };
         scene.player = player;
-        scene.enemies = { ...scene.enemies, getChildren: vi.fn(() => []) };
+        withEnemies(scene, []);
 
         scene.sortCharactersByFeet();
 
         const player_depth = player.setDepth.mock.calls[0][0];
         const prop_base_between_middle_and_feet = 510;
         expect(player_depth).toBeGreaterThan(prop_base_between_middle_and_feet);
+    });
+
+    // Every depth write queues a full display-list sort in Phaser, even when
+    // the value is the same, so a character already on its feet is left alone.
+    it("does not rewrite a depth that is already on the feet", () => {
+        const { scene } = makeScene();
+        const player = { ...scene.player, ...character(500, 40, 520) };
+        scene.player = player;
+        const idle = character(300, 30, 315);
+        withEnemies(scene, [idle]);
+
+        scene.sortCharactersByFeet();
+
+        expect(player.setDepth).not.toHaveBeenCalled();
+        expect(idle.setDepth).not.toHaveBeenCalled();
+    });
+
+    it("writes an enemy's depth only on frames where it moved", () => {
+        const { scene } = makeScene();
+        scene.player = { ...scene.player, ...character(500, 40, 520) };
+        const enemy = character(300, 30);
+        withEnemies(scene, [enemy]);
+
+        scene.sortCharactersByFeet(); // first sight: 0 -> 315
+        scene.sortCharactersByFeet(); // stood still
+        enemy.y = 310;
+        scene.sortCharactersByFeet(); // moved: 325
+        scene.sortCharactersByFeet(); // stood still
+
+        expect(enemy.setDepth.mock.calls).toEqual([[315], [325]]);
     });
 });
 
