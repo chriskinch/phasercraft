@@ -1,4 +1,4 @@
-import { GameObjects, Scene, Physics } from "phaser";
+import { GameObjects, Scene } from "phaser";
 import Player from "@entities/Player/Player";
 import Enemy from "@entities/Enemy/Enemy";
 interface MonsterConfig {
@@ -9,14 +9,15 @@ interface MonsterConfig {
     target: Player | Enemy | null;
 }
 
+// The enemy's visual only: its physics body lives on the Enemy container. The
+// sprite gets none — a second, inert body per enemy cost an Arcade step and an
+// RTree slot each (#529).
 class Monster extends GameObjects.Sprite {
     public key: string;
-    public body!: Physics.Arcade.Body;
     public frozen = false;
 
     constructor(config: MonsterConfig) {
         super(config.scene, 0, 0, config.key);
-        config.scene.physics.world.enable(this);
         config.scene.add.existing(this);
 
         this.key = config.key;
