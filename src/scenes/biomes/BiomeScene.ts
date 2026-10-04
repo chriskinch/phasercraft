@@ -258,7 +258,12 @@ export default class BiomeScene extends Scene {
     private createBiomeEnvironment(): void {
         const { key, tilesets, layers, scale, propLayers } = this.biome.map;
 
-        this.map = this.make.tilemap({ key });
+        // Empty cells parse to `null` rather than an index -1 Tile: most layers
+        // are only a few percent filled, so this skips allocating hundreds of
+        // thousands of blank Tiles. Every reader here already treats a missing
+        // tile and an empty one alike (getTileAt* return null for both without
+        // `nonNull`; Phaser's culling, collision and face code skip nulls).
+        this.map = this.make.tilemap({ key, insertNull: true });
 
         // The first argument must match the tileset name inside the .tmj; the
         // second the image key LoadScene preloaded it under.
@@ -339,11 +344,20 @@ export default class BiomeScene extends Scene {
         const art = this.map.tileWidth / SHORE_ART_SIZE;
         const cell = SHORE_CELL * art;
         const offset = -SHORE_OFFSET * art * this.biome.map.scale;
+        // Built from a 2D index array (0 = blocked, -1 = open) with `insertNull`,
+        // so only blocked cells get a Tile: a blank layer would allocate one per
+        // cell (~361k on a 300x300 map), nearly all of them empty.
+        const data: number[][] = [];
+        for (let y = 0; y < grid.rows; y++) {
+            const row = new Array<number>(grid.cols);
+            for (let x = 0; x < grid.cols; x++) row[x] = grid.cells[y * grid.cols + x] ? 0 : -1;
+            data.push(row);
+        }
         const shore = this.make.tilemap({
+            data,
             tileWidth: cell,
             tileHeight: cell,
-            width: grid.cols,
-            height: grid.rows,
+            insertNull: true,
         });
         // The layer is never drawn; any image will do as its tileset.
         const tileset = shore.addTilesetImage(
@@ -352,14 +366,13 @@ export default class BiomeScene extends Scene {
             cell,
             cell
         );
-        const layer = tileset ? shore.createBlankLayer("shore", tileset, offset, offset) : null;
+        const layer = tileset ? shore.createLayer(0, tileset, offset, offset) : null;
         if (!layer || !(layer instanceof Tilemaps.TilemapLayer)) {
             throw Error(`${this.biome.id}: could not build the shoreline collision layer`);
         }
 
-        grid.cells.forEach((blocked, i) => {
-            if (blocked) layer.putTileAt(0, i % grid.cols, Math.floor(i / grid.cols), false);
-        });
+        // Parse2DArray names its one layer "layer"; keep the old blank layer's name.
+        layer.layer.name = "shore";
         layer.setScale(this.biome.map.scale).setVisible(false);
         layer.setCollision(0);
         this.shore = layer;
