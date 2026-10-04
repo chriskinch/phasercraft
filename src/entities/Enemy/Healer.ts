@@ -1,5 +1,4 @@
 import Enemy from "./Enemy";
-import { maxBy } from "lodash";
 import type { EnemyOptions } from "@/types/game";
 class Healer extends Enemy {
     constructor(config: EnemyOptions) {
@@ -17,7 +16,12 @@ class Healer extends Enemy {
 
         if (this.active_group.getChildren().length === 1) this.emit("enemy:last", this);
 
-        if (this.getHealTarget() && this.states.attack === "primed") this.healTarget();
+        // Scan only when primed (getHealTarget is pure), once, and hand the
+        // result to healTarget rather than letting it re-scan.
+        if (this.states.attack === "primed") {
+            const target = this.getHealTarget();
+            if (target) this.healTarget(target);
+        }
 
         if (this.isInCirclingDistance()) {
             if (!this.circling)
@@ -32,18 +36,28 @@ class Healer extends Enemy {
         }
     }
 
+    // The other enemy missing the most health; ties go to the first in group
+    // order. One allocation-free pass over the group's Set (getChildren()
+    // copies it); equivalent to the old filter(missing > 0, not self) + lodash
+    // maxBy: every candidate is a number > 0, so maxBy's NaN/undefined
+    // handling never applies, and its strict `>` keeps the first max.
     getHealTarget(): Enemy | undefined {
-        const targets = this.active_group.getChildren().filter((enemy) => {
-            return this.getMissingHealth(enemy as Enemy) > 0 && enemy !== this;
-        });
-        return targets.length > 0
-            ? maxBy(targets as Enemy[], (enemy: Enemy) => this.getMissingHealth(enemy))
-            : undefined;
+        let best: Enemy | undefined;
+        let bestMissing = 0;
+        for (const child of this.active_group.children) {
+            const enemy = child as Enemy;
+            const missing = this.getMissingHealth(enemy);
+            // bestMissing starts at 0, so this also enforces missing > 0.
+            if (enemy !== this && missing > bestMissing) {
+                best = enemy;
+                bestMissing = missing;
+            }
+        }
+        return best;
     }
 
-    healTarget(): void {
+    healTarget(target: Enemy | undefined = this.getHealTarget()): void {
         this.states.attack = "casting";
-        const target = this.getHealTarget();
         this.scene.time.addEvent({
             delay: 3000,
             callback: (t: Enemy) => {
