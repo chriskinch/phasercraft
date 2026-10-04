@@ -1,25 +1,43 @@
 import { describe, it, expect } from "vitest";
-import { bannerStyle, FONT_FAMILY } from "./fonts";
+import { bannerDepth, combatFont, FONT_VARIANTS, FONTS, pixelFontSize } from "./fonts";
 
-describe("bannerStyle", () => {
-    it("uses the BoldPixels family at the requested pixel size", () => {
-        expect(FONT_FAMILY).toBe("BoldPixels");
-        expect(bannerStyle(32)).toMatchObject({ fontFamily: "BoldPixels", fontSize: "32px" });
+describe("combatFont", () => {
+    it("tints the outlined font by combat type, white when unknown", () => {
+        expect(combatFont("magic")).toEqual({ font: FONTS.outline, tint: 0xeeff00 });
+        expect(combatFont()).toEqual({ font: FONTS.outline, tint: 0xffffff });
+        expect(combatFont("nonsense")).toEqual({ font: FONTS.outline, tint: 0xffffff });
+        expect(combatFont("constructor")).toEqual({ font: FONTS.outline, tint: 0xffffff });
+    });
+
+    it("uses a baked dark-red-outline font per type for crits", () => {
+        expect(combatFont("poison", true)).toEqual({
+            font: "bitbybit-crit-poison",
+            tint: 0xffffff,
+        });
+        expect(combatFont(undefined, true).font).toBe("bitbybit-crit-physical");
+    });
+
+    it("only names fonts that are baked into the atlas", () => {
+        const keys = new Set(FONT_VARIANTS.map((v) => v.key));
+        Object.values(FONTS).forEach((key) => expect(keys).toContain(key));
+        ["physical", "magic", "burn", "bleed", "poison", "heal", "health", "level"].forEach(
+            (type) => expect(keys).toContain(combatFont(type, true).font)
+        );
+    });
+});
+
+describe("sizes", () => {
+    it("keeps font sizes on whole font pixels", () => {
+        expect(pixelFontSize(2)).toBe(16);
+        expect(pixelFontSize(8)).toBe(64);
     });
 
     it.each([
-        [16, 2, 1],
-        [32, 4, 2],
-        [64, 8, 4],
-    ])("scales stroke and shadow depth with size %i", (size, stroke, depth) => {
-        const style = bannerStyle(size);
-        expect(style.strokeThickness).toBe(stroke);
-        expect(style.shadow).toMatchObject({ offsetX: depth, offsetY: depth, blur: 0 });
-    });
-
-    it("clamps stroke to 2px and shadow to 1px at small sizes", () => {
-        const style = bannerStyle(4);
-        expect(style.strokeThickness).toBe(2);
-        expect(style.shadow).toMatchObject({ offsetX: 1, offsetY: 1 });
+        [4, 1],
+        [16, 2],
+        [24, 3],
+        [40, 5],
+    ])("gives a %ipx banner a %ipx shadow", (size, depth) => {
+        expect(bannerDepth(size)).toBe(depth);
     });
 });
