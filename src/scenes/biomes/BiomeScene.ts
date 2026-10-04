@@ -128,7 +128,7 @@ export default class BiomeScene extends Scene {
     /**
      * Pulls in this biome's map if it is not already cached. Deliberately not
      * part of LoadScene's boot payload: the three maps are ~1MB of JSON each and
-     * Phaser builds a Tile object per tile on parse, so loading all three up
+     * parsing builds a Tile object per (non-empty) tile, so loading all three up
      * front delayed the main menu by seconds for a player who might never leave
      * town. Phaser waits for the scene loader between preload() and create(),
      * and the cache check makes re-entry free.
