@@ -27,8 +27,8 @@ class Shield extends Resource {
 
     toggleVisible(toggle: boolean): void {
         this.setVisible(toggle);
-        this.graphics.current.setVisible(toggle);
-        this.graphics.background.setVisible(toggle);
+        this.bars.current.setVisible(toggle);
+        this.bars.background.setVisible(toggle);
     }
 
     onChangeHandler(): void {

@@ -66,7 +66,7 @@ describe("Resource.cleanup", () => {
 // Regen/adjust flow (issue #309). setValue is the clamp + redraw + emit core
 // that adjustValue/regenerate funnel through. We exercise the real prototype
 // methods against a constructor-free fake stubbing only the seams they touch:
-// this.stats, the "current" graphics bar (its scaleX is written), and emit().
+// this.stats, the "current" bar (resized to the fill), its size, and emit().
 interface ResourceStatsUnderTest {
     max: number;
     value: number;
@@ -77,7 +77,9 @@ interface ResourceStatsUnderTest {
 
 interface ResourceFlowUnderTest {
     stats: ResourceStatsUnderTest;
-    graphics: { current: { scaleX: number } };
+    width: number;
+    height: number;
+    bars: { current: { setDisplaySize: ReturnType<typeof vi.fn> } };
     emit: ReturnType<typeof vi.fn>;
     setValue(new_value: number): void;
     adjustValue(adj: number): void;
@@ -96,7 +98,9 @@ function makeFlowResource(stats: Partial<ResourceStatsUnderTest> = {}): Resource
         regen_value: 10,
         ...stats,
     };
-    resource.graphics = { current: { scaleX: 0 } };
+    resource.width = 40;
+    resource.height = 6;
+    resource.bars = { current: { setDisplaySize: vi.fn() } };
     resource.emit = vi.fn();
     return resource;
 }
@@ -126,12 +130,20 @@ describe("Resource.setValue", () => {
         expect(resource.stats.value).toBe(0);
     });
 
-    it("updates the current bar scale to the resource percent", () => {
+    it("sizes the current bar to the resource percent, full height", () => {
         const resource = makeFlowResource({ max: 200, value: 0 });
 
         resource.setValue(50);
 
-        expect(resource.graphics.current.scaleX).toBe(0.25);
+        expect(resource.bars.current.setDisplaySize).toHaveBeenLastCalledWith(10, 6);
+    });
+
+    it("collapses the current bar at zero", () => {
+        const resource = makeFlowResource({ max: 200, value: 50 });
+
+        resource.setValue(-10);
+
+        expect(resource.bars.current.setDisplaySize).toHaveBeenLastCalledWith(0, 6);
     });
 
     it("recomputes the missing amount and emits change", () => {
