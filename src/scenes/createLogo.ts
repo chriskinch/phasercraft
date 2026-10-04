@@ -1,5 +1,5 @@
-import { GameObjects, Types, Scene } from "phaser";
-import { FONT_FAMILY } from "@config/fonts";
+import { GameObjects, Scene } from "phaser";
+import { FONTS, pixelFontSize } from "@config/fonts";
 
 /**
  * Options for {@link createLogo}.
@@ -19,14 +19,17 @@ export interface LogoOptions {
 }
 
 const WORDMARK = "PHASERCRAFT";
+// Screen pixels per font pixel; the drop shadow is one font pixel deep.
+const LOGO_SCALE = 6;
 
 /**
  * Builds the (placeholder) Phasercraft logo: a "PHASERCRAFT" wordmark with a
  * thick black bold outline plus an offset duplicate behind it for a pixel
  * 3D/drop-shadow effect, paired with a character sprite beneath it.
  *
- * Rendered with layered {@link GameObjects.Text} in the BoldPixels webfont
- * (preloaded by BootScene), which can take the black outline + pixel shadow.
+ * Rendered as one {@link GameObjects.BitmapText} in the black-outlined pixel
+ * font (registered by BootScene), tinted gold, with its drop shadow as the
+ * offset duplicate.
  * Everything is grouped in a single {@link GameObjects.Container} so callers can
  * position, scale, or destroy the whole logo in one call.
  */
@@ -35,33 +38,23 @@ export default function createLogo(scene: Scene, options: LogoOptions): GameObje
 
     const container = scene.add.container(x, y);
 
-    const baseStyle: Types.GameObjects.Text.TextStyle = {
-        fontFamily: FONT_FAMILY,
-        fontSize: "64px",
-        color: "#f4c542",
-    };
+    // Gold fill (tint) inside the font's black outline; the drop shadow is the
+    // offset dark duplicate behind it, the pixel 3D lift.
+    const wordmark = scene.add
+        .bitmapText(0, 0, FONTS.outline, WORDMARK, pixelFontSize(LOGO_SCALE))
+        .setOrigin(0.5)
+        .setTint(0xf4c542)
+        .setDropShadow(LOGO_SCALE, LOGO_SCALE, 0x101010, 1);
 
-    // Offset duplicate behind the wordmark: this is the pixel shadow / 3D lift.
-    const shadow = scene.add.text(6, 6, WORDMARK, { ...baseStyle, color: "#101010" });
-    shadow.setOrigin(0.5);
-    shadow.setStroke("#000000", 8);
-    // Higher resolution keeps the stroked edges crisp; pixelArt on the game
-    // config already disables texture smoothing so it still reads as pixelly.
-    shadow.setResolution(3);
+    container.add(wordmark);
 
-    // Main wordmark on top with a thick black bold outline.
-    const wordmark = scene.add.text(0, 0, WORDMARK, baseStyle);
-    wordmark.setOrigin(0.5);
-    wordmark.setStroke("#000000", 8);
-    wordmark.setResolution(3);
-
-    container.add([shadow, wordmark]);
-
-    // Character sprite tucked beneath the wordmark (static idle frame).
+    // Character sprite tucked beneath the wordmark (static idle frame), its
+    // top a font pixel below the shadow.
     if (scene.textures.exists(characterKey)) {
-        const sprite = scene.add.sprite(0, wordmark.height / 2 + 56, characterKey, 0);
-        sprite.setOrigin(0.5);
+        const sprite = scene.add.sprite(0, 0, characterKey, 0);
         sprite.setScale(4);
+        sprite.setY(wordmark.height / 2 + LOGO_SCALE * 2 + sprite.displayHeight / 2);
+        sprite.setOrigin(0.5);
         container.add(sprite);
     }
 

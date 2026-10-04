@@ -1,0 +1,218 @@
+import type { RgbaImage } from "../scrollSprites";
+
+// Builds the in-game pixel font (#534): one atlas holding every colour
+// variant, plus a BMFont XML per glyph layout. Pure, so it is unit-tested and
+// the bytes depend only on the glyph data; scripts/build-pixel-font.ts writes
+// the files. Canvas Text redraws and re-uploads a texture whenever it changes;
+// BitmapText from a shared atlas only adds quads to the batch.
+
+/** `[top, ...rows]`: see bitbybitGlyphs.ts. */
+export type GlyphSource = readonly [top: number, ...rows: string[]];
+
+/** A baked colour scheme: white fill tints exactly, a coloured outline does not. */
+export interface FontVariant {
+    key: string;
+    fill: number;
+    /** 1px outline (8-neighbour, as the pack's "Outlined" sheets). Omit for none. */
+    outline?: number;
+}
+
+export type FontLayout = "plain" | "outlined";
+
+export interface AtlasFrame {
+    frame: { x: number; y: number; w: number; h: number };
+    rotated: false;
+    trimmed: false;
+    spriteSourceSize: { x: 0; y: 0; w: number; h: number };
+    sourceSize: { w: number; h: number };
+}
+
+export interface AtlasJson {
+    frames: Record<string, AtlasFrame>;
+    meta: { image: string; size: { w: number; h: number }; scale: "1" };
+}
+
+export interface PixelFontBuild {
+    image: RgbaImage;
+    atlas: AtlasJson;
+    xml: Record<FontLayout, string>;
+}
+
+/**
+ * BMFont `size`: BitmapText scales by fontSize / size, so a fontSize that is a
+ * multiple of 8 keeps every font pixel a whole number of screen pixels. Caps
+ * are 4 rows, so cap height is fontSize / 2, as with the old BoldPixels Text.
+ */
+export const FONT_SIZE = 8;
+/** Rows above the baseline (tallest glyphs) and below it (descenders). */
+const ASCENT = 5;
+const DESCENT = 1;
+/** Empty columns after each glyph, outline included: the pack's sheet spacing. */
+const LETTER_SPACING = 1;
+const GAP = 1;
+
+interface Glyph {
+    code: number;
+    top: number;
+    width: number;
+    ink: boolean[][];
+}
+
+interface Cell {
+    glyph: Glyph;
+    x: number;
+    y: number;
+    w: number;
+    h: number;
+}
+
+const parse = (char: string, [top, ...rows]: GlyphSource): Glyph => {
+    const width = rows[0]?.length ?? 0;
+    if (char.length !== 1) throw new Error(`glyph key ${JSON.stringify(char)} is not one char`);
+    rows.forEach((row) => {
+        if (row.length !== width || /[^#.]/.test(row)) {
+            throw new Error(`glyph ${JSON.stringify(char)}: rows must be ${width} of # or .`);
+        }
+    });
+    return {
+        code: char.charCodeAt(0),
+        top,
+        width,
+        ink: rows.map((row) => [...row].map((c) => c === "#")),
+    };
+};
+
+const hasInk = (glyph: Glyph) => glyph.ink.some((row) => row.includes(true));
+
+/**
+ * 1px outline around `ink`, as a mask one pixel larger on every side: every
+ * empty pixel touching ink, diagonals included. That is the pack's
+ * "Outlined 1" sheet, holes inside letters included.
+ */
+export function outlineMask(ink: boolean[][]): boolean[][] {
+    const h = ink.length + 2;
+    const w = (ink[0]?.length ?? 0) + 2;
+    const at = (x: number, y: number) => ink[y - 1]?.[x - 1] === true;
+    return Array.from({ length: h }, (_, y) =>
+        Array.from({ length: w }, (_, x) => {
+            if (at(x, y)) return false;
+            for (let dy = -1; dy <= 1; dy++) {
+                for (let dx = -1; dx <= 1; dx++) if (at(x + dx, y + dy)) return true;
+            }
+            return false;
+        })
+    );
+}
+
+// Shelf-packs the inked glyphs into rows `width` wide. Same layout for every
+// variant of a kind, so one XML serves them all from their own atlas frame.
+const pack = (glyphs: Glyph[], pad: number, width: number) => {
+    const cells: Cell[] = [];
+    let x = 0;
+    let y = 0;
+    let rowH = 0;
+    glyphs.filter(hasInk).forEach((glyph) => {
+        const w = glyph.width + pad * 2;
+        const h = glyph.ink.length + pad * 2;
+        if (x + w > width) {
+            x = 0;
+            y += rowH + GAP;
+            rowH = 0;
+        }
+        cells.push({ glyph, x, y, w, h });
+        x += w + GAP;
+        rowH = Math.max(rowH, h);
+    });
+    return { cells, height: y + rowH };
+};
+
+const xmlFor = (glyphs: Glyph[], cells: Cell[], layout: FontLayout, image: string) => {
+    const pad = layout === "outlined" ? 1 : 0;
+    const byCode = new Map(cells.map((cell) => [cell.glyph.code, cell]));
+    const chars = glyphs.map((glyph) => {
+        const cell = byCode.get(glyph.code);
+        const xadvance = glyph.width + pad * 2 + LETTER_SPACING;
+        const yoffset = cell ? ASCENT - glyph.top : 0;
+        return (
+            `        <char id="${glyph.code}" x="${cell?.x ?? 0}" y="${cell?.y ?? 0}" ` +
+            `width="${cell?.w ?? 0}" height="${cell?.h ?? 0}" xoffset="0" ` +
+            `yoffset="${yoffset}" xadvance="${xadvance}" page="0" chnl="15"/>`
+        );
+    });
+    return [
+        `<?xml version="1.0" encoding="UTF-8"?>`,
+        `<!-- Generated by scripts/build-pixel-font.ts. Do not edit. -->`,
+        `<font>`,
+        `    <info face="bitbybit-${layout}" size="${FONT_SIZE}"/>`,
+        `    <common lineHeight="${ASCENT + DESCENT + pad * 2}" base="${ASCENT + pad}" pages="1"/>`,
+        `    <pages><page id="0" file="${image}"/></pages>`,
+        `    <chars count="${glyphs.length}">`,
+        ...chars,
+        `    </chars>`,
+        `</font>`,
+        ``,
+    ].join("\n");
+};
+
+const rgba = (colour: number) => [(colour >> 16) & 0xff, (colour >> 8) & 0xff, colour & 0xff, 0xff];
+
+export function buildPixelFont(
+    source: Readonly<Record<string, GlyphSource>>,
+    variants: readonly FontVariant[],
+    { width = 256, image = "bitbybit.png" }: { width?: number; image?: string } = {}
+): PixelFontBuild {
+    const glyphs = Object.entries(source)
+        .map(([char, glyph]) => parse(char, glyph))
+        .sort((a, b) => a.code - b.code);
+    const layouts = {
+        plain: pack(glyphs, 0, width),
+        outlined: pack(glyphs, 1, width),
+    };
+
+    // Each variant is one block of the atlas, stacked top to bottom.
+    let height = 0;
+    const blocks = variants.map((variant) => {
+        const layout: FontLayout = variant.outline === undefined ? "plain" : "outlined";
+        const block = { variant, layout, y: height, h: layouts[layout].height };
+        height += block.h + GAP;
+        return block;
+    });
+    height = Math.max(height - GAP, 1);
+
+    const data = new Uint8Array(width * height * 4);
+    const paint = (x: number, y: number, colour: number) =>
+        data.set(rgba(colour), (y * width + x) * 4);
+
+    const frames: Record<string, AtlasFrame> = {};
+    blocks.forEach(({ variant, layout, y: top, h }) => {
+        if (frames[variant.key]) throw new Error(`duplicate font variant ${variant.key}`);
+        frames[variant.key] = {
+            frame: { x: 0, y: top, w: width, h },
+            rotated: false,
+            trimmed: false,
+            spriteSourceSize: { x: 0, y: 0, w: width, h },
+            sourceSize: { w: width, h },
+        };
+        layouts[layout].cells.forEach(({ glyph, x, y }) => {
+            const pad = layout === "outlined" ? 1 : 0;
+            if (variant.outline !== undefined) {
+                const outline = variant.outline;
+                outlineMask(glyph.ink).forEach((row, gy) =>
+                    row.forEach((on, gx) => on && paint(x + gx, top + y + gy, outline))
+                );
+            }
+            glyph.ink.forEach((row, gy) =>
+                row.forEach((on, gx) => on && paint(x + pad + gx, top + y + pad + gy, variant.fill))
+            );
+        });
+    });
+
+    return {
+        image: { width, height, data },
+        atlas: { frames, meta: { image, size: { w: width, h: height }, scale: "1" } },
+        xml: {
+            plain: xmlFor(glyphs, layouts.plain.cells, "plain", image),
+            outlined: xmlFor(glyphs, layouts.outlined.cells, "outlined", image),
+        },
+    };
+}

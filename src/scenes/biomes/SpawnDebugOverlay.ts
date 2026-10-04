@@ -1,5 +1,5 @@
 import type { GameObjects, Scene } from "phaser";
-import { FONT_FAMILY } from "@config/fonts";
+import { FONTS, pixelFontSize } from "@config/fonts";
 import type { Point } from "@helpers/spawnGeometry";
 import type { SpawnDebugView } from "./SpawnDirector";
 
@@ -51,7 +51,7 @@ export function countdownLabel(beyondMs: number, delayMs: number): string | null
 
 export default class SpawnDebugOverlay<E extends OverlayEnemy> {
     private graphics: GameObjects.Graphics | null;
-    private readonly labels = new Map<E, GameObjects.Text>();
+    private readonly labels = new Map<E, GameObjects.BitmapText>();
 
     constructor(
         private readonly scene: Scene,
@@ -124,13 +124,8 @@ export default class SpawnDebugOverlay<E extends OverlayEnemy> {
             }
             if (!label) {
                 label = this.scene.add
-                    .text(0, 0, "", {
-                        fontFamily: FONT_FAMILY,
-                        fontSize: "16px",
-                        color: "#ffe600",
-                        stroke: "#000",
-                        strokeThickness: 4,
-                    })
+                    .bitmapText(0, 0, FONTS.outline, "", pixelFontSize(2))
+                    .setTint(0xffe600)
                     .setOrigin(0.5, 1)
                     .setDepth(DEPTH);
                 this.labels.set(enemy, label);

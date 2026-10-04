@@ -1,6 +1,7 @@
 import { GameObjects, Display, Scene } from "phaser";
 import type { GameSceneLike } from "@/types/scene";
 import { HUD_LAYOUT } from "@entities/UI/HUD";
+import { FONTS, pixelFontSize } from "@config/fonts";
 import type UI from "@entities/UI/HUD";
 
 export interface SpellButtonOptions {
@@ -18,7 +19,7 @@ export interface SpellButtonOptions {
 // stays with the owner, which drives this through the public methods.
 class SpellButton {
     public sprite: GameObjects.Sprite;
-    public text: GameObjects.Text;
+    public text: GameObjects.BitmapText;
     private scene: Scene;
     private hud: UI;
     private slot: number;
@@ -40,13 +41,8 @@ class SpellButton {
             .setScale(1.5)
             .setScrollFactor(0);
 
-        const styles = {
-            font: "16px monospace",
-            fill: "#ffffff",
-            align: "center",
-        };
         this.text = scene.add
-            .text(-2, -2, cooldown.toString(), styles)
+            .bitmapText(-2, -2, FONTS.plain, cooldown.toString(), pixelFontSize(3))
             .setOrigin(0.5)
             .setDepth((scene as GameSceneLike).depth_group.UI)
             .setScrollFactor(0)

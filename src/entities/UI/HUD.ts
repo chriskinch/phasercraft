@@ -4,15 +4,16 @@ import store from "@store";
 import mapStateToData from "@helpers/mapStateToData";
 import { readSave, writeSave, removeSave, SAVE_SLOTS } from "@services/saveStorage";
 import type { GameSceneLike } from "@/types/scene";
+import { FONTS, pixelFontSize } from "@config/fonts";
 
-const styles = {
-    font: "12px monospace",
-    fill: "#ffffff",
-};
+// Coin and enemy readouts: plain white bitmap text, left-aligned, centred on
+// their icon.
+const label = (scene: Scene, text: string) =>
+    scene.add.bitmapText(15, 0, FONTS.plain, text, pixelFontSize(2)).setOrigin(0, 0.5);
 
 // The coin/enemy readouts are plain containers with a `text` child stashed on
 // the instance so the store subscriptions can update it.
-type LabelledContainer = GameObjects.Container & { text: GameObjects.Text };
+type LabelledContainer = GameObjects.Container & { text: GameObjects.BitmapText };
 
 // Emitted on the HUD after every layout() so elements placed relative to it
 // (spell buttons sit in the frame slots) can re-align.
@@ -118,7 +119,9 @@ class UI extends GameObjects.Container {
         // and slot 0 stays leftmost, so slot order still reads left-to-right.
         const spellsLeft = right - this.spacing * (this.spells - 1);
         this.frames.forEach((frame, i) => frame.setPosition(spellsLeft + this.spacing * i, bottom));
-        if (this.coins) Display.Align.In.TopLeft(this.coins, zone, -110);
+        // The coin purse sits right of the enemy count: room for "Enemies: 199"
+        // in the pixel font (108px) after the 15px icon gap.
+        if (this.coins) Display.Align.In.TopLeft(this.coins, zone, -140);
         if (this.enemies) Display.Align.In.TopLeft(this.enemies, zone);
         // System/character buttons run left-to-right from the bottom-left
         // corner; the spell bar owns the bottom-right.
@@ -142,7 +145,7 @@ class UI extends GameObjects.Container {
         this.coins = this.scene.add.container(0, 0) as LabelledContainer;
 
         this.coins.add(this.scene.add.sprite(0, 0, "coin-spin"));
-        this.coins.text = this.scene.add.text(15, 0, "Coins: ", styles).setOrigin(0, 0.5);
+        this.coins.text = label(this.scene, "Coins: ");
         this.coins.add(this.coins.text);
 
         this.add(this.coins);
@@ -160,7 +163,7 @@ class UI extends GameObjects.Container {
         this.enemies = this.scene.add.container(0, 0) as LabelledContainer;
 
         this.enemies.add(this.scene.add.sprite(0, 0, "dungeon", "ghast_baby"));
-        this.enemies.text = this.scene.add.text(15, 0, "", styles).setOrigin(0, 0.5);
+        this.enemies.text = label(this.scene, "");
         this.enemies.add(this.enemies.text);
 
         this.add(this.enemies);

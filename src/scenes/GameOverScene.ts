@@ -1,5 +1,6 @@
 import { Scene, Display } from "phaser";
-import { bannerStyle } from "@config/fonts";
+import { pixelFontSize } from "@config/fonts";
+import { addBanner } from "./pixelFonts";
 
 export default class GameOverScene extends Scene {
     private global_game_width!: number;
@@ -30,8 +31,8 @@ export default class GameOverScene extends Scene {
         this.game_over = this.add.container(0, 0);
         Display.Align.In.Center(this.game_over, this.zone);
 
-        this.game_over.add(this.add.text(0, 0, "GAME OVER", bannerStyle(32)).setOrigin(0.5));
-        this.game_over.add(this.add.text(0, 40, "RESTART", bannerStyle(16)).setOrigin(0.5));
+        this.game_over.add(addBanner(this, 0, 0, "GAME OVER", pixelFontSize(3)));
+        this.game_over.add(addBanner(this, 0, 40, "RESTART", pixelFontSize(2)));
         (
             this.game_over as Phaser.GameObjects.Container & { button: Phaser.GameObjects.Image }
         ).button = this.add.image(0, 60, "blank-gif").setScale(12, 4).setInteractive();

@@ -4,7 +4,9 @@
 # Gameplay equivalence (#527) does fail: seeded replays must match the
 # committed goldens, and on a PR its screenshots must match the base's pixel
 # for pixel. A PR also labelled `perf-tolerance` (stories allowed to shift AI
-# timing, #537) is held to the base's goldens within ±10% instead.
+# timing, #537) is held to the base's goldens within ±10% instead. One labelled
+# `perf-visual` (an intended look change, e.g. the bitmap font, #534) skips the
+# screenshot diff but stays exact on the goldens.
 #   - nightly on main: records a baseline artifact.
 #   - PR labelled `perf` (and each push while labelled), or manual dispatch:
 #     runs the PR head and its base on the same runner, then posts the
@@ -89,6 +91,7 @@ jobs:
               if: ${{ !cancelled() }}
               env:
                   TOLERANCE: ${{ contains(github.event.pull_request.labels.*.name, 'perf-tolerance') }}
+                  VISUAL: ${{ contains(github.event.pull_request.labels.*.name, 'perf-visual') }}
               run: |
                   [ -f dist-perf/index.html ] || npm run build:perf
                   if [ "$TOLERANCE" = "true" ] && [ -f ../base/perf/goldens/equivalence.json ]; then
@@ -97,6 +100,8 @@ jobs:
                       export PERF_EQUIVALENCE=tolerance
                       export PERF_GOLDENS=../base/perf/goldens/equivalence.json
                       echo "Tolerance mode: screenshot diff skipped."
+                  elif [ "$VISUAL" = "true" ]; then
+                      echo "Visual change: screenshot diff skipped."
                   elif [ -d "$PERF_SNAPSHOT_DIR" ]; then
                       export PERF_SNAPSHOTS=compare
                   elif [ -f ../base/perf/equivalence.spec.ts ]; then
