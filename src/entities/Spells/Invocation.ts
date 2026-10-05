@@ -1,5 +1,6 @@
 import Boon from "./Boon";
 import { spellDefDefaults } from "@/types/game";
+import { levelFactor, scaleEffect } from "@/lib/levelScaling";
 import type { SpellOptions } from "@/types/game";
 import type { EffectValue } from "@entities/UI/StatusEffects";
 
@@ -16,6 +17,9 @@ class Invocation extends Boon {
     public duration!: number;
     public value!: InvocationValue;
     public timer!: Phaser.Time.TimerEvent;
+    // L1 values; applyLevel() derives duration/value from them.
+    private baseDuration!: number;
+    private baseValue!: InvocationValue;
 
     constructor(config: SpellOptions) {
         const defaults = {
@@ -36,7 +40,15 @@ class Invocation extends Boon {
         // exactly as long as the buff it applies, so the cast bar and the root
         // last the whole effect — derive it from `duration` (defaults or an
         // override) so the two can never drift.
+        this.baseDuration = this.duration;
+        this.baseValue = this.value;
+        this.applyLevel();
+    }
+
+    applyLevel(): void {
+        this.duration = this.baseDuration * levelFactor(this.spellType, "duration", this.level);
         this.channelDuration = this.duration;
+        this.value = scaleEffect(this.spellType, this.baseValue, this.level);
     }
 
     effect(): void {

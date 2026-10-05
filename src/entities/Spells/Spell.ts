@@ -4,7 +4,7 @@ import SpellButton from "@entities/UI/SpellButton";
 import Projectile from "@entities/Weapons/Projectile";
 import { playSfx } from "@services/sfx";
 import type { ProjectileTarget } from "@entities/Weapons/Projectile";
-import { SPELL_LEVEL_POWER } from "@/types/game";
+import { levelFactor } from "@/lib/levelScaling";
 import type {
     SpellOptions,
     TargetType,
@@ -12,6 +12,7 @@ import type {
     TargetKind,
     SpellProjectileConfig,
     SpellLevel,
+    SpellType,
 } from "@/types/game";
 import type Player from "@entities/Player/Player";
 
@@ -35,8 +36,10 @@ class Spell extends GameObjects.Sprite {
     public hotkey!: string;
     public slot!: number;
     // Learned level (1–3), live-updated by the Player when a higher scroll is
-    // read mid-run. Scales power in setValue() (#387).
+    // read mid-run. Scales the aspects SPELL_DEFS[spellType].scaling lists (#387).
     public level: SpellLevel = 1;
+    // Registry key, from spellDefDefaults; undefined = no level scaling.
+    public spellType?: SpellType;
     public loop!: boolean;
     public cooldownDelay!: boolean;
     public cooldownDelayAll!: boolean;
@@ -116,7 +119,13 @@ class Spell extends GameObjects.Sprite {
     // Apply a level change in place (cooldown, button and listeners untouched).
     setLevel(level: SpellLevel): void {
         this.level = level;
+        this.applyLevel();
     }
+
+    // Recompute level-scaled fields from their L1 bases. Spells with scaled
+    // aspects beyond `power` override it and call it at the end of their
+    // constructor; setLevel() re-runs it on a live level change.
+    applyLevel(): void {}
 
     checkResource(): boolean {
         return this.typedCost <= this.player.resource.getValue();
@@ -287,8 +296,10 @@ class Spell extends GameObjects.Sprite {
         const statValue = stats[key];
         const power = typeof statValue === "number" ? statValue : 0;
         // Value based on base + scaled percentage of base from power + flat percent of power,
-        // times the spell-level multiplier (#387: power only — cost/cooldown don't scale).
-        const scaled = (base + base * (power / 100) + power / 10) * SPELL_LEVEL_POWER[this.level];
+        // times the spell's `power` level factor (#387; cost/cooldown never scale).
+        const scaled =
+            (base + base * (power / 100) + power / 10) *
+            levelFactor(this.spellType, "power", this.level);
         const crit = this.player.isCritical();
         const total = reducer(crit ? scaled * 1.5 : scaled);
         return { crit: crit, amount: total };

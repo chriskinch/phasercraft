@@ -36,6 +36,11 @@ describe("AbilityCard", () => {
         expect(card()).toHaveTextContent("Next: L2 · 135% power");
     });
 
+    it("hides the next-level preview for a spell with no level scaling", () => {
+        render(<AbilityCard spell="Enrage" level={1} resourceType="rage" />);
+        expect(card()).not.toHaveTextContent("Next:");
+    });
+
     it("hides the next-level preview at L3", () => {
         render(<AbilityCard spell="Heal" level={3} resourceType="mana" />);
         expect(card()).not.toHaveTextContent("Next:");

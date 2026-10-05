@@ -284,6 +284,7 @@ describe("Spell.launchProjectile", () => {
 describe("Spell.setValue level scaling", () => {
     interface LevelledSpell {
         level: 1 | 2 | 3;
+        spellType?: string;
         typedCost: number;
         cooldown: number;
         player: { isCritical: () => boolean };
@@ -297,6 +298,8 @@ describe("Spell.setValue level scaling", () => {
     function makeLevelled(crit = false): LevelledSpell {
         const spell = Object.create(Spell.prototype) as LevelledSpell;
         spell.level = 1;
+        // Fireball's `power` curve is SPELL_LEVEL_POWER.
+        spell.spellType = "Fireball";
         spell.typedCost = 20;
         spell.cooldown = 4;
         spell.player = { isCritical: () => crit };
@@ -323,6 +326,14 @@ describe("Spell.setValue level scaling", () => {
 
         expect(value.crit).toBe(true);
         expect(value.amount).toBeCloseTo((65 * 1.35 * 1.5) / 10);
+    });
+
+    it("does not scale a spell without a registry key", () => {
+        const spell = makeLevelled();
+        spell.spellType = undefined;
+        spell.setLevel(3);
+
+        expect(spell.setValue({ base: 40, key: "magic_power" }).amount).toBeCloseTo(65);
     });
 
     it("leaves cost and cooldown unchanged across levels", () => {

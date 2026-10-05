@@ -53,7 +53,6 @@ interface MultishotUnderTest {
     hasAnimation: boolean;
     cooldownDelayAll: boolean;
     cooldownDelay: boolean;
-    level: 1 | 2 | 3;
     setCooldown: ReturnType<typeof vi.fn>;
     castSpell(target?: unknown): void;
 }
@@ -69,8 +68,6 @@ function makeSpell(enemies: FakeUnit[]): MultishotUnderTest {
         resource: { adjustValue: vi.fn() },
     });
     spell.typedCost = 60;
-    // Class-field default the constructor-free fake skips (setValue reads it).
-    spell.level = 1;
     spell.type = "physical";
     spell.range = 360;
     spell.cap = 3;

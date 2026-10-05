@@ -454,6 +454,8 @@ export interface SpellOptions {
     slot: number;
     // Learned level (from `learnedSpells`); defaults to 1.
     level?: SpellLevel;
+    // Registry key (from spellDefDefaults); looks up the level curves.
+    spellType?: SpellType;
     loop?: boolean;
     cooldownDelay?: boolean;
     cooldownDelayAll?: boolean;
@@ -775,6 +777,20 @@ export type SpellCost = {
 // Static, Phaser-free spell metadata: the single source of truth for the values
 // a spell instance reads at construction, readable by the React UI without
 // instantiating a Phaser object.
+// A spell's level, raised by reading higher-level scrolls. Max 3.
+export type SpellLevel = 1 | 2 | 3;
+export const SPELL_LEVELS: readonly SpellLevel[] = [1, 2, 3];
+
+// Spell power multiplier by level: #387's proposed curve (L1 ×1.0, L2 ×1.35,
+// L3 ×1.8), balance TBD. The `power` curve of every setValue() spell.
+export const SPELL_LEVEL_POWER: Record<SpellLevel, number> = { 1: 1, 2: 1.35, 3: 1.8 };
+
+// Level scaling (#387): a multiplier per level for one aspect of a spell.
+export type LevelCurve = Record<SpellLevel, number>;
+// Aspect → curve. An aspect without a curve stays at its L1 value; the aspects
+// each spell can scale are listed in SPELL_ASPECTS.
+export type SpellScaling = Partial<Record<string, LevelCurve>>;
+
 export interface SpellDef {
     // Display name. (The spell instance's own lowercase `name` is its animation /
     // texture key and stays in the spell class.)
@@ -789,6 +805,8 @@ export interface SpellDef {
     // Max cast/placement distance in px; undefined = unlimited / not targeted.
     castRange?: number;
     targetKind: TargetKind;
+    // Per-aspect level curves (#387). Omitted = the spell does not scale.
+    scaling?: SpellScaling;
 }
 
 // Description/effect copy is PLACEHOLDER — to be replaced with final copy.
@@ -803,6 +821,7 @@ export const SPELL_DEFS: Record<SpellType, SpellDef> = {
         cost: { rage: 40, mana: 60, energy: 50 },
         castRange: 300,
         targetKind: "enemy",
+        scaling: { power: SPELL_LEVEL_POWER },
     },
     BattleStomp: {
         name: "Battle Stomp",
@@ -813,6 +832,7 @@ export const SPELL_DEFS: Record<SpellType, SpellDef> = {
         cooldown: 6,
         cost: { rage: 30, mana: 60, energy: 40 },
         targetKind: "self",
+        scaling: { power: SPELL_LEVEL_POWER },
     },
     BloodFurnace: {
         name: "Blood Furnace",
@@ -833,6 +853,7 @@ export const SPELL_DEFS: Record<SpellType, SpellDef> = {
         cooldown: 30,
         cost: { rage: 60, mana: 100, energy: 70 },
         targetKind: "none",
+        scaling: { power: SPELL_LEVEL_POWER },
     },
     EarthShield: {
         name: "Earth Shield",
@@ -843,6 +864,7 @@ export const SPELL_DEFS: Record<SpellType, SpellDef> = {
         cooldown: 10,
         cost: { rage: 75, mana: 120, energy: 70 },
         targetKind: "self",
+        scaling: { power: SPELL_LEVEL_POWER },
     },
     Enrage: {
         name: "Enrage",
@@ -874,6 +896,7 @@ export const SPELL_DEFS: Record<SpellType, SpellDef> = {
         cooldown: 20,
         cost: { rage: 15, mana: 30, energy: 20 },
         targetKind: "self",
+        scaling: { power: SPELL_LEVEL_POWER },
     },
     Fireball: {
         name: "Fireball",
@@ -885,6 +908,7 @@ export const SPELL_DEFS: Record<SpellType, SpellDef> = {
         cost: { rage: 30, mana: 50, energy: 40 },
         castRange: 250,
         targetKind: "enemy",
+        scaling: { power: SPELL_LEVEL_POWER },
     },
     Focus: {
         name: "Focus",
@@ -906,6 +930,7 @@ export const SPELL_DEFS: Record<SpellType, SpellDef> = {
         cost: { rage: 20, mana: 35, energy: 25 },
         castRange: 250,
         targetKind: "enemy",
+        scaling: { power: SPELL_LEVEL_POWER },
     },
     Heal: {
         name: "Heal",
@@ -916,6 +941,7 @@ export const SPELL_DEFS: Record<SpellType, SpellDef> = {
         cooldown: 5,
         cost: { rage: 25, mana: 40, energy: 30 },
         targetKind: "self",
+        scaling: { power: SPELL_LEVEL_POWER },
     },
     Invocation: {
         name: "Invocation",
@@ -936,6 +962,7 @@ export const SPELL_DEFS: Record<SpellType, SpellDef> = {
         cooldown: 10,
         cost: { rage: 75, mana: 120, energy: 70 },
         targetKind: "self",
+        scaling: { power: SPELL_LEVEL_POWER },
     },
     Multishot: {
         name: "Multishot",
@@ -946,6 +973,7 @@ export const SPELL_DEFS: Record<SpellType, SpellDef> = {
         cooldown: 0,
         cost: { rage: 50, mana: 100, energy: 60 },
         targetKind: "none",
+        scaling: { power: SPELL_LEVEL_POWER },
     },
     PowerInfusion: {
         name: "Power Infusion",
@@ -967,6 +995,7 @@ export const SPELL_DEFS: Record<SpellType, SpellDef> = {
         cost: { rage: 60, mana: 100, energy: 60 },
         castRange: 200,
         targetKind: "enemy",
+        scaling: { power: SPELL_LEVEL_POWER },
     },
     Smite: {
         name: "Smite",
@@ -978,6 +1007,7 @@ export const SPELL_DEFS: Record<SpellType, SpellDef> = {
         cost: { rage: 30, mana: 50, energy: 40 },
         castRange: 300,
         targetKind: "enemy",
+        scaling: { power: SPELL_LEVEL_POWER },
     },
     SnareTrap: {
         name: "Snare Trap",
@@ -999,20 +1029,67 @@ export const SPELL_DEFS: Record<SpellType, SpellDef> = {
         cooldown: 2,
         cost: { rage: 50, mana: 80, energy: 60 },
         targetKind: "none",
+        scaling: { power: SPELL_LEVEL_POWER },
     },
 };
 
 // Every spell type, as a runtime array (the union is compile-time only).
 export const SPELL_TYPES = Object.keys(SPELL_DEFS) as SpellType[];
 
+// The aspects each spell can level-scale (#387) — the keys its `scaling` may
+// use. `power` = setValue() output; `duration` = effect length in seconds; other
+// keys are the spell's own numbers (buff/bane stat modifiers by stat name, per-
+// tick amounts, trap damage…). Wiring a new aspect = read it via the spell's
+// level factor and list it here.
+export const SPELL_ASPECTS: Record<SpellType, readonly string[]> = {
+    AimedShot: ["power"],
+    BattleStomp: ["power"],
+    BloodFurnace: ["duration", "hpPerTick", "manaPerTick"],
+    Consecration: ["power"],
+    EarthShield: ["power"],
+    Enrage: [
+        "duration",
+        "critical_chance",
+        "attack_power",
+        "health_regen_value",
+        "health_regen_rate",
+    ],
+    Enfeeble: ["duration", "damage"],
+    Faith: ["power"],
+    Fireball: ["power"],
+    Focus: ["duration", "critical_chance", "attack_speed"],
+    Frostbolt: ["power"],
+    Heal: ["power"],
+    Invocation: ["duration", "resource_regen_value", "resource_regen_rate"],
+    ManaShield: ["power"],
+    Multishot: ["power"],
+    PowerInfusion: [
+        "duration",
+        "critical_chance",
+        "attack_power",
+        "magic_power",
+        "speed",
+        "resource_regen_value",
+        "resource_regen_rate",
+    ],
+    SiphonSoul: ["power"],
+    Smite: ["power"],
+    SnareTrap: ["duration", "damage", "lifespan"],
+    Whirlwind: ["power"],
+};
+
 // The construction defaults a spell takes from its def. `cost` is copied so no
 // instance shares (or can mutate) the registry's object; `castRange` is only
 // set when the def has one, matching the old per-spell defaults exactly.
 export const spellDefDefaults = (
     type: SpellType
-): Pick<SpellDef, "icon_name" | "cooldown" | "cost" | "targetKind"> & { castRange?: number } => {
+): Pick<SpellDef, "icon_name" | "cooldown" | "cost" | "targetKind"> & {
+    castRange?: number;
+    spellType: SpellType;
+} => {
     const { icon_name, cooldown, cost, targetKind, castRange } = SPELL_DEFS[type];
     return {
+        spellType: type,
         icon_name,
         cooldown,
         cost: { ...cost },
@@ -1022,15 +1099,6 @@ export const spellDefDefaults = (
 };
 
 // --- Abilities (docs/specs/abilities-ui.md → Data model) ---
-
-// A spell's level, raised by reading higher-level scrolls. Max 3.
-export type SpellLevel = 1 | 2 | 3;
-export const SPELL_LEVELS: readonly SpellLevel[] = [1, 2, 3];
-
-// Spell power multiplier by level: #387's proposed curve (L1 ×1.0, L2 ×1.35,
-// L3 ×1.8), balance TBD. Spell.setValue() applies it in combat; the ability
-// card's "Next: L2 · 135% power" line reads it too.
-export const SPELL_LEVEL_POWER: Record<SpellLevel, number> = { 1: 1, 2: 1.35, 3: 1.8 };
 
 // Active and passive loadouts each have this many slots (slot 1–5 = HUD order).
 export const ABILITY_SLOTS = 5;
