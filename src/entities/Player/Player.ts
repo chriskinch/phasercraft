@@ -417,10 +417,11 @@ class Player extends GameObjects.Container {
     // Auto-target the first enemy to hit the player from within the player's
     // own auto-attack range (so a Ranger retaliates further out). Only with no
     // live target: an existing target, picked or auto, is never switched.
-    // Skipped while the player is dragging a move, which goToRange would
-    // otherwise override.
+    // Only while idle: a drag- or click-move in progress is never interrupted
+    // (goToRange would otherwise override it).
     retaliate(attacker?: Enemy): void {
-        if (!attacker || !this.alive || this.dragging || !attacker.alive) return;
+        if (!attacker || !this.alive || !attacker.alive) return;
+        if (this.dragging || this.body.speed > 0) return;
         const selected = (this.scene as GameSceneLike).selected;
         if (selected?.alive) return;
         if (!this.inAttackRange(attacker)) return;

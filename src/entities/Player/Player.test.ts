@@ -327,9 +327,11 @@ describe("Player.retaliate", () => {
             y: number;
             alive: boolean;
             dragging: boolean;
+            body: { speed: number };
             retaliate(attacker?: unknown): void;
         };
         player.scene = { selected };
+        player.body = { speed: 0 };
         player.stats = { range };
         player.x = 0;
         player.y = 0;
@@ -368,6 +370,14 @@ describe("Player.retaliate", () => {
         makeRetaliator({ selected: dead }).retaliate(attacker);
         expect(dead.deselect).toHaveBeenCalledTimes(1);
         expect(attacker.select).toHaveBeenCalledTimes(1);
+    });
+
+    it("skips while walking to a clicked point", () => {
+        const attacker = makeEnemyStub();
+        const walking = makeRetaliator();
+        walking.body.speed = 100;
+        walking.retaliate(attacker);
+        expect(attacker.select).not.toHaveBeenCalled();
     });
 
     it("skips while dragging a move, when dead, or without a live attacker", () => {
