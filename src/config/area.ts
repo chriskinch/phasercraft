@@ -93,7 +93,7 @@ export function resolveAreaTuning(settings: Settings): AreaTuning {
 //
 // The two entries disagree on the health ratio, so ×8 splits them. Both are
 // authored as `Melee` with a short range even though the base `imp` is a
-// 200-range `Ranged` creature, so a promoted boss is always melee — the boss is
+// 120-range `Ranged` creature, so a promoted boss is always melee — the boss is
 // meant to close on the player rather than kite.
 export const BOSS_SCALING = {
     damage: 3,
