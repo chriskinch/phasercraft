@@ -27,6 +27,7 @@
 /perf-results
 /perf-base
 /perf-snapshots
+/perf-goldens
 
 # agent worktrees (ephemeral, created by Claude Code agent isolation)
 /.claude/worktrees/
