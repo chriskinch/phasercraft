@@ -42,6 +42,7 @@ import {
     tradeScroll,
     craftSpell,
     deconstructScroll,
+    setArcanumTab,
 } from "./gameReducer";
 import type { GameState } from "./gameReducer";
 import type { LootItem, SpellLevel, SpellType } from "@/types/game";
@@ -1123,6 +1124,15 @@ describe("abilities", () => {
             type: type as "cloth",
             quantity: n * times,
         }));
+
+    describe("setArcanumTab", () => {
+        it("switches tabs, ignores unknown ones and resets to merge on load", () => {
+            const craft = gameReducer(mage(), setArcanumTab("craft"));
+            expect(craft.arcanumTab).toBe("craft");
+            expect(gameReducer(craft, setArcanumTab("nope" as "craft")).arcanumTab).toBe("craft");
+            expect(gameReducer(init(), loadGame(craft)).arcanumTab).toBe("merge");
+        });
+    });
 
     describe("tradeScroll", () => {
         it("consumes 1 scroll of any level and learns the recipe", () => {

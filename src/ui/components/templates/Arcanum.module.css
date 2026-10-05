@@ -5,7 +5,10 @@
     height: 100%;
     --actions-col: calc(6.5em + 1.5rem);
     grid-template-columns: 1fr var(--actions-col);
-    grid-template-areas: "inv act";
+    grid-template-rows: minmax(0, 1fr) auto;
+    grid-template-areas:
+        "inv act"
+        "hint act";
 }
 
 .inventorySection {
@@ -30,4 +33,13 @@
 /* Button is content-box; keep width:100% + padding inside the fixed column. */
 .actionsSection button {
     box-sizing: border-box;
+}
+
+/* Selected stack's Trade / Deconstruct hints, under the grid. */
+.hints {
+    grid-area: hint;
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    color: #4d5d66;
 }

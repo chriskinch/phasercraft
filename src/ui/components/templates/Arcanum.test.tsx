@@ -1,10 +1,11 @@
 import { describe, it, expect, afterEach } from "vitest";
-import { fireEvent, screen } from "@testing-library/react";
+import { act, fireEvent, screen } from "@testing-library/react";
 import { renderWithProviders } from "@ui/test-utils/renderWithProviders";
 import store from "@store";
-import { loadGame } from "@store/gameReducer";
+import { loadGame, setArcanumTab } from "@store/gameReducer";
 import Arcanum from "@components/Arcanum";
 import type { GameState } from "@store/gameReducer";
+import { SCROLL_DECONSTRUCT_COST, SPELL_RECIPES } from "@/types/game";
 
 // Seeds the singleton store (as Equipment.test) so the grid and the Merge
 // button read the same state; restored after each test.
@@ -59,5 +60,46 @@ describe("Arcanum", () => {
         open({ scrolls: {} });
         expect(screen.getByText("No scrolls yet. Find them in dungeons.")).toBeInTheDocument();
         expect(screen.getByRole("button", { name: "Merge" })).toBeDisabled();
+    });
+
+    it("Trade consumes the scroll and learns its recipe", () => {
+        open({ scrolls: { Whirlwind: { 2: 1 } }, spellRecipes: [] });
+        fireEvent.click(screen.getByRole("button", { name: "Whirlwind Scroll L2 ×1" }));
+        expect(screen.getByTestId("arcanum-hints")).toHaveTextContent(
+            "Trade: Trade to learn the Whirlwind recipe."
+        );
+        expect(screen.getByRole("button", { name: "Deconstruct" })).toBeDisabled();
+        fireEvent.click(screen.getByRole("button", { name: "Trade" }));
+
+        expect(store.getState().game.spellRecipes).toEqual(["Whirlwind"]);
+        expect(store.getState().game.scrolls).toEqual({});
+        expect(screen.getByText("Learnt the Whirlwind recipe")).toBeInTheDocument();
+    });
+
+    it("disables Trade once the recipe is known and Deconstruct pays the fee", () => {
+        open({
+            scrolls: { Fireball: { 2: 1 } },
+            spellRecipes: ["Fireball"],
+            coins: SCROLL_DECONSTRUCT_COST,
+            components: [],
+            specials: {},
+        });
+        fireEvent.click(screen.getByRole("button", { name: "Fireball Scroll L2 ×1" }));
+        expect(screen.getByRole("button", { name: "Trade" })).toBeDisabled();
+        fireEvent.click(screen.getByRole("button", { name: "Deconstruct" }));
+
+        const game = store.getState().game;
+        expect(game.coins).toBe(0);
+        expect(game.scrolls).toEqual({});
+        expect(game.specials).toEqual({ [SPELL_RECIPES.Fireball.special]: 3 });
+    });
+
+    it("shows the Craft view on the Craft tab", () => {
+        open({ spellRecipes: [] });
+        act(() => {
+            store.dispatch(setArcanumTab("craft"));
+        });
+        expect(screen.getByTestId("spell-forge")).toBeInTheDocument();
+        expect(screen.queryByRole("button", { name: "Merge" })).not.toBeInTheDocument();
     });
 });

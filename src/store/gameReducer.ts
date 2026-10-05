@@ -81,6 +81,10 @@ const freshMerchant = (): MerchantState => ({
     gearStock: [],
 });
 
+// The Arcanum's header tabs (#582). Room for a later "fuse" tab (#583).
+export const ARCANUM_TABS = ["merge", "craft"] as const;
+export type ArcanumTab = (typeof ARCANUM_TABS)[number];
+
 export interface GameState {
     character: PlayerName | null;
     showHUD: boolean;
@@ -115,6 +119,9 @@ export interface GameState {
     travelRequest: TravelDestination | null;
     playerPosition: { x: number; y: number };
     merchant: MerchantState;
+    // Which Arcanum tab is showing. Ephemeral UI state (reset on load), in the
+    // store for the same reason as `merchant.mode`: the tabs render in the header.
+    arcanumTab: ArcanumTab;
     // Abilities (docs/specs/abilities-ui.md → Data model). All persisted.
     // Spells the player has learned, at their current level.
     learnedSpells: Partial<Record<SpellType, SpellLevel>>;
@@ -271,6 +278,7 @@ const initState: GameState = {
     travelRequest: null,
     playerPosition: { x: 400, y: 300 },
     merchant: freshMerchant(),
+    arcanumTab: "merge",
     ...seedAbilities(null),
 };
 
@@ -307,6 +315,11 @@ export const refreshMerchant = createAction("REFRESH_MERCHANT", (window: number)
 // Buy back a piece of gear the player previously sold to the Merchant.
 export const buyGear = createAction("BUY_GEAR", (loot: LootItem) => ({
     payload: { loot },
+}));
+
+// Switch the Arcanum's header tab.
+export const setArcanumTab = createAction("SET_ARCANUM_TAB", (tab: ArcanumTab) => ({
+    payload: { tab },
 }));
 
 // Switch the Merchant between its Buy and Sell sides (the header toggle).
@@ -651,6 +664,9 @@ export const gameReducer = createReducer(initState, (builder) => {
             state.merchant.partsDelta[type] = (state.merchant.partsDelta[type] ?? 0) - 1;
             stackComponent(state.components, type);
         })
+        .addCase(setArcanumTab, (state, action: PayloadAction<{ tab: ArcanumTab }>) => {
+            if (ARCANUM_TABS.includes(action.payload.tab)) state.arcanumTab = action.payload.tab;
+        })
         .addCase(setMerchantMode, (state, action: PayloadAction<{ mode: MerchantMode }>) => {
             state.merchant.mode = action.payload.mode;
         })
@@ -810,6 +826,7 @@ export const gameReducer = createReducer(initState, (builder) => {
                 // Ephemeral shop stock — loading a save is a reset, so the
                 // Merchant starts fresh rather than restoring any saved stock.
                 merchant: freshMerchant(),
+                arcanumTab: "merge",
                 // Saves written before abilities get the class kit at L1 and the
                 // kit loadout; unknown spell ids are dropped.
                 ...migrateAbilities(
