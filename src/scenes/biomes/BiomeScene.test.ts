@@ -8,6 +8,7 @@ import { BOSS_SCALE } from "@entities/Enemy/Boss";
 import { ROAR_EDGE_MARGIN } from "@entities/UI/BossRoar";
 import { DEFAULT_SETTINGS, writeSettings } from "@services/settingsStorage";
 import { BIOMES, BIOME_IDS, DEFAULT_BIOME, resolveBiome } from "./biomes";
+import { OverlayWindows, type Bounds, type ViewRect } from "./propOverlayWindows";
 import store from "@store";
 
 // The area loop: a SpawnDirector (tested on its own in SpawnDirector.test.ts)
@@ -68,13 +69,23 @@ interface SceneUnderTest {
     collision_layers: object[];
     prop_overlays: Array<{ destroy: ReturnType<typeof vi.fn> }>;
     prop_layers: object[];
+    overlay_windows: OverlayWindows<{ x: number; y: number }>;
+    overlay_seen: Set<number>;
+    overlay_bounds: Bounds;
+    overlay_view: ViewRect;
+    overlay_point: { x: number; y: number };
     setupMapCollisions(): void;
     updatePropOverlays(): void;
     sortCharactersByFeet(): void;
     add: { sprite: ReturnType<typeof vi.fn> };
-    map: { tileWidth: number; tileHeight: number };
+    map: { tileWidth: number; tileHeight: number; width?: number; height?: number };
     scale: { width: number; height: number };
-    enemies: { runChildUpdate: boolean; getChildren: ReturnType<typeof vi.fn>; name?: string };
+    enemies: {
+        runChildUpdate: boolean;
+        getChildren: ReturnType<typeof vi.fn>;
+        children?: Set<object>;
+        name?: string;
+    };
     UI: { cleanup: ReturnType<typeof vi.fn> };
     player: {
         cleanup: ReturnType<typeof vi.fn>;
@@ -123,6 +134,11 @@ function makeScene(overrides: Partial<SceneUnderTest> = {}): {
     scene.collision_layers = [];
     scene.prop_overlays = [];
     scene.prop_layers = [];
+    scene.overlay_windows = new OverlayWindows();
+    scene.overlay_seen = new Set();
+    scene.overlay_bounds = { left: 0, top: 0, right: 0, bottom: 0 };
+    scene.overlay_view = { x: 0, y: 0, width: 0, height: 0 };
+    scene.overlay_point = { x: 0, y: 0 };
     scene.add = { sprite: vi.fn() };
     scene.enemies = { runChildUpdate: true, getChildren: vi.fn(() => []) };
     scene.UI = { cleanup: vi.fn() };
@@ -587,6 +603,8 @@ describe("BiomeScene.shutdown", () => {
         sprites.forEach((sprite) => expect(sprite.destroy).toHaveBeenCalledTimes(1));
         expect(scene.prop_overlays).toEqual([]);
         expect(scene.prop_layers).toEqual([]);
+        // The next visit draws its overlays from scratch.
+        expect(scene.overlay_windows.changed()).toBe(true);
     });
 
     it("is idempotent — a second shutdown does not re-remove the colliders", () => {
@@ -640,15 +658,30 @@ describe("BiomeScene.sortCharactersByFeet", () => {
     // Player and Enemy are Containers holding a Sprite at (0,0) with the default
     // 0.5 origin, so `y` is the character's middle. Props sort on their base.
     // Mixing those references let a bush level with the player draw over them.
-    function character(y: number, height: number) {
-        return { y, height, active: true, setDepth: vi.fn() };
+    function character(y: number, height: number, depth = 0) {
+        const fake = {
+            y,
+            height,
+            depth,
+            active: true,
+            setDepth: vi.fn((d: number) => {
+                fake.depth = d;
+                return fake;
+            }),
+        };
+        return fake;
+    }
+
+    // The scene iterates the group's own Set rather than a getChildren() copy.
+    function withEnemies(scene: { enemies: object }, enemies: object[]): void {
+        Object.assign(scene.enemies, { children: new Set(enemies) });
     }
 
     it("moves the player's depth from its middle to its feet", () => {
         const { scene } = makeScene();
         const player = { ...scene.player, ...character(500, 40) };
         scene.player = player;
-        scene.enemies = { ...scene.enemies, getChildren: vi.fn(() => []) };
+        withEnemies(scene, []);
 
         scene.sortCharactersByFeet();
 
@@ -660,7 +693,7 @@ describe("BiomeScene.sortCharactersByFeet", () => {
         scene.player = { ...scene.player, ...character(500, 40) };
         const alive = character(300, 30);
         const dead = { ...character(400, 30), active: false };
-        scene.enemies = { ...scene.enemies, getChildren: vi.fn(() => [alive, dead]) };
+        withEnemies(scene, [alive, dead]);
 
         scene.sortCharactersByFeet();
 
@@ -674,13 +707,43 @@ describe("BiomeScene.sortCharactersByFeet", () => {
         const { scene } = makeScene();
         const player = { ...scene.player, ...character(500, 40) };
         scene.player = player;
-        scene.enemies = { ...scene.enemies, getChildren: vi.fn(() => []) };
+        withEnemies(scene, []);
 
         scene.sortCharactersByFeet();
 
         const player_depth = player.setDepth.mock.calls[0][0];
         const prop_base_between_middle_and_feet = 510;
         expect(player_depth).toBeGreaterThan(prop_base_between_middle_and_feet);
+    });
+
+    // Every depth write queues a full display-list sort in Phaser, even when
+    // the value is the same, so a character already on its feet is left alone.
+    it("does not rewrite a depth that is already on the feet", () => {
+        const { scene } = makeScene();
+        const player = { ...scene.player, ...character(500, 40, 520) };
+        scene.player = player;
+        const idle = character(300, 30, 315);
+        withEnemies(scene, [idle]);
+
+        scene.sortCharactersByFeet();
+
+        expect(player.setDepth).not.toHaveBeenCalled();
+        expect(idle.setDepth).not.toHaveBeenCalled();
+    });
+
+    it("writes an enemy's depth only on frames where it moved", () => {
+        const { scene } = makeScene();
+        scene.player = { ...scene.player, ...character(500, 40, 520) };
+        const enemy = character(300, 30);
+        withEnemies(scene, [enemy]);
+
+        scene.sortCharactersByFeet(); // first sight: 0 -> 315
+        scene.sortCharactersByFeet(); // stood still
+        enemy.y = 310;
+        scene.sortCharactersByFeet(); // moved: 325
+        scene.sortCharactersByFeet(); // stood still
+
+        expect(enemy.setDepth.mock.calls).toEqual([[315], [325]]);
     });
 });
 
@@ -721,19 +784,46 @@ describe("BiomeScene.updatePropOverlays", () => {
         };
         const layer = {
             layer: { name: "structure props" },
-            getTileAtWorldXY: vi.fn(() => tile),
+            getTileAt: vi.fn((_x: number, _y: number): typeof tile | null => tile),
+            // Phaser's orthogonal conversion for a layer at (0, 0) scaled by SCALE.
+            worldToTileXY: vi.fn(
+                (x: number, y: number, _snap: boolean, out: { x: number; y: number }) => {
+                    out.x = Math.floor(x / TILE_PX);
+                    out.y = Math.floor(y / TILE_PX);
+                    return out;
+                }
+            ),
             tileToWorldXY: vi.fn(() => tileWorld),
         };
+        // An 800x600 view at zoom 1 that last rendered at the origin and
+        // follows the player (getScroll centres on the point it is given).
+        const camera = {
+            worldView: { x: 0, y: 0, width: 800, height: 600 },
+            width: 800,
+            height: 600,
+            zoomX: 1,
+            zoomY: 1,
+            getScroll: (x: number, y: number, out: { x: number; y: number }) => {
+                out.x = x - 400;
+                out.y = y - 300;
+                return out;
+            },
+        };
 
-        scene.map = { tileWidth: TILE, tileHeight: TILE };
+        scene.map = { tileWidth: TILE, tileHeight: TILE, width: 100, height: 100 };
         scene.biome = { ...scene.biome, map: { ...scene.biome.map, scale: SCALE } };
         scene.prop_layers = [layer];
         scene.prop_overlays = [];
         scene.player = { ...scene.player, x: 500, y: 500 };
-        scene.enemies = { ...scene.enemies, getChildren: vi.fn(() => []) };
+        scene.enemies = { ...scene.enemies, getChildren: vi.fn(() => []), children: new Set() };
         scene.add = { sprite: vi.fn(() => sprite) };
-        return { scene, sprite, tile, layer };
+        Object.assign(scene, { cameras: { main: camera } });
+        return { scene, sprite, tile, layer, camera };
     }
+
+    // The cells looked up, as [column, row] pairs.
+    const lookedUp = (layer: { getTileAt: ReturnType<typeof vi.fn> }) =>
+        layer.getTileAt.mock.calls.map(([x, y]) => [x, y]);
 
     it("sorts a prop on the bottom of the whole prop, one tile below the drawn tile", () => {
         const world = { x: 320, y: 640 };
@@ -752,7 +842,7 @@ describe("BiomeScene.updatePropOverlays", () => {
         scene.updatePropOverlays();
         const depth = sprite.setDepth.mock.calls[0][0];
 
-        // Characters sort on their own y (Player/Enemy both setDepth(this.y)).
+        // Characters sort on their feet (sortCharactersByFeet).
         const behind_tree = world.y + TILE_PX; // standing above the trunk
         const in_front = world.y + TILE_PX * 3; // standing below the trunk
         expect(depth).toBeGreaterThan(behind_tree);
@@ -800,6 +890,177 @@ describe("BiomeScene.updatePropOverlays", () => {
         expect(scene.add.sprite).toHaveBeenCalledTimes(1);
         expect(scene.prop_overlays).toHaveLength(1);
         expect(sprite.setVisible).toHaveBeenCalledWith(true);
+    });
+
+    it("draws the same cell once per prop layer", () => {
+        const { scene, layer } = makeOverlayScene({ x: 320, y: 640 });
+        scene.prop_layers = [layer, { ...layer, layer: { name: "more props" } }];
+
+        scene.updatePropOverlays();
+
+        // Twelve lookups per layer all land on cell (3, 4): one sprite each.
+        expect(scene.prop_overlays).toHaveLength(2);
+    });
+
+    it("looks around every live enemy as well as the player", () => {
+        const { scene, layer } = makeOverlayScene({ x: 320, y: 640 });
+        const alive = { x: 900, y: 300, active: true };
+        const dead = { x: 700, y: 700, active: false };
+        scene.enemies = { ...scene.enemies, children: new Set([alive, dead]) };
+
+        scene.updatePropOverlays();
+
+        // (900, 300) is cell (28, 9); (700, 700) is (21, 21).
+        expect(lookedUp(layer)).toContainEqual([28, 9]);
+        expect(lookedUp(layer)).not.toContainEqual([21, 21]);
+        expect(lookedUp(layer)).toHaveLength(12 * 2);
+    });
+
+    it("looks up the 3x4 window of cells the world points around a character fall in", () => {
+        const { scene, layer } = makeOverlayScene({ x: 320, y: 640 });
+        // (500, 500) is cell (15, 15): columns 14-16, rows 13-16, row by row.
+        scene.updatePropOverlays();
+
+        const expected: number[][] = [];
+        for (let row = 13; row <= 16; row++) {
+            for (let col = 14; col <= 16; col++) expected.push([col, row]);
+        }
+        expect(lookedUp(layer)).toEqual(expected);
+    });
+
+    describe("incremental redraw", () => {
+        it("skips the redraw while no character changes tile", () => {
+            const { scene, layer, sprite } = makeOverlayScene({ x: 320, y: 640 });
+
+            scene.updatePropOverlays();
+            // Still cell (15, 15), and every window cell with it.
+            scene.player.x = 510;
+            scene.player.y = 490;
+            scene.updatePropOverlays();
+
+            expect(layer.getTileAt).toHaveBeenCalledTimes(12);
+            expect(sprite.setPosition).toHaveBeenCalledTimes(1);
+        });
+
+        it("redraws when a character crosses a tile edge", () => {
+            const { scene, layer } = makeOverlayScene({ x: 320, y: 640 });
+
+            scene.updatePropOverlays();
+            scene.player.x = 500 + TILE_PX;
+            scene.updatePropOverlays();
+
+            expect(layer.getTileAt).toHaveBeenCalledTimes(24);
+            expect(lookedUp(layer).slice(12)).toContainEqual([17, 15]);
+        });
+
+        it("redraws when an enemy joins, and when one leaves", () => {
+            const { scene, layer } = makeOverlayScene({ x: 320, y: 640 });
+            const enemy = { x: 600, y: 600, active: true };
+
+            scene.updatePropOverlays();
+            scene.enemies.children!.add(enemy);
+            scene.updatePropOverlays();
+            expect(layer.getTileAt).toHaveBeenCalledTimes(12 + 24);
+
+            enemy.active = false;
+            scene.updatePropOverlays();
+            expect(layer.getTileAt).toHaveBeenCalledTimes(12 + 24 + 12);
+        });
+
+        it("parks the sprites a redraw no longer needs", () => {
+            const { scene, layer, sprite } = makeOverlayScene({ x: 320, y: 640 });
+            // A distinct prop tile in every cell around the player.
+            layer.getTileAt.mockImplementation((x: number, y: number) => ({
+                x,
+                y,
+                index: 250,
+                tileset: { firstgid: 239, name: "forest_ [resources]" },
+                properties: {},
+            }));
+
+            scene.updatePropOverlays();
+            expect(scene.prop_overlays).toHaveLength(12);
+            sprite.setVisible.mockClear();
+
+            layer.getTileAt.mockReturnValue(null);
+            scene.player.y = 500 + TILE_PX;
+            scene.updatePropOverlays();
+
+            expect(sprite.setVisible).toHaveBeenCalledTimes(12);
+            expect(sprite.setVisible).toHaveBeenCalledWith(false);
+        });
+
+        it("redraws everything once invalidated", () => {
+            const { scene, layer } = makeOverlayScene({ x: 320, y: 640 });
+
+            scene.updatePropOverlays();
+            scene.overlay_windows.invalidate();
+            scene.updatePropOverlays();
+
+            expect(layer.getTileAt).toHaveBeenCalledTimes(24);
+        });
+    });
+
+    describe("camera cull", () => {
+        // Last frame's view is (0, 0)-(800, 600); following the player at
+        // (500, 500) moves it to (100, 200)-(900, 800). Plus a 4-tile margin
+        // (128px), overlays are drawn for characters in (-128, -128)-(1028, 928).
+
+        it("leaves out a character well outside the camera view", () => {
+            const { scene, layer } = makeOverlayScene({ x: 320, y: 640 });
+            const far = { x: 1100, y: 500, active: true };
+            scene.enemies.children!.add(far);
+
+            scene.updatePropOverlays();
+
+            // Only the player's window.
+            expect(layer.getTileAt).toHaveBeenCalledTimes(12);
+            expect(layer.worldToTileXY).not.toHaveBeenCalledWith(
+                far.x,
+                expect.anything(),
+                true,
+                expect.anything()
+            );
+        });
+
+        it("keeps a character just past the edge, inside the margin", () => {
+            const { scene, layer } = makeOverlayScene({ x: 320, y: 640 });
+            scene.enemies.children!.add({ x: 1020, y: 920, active: true });
+
+            scene.updatePropOverlays();
+
+            expect(layer.getTileAt).toHaveBeenCalledTimes(24);
+        });
+
+        it("picks a character up as soon as the camera is about to show it", () => {
+            const { scene, layer } = makeOverlayScene({ x: 320, y: 640 });
+            const far = { x: 1100, y: 500, active: true };
+            scene.enemies.children!.add(far);
+
+            scene.updatePropOverlays();
+            // The player walks right; the camera has not rendered there yet
+            // (worldView is unchanged), but it will follow before drawing.
+            scene.player.x = 700;
+            scene.updatePropOverlays();
+
+            expect(layer.getTileAt).toHaveBeenCalledTimes(12 + 24);
+            // (1100, 500) is cell (34, 15).
+            expect(lookedUp(layer).slice(12)).toContainEqual([34, 15]);
+        });
+
+        it("drops a character the camera has left behind", () => {
+            const { scene, layer, camera } = makeOverlayScene({ x: 320, y: 640 });
+            scene.enemies.children!.add({ x: 1000, y: 500, active: true });
+
+            scene.updatePropOverlays();
+            expect(layer.getTileAt).toHaveBeenCalledTimes(24);
+
+            // The camera followed the player far left.
+            scene.player.x = 100;
+            camera.worldView.x = -300;
+            scene.updatePropOverlays();
+            expect(layer.getTileAt).toHaveBeenCalledTimes(24 + 12);
+        });
     });
 
     it("does nothing when the biome has no prop layers", () => {

@@ -1,4 +1,4 @@
-import { GameObjects, Scene } from "phaser";
+import { GameObjects, Scene, Physics, Time } from "phaser";
 import store from "@store";
 import { playSfx } from "@services/sfx";
 import { addComponent } from "@store/gameReducer";
@@ -15,7 +15,9 @@ interface CraftingConfig {
 
 class Crafting extends GameObjects.Sprite {
     public name: string;
-    public body!: Phaser.Physics.Arcade.Body;
+    public body!: Physics.Arcade.Body;
+    public activateTimer?: Time.TimerEvent;
+    public collider?: Physics.Arcade.Collider;
 
     constructor(config: CraftingConfig) {
         super(config.scene, config.x, config.y, "crafting", config.key);
@@ -28,18 +30,32 @@ class Crafting extends GameObjects.Sprite {
         this.body.setVelocity(getRandomVelocity(25, 50), getRandomVelocity(25, 50)).setDrag(100);
         this.body.immovable = true;
 
-        this.scene.time.delayedCall(500, this.activate, [], this);
+        this.activateTimer = this.scene.time.delayedCall(500, this.activate, [], this);
         this.once("loot:collect", this.collect, this);
+
+        // Lifecycle: the activate timer and the player collider outlive a plain
+        // destroy (the component's own "loot:collect" listener goes with it), so
+        // release both when it is destroyed (collected, or on shutdown). Released
+        // on DESTROY, after the collect tween, like Gem/Special/Scroll: removing
+        // the collider on collect would change player/loot separation mid-tween.
+        this.once(GameObjects.Events.DESTROY, this.cleanup, this);
     }
 
     activate(): void {
-        this.scene.physics.add.collider(
+        this.collider = this.scene.physics.add.collider(
             (this.scene as GameSceneLike).player,
             this,
             this.touch,
             undefined,
             this
         );
+    }
+
+    cleanup(): void {
+        if (this.activateTimer) this.activateTimer.remove();
+        if (this.collider) this.scene.physics.world.removeCollider(this.collider);
+        this.activateTimer = undefined;
+        this.collider = undefined;
     }
 
     touch(): void {

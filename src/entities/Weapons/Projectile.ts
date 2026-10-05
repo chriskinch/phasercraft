@@ -1,5 +1,6 @@
 import { GameObjects, Math as PhaserMath } from "phaser";
 import type { Scene } from "phaser";
+import { setDepthIfChanged } from "@helpers/setDepthIfChanged";
 
 export interface ProjectileTarget {
     x: number;
@@ -72,7 +73,7 @@ class Projectile extends GameObjects.Sprite {
         this.x += Math.cos(angle) * step;
         this.y += Math.sin(angle) * step;
         this.setRotation(angle);
-        this.setDepth(this.y);
+        setDepthIfChanged(this, this.y);
     }
 }
 
