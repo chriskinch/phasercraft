@@ -39,6 +39,9 @@ import {
     equipAbility,
     sellScroll,
     combineScrolls,
+    tradeScroll,
+    craftSpell,
+    deconstructScroll,
 } from "./gameReducer";
 import type { GameState } from "./gameReducer";
 import type { LootItem, SpellLevel, SpellType } from "@/types/game";
@@ -54,6 +57,8 @@ import {
     merchantPartsBase,
     recipeById,
     specialById,
+    SPELL_RECIPES,
+    SCROLL_DECONSTRUCT_COST,
 } from "@/types/game";
 
 // A fixed restock window with a large positive stock delta layered on, so buy
@@ -871,6 +876,7 @@ describe("starterScrolls", () => {
             selectCharacter("Mage")
         );
         expect(gameReducer(mage, grantStarterItems()).scrolls).toEqual(starterScrolls("Mage"));
+        expect(gameReducer(mage, grantStarterItems()).spellRecipes).toEqual([CLASS_KITS.Mage[0]]);
     });
 });
 
@@ -1106,6 +1112,120 @@ describe("abilities", () => {
         });
     });
 
+    // Fireball's recipe: cloth 6, ichor 3, 25 coins, 1 Ember Core (placeholder
+    // values — read from SPELL_RECIPES so tuning doesn't break these tests).
+    const fireball = SPELL_RECIPES.Fireball;
+    const stockedFor = (times: number) =>
+        (Object.entries(fireball.materials) as [string, number][]).map(([type, n]) => ({
+            id: type,
+            type: type as "cloth",
+            quantity: n * times,
+        }));
+
+    describe("tradeScroll", () => {
+        it("consumes 1 scroll of any level and learns the recipe", () => {
+            const before = mage({ scrolls: { Fireball: { 2: 2 } } });
+            const state = gameReducer(before, tradeScroll("Fireball", 2));
+            expect(state.scrolls).toEqual({ Fireball: { 2: 1 } });
+            expect(state.spellRecipes).toEqual(["Fireball"]);
+        });
+
+        it("learns off-class recipes too", () => {
+            const state = gameReducer(
+                mage({ scrolls: { Whirlwind: { 1: 1 } } }),
+                tradeScroll("Whirlwind", 1)
+            );
+            expect(state.spellRecipes).toEqual(["Whirlwind"]);
+            expect(state.scrolls).toEqual({});
+        });
+
+        it("refuses a known recipe, a scroll not held, unknown spells and outside town", () => {
+            const known = mage({ spellRecipes: ["Fireball"], scrolls: { Fireball: { 1: 1 } } });
+            expect(gameReducer(known, tradeScroll("Fireball", 1))).toEqual(known);
+            const none = mage({ scrolls: { Fireball: { 1: 1 } } });
+            expect(gameReducer(none, tradeScroll("Fireball", 2))).toEqual(none);
+            expect(gameReducer(none, tradeScroll("Nope" as SpellType, 1))).toEqual(none);
+            const away = mage({ currentArea: "forest", scrolls: { Fireball: { 1: 1 } } });
+            expect(gameReducer(away, tradeScroll("Fireball", 1))).toEqual(away);
+        });
+    });
+
+    describe("craftSpell", () => {
+        const ready = (overrides: Partial<GameState> = {}) =>
+            mage({
+                spellRecipes: ["Fireball"],
+                components: stockedFor(1),
+                specials: { [fireball.special]: 1 },
+                coins: fireball.coins + 5,
+                ...overrides,
+            });
+
+        it("consumes components, coins and the special, and adds 1 L1 scroll", () => {
+            const state = gameReducer(
+                ready({ scrolls: { Fireball: { 1: 1 } } }),
+                craftSpell("Fireball")
+            );
+            expect(state.scrolls).toEqual({ Fireball: { 1: 2 } });
+            expect(state.components).toEqual([]);
+            expect(state.specials).toEqual({});
+            expect(state.coins).toBe(5);
+        });
+
+        it("refuses an unlearnt recipe, short parts, special or coins, and outside town", () => {
+            const cases = [
+                ready({ spellRecipes: [] }),
+                ready({ components: [] }),
+                ready({ specials: {} }),
+                ready({ coins: fireball.coins - 1 }),
+                ready({ currentArea: "forest" }),
+            ];
+            for (const before of cases) {
+                expect(gameReducer(before, craftSpell("Fireball"))).toEqual(before);
+            }
+        });
+    });
+
+    describe("deconstructScroll", () => {
+        const learnt = (overrides: Partial<GameState> = {}) =>
+            mage({
+                spellRecipes: ["Fireball"],
+                components: [],
+                specials: {},
+                coins: SCROLL_DECONSTRUCT_COST,
+                ...overrides,
+            });
+
+        it.each([
+            [1, 1],
+            [2, 3],
+            [3, 9],
+        ] as [SpellLevel, number][])(
+            "returns L%i parts and specials ×%i for the flat fee",
+            (level, times) => {
+                const before = learnt({ scrolls: { Fireball: { [level]: 1 } } });
+                const state = gameReducer(before, deconstructScroll("Fireball", level));
+                expect(state.scrolls).toEqual({});
+                expect(state.coins).toBe(0);
+                for (const [type, n] of Object.entries(fireball.materials)) {
+                    expect(componentTotal(state.components, type as "cloth")).toBe(n * times);
+                }
+                expect(state.specials).toEqual({ [fireball.special]: times });
+            }
+        );
+
+        it("refuses an unlearnt recipe, no scroll, short fee and outside town", () => {
+            const cases = [
+                learnt({ spellRecipes: [], scrolls: { Fireball: { 1: 1 } } }),
+                learnt({ scrolls: {} }),
+                learnt({ coins: SCROLL_DECONSTRUCT_COST - 1, scrolls: { Fireball: { 1: 1 } } }),
+                learnt({ currentArea: "forest", scrolls: { Fireball: { 1: 1 } } }),
+            ];
+            for (const before of cases) {
+                expect(gameReducer(before, deconstructScroll("Fireball", 1))).toEqual(before);
+            }
+        });
+    });
+
     describe("sellScroll", () => {
         it("adds the per-level sell value for each scroll sold", () => {
             const before = mage({ coins: 0, scrolls: { Fireball: { 2: 3 } } });
@@ -1136,6 +1256,7 @@ describe("abilities", () => {
             delete save.scrolls;
             delete save.abilityLoadout;
             delete save.passiveLoadout;
+            delete save.spellRecipes;
             return save as Parameters<typeof loadGame>[0];
         };
 
@@ -1148,8 +1269,19 @@ describe("abilities", () => {
                 expect(loaded.abilityLoadout).toEqual(fresh.abilityLoadout);
                 expect(loaded.scrolls).toEqual({});
                 expect(loaded.passiveLoadout).toEqual(Array(ABILITY_SLOTS).fill(null));
+                expect(loaded.spellRecipes).toEqual([]);
             }
         );
+
+        it("keeps known spell recipes and drops unknown or duplicate ids", () => {
+            const save = {
+                ...init(),
+                character: "Mage",
+                spellRecipes: ["Fireball", "Meteor", "Fireball", "Whirlwind", 3],
+            } as unknown as Parameters<typeof loadGame>[0];
+            const loaded = gameReducer(init(), loadGame(save));
+            expect(loaded.spellRecipes).toEqual(["Fireball", "Whirlwind"]);
+        });
 
         it("loads a save with no character without throwing", () => {
             const save = { ...init() } as Record<string, unknown>;
@@ -1196,7 +1328,7 @@ describe("abilities", () => {
         it("round-trips abilities through a JSON save", () => {
             const played = gameReducer(
                 gameReducer(
-                    mage({ scrolls: { Fireball: { 3: 1, 2: 2 } } }),
+                    mage({ scrolls: { Fireball: { 3: 1, 2: 2 } }, spellRecipes: ["Heal"] }),
                     readScroll("Fireball", 3)
                 ),
                 equipAbility(4, "Fireball")
@@ -1208,6 +1340,7 @@ describe("abilities", () => {
             expect(loaded.scrolls).toEqual({ Fireball: { 2: 2 } });
             expect(loaded.abilityLoadout).toEqual(played.abilityLoadout);
             expect(loaded.passiveLoadout).toEqual(played.passiveLoadout);
+            expect(loaded.spellRecipes).toEqual(["Heal"]);
         });
     });
 });
