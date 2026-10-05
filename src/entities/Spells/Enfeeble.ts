@@ -1,5 +1,6 @@
 import Spell from "./Spell";
 import { spellDefDefaults } from "@/types/game";
+import { levelFactor, scaleEffect } from "@/lib/levelScaling";
 import type { SpellOptions } from "@/types/game";
 import type Enemy from "@entities/Enemy/Enemy";
 import type { EffectValue } from "@entities/UI/StatusEffects";
@@ -20,6 +21,9 @@ class Enfeeble extends Spell {
     // One clear-tint timer per debuffed enemy; recasting on another enemy
     // must not cancel the first one's (it would stay tinted forever).
     public timers = new Map<Enemy, Phaser.Time.TimerEvent>();
+    // L1 values; applyLevel() derives duration/value from them.
+    private baseDuration!: number;
+    private baseValue!: EnfeebleValue;
 
     constructor(config: SpellOptions) {
         const defaults = {
@@ -38,6 +42,14 @@ class Enfeeble extends Spell {
         this.value = {
             damage: (bd: number) => -bd * 0.9,
         };
+        this.baseDuration = this.duration;
+        this.baseValue = this.value;
+        this.applyLevel();
+    }
+
+    applyLevel(): void {
+        this.duration = this.baseDuration * levelFactor(this.spellType, "duration", this.level);
+        this.value = scaleEffect(this.spellType, this.baseValue, this.level);
     }
 
     effect(target: Enemy): void {

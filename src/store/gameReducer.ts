@@ -26,6 +26,7 @@ import {
     SPECIAL_ITEMS,
     ABILITY_SLOTS,
     SCROLL_SELL_VALUE,
+    SCROLL_MERGE_COUNT,
     SPELL_LEVELS,
     SPELL_TYPES,
 } from "@/types/game";
@@ -449,6 +450,16 @@ export const sellScroll = createAction(
     })
 );
 
+// Arcanum Merge (#386): 3 scrolls of a spell at one level → 1 of the next level.
+// Off-class scrolls merge too. Refused outside town, at max level, or when fewer
+// than 3 are held.
+export const combineScrolls = createAction(
+    "COMBINE_SCROLLS",
+    (spell: SpellType, level: SpellLevel) => ({
+        payload: { spell, level },
+    })
+);
+
 // Remove `count` scrolls, dropping emptied level and spell entries.
 const takeScrolls = (scrolls: ScrollStock, spell: SpellType, level: SpellLevel, count: number) => {
     const byLevel = scrolls[spell];
@@ -854,6 +865,21 @@ export const gameReducer = createReducer(initState, (builder) => {
                 if (sold === 0) return;
                 takeScrolls(state.scrolls, spell, level, sold);
                 state.coins += SCROLL_SELL_VALUE[level] * sold;
+            }
+        )
+        .addCase(
+            combineScrolls,
+            (state, action: PayloadAction<{ spell: SpellType; level: SpellLevel }>) => {
+                const { spell, level } = action.payload;
+                if (state.currentArea !== "town") return;
+                if (!isKnownSpell(spell) || !isSpellLevel(level)) return;
+                const next = level + 1;
+                if (!isSpellLevel(next)) return;
+                if ((state.scrolls[spell]?.[level] ?? 0) < SCROLL_MERGE_COUNT) return;
+                takeScrolls(state.scrolls, spell, level, SCROLL_MERGE_COUNT);
+                const byLevel = state.scrolls[spell] ?? {};
+                byLevel[next] = (byLevel[next] ?? 0) + 1;
+                state.scrolls[spell] = byLevel;
             }
         )
         .addCase(sellLoot, (state, action: PayloadAction<{ loot: LootItem }>) => {

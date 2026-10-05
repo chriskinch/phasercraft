@@ -36,6 +36,11 @@ describe("AbilityCard", () => {
         expect(card()).toHaveTextContent("Next: L2 · 135% power");
     });
 
+    it("lists every scaled aspect in the next-level preview", () => {
+        render(<AbilityCard spell="SnareTrap" level={2} resourceType="energy" />);
+        expect(card()).toHaveTextContent("Next: L3 · 180% duration, 180% damage");
+    });
+
     it("hides the next-level preview at L3", () => {
         render(<AbilityCard spell="Heal" level={3} resourceType="mana" />);
         expect(card()).not.toHaveTextContent("Next:");
