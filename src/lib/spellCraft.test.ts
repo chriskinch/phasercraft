@@ -1,19 +1,13 @@
 import { describe, it, expect } from "vitest";
 import {
     COMPONENT_DEFS,
-    SCROLL_DECONSTRUCT_COST,
+    SCROLL_DISPEL_COST,
     SPELL_DEFS,
     SPELL_RECIPES,
     specialById,
 } from "@/types/game";
 import type { SpellType } from "@/types/game";
-import {
-    craftStatus,
-    deconstructStatus,
-    deconstructYield,
-    levelMultiplier,
-    tradeStatus,
-} from "./spellCraft";
+import { craftStatus, dispelStatus, dispelYield, levelMultiplier, tradeStatus } from "./spellCraft";
 import type { CraftContext } from "./spellCraft";
 
 const ctx = (overrides: Partial<CraftContext> = {}): CraftContext => ({
@@ -51,10 +45,10 @@ describe("SPELL_RECIPES", () => {
     });
 });
 
-describe("deconstructYield", () => {
+describe("dispelYield", () => {
     it("scales ×3 per level above L1", () => {
         expect([1, 2, 3].map((l) => levelMultiplier(l as 1 | 2 | 3))).toEqual([1, 3, 9]);
-        const y = deconstructYield("Fireball", 2);
+        const y = dispelYield("Fireball", 2);
         expect(y.specials).toBe(3);
         expect(y.special).toBe(fireball.special);
         for (const [type, n] of Object.entries(fireball.materials)) {
@@ -114,27 +108,27 @@ describe("craftStatus", () => {
     });
 });
 
-describe("deconstructStatus", () => {
+describe("dispelStatus", () => {
     const held = (overrides: Partial<CraftContext> = {}) =>
         ctx({
             spellRecipes: ["Fireball"],
             scrolls: { Fireball: { 1: 1 } },
-            coins: SCROLL_DECONSTRUCT_COST,
+            coins: SCROLL_DISPEL_COST,
             ...overrides,
         });
 
     it("is enabled and states the yield and fee", () => {
-        const s = deconstructStatus(held(), "Fireball", 1);
+        const s = dispelStatus(held(), "Fireball", 1);
         expect(s.enabled).toBe(true);
         expect(s.hint).toContain(`1 ${specialById(fireball.special)?.name}`);
-        expect(s.hint).toContain(`for ${SCROLL_DECONSTRUCT_COST} coins`);
+        expect(s.hint).toContain(`for ${SCROLL_DISPEL_COST} coins`);
     });
 
     it("is disabled when not held, not learnt, or short on the fee", () => {
-        expect(deconstructStatus(held({ scrolls: {} }), "Fireball", 1).enabled).toBe(false);
-        expect(deconstructStatus(held({ spellRecipes: [] }), "Fireball", 1).hint).toBe(
+        expect(dispelStatus(held({ scrolls: {} }), "Fireball", 1).enabled).toBe(false);
+        expect(dispelStatus(held({ spellRecipes: [] }), "Fireball", 1).hint).toBe(
             "Learn its recipe first (Trade)."
         );
-        expect(deconstructStatus(held({ coins: 0 }), "Fireball", 1).enabled).toBe(false);
+        expect(dispelStatus(held({ coins: 0 }), "Fireball", 1).enabled).toBe(false);
     });
 });

@@ -1131,7 +1131,7 @@ export const SCROLL_SELL_VALUE: Record<SpellLevel, number> = { 1: 10, 2: 30, 3: 
 // --- Spell recipes (Arcanum crafting, #580) -----------------------------------
 // Trading one found scroll of a spell at the Arcanum learns its recipe; a learnt
 // recipe crafts an L1 scroll from components + coins + its one special item
-// (mandatory). Deconstructing a scroll of a learnt spell returns the recipe's
+// (mandatory). Dispelling a scroll of a learnt spell returns the recipe's
 // components and special, ×3 per level above L1 (the inverse of Merge), for a
 // flat coin fee; the recipe's coins are not refunded.
 //
@@ -1167,8 +1167,8 @@ export const SPELL_RECIPES: Record<SpellType, SpellRecipe> = {
     Whirlwind: { materials: { scrap: 10, bone: 5 }, coins: 30, special: "frost-shard" },
 };
 
-// Flat coin fee to deconstruct one scroll, any level. Placeholder.
-export const SCROLL_DECONSTRUCT_COST = 15;
+// Flat coin fee to dispel one scroll, any level. Placeholder.
+export const SCROLL_DISPEL_COST = 15;
 
 // Passive abilities. Plumbing only: the registry is empty and passives have no
 // effects yet, so the union is empty (`never`). Add string literals here and
