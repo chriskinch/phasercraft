@@ -454,3 +454,54 @@ export const buildScrollAtlas = (
         },
     };
 };
+
+// ---------------------------------------------------------------------------
+// World drop (#385): every dropped scroll shows this one sealed scroll, 16 × 16 at
+// one art px per world px like the other loot drops, outlined in the loot pack's
+// near-black. Which spell it holds shows once it is in the Scrolls tab.
+
+export const DROP_IMAGE = "scroll-drop.png";
+export const DROP_SIZE = 16;
+
+export const DROP_ART: GlyphOverride = {
+    colours: {
+        O: "#151515", // outline
+        W: "#ffeecc", // roll highlight, page edge
+        P: "#fef3c0", // page
+        r: "#c7b08b", // roll body, page shade
+        s: "#9c7c5c", // roll shade, writing
+        k: "#6a4529", // curl core
+        R: "#b4202a", // wax seal
+        d: "#73172d", // seal shade
+        o: "#fa6a0a", // seal highlight
+    },
+    rows: [
+        "................",
+        ".OOOOOOOOOOOOOO.",
+        "OWWWWWWWWWWWWOkO",
+        "OrrrrrrrrrrrrOsO",
+        ".OOOOOOOOOOOOOO.",
+        "..OWPPPPPPPPrO..",
+        "..OWPssssssPrO..",
+        "..OWPPPPPPPPrO..",
+        "..OWPsssssPPrO..",
+        "..OWPPPPPPPPrO..",
+        "..OWPPPOOOPPrO..",
+        ".OOOOOORoROOOOO.",
+        "OWWWWWORRdOWWOkO",
+        "OrrrrrrOOOrrrOsO",
+        ".OOOOOOOOOOOOOO.",
+        "................",
+    ],
+};
+
+/** The world-drop sprite at 1×. Deterministic, like the atlas. */
+export const buildScrollDrop = (): RgbaImage => {
+    const image: RgbaImage = {
+        width: DROP_SIZE,
+        height: DROP_SIZE,
+        data: new Uint8Array(DROP_SIZE * DROP_SIZE * 4),
+    };
+    blitCells(image, overrideToGrid(DROP_ART), 0, 0, 1);
+    return image;
+};

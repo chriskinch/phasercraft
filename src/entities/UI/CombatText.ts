@@ -1,5 +1,5 @@
-import { GameObjects, Scene, Physics } from "phaser";
-import { FONT_FAMILY } from "@config/fonts";
+import { GameObjects, Scene, Physics, Scenes } from "phaser";
+import { combatFont, pixelFontSize } from "@config/fonts";
 
 interface CombatTextConfig {
     x: number;
@@ -16,8 +16,13 @@ interface CombatTextConfig {
     gravity?: number;
 }
 
-class CombatText extends GameObjects.Text {
-    public body!: Physics.Arcade.Body;
+class CombatText extends GameObjects.BitmapText {
+    // The arc an Arcade body used to fly (#534), stepped on the world's own
+    // fixed steps so it pauses with physics and keeps its timing, without a
+    // body in the Arcade step and collision tree for every hit.
+    public velocity = { x: 0, y: 0 };
+    private gravity = 0;
+    private world?: Physics.Arcade.World;
 
     constructor(
         scene: Scene,
@@ -33,40 +38,20 @@ class CombatText extends GameObjects.Text {
             gravity = 200,
         }: CombatTextConfig
     ) {
-        const color: Record<string, string> = {
-            physical: "#fff",
-            magic: "#ef0",
-            burn: "#fa0",
-            bleed: "#f33",
-            poison: "#5c5",
-            heal: "#7c6",
-            health: "#9c6",
-            level: "#8f0",
-        };
-
-        // Phaser's Text constructor types `text` as string | string[]; numeric
-        // values were passed in the original JS and rely on Phaser's internal
-        // toString — preserve that by passing the value through unchanged.
-        super(scene, x, y - 25, value as unknown as string, {
-            fontFamily: FONT_FAMILY,
-            fontSize: crit ? "21px" : "16px",
-            stroke: crit ? "#800" : "#000",
-            color: type ? color[type] : "#fff",
-            strokeThickness: 5,
-            shadow: {
-                offsetX: 1,
-                offsetY: 1,
-                color: "#000",
-                blur: 1,
-                stroke: true,
-                fill: false,
-            },
-        });
-
-        this.scene.physics.world.enable(this);
+        // Bitmap text (#534): no canvas or texture upload per hit. Crits are
+        // larger with a baked dark-red outline; the rest tint a black-outlined
+        // white font by combat type.
+        const { font, tint } = combatFont(type, crit);
+        super(scene, x, y - 25, font, String(value), pixelFontSize(crit ? 3 : 2));
+        this.setTint(tint);
 
         const rand_plus_minus = (Math.random() - 0.5) * wander;
-        this.body.setVelocity(120 * rand_plus_minus, -speed).setGravityY(gravity);
+        this.velocity = { x: 120 * rand_plus_minus, y: -speed };
+        this.gravity = gravity;
+        this.world = this.scene.physics.world;
+        this.world.on(Physics.Arcade.Events.WORLD_STEP, this.step, this);
+        this.once(GameObjects.Events.DESTROY, this.cleanup, this);
+        this.scene.events.once(Scenes.Events.SHUTDOWN, this.cleanup, this);
         this.setOrigin(0.5);
 
         this.scene.add.existing(this);
@@ -82,6 +67,23 @@ class CombatText extends GameObjects.Text {
             },
             onComplete: () => this.destroy(),
         });
+    }
+
+    /**
+     * One Arcade step, as Body.update integrates it (semi-implicit Euler):
+     * gravity into velocity, then velocity into position. `delta` is seconds.
+     */
+    step(delta: number): void {
+        this.velocity.y += this.gravity * delta;
+        this.x += this.velocity.x * delta;
+        this.y += this.velocity.y * delta;
+    }
+
+    /** Idempotent: runs on destroy and on scene shutdown. */
+    cleanup(): void {
+        this.world?.off(Physics.Arcade.Events.WORLD_STEP, this.step, this);
+        this.world = undefined;
+        this.scene?.events.off(Scenes.Events.SHUTDOWN, this.cleanup, this);
     }
 
     getRandomVelocity(): number {

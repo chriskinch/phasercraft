@@ -31,6 +31,7 @@ function fakeText() {
         visible: true,
         setOrigin: vi.fn(() => t),
         setDepth: vi.fn(() => t),
+        setTint: vi.fn(() => t),
         setText: vi.fn((value: string) => {
             t.text = value;
             return t;
@@ -51,7 +52,7 @@ function makeOverlay(view: Partial<SpawnDebugView<OverlayEnemy>> = {}) {
     const scene = {
         add: {
             graphics: vi.fn(() => graphics),
-            text: vi.fn(() => {
+            bitmapText: vi.fn(() => {
                 const t = fakeText();
                 texts.push(t);
                 return t;

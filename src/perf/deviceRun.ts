@@ -9,6 +9,7 @@ import type { FrameSummary, PerfApi, PerfResult, PerfScenarioOptions } from "./t
 //
 //   ?perf=combat&enemies=15            scenario and enemy count
 //   &frames=1200&warmup=120&seed=1     optional, same defaults as CI
+//   &frames=36000                       ~10 min at 60fps: thermal + leak check (#542)
 
 const SCENARIOS = ["chase", "combat"] as const;
 
@@ -42,6 +43,7 @@ export function formatResult(result: PerfResult): string {
         row("frame", result.frame),
         row("work", result.work),
         `bodies ${counts.max.bodies}  timers ${counts.max.timers}  objects ${counts.max.gameObjects}  graphics ${counts.max.graphics}`,
+        `colliders ${counts.end.colliders} (max ${counts.max.colliders})  loot ${counts.end.loot} (max ${counts.max.loot})`,
         result.heapMB ? `heap ${result.heapMB.start} → ${result.heapMB.end} MB` : "heap n/a",
     ].join("\n");
 }

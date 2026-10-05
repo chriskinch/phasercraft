@@ -13,11 +13,14 @@ import { v4 as uuid } from "uuid";
 import { playSfx } from "@services/sfx";
 import AssignResource, { AssignResourceType } from "@entities/Resources/AssignResource";
 import Monster from "./Monster";
+import { animationKeys } from "./animationKeys";
 import Coin from "@entities/Loot/Coin";
 import Special from "@entities/Loot/Special";
+import Scroll from "@entities/Loot/Scroll";
 import Crafting from "@entities/Loot/Crafting";
 import Gem from "@entities/Loot/Gem";
 import Banes from "@entities/UI/Banes";
+import SelectionRing from "@entities/UI/SelectionRing";
 import Weapon from "@entities/Weapon";
 import Projectile from "@entities/Weapons/Projectile";
 import type {
@@ -79,12 +82,10 @@ class Enemy extends GameObjects.Container {
     public xp: number;
     public state: string;
     public states: EnemyStates;
-    public graphics: { [key: string]: GameObjects.Graphics };
     public health: AssignResourceType;
     public banes: Banes;
     // Where the enemy was spawned; it wanders around this point while idle.
     public home: { x: number; y: number };
-    public point!: PhaserMath.Vector2;
     public distance_to_player!: number;
     public destination!: PhaserMath.Vector2 | null;
     public caution!: number;
@@ -155,10 +156,6 @@ class Enemy extends GameObjects.Container {
             attack: "primed",
         };
 
-        this.graphics = {};
-        this.graphics.selected = this.drawSelected();
-        this.add(this.graphics.selected);
-
         this.health = AssignResource("Health", {
             container: this,
             scene: config.scene,
@@ -195,14 +192,12 @@ class Enemy extends GameObjects.Container {
     }
 
     update(time: number, delta: number): void {
-        this.setDepth(this.y);
-
+        // No depth write here: BiomeScene.sortCharactersByFeet sets every live
+        // enemy's depth (on its feet) after this runs, before the frame renders;
+        // death() pins the corpse's.
         if (this.state === "spawned") {
             this.health.update(this);
 
-            this.point = new PhaserMath.Vector2();
-            this.point.x = this.x;
-            this.point.y = this.y;
             this.distance_to_player = PhaserMath.Distance.BetweenPoints(
                 this,
                 (this.scene as GameSceneLike).player
@@ -357,8 +352,12 @@ class Enemy extends GameObjects.Container {
 
     movementAnimationHandler(): void {
         const is_moving = this.body.velocity.x !== 0;
-        const direction = this.body.velocity.x < 0 ? "left-down" : "right-up";
-        is_moving ? this.monster.walk(`${this.key}-${direction}`) : this.monster.idle();
+        if (!is_moving) {
+            this.monster.idle();
+            return;
+        }
+        const keys = animationKeys(this.key);
+        this.monster.walk(this.body.velocity.x < 0 ? keys.walkLeft : keys.walkRight);
     }
 
     setStats(attributes: EnemyAttributes, wave_multiplier: number): EnemyStats {
@@ -371,26 +370,16 @@ class Enemy extends GameObjects.Container {
         return { ...attributes, ...stats } as EnemyAttributes;
     }
 
-    drawSelected(): GameObjects.Graphics {
-        let size = 5;
-        let graphics = this.scene.add.graphics();
-        graphics.scaleY = 0.5;
-        graphics.lineStyle(4, 0xb93f3c, 0.9);
-        graphics.strokeCircle(0, this.height / 2 + size, this.width / 2 + size);
-        graphics.setDepth(10);
-        graphics.visible = false;
-        return graphics;
-    }
-
+    // One ring per scene, moved to whichever enemy is selected (#533).
     select(): void {
-        this.graphics.selected.visible = true;
+        SelectionRing.for(this.scene).attach(this);
         this.selected = true;
         (this.scene as GameSceneLike).selected = this;
     }
 
     deselect(): void {
         if (this.selected) {
-            this.graphics.selected.visible = false;
+            SelectionRing.for(this.scene).detach(this);
             this.selected = false;
             (this.scene as GameSceneLike).selected = null;
         }
@@ -401,6 +390,10 @@ class Enemy extends GameObjects.Container {
     }
 
     death(): void {
+        // The corpse leaves the feet sort (BiomeScene.sortCharactersByFeet
+        // skips inactive enemies), so pin it where it has always decomposed:
+        // its middle, the depth update() used to write in the frame it died.
+        this.setDepth(this.y);
         this.state = "dead";
         if (this.circling) this.circling.remove();
         if (this.wandering_looped_timer) this.wandering_looped_timer.remove();
@@ -500,9 +493,11 @@ class Enemy extends GameObjects.Container {
                     return new Coin({ scene: this.scene, x: this.x, y: this.y, coin_multiplier });
                 case "gem":
                     return new Gem({ scene: this.scene, x: this.x, y: this.y, coin_multiplier });
-                // Explicit case: `default` routes any other name to Crafting.
+                // Explicit cases: `default` routes any other name to Crafting.
                 case "special":
                     return new Special({ scene: this.scene, x: this.x, y: this.y });
+                case "scroll":
+                    return new Scroll({ scene: this.scene, x: this.x, y: this.y });
                 default:
                     return new Crafting({ scene: this.scene, x: this.x, y: this.y, key: name });
             }

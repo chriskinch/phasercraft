@@ -66,6 +66,10 @@ export interface PerfCounts {
     gameObjects: number;
     graphics: number;
     texts: number;
+    // Arcade colliders and loot on the ground: grow over a long run if
+    // anything leaks (loot never despawns; #542 10-minute run).
+    colliders: number;
+    loot: number;
 }
 
 export interface PerfResult {

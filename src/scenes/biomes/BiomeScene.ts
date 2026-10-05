@@ -1,4 +1,13 @@
-import { Scene, Input, GameObjects, Display, Scenes, Tilemaps, Geom } from "phaser";
+import {
+    Scene,
+    Input,
+    GameObjects,
+    Display,
+    Scenes,
+    Tilemaps,
+    Geom,
+    Math as PhaserMath,
+} from "phaser";
 import AssignClass from "@entities/Player/AssignClass";
 import AssignType from "@entities/Enemy/AssignType";
 import Boss, { BOSS_SCALE } from "@entities/Enemy/Boss";
@@ -12,10 +21,21 @@ import { readSettings } from "@services/settingsStorage";
 import { resolveBiome, type BiomeDefinition } from "./biomes";
 import SpawnDirector, { type SpawnHost } from "./SpawnDirector";
 import SpawnDebugOverlay from "./SpawnDebugOverlay";
+import {
+    OverlayWindows,
+    WINDOW_DX,
+    WINDOW_DY,
+    WINDOW_SIZE,
+    cullBounds,
+    withinBounds,
+    type Bounds,
+    type ViewRect,
+} from "./propOverlayWindows";
 import { buildWalkability, isFootprintSpawnable, type WalkabilityGrid } from "@helpers/walkability";
 import { SHORE_ART_SIZE, SHORE_CELL, SHORE_OFFSET, shoreGrid } from "@helpers/shoreCollision";
 import { sample } from "lodash";
-import { bannerStyle } from "@config/fonts";
+import { addBanner } from "@scenes/pixelFonts";
+import { pixelFontSize } from "@config/fonts";
 
 import {
     toggleHUD,
@@ -34,6 +54,26 @@ import type { GameSceneConfig } from "@/scenes/SelectScene";
 import type { PlayerType } from "@entities/Player/AssignClass";
 import { throwError } from "rxjs";
 import { addSafeZone } from "@/scenes/safeZone";
+import { setDepthIfChanged, type DepthTarget } from "@helpers/setDepthIfChanged";
+
+interface FeetSortable extends DepthTarget {
+    y: number;
+    height: number;
+}
+
+// sortCharactersByFeet's per-frame callbacks, hoisted so a frame allocates none.
+function sortOnFeet(character: FeetSortable): void {
+    setDepthIfChanged(character, character.y + character.height / 2);
+}
+
+function sortEnemyOnFeet(enemy: GameObjects.GameObject): void {
+    if (enemy.active) sortOnFeet(enemy as unknown as FeetSortable);
+}
+
+// How far past the camera view, in tiles, a character still gets prop
+// overlays. Its window's tiles reach at most two tiles across and three up
+// from it, so beyond that none of them can be on screen.
+const OVERLAY_CULL_MARGIN_TILES = 4;
 
 export default class BiomeScene extends Scene {
     private global_tick: number = 42;
@@ -87,6 +127,15 @@ export default class BiomeScene extends Scene {
     // prop tiles near a character so they can sort against them individually.
     private prop_layers: Tilemaps.TilemapLayer[] = [];
     private prop_overlays: GameObjects.Sprite[] = [];
+    // updatePropOverlays() state, reused every frame rather than reallocated:
+    // the characters and tile windows last drawn for (see propOverlayWindows),
+    // the prop tiles already drawn (as numeric layer/cell keys), and scratch
+    // for the camera cull and the tile conversions.
+    private overlay_windows = new OverlayWindows<{ x: number; y: number }>();
+    private overlay_seen = new Set<number>();
+    private overlay_bounds: Bounds = { left: 0, top: 0, right: 0, bottom: 0 };
+    private overlay_view: ViewRect = { x: 0, y: 0, width: 0, height: 0 };
+    private overlay_point = new PhaserMath.Vector2();
     // Tiles an enemy may spawn on: pure land the player can reach on foot.
     // Rebuilt in create() once the player's start is known.
     public spawn_grid!: WalkabilityGrid;
@@ -112,7 +161,7 @@ export default class BiomeScene extends Scene {
     /**
      * Pulls in this biome's map if it is not already cached. Deliberately not
      * part of LoadScene's boot payload: the three maps are ~1MB of JSON each and
-     * Phaser builds a Tile object per tile on parse, so loading all three up
+     * parsing builds a Tile object per (non-empty) tile, so loading all three up
      * front delayed the main menu by seconds for a player who might never leave
      * town. Phaser waits for the scene loader between preload() and create(),
      * and the cache check makes re-entry free.
@@ -242,7 +291,12 @@ export default class BiomeScene extends Scene {
     private createBiomeEnvironment(): void {
         const { key, tilesets, layers, scale, propLayers } = this.biome.map;
 
-        this.map = this.make.tilemap({ key });
+        // Empty cells parse to `null` rather than an index -1 Tile: most layers
+        // are only a few percent filled, so this skips allocating hundreds of
+        // thousands of blank Tiles. Every reader here already treats a missing
+        // tile and an empty one alike (getTileAt* return null for both without
+        // `nonNull`; Phaser's culling, collision and face code skip nulls).
+        this.map = this.make.tilemap({ key, insertNull: true });
 
         // The first argument must match the tileset name inside the .tmj; the
         // second the image key LoadScene preloaded it under.
@@ -256,6 +310,7 @@ export default class BiomeScene extends Scene {
 
         this.collision_layers = [];
         this.prop_layers = [];
+        this.overlay_windows.invalidate();
 
         layers.forEach((name, index) => {
             const layer = this.map.createLayer(name, images);
@@ -323,11 +378,20 @@ export default class BiomeScene extends Scene {
         const art = this.map.tileWidth / SHORE_ART_SIZE;
         const cell = SHORE_CELL * art;
         const offset = -SHORE_OFFSET * art * this.biome.map.scale;
+        // Built from a 2D index array (0 = blocked, -1 = open) with `insertNull`,
+        // so only blocked cells get a Tile: a blank layer would allocate one per
+        // cell (~361k on a 300x300 map), nearly all of them empty.
+        const data: number[][] = [];
+        for (let y = 0; y < grid.rows; y++) {
+            const row = new Array<number>(grid.cols);
+            for (let x = 0; x < grid.cols; x++) row[x] = grid.cells[y * grid.cols + x] ? 0 : -1;
+            data.push(row);
+        }
         const shore = this.make.tilemap({
+            data,
             tileWidth: cell,
             tileHeight: cell,
-            width: grid.cols,
-            height: grid.rows,
+            insertNull: true,
         });
         // The layer is never drawn; any image will do as its tileset.
         const tileset = shore.addTilesetImage(
@@ -336,14 +400,13 @@ export default class BiomeScene extends Scene {
             cell,
             cell
         );
-        const layer = tileset ? shore.createBlankLayer("shore", tileset, offset, offset) : null;
+        const layer = tileset ? shore.createLayer(0, tileset, offset, offset) : null;
         if (!layer || !(layer instanceof Tilemaps.TilemapLayer)) {
             throw Error(`${this.biome.id}: could not build the shoreline collision layer`);
         }
 
-        grid.cells.forEach((blocked, i) => {
-            if (blocked) layer.putTileAt(0, i % grid.cols, Math.floor(i / grid.cols), false);
-        });
+        // Parse2DArray names its one layer "layer"; keep the old blank layer's name.
+        layer.layer.name = "shore";
         layer.setScale(this.biome.map.scale).setVisible(false);
         layer.setCollision(0);
         this.shore = layer;
@@ -352,9 +415,10 @@ export default class BiomeScene extends Scene {
     /**
      * Re-sorts the characters on their feet instead of their middle.
      *
-     * `Player` and `Enemy` both set their own depth to `this.y`, and both are
-     * Containers holding a Sprite at (0, 0) with the default 0.5 origin — so
-     * `y` is the *middle* of the visible character, not the ground it stands on.
+     * In a biome this is the only depth write for the player and live enemies
+     * (`Enemy.death()` pins a corpse at its `y`). Both are Containers holding a
+     * Sprite at (0, 0) with the default 0.5 origin — so `y` is the *middle* of
+     * the visible character, not the ground it stands on.
      * Props sort on their base, the bottom of the two-tile prop. Mixing the two
      * references is what let a bush level with the player draw over them: its
      * base sat just below the player's middle, though well above the player's
@@ -366,21 +430,14 @@ export default class BiomeScene extends Scene {
      * `setDepthByY(player)` idea; the town can use `y + height` because it only
      * ever sorts the player against object sprites, whereas here the characters
      * must also stay correct against each other, so it is the true half-height.
+     *
+     * Runs every frame, so it allocates nothing: module-level callback over the
+     * group's own Set (no `getChildren()` copy), and an unchanged depth is not
+     * rewritten — Phaser queues a display-list sort on every depth write.
      */
     private sortCharactersByFeet(): void {
-        const onFeet = (character: { y: number; height: number; setDepth(d: number): unknown }) =>
-            character.setDepth(character.y + character.height / 2);
-
-        onFeet(this.player);
-        this.enemies.getChildren().forEach((enemy) => {
-            const character = enemy as unknown as {
-                y: number;
-                height: number;
-                active: boolean;
-                setDepth(d: number): unknown;
-            };
-            if (character.active) onFeet(character);
-        });
+        sortOnFeet(this.player);
+        this.enemies.children.forEach(sortEnemyOnFeet);
     }
 
     /**
@@ -405,6 +462,15 @@ export default class BiomeScene extends Scene {
      * The prop layer still draws every canopy *behind* the characters, so this
      * only has to add the in-front case; the duplicate is the same pixels in
      * the same place and is invisible.
+     *
+     * Incremental: most frames nobody crosses a tile edge, so the overlays
+     * would come out exactly as they already are. Each frame records which
+     * characters are looked around and the tile cells their windows cover,
+     * and only redraws when that differs from the last drawn frame (see
+     * propOverlayWindows). Characters well outside the camera are left out, as
+     * their overlays could not be seen. Anything else that changes what the
+     * overlays draw (new prop layers, the pool being rebuilt, prop tiles being
+     * edited) must call `overlay_windows.invalidate()`.
      */
     private updatePropOverlays(): void {
         if (!this.prop_layers.length) return;
@@ -412,29 +478,46 @@ export default class BiomeScene extends Scene {
         const scale = this.biome.map.scale;
         const tile_w = this.map.tileWidth * scale;
         const tile_h = this.map.tileHeight * scale;
+        const layers = this.prop_layers;
+        const bounds = this.overlayCullBounds(tile_w, tile_h);
 
-        const characters: Array<{ x: number; y: number }> = [this.player];
-        this.enemies.getChildren().forEach((enemy) => {
+        // `enemies.children` is the group's own Set, read in place: Phaser 4's
+        // getChildren() copies it into a fresh array on every call.
+        const windows = this.overlay_windows;
+        windows.begin();
+        this.recordOverlayWindow(this.player, bounds, tile_w, tile_h);
+        for (const enemy of this.enemies.children) {
             const body = enemy as unknown as { x: number; y: number; active: boolean };
-            if (body.active) characters.push(body);
-        });
+            if (body.active) this.recordOverlayWindow(body, bounds, tile_w, tile_h);
+        }
+        if (!windows.changed()) return;
 
-        const seen = new Set<string>();
+        const { characters, cells } = windows;
+        const seen = this.overlay_seen;
+        seen.clear();
+        const map_w = this.map.width;
+        const layer_cells = map_w * this.map.height;
         let used = 0;
 
-        for (const character of characters) {
-            for (const layer of this.prop_layers) {
+        for (let c = 0; c < characters.length; c++) {
+            for (let l = 0; l < layers.length; l++) {
+                const layer = layers[l];
+                const window = (c * layers.length + l) * WINDOW_SIZE;
                 // A prop is two tiles tall and a character about the same, so a
                 // 3-wide by 4-tall window around them covers everything that can
-                // overlap. Cheap: a few dozen lookups a frame.
-                for (let dy = -2; dy <= 1; dy++) {
-                    for (let dx = -1; dx <= 1; dx++) {
-                        const world_x = character.x + dx * tile_w;
-                        const world_y = character.y + dy * tile_h;
-                        const tile = layer.getTileAtWorldXY(world_x, world_y);
+                // overlap. Same cells, same order as looking up each world point.
+                for (let dy = 0; dy < WINDOW_DY.length; dy++) {
+                    for (let dx = 0; dx < WINDOW_DX.length; dx++) {
+                        const tile = layer.getTileAt(
+                            cells[window + dx],
+                            cells[window + WINDOW_DX.length + dy]
+                        );
                         if (!tile || tile.index < 0) continue;
 
-                        const key = `${layer.layer.name}:${tile.x},${tile.y}`;
+                        // One key per layer and cell, as the old
+                        // `${layer name}:${x},${y}` string was; layer names are
+                        // unique within a map, so the index identifies it too.
+                        const key = l * layer_cells + tile.y * map_w + tile.x;
                         if (seen.has(key)) continue;
                         seen.add(key);
 
@@ -447,6 +530,69 @@ export default class BiomeScene extends Scene {
         // Park whatever the pool did not need this frame.
         for (let i = used; i < this.prop_overlays.length; i++) {
             this.prop_overlays[i].setVisible(false);
+        }
+        windows.commit();
+    }
+
+    /**
+     * The world box a character must stand in to get overlays this frame: the
+     * camera's view, both last frame's and the one it is about to follow the
+     * player to, plus OVERLAY_CULL_MARGIN_TILES.
+     */
+    private overlayCullBounds(tile_w: number, tile_h: number): Bounds {
+        const camera = this.cameras.main;
+        // Where startFollow puts the view in the camera's preRender: scroll
+        // centred on the player and clamped to the bounds (getScroll), and a
+        // view `size / zoom` across around that scroll's midpoint.
+        const scroll = camera.getScroll(this.player.x, this.player.y, this.overlay_point);
+        const next = this.overlay_view;
+        next.width = camera.width / camera.zoomX;
+        next.height = camera.height / camera.zoomY;
+        next.x = scroll.x + camera.width * 0.5 - next.width / 2;
+        next.y = scroll.y + camera.height * 0.5 - next.height / 2;
+        return cullBounds(
+            this.overlay_bounds,
+            camera.worldView,
+            next,
+            OVERLAY_CULL_MARGIN_TILES * tile_w,
+            OVERLAY_CULL_MARGIN_TILES * tile_h
+        );
+    }
+
+    /**
+     * Records `character` and the tile cells its window covers on each prop
+     * layer, unless it is outside `bounds`. Converted with the layer's own
+     * worldToTileXY at the very world points the window was always looked up
+     * at, which is how getTileAtWorldXY converts them, so these are exactly
+     * the cells a per-point lookup hits.
+     */
+    private recordOverlayWindow(
+        character: { x: number; y: number },
+        bounds: Bounds,
+        tile_w: number,
+        tile_h: number
+    ): void {
+        const { x, y } = character;
+        if (!withinBounds(bounds, x, y)) return;
+
+        const { characters, cells } = this.overlay_windows;
+        characters.push(character);
+        const point = this.overlay_point;
+        for (const layer of this.prop_layers) {
+            // On an orthogonal map a column depends only on x and a row only on
+            // y, so three conversions give all three columns and the first
+            // three rows, and a fourth the last row.
+            layer.worldToTileXY(x + WINDOW_DX[0] * tile_w, y + WINDOW_DY[0] * tile_h, true, point);
+            const col_0 = point.x;
+            const row_0 = point.y;
+            layer.worldToTileXY(x + WINDOW_DX[1] * tile_w, y + WINDOW_DY[1] * tile_h, true, point);
+            const col_1 = point.x;
+            const row_1 = point.y;
+            layer.worldToTileXY(x + WINDOW_DX[2] * tile_w, y + WINDOW_DY[2] * tile_h, true, point);
+            const col_2 = point.x;
+            const row_2 = point.y;
+            layer.worldToTileXY(x, y + WINDOW_DY[3] * tile_h, true, point);
+            cells.push(col_0, col_1, col_2, row_0, row_1, row_2, point.y);
         }
     }
 
@@ -825,9 +971,7 @@ export default class BiomeScene extends Scene {
             .setVisible(false);
         Display.Align.In.Center(this.area_cleared_ui, this.zone);
 
-        this.area_cleared_ui.add(
-            this.add.text(0, 0, "AREA CLEARED", bannerStyle(64)).setOrigin(0.5)
-        );
+        this.area_cleared_ui.add(addBanner(this, 0, 0, "AREA CLEARED", pixelFontSize(5)));
     }
 
     // The boss is down: show the banner. The director spawns nothing more — the
@@ -955,6 +1099,10 @@ export default class BiomeScene extends Scene {
         this.prop_overlays.forEach((sprite) => sprite.destroy());
         this.prop_overlays = [];
         this.prop_layers = [];
+        // Drop the last frame's character references along with the pool, and
+        // make the next visit draw from scratch.
+        this.overlay_windows.invalidate();
+        this.overlay_seen.clear();
 
         // Release the travel-request subscription.
         if (this.travel_subscription) {

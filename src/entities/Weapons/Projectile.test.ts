@@ -79,3 +79,39 @@ describe("Projectile.tick", () => {
         expect(projectile.destroy).toHaveBeenCalled();
     });
 });
+
+// Phaser queues a display-list sort on every depth write, same value or not,
+// so the per-frame y-sort only writes when the projectile's y moved.
+describe("Projectile depth", () => {
+    function tracked(target: ProjectileTarget) {
+        const projectile = makeProjectile(target, 100);
+        // The real Depth getter reads _depth; keep it in step with the fake.
+        projectile.setDepth = vi.fn((depth: number) => {
+            Object.assign(projectile, { _depth: depth });
+            return projectile;
+        });
+        return projectile;
+    }
+
+    it("skips the depth write on a flat shot (y unchanged)", () => {
+        const projectile = tracked({ x: 1000, y: 0, alive: true });
+
+        projectile.tick(100);
+        projectile.tick(100);
+
+        expect(projectile.y).toBe(0);
+        expect(projectile.setDepth).not.toHaveBeenCalled();
+    });
+
+    it("sorts on its new y each frame it climbs or falls", () => {
+        const projectile = tracked({ x: 0, y: 1000, alive: true });
+
+        projectile.tick(100);
+        projectile.tick(100);
+
+        const depths = projectile.setDepth.mock.calls.map(([depth]) => depth as number);
+        expect(depths).toHaveLength(2);
+        expect(depths[0]).toBeCloseTo(10);
+        expect(depths[1]).toBeCloseTo(20);
+    });
+});

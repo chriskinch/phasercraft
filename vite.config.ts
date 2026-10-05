@@ -80,7 +80,7 @@ export default defineConfig(({ mode }) => ({
                 // Precache the shell and all game assets (~4MB). Public assets are
                 // copied unhashed, so Workbox revisions them by content and only
                 // re-downloads what actually changed between builds.
-                globPatterns: ["**/*.{js,css,html,png,gif,json,tmj,csv,woff2,svg,ico}"],
+                globPatterns: ["**/*.{js,css,html,png,gif,json,tmj,csv,woff2,svg,ico,xml}"],
                 // The three 300x300 biome maps are ~1MB each and are only needed
                 // once the player travels to that biome, so they are fetched on
                 // demand (see runtimeCaching below) rather than near-doubling the

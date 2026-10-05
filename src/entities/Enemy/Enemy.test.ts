@@ -4,6 +4,7 @@ import Projectile from "@entities/Weapons/Projectile";
 import type { CombatType } from "@/types/game";
 import { playSfx } from "@services/sfx";
 import Special from "@entities/Loot/Special";
+import Scroll from "@entities/Loot/Scroll";
 import Crafting from "@entities/Loot/Crafting";
 
 // Enemy.attack VFX: melee/healer enemies play the player's swoosh angled at the
@@ -14,7 +15,11 @@ import Crafting from "@entities/Loot/Crafting";
 vi.mock("@entities/Weapons/Projectile", () => ({ default: vi.fn() }));
 vi.mock("@services/sfx", () => ({ playSfx: vi.fn(() => true) }));
 vi.mock("@entities/Loot/Special", () => ({ default: vi.fn() }));
+vi.mock("@entities/Loot/Scroll", () => ({ default: vi.fn() }));
 vi.mock("@entities/Loot/Crafting", () => ({ default: vi.fn() }));
+// The scene's shared selection ring, at the module seam.
+const ring = vi.hoisted(() => ({ attach: vi.fn(), detach: vi.fn() }));
+vi.mock("@entities/UI/SelectionRing", () => ({ default: { for: vi.fn(() => ring) } }));
 
 interface EnemyUnderTest {
     x: number;
@@ -147,7 +152,6 @@ interface LifecycleEnemy {
     selected: boolean;
     home: { x: number; y: number };
     states: { movement: string; attack: string };
-    graphics: { selected: { visible: boolean } };
     banes: { timers: Record<string, { remove: ReturnType<typeof vi.fn> }> };
     wandering_looped_timer: { remove: ReturnType<typeof vi.fn> } | null;
     swing: { remove: ReturnType<typeof vi.fn> } | null;
@@ -191,7 +195,6 @@ function makeLifecycleEnemy(): LifecycleEnemy {
     enemy.selected = false;
     enemy.home = { x: 400, y: 300 };
     enemy.states = { movement: "idle", attack: "primed" };
-    enemy.graphics = { selected: { visible: false } };
     enemy.banes = { timers: { frostbolt: timer() } };
     enemy.wandering_looped_timer = timer();
     enemy.swing = timer();
@@ -289,8 +292,8 @@ describe("Enemy.despawn", () => {
         // to the despawned enemy, so the event must fire before deselect().
         const enemy = makeLifecycleEnemy();
         enemy.selected = true;
-        enemy.graphics.selected.visible = true;
         enemy.scene.selected = enemy;
+        ring.detach.mockClear();
         let selected_at_emit: unknown;
         enemy.scene_events.emit.mockImplementation(() => {
             selected_at_emit = enemy.scene.selected;
@@ -300,7 +303,7 @@ describe("Enemy.despawn", () => {
 
         expect(selected_at_emit).toBe(enemy);
         expect(enemy.scene.selected).toBeNull();
-        expect(enemy.graphics.selected.visible).toBe(false);
+        expect(ring.detach).toHaveBeenCalledWith(enemy);
     });
 
     it("does nothing to an enemy that is already dead", () => {
@@ -339,6 +342,30 @@ describe("Enemy.death", () => {
         enemy.death();
 
         expect(emit).toHaveBeenCalledWith("enemy:dead", enemy);
+    });
+
+    it("pins the corpse's depth to its middle once it leaves the feet sort", () => {
+        const enemy = makeLifecycleEnemy() as LifecycleEnemy & {
+            monster: { death: ReturnType<typeof vi.fn> };
+            health: { remove: ReturnType<typeof vi.fn> };
+            decompose: ReturnType<typeof vi.fn>;
+            death(): void;
+            setDepth: ReturnType<typeof vi.fn>;
+            y: number;
+        };
+        Object.assign(enemy.scene, {
+            events: { emit: vi.fn(), off: vi.fn() },
+            physics: { ...enemy.scene.physics, world: { disable: vi.fn() } },
+        });
+        enemy.monster = { death: vi.fn() };
+        enemy.health = { remove: vi.fn() };
+        enemy.decompose = vi.fn();
+        enemy.setDepth = vi.fn();
+        enemy.y = 240;
+
+        enemy.death();
+
+        expect(enemy.setDepth).toHaveBeenCalledExactlyOnceWith(240);
     });
 });
 
@@ -384,10 +411,10 @@ describe("Enemy.wander", () => {
     });
 });
 
-// A `special` entry must drop a Special, not fall through dropLoot's default
-// branch into a Crafting component.
+// `special` and `scroll` entries must drop their own entity, not fall through
+// dropLoot's default branch into a Crafting component.
 describe("Enemy.dropLoot", () => {
-    it("drops a Special for a special entry", () => {
+    const dropOne = (name: string) => {
         const enemy = Object.create(Enemy.prototype) as {
             x: number;
             y: number;
@@ -398,12 +425,24 @@ describe("Enemy.dropLoot", () => {
         enemy.x = 5;
         enemy.y = 6;
         enemy.scene = {};
-        enemy.loot_table = [{ name: "special", rate: 100, bonus: 0 }];
-
+        enemy.loot_table = [{ name, rate: 100, bonus: 0 }];
         enemy.dropLoot();
+        return enemy;
+    };
+
+    it("drops a Special for a special entry", () => {
+        const enemy = dropOne("special");
 
         expect(vi.mocked(Special)).toHaveBeenCalledTimes(1);
         expect(vi.mocked(Special)).toHaveBeenCalledWith({ scene: enemy.scene, x: 5, y: 6 });
+        expect(vi.mocked(Crafting)).not.toHaveBeenCalled();
+    });
+
+    it("drops a Scroll for a scroll entry", () => {
+        const enemy = dropOne("scroll");
+
+        expect(vi.mocked(Scroll)).toHaveBeenCalledTimes(1);
+        expect(vi.mocked(Scroll)).toHaveBeenCalledWith({ scene: enemy.scene, x: 5, y: 6 });
         expect(vi.mocked(Crafting)).not.toHaveBeenCalled();
     });
 });
@@ -454,5 +493,50 @@ describe("Enemy stun", () => {
         enemy.update(0, 16);
         expect(attack).toHaveBeenCalled();
         expect(enemy.monster.unfreeze).toHaveBeenCalled();
+    });
+});
+
+describe("Enemy depth", () => {
+    // BiomeScene.sortCharactersByFeet owns a live enemy's depth (on its feet)
+    // and runs after the group update each frame; a write here would be
+    // overwritten unseen and still queue a display-list sort.
+    it("update does not write the enemy's depth", () => {
+        const enemy = Object.create(Enemy.prototype) as Enemy;
+        const setDepth = vi.fn();
+        Object.assign(enemy, { state: "dead", setDepth });
+
+        enemy.update(0, 16);
+
+        expect(setDepth).not.toHaveBeenCalled();
+    });
+});
+
+describe("Enemy.movementAnimationHandler", () => {
+    function makeWalker(vx: number) {
+        const enemy = Object.create(Enemy.prototype) as Enemy;
+        const monster = { walk: vi.fn(), idle: vi.fn() };
+        Object.assign(enemy, { key: "imp", monster, body: { velocity: { x: vx, y: 0 } } });
+        return { enemy, monster };
+    }
+
+    it.each([
+        [-40, "imp-left-down"],
+        [40, "imp-right-up"],
+    ])("walks with velocity x %d as %s", (vx, anim) => {
+        const { enemy, monster } = makeWalker(vx);
+
+        enemy.movementAnimationHandler();
+
+        expect(monster.walk).toHaveBeenCalledWith(anim);
+        expect(monster.idle).not.toHaveBeenCalled();
+    });
+
+    it("idles when not moving sideways", () => {
+        const { enemy, monster } = makeWalker(0);
+
+        enemy.movementAnimationHandler();
+
+        expect(monster.idle).toHaveBeenCalledTimes(1);
+        expect(monster.walk).not.toHaveBeenCalled();
     });
 });

@@ -74,7 +74,6 @@ class Player extends GameObjects.Container {
     // One entry per HUD slot (index = slot = hotkey order); null = empty slot.
     private slotted: (SlottedSpell | null)[] = [];
     public mouse!: Phaser.Input.Pointer;
-    public point!: PhaserMath.Vector2;
     public dragging!: boolean;
     public attack_delay!: Phaser.Time.TimerEvent | null;
     public swing: Phaser.Time.TimerEvent | null = null;
@@ -173,11 +172,15 @@ class Player extends GameObjects.Container {
             })
         );
         this.subscriptions.push(
-            mapStateToData("level.currentLevel", (level: unknown) => {
-                if (typeof level === "number") {
-                    this.LevelUp(level);
-                }
-            })
+            mapStateToData(
+                "level.currentLevel",
+                (level: unknown) => {
+                    if (typeof level === "number") {
+                        this.LevelUp(level);
+                    }
+                },
+                { init: false }
+            )
         );
 
         this.scene_events = scene.events;
@@ -302,11 +305,6 @@ class Player extends GameObjects.Container {
         delta: number
     ): void {
         this.mouse = mouse;
-        this.setDepth(this.y);
-
-        this.point = new PhaserMath.Vector2();
-        this.point.x = this.x;
-        this.point.y = this.y;
 
         let arrived = this.atDestination(this, this.destination);
         if (arrived && this.body.speed > 0) {
