@@ -132,6 +132,9 @@ before starting work; link PRs to the relevant phase issue.
   `applyLevel()`) and give it a `scaling` entry in `SPELL_DEFS` (`src/types/game.ts`) —
   which aspects scale with level (L1–L3) and by what curve. `scaling` is required and a
   test fails if it is empty. The curve per aspect is a balance call: ask the maintainer.
+- **New ability = define its Arcanum recipe.** Also give it a `SPELL_RECIPES` entry
+  (`src/types/game.ts`): components, coins and its one mandatory special item. A test
+  fails if any spell lacks one. Values are a balance call: ask the maintainer.
 - All `localStorage` access goes through the typed save/storage service (Phase 2);
   never call `JSON.parse(localStorage.getItem(...))` directly.
 - Redux is the single source of truth for game state shared with the React UI; the

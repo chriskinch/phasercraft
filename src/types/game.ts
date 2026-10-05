@@ -1128,6 +1128,48 @@ export const SCROLL_MERGE_COUNT = 3;
 // question 1).
 export const SCROLL_SELL_VALUE: Record<SpellLevel, number> = { 1: 10, 2: 30, 3: 90 };
 
+// --- Spell recipes (Arcanum crafting, #580) -----------------------------------
+// Trading one found scroll of a spell at the Arcanum learns its recipe; a learnt
+// recipe crafts an L1 scroll from components + coins + its one special item
+// (mandatory). Deconstructing a scroll of a learnt spell returns the recipe's
+// components and special, ×3 per level above L1 (the inverse of Merge), for a
+// flat coin fee; the recipe's coins are not refunded.
+//
+// Required: every ability has a recipe (a test fails otherwise). All numbers and
+// special picks are placeholder balance values — tune in review.
+export interface SpellRecipe {
+    materials: Partial<Record<ComponentType, number>>;
+    coins: number;
+    // SPECIAL_ITEMS id; exactly one is consumed per craft.
+    special: string;
+}
+
+export const SPELL_RECIPES: Record<SpellType, SpellRecipe> = {
+    AimedShot: { materials: { cloth: 8, bone: 6 }, coins: 25, special: "void-pearl" },
+    BattleStomp: { materials: { scrap: 10, bone: 5 }, coins: 25, special: "troll-heart" },
+    BloodFurnace: { materials: { bone: 8, ichor: 3 }, coins: 30, special: "ember-core" },
+    Consecration: { materials: { cloth: 8, scrap: 4 }, coins: 30, special: "ember-core" },
+    EarthShield: { materials: { cloth: 6, ichor: 3 }, coins: 30, special: "troll-heart" },
+    Enrage: { materials: { scrap: 10, bone: 5 }, coins: 25, special: "ember-core" },
+    Enfeeble: { materials: { bone: 8, ichor: 3 }, coins: 25, special: "frost-shard" },
+    Faith: { materials: { cloth: 8, scrap: 4 }, coins: 25, special: "troll-heart" },
+    Fireball: { materials: { cloth: 6, ichor: 3 }, coins: 25, special: "ember-core" },
+    Focus: { materials: { cloth: 8, bone: 6 }, coins: 25, special: "void-pearl" },
+    Frostbolt: { materials: { cloth: 6, ichor: 3 }, coins: 25, special: "frost-shard" },
+    Heal: { materials: { cloth: 8, scrap: 4 }, coins: 25, special: "troll-heart" },
+    Invocation: { materials: { cloth: 6, ichor: 4 }, coins: 30, special: "void-pearl" },
+    ManaShield: { materials: { cloth: 6, ichor: 3 }, coins: 30, special: "frost-shard" },
+    Multishot: { materials: { cloth: 8, bone: 6 }, coins: 30, special: "ember-core" },
+    PowerInfusion: { materials: { cloth: 8, scrap: 4 }, coins: 30, special: "void-pearl" },
+    SiphonSoul: { materials: { bone: 8, ichor: 4 }, coins: 30, special: "void-pearl" },
+    Smite: { materials: { cloth: 8, scrap: 4 }, coins: 25, special: "ember-core" },
+    SnareTrap: { materials: { cloth: 8, bone: 6 }, coins: 25, special: "frost-shard" },
+    Whirlwind: { materials: { scrap: 10, bone: 5 }, coins: 30, special: "frost-shard" },
+};
+
+// Flat coin fee to deconstruct one scroll, any level. Placeholder.
+export const SCROLL_DECONSTRUCT_COST = 15;
+
 // Passive abilities. Plumbing only: the registry is empty and passives have no
 // effects yet, so the union is empty (`never`). Add string literals here and
 // matching entries in PASSIVE_DEFS when the first passive lands.
