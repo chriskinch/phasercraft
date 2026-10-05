@@ -415,10 +415,10 @@ export default class BiomeScene extends Scene {
     /**
      * Re-sorts the characters on their feet instead of their middle.
      *
-     * `Player` sets its own depth to `this.y` (Enemy used to as well; this is
-     * now the only write to an enemy's depth in a biome). Both are Containers
-     * holding a Sprite at (0, 0) with the default 0.5 origin — so `y` is the
-     * *middle* of the visible character, not the ground it stands on.
+     * In a biome this is the only depth write for the player and live enemies
+     * (`Enemy.death()` pins a corpse at its `y`). Both are Containers holding a
+     * Sprite at (0, 0) with the default 0.5 origin — so `y` is the *middle* of
+     * the visible character, not the ground it stands on.
      * Props sort on their base, the bottom of the two-tile prop. Mixing the two
      * references is what let a bush level with the player draw over them: its
      * base sat just below the player's middle, though well above the player's
