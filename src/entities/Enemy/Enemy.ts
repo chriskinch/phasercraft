@@ -523,7 +523,7 @@ class Enemy extends GameObjects.Container {
                     target: player,
                     onImpact: () => {
                         playSfx("explosion");
-                        events.emit("enemy:attack", damage, combat_type);
+                        events.emit("enemy:attack", damage, combat_type, this);
                         this.impactBurst(player);
                     },
                 });
@@ -531,7 +531,7 @@ class Enemy extends GameObjects.Container {
                 // Melee (and healer) auto-attacks land at once: the hit sound
                 // plays with them. Ranged bolts explode on impact above.
                 this.swipe(player);
-                this.scene.events.emit("enemy:attack", damage, combat_type);
+                this.scene.events.emit("enemy:attack", damage, combat_type, this);
                 playSfx("hurt");
             }
             this.attack_ready = false;
