@@ -69,7 +69,7 @@ function makeSpell(enemies: FakeUnit[]): MultishotUnderTest {
     });
     spell.typedCost = 60;
     spell.type = "physical";
-    spell.range = 360;
+    spell.range = 250;
     spell.cap = 3;
     spell.hasAnimation = true;
     spell.cooldownDelayAll = false;

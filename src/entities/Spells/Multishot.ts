@@ -16,13 +16,13 @@ class Multishot extends Spell {
             name: "multishot",
             ...spellDefDefaults("Multishot"),
             type: "physical",
-            range: 360,
+            range: 250,
             cap: 3,
         };
 
         super({ ...defaults, ...config });
         this.type = "physical";
-        this.range = 360;
+        this.range = 250;
         this.cap = 3;
     }
 
