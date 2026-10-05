@@ -139,3 +139,38 @@ describe("Multishot cast", () => {
         expect(c.health.adjustValue).toHaveBeenCalledWith(-45, "physical", true);
     });
 });
+
+describe("Multishot range gate", () => {
+    beforeEach(() => {
+        vi.mocked(Projectile).mockClear();
+    });
+
+    it("does not trigger with no enemy in range: no arrows, cost or cooldown", () => {
+        const spell = makeSpell([makeUnit(500), makeUnit(400)]);
+
+        spell.castSpell(undefined);
+
+        expect(Projectile).not.toHaveBeenCalled();
+        expect(spell.player.resource.adjustValue).not.toHaveBeenCalled();
+        expect(spell.setCooldown).not.toHaveBeenCalled();
+    });
+
+    it("does not trigger with no enemies at all", () => {
+        const spell = makeSpell([]);
+
+        spell.castSpell(undefined);
+
+        expect(Projectile).not.toHaveBeenCalled();
+        expect(spell.player.resource.adjustValue).not.toHaveBeenCalled();
+    });
+
+    it("triggers and charges when one enemy is in range", () => {
+        const spell = makeSpell([makeUnit(500), makeUnit(100)]);
+
+        spell.castSpell(undefined);
+
+        expect(Projectile).toHaveBeenCalledTimes(1);
+        expect(spell.player.resource.adjustValue).toHaveBeenCalledWith(-60);
+        expect(spell.setCooldown).toHaveBeenCalled();
+    });
+});
