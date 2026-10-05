@@ -89,7 +89,7 @@ class Healer extends Enemy {
                         Math.ceil(t.health.stats.max * HEAL_FRACTION),
                         this.getMissingHealth(t)
                     );
-                    if (amount > 0) t.health.adjustValue(amount, "magic_power", false);
+                    if (amount > 0) t.health.adjustValue(amount, "heal", false);
                 }
                 this.states.attack = "primed";
                 this.heal_cooldown = this.scene.time.addEvent({
