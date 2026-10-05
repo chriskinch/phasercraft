@@ -27,7 +27,7 @@ import {
     ABILITY_SLOTS,
     SCROLL_SELL_VALUE,
     SCROLL_MERGE_COUNT,
-    SCROLL_DECONSTRUCT_COST,
+    SCROLL_DISPEL_COST,
     SPELL_LEVELS,
     SPELL_RECIPES,
     SPELL_TYPES,
@@ -35,7 +35,7 @@ import {
 import { CLASS_KITS, isKnownClass, isKnownSpell, isOnClass } from "@/lib/classKits";
 import { appliedStatValue } from "@/lib/statConversion";
 import { componentTotal, missingMaterials } from "@/lib/materials";
-import { craftStatus, deconstructStatus, deconstructYield, tradeStatus } from "@/lib/spellCraft";
+import { craftStatus, dispelStatus, dispelYield, tradeStatus } from "@/lib/spellCraft";
 import { colorForQuality } from "@/lib/armoryClient";
 import type { PlayerName } from "@entities/Player/AssignClass";
 import type { SpellType } from "@entities/Spells/AssignSpell";
@@ -81,6 +81,10 @@ const freshMerchant = (): MerchantState => ({
     gearStock: [],
 });
 
+// The Arcanum's header tabs (#582). Room for a later "fuse" tab (#583).
+export const ARCANUM_TABS = ["merge", "craft"] as const;
+export type ArcanumTab = (typeof ARCANUM_TABS)[number];
+
 export interface GameState {
     character: PlayerName | null;
     showHUD: boolean;
@@ -115,6 +119,9 @@ export interface GameState {
     travelRequest: TravelDestination | null;
     playerPosition: { x: number; y: number };
     merchant: MerchantState;
+    // Which Arcanum tab is showing. Ephemeral UI state (reset on load), in the
+    // store for the same reason as `merchant.mode`: the tabs render in the header.
+    arcanumTab: ArcanumTab;
     // Abilities (docs/specs/abilities-ui.md → Data model). All persisted.
     // Spells the player has learned, at their current level.
     learnedSpells: Partial<Record<SpellType, SpellLevel>>;
@@ -271,6 +278,7 @@ const initState: GameState = {
     travelRequest: null,
     playerPosition: { x: 400, y: 300 },
     merchant: freshMerchant(),
+    arcanumTab: "merge",
     ...seedAbilities(null),
 };
 
@@ -307,6 +315,11 @@ export const refreshMerchant = createAction("REFRESH_MERCHANT", (window: number)
 // Buy back a piece of gear the player previously sold to the Merchant.
 export const buyGear = createAction("BUY_GEAR", (loot: LootItem) => ({
     payload: { loot },
+}));
+
+// Switch the Arcanum's header tab.
+export const setArcanumTab = createAction("SET_ARCANUM_TAB", (tab: ArcanumTab) => ({
+    payload: { tab },
 }));
 
 // Switch the Merchant between its Buy and Sell sides (the header toggle).
@@ -496,8 +509,8 @@ export const craftSpell = createAction("CRAFT_SPELL", (spell: SpellType) => ({
 
 // Break 1 scroll of a learnt recipe into its components + special (×3 per level
 // above L1) for a flat coin fee.
-export const deconstructScroll = createAction(
-    "DECONSTRUCT_SCROLL",
+export const dispelScroll = createAction(
+    "DISPEL_SCROLL",
     (spell: SpellType, level: SpellLevel) => ({
         payload: { spell, level },
     })
@@ -617,7 +630,7 @@ export const gameReducer = createReducer(initState, (builder) => {
             );
             // Needs the class, so dispatch after selectCharacter (CharacterCard does).
             state.scrolls = starterScrolls(state.character);
-            // Learn the first two kit spells' recipes so Craft/Deconstruct are
+            // Learn the first two kit spells' recipes so Craft/Dispel are
             // testable; the off-class starter scroll is left to Trade.
             state.spellRecipes = isKnownClass(state.character)
                 ? CLASS_KITS[state.character].slice(0, 2)
@@ -650,6 +663,9 @@ export const gameReducer = createReducer(initState, (builder) => {
             // Buying removes one from the shop's stock for this window.
             state.merchant.partsDelta[type] = (state.merchant.partsDelta[type] ?? 0) - 1;
             stackComponent(state.components, type);
+        })
+        .addCase(setArcanumTab, (state, action: PayloadAction<{ tab: ArcanumTab }>) => {
+            if (ARCANUM_TABS.includes(action.payload.tab)) state.arcanumTab = action.payload.tab;
         })
         .addCase(setMerchantMode, (state, action: PayloadAction<{ mode: MerchantMode }>) => {
             state.merchant.mode = action.payload.mode;
@@ -810,6 +826,7 @@ export const gameReducer = createReducer(initState, (builder) => {
                 // Ephemeral shop stock — loading a save is a reset, so the
                 // Merchant starts fresh rather than restoring any saved stock.
                 merchant: freshMerchant(),
+                arcanumTab: "merge",
                 // Saves written before abilities get the class kit at L1 and the
                 // kit loadout; unknown spell ids are dropped.
                 ...migrateAbilities(
@@ -939,15 +956,15 @@ export const gameReducer = createReducer(initState, (builder) => {
             giveScroll(state.scrolls, spell, 1);
         })
         .addCase(
-            deconstructScroll,
+            dispelScroll,
             (state, action: PayloadAction<{ spell: SpellType; level: SpellLevel }>) => {
                 const { spell, level } = action.payload;
                 if (state.currentArea !== "town") return;
                 if (!isKnownSpell(spell) || !isSpellLevel(level)) return;
-                if (!deconstructStatus(state, spell, level).enabled) return;
+                if (!dispelStatus(state, spell, level).enabled) return;
                 takeScrolls(state.scrolls, spell, level, 1);
-                state.coins -= SCROLL_DECONSTRUCT_COST;
-                const { materials, special, specials } = deconstructYield(spell, level);
+                state.coins -= SCROLL_DISPEL_COST;
+                const { materials, special, specials } = dispelYield(spell, level);
                 for (const [type, count] of Object.entries(materials) as Array<
                     [ComponentType, number]
                 >) {

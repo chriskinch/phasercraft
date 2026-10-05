@@ -7,6 +7,7 @@ import { switchUi, toggleUi } from "@store/gameReducer";
 import Abilities from "@components/Abilities";
 import Alchemist from "@components/Alchemist";
 import Arcanum from "@components/Arcanum";
+import ArcanumTabs from "@components/ArcanumTabs";
 import Armory from "@components/Armory";
 import BiomeSelect from "@components/BiomeSelect";
 import Blacksmith from "@components/Blacksmith";
@@ -78,6 +79,8 @@ const UI: React.FC = () => {
         arcanum: {
             component: asMenuComponent(Arcanum),
             title: "Arcanum",
+            // Merge / Craft tabs beside the title (#582).
+            headerControls: ArcanumTabs,
             close: true,
         },
         armory: {
