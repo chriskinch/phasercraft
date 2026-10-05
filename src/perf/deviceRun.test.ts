@@ -56,6 +56,8 @@ describe("formatResult", () => {
             gameObjects: 171,
             graphics: 54,
             texts: 2,
+            colliders: 40,
+            loot: 6,
         };
         const result: PerfResult = {
             scenario: "combat",
@@ -73,6 +75,7 @@ describe("formatResult", () => {
                 "frame  p50 16.7  p95 33.3  p99 50  max 66.7  >16.7: 3  >50: 1",
                 "work   p50 16.7  p95 33.3  p99 50  max 66.7  >16.7: 3  >50: 1",
                 "bodies 32  timers 34  objects 171  graphics 54",
+                "colliders 40 (max 40)  loot 6 (max 6)",
                 "heap n/a",
             ].join("\n")
         );

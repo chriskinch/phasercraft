@@ -96,6 +96,8 @@ export function countObjects(scene: BiomeScene): PerfCounts {
         gameObjects,
         graphics,
         texts,
+        colliders: scene.physics.world.colliders.length,
+        loot: lootOf(scene).length,
     };
 }
 
