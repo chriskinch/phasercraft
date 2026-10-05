@@ -343,6 +343,30 @@ describe("Enemy.death", () => {
 
         expect(emit).toHaveBeenCalledWith("enemy:dead", enemy);
     });
+
+    it("pins the corpse's depth to its middle once it leaves the feet sort", () => {
+        const enemy = makeLifecycleEnemy() as LifecycleEnemy & {
+            monster: { death: ReturnType<typeof vi.fn> };
+            health: { remove: ReturnType<typeof vi.fn> };
+            decompose: ReturnType<typeof vi.fn>;
+            death(): void;
+            setDepth: ReturnType<typeof vi.fn>;
+            y: number;
+        };
+        Object.assign(enemy.scene, {
+            events: { emit: vi.fn(), off: vi.fn() },
+            physics: { ...enemy.scene.physics, world: { disable: vi.fn() } },
+        });
+        enemy.monster = { death: vi.fn() };
+        enemy.health = { remove: vi.fn() };
+        enemy.decompose = vi.fn();
+        enemy.setDepth = vi.fn();
+        enemy.y = 240;
+
+        enemy.death();
+
+        expect(enemy.setDepth).toHaveBeenCalledExactlyOnceWith(240);
+    });
 });
 
 describe("Enemy.enemySpawned", () => {
@@ -469,5 +493,50 @@ describe("Enemy stun", () => {
         enemy.update(0, 16);
         expect(attack).toHaveBeenCalled();
         expect(enemy.monster.unfreeze).toHaveBeenCalled();
+    });
+});
+
+describe("Enemy depth", () => {
+    // BiomeScene.sortCharactersByFeet owns a live enemy's depth (on its feet)
+    // and runs after the group update each frame; a write here would be
+    // overwritten unseen and still queue a display-list sort.
+    it("update does not write the enemy's depth", () => {
+        const enemy = Object.create(Enemy.prototype) as Enemy;
+        const setDepth = vi.fn();
+        Object.assign(enemy, { state: "dead", setDepth });
+
+        enemy.update(0, 16);
+
+        expect(setDepth).not.toHaveBeenCalled();
+    });
+});
+
+describe("Enemy.movementAnimationHandler", () => {
+    function makeWalker(vx: number) {
+        const enemy = Object.create(Enemy.prototype) as Enemy;
+        const monster = { walk: vi.fn(), idle: vi.fn() };
+        Object.assign(enemy, { key: "imp", monster, body: { velocity: { x: vx, y: 0 } } });
+        return { enemy, monster };
+    }
+
+    it.each([
+        [-40, "imp-left-down"],
+        [40, "imp-right-up"],
+    ])("walks with velocity x %d as %s", (vx, anim) => {
+        const { enemy, monster } = makeWalker(vx);
+
+        enemy.movementAnimationHandler();
+
+        expect(monster.walk).toHaveBeenCalledWith(anim);
+        expect(monster.idle).not.toHaveBeenCalled();
+    });
+
+    it("idles when not moving sideways", () => {
+        const { enemy, monster } = makeWalker(0);
+
+        enemy.movementAnimationHandler();
+
+        expect(monster.idle).toHaveBeenCalledTimes(1);
+        expect(monster.walk).not.toHaveBeenCalled();
     });
 });

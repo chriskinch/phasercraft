@@ -1,5 +1,41 @@
 import { describe, it, expect, vi } from "vitest";
+import type { Scene } from "phaser";
 import Monster from "./Monster";
+
+// Sprite stubbed at the entity seam so the real Monster constructor can run
+// against a fake scene without booting the renderer/texture manager.
+vi.mock("phaser", async (importOriginal) => {
+    const actual = await importOriginal<typeof import("phaser")>();
+    class Sprite {
+        scene: unknown;
+        constructor(scene: unknown) {
+            this.scene = scene;
+        }
+    }
+    return { ...actual, GameObjects: { ...actual.GameObjects, Sprite } };
+});
+
+describe("Monster construction", () => {
+    it("adds itself to the scene without a physics body (#529)", () => {
+        const scene = {
+            add: { existing: vi.fn() },
+            physics: { world: { enable: vi.fn() } },
+        };
+
+        const monster = new Monster({
+            scene: scene as unknown as Scene,
+            key: "imp",
+            x: 0,
+            y: 0,
+            target: null,
+        });
+
+        // The enemy's body lives on its Enemy container; the sprite has none.
+        expect(scene.physics.world.enable).not.toHaveBeenCalled();
+        expect(scene.add.existing).toHaveBeenCalledWith(monster);
+        expect(monster.key).toBe("imp");
+    });
+});
 
 // Constructor-free fake on the real prototype.
 function makeMonster() {
@@ -37,5 +73,17 @@ describe("Monster stun pose", () => {
         monster.unfreeze();
         expect(anims.resume).toHaveBeenCalledTimes(1);
         expect(monster.frozen).toBe(false);
+    });
+});
+
+describe("Monster animations", () => {
+    it("idles and dies on its own key's animations", () => {
+        const { monster, anims } = makeMonster();
+
+        monster.idle();
+        monster.death();
+
+        expect(anims.play).toHaveBeenNthCalledWith(1, "imp-idle", true);
+        expect(anims.play).toHaveBeenNthCalledWith(2, "imp-death");
     });
 });
