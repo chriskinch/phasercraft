@@ -36,9 +36,9 @@ describe("AbilityCard", () => {
         expect(card()).toHaveTextContent("Next: L2 · 135% power");
     });
 
-    it("hides the next-level preview for a spell with no level scaling", () => {
-        render(<AbilityCard spell="Enrage" level={1} resourceType="rage" />);
-        expect(card()).not.toHaveTextContent("Next:");
+    it("lists every scaled aspect in the next-level preview", () => {
+        render(<AbilityCard spell="SnareTrap" level={2} resourceType="energy" />);
+        expect(card()).toHaveTextContent("Next: L3 · 180% duration, 180% damage");
     });
 
     it("hides the next-level preview at L3", () => {

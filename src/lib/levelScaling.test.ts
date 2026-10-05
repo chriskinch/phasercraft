@@ -31,7 +31,7 @@ describe("levelFactor", () => {
 
     it("is 1 for an unscaled aspect, an unscaled spell or no spell", () => {
         expect(levelFactor("Fireball", "duration", 3)).toBe(1);
-        expect(levelFactor("Focus", "duration", 3)).toBe(1);
+        expect(levelFactor("Focus", "attack_speed", 3)).toBe(1);
         expect(levelFactor(undefined, "power", 3)).toBe(1);
     });
 });
@@ -67,15 +67,21 @@ describe("levelSummary", () => {
         );
     });
 
-    it("is empty for a spell with no scaling", () => {
-        expect(levelSummary("Focus", 2)).toBe("");
+    it("lists only the aspects with curves", () => {
+        expect(levelSummary("Focus", 2)).toBe("135% duration, 135% critical chance");
     });
 });
 
 describe("SPELL_DEFS scaling", () => {
+    it("every spell scales at least one aspect", () => {
+        for (const spell of Object.keys(SPELL_DEFS) as SpellType[]) {
+            expect(Object.keys(SPELL_DEFS[spell].scaling), spell).not.toHaveLength(0);
+        }
+    });
+
     it("only uses aspects the spell wires up", () => {
         for (const spell of Object.keys(SPELL_DEFS) as SpellType[]) {
-            for (const aspect of Object.keys(SPELL_DEFS[spell].scaling ?? {})) {
+            for (const aspect of Object.keys(SPELL_DEFS[spell].scaling)) {
                 expect(SPELL_ASPECTS[spell]).toContain(aspect);
             }
         }

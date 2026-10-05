@@ -10,7 +10,7 @@ export const levelFactor = (
     spell: SpellType | undefined,
     aspect: string,
     level: SpellLevel
-): number => (spell ? (SPELL_DEFS[spell].scaling?.[aspect]?.[level] ?? 1) : 1);
+): number => (spell ? (SPELL_DEFS[spell].scaling[aspect]?.[level] ?? 1) : 1);
 
 // Scale a buff/bane stat-modifier map, each stat by its own aspect (the stat
 // name). Flat values are multiplied; functions of the base stat have their
@@ -36,7 +36,7 @@ export const scaleEffect = <T extends Record<string, EffectValue>>(
 // "135% power, 120% duration" — the aspects that differ from L1 at `level`;
 // empty when nothing scales (the ability card then hides its Next line).
 export const levelSummary = (spell: SpellType, level: SpellLevel): string =>
-    Object.entries(SPELL_DEFS[spell].scaling ?? {})
+    Object.entries(SPELL_DEFS[spell].scaling)
         .flatMap(([aspect, curve]) =>
             curve && curve[level] !== 1
                 ? [`${Math.round(curve[level] * 100)}% ${aspectLabel(aspect)}`]

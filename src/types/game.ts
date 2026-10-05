@@ -805,8 +805,9 @@ export interface SpellDef {
     // Max cast/placement distance in px; undefined = unlimited / not targeted.
     castRange?: number;
     targetKind: TargetKind;
-    // Per-aspect level curves (#387). Omitted = the spell does not scale.
-    scaling?: SpellScaling;
+    // Per-aspect level curves (#387). Required: every ability defines how it
+    // scales with level (pick from its SPELL_ASPECTS); `{}` only by decision.
+    scaling: SpellScaling;
 }
 
 // Description/effect copy is PLACEHOLDER — to be replaced with final copy.
@@ -843,6 +844,7 @@ export const SPELL_DEFS: Record<SpellType, SpellDef> = {
         cooldown: 15,
         cost: { rage: 0, mana: 0, energy: 0 },
         targetKind: "self",
+        scaling: { manaPerTick: SPELL_LEVEL_POWER },
     },
     Consecration: {
         name: "Consecration",
@@ -875,6 +877,11 @@ export const SPELL_DEFS: Record<SpellType, SpellDef> = {
         cooldown: 10,
         cost: { rage: 10, mana: 80, energy: 30 },
         targetKind: "self",
+        scaling: {
+            critical_chance: SPELL_LEVEL_POWER,
+            attack_power: SPELL_LEVEL_POWER,
+            health_regen_value: SPELL_LEVEL_POWER,
+        },
     },
     Enfeeble: {
         name: "Enfeeble",
@@ -886,6 +893,7 @@ export const SPELL_DEFS: Record<SpellType, SpellDef> = {
         cost: { rage: 10, mana: 15, energy: 10 },
         castRange: 250,
         targetKind: "enemy",
+        scaling: { duration: SPELL_LEVEL_POWER },
     },
     Faith: {
         name: "Faith",
@@ -919,6 +927,7 @@ export const SPELL_DEFS: Record<SpellType, SpellDef> = {
         cooldown: 20,
         cost: { rage: 15, mana: 80, energy: 25 },
         targetKind: "self",
+        scaling: { duration: SPELL_LEVEL_POWER, critical_chance: SPELL_LEVEL_POWER },
     },
     Frostbolt: {
         name: "Frostbolt",
@@ -952,6 +961,7 @@ export const SPELL_DEFS: Record<SpellType, SpellDef> = {
         cooldown: 60,
         cost: { rage: 0, mana: 0, energy: 0 },
         targetKind: "self",
+        scaling: { resource_regen_value: SPELL_LEVEL_POWER },
     },
     ManaShield: {
         name: "Mana Shield",
@@ -984,6 +994,13 @@ export const SPELL_DEFS: Record<SpellType, SpellDef> = {
         cooldown: 30,
         cost: { rage: 20, mana: 100, energy: 40 },
         targetKind: "self",
+        scaling: {
+            critical_chance: SPELL_LEVEL_POWER,
+            attack_power: SPELL_LEVEL_POWER,
+            magic_power: SPELL_LEVEL_POWER,
+            speed: SPELL_LEVEL_POWER,
+            resource_regen_value: SPELL_LEVEL_POWER,
+        },
     },
     SiphonSoul: {
         name: "Siphon Soul",
@@ -1019,6 +1036,7 @@ export const SPELL_DEFS: Record<SpellType, SpellDef> = {
         cost: { rage: 20, mana: 30, energy: 20 },
         castRange: 300,
         targetKind: "ground",
+        scaling: { duration: SPELL_LEVEL_POWER, damage: SPELL_LEVEL_POWER },
     },
     Whirlwind: {
         name: "Whirlwind",
