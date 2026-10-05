@@ -212,7 +212,7 @@ describe("Healer heal timer", () => {
         expect(healer.states.attack).toBe("casting");
 
         fire();
-        expect(adjustValue).toHaveBeenCalledWith(200 * HEAL_FRACTION, "magic_power", false);
+        expect(adjustValue).toHaveBeenCalledWith(200 * HEAL_FRACTION, "heal", false);
         expect(healer.states.attack).toBe("primed");
         expect(healer.heal_timer).toBeNull();
         expect(healer.heal_cooldown).toBe(cooldown);
@@ -226,7 +226,7 @@ describe("Healer heal timer", () => {
         target.health.stats.value = 195;
         healer.healTarget(target as unknown as Enemy);
         fire();
-        expect(adjustValue).toHaveBeenCalledWith(5, "magic_power", false);
+        expect(adjustValue).toHaveBeenCalledWith(5, "heal", false);
     });
 
     it("skips the heal if the target healed to full mid-cast", () => {
