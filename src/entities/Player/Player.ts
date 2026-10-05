@@ -305,7 +305,6 @@ class Player extends GameObjects.Container {
         delta: number
     ): void {
         this.mouse = mouse;
-        this.setDepth(this.y);
 
         let arrived = this.atDestination(this, this.destination);
         if (arrived && this.body.speed > 0) {

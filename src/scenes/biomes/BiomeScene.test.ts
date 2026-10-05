@@ -842,7 +842,7 @@ describe("BiomeScene.updatePropOverlays", () => {
         scene.updatePropOverlays();
         const depth = sprite.setDepth.mock.calls[0][0];
 
-        // Characters sort on their own y (Player/Enemy both setDepth(this.y)).
+        // Characters sort on their feet (sortCharactersByFeet).
         const behind_tree = world.y + TILE_PX; // standing above the trunk
         const in_front = world.y + TILE_PX * 3; // standing below the trunk
         expect(depth).toBeGreaterThan(behind_tree);
