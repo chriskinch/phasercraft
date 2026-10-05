@@ -28,8 +28,9 @@ before starting work; link PRs to the relevant phase issue.
 - `npm run build` — static export (CI runs all five)
 - `npm run perf` — perf harness: `VITE_PERF=1` build + Playwright frame-time matrix → `perf-results/`;
   `npm run perf:compare -- base.json head.json` (#526). Report only; CI runs it on the `perf` PR label + nightly
-- `npm run perf:equivalence` — seeded fixed-step replays vs `perf/goldens/equivalence.json` (#527). Perf
-  stories must pass unchanged; `PERF_EQUIVALENCE=update` only for intended gameplay changes
+- `npm run perf:equivalence` — seeded fixed-step replays vs goldens recorded from the base (#527). Not
+  committed: CI records them on the PR base; locally run `PERF_EQUIVALENCE=update` on the base ref first.
+  Perf stories must pass unchanged; keep gameplay changes out of perf PRs
 
 ## Reply style
 

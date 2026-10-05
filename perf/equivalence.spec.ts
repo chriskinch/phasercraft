@@ -10,13 +10,17 @@ import { enterBiome } from "./helpers";
 // position/health/state, loot on the ground) at fixed checkpoints. Perf
 // stories must leave every hash unchanged.
 //
+// Goldens are not committed: gameplay changes constantly, so they are recorded
+// from the base commit at run time and the head is compared against them, the
+// same run-against-run model as the screenshots below. CI records them on the
+// PR's base; locally, record on the base ref then compare on your branch.
+//
 //   PERF_EQUIVALENCE=exact      (default) hashes must match the goldens
 //   PERF_EQUIVALENCE=tolerance  final kills/damage/attacks within
 //                               ±PERF_TOLERANCE (default 0.1) of the goldens;
 //                               for stories allowed to shift AI timing (#537)
-//   PERF_EQUIVALENCE=update     rewrite the goldens; only when a change is
-//                               meant to alter gameplay, and say so in the PR
-//   PERF_GOLDENS=<path>         goldens file (default perf/goldens/equivalence.json)
+//   PERF_EQUIVALENCE=update     record the goldens from this checkout
+//   PERF_GOLDENS=<path>         goldens file (default perf-goldens/equivalence.json)
 //
 // Screenshots, rendered at each checkpoint, are compared run against run
 // rather than against committed images, because the pixels depend on the
@@ -54,7 +58,7 @@ const SCENARIOS: Scenario[] = [
 
 const MODE = process.env.PERF_EQUIVALENCE ?? "exact";
 const TOLERANCE = Number(process.env.PERF_TOLERANCE ?? 0.1);
-const GOLDENS = path.resolve(process.env.PERF_GOLDENS ?? "perf/goldens/equivalence.json");
+const GOLDENS = path.resolve(process.env.PERF_GOLDENS ?? "perf-goldens/equivalence.json");
 const SNAPSHOTS = process.env.PERF_SNAPSHOTS;
 
 const read = (): EquivalenceGoldens =>
@@ -93,7 +97,10 @@ test.describe("perf: gameplay equivalence", () => {
             }
 
             const golden = read()[name];
-            expect(golden, `no golden for ${name}: run with PERF_EQUIVALENCE=update`).toBeDefined();
+            expect(
+                golden,
+                `no golden for ${name}: record the base with PERF_EQUIVALENCE=update`
+            ).toBeDefined();
             const failures =
                 MODE === "tolerance"
                     ? compareTolerance(
