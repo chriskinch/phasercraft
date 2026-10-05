@@ -617,12 +617,11 @@ export const gameReducer = createReducer(initState, (builder) => {
             );
             // Needs the class, so dispatch after selectCharacter (CharacterCard does).
             state.scrolls = starterScrolls(state.character);
-            // Learn the first kit spell's recipe so Craft/Deconstruct are testable;
-            // the other starter scrolls are left to Trade.
-            const first = isKnownClass(state.character)
-                ? CLASS_KITS[state.character][0]
-                : undefined;
-            state.spellRecipes = first ? [first] : [];
+            // Learn the first two kit spells' recipes so Craft/Deconstruct are
+            // testable; the off-class starter scroll is left to Trade.
+            state.spellRecipes = isKnownClass(state.character)
+                ? CLASS_KITS[state.character].slice(0, 2)
+                : [];
         })
         .addCase(addComponent, (state, action: PayloadAction<{ type: ComponentType }>) => {
             const { type } = action.payload;

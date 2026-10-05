@@ -876,7 +876,9 @@ describe("starterScrolls", () => {
             selectCharacter("Mage")
         );
         expect(gameReducer(mage, grantStarterItems()).scrolls).toEqual(starterScrolls("Mage"));
-        expect(gameReducer(mage, grantStarterItems()).spellRecipes).toEqual([CLASS_KITS.Mage[0]]);
+        expect(gameReducer(mage, grantStarterItems()).spellRecipes).toEqual(
+            CLASS_KITS.Mage.slice(0, 2)
+        );
     });
 });
 
