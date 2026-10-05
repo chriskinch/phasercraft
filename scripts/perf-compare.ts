@@ -22,6 +22,8 @@ const COLUMNS: { label: string; pick: (r: PerfResult) => number }[] = [
     { label: "timers", pick: (r) => r.counts.max.timers },
     { label: "objects", pick: (r) => r.counts.max.gameObjects },
     { label: "graphics", pick: (r) => r.counts.max.graphics },
+    { label: "colliders", pick: (r) => r.counts.max.colliders },
+    { label: "loot", pick: (r) => r.counts.max.loot },
 ];
 
 const key = (r: PerfResult) => `${r.scenario} × ${r.enemies}`;

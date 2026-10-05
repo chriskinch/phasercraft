@@ -51,6 +51,8 @@ describe("maxCounts", () => {
             gameObjects: 40,
             graphics: 6,
             texts: 1,
+            colliders: 12,
+            loot: 3,
         };
         const b: PerfCounts = { ...a, enemies: 2, timers: 9, texts: 4 };
         expect(maxCounts(a, b)).toEqual({ ...a, timers: 9, texts: 4 });
