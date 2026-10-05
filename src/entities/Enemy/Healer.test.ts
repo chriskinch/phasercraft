@@ -1,7 +1,7 @@
 import { describe, it, expect, vi } from "vitest";
 import { maxBy } from "lodash";
 import Healer from "./Healer";
-import type Enemy from "./Enemy";
+import Enemy from "./Enemy";
 
 // Healer target scan: the single-pass getHealTarget must pick exactly what
 // the old getChildren().filter(missing > 0 && not self) + lodash maxBy did.
@@ -134,5 +134,69 @@ describe("Healer.update heal cast", () => {
         const busy = makeUpdatable("casting", [fake("a", 100, 10)]);
         busy.healer.update(0, 16);
         expect(busy.addEvent).not.toHaveBeenCalled();
+    });
+});
+
+// Heal-cast lifecycle: the 3s heal timer is stored, released in cleanup(), and
+// a healer that died mid-cast doesn't land the heal.
+describe("Healer heal timer", () => {
+    type Callback = (target: unknown) => void;
+
+    function makeCaster() {
+        const healer = Object.create(Healer.prototype) as Healer;
+        const timer = { remove: vi.fn() };
+        const target = fake("a", 100, 10);
+        const adjustValue = vi.fn();
+        Object.assign(target.health, { adjustValue });
+        let callback: Callback = () => {};
+        let args: unknown[] = [];
+        const addEvent = vi.fn((config: { callback: Callback; args: unknown[] }) => {
+            callback = config.callback;
+            args = config.args;
+            return timer;
+        });
+        Object.assign(healer, {
+            state: "idle",
+            states: { movement: "idle", attack: "primed" },
+            heal_timer: null,
+            scene: { time: { addEvent } },
+        });
+        return { healer, timer, target, adjustValue, fire: () => callback(args[0]) };
+    }
+
+    it("stores the heal timer and heals the target when it fires", () => {
+        const { healer, timer, target, adjustValue, fire } = makeCaster();
+        healer.healTarget(target as unknown as Enemy);
+        expect(healer.heal_timer).toBe(timer);
+        expect(healer.states.attack).toBe("casting");
+
+        fire();
+        expect(adjustValue).toHaveBeenCalledWith(50, "magic_power", false);
+        expect(healer.states.attack).toBe("primed");
+        expect(healer.heal_timer).toBeNull();
+    });
+
+    it("does not heal if the healer died mid-cast", () => {
+        const { healer, target, adjustValue, fire } = makeCaster();
+        healer.healTarget(target as unknown as Enemy);
+        healer.state = "dead";
+
+        fire();
+        expect(adjustValue).not.toHaveBeenCalled();
+    });
+
+    it("cleanup removes the pending heal timer, then runs Enemy.cleanup", () => {
+        const { healer, timer, target } = makeCaster();
+        const base = vi.spyOn(Enemy.prototype, "cleanup").mockImplementation(() => {});
+        healer.healTarget(target as unknown as Enemy);
+
+        healer.cleanup();
+        expect(timer.remove).toHaveBeenCalledWith(false);
+        expect(healer.heal_timer).toBeNull();
+        expect(base).toHaveBeenCalledOnce();
+
+        expect(() => healer.cleanup()).not.toThrow();
+        expect(timer.remove).toHaveBeenCalledOnce();
+        base.mockRestore();
     });
 });
