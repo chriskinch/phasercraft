@@ -6,6 +6,9 @@ import { playSfx } from "@services/sfx";
 
 vi.mock("@entities/Weapons/Projectile", () => ({ default: vi.fn() }));
 vi.mock("@services/sfx", () => ({ playSfx: vi.fn(() => true) }));
+vi.mock("@store", () => ({
+    default: { getState: () => ({ game: { stats: { magic_power: 50 } } }) },
+}));
 
 // Regression tests for the Phase 2 Spell lifecycle fix (issue #307). Spell
 // registers listeners on external emitters that Phaser does not remove on its
@@ -273,5 +276,61 @@ describe("Spell.launchProjectile", () => {
 
         expect(playSfx).toHaveBeenCalledWith("explosion");
         expect(spell.effect).toHaveBeenCalledWith(target);
+    });
+});
+
+// #387: a spell's learned level scales its power through setValue() only;
+// cost and cooldown are untouched by the level.
+describe("Spell.setValue level scaling", () => {
+    interface LevelledSpell {
+        level: 1 | 2 | 3;
+        typedCost: number;
+        cooldown: number;
+        player: { isCritical: () => boolean };
+        setLevel(level: 1 | 2 | 3): void;
+        setValue(args: { base: number; key: string; reducer?: (v: number) => number }): {
+            crit: boolean;
+            amount: number;
+        };
+    }
+
+    function makeLevelled(crit = false): LevelledSpell {
+        const spell = Object.create(Spell.prototype) as LevelledSpell;
+        spell.level = 1;
+        spell.typedCost = 20;
+        spell.cooldown = 4;
+        spell.player = { isCritical: () => crit };
+        return spell;
+    }
+
+    // base 40, magic_power 50 → 40 + 40 * 0.5 + 50 / 10 = 65 at L1.
+    it.each([
+        [1, 65],
+        [2, 65 * 1.35],
+        [3, 65 * 1.8],
+    ] as const)("L%i multiplies the scaled amount by the level curve", (level, expected) => {
+        const spell = makeLevelled();
+        spell.setLevel(level);
+
+        expect(spell.setValue({ base: 40, key: "magic_power" }).amount).toBeCloseTo(expected);
+    });
+
+    it("stacks with crit and runs the reducer on the levelled amount", () => {
+        const spell = makeLevelled(true);
+        spell.setLevel(2);
+
+        const value = spell.setValue({ base: 40, key: "magic_power", reducer: (v) => v / 10 });
+
+        expect(value.crit).toBe(true);
+        expect(value.amount).toBeCloseTo((65 * 1.35 * 1.5) / 10);
+    });
+
+    it("leaves cost and cooldown unchanged across levels", () => {
+        const spell = makeLevelled();
+
+        spell.setLevel(3);
+
+        expect(spell.typedCost).toBe(20);
+        expect(spell.cooldown).toBe(4);
     });
 });

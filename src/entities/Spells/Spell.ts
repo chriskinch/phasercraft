@@ -4,6 +4,7 @@ import SpellButton from "@entities/UI/SpellButton";
 import Projectile from "@entities/Weapons/Projectile";
 import { playSfx } from "@services/sfx";
 import type { ProjectileTarget } from "@entities/Weapons/Projectile";
+import { SPELL_LEVEL_POWER } from "@/types/game";
 import type {
     SpellOptions,
     TargetType,
@@ -34,7 +35,7 @@ class Spell extends GameObjects.Sprite {
     public hotkey!: string;
     public slot!: number;
     // Learned level (1–3), live-updated by the Player when a higher scroll is
-    // read mid-run. Not yet read by any effect (power scaling is #387).
+    // read mid-run. Scales power in setValue() (#387).
     public level: SpellLevel = 1;
     public loop!: boolean;
     public cooldownDelay!: boolean;
@@ -285,8 +286,9 @@ class Spell extends GameObjects.Sprite {
         const stats: PlayerStats = store.getState().game.stats;
         const statValue = stats[key];
         const power = typeof statValue === "number" ? statValue : 0;
-        // Value based on base + scaled percentage of base from power + flat percent of power
-        const scaled = base + base * (power / 100) + power / 10;
+        // Value based on base + scaled percentage of base from power + flat percent of power,
+        // times the spell-level multiplier (#387: power only — cost/cooldown don't scale).
+        const scaled = (base + base * (power / 100) + power / 10) * SPELL_LEVEL_POWER[this.level];
         const crit = this.player.isCritical();
         const total = reducer(crit ? scaled * 1.5 : scaled);
         return { crit: crit, amount: total };
