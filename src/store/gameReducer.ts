@@ -27,7 +27,7 @@ import {
     ABILITY_SLOTS,
     SCROLL_SELL_VALUE,
     SCROLL_MERGE_COUNT,
-    SCROLL_DECONSTRUCT_COST,
+    SCROLL_DISPEL_COST,
     SPELL_LEVELS,
     SPELL_RECIPES,
     SPELL_TYPES,
@@ -35,7 +35,7 @@ import {
 import { CLASS_KITS, isKnownClass, isKnownSpell, isOnClass } from "@/lib/classKits";
 import { appliedStatValue } from "@/lib/statConversion";
 import { componentTotal, missingMaterials } from "@/lib/materials";
-import { craftStatus, deconstructStatus, deconstructYield, tradeStatus } from "@/lib/spellCraft";
+import { craftStatus, dispelStatus, dispelYield, tradeStatus } from "@/lib/spellCraft";
 import { colorForQuality } from "@/lib/armoryClient";
 import type { PlayerName } from "@entities/Player/AssignClass";
 import type { SpellType } from "@entities/Spells/AssignSpell";
@@ -509,8 +509,8 @@ export const craftSpell = createAction("CRAFT_SPELL", (spell: SpellType) => ({
 
 // Break 1 scroll of a learnt recipe into its components + special (×3 per level
 // above L1) for a flat coin fee.
-export const deconstructScroll = createAction(
-    "DECONSTRUCT_SCROLL",
+export const dispelScroll = createAction(
+    "DISPEL_SCROLL",
     (spell: SpellType, level: SpellLevel) => ({
         payload: { spell, level },
     })
@@ -630,7 +630,7 @@ export const gameReducer = createReducer(initState, (builder) => {
             );
             // Needs the class, so dispatch after selectCharacter (CharacterCard does).
             state.scrolls = starterScrolls(state.character);
-            // Learn the first two kit spells' recipes so Craft/Deconstruct are
+            // Learn the first two kit spells' recipes so Craft/Dispel are
             // testable; the off-class starter scroll is left to Trade.
             state.spellRecipes = isKnownClass(state.character)
                 ? CLASS_KITS[state.character].slice(0, 2)
@@ -956,15 +956,15 @@ export const gameReducer = createReducer(initState, (builder) => {
             giveScroll(state.scrolls, spell, 1);
         })
         .addCase(
-            deconstructScroll,
+            dispelScroll,
             (state, action: PayloadAction<{ spell: SpellType; level: SpellLevel }>) => {
                 const { spell, level } = action.payload;
                 if (state.currentArea !== "town") return;
                 if (!isKnownSpell(spell) || !isSpellLevel(level)) return;
-                if (!deconstructStatus(state, spell, level).enabled) return;
+                if (!dispelStatus(state, spell, level).enabled) return;
                 takeScrolls(state.scrolls, spell, level, 1);
-                state.coins -= SCROLL_DECONSTRUCT_COST;
-                const { materials, special, specials } = deconstructYield(spell, level);
+                state.coins -= SCROLL_DISPEL_COST;
+                const { materials, special, specials } = dispelYield(spell, level);
                 for (const [type, count] of Object.entries(materials) as Array<
                     [ComponentType, number]
                 >) {

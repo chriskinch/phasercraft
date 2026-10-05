@@ -1,13 +1,13 @@
 import React, { useCallback, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
-import { combineScrolls, deconstructScroll, tradeScroll } from "@store/gameReducer";
+import { combineScrolls, dispelScroll, tradeScroll } from "@store/gameReducer";
 import Button from "@components/Button";
 import ScrollsGrid from "@components/ScrollsGrid";
 import Toast from "@components/Toast";
 import ArcanumCraft from "@components/ArcanumCraft";
 import { SCROLL_MERGE_COUNT, SPELL_DEFS } from "@/types/game";
 import { mergeStatus, scrollStacks } from "@/lib/scrollStatus";
-import { deconstructStatus, deconstructYield, tradeStatus, yieldText } from "@/lib/spellCraft";
+import { dispelStatus, dispelYield, tradeStatus, yieldText } from "@/lib/spellCraft";
 import type { ScrollStackView } from "@/lib/scrollStatus";
 import type { RootState } from "@store";
 import theme from "@ui/themes.module.css";
@@ -20,9 +20,9 @@ const statusFor = ({ spell, level, count }: ScrollStackView) => mergeStatus(spel
 
 // Arcanum (#386, #582): the town shop for scrolls. The header tabs pick Merge
 // (3 of a spell at one level → 1 of the next; Trade a scroll to learn its
-// recipe; Deconstruct one into parts) or Craft (learnt recipes → L1 scrolls).
+// recipe; Dispel one into parts) or Craft (learnt recipes → L1 scrolls).
 // Same scroll grid as Equipment → Scrolls; its tooltip hint carries the Merge
-// rule, and the selected stack's Trade/Deconstruct hints sit under the grid.
+// rule, and the selected stack's Trade/Dispel hints sit under the grid.
 const Arcanum: React.FC = () => {
     const dispatch = useDispatch();
     const game = useSelector((state: RootState) => state.game);
@@ -42,7 +42,7 @@ const Arcanum: React.FC = () => {
     const scroll = stacks.find((s) => s.key === selectedKey) ?? null;
     const merge = scroll ? statusFor(scroll) : null;
     const trade = scroll ? tradeStatus(game, scroll.spell, scroll.level) : null;
-    const deconstruct = scroll ? deconstructStatus(game, scroll.spell, scroll.level) : null;
+    const dispel = scroll ? dispelStatus(game, scroll.spell, scroll.level) : null;
 
     const onMerge = () => {
         if (!scroll || !merge?.readable) return;
@@ -57,11 +57,11 @@ const Arcanum: React.FC = () => {
         notify(`Learnt the ${SPELL_DEFS[scroll.spell].name} recipe`);
     };
 
-    const onDeconstruct = () => {
-        if (!scroll || !deconstruct?.enabled) return;
+    const onDispel = () => {
+        if (!scroll || !dispel?.enabled) return;
         const { spell, level } = scroll;
-        dispatch(deconstructScroll(spell, level));
-        notify(`Got ${yieldText(deconstructYield(spell, level))}`);
+        dispatch(dispelScroll(spell, level));
+        notify(`Got ${yieldText(dispelYield(spell, level))}`);
     };
 
     return (
@@ -78,10 +78,10 @@ const Arcanum: React.FC = () => {
                 )}
                 {toast && <Toast key={toast.id} message={toast.message} onDone={clearToast} />}
             </section>
-            {trade && deconstruct && (
+            {trade && dispel && (
                 <ul className={styles.hints} data-testid="arcanum-hints">
                     <li>Trade: {trade.hint}</li>
-                    <li>Deconstruct: {deconstruct.hint}</li>
+                    <li>Dispel: {dispel.hint}</li>
                 </ul>
             )}
             <section className={styles.actionsSection}>
@@ -99,11 +99,7 @@ const Arcanum: React.FC = () => {
                     disabled={!trade?.enabled}
                     onClick={onTrade}
                 />
-                <Button
-                    text="Deconstruct"
-                    disabled={!deconstruct?.enabled}
-                    onClick={onDeconstruct}
-                />
+                <Button text="Dispel" disabled={!dispel?.enabled} onClick={onDispel} />
             </section>
         </div>
     );

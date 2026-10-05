@@ -35,7 +35,7 @@
     box-sizing: border-box;
 }
 
-/* Selected stack's Trade / Deconstruct hints, under the grid. */
+/* Selected stack's Trade / Dispel hints, under the grid. */
 .hints {
     grid-area: hint;
     list-style: none;

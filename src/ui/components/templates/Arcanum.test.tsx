@@ -5,7 +5,7 @@ import store from "@store";
 import { loadGame, setArcanumTab } from "@store/gameReducer";
 import Arcanum from "@components/Arcanum";
 import type { GameState } from "@store/gameReducer";
-import { SCROLL_DECONSTRUCT_COST, SPELL_RECIPES } from "@/types/game";
+import { SCROLL_DISPEL_COST, SPELL_RECIPES } from "@/types/game";
 
 // Seeds the singleton store (as Equipment.test) so the grid and the Merge
 // button read the same state; restored after each test.
@@ -68,7 +68,7 @@ describe("Arcanum", () => {
         expect(screen.getByTestId("arcanum-hints")).toHaveTextContent(
             "Trade: Trade to learn the Whirlwind recipe."
         );
-        expect(screen.getByRole("button", { name: "Deconstruct" })).toBeDisabled();
+        expect(screen.getByRole("button", { name: "Dispel" })).toBeDisabled();
         fireEvent.click(screen.getByRole("button", { name: "Trade" }));
 
         expect(store.getState().game.spellRecipes).toEqual(["Whirlwind"]);
@@ -76,17 +76,17 @@ describe("Arcanum", () => {
         expect(screen.getByText("Learnt the Whirlwind recipe")).toBeInTheDocument();
     });
 
-    it("disables Trade once the recipe is known and Deconstruct pays the fee", () => {
+    it("disables Trade once the recipe is known and Dispel pays the fee", () => {
         open({
             scrolls: { Fireball: { 2: 1 } },
             spellRecipes: ["Fireball"],
-            coins: SCROLL_DECONSTRUCT_COST,
+            coins: SCROLL_DISPEL_COST,
             components: [],
             specials: {},
         });
         fireEvent.click(screen.getByRole("button", { name: "Fireball Scroll L2 ×1" }));
         expect(screen.getByRole("button", { name: "Trade" })).toBeDisabled();
-        fireEvent.click(screen.getByRole("button", { name: "Deconstruct" }));
+        fireEvent.click(screen.getByRole("button", { name: "Dispel" }));
 
         const game = store.getState().game;
         expect(game.coins).toBe(0);

@@ -1,6 +1,6 @@
 import {
     COMPONENT_DEFS,
-    SCROLL_DECONSTRUCT_COST,
+    SCROLL_DISPEL_COST,
     SCROLL_MERGE_COUNT,
     SPELL_DEFS,
     SPELL_RECIPES,
@@ -11,7 +11,7 @@ import type { SpellType } from "@entities/Spells/AssignSpell";
 import { missingMaterials } from "./materials";
 
 // Phaser-free rules for Arcanum spell crafting (#580): Trade (learn a recipe),
-// Craft (L1 scroll) and Deconstruct. The reducers gate on these same checks, so
+// Craft (L1 scroll) and Dispel. The reducers gate on these same checks, so
 // the Arcanum's enabled buttons and hints can never disagree with the store.
 
 export interface CraftContext {
@@ -35,13 +35,13 @@ const specialName = (id: string) => specialById(id)?.name ?? id;
 // One scroll at `level` is worth this many L1 crafts: ×3 per level (Merge's inverse).
 export const levelMultiplier = (level: SpellLevel): number => SCROLL_MERGE_COUNT ** (level - 1);
 
-export interface DeconstructYield {
+export interface DispelYield {
     materials: Partial<Record<ComponentType, number>>;
     special: string;
     specials: number;
 }
 
-export const deconstructYield = (spell: SpellType, level: SpellLevel): DeconstructYield => {
+export const dispelYield = (spell: SpellType, level: SpellLevel): DispelYield => {
     const recipe = SPELL_RECIPES[spell];
     const times = levelMultiplier(level);
     const materials: Partial<Record<ComponentType, number>> = {};
@@ -51,7 +51,7 @@ export const deconstructYield = (spell: SpellType, level: SpellLevel): Deconstru
     return { materials, special: recipe.special, specials: times };
 };
 
-export const yieldText = ({ materials, special, specials }: DeconstructYield): string =>
+export const yieldText = ({ materials, special, specials }: DispelYield): string =>
     [
         ...(Object.entries(materials) as [ComponentType, number][]).map(
             ([type, count]) => `${count} ${COMPONENT_DEFS[type].name}`
@@ -87,23 +87,23 @@ export const craftStatus = (ctx: CraftContext, spell: SpellType): ActionStatus =
     return { enabled: true, hint: `Crafts 1 ${name} L1.` };
 };
 
-export const deconstructStatus = (
+export const dispelStatus = (
     ctx: CraftContext,
     spell: SpellType,
     level: SpellLevel
 ): ActionStatus => {
-    if (held(ctx, spell, level) < 1) return { enabled: false, hint: "No scroll to deconstruct." };
+    if (held(ctx, spell, level) < 1) return { enabled: false, hint: "No scroll to dispel." };
     if (!ctx.spellRecipes.includes(spell)) {
         return { enabled: false, hint: "Learn its recipe first (Trade)." };
     }
-    if (ctx.coins < SCROLL_DECONSTRUCT_COST) {
+    if (ctx.coins < SCROLL_DISPEL_COST) {
         return {
             enabled: false,
-            hint: `Need ${SCROLL_DECONSTRUCT_COST - ctx.coins} more coins (fee ${SCROLL_DECONSTRUCT_COST}).`,
+            hint: `Need ${SCROLL_DISPEL_COST - ctx.coins} more coins (fee ${SCROLL_DISPEL_COST}).`,
         };
     }
     return {
         enabled: true,
-        hint: `Returns ${yieldText(deconstructYield(spell, level))} for ${SCROLL_DECONSTRUCT_COST} coins.`,
+        hint: `Returns ${yieldText(dispelYield(spell, level))} for ${SCROLL_DISPEL_COST} coins.`,
     };
 };
