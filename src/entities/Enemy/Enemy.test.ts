@@ -82,7 +82,7 @@ describe("Enemy.attack", () => {
         expect(enemy.weapon.swoosh).toHaveBeenCalledTimes(1);
         expect(ProjectileMock).not.toHaveBeenCalled();
         expect(enemy.scene.add.sprite).not.toHaveBeenCalled();
-        expect(enemy.scene.events.emit).toHaveBeenCalledWith("enemy:attack", 12, type);
+        expect(enemy.scene.events.emit).toHaveBeenCalledWith("enemy:attack", 12, type, enemy);
         expect(playSfx).toHaveBeenCalledTimes(1);
         expect(playSfx).toHaveBeenCalledWith("hurt");
     });
@@ -101,7 +101,7 @@ describe("Enemy.attack", () => {
 
         opts.onImpact(enemy.scene.player);
 
-        expect(enemy.scene.events.emit).toHaveBeenCalledWith("enemy:attack", 12, "ranged");
+        expect(enemy.scene.events.emit).toHaveBeenCalledWith("enemy:attack", 12, "ranged", enemy);
         expect(enemy.scene.add.sprite).toHaveBeenCalledWith(0, 100, "enemy-bolt", 0);
         const burst = enemy.scene.add.sprite.mock.results[0].value;
         expect(burst.play).toHaveBeenCalledWith("enemy-bolt-impact");
