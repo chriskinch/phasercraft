@@ -1,9 +1,10 @@
 import Enemy from "./Enemy";
+import CastBar from "@entities/UI/CastBar";
 import type { EnemyOptions } from "@/types/game";
 
 // Cast time, cooldown after a heal lands (ms), and heal size as a fraction of
 // the target's max health.
-export const HEAL_CAST_MS = 3000;
+export const HEAL_CAST_MS = 1000;
 export const HEAL_COOLDOWN_MS = 5000;
 export const HEAL_FRACTION = 0.25;
 
@@ -12,6 +13,8 @@ class Healer extends Enemy {
     public heal_timer: Phaser.Time.TimerEvent | null = null;
     // Post-heal cooldown; heals wait for it, auto-attacks don't.
     public heal_cooldown: Phaser.Time.TimerEvent | null = null;
+    // Shows the heal cast; above the health bar (-30).
+    public castBar!: CastBar;
 
     constructor(config: EnemyOptions) {
         const defaults = {
@@ -20,6 +23,7 @@ class Healer extends Enemy {
         };
         super({ ...defaults, ...config });
 
+        this.castBar = new CastBar(this.scene, this, { y: -36, listen: false });
         this.once("enemy:last", this.lastStanding, this);
     }
 
@@ -27,6 +31,9 @@ class Healer extends Enemy {
         super.update(time ?? 0, delta ?? 0);
 
         if (this.active_group.getChildren().length === 1) this.emit("enemy:last", this);
+
+        // Damage doesn't interrupt a heal cast; a stun does.
+        if (this.heal_timer && this.isStunned()) this.interruptHeal();
 
         // Scan only when able to cast (getHealTarget is pure), once, and hand
         // the result to healTarget rather than letting it re-scan. Enemy.update
@@ -76,10 +83,12 @@ class Healer extends Enemy {
 
     healTarget(target: Enemy | undefined = this.getHealTarget()): void {
         this.states.attack = "casting";
+        this.castBar.onStart({ duration: HEAL_CAST_MS / 1000 });
         this.heal_timer = this.scene.time.addEvent({
             delay: HEAL_CAST_MS,
             callback: (t: Enemy) => {
                 this.heal_timer = null;
+                this.castBar.onStop();
                 // The death animation runs before destroy(), so the healer can
                 // be dead while the cast is still pending.
                 if (this.state === "dead") return;
@@ -103,9 +112,25 @@ class Healer extends Enemy {
         });
     }
 
+    // Cancel the pending cast without healing or starting the cooldown; the
+    // healer can recast once it is able to.
+    interruptHeal(): void {
+        this.heal_timer?.remove(false);
+        this.heal_timer = null;
+        this.castBar.onStop();
+        this.states.attack = "primed";
+    }
+
+    death(): void {
+        // Drop the cast bar with the cast as the death animation starts.
+        this.interruptHeal();
+        super.death();
+    }
+
     cleanup(): void {
         this.heal_timer?.remove(false);
         this.heal_timer = null;
+        this.castBar?.cleanup();
         this.heal_cooldown?.remove(false);
         this.heal_cooldown = null;
         super.cleanup();

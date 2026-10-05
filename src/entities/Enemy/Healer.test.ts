@@ -1,6 +1,6 @@
 import { describe, it, expect, vi, afterEach } from "vitest";
 import { maxBy } from "lodash";
-import Healer, { HEAL_COOLDOWN_MS, HEAL_FRACTION } from "./Healer";
+import Healer, { HEAL_CAST_MS, HEAL_COOLDOWN_MS, HEAL_FRACTION } from "./Healer";
 import Enemy from "./Enemy";
 
 // Healer target scan: the single-pass getHealTarget must pick exactly what
@@ -109,7 +109,9 @@ describe("Healer.update heal cast", () => {
         Object.assign(healer, {
             state: "spawned",
             banes: { stunned: false },
+            heal_timer: null,
             heal_cooldown: null,
+            castBar: { onStart: vi.fn(), onStop: vi.fn(), cleanup: vi.fn() },
             states: { movement: "idle", attack },
             distance_to_player: Infinity,
             circling: null,
@@ -140,6 +142,19 @@ describe("Healer.update heal cast", () => {
         const busy = makeUpdatable("casting", [fake("a", 100, 10)]);
         busy.healer.update(0, 16);
         expect(busy.addEvent).not.toHaveBeenCalled();
+    });
+
+    it("interrupts a cast in progress when stunned, but not when merely hit", () => {
+        const { healer } = makeUpdatable("casting", [fake("a", 100, 10)]);
+        const interrupt = vi.spyOn(healer, "interruptHeal");
+        healer.heal_timer = { remove: vi.fn() } as unknown as Phaser.Time.TimerEvent;
+
+        healer.update(0, 16);
+        expect(interrupt).not.toHaveBeenCalled();
+
+        healer.banes = { stunned: true } as Healer["banes"];
+        healer.update(0, 16);
+        expect(interrupt).toHaveBeenCalledOnce();
     });
 
     it("does not cast while stunned, on cooldown, or not yet spawned", () => {
@@ -187,15 +202,18 @@ describe("Healer heal timer", () => {
                 return timer;
             }
         );
+        const castBar = { onStart: vi.fn(), onStop: vi.fn(), cleanup: vi.fn() };
         Object.assign(healer, {
             state: "idle",
             states: { movement: "idle", attack: "primed" },
             heal_timer: null,
             heal_cooldown: null,
+            castBar,
             scene: { time: { addEvent } },
         });
         return {
             healer,
+            castBar,
             timer,
             cooldown,
             target,
@@ -206,12 +224,15 @@ describe("Healer heal timer", () => {
     }
 
     it("heals a fraction of the target's max health, then cools down", () => {
-        const { healer, timer, cooldown, target, adjustValue, fire, endCooldown } = makeCaster();
+        const { healer, castBar, timer, cooldown, target, adjustValue, fire, endCooldown } =
+            makeCaster();
         healer.healTarget(target as unknown as Enemy);
         expect(healer.heal_timer).toBe(timer);
         expect(healer.states.attack).toBe("casting");
+        expect(castBar.onStart).toHaveBeenCalledWith({ duration: HEAL_CAST_MS / 1000 });
 
         fire();
+        expect(castBar.onStop).toHaveBeenCalledOnce();
         expect(adjustValue).toHaveBeenCalledWith(200 * HEAL_FRACTION, "heal", false);
         expect(healer.states.attack).toBe("primed");
         expect(healer.heal_timer).toBeNull();
@@ -245,6 +266,39 @@ describe("Healer heal timer", () => {
 
         fire();
         expect(adjustValue).not.toHaveBeenCalled();
+    });
+
+    it("a stun interrupts the cast: no heal, no cooldown, cast bar hidden", () => {
+        const { healer, castBar, timer, target, adjustValue } = makeCaster();
+        healer.healTarget(target as unknown as Enemy);
+
+        healer.interruptHeal();
+        expect(timer.remove).toHaveBeenCalledWith(false);
+        expect(healer.heal_timer).toBeNull();
+        expect(healer.heal_cooldown).toBeNull();
+        expect(healer.states.attack).toBe("primed");
+        expect(castBar.onStop).toHaveBeenCalledOnce();
+        expect(adjustValue).not.toHaveBeenCalled();
+    });
+
+    it("death cancels the cast and hides the cast bar", () => {
+        const { healer, castBar, timer, target } = makeCaster();
+        const base = vi.spyOn(Enemy.prototype, "death").mockImplementation(() => {});
+        healer.healTarget(target as unknown as Enemy);
+
+        healer.death();
+        expect(timer.remove).toHaveBeenCalledWith(false);
+        expect(castBar.onStop).toHaveBeenCalledOnce();
+        expect(base).toHaveBeenCalledOnce();
+        base.mockRestore();
+    });
+
+    it("cleanup releases the cast bar", () => {
+        const { healer, castBar } = makeCaster();
+        const base = vi.spyOn(Enemy.prototype, "cleanup").mockImplementation(() => {});
+        healer.cleanup();
+        expect(castBar.cleanup).toHaveBeenCalledOnce();
+        base.mockRestore();
     });
 
     it("cleanup removes the heal cooldown", () => {
