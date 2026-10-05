@@ -2,6 +2,9 @@ import Enemy from "./Enemy";
 import { maxBy } from "lodash";
 import type { EnemyOptions } from "@/types/game";
 class Healer extends Enemy {
+    // The pending heal cast, removed in cleanup() so a dead healer can't land it.
+    public heal_timer: Phaser.Time.TimerEvent | null = null;
+
     constructor(config: EnemyOptions) {
         const defaults = {
             circling_radius: 70,
@@ -44,14 +47,24 @@ class Healer extends Enemy {
     healTarget(): void {
         this.states.attack = "casting";
         const target = this.getHealTarget();
-        this.scene.time.addEvent({
+        this.heal_timer = this.scene.time.addEvent({
             delay: 3000,
             callback: (t: Enemy) => {
+                this.heal_timer = null;
+                // The death animation runs before destroy(), so the healer can
+                // be dead while the cast is still pending.
+                if (this.state === "dead") return;
                 if (t && t.state !== "dead") t.health.adjustValue(50, "magic_power", false);
                 this.states.attack = "primed";
             },
             args: [target],
         });
+    }
+
+    cleanup(): void {
+        this.heal_timer?.remove(false);
+        this.heal_timer = null;
+        super.cleanup();
     }
 
     getMissingHealth(enemy: Enemy): number {
