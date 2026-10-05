@@ -311,3 +311,77 @@ describe("Player.attack sound", () => {
         expect(playSfx).toHaveBeenCalledWith("hurt");
     });
 });
+
+// The first enemy to hit the player from within the player's auto-attack range
+// becomes the target; an existing live target is never switched.
+describe("Player.retaliate", () => {
+    function makeEnemyStub({ alive = true, x = 30 } = {}) {
+        return { alive, x, y: 0, select: vi.fn(), deselect: vi.fn() };
+    }
+
+    function makeRetaliator({ selected = null as unknown, range = 20 } = {}) {
+        const player = Object.create(Player.prototype) as {
+            scene: { selected: unknown };
+            stats: { range: number };
+            x: number;
+            y: number;
+            alive: boolean;
+            dragging: boolean;
+            retaliate(attacker?: unknown): void;
+        };
+        player.scene = { selected };
+        player.stats = { range };
+        player.x = 0;
+        player.y = 0;
+        player.alive = true;
+        player.dragging = false;
+        return player;
+    }
+
+    it("targets an attacker within auto-attack range when nothing is selected", () => {
+        const attacker = makeEnemyStub({ x: 35 });
+        makeRetaliator({ range: 20 }).retaliate(attacker);
+        expect(attacker.select).toHaveBeenCalledTimes(1);
+    });
+
+    it("ignores an attacker beyond auto-attack range", () => {
+        const attacker = makeEnemyStub({ x: 36 });
+        makeRetaliator({ range: 20 }).retaliate(attacker);
+        expect(attacker.select).not.toHaveBeenCalled();
+    });
+
+    it("a longer-ranged player (Ranger) retaliates further out", () => {
+        const attacker = makeEnemyStub({ x: 200 });
+        makeRetaliator({ range: 200 }).retaliate(attacker);
+        expect(attacker.select).toHaveBeenCalledTimes(1);
+    });
+
+    it("does not switch from a live target", () => {
+        const attacker = makeEnemyStub();
+        makeRetaliator({ selected: makeEnemyStub() }).retaliate(attacker);
+        expect(attacker.select).not.toHaveBeenCalled();
+    });
+
+    it("replaces a dead target", () => {
+        const dead = makeEnemyStub({ alive: false });
+        const attacker = makeEnemyStub();
+        makeRetaliator({ selected: dead }).retaliate(attacker);
+        expect(dead.deselect).toHaveBeenCalledTimes(1);
+        expect(attacker.select).toHaveBeenCalledTimes(1);
+    });
+
+    it("skips while dragging a move, when dead, or without a live attacker", () => {
+        const attacker = makeEnemyStub();
+        const dragging = makeRetaliator();
+        dragging.dragging = true;
+        dragging.retaliate(attacker);
+        const dead = makeRetaliator();
+        dead.alive = false;
+        dead.retaliate(attacker);
+        makeRetaliator().retaliate(undefined);
+        const deadAttacker = makeEnemyStub({ alive: false });
+        makeRetaliator().retaliate(deadAttacker);
+        expect(attacker.select).not.toHaveBeenCalled();
+        expect(deadAttacker.select).not.toHaveBeenCalled();
+    });
+});

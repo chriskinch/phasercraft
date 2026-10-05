@@ -402,7 +402,8 @@ class Player extends GameObjects.Container {
         this.alive = false;
     }
 
-    hit(power: number, attackType?: CombatType): void {
+    hit(power: number, attackType?: CombatType, attacker?: Enemy): void {
+        this.retaliate(attacker);
         const damage = Math.ceil(power * (100 / (100 + (this.stats.defence || 0))));
         this.scene.events.emit("player:attacked", this);
         const hasShield = "hasShield" in this.shield && this.shield.hasShield();
@@ -411,6 +412,26 @@ class Player extends GameObjects.Container {
         // the hit interrupts (channelled spells ignore ranged attacks).
         if (!hasShield) this.scene.events.emit("player:hit", this, attackType);
         pool.adjustValue(-damage);
+    }
+
+    // Auto-target the first enemy to hit the player from within the player's
+    // own auto-attack range (so a Ranger retaliates further out). Only with no
+    // live target: an existing target, picked or auto, is never switched.
+    // Skipped while the player is dragging a move, which goToRange would
+    // otherwise override.
+    retaliate(attacker?: Enemy): void {
+        if (!attacker || !this.alive || this.dragging || !attacker.alive) return;
+        const selected = (this.scene as GameSceneLike).selected;
+        if (selected?.alive) return;
+        if (!this.inAttackRange(attacker)) return;
+        selected?.deselect();
+        attacker.select();
+    }
+
+    // The auto-attack reach check goToRange uses (15px allowance for bodies).
+    inAttackRange(target: { x: number; y: number }): boolean {
+        const distance = PhaserMath.Distance.Between(target.x, target.y, this.x, this.y);
+        return distance - 15 <= (this.stats.range || 0);
     }
 
     idle(): void {
@@ -434,10 +455,7 @@ class Player extends GameObjects.Container {
         // scrolling, because at scroll 0 the conversion is the identity. Note
         // the distance check below has always read target.x/y raw.
         this.moveToWorldPoint(target);
-        let distance = PhaserMath.Distance.Between(target.x, target.y, this.x, this.y);
-        let hit_distance = distance - 15;
-
-        if (hit_distance <= (this.stats.range || 0)) {
+        if (this.inAttackRange(target)) {
             this.idle();
             this.attack_delay = null;
             if (this.attack_ready) this.attack(target);
