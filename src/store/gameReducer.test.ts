@@ -41,7 +41,8 @@ import {
     combineScrolls,
     tradeScroll,
     craftSpell,
-    deconstructScroll,
+    dispelScroll,
+    setArcanumTab,
 } from "./gameReducer";
 import type { GameState } from "./gameReducer";
 import type { LootItem, SpellLevel, SpellType } from "@/types/game";
@@ -58,7 +59,7 @@ import {
     recipeById,
     specialById,
     SPELL_RECIPES,
-    SCROLL_DECONSTRUCT_COST,
+    SCROLL_DISPEL_COST,
 } from "@/types/game";
 
 // A fixed restock window with a large positive stock delta layered on, so buy
@@ -1124,6 +1125,15 @@ describe("abilities", () => {
             quantity: n * times,
         }));
 
+    describe("setArcanumTab", () => {
+        it("switches tabs, ignores unknown ones and resets to merge on load", () => {
+            const craft = gameReducer(mage(), setArcanumTab("craft"));
+            expect(craft.arcanumTab).toBe("craft");
+            expect(gameReducer(craft, setArcanumTab("nope" as "craft")).arcanumTab).toBe("craft");
+            expect(gameReducer(init(), loadGame(craft)).arcanumTab).toBe("merge");
+        });
+    });
+
     describe("tradeScroll", () => {
         it("consumes 1 scroll of any level and learns the recipe", () => {
             const before = mage({ scrolls: { Fireball: { 2: 2 } } });
@@ -1187,13 +1197,13 @@ describe("abilities", () => {
         });
     });
 
-    describe("deconstructScroll", () => {
+    describe("dispelScroll", () => {
         const learnt = (overrides: Partial<GameState> = {}) =>
             mage({
                 spellRecipes: ["Fireball"],
                 components: [],
                 specials: {},
-                coins: SCROLL_DECONSTRUCT_COST,
+                coins: SCROLL_DISPEL_COST,
                 ...overrides,
             });
 
@@ -1205,7 +1215,7 @@ describe("abilities", () => {
             "returns L%i parts and specials ×%i for the flat fee",
             (level, times) => {
                 const before = learnt({ scrolls: { Fireball: { [level]: 1 } } });
-                const state = gameReducer(before, deconstructScroll("Fireball", level));
+                const state = gameReducer(before, dispelScroll("Fireball", level));
                 expect(state.scrolls).toEqual({});
                 expect(state.coins).toBe(0);
                 for (const [type, n] of Object.entries(fireball.materials)) {
@@ -1219,11 +1229,11 @@ describe("abilities", () => {
             const cases = [
                 learnt({ spellRecipes: [], scrolls: { Fireball: { 1: 1 } } }),
                 learnt({ scrolls: {} }),
-                learnt({ coins: SCROLL_DECONSTRUCT_COST - 1, scrolls: { Fireball: { 1: 1 } } }),
+                learnt({ coins: SCROLL_DISPEL_COST - 1, scrolls: { Fireball: { 1: 1 } } }),
                 learnt({ currentArea: "forest", scrolls: { Fireball: { 1: 1 } } }),
             ];
             for (const before of cases) {
-                expect(gameReducer(before, deconstructScroll("Fireball", 1))).toEqual(before);
+                expect(gameReducer(before, dispelScroll("Fireball", 1))).toEqual(before);
             }
         });
     });
