@@ -38,6 +38,7 @@ import {
     addScroll,
     equipAbility,
     sellScroll,
+    combineScrolls,
 } from "./gameReducer";
 import type { GameState } from "./gameReducer";
 import type { LootItem, SpellLevel, SpellType } from "@/types/game";
@@ -1069,6 +1070,39 @@ describe("abilities", () => {
             const before = mage();
             expect(gameReducer(before, equipAbility(5, "Fireball"))).toEqual(before);
             expect(gameReducer(before, equipAbility(-1, null))).toEqual(before);
+        });
+    });
+
+    describe("combineScrolls", () => {
+        it("merges 3 of a level into 1 of the next, keeping any remainder", () => {
+            const before = mage({ scrolls: { Fireball: { 1: 4, 2: 1 } } });
+            const state = gameReducer(before, combineScrolls("Fireball", 1));
+            expect(state.scrolls).toEqual({ Fireball: { 1: 1, 2: 2 } });
+        });
+
+        it("drops the emptied level and merges off-class scrolls too", () => {
+            const before = mage({ scrolls: { Whirlwind: { 2: 3 } } });
+            const state = gameReducer(before, combineScrolls("Whirlwind", 2));
+            expect(state.scrolls).toEqual({ Whirlwind: { 3: 1 } });
+        });
+
+        it("does not touch learned spells", () => {
+            const before = mage({
+                learnedSpells: { Fireball: 1 },
+                scrolls: { Fireball: { 1: 3 } },
+            });
+            expect(gameReducer(before, combineScrolls("Fireball", 1)).learnedSpells).toEqual({
+                Fireball: 1,
+            });
+        });
+
+        it("refuses fewer than 3, max level, unknown spells and outside town", () => {
+            const before = mage({ scrolls: { Fireball: { 1: 2, 3: 5 } } });
+            expect(gameReducer(before, combineScrolls("Fireball", 1))).toEqual(before);
+            expect(gameReducer(before, combineScrolls("Fireball", 3))).toEqual(before);
+            expect(gameReducer(before, combineScrolls("Nope" as SpellType, 1))).toEqual(before);
+            const away = mage({ currentArea: "forest", scrolls: { Fireball: { 1: 3 } } });
+            expect(gameReducer(away, combineScrolls("Fireball", 1))).toEqual(away);
         });
     });
 

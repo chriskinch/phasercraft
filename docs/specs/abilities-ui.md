@@ -150,6 +150,12 @@ tab tooltip. White, 5 px border in the level colour (grey / green / blue).
   instantiating a Phaser object; the spell classes read from `SPELL_DEFS` instead
   (single source of truth). `classes` is a list because Fireball is shared by Mage and
   Occultist.
+- **Level scaling (#387)** — `SpellDef.scaling` (required): aspect → `{1,2,3}` multiplier
+  curve; `SPELL_ASPECTS[spell]` lists the aspects a spell can scale (`power` for
+  `setValue()` damage/healing, `duration`, buff/bane stat keys, per-tick amounts, trap
+  damage). Unlisted aspects keep their L1 value; cost and cooldown never scale. **Every
+  new ability must define its scaling** as part of its spec (maintainer picks aspects +
+  curve). The ability card's "Next" line lists the scaled aspects.
 - `PASSIVE_DEFS: Record<PassiveType, PassiveDef>` — empty registry; `PassiveType` a
   string-literal union to be filled later.
 - Store (`GameState`, persisted):

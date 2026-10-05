@@ -6,6 +6,7 @@ import PaginationControls from "@components/PaginationControls";
 import { usePagination, useMeasuredPageSize } from "@ui/hooks/usePagination";
 import { SPELL_DEFS } from "@/types/game";
 import { scrollStacks, scrollStatus } from "@/lib/scrollStatus";
+import type { ScrollStackView, ScrollStatus } from "@/lib/scrollStatus";
 import type { RootState } from "@store";
 import { ICON_TILE, ICON_TILE_GAP } from "@ui/themes";
 // Same tiles and count badge as the Parts grid.
@@ -18,11 +19,14 @@ interface ScrollsGridProps {
     // the Learn / Sell buttons act on it.
     selectedKey: string | null;
     onSelect: (key: string) => void;
+    // Tooltip hint per stack. Defaults to the Equipment Learn rules; the Arcanum
+    // passes its Merge rules.
+    statusFor?: (stack: ScrollStackView) => ScrollStatus;
 }
 
 // The inventory's Scrolls tab: one tile per spell + level held, with a count
 // badge and a tooltip carrying the readability hint.
-const ScrollsGrid: React.FC<ScrollsGridProps> = ({ selectedKey, onSelect }) => {
+const ScrollsGrid: React.FC<ScrollsGridProps> = ({ selectedKey, onSelect, statusFor }) => {
     const { scrolls, character, learnedSpells, abilityLoadout, resource } = useSelector(
         (state: RootState) => ({
             scrolls: state.game.scrolls,
@@ -67,7 +71,8 @@ const ScrollsGrid: React.FC<ScrollsGridProps> = ({ selectedKey, onSelect }) => {
                 }
                 data-testid="scrolls-grid"
             >
-                {pageItems.map(({ key, spell, level, count }, i) => {
+                {pageItems.map((stack, i) => {
+                    const { key, spell, level, count } = stack;
                     // Open the card inward: left-half columns align its left edge to
                     // the tile, right-half its right edge; an odd grid's middle centres.
                     const col = i % cols;
@@ -75,11 +80,9 @@ const ScrollsGrid: React.FC<ScrollsGridProps> = ({ selectedKey, onSelect }) => {
                     const place = col < mid ? "top-start" : col > mid ? "top-end" : "top";
                     const isSelected = key === selectedKey;
                     const tooltipId = `scroll-${key}`;
-                    const status = scrollStatus(
-                        { character, learnedSpells, abilityLoadout },
-                        spell,
-                        level
-                    );
+                    const status = statusFor
+                        ? statusFor(stack)
+                        : scrollStatus({ character, learnedSpells, abilityLoadout }, spell, level);
                     return (
                         <React.Fragment key={key}>
                             <ScrollTooltip

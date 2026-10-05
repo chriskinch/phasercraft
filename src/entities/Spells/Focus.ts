@@ -1,5 +1,6 @@
 import Boon from "./Boon";
 import { spellDefDefaults } from "@/types/game";
+import { levelFactor, scaleEffect } from "@/lib/levelScaling";
 import type { SpellOptions } from "@/types/game";
 import type { EffectValue } from "@entities/UI/StatusEffects";
 
@@ -21,6 +22,8 @@ class Focus extends Boon {
     public duration: number;
     public value: FocusValue;
     public timer?: Phaser.Time.TimerEvent;
+    // L1 duration; applyLevel() derives duration/value (from FOCUS_VALUE).
+    private baseDuration!: number;
 
     constructor(config: SpellOptions) {
         const defaults = {
@@ -37,6 +40,13 @@ class Focus extends Boon {
         this.type = "physical";
         this.duration = 6;
         this.value = FOCUS_VALUE;
+        this.baseDuration = this.duration;
+        this.applyLevel();
+    }
+
+    applyLevel(): void {
+        this.duration = this.baseDuration * levelFactor(this.spellType, "duration", this.level);
+        this.value = scaleEffect(this.spellType, FOCUS_VALUE, this.level);
     }
 
     effect(): void {
