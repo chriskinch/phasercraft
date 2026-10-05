@@ -452,9 +452,46 @@ is the source of truth for the screen; the table below covers the data model.
 - [ ] Pixel-art shop backgrounds / graphics, final prices & interface polish; optionally
       promote shops from overlays to full Phaser scenes
 
+## Phase 14 — Performance: 60fps on flagship mobile at 50 enemies (epic #502, done)
+
+Gameplay `liveCap` stays 15; 50 enemies is the perf-harness load. Measured with a
+`VITE_PERF=1` build only (`npm run perf`, `perf:equivalence`, on-device `?perf=<scenario>`).
+
+- [x] L0 harness + frame-time matrix (#526), seeded equivalence net (#527), on-device run mode (#565)
+- [x] L1 quick wins (#528–#532, PR #572), plus sparse biome tilemaps (heap 159.7 → 39.7 MB
+      headless) and a Coin/Crafting collider leak fix
+- [x] L2 health bars + selection ring without per-enemy Graphics (#533, PR #570); bitmap-font
+      combat text, then no Arcade body per hit (#534, PRs #569, #574)
+- [x] L4 close-out (#542): this entry. Harness counts colliders and loot; `&frames=36000` is a
+      10-minute device run
+- Dropped: #535, #536, #537, #538, #539, #540, #541 (sub-millisecond gains for days of work
+  and replay-hash risk once the device was vsync-bound); reopen one only if a device trace
+  points at it. #539 (Enemy restructure) is judged on co-op (#391) grounds, not perf.
+
+Device result (maintainer's flagship phone, combat × 50, 1200 frames): frame p50/p95/p99
+33.3/33.4/50 ms → 16.7/16.8/16.8 ms, 0 frames > 33 ms, CPU work p95 8.6 ms (about half the
+budget), Graphics objects 180 → 4, heap 368 → 202 MB. Headless (CPU × 4) work p50 fell a
+further 3–26 % with #572 and #574.
+
+Not captured at close: iPhone Safari/PWA traces and a 10-minute sustained run. The perf
+build at `perf/device` (Vercel preview) runs both; a regression there becomes a new
+targeted story.
+
+### Decisions update (2026-10-05) — Performance (Phase 14)
+
+| Topic       | Decision                                                                                                                                                                                                                                                                                                                                        |
+| ----------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Fidelity    | Every perf story passes the exact seeded replay hash and pixel-for-pixel equivalence screenshots. Intended gameplay changes regenerate goldens with `PERF_EQUIVALENCE=update`.                                                                                                                                                                  |
+| Exceptions  | Combat text only needs to look the same at play speed (≤ 1 px kerning). In-game text moved to the bitByBit bitmap font (#569, goldens regenerated: Phaser `Text` drew `Math.random` per instance). #533 shifted 3–142 px of rotated VFX edges in headless screenshots; accepted. PRs with accepted visual change carry the `perf-visual` label. |
+| AI throttle | The ~10 Hz staggered AI with tolerance-mode equivalence (#537) is not built: decisions cost < 0.2 ms at 50 enemies.                                                                                                                                                                                                                             |
+| Distances   | No squared-distance swaps: `s < r*r` differs from `sqrt(s) < r` at the boundary for in-game radii, which breaks the exact hash.                                                                                                                                                                                                                 |
+| Harness     | Perf hooks compile only into `VITE_PERF=1` builds. Seeded RNG, fixed-step replays, headless Chromium with a 4× CPU throttle. Report only, never gates: runs on the `perf` PR label and nightly on `main`. Headless renders on the CPU, so render wins are proved on device.                                                                     |
+| Stop rule   | Stop at the target. Once the device is vsync-bound (16.7 ms frames, CPU about half used), further CPU work only adds headroom; reopen stories only on a device trace.                                                                                                                                                                           |
+
 ## Deferred / backlog
 
 - **Retire GitHub Pages**: remove the `gh-pages` deploy workflow and `VITE_BASE_URL` transition shim once Vercel production is confirmed stable (follow-up to Phase 6).
 - Coverage ratchet toward 80%+ on non-Phaser code
 - Enable `noUncheckedIndexedAccess` (deferred from Phase 3; 29 sites needing deliberate guard/fallback decisions) (#333)
+- `Healer.healTarget` 3s heal timer is not stored or removed: it still heals its target after the healer dies (found in #531)
 - Lifecycle cleanup for `AreaEffect` overlap colliders and `StatusEffects`/`Banes` timers (pre-existing leaks surfaced during Phase 3) (#328)
