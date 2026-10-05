@@ -806,7 +806,7 @@ export interface SpellDef {
     castRange?: number;
     targetKind: TargetKind;
     // Per-aspect level curves (#387). Required: every ability defines how it
-    // scales with level (pick from its SPELL_ASPECTS); `{}` only by decision.
+    // scales with level (pick from its SPELL_ASPECTS); a test fails if it is empty.
     scaling: SpellScaling;
 }
 
