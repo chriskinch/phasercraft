@@ -162,8 +162,8 @@ tab tooltip. White, 5 px border in the level colour (grey / green / blue).
       (`spellRecipes`).
     - **Craft** a learnt recipe → 1 **L1** scroll; costs its components, coins and its
       one **mandatory** special item. Scrolls are never craft inputs.
-    - **Deconstruct** a scroll of a learnt spell → its components + special ×3 per
-      level above L1 (L1 ×1, L2 ×3, L3 ×9) for a flat `SCROLL_DECONSTRUCT_COST`; the
+    - **Dispel** a scroll of a learnt spell → its components + special ×3 per
+      level above L1 (L1 ×1, L2 ×3, L3 ×9) for a flat `SCROLL_DISPEL_COST`; the
       recipe's coins are not refunded.
     - Guards and hints: `src/lib/spellCraft.ts`. **Every new ability must define its
       recipe.** Later: a **Fuse** tab (2 spells + 1 legendary, #583).
@@ -180,7 +180,7 @@ tab tooltip. White, 5 px border in the level colour (grey / green / blue).
 - Actions: `readScroll(spell, level)` (learn/upgrade + auto-equip), `equipAbility(slot,
 spell | null)` (swap semantics; refused outside town), `sellScroll(spell, level,
 count)`. Combining is #386's `combineScrolls`; crafting is `tradeScroll`,
-  `craftSpell`, `deconstructScroll` (#580).
+  `craftSpell`, `dispelScroll` (#580).
 - Runtime: `Player` builds spells from `abilityLoadout` + `learnedSpells` instead of
   the class `abilities` array (which becomes the seed source only). Mid-run
   auto-equip/upgrade: the scene listens for the change and spawns/updates the one

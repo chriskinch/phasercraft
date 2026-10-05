@@ -2,7 +2,7 @@ import React, { useEffect, useMemo, useState } from "react";
 import { useSelector, useDispatch } from "react-redux";
 import { craftItem, componentTotal, missingMaterials } from "@store/gameReducer";
 import Button from "@components/Button";
-import LootIcon from "@components/LootIcon";
+import ForgeSlot from "@components/ForgeSlot";
 import { COMPONENT_DEFS, RECIPES, SPECIAL_ITEMS } from "@/types/game";
 import type { ComponentType, Recipe, RecipeResult, SpecialItem } from "@/types/game";
 import { colorForQuality } from "@/lib/armoryClient";
@@ -33,20 +33,6 @@ import styles from "./Blacksmith.module.css";
 // There is deliberately no <h2> heading in here either: the menu registry in
 // `UI.tsx` supplies the panel title ("Blacksmith"), exactly as it does for the
 // Merchant, so rendering one locally would print it twice.
-
-// Light rarity tints for a filled slot's emboss, from the spec's table. The
-// slot carries the item's rarity so the sprite can sit on it bare.
-const RARITY_TINT: Record<string, { rgb: string; a: number }> = {
-    common: { rgb: "187,187,187", a: 0.35 },
-    fine: { rgb: "0,221,0", a: 0.18 },
-    rare: { rgb: "0,119,255", a: 0.16 },
-    epic: { rgb: "153,0,255", a: 0.16 },
-    legendary: { rgb: "255,153,0", a: 0.2 },
-};
-
-// `pixelEmbossVars` derives the lip from the fill at 3x alpha, which matches the
-// spec's lip column closely enough to keep one seam rather than two.
-const tintVars = (quality: string) => pixelEmbossVars(RARITY_TINT[quality] ?? RARITY_TINT.common);
 
 // The four component slots are fixed; a recipe fills them in catalog order and
 // any it does not use stays empty.
@@ -84,34 +70,8 @@ const statRows = (result: RecipeResult) =>
         };
     });
 
-interface SlotProps {
-    quality?: string;
-    category?: string;
-    icon?: string;
-    empty?: React.ReactNode;
-    emptyTint?: React.CSSProperties;
-}
-
-// One square slot on the forge line. Filled slots take a rarity-tinted emboss
-// and draw the sprite bare; empty ones keep the default emboss unless given
-// their own tint (the special slot's faint purple).
-const Slot: React.FC<SlotProps> = ({ quality, category, icon, empty, emptyTint }) => (
-    <div
-        className={`${theme.pixelEmboss} ${styles.slot}`}
-        style={quality ? tintVars(quality) : emptyTint}
-    >
-        {category && icon ? (
-            <LootIcon
-                bare
-                category={category}
-                color={colorForQuality(quality ?? "common")}
-                icon={icon}
-            />
-        ) : (
-            <span className={styles.slotEmpty}>{empty}</span>
-        )}
-    </div>
-);
+// Forge-line slot, shared with the Arcanum's Craft tab.
+const Slot = ForgeSlot;
 
 const Blacksmith: React.FC = () => {
     const dispatch = useDispatch();

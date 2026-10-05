@@ -1,0 +1,17 @@
+/* One square slot on a crafting line (Blacksmith forge, Arcanum Craft).
+   Square footprint: the emboss adds 6px ears each side and a 6px top lip, so a
+   box of ICON_TILE wide renders as an ICON_TILE + 12 square overall — the same
+   footprint as every other item grid since #477. */
+.slot {
+    width: 56px;
+    height: 56px;
+    flex: none;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.slotEmpty {
+    font-size: 1.5rem;
+    color: #4d5d66;
+}
