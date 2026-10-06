@@ -6,13 +6,12 @@ import { readSave, writeSave, removeSave, SAVE_SLOTS } from "@services/saveStora
 import type { GameSceneLike } from "@/types/scene";
 import { FONTS, pixelFontSize } from "@config/fonts";
 
-// Coin and enemy readouts: plain white bitmap text, left-aligned, centred on
-// their icon.
+// The coin readout: plain white bitmap text, left-aligned, centred on its icon.
 const label = (scene: Scene, text: string) =>
     scene.add.bitmapText(15, 0, FONTS.plain, text, pixelFontSize(2)).setOrigin(0, 0.5);
 
-// The coin/enemy readouts are plain containers with a `text` child stashed on
-// the instance so the store subscriptions can update it.
+// The coin readout is a plain container with a `text` child stashed on the
+// instance so the store subscription can update it.
 type LabelledContainer = GameObjects.Container & { text: GameObjects.BitmapText };
 
 // Emitted on the HUD after every layout() so elements placed relative to it
@@ -26,7 +25,6 @@ class UI extends GameObjects.Container {
     public subscriptions: Array<() => void>;
     public buttons: GameObjects.Sprite[];
     public coins!: LabelledContainer;
-    public enemies!: LabelledContainer;
     public save_slot: string;
     public key_handlers: Record<string, () => void>;
 
@@ -34,7 +32,6 @@ class UI extends GameObjects.Container {
         scene: Scene,
         options: {
             showSpellFrames?: boolean;
-            showEnemyCount?: boolean;
             showCoinCount?: boolean;
             showReturnToTown?: boolean;
         } = {}
@@ -42,16 +39,10 @@ class UI extends GameObjects.Container {
         super(scene, 0, 0);
 
         // The town is a non-combat hub, so it opts out of the spell/ability
-        // slots and the whole combat readout — the enemy count and the coin
-        // purse; every other scene shows them by default. The return-to-town
-        // button is the mirror image: only the biome scenes have somewhere to
-        // teleport back from.
-        const {
-            showSpellFrames = true,
-            showEnemyCount = true,
-            showCoinCount = true,
-            showReturnToTown = false,
-        } = options;
+        // slots and the coin purse; every other scene shows them by default.
+        // The return-to-town button is the mirror image: only the biome scenes
+        // have somewhere to teleport back from.
+        const { showSpellFrames = true, showCoinCount = true, showReturnToTown = false } = options;
 
         this.spells = 5;
         this.spacing = 60;
@@ -60,7 +51,6 @@ class UI extends GameObjects.Container {
 
         if (showSpellFrames) this.setSpellFrames();
         if (showCoinCount) this.setCoinCount();
-        if (showEnemyCount) this.setEnemyCount();
         this.buttons = [this.setInvetoryIcon(), this.setSystemIcon()];
         if (showReturnToTown) this.buttons.push(this.setReturnToTownIcon());
 
@@ -68,10 +58,8 @@ class UI extends GameObjects.Container {
 
         this.layout();
 
-        // Maps coins, area progress and showUi sections of the store to various functions.
+        // Maps the coins and showUi sections of the store to various functions.
         this.subscriptions.push(mapStateToData("coins", () => this.renderCoinCount()));
-        this.subscriptions.push(mapStateToData("enemiesRemaining", () => this.renderEnemyCount()));
-        this.subscriptions.push(mapStateToData("bossActive", () => this.renderEnemyCount()));
         this.subscriptions.push(
             mapStateToData("showUi", (showUi) => {
                 store.dispatch(toggleHUD(!showUi));
@@ -119,10 +107,7 @@ class UI extends GameObjects.Container {
         // and slot 0 stays leftmost, so slot order still reads left-to-right.
         const spellsLeft = right - this.spacing * (this.spells - 1);
         this.frames.forEach((frame, i) => frame.setPosition(spellsLeft + this.spacing * i, bottom));
-        // The coin purse sits right of the enemy count: room for "Enemies: 199"
-        // in the pixel font (108px) after the 15px icon gap.
-        if (this.coins) Display.Align.In.TopLeft(this.coins, zone, -140);
-        if (this.enemies) Display.Align.In.TopLeft(this.enemies, zone);
+        if (this.coins) Display.Align.In.TopLeft(this.coins, zone);
         // System/character buttons run left-to-right from the bottom-left
         // corner; the spell bar owns the bottom-right.
         this.buttons.forEach((button, i) => button.setPosition(left + 35 * i, bottom));
@@ -157,25 +142,6 @@ class UI extends GameObjects.Container {
     renderCoinCount(): void {
         if (!this.coins) return;
         this.coins.text.setText("Coins: " + store.getState().game.coins);
-    }
-
-    setEnemyCount(): void {
-        this.enemies = this.scene.add.container(0, 0) as LabelledContainer;
-
-        this.enemies.add(this.scene.add.sprite(0, 0, "dungeon", "ghast_baby"));
-        this.enemies.text = label(this.scene, "");
-        this.enemies.add(this.enemies.text);
-
-        this.add(this.enemies);
-        this.renderEnemyCount();
-    }
-
-    // Counts the area's pool down, then reads BOSS once the boss is up. Both
-    // store fields feed this, so it reads them rather than taking an argument.
-    renderEnemyCount(): void {
-        if (!this.enemies) return;
-        const { enemiesRemaining, bossActive } = store.getState().game;
-        this.enemies.text.setText(bossActive ? "BOSS" : "Enemies: " + enemiesRemaining);
     }
 
     setInvetoryIcon(): GameObjects.Sprite {

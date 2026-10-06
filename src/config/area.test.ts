@@ -7,7 +7,7 @@ import {
     resolveAreaTuning,
     scaleLootTable,
 } from "./area";
-import { DEFAULT_SETTINGS } from "@services/settingsStorage";
+import { DEFAULT_SETTINGS, type Settings } from "@services/settingsStorage";
 import { SPECIAL_DROP_RATE } from "@/types/game";
 import { SCROLL_DROP_RATE } from "@/lib/scrollDrops";
 import type { EnemyConfig, EnemyType, LootTable } from "@/types/game";
@@ -102,7 +102,6 @@ describe("resolveAreaTuning", () => {
             ...DEFAULT_SETTINGS,
             spawnRadiusOverride: 200,
             liveCapOverride: 2,
-            killsToBossOverride: 3,
             despawnDelaySeconds: 5,
         });
 
@@ -110,7 +109,6 @@ describe("resolveAreaTuning", () => {
             ...DEFAULT_AREA_TUNING,
             radiusOverride: 200,
             liveCap: 2,
-            killsToBoss: 3,
             despawnDelayMs: 5000,
         });
     });
@@ -129,9 +127,8 @@ describe("resolveAreaTuning", () => {
     it("keeps the default for zero, negative or non-numeric values", () => {
         const tuning = resolveAreaTuning({
             ...DEFAULT_SETTINGS,
-            spawnRadiusOverride: 0,
+            spawnRadiusOverride: Number.NaN,
             liveCapOverride: -3,
-            killsToBossOverride: Number.NaN,
             // A hand-edited payload could hold anything.
             despawnDelaySeconds: "10" as unknown as number,
         });
@@ -143,11 +140,16 @@ describe("resolveAreaTuning", () => {
         const tuning = resolveAreaTuning({
             ...DEFAULT_SETTINGS,
             liveCapOverride: 2.7,
-            killsToBossOverride: 4.2,
         });
 
         expect(tuning.liveCap).toBe(2);
-        expect(tuning.killsToBoss).toBe(4);
+    });
+
+    it("ignores a kills-to-boss override left in an older settings payload", () => {
+        // #594 removed the kill count; a stored value must not leak into tuning.
+        const legacy = { ...DEFAULT_SETTINGS, killsToBossOverride: 3 } as Settings;
+
+        expect(resolveAreaTuning(legacy)).toEqual(DEFAULT_AREA_TUNING);
     });
 
     it("does not mutate the shared defaults", () => {

@@ -9,9 +9,10 @@ import {
 import type { Rect } from "@helpers/walkability";
 
 // Runs a combat area's population (#456): trickles enemies in off screen ahead
-// of the player, despawns the ones left behind, counts kills towards the miniboss,
-// and spawns (and if need be respawns) the miniboss. Pure logic — everything it
-// needs from Phaser comes through a `SpawnHost`, so it is tested on fakes.
+// of the player, despawns the ones left behind, and rolls for the miniboss each
+// time the player explores new ground (#594), respawning it if it despawns.
+// Pure logic — everything it needs from Phaser comes through a `SpawnHost`, so
+// it is tested on fakes.
 
 // What the director needs from a spawned enemy.
 export interface SpawnedEnemy {
@@ -35,8 +36,8 @@ export interface SpawnHost<E extends SpawnedEnemy, Id extends string = string> {
     pickMiniboss(): Id;
     spawnRegular(id: Id, at: Point): E;
     spawnMiniboss(id: Id, at: Point): E;
-    // Kills left before the miniboss, and whether the miniboss has been triggered.
-    onProgress(killsRemaining: number, bossActive: boolean): void;
+    // Clears the area. Dormant: nothing calls it since the miniboss stopped
+    // clearing areas (#594); the boss epic's boss death will.
     onAreaCleared(): void;
     // Every time the miniboss appears: its first spawn, and each respawn after a
     // despawn. The scene turns this into `miniboss:spawned` (see #465).
@@ -57,6 +58,15 @@ export interface SpawnDebugView<E> {
     attempts: { point: Point; ok: boolean }[];
 }
 
+// What the miniboss debug readout shows. Read-only; built on demand.
+export interface MinibossDebugView {
+    // A miniboss has been rolled and is up (or waiting for room to respawn).
+    active: boolean;
+    // The chance the next new cell brings it on; 0 while active.
+    chance: number;
+    cellsExplored: number;
+}
+
 interface Tracked {
     miniboss: boolean;
     width: number;
@@ -67,10 +77,17 @@ interface Tracked {
 
 export default class SpawnDirector<E extends SpawnedEnemy, Id extends string = string> {
     private readonly tracked = new Map<E, Tracked>();
-    private kills = 0;
+    // The creature the current miniboss was promoted from, from the roll that
+    // brought it on until it dies; a despawned miniboss keeps it, so it respawns.
     private miniboss_id: Id | null = null;
     private miniboss: E | null = null;
-    private cleared = false;
+    // Exploration cells ("cx,cy") the player has stepped into this run. Each
+    // counts once; the first one seen (the start) is marked without counting.
+    private readonly visited = new Set<string>();
+    // New cells counted towards the miniboss since the last one was rolled:
+    // reset to 0 on the roll, and held there while it is up (or waiting to
+    // respawn).
+    private cells_explored = 0;
     private stopped = false;
     private last_attempts: { point: Point; ok: boolean }[] = [];
 
@@ -79,12 +96,22 @@ export default class SpawnDirector<E extends SpawnedEnemy, Id extends string = s
         private readonly host: SpawnHost<E, Id>
     ) {}
 
-    get killsRemaining(): number {
-        return Math.max(this.tuning.killsToBoss - this.kills, 0);
+    get minibossActive(): boolean {
+        return this.miniboss_id !== null;
     }
 
-    get minibossTriggered(): boolean {
-        return this.miniboss_id !== null;
+    get cellsExplored(): number {
+        return this.cells_explored;
+    }
+
+    /**
+     * The chance the next new cell brings on the miniboss: `minibossChancePerCell`
+     * for every cell counted since the last one, that cell included, capped at
+     * certain. 0 while a miniboss is already active.
+     */
+    get minibossChance(): number {
+        if (this.minibossActive) return 0;
+        return Math.min(this.tuning.minibossChancePerCell * (this.cells_explored + 1), 1);
     }
 
     get regularsAlive(): number {
@@ -121,25 +148,30 @@ export default class SpawnDirector<E extends SpawnedEnemy, Id extends string = s
         };
     }
 
-    start(): void {
-        this.host.onProgress(this.killsRemaining, false);
+    minibossDebugView(): MinibossDebugView {
+        return {
+            active: this.minibossActive,
+            chance: this.minibossChance,
+            cellsExplored: this.cells_explored,
+        };
     }
 
-    // Game over: nothing spawns, despawns or counts from here on.
+    // Game over: nothing spawns, despawns or explores from here on.
     stop(): void {
         this.stopped = true;
     }
 
     /**
-     * One pacing tick. Before the miniboss: one regular, if below the live cap.
-     * After: the miniboss, if it is not already on the map (its first spawn found
-     * no room, or it despawned). Never more than one spawn per tick.
+     * One pacing tick, never more than one spawn. A miniboss that has been
+     * rolled but is not on the map (just rolled, its first spawn found no room,
+     * or it despawned) takes the tick in place of a regular. Otherwise one
+     * regular, if below the live cap.
      */
     tick(): void {
-        if (this.stopped || this.cleared) return;
+        if (this.stopped) return;
 
-        if (this.miniboss_id !== null) {
-            if (!this.miniboss) this.trySpawnMiniboss();
+        if (this.minibossActive && !this.miniboss) {
+            this.trySpawnMiniboss();
             return;
         }
 
@@ -151,13 +183,17 @@ export default class SpawnDirector<E extends SpawnedEnemy, Id extends string = s
     }
 
     /**
-     * Advances every enemy's despawn clock by `delta` ms. The scene only calls
-     * this from its update loop, so the clock stops whenever the scene is paused.
+     * Notes the player's exploration cell (rolling for the miniboss on new
+     * ground), and advances every enemy's despawn clock by `delta` ms. The
+     * scene only calls this from its update loop, so the clocks stop whenever
+     * the scene is paused.
      */
     update(delta: number): void {
         if (this.stopped) return;
 
         const player = this.host.playerPosition();
+        this.explore(player);
+
         const radius = this.radius();
         const expired: E[] = [];
 
@@ -173,28 +209,41 @@ export default class SpawnDirector<E extends SpawnedEnemy, Id extends string = s
     }
 
     /**
-     * A tracked enemy died. Regulars count towards the miniboss until it triggers;
-     * the miniboss's own death is the only thing that clears the area.
+     * A tracked enemy died. The miniboss's death lets exploring count again;
+     * nothing clears the area (that waits on the boss epic).
      */
     onEnemyDead(enemy: E): void {
         if (this.stopped || !this.tracked.has(enemy)) return;
         const was_miniboss = enemy === this.miniboss;
         this.forget(enemy);
 
-        if (was_miniboss) {
-            this.cleared = true;
-            this.host.onAreaCleared();
-            return;
-        }
+        if (was_miniboss) this.miniboss_id = null;
+    }
 
-        if (this.miniboss_id !== null) return;
+    /**
+     * Marks the player's cell visited. The first time a cell is entered (the
+     * start cell aside) with no miniboss active, it counts and rolls: a hit
+     * picks the miniboss, which the next tick brings on, and resets the count.
+     * Cells crossed while a miniboss is up are still marked, so they never
+     * count later.
+     */
+    private explore(player: Point): void {
+        const size = this.tuning.explorationCellSize;
+        const cell = `${Math.floor(player.x / size)},${Math.floor(player.y / size)}`;
+        if (this.visited.has(cell)) return;
+        const first = this.visited.size === 0;
+        this.visited.add(cell);
+        if (first || this.minibossActive) return;
 
-        this.kills++;
-        if (this.kills >= this.tuning.killsToBoss) {
+        // Read before counting: the chance is for this, the next, cell.
+        const chance = this.minibossChance;
+        this.cells_explored++;
+        // No roll at all at 0%, so tuning it off leaves the random sequence (and
+        // every spawn point drawn from it) untouched.
+        if (chance > 0 && this.host.random() < chance) {
             this.miniboss_id = this.host.pickMiniboss();
-            this.trySpawnMiniboss();
+            this.cells_explored = 0;
         }
-        this.host.onProgress(this.killsRemaining, this.minibossTriggered);
     }
 
     private trySpawnMiniboss(): void {

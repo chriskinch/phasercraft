@@ -21,6 +21,7 @@ import { readSettings } from "@services/settingsStorage";
 import { resolveBiome, type BiomeDefinition } from "./biomes";
 import SpawnDirector, { type SpawnHost } from "./SpawnDirector";
 import SpawnDebugOverlay from "./SpawnDebugOverlay";
+import MinibossChanceReadout from "./MinibossChanceReadout";
 import {
     OverlayWindows,
     WINDOW_DX,
@@ -37,14 +38,7 @@ import { sample } from "lodash";
 import { addBanner } from "@scenes/pixelFonts";
 import { pixelFontSize } from "@config/fonts";
 
-import {
-    toggleHUD,
-    setCurrentArea,
-    setEnemiesRemaining,
-    setBossActive,
-    clearTravelRequest,
-    toggleUi,
-} from "@store/gameReducer";
+import { toggleHUD, setCurrentArea, clearTravelRequest, toggleUi } from "@store/gameReducer";
 import mapStateToData from "@helpers/mapStateToData";
 import store from "@store";
 
@@ -91,7 +85,7 @@ export default class BiomeScene extends Scene {
     private enemy_pool!: EnemyType[];
     private biome!: BiomeDefinition;
     private area_cleared: boolean = false;
-    // Populates the area and counts kills towards the miniboss; rebuilt each run by
+    // Populates the area and rolls for the miniboss; rebuilt each run by
     // startArea(). Ticked by `spawn_timer`, a pause-aware scene timer released
     // on game over and shutdown.
     private director!: SpawnDirector<Enemy, EnemyType>;
@@ -99,6 +93,8 @@ export default class BiomeScene extends Scene {
     // Debug-only drawing of the director's state; absent unless Debug mode and
     // its spawn overlay toggle are both on. Rebuilt per area, released on shutdown.
     private spawn_overlay?: SpawnDebugOverlay<Enemy>;
+    // Debug-only miniboss odds readout; same lifecycle as the spawn overlay.
+    private miniboss_readout?: MinibossChanceReadout;
     public depth_group: Record<string, number> = {
         BASE: 10,
         UI: 10000,
@@ -180,7 +176,7 @@ export default class BiomeScene extends Scene {
         // Scene instances are reused across scene.start(), so field
         // initializers do not re-run — reset per-run state here. startArea()
         // builds a fresh spawn director too, which is what makes re-entering an
-        // area restart its kill count and drop an un-killed miniboss.
+        // area restart its exploration count and drop an un-killed miniboss.
         this.enemy_pool = this.biome.enemies;
         this.area_cleared = false;
         this.game_over = false;
@@ -197,6 +193,7 @@ export default class BiomeScene extends Scene {
         const safe_zone = addSafeZone(this, scene_padding, () => {
             this.UI.layout();
             if (this.area_cleared_ui) Display.Align.In.Center(this.area_cleared_ui, this.zone);
+            this.miniboss_readout?.layout(this.zone);
         });
         this.zone = safe_zone.zone;
         this.release_safe_zone = safe_zone.release;
@@ -817,6 +814,7 @@ export default class BiomeScene extends Scene {
         // Despawn clocks advance on the scene's own delta, so they stop with it.
         if (!this.game_over) this.director.update(delta);
         this.spawn_overlay?.draw(this.player);
+        this.miniboss_readout?.draw();
 
         // After the characters have moved and re-set their own depths.
         this.sortCharactersByFeet();
@@ -856,10 +854,12 @@ export default class BiomeScene extends Scene {
             settings.debug && settings.spawnDebugOverlay
                 ? new SpawnDebugOverlay(this, this.director)
                 : undefined;
-        // Resets the HUD: leaving mid-miniboss leaves `bossActive` set in the store,
-        // which would make the fresh area read "BOSS".
-        this.director.start();
-
+        this.miniboss_readout?.cleanup();
+        this.miniboss_readout =
+            settings.debug && settings.minibossDebugReadout
+                ? new MinibossChanceReadout(this, this.director)
+                : undefined;
+        this.miniboss_readout?.layout(this.zone);
         this.removeSpawnTimer();
         this.spawn_timer = this.time.addEvent({
             delay: tuning.spawnIntervalMs,
@@ -908,10 +908,6 @@ export default class BiomeScene extends Scene {
             pickMiniboss: () => this.pickFromPool(),
             spawnRegular: (id, at) => this.spawnEnemy(id, at),
             spawnMiniboss: (id, at) => this.spawnMiniboss(id, at),
-            onProgress: (killsRemaining, bossActive) => {
-                store.dispatch(setEnemiesRemaining(killsRemaining));
-                store.dispatch(setBossActive(bossActive));
-            },
             onAreaCleared: () => this.areaCleared(),
             onMinibossSpawned: (miniboss) => this.events.emit("miniboss:spawned", miniboss),
             random: Math.random,
@@ -974,16 +970,15 @@ export default class BiomeScene extends Scene {
         this.area_cleared_ui.add(addBanner(this, 0, 0, "AREA CLEARED", pixelFontSize(5)));
     }
 
-    // The miniboss is down: show the banner. The director spawns nothing more — the
-    // player leaves (town button or ESC) and re-entry rebuilds the area.
+    // The area is cleared: show the banner. Nothing calls this since the
+    // miniboss stopped clearing areas (#594); it is kept for the boss epic, whose
+    // boss's death will. The player leaves (town button or ESC) and re-entry
+    // rebuilds the area.
     areaCleared(): void {
         if (this.area_cleared) return;
         this.area_cleared = true;
 
-        store.dispatch(setBossActive(false));
-        store.dispatch(setEnemiesRemaining(0));
-
-        // Delayed 1.5s after the miniboss dies so its loot has time to drop.
+        // Delayed 1.5s after the boss dies so its loot has time to drop.
         // Scene clock timer (not setTimeout): pause-aware, and cancelled on
         // game over / shutdown so it can't fire after leaving the scene.
         this.removeAreaClearedTimer();
@@ -1080,6 +1075,8 @@ export default class BiomeScene extends Scene {
         this.removeSpawnTimer();
         this.spawn_overlay?.cleanup();
         this.spawn_overlay = undefined;
+        this.miniboss_readout?.cleanup();
+        this.miniboss_readout = undefined;
 
         // Colliders registered against the tilemap layers. The Arcade plugin
         // tears its world down before the scene's own SHUTDOWN handler runs, so
