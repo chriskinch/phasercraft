@@ -2,10 +2,7 @@
 // player's start the weakest creatures of a biome's pool turn up more often,
 // out at the far edge the strongest do, and half-way out it is even.
 
-// How much likelier the weakest species is than the strongest at the start
-// (distance fraction 0), and the strongest than the weakest at the far edge (1).
-export const WEAKEST_BIAS_AT_START = 2;
-export const STRONGEST_BIAS_AT_EDGE = 3;
+import { STRONGEST_BIAS_AT_EDGE, WEAKEST_BIAS_AT_START } from "@config/area";
 
 /**
  * The strongest species' weight over the weakest's at distance `fraction`:

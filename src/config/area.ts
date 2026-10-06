@@ -27,6 +27,12 @@ export const MINIBOSS_CHANCE_PER_CELL = 0.01;
 // how much harder the far reaches are.
 export const DISTANCE_MAX_MULTIPLIER = 3;
 
+// Species picks lean by distance too (#598): the weakest species of a biome's
+// pool is this much likelier than the strongest at the start (fraction 0), and
+// the strongest this much likelier than the weakest at the far edge (1).
+export const WEAKEST_BIAS_AT_START = 2;
+export const STRONGEST_BIAS_AT_EDGE = 3;
+
 // Regular enemies arrive in configurations (#595): mostly small groups of 1-3
 // mixed creatures, sometimes a pair of one creature, now and then a pack of
 // 5-10 (one species, or mixed at PACK_MIXED_CHANCE). The weights are relative.
