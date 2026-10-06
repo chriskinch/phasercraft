@@ -376,6 +376,9 @@ export interface EnemyAttributes {
 }
 export interface EnemyConfig extends EnemyAttributes {
     type: Capitalize<CombatType>;
+    // How tough the species is within the game, 1 (weakest) up (#598): weights
+    // which creatures spawn where, and is the mob level schematic drops weight by.
+    tier: number;
     coin_multiplier: number;
     loot_table: LootTable;
     aggro_radius?: number;

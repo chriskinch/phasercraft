@@ -144,6 +144,8 @@ function makeScene(overrides: Partial<SceneUnderTest> = {}): {
     scene.enemies = { runChildUpdate: true, getChildren: vi.fn(() => []) };
     scene.UI = { cleanup: vi.fn() };
     scene.player = { cleanup: vi.fn(), alive: false, x: 0, y: 0 };
+    scene.player_start = { x: 0, y: 0 };
+    scene.max_spawn_distance = 1000;
     scene.input = { off: vi.fn(), activePointer: {} };
     scene.cursors = { esc: { isDown: false } };
     scene.events = { on: vi.fn(), off: vi.fn(), once: vi.fn(), emit: vi.fn() };
@@ -411,6 +413,32 @@ describe("BiomeScene.spawnHost", () => {
                 expect(BIOMES[id].enemies).toContain(host.pickMiniboss());
             }
         });
+    });
+
+    it("weights species by tier for how far out the player is", () => {
+        // An even spread of rolls over [0, 1), so counts are exact proportions.
+        const N = 6000;
+        const draw = (x: number) => {
+            const { scene } = makeScene({ enemy_pool: [...BIOMES.tundra.enemies] });
+            scene.player = { ...scene.player, x, y: 0 };
+            let i = 0;
+            const spy = vi.spyOn(Math, "random").mockImplementation(() => (i++ + 0.5) / N);
+            const counts: Record<string, number> = {};
+            for (let n = 0; n < N; n++) {
+                const id = scene.spawnHost().pickRegular();
+                counts[id] = (counts[id] ?? 0) + 1;
+            }
+            spy.mockRestore();
+            return counts;
+        };
+
+        // Tundra: egbert tier 3 (weakest), slime tier 5 (strongest).
+        const start = draw(0);
+        expect(start.egbert / start.slime).toBeCloseTo(2, 1);
+        const edge = draw(1000);
+        expect(edge.slime / edge.egbert).toBeCloseTo(3, 1);
+        const middle = draw(500);
+        expect(middle.slime / middle.egbert).toBeCloseTo(1, 1);
     });
 
     it("sizes a creature by its sprite's default frame, and a miniboss at miniboss scale", () => {
