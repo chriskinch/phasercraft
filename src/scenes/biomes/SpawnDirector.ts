@@ -49,7 +49,7 @@ export interface SpawnHost<E extends SpawnedEnemy, Id extends string = string> {
 // What the spawn debug overlay (#464) draws. Read-only; built on demand.
 export interface SpawnDebugView<E> {
     radius: number;
-    // Beyond this, an enemy's despawn clock runs (radius + the largest cluster's).
+    // Beyond this, an enemy's despawn clock runs (radius + the largest cluster's diameter).
     despawnRadius: number;
     // Unit vector of the player's travel, or null while standing still.
     direction: Point | null;
@@ -139,12 +139,13 @@ export default class SpawnDirector<E extends SpawnedEnemy, Id extends string = s
     }
 
     /**
-     * The spawn radius plus the radius of the largest possible cluster: a
-     * member can be placed that far out, and must not start out despawning.
+     * The spawn radius plus the diameter of the largest possible cluster: its
+     * centre sits a cluster radius beyond the spawn radius and members scatter
+     * up to another radius out, so no member starts out despawning.
      */
     despawnRadius(): number {
         const { clusterBaseRadius, packSize } = this.tuning;
-        return this.radius() + clusterRadius(Math.max(...packSize), clusterBaseRadius);
+        return this.radius() + 2 * clusterRadius(Math.max(...packSize), clusterBaseRadius);
     }
 
     debugView(): SpawnDebugView<E> {
