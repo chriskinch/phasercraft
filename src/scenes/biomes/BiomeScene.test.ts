@@ -576,6 +576,38 @@ describe("BiomeScene.shutdown", () => {
         expect(overlay.cleanup).toHaveBeenCalledTimes(1);
     });
 
+    it("releases the miniboss chance readout, once", () => {
+        const text = {
+            text: "",
+            setTint: vi.fn(() => text),
+            setOrigin: vi.fn(() => text),
+            setScrollFactor: vi.fn(() => text),
+            setDepth: vi.fn(() => text),
+            setPosition: vi.fn(() => text),
+            destroy: vi.fn(),
+        };
+        const { scene } = makeScene();
+        Object.assign(scene, {
+            add: { sprite: vi.fn(), bitmapText: vi.fn(() => text) },
+            zone: { x: 0, y: 0, width: 800, height: 600, originX: 0, originY: 0 },
+        });
+        writeSettings({
+            ...DEFAULT_SETTINGS,
+            godMode: true,
+            debug: true,
+            minibossDebugReadout: true,
+        });
+        scene.startArea();
+
+        scene.shutdown();
+        scene.shutdown();
+
+        expect(text.destroy).toHaveBeenCalledTimes(1);
+        expect(
+            (scene as unknown as { miniboss_readout?: object }).miniboss_readout
+        ).toBeUndefined();
+    });
+
     it("removes the spawn timer, once", () => {
         const { scene, spawnTimer } = makeScene();
         scene.spawn_timer = spawnTimer;

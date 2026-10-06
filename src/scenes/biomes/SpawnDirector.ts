@@ -211,8 +211,8 @@ export default class SpawnDirector<E extends SpawnedEnemy, Id extends string = s
     }
 
     /**
-     * A tracked enemy died. The miniboss's death restarts the ramp from its
-     * base chance; nothing clears the area (that waits on the boss epic).
+     * A tracked enemy died. The miniboss's death restarts its exploration
+     * count from 0; nothing clears the area (that waits on the boss epic).
      */
     onEnemyDead(enemy: E): void {
         if (this.stopped || !this.tracked.has(enemy)) return;

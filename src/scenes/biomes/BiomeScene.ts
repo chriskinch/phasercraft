@@ -176,7 +176,7 @@ export default class BiomeScene extends Scene {
         // Scene instances are reused across scene.start(), so field
         // initializers do not re-run — reset per-run state here. startArea()
         // builds a fresh spawn director too, which is what makes re-entering an
-        // area restart its miniboss ramp and drop an un-killed miniboss.
+        // area restart its exploration count and drop an un-killed miniboss.
         this.enemy_pool = this.biome.enemies;
         this.area_cleared = false;
         this.game_over = false;
