@@ -3,7 +3,7 @@ import { Events } from "phaser";
 import BiomeScene from "./BiomeScene";
 import type { SpawnHost } from "./SpawnDirector";
 import type { WalkabilityGrid } from "@helpers/walkability";
-import { AREA_KILLS_TO_BOSS, SPAWN_INTERVAL_MS } from "@config/area";
+import { SPAWN_INTERVAL_MS } from "@config/area";
 import { MINIBOSS_SCALE } from "@entities/Enemy/Miniboss";
 import { ROAR_EDGE_MARGIN } from "@entities/UI/MinibossRoar";
 import { DEFAULT_SETTINGS, writeSettings } from "@services/settingsStorage";
@@ -25,7 +25,6 @@ interface FakeTimer {
 }
 
 interface FakeDirector {
-    start: ReturnType<typeof vi.fn>;
     stop: ReturnType<typeof vi.fn>;
     tick: ReturnType<typeof vi.fn>;
     update: ReturnType<typeof vi.fn>;
@@ -120,7 +119,6 @@ function makeScene(overrides: Partial<SceneUnderTest> = {}): {
     scene.area_cleared = false;
     scene.game_over = false;
     scene.director = {
-        start: vi.fn(),
         stop: vi.fn(),
         tick: vi.fn(),
         update: vi.fn(),
@@ -172,31 +170,20 @@ describe("BiomeScene.startArea", () => {
         expect(scene.events.on).toHaveBeenCalledWith("enemy:dead", scene.onEnemyDead, scene);
     });
 
-    it("resets the HUD: the full kill count, and a stale miniboss flag cleared", () => {
-        const { scene } = makeScene();
-
-        scene.startArea();
-
-        expect(store.dispatch).toHaveBeenCalledWith({
-            type: "SET_ENEMIES_REMAINING",
-            payload: { value: AREA_KILLS_TO_BOSS },
-        });
-        expect(store.dispatch).toHaveBeenCalledWith({
-            type: "SET_BOSS_ACTIVE",
-            payload: { value: false },
-        });
-    });
-
     it("applies the spawn overrides on area entry, Debug mode off", () => {
-        writeSettings({ ...DEFAULT_SETTINGS, godMode: true, debug: false, killsToBossOverride: 3 });
+        writeSettings({
+            ...DEFAULT_SETTINGS,
+            godMode: true,
+            debug: false,
+            spawnRadiusOverride: 300,
+        });
         const { scene } = makeScene();
 
         scene.startArea();
 
-        expect(store.dispatch).toHaveBeenCalledWith({
-            type: "SET_ENEMIES_REMAINING",
-            payload: { value: 3 },
-        });
+        // startArea() swapped the fake for a real director built from the tuning.
+        const director = scene.director as unknown as { tuning: { radiusOverride: number } };
+        expect(director.tuning.radiusOverride).toBe(300);
     });
 
     it("builds the spawn debug overlay only when Debug and its toggle are both on", () => {
@@ -423,21 +410,6 @@ describe("BiomeScene.spawnHost", () => {
         scene.spawnHost().onMinibossSpawned(miniboss);
 
         expect(scene.events.emit).toHaveBeenCalledWith("miniboss:spawned", miniboss);
-    });
-
-    it("mirrors progress into the store for the HUD", () => {
-        const { scene } = makeScene();
-
-        scene.spawnHost().onProgress(7, true);
-
-        expect(store.dispatch).toHaveBeenCalledWith({
-            type: "SET_ENEMIES_REMAINING",
-            payload: { value: 7 },
-        });
-        expect(store.dispatch).toHaveBeenCalledWith({
-            type: "SET_BOSS_ACTIVE",
-            payload: { value: true },
-        });
     });
 });
 

@@ -28,11 +28,7 @@ const toNonNegativeInt = (value: string): number => {
     return Number.isFinite(parsed) && parsed > 0 ? parsed : 0;
 };
 
-type SpawnNumberField =
-    | "spawnRadiusOverride"
-    | "liveCapOverride"
-    | "killsToBossOverride"
-    | "despawnDelaySeconds";
+type SpawnNumberField = "spawnRadiusOverride" | "liveCapOverride" | "despawnDelaySeconds";
 
 // The radius has no fixed default: it is derived from the viewport so enemies
 // spawn just off screen. Show what that works out to for this window (the game
@@ -68,12 +64,6 @@ const SPAWN_FIELDS: {
         label: "Live cap",
         defaultValue: () => DEFAULT_AREA_TUNING.liveCap,
         hint: `Default: ${DEFAULT_AREA_TUNING.liveCap}`,
-    },
-    {
-        field: "killsToBossOverride",
-        label: "Kills to boss",
-        defaultValue: () => DEFAULT_AREA_TUNING.killsToBoss,
-        hint: `Default: ${DEFAULT_AREA_TUNING.killsToBoss}`,
     },
     {
         field: "despawnDelaySeconds",

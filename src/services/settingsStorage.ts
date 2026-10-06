@@ -30,7 +30,6 @@ export interface Settings {
     // A fixed spawn/despawn radius in world px; 0 derives it from the viewport.
     spawnRadiusOverride: number;
     liveCapOverride: number;
-    killsToBossOverride: number;
     despawnDelaySeconds: number;
     // Sound effect volume, 0–100; 0 mutes them. Read on every play, so a change
     // applies straight away (see services/sfx.ts).
@@ -46,7 +45,6 @@ export const DEFAULT_SETTINGS: Settings = {
     spawnDebugOverlay: false,
     spawnRadiusOverride: 0,
     liveCapOverride: 0,
-    killsToBossOverride: 0,
     despawnDelaySeconds: 0,
     sfxVolume: 70,
 };
@@ -66,7 +64,6 @@ export function withGodModeGate(settings: Settings): Settings {
         startLocation: DEFAULT_SETTINGS.startLocation,
         spawnRadiusOverride: DEFAULT_SETTINGS.spawnRadiusOverride,
         liveCapOverride: DEFAULT_SETTINGS.liveCapOverride,
-        killsToBossOverride: DEFAULT_SETTINGS.killsToBossOverride,
         despawnDelaySeconds: DEFAULT_SETTINGS.despawnDelaySeconds,
     };
 }

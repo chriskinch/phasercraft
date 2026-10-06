@@ -31,7 +31,6 @@ describe("readSettings", () => {
             spawnDebugOverlay: true,
             spawnRadiusOverride: 200,
             liveCapOverride: 2,
-            killsToBossOverride: 3,
             despawnDelaySeconds: 5,
             sfxVolume: 40,
         };
@@ -72,7 +71,6 @@ describe("readSettings", () => {
         expect(settings.spawnDebugOverlay).toBe(false);
         expect(settings.spawnRadiusOverride).toBe(0);
         expect(settings.liveCapOverride).toBe(0);
-        expect(settings.killsToBossOverride).toBe(0);
         expect(settings.despawnDelaySeconds).toBe(0);
         expect(settings.sfxVolume).toBe(70);
     });

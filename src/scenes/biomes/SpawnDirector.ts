@@ -9,9 +9,10 @@ import {
 import type { Rect } from "@helpers/walkability";
 
 // Runs a combat area's population (#456): trickles enemies in off screen ahead
-// of the player, despawns the ones left behind, counts kills towards the miniboss,
-// and spawns (and if need be respawns) the miniboss. Pure logic — everything it
-// needs from Phaser comes through a `SpawnHost`, so it is tested on fakes.
+// of the player, despawns the ones left behind, and rolls for the miniboss on a
+// chance that ramps with time on the map (#594), respawning it if it despawns.
+// Pure logic — everything it needs from Phaser comes through a `SpawnHost`, so
+// it is tested on fakes.
 
 // What the director needs from a spawned enemy.
 export interface SpawnedEnemy {
@@ -35,9 +36,6 @@ export interface SpawnHost<E extends SpawnedEnemy, Id extends string = string> {
     pickMiniboss(): Id;
     spawnRegular(id: Id, at: Point): E;
     spawnMiniboss(id: Id, at: Point): E;
-    // Kills left before the miniboss, and whether the miniboss has been triggered.
-    onProgress(killsRemaining: number, bossActive: boolean): void;
-    onAreaCleared(): void;
     // Every time the miniboss appears: its first spawn, and each respawn after a
     // despawn. The scene turns this into `miniboss:spawned` (see #465).
     onMinibossSpawned(miniboss: E): void;
@@ -67,10 +65,15 @@ interface Tracked {
 
 export default class SpawnDirector<E extends SpawnedEnemy, Id extends string = string> {
     private readonly tracked = new Map<E, Tracked>();
-    private kills = 0;
+    // The creature the current miniboss was promoted from, from the roll that
+    // brought it on until it dies; a despawned miniboss keeps it, so it respawns.
     private miniboss_id: Id | null = null;
     private miniboss: E | null = null;
-    private cleared = false;
+    // Scene-clock ms counted towards the miniboss ramp: frozen while a miniboss
+    // is up (or waiting to respawn), back to 0 when it dies.
+    private miniboss_clock = 0;
+    // Scene-clock ms since the last miniboss roll (or entering the area).
+    private since_roll = 0;
     private stopped = false;
     private last_attempts: { point: Point; ok: boolean }[] = [];
 
@@ -79,12 +82,20 @@ export default class SpawnDirector<E extends SpawnedEnemy, Id extends string = s
         private readonly host: SpawnHost<E, Id>
     ) {}
 
-    get killsRemaining(): number {
-        return Math.max(this.tuning.killsToBoss - this.kills, 0);
+    get minibossActive(): boolean {
+        return this.miniboss_id !== null;
     }
 
-    get minibossTriggered(): boolean {
-        return this.miniboss_id !== null;
+    /**
+     * The chance the next tick brings on the miniboss: the base chance, rising
+     * linearly to certain once `minibossRampMs` has been spent on the map
+     * without one. 0 while a miniboss is already active.
+     */
+    get minibossChance(): number {
+        if (this.minibossActive) return 0;
+        const { minibossBaseChance: base, minibossRampMs: ramp } = this.tuning;
+        const progress = ramp > 0 ? Math.min(this.miniboss_clock / ramp, 1) : 1;
+        return base + (1 - base) * progress;
     }
 
     get regularsAlive(): number {
@@ -121,25 +132,28 @@ export default class SpawnDirector<E extends SpawnedEnemy, Id extends string = s
         };
     }
 
-    start(): void {
-        this.host.onProgress(this.killsRemaining, false);
-    }
-
-    // Game over: nothing spawns, despawns or counts from here on.
+    // Game over: nothing spawns, despawns or ramps from here on.
     stop(): void {
         this.stopped = true;
     }
 
     /**
-     * One pacing tick. Before the miniboss: one regular, if below the live cap.
-     * After: the miniboss, if it is not already on the map (its first spawn found
-     * no room, or it despawned). Never more than one spawn per tick.
+     * One pacing tick, never more than one spawn. A miniboss waiting for room
+     * (its first spawn found none, or it despawned) takes the tick. Otherwise,
+     * with no miniboss active, roll for one: a hit brings it on in place of this
+     * tick's regular. Failing both, one regular if below the live cap.
      */
     tick(): void {
-        if (this.stopped || this.cleared) return;
+        if (this.stopped) return;
 
-        if (this.miniboss_id !== null) {
-            if (!this.miniboss) this.trySpawnMiniboss();
+        if (this.minibossActive && !this.miniboss) {
+            this.trySpawnMiniboss();
+            return;
+        }
+
+        if (this.rollForMiniboss()) {
+            this.miniboss_id = this.host.pickMiniboss();
+            this.trySpawnMiniboss();
             return;
         }
 
@@ -151,11 +165,16 @@ export default class SpawnDirector<E extends SpawnedEnemy, Id extends string = s
     }
 
     /**
-     * Advances every enemy's despawn clock by `delta` ms. The scene only calls
-     * this from its update loop, so the clock stops whenever the scene is paused.
+     * Advances every enemy's despawn clock, and the miniboss ramp while no
+     * miniboss is active, by `delta` ms. The scene only calls this from its
+     * update loop, so both stop whenever the scene is paused.
      */
     update(delta: number): void {
         if (this.stopped) return;
+        if (!this.minibossActive) {
+            this.miniboss_clock += delta;
+            this.since_roll += delta;
+        }
 
         const player = this.host.playerPosition();
         const radius = this.radius();
@@ -173,8 +192,8 @@ export default class SpawnDirector<E extends SpawnedEnemy, Id extends string = s
     }
 
     /**
-     * A tracked enemy died. Regulars count towards the miniboss until it triggers;
-     * the miniboss's own death is the only thing that clears the area.
+     * A tracked enemy died. The miniboss's death restarts the ramp from its
+     * base chance; nothing clears the area (that waits on the boss epic).
      */
     onEnemyDead(enemy: E): void {
         if (this.stopped || !this.tracked.has(enemy)) return;
@@ -182,19 +201,20 @@ export default class SpawnDirector<E extends SpawnedEnemy, Id extends string = s
         this.forget(enemy);
 
         if (was_miniboss) {
-            this.cleared = true;
-            this.host.onAreaCleared();
-            return;
+            this.miniboss_id = null;
+            this.miniboss_clock = 0;
         }
+    }
 
-        if (this.miniboss_id !== null) return;
-
-        this.kills++;
-        if (this.kills >= this.tuning.killsToBoss) {
-            this.miniboss_id = this.host.pickMiniboss();
-            this.trySpawnMiniboss();
-        }
-        this.host.onProgress(this.killsRemaining, this.minibossTriggered);
+    // At most one roll per `minibossRollIntervalMs`. No roll at all at 0%, so a
+    // ramp tuned off leaves the random sequence (and every spawn point drawn
+    // from it) untouched.
+    private rollForMiniboss(): boolean {
+        if (this.since_roll < this.tuning.minibossRollIntervalMs) return false;
+        const chance = this.minibossChance;
+        if (chance <= 0) return false;
+        this.since_roll = 0;
+        return this.host.random() < chance;
     }
 
     private trySpawnMiniboss(): void {

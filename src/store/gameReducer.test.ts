@@ -4,8 +4,6 @@ import {
     addCoins,
     setCoins,
     addXP,
-    setEnemiesRemaining,
-    setBossActive,
     toggleFilter,
     setSaveSlot,
     setCurrentArea,
@@ -89,8 +87,6 @@ const makeItem = (overrides: Partial<LootItem> = {}): LootItem => ({
 describe("gameReducer", () => {
     it("has sensible initial state", () => {
         const state = gameReducer(undefined, { type: "@@INIT" });
-        expect(state.enemiesRemaining).toBe(0);
-        expect(state.bossActive).toBe(false);
         expect(state.xp).toBe(0);
         expect(state.coins).toBe(999);
         expect(state.currentArea).toBe("town");
@@ -114,19 +110,6 @@ describe("gameReducer", () => {
         const initial = gameReducer(undefined, { type: "@@INIT" });
         const next = gameReducer(initial, addXP(25));
         expect(next.xp).toBe(25);
-    });
-
-    it("setEnemiesRemaining sets the area enemy count", () => {
-        const initial = gameReducer(undefined, { type: "@@INIT" });
-        const next = gameReducer(initial, setEnemiesRemaining(17));
-        expect(next.enemiesRemaining).toBe(17);
-    });
-
-    it("setBossActive toggles the boss flag", () => {
-        const initial = gameReducer(undefined, { type: "@@INIT" });
-        const on = gameReducer(initial, setBossActive(true));
-        expect(on.bossActive).toBe(true);
-        expect(gameReducer(on, setBossActive(false)).bossActive).toBe(false);
     });
 
     it("toggleFilter adds, removes, and resets filters", () => {
@@ -757,11 +740,14 @@ describe("gameReducer", () => {
             expect(next.recipes).toEqual(["ichorbound-amulet"]);
         });
 
-        it("drops the legacy wave counter and seeds the area-progress fields", () => {
+        it("drops the legacy wave counter and kill-count fields", () => {
             const initial = gameReducer(undefined, { type: "@@INIT" });
-            const legacySave = { ...initial, wave: 12 } as Record<string, unknown>;
-            delete legacySave.enemiesRemaining;
-            delete legacySave.bossActive;
+            const legacySave = {
+                ...initial,
+                wave: 12,
+                enemiesRemaining: 7,
+                bossActive: true,
+            } as Record<string, unknown>;
 
             const next = gameReducer(
                 initial,
@@ -769,8 +755,8 @@ describe("gameReducer", () => {
             );
 
             expect(next).not.toHaveProperty("wave");
-            expect(next.enemiesRemaining).toBe(0);
-            expect(next.bossActive).toBe(false);
+            expect(next).not.toHaveProperty("enemiesRemaining");
+            expect(next).not.toHaveProperty("bossActive");
         });
     });
 

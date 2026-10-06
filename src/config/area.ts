@@ -4,11 +4,22 @@ import { SCROLL_DROP_RATE } from "@/lib/scrollDrops";
 import type { EnemyConfig, EnemyType, LootDropRate, LootTable } from "@/types/game";
 import type { Settings } from "@services/settingsStorage";
 
-// Enemies populate a combat area as the player moves through it. Once this many
-// have been killed the area's miniboss spawns, and killing the miniboss clears the
-// area. Despawned enemies do not count. Leaving and re-entering starts the
-// count again, so none of this is persisted.
-export const AREA_KILLS_TO_BOSS = 20;
+// Enemies populate a combat area as the player moves through it, and every
+// spawn tick may instead bring on the area's miniboss (#594). Nothing clears an
+// area yet — that waits on the boss epic. Leaving and re-entering starts the
+// area afresh, so none of this is persisted.
+
+// The miniboss's chance per roll on entering an area, and how long (scene
+// clock, so pauses don't count) until it is certain. The chance rises linearly
+// in between, is frozen while a miniboss is up, and drops back to the base
+// chance when it dies.
+export const MINIBOSS_BASE_CHANCE = 0.01;
+export const MINIBOSS_RAMP_MS = 10 * 60 * 1000;
+
+// At most one miniboss roll per this long, on the first spawn tick after it has
+// elapsed. Kept apart from SPAWN_INTERVAL_MS so the odds per minute don't depend
+// on how often regulars are paced in.
+export const MINIBOSS_ROLL_INTERVAL_MS = 3000;
 
 // How many regular enemies may be alive at once.
 export const AREA_LIVE_CAP = 15;
@@ -40,7 +51,9 @@ export const SPAWN_MOVING_SPEED = 10;
 // Everything the spawn director reads, bundled so a run can be tuned as one
 // value (the spawn settings override some of these; see #462).
 export interface AreaTuning {
-    killsToBoss: number;
+    minibossBaseChance: number;
+    minibossRampMs: number;
+    minibossRollIntervalMs: number;
     liveCap: number;
     spawnIntervalMs: number;
     despawnDelayMs: number;
@@ -53,7 +66,9 @@ export interface AreaTuning {
 }
 
 export const DEFAULT_AREA_TUNING: Readonly<AreaTuning> = {
-    killsToBoss: AREA_KILLS_TO_BOSS,
+    minibossBaseChance: MINIBOSS_BASE_CHANCE,
+    minibossRampMs: MINIBOSS_RAMP_MS,
+    minibossRollIntervalMs: MINIBOSS_ROLL_INTERVAL_MS,
     liveCap: AREA_LIVE_CAP,
     spawnIntervalMs: SPAWN_INTERVAL_MS,
     despawnDelayMs: DESPAWN_DELAY_MS,
@@ -78,8 +93,6 @@ export function resolveAreaTuning(settings: Settings): AreaTuning {
     if (positive(settings.spawnRadiusOverride))
         tuning.radiusOverride = settings.spawnRadiusOverride;
     if (positive(settings.liveCapOverride)) tuning.liveCap = Math.floor(settings.liveCapOverride);
-    if (positive(settings.killsToBossOverride))
-        tuning.killsToBoss = Math.floor(settings.killsToBossOverride);
     if (positive(settings.despawnDelaySeconds))
         tuning.despawnDelayMs = settings.despawnDelaySeconds * 1000;
     return tuning;

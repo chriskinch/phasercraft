@@ -40,13 +40,23 @@ function makeDirector(tuning: Partial<AreaTuning> = {}, host: Partial<SpawnHost<
         pickMiniboss: vi.fn(() => "ghoul"),
         spawnRegular: vi.fn((id: string, at) => new FakeEnemy(at.x, at.y, id)),
         spawnMiniboss: vi.fn((id: string, at) => new FakeEnemy(at.x, at.y, `miniboss:${id}`)),
-        onProgress: vi.fn(),
-        onAreaCleared: vi.fn(),
         onMinibossSpawned: vi.fn(),
         random: seeded(),
         ...host,
     };
-    const director = new SpawnDirector({ ...DEFAULT_AREA_TUNING, ...tuning }, fake);
+    // The miniboss ramp is off unless a test turns it on, so the regular-spawn
+    // tests never meet a miniboss roll; when on, it rolls on every tick unless a
+    // test sets a roll interval.
+    const director = new SpawnDirector(
+        {
+            ...DEFAULT_AREA_TUNING,
+            minibossBaseChance: 0,
+            minibossRampMs: Infinity,
+            minibossRollIntervalMs: 0,
+            ...tuning,
+        },
+        fake
+    );
     const spawnRegular = vi.mocked(fake.spawnRegular);
     const spawnMiniboss = vi.mocked(fake.spawnMiniboss);
     const regulars = () => spawnRegular.mock.results.map((r) => r.value as FakeEnemy);
@@ -77,14 +87,6 @@ const offAngle = (
 };
 
 describe("SpawnDirector pacing", () => {
-    it("starts the HUD at the full kill count, with no miniboss", () => {
-        const { director, host } = makeDirector();
-
-        director.start();
-
-        expect(host.onProgress).toHaveBeenCalledWith(20, false);
-    });
-
     it("spawns at most one enemy per tick, up to the live cap", () => {
         const { director, spawnRegular } = makeDirector({ liveCap: 3 });
 
@@ -240,76 +242,222 @@ describe("SpawnDirector despawning", () => {
         expect(regulars()[0].despawn).not.toHaveBeenCalled();
     });
 
-    it("does not count a despawn as a kill, and frees a slot for a new spawn", () => {
-        const { director, host, player, spawnRegular } = makeDirector({
+    it("frees a slot for a new spawn when an enemy despawns", () => {
+        const { director, player, spawnRegular } = makeDirector({
             liveCap: 1,
             despawnDelayMs: 10,
         });
         director.tick();
-        vi.mocked(host.onProgress).mockClear();
 
         player.x += 2000;
         director.update(10);
         director.tick();
 
-        expect(host.onProgress).not.toHaveBeenCalled();
-        expect(director.killsRemaining).toBe(20);
         expect(spawnRegular).toHaveBeenCalledTimes(2);
     });
 });
 
-describe("SpawnDirector kills and the miniboss", () => {
-    function killAll(director: SpawnDirector<FakeEnemy>, enemies: FakeEnemy[]) {
-        enemies.forEach((enemy) => director.onEnemyDead(enemy));
-    }
+const MINUTE = 60 * 1000;
 
-    it("counts kills down on the HUD", () => {
-        const { director, host, regulars } = makeDirector();
+describe("SpawnDirector miniboss ramp", () => {
+    const ramp = { minibossBaseChance: 0.01, minibossRampMs: 10 * MINUTE };
+
+    it("starts at the base chance on entering the area", () => {
+        const { director } = makeDirector(ramp);
+
+        expect(director.minibossChance).toBeCloseTo(0.01);
+    });
+
+    it("rises linearly with time on the map", () => {
+        const { director } = makeDirector(ramp);
+
+        director.update(5 * MINUTE);
+
+        expect(director.minibossChance).toBeCloseTo(0.01 + 0.99 / 2);
+    });
+
+    it("is certain once the ramp has run, and stays certain", () => {
+        const { director } = makeDirector(ramp);
+
+        director.update(10 * MINUTE);
+        expect(director.minibossChance).toBe(1);
+
+        director.update(10 * MINUTE);
+        expect(director.minibossChance).toBe(1);
+    });
+
+    it("ships at 1% rising to certain over 10 minutes, rolled every 3 s", () => {
+        expect(DEFAULT_AREA_TUNING.minibossBaseChance).toBe(0.01);
+        expect(DEFAULT_AREA_TUNING.minibossRampMs).toBe(10 * MINUTE);
+        expect(DEFAULT_AREA_TUNING.minibossRollIntervalMs).toBe(3000);
+    });
+
+    it("rolls at most once per roll interval, however often it ticks", () => {
+        const random = vi.fn(() => 0.99);
+        const { director } = makeDirector(
+            // No regulars, so every random() call is a roll.
+            { minibossBaseChance: 0.5, minibossRollIntervalMs: 3000, liveCap: 0 },
+            { random }
+        );
+        const rolls = () => random.mock.calls.length;
+
+        // Entering the area: no roll until a full interval has passed.
         director.tick();
+        director.update(2999);
+        director.tick();
+        expect(rolls()).toBe(0);
 
-        director.onEnemyDead(regulars()[0]);
+        director.update(1);
+        director.tick();
+        director.tick();
+        expect(rolls()).toBe(1);
 
-        expect(host.onProgress).toHaveBeenLastCalledWith(19, false);
-        expect(director.killsRemaining).toBe(19);
+        director.update(3000);
+        director.tick();
+        expect(rolls()).toBe(2);
     });
 
-    it("ignores the death of an enemy it did not spawn", () => {
-        const { director, host } = makeDirector();
+    it("rolls against the host's random source", () => {
+        const hit = makeDirector({ minibossBaseChance: 0.5 }, { random: () => 0.49 });
+        const miss = makeDirector({ minibossBaseChance: 0.5 }, { random: () => 0.5 });
 
-        director.onEnemyDead(new FakeEnemy(0, 0, "stray"));
+        hit.director.tick();
+        miss.director.tick();
 
-        expect(host.onProgress).not.toHaveBeenCalled();
-        expect(director.killsRemaining).toBe(20);
+        expect(hit.spawnMiniboss).toHaveBeenCalledTimes(1);
+        expect(miss.spawnMiniboss).not.toHaveBeenCalled();
     });
+});
 
-    it("spawns the miniboss the moment the last kill lands, with regulars still alive", () => {
-        const { director, host, spawnMiniboss, regulars } = makeDirector({
-            killsToBoss: 2,
-            liveCap: 5,
-        });
-        for (let i = 0; i < 5; i++) director.tick();
+describe("SpawnDirector miniboss", () => {
+    // Certain on the first tick; the ramp itself is covered above.
+    const certain = { minibossBaseChance: 1 };
 
-        killAll(director, regulars().slice(0, 2));
+    it("comes on in place of the tick's regular, drawn from the host's pool", () => {
+        const { director, host, spawnRegular, spawnMiniboss } = makeDirector(certain);
+
+        director.tick();
 
         expect(host.pickMiniboss).toHaveBeenCalledTimes(1);
         expect(spawnMiniboss).toHaveBeenCalledTimes(1);
         expect(spawnMiniboss.mock.calls[0][0]).toBe("ghoul");
         expect(host.footprint).toHaveBeenLastCalledWith("ghoul", true);
-        expect(host.onProgress).toHaveBeenLastCalledWith(0, true);
-        expect(director.regularsAlive).toBe(3);
+        expect(spawnRegular).not.toHaveBeenCalled();
+        expect(director.minibossActive).toBe(true);
     });
 
-    it("announces the miniboss every time it appears: first spawn, retry and respawn", () => {
-        const isSpawnable = vi.fn(() => true);
-        const { director, host, player, regulars, minibosses } = makeDirector(
-            { killsToBoss: 1, despawnDelayMs: 10 },
-            { isSpawnable }
-        );
+    it("is one at a time: no roll while one is up, and regulars keep coming", () => {
+        const { director, spawnRegular, spawnMiniboss } = makeDirector({ ...certain, liveCap: 5 });
         director.tick();
 
+        for (let i = 0; i < 10; i++) director.tick();
+
+        expect(spawnMiniboss).toHaveBeenCalledTimes(1);
+        expect(spawnRegular).toHaveBeenCalledTimes(5);
+        expect(director.minibossChance).toBe(0);
+    });
+
+    it("freezes the ramp while one is up", () => {
+        const { director, minibosses } = makeDirector(
+            {
+                minibossBaseChance: 0.5,
+                minibossRampMs: 10 * MINUTE,
+            },
+            { random: () => 0 }
+        );
+        director.update(2 * MINUTE);
+        director.tick();
+
+        director.update(5 * MINUTE);
+        director.onEnemyDead(minibosses()[0]);
+
+        // Back to the base, not base + 7 minutes' worth.
+        expect(director.minibossChance).toBeCloseTo(0.5);
+        director.update(2 * MINUTE);
+        expect(director.minibossChance).toBeCloseTo(0.5 + 0.5 * 0.2);
+    });
+
+    it("restarts the ramp from its base chance when killed, and clears nothing", () => {
+        const { director, spawnRegular, spawnMiniboss, minibosses } = makeDirector({
+            minibossBaseChance: 0,
+            minibossRampMs: 10 * MINUTE,
+        });
+        director.update(10 * MINUTE);
+        director.tick();
+        expect(spawnMiniboss).toHaveBeenCalledTimes(1);
+
+        director.onEnemyDead(minibosses()[0]);
+
+        expect(director.minibossActive).toBe(false);
+        expect(director.minibossChance).toBe(0);
+        // The area carries on: the next tick brings a regular, not another miniboss.
+        director.tick();
+        expect(spawnRegular).toHaveBeenCalledTimes(1);
+        expect(spawnMiniboss).toHaveBeenCalledTimes(1);
+    });
+
+    it("rolls again once the ramp has run after a kill", () => {
+        const { director, spawnMiniboss, minibosses } = makeDirector({
+            minibossBaseChance: 0,
+            minibossRampMs: 10 * MINUTE,
+        });
+        director.update(10 * MINUTE);
+        director.tick();
+        director.onEnemyDead(minibosses()[0]);
+
+        director.update(10 * MINUTE);
+        director.tick();
+
+        expect(spawnMiniboss).toHaveBeenCalledTimes(2);
+    });
+
+    it("ignores the death of an enemy it did not spawn", () => {
+        const { director } = makeDirector(certain);
+        director.tick();
+
+        director.onEnemyDead(new FakeEnemy(0, 0, "stray"));
+
+        expect(director.minibossActive).toBe(true);
+    });
+
+    it("leaves the ramp running when a regular dies", () => {
+        const { director, regulars } = makeDirector({
+            minibossBaseChance: 0,
+            minibossRampMs: 10 * MINUTE,
+        });
+        director.tick();
+        director.update(5 * MINUTE);
+
+        director.onEnemyDead(regulars()[0]);
+
+        expect(director.minibossChance).toBeCloseTo(0.5);
+    });
+
+    it("retries on later ticks when there is no room at first, still in place of regulars", () => {
+        const isSpawnable = vi.fn(() => false);
+        const { director, spawnRegular, spawnMiniboss } = makeDirector(certain, { isSpawnable });
+        director.tick();
+        director.tick();
+        expect(spawnMiniboss).not.toHaveBeenCalled();
+        expect(spawnRegular).not.toHaveBeenCalled();
+
+        isSpawnable.mockReturnValue(true);
+        director.tick();
+
+        expect(spawnMiniboss).toHaveBeenCalledTimes(1);
+        // Picked once, on the roll; the retries reuse it.
+        expect(spawnMiniboss.mock.calls[0][0]).toBe("ghoul");
+    });
+
+    it("announces it every time it appears: first spawn, retry and respawn", () => {
+        const isSpawnable = vi.fn(() => false);
+        const { director, host, player, minibosses } = makeDirector(
+            { ...certain, despawnDelayMs: 10 },
+            { isSpawnable }
+        );
+
         // First attempt finds no room: nothing to announce yet.
-        isSpawnable.mockReturnValue(false);
-        killAll(director, regulars());
+        director.tick();
         expect(host.onMinibossSpawned).not.toHaveBeenCalled();
 
         // The retry on the next tick lands it.
@@ -326,98 +474,61 @@ describe("SpawnDirector kills and the miniboss", () => {
         expect(host.onMinibossSpawned).toHaveBeenLastCalledWith(minibosses()[1]);
     });
 
-    it("stops spawning regulars once the miniboss is triggered", () => {
-        const { director, spawnRegular, regulars } = makeDirector({ killsToBoss: 1 });
-        director.tick();
-        killAll(director, regulars());
-
-        for (let i = 0; i < 10; i++) director.tick();
-
-        expect(spawnRegular).toHaveBeenCalledTimes(1);
-    });
-
-    it("does not clear the area when a regular dies after the miniboss spawns", () => {
-        const { director, host, regulars } = makeDirector({ killsToBoss: 1 });
-        director.tick();
-        director.tick();
-        const [first, second] = regulars();
-        director.onEnemyDead(first);
-        vi.mocked(host.onProgress).mockClear();
-
-        director.onEnemyDead(second);
-
-        expect(host.onAreaCleared).not.toHaveBeenCalled();
-        expect(host.onProgress).not.toHaveBeenCalled();
-    });
-
-    it("clears the area only when the miniboss itself dies, and spawns nothing after", () => {
-        const { director, host, spawnRegular, spawnMiniboss, regulars, minibosses } = makeDirector({
-            killsToBoss: 1,
-        });
-        director.tick();
-        killAll(director, regulars());
-
-        director.onEnemyDead(minibosses()[0]);
-        for (let i = 0; i < 10; i++) director.tick();
-
-        expect(host.onAreaCleared).toHaveBeenCalledTimes(1);
-        expect(spawnRegular).toHaveBeenCalledTimes(1);
-        expect(spawnMiniboss).toHaveBeenCalledTimes(1);
-    });
-
-    it("retries the miniboss on later ticks when there is no room at first", () => {
-        const isSpawnable = vi.fn(() => true);
-        const { director, spawnMiniboss, regulars } = makeDirector(
-            { killsToBoss: 1 },
-            { isSpawnable }
-        );
-        director.tick();
-        isSpawnable.mockReturnValue(false);
-        killAll(director, regulars());
-        expect(spawnMiniboss).not.toHaveBeenCalled();
-
-        isSpawnable.mockReturnValue(true);
-        director.tick();
-
-        expect(spawnMiniboss).toHaveBeenCalledTimes(1);
-    });
-
     it("respawns a despawned miniboss ahead as the same creature, only once", () => {
-        const { director, player, spawnMiniboss, regulars, minibosses } = makeDirector({
-            killsToBoss: 1,
+        const { director, host, player, spawnMiniboss, minibosses } = makeDirector({
+            ...certain,
             despawnDelayMs: 10,
         });
         director.tick();
-        killAll(director, regulars());
 
         player.x += 5000;
         director.update(10);
         expect(minibosses()[0].despawn).toHaveBeenCalledTimes(1);
+        expect(director.minibossActive).toBe(true);
 
         director.tick();
         director.tick();
 
         expect(spawnMiniboss).toHaveBeenCalledTimes(2);
         expect(spawnMiniboss.mock.calls[1][0]).toBe("ghoul");
+        expect(host.pickMiniboss).toHaveBeenCalledTimes(1);
     });
 
-    it("does not clear the area when a despawned miniboss's replacement is still alive", () => {
-        const { director, host, player, minibosses, regulars } = makeDirector({
-            killsToBoss: 1,
+    it("keeps the ramp frozen while a despawned miniboss waits to respawn", () => {
+        const { director, player } = makeDirector(
+            {
+                minibossBaseChance: 1,
+                minibossRampMs: 10 * MINUTE,
+                despawnDelayMs: 10,
+            },
+            { isSpawnable: vi.fn().mockReturnValueOnce(true).mockReturnValue(false) }
+        );
+        director.tick();
+        player.x += 5000;
+        director.update(10);
+
+        director.update(10 * MINUTE);
+
+        expect(director.minibossActive).toBe(true);
+        expect(director.minibossChance).toBe(0);
+    });
+
+    it("ignores a stale death for a despawned miniboss's predecessor", () => {
+        const { director, player, minibosses } = makeDirector({
+            ...certain,
             despawnDelayMs: 10,
         });
         director.tick();
-        killAll(director, regulars());
         player.x += 5000;
         director.update(10);
         director.tick();
 
         // The first miniboss is gone; a stale death event for it must not count.
         director.onEnemyDead(minibosses()[0]);
-        expect(host.onAreaCleared).not.toHaveBeenCalled();
+        expect(director.minibossActive).toBe(true);
 
         director.onEnemyDead(minibosses()[1]);
-        expect(host.onAreaCleared).toHaveBeenCalledTimes(1);
+        expect(director.minibossActive).toBe(false);
     });
 });
 
@@ -473,22 +584,24 @@ describe("SpawnDirector.debugView", () => {
 });
 
 describe("SpawnDirector.stop", () => {
-    it("freezes spawning, despawning and kill counting", () => {
-        const { director, host, player, spawnRegular, regulars } = makeDirector({
+    it("freezes spawning, despawning and the miniboss ramp", () => {
+        const { director, player, spawnRegular, spawnMiniboss, regulars } = makeDirector({
             despawnDelayMs: 10,
+            minibossBaseChance: 0,
+            minibossRampMs: 10 * MINUTE,
         });
         director.tick();
         const enemy = regulars()[0];
-        vi.mocked(host.onProgress).mockClear();
 
         director.stop();
+        director.update(10 * MINUTE);
         director.tick();
         player.x += 2000;
         director.update(1000);
-        director.onEnemyDead(enemy);
 
         expect(spawnRegular).toHaveBeenCalledTimes(1);
+        expect(spawnMiniboss).not.toHaveBeenCalled();
         expect(enemy.despawn).not.toHaveBeenCalled();
-        expect(host.onProgress).not.toHaveBeenCalled();
+        expect(director.minibossChance).toBe(0);
     });
 });

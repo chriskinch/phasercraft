@@ -337,7 +337,7 @@ The five shops (POI names already present in the town map):
       player's inventory; Buy shows the shop's own stock as selectable icons with a
       quantity stepper. Parts tooltips carry a price + short flavour line from
       `COMPONENT_DEFS.description`. Merchant stock is **ephemeral run state** (reset in
-      `loadGame`, like `enemiesRemaining`): Parts re-roll on a wall-clock **10-minute**
+      `loadGame`, like `travelRequest`): Parts re-roll on a wall-clock **10-minute**
       window (`merchantPartsBase`, random 0–`MERCHANT_MAX_STOCK`) with a live countdown —
       selling raises stock (can exceed the max) and buying lowers it, both forgotten on
       roll-over; Gear stock is exactly what the player sold this session (session-lived,
@@ -495,8 +495,8 @@ Forward-cone off-screen spawning stays; mobs arrive in clustered configurations,
 distance × biome, and the area boss becomes a time-ramped **miniboss** (real boss mechanics
 come later; until then an area never clears).
 
-- [ ] Rename boss → miniboss, no behavior change (#593)
-- [ ] Time-ramped miniboss replaces the kill-count trigger; HUD enemy text removed (#594)
+- [x] Rename boss → miniboss, no behavior change (#593, PR #602)
+- [x] Time-ramped miniboss replaces the kill-count trigger; HUD enemy text removed (#594)
 - [ ] Clustered spawn configurations: groups, pairs, packs (#595)
 - [ ] Distance × biome difficulty scaling + `Lv N` on health bars (#596)
 - [ ] Loot rarity tiers boosted by difficulty (#597)
@@ -512,7 +512,7 @@ Follow-up: monster-parts signature loot (#601).
 | -------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
 | Configurations | Small group 1–3 (equal odds, mixed) 70% · same-type pair 22% · pack 5–10 (mixed 70% / single 30%) 8%. Cluster radius 48 px × √count, wholly off screen.                                                               |
 | Pacing         | 1 config / 3 s. Live cap 15 → 25, overshoot allowed. Blocked members dropped after retrying centres. Despawn per mob, as today.                                                                                       |
-| Miniboss       | Rolled per tick, 1% → 100% linear over 10 min scene-clock time; frozen while alive, reset on death or area exit. Alone; respawns ahead on despawn. Loot as before.                                                    |
+| Miniboss       | Rolled every 3 s, 1% → 100% linear over 10 min scene-clock time; frozen while alive, reset on death or area exit. Alone; respawns ahead on despawn. Loot as before.                                                   |
 | Area clear     | Kill count removed. Miniboss death does not clear; the area-cleared hook stays dormant for the future boss.                                                                                                           |
 | Difficulty     | `mult = biome × (1 + (3 − 1) × d / dMax)`; biome forest 1, desert 1.5, tundra 2 (range 1–6). Straight-line from `player-start`, fixed at spawn. Health + damage; healing unchanged; XP via health; coin value × mult. |
 | Readability    | `Lv N` on mob health bars, `N = round(mult × 5)`.                                                                                                                                                                     |

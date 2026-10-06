@@ -162,9 +162,6 @@ describe("Settings template", () => {
 
             expect(screen.getByLabelText("Spawn radius (px)")).toHaveValue(AUTO_RADIUS);
             expect(screen.getByLabelText("Live cap")).toHaveValue(DEFAULT_AREA_TUNING.liveCap);
-            expect(screen.getByLabelText("Kills to boss")).toHaveValue(
-                DEFAULT_AREA_TUNING.killsToBoss
-            );
             expect(screen.getByLabelText("Despawn delay (s)")).toHaveValue(
                 DEFAULT_AREA_TUNING.despawnDelayMs / 1000
             );
@@ -176,7 +173,7 @@ describe("Settings template", () => {
             renderWithProviders(<Settings />);
 
             const classes = screen.getAllByRole("spinbutton").map((input) => input.className);
-            expect(classes).toHaveLength(4);
+            expect(classes).toHaveLength(3);
             expect(new Set(classes).size).toBe(1);
         });
 
@@ -196,7 +193,6 @@ describe("Settings template", () => {
                 target: { value: "200" },
             });
             fireEvent.change(screen.getByLabelText("Live cap"), { target: { value: "2" } });
-            fireEvent.change(screen.getByLabelText("Kills to boss"), { target: { value: "3" } });
             fireEvent.change(screen.getByLabelText("Despawn delay (s)"), {
                 target: { value: "5" },
             });
@@ -204,7 +200,6 @@ describe("Settings template", () => {
             expect(readSettings()).toMatchObject({
                 spawnRadiusOverride: 200,
                 liveCapOverride: 2,
-                killsToBossOverride: 3,
                 despawnDelaySeconds: 5,
             });
             expect(screen.getByLabelText("Live cap")).toHaveValue(2);
@@ -239,9 +234,11 @@ describe("Settings template", () => {
             writeSettings({ ...DEFAULT_SETTINGS, godMode: true });
             renderWithProviders(<Settings />);
 
-            fireEvent.change(screen.getByLabelText("Kills to boss"), { target: { value: "-5" } });
+            fireEvent.change(screen.getByLabelText("Despawn delay (s)"), {
+                target: { value: "-5" },
+            });
 
-            expect(readSettings().killsToBossOverride).toBe(0);
+            expect(readSettings().despawnDelaySeconds).toBe(0);
         });
 
         describe("Reset", () => {
@@ -255,27 +252,22 @@ describe("Settings template", () => {
                 writeSettings({ ...DEFAULT_SETTINGS, godMode: true });
                 renderWithProviders(<Settings />);
 
-                for (const label of [
-                    "Spawn radius (px)",
-                    "Live cap",
-                    "Kills to boss",
-                    "Despawn delay (s)",
-                ]) {
+                for (const label of ["Spawn radius (px)", "Live cap", "Despawn delay (s)"]) {
                     expect(resetFor(label)).toBeDisabled();
                 }
             });
 
             it("returns an overridden field to its codified default", () => {
-                writeSettings({ ...DEFAULT_SETTINGS, godMode: true, killsToBossOverride: 3 });
+                writeSettings({ ...DEFAULT_SETTINGS, godMode: true, despawnDelaySeconds: 5 });
                 renderWithProviders(<Settings />);
 
-                fireEvent.click(resetFor("Kills to boss"));
+                fireEvent.click(resetFor("Despawn delay (s)"));
 
-                expect(readSettings().killsToBossOverride).toBe(0);
-                expect(screen.getByLabelText("Kills to boss")).toHaveValue(
-                    DEFAULT_AREA_TUNING.killsToBoss
+                expect(readSettings().despawnDelaySeconds).toBe(0);
+                expect(screen.getByLabelText("Despawn delay (s)")).toHaveValue(
+                    DEFAULT_AREA_TUNING.despawnDelayMs / 1000
                 );
-                expect(resetFor("Kills to boss")).toBeDisabled();
+                expect(resetFor("Despawn delay (s)")).toBeDisabled();
             });
 
             it("returns the radius to automatic, showing the value auto works out to", () => {
@@ -293,14 +285,14 @@ describe("Settings template", () => {
                     ...DEFAULT_SETTINGS,
                     godMode: true,
                     liveCapOverride: 2,
-                    killsToBossOverride: 3,
+                    despawnDelaySeconds: 5,
                 });
                 renderWithProviders(<Settings />);
 
                 fireEvent.click(resetFor("Live cap"));
 
                 expect(readSettings().liveCapOverride).toBe(0);
-                expect(readSettings().killsToBossOverride).toBe(3);
+                expect(readSettings().despawnDelaySeconds).toBe(5);
             });
         });
     });

@@ -54,7 +54,7 @@ interface Level {
 }
 
 // Ephemeral Merchant shop stock. Never persisted meaningfully (reset in loadGame,
-// like enemiesRemaining/travelRequest) — "forgotten on reset". Two halves:
+// like travelRequest) — "forgotten on reset". Two halves:
 //  - Parts: a random base roll seeded by the wall-clock window (see
 //    merchantPartsBase). `partsDelta` layers the run's net sells (+) and buys (-)
 //    on top of that base; when the window rolls over it is wiped, so the sold and
@@ -109,11 +109,6 @@ export interface GameState {
     coins: number;
     selected: LootItem | null;
     saveSlot: string | null;
-    // Progress through the current combat area. Both are ephemeral run state
-    // (never persisted meaningfully) but live here because the Phaser HUD reads
-    // them through `mapStateToData`.
-    enemiesRemaining: number;
-    bossActive: boolean;
     xp: number;
     currentArea: string;
     travelRequest: TravelDestination | null;
@@ -271,8 +266,6 @@ const initState: GameState = {
     coins: 999,
     selected: null,
     saveSlot: null,
-    enemiesRemaining: 0,
-    bossActive: false,
     xp: 0,
     currentArea: "town",
     travelRequest: null,
@@ -362,14 +355,6 @@ export const equipLoot = createAction("EQUIP_LOOT", (loot: LootItem) => ({
 
 export const loadGame = createAction("LOAD_GAME", (state: Partial<GameState>) => ({
     payload: { state },
-}));
-
-export const setEnemiesRemaining = createAction("SET_ENEMIES_REMAINING", (value: number) => ({
-    payload: { value },
-}));
-
-export const setBossActive = createAction("SET_BOSS_ACTIVE", (value: boolean) => ({
-    payload: { value },
 }));
 
 export const selectCharacter = createAction("SELECT_CHARACTER", (character: PlayerName) => ({
@@ -797,17 +782,22 @@ export const gameReducer = createReducer(initState, (builder) => {
             // dropped, so gear is never touched. Never throws on a partial save.
             //
             // Migration: saves written before the wave mechanic was removed carry
-            // a `wave` counter. Drop it and seed the area-progress fields, which
-            // are run state that the scene overwrites on entry anyway.
+            // a `wave` counter, and saves from before the kill count was removed
+            // (#594) carry `enemiesRemaining`/`bossActive`. All were run state the
+            // scene overwrote on entry, so drop them.
             const loaded = action.payload.state as GameState & {
                 crafting?: unknown;
                 wave?: unknown;
+                enemiesRemaining?: unknown;
+                bossActive?: unknown;
             };
             const inventory = (loaded.inventory ?? []).filter(
                 (item) => item.category !== "crafting"
             );
             delete loaded.crafting;
             delete loaded.wave;
+            delete loaded.enemiesRemaining;
+            delete loaded.bossActive;
             return {
                 ...loaded,
                 inventory,
@@ -818,8 +808,6 @@ export const gameReducer = createReducer(initState, (builder) => {
                 recipes: loaded.recipes ?? [...INITIAL_RECIPES],
                 // Saves written before special items (Step 4d) own none.
                 specials: loaded.specials ?? {},
-                enemiesRemaining: loaded.enemiesRemaining ?? 0,
-                bossActive: loaded.bossActive ?? false,
                 // Transient: a request captured mid-save would teleport the
                 // player on load.
                 travelRequest: null,
@@ -834,12 +822,6 @@ export const gameReducer = createReducer(initState, (builder) => {
                     loaded as unknown as Record<string, unknown>
                 ),
             } as GameState;
-        })
-        .addCase(setEnemiesRemaining, (state, action: PayloadAction<{ value: number }>) => {
-            state.enemiesRemaining = action.payload.value;
-        })
-        .addCase(setBossActive, (state, action: PayloadAction<{ value: boolean }>) => {
-            state.bossActive = action.payload.value;
         })
         .addCase(selectLoot, (state, action: PayloadAction<{ loot: LootItem }>) => {
             state.selected = action.payload.loot;
