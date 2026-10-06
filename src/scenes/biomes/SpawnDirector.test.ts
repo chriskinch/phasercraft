@@ -46,14 +46,12 @@ function makeDirector(tuning: Partial<AreaTuning> = {}, host: Partial<SpawnHost<
         ...host,
     };
     // The miniboss ramp is off unless a test turns it on, so the regular-spawn
-    // tests never meet a miniboss roll; when on, it rolls on every tick unless a
-    // test sets a roll interval.
+    // tests never meet a miniboss roll.
     const director = new SpawnDirector(
         {
             ...DEFAULT_AREA_TUNING,
             minibossBaseChance: 0,
             minibossRampMs: Infinity,
-            minibossRollIntervalMs: 0,
             ...tuning,
         },
         fake
@@ -287,54 +285,17 @@ describe("SpawnDirector miniboss ramp", () => {
         expect(director.minibossChance).toBe(1);
     });
 
-    it("ships at 1% rising to certain over 10 minutes, rolled every 3 s", () => {
+    it("ships at 1% rising to certain over 10 minutes", () => {
         expect(DEFAULT_AREA_TUNING.minibossBaseChance).toBe(0.01);
         expect(DEFAULT_AREA_TUNING.minibossRampMs).toBe(10 * MINUTE);
-        expect(DEFAULT_AREA_TUNING.minibossRollIntervalMs).toBe(3000);
     });
 
-    it("rolls once per roll interval's worth of spawn ticks", () => {
+    it("rolls once per tick while no miniboss is active", () => {
         const random = vi.fn(() => 0.99);
-        const { director } = makeDirector(
-            // No regulars, so every random() call is a roll.
-            {
-                minibossBaseChance: 0.5,
-                minibossRollIntervalMs: 3000,
-                spawnIntervalMs: 750,
-                liveCap: 0,
-            },
-            { random }
-        );
-        const rolls = () => random.mock.calls.length;
+        // No regulars, so every random() call is a roll.
+        const { director } = makeDirector({ minibossBaseChance: 0.5, liveCap: 0 }, { random });
 
-        // 750 ms ticks: the fourth tick is the first 3 s in.
-        for (let i = 0; i < 3; i++) director.tick();
-        expect(rolls()).toBe(0);
-        director.tick();
-        expect(rolls()).toBe(1);
-
-        for (let i = 0; i < 4; i++) director.tick();
-        expect(rolls()).toBe(2);
-    });
-
-    it("rolls on every tick when ticks are as long as the roll interval", () => {
-        const random = vi.fn(() => 0.99);
-        const { director } = makeDirector(
-            {
-                minibossBaseChance: 0.5,
-                minibossRollIntervalMs: 3000,
-                spawnIntervalMs: 3000,
-                liveCap: 0,
-            },
-            { random }
-        );
-
-        // The scene clock fires the tick before update() sees the frame, so the
-        // frames between ticks add up a frame short of the interval.
-        for (let i = 0; i < 5; i++) {
-            director.update(3000 - 16);
-            director.tick();
-        }
+        for (let i = 0; i < 5; i++) director.tick();
 
         expect(random).toHaveBeenCalledTimes(5);
     });

@@ -9,17 +9,12 @@ import type { Settings } from "@services/settingsStorage";
 // area yet — that waits on the boss epic. Leaving and re-entering starts the
 // area afresh, so none of this is persisted.
 
-// The miniboss's chance per roll on entering an area, and how long (scene
+// The miniboss's chance per spawn tick on entering an area, and how long (scene
 // clock, so pauses don't count) until it is certain. The chance rises linearly
 // in between, is frozen while a miniboss is up, and drops back to the base
 // chance when it dies.
 export const MINIBOSS_BASE_CHANCE = 0.01;
 export const MINIBOSS_RAMP_MS = 10 * 60 * 1000;
-
-// At most one miniboss roll per this long, on the first spawn tick after it has
-// elapsed. Kept apart from SPAWN_INTERVAL_MS so the odds per minute don't depend
-// on how often regulars are paced in.
-export const MINIBOSS_ROLL_INTERVAL_MS = 3000;
 
 // How many regular enemies may be alive at once.
 export const AREA_LIVE_CAP = 15;
@@ -53,7 +48,6 @@ export const SPAWN_MOVING_SPEED = 10;
 export interface AreaTuning {
     minibossBaseChance: number;
     minibossRampMs: number;
-    minibossRollIntervalMs: number;
     liveCap: number;
     spawnIntervalMs: number;
     despawnDelayMs: number;
@@ -68,7 +62,6 @@ export interface AreaTuning {
 export const DEFAULT_AREA_TUNING: Readonly<AreaTuning> = {
     minibossBaseChance: MINIBOSS_BASE_CHANCE,
     minibossRampMs: MINIBOSS_RAMP_MS,
-    minibossRollIntervalMs: MINIBOSS_ROLL_INTERVAL_MS,
     liveCap: AREA_LIVE_CAP,
     spawnIntervalMs: SPAWN_INTERVAL_MS,
     despawnDelayMs: DESPAWN_DELAY_MS,
