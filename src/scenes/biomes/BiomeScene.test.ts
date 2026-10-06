@@ -54,6 +54,9 @@ interface SceneUnderTest {
     spawnEnemy: ReturnType<typeof vi.fn>;
     spawnMiniboss: ReturnType<typeof vi.fn>;
     spawnHost(): SpawnHost<never, string>;
+    difficultyAt(point: { x: number; y: number }): number;
+    player_start: { x: number; y: number };
+    max_spawn_distance: number;
     textures: { getFrame: ReturnType<typeof vi.fn> };
     spawn_grid: WalkabilityGrid;
     physics: {
@@ -463,6 +466,50 @@ describe("BiomeScene.spawnHost", () => {
         scene.spawnHost().onAreaCleared();
 
         expect(scene.area_cleared).toBe(true);
+    });
+});
+
+describe("BiomeScene.difficultyAt", () => {
+    // Start at the origin; the furthest spawnable tile 1000 px away.
+    const at = (biome: keyof typeof BIOMES, point: { x: number; y: number }) => {
+        const { scene } = makeScene();
+        scene.biome = BIOMES[biome];
+        scene.player_start = { x: 0, y: 0 };
+        scene.max_spawn_distance = 1000;
+        return scene.difficultyAt(point);
+    };
+
+    it.each([
+        ["forest", 1, 3],
+        ["desert", 1.5, 4.5],
+        ["tundra", 2, 6],
+    ] as const)("%s runs from %s at the start to %s at the far edge", (biome, start, edge) => {
+        expect(at(biome, { x: 0, y: 0 })).toBeCloseTo(start);
+        expect(at(biome, { x: 600, y: 800 })).toBeCloseTo(edge);
+        expect(at(biome, { x: 3000, y: 0 })).toBeCloseTo(edge);
+    });
+
+    it("rises linearly with straight-line distance", () => {
+        expect(at("forest", { x: 0, y: 500 })).toBeCloseTo(2);
+    });
+
+    it("is what the spawn host hands the director", () => {
+        const { scene } = makeScene();
+        scene.player_start = { x: 0, y: 0 };
+        scene.max_spawn_distance = 1000;
+
+        expect(scene.spawnHost().difficultyAt({ x: 1000, y: 0 })).toBeCloseTo(3);
+    });
+
+    it("passes the director's difficulty on to the enemy and miniboss it spawns", () => {
+        const { scene } = makeScene();
+        const host = scene.spawnHost();
+
+        host.spawnRegular("imp", { x: 1, y: 2 }, 2.5);
+        host.spawnMiniboss("ghoul", { x: 3, y: 4 }, 4);
+
+        expect(scene.spawnEnemy).toHaveBeenCalledWith("imp", { x: 1, y: 2 }, 2.5);
+        expect(scene.spawnMiniboss).toHaveBeenCalledWith("ghoul", { x: 3, y: 4 }, 4);
     });
 });
 
