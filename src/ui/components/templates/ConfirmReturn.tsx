@@ -5,7 +5,7 @@ import { requestTravel, toggleUi } from "@store/gameReducer";
 import styles from "./ConfirmReturn.module.css";
 
 // Leaving a biome abandons its progress — the pool respawns and an un-killed
-// boss is gone on re-entry — so the HUD's teleport button confirms first. The
+// miniboss is gone on re-entry — so the HUD's teleport button confirms first. The
 // ESC key stays an unconfirmed instant exit.
 const ConfirmReturn: React.FC = () => {
     const dispatch = useDispatch();
@@ -13,7 +13,7 @@ const ConfirmReturn: React.FC = () => {
     return (
         <div className={styles.confirm}>
             <p>
-                Return to town? The creatures here will return, and any boss you have not felled
+                Return to town? The creatures here will return, and any miniboss you have not felled
                 will be gone.
             </p>
             <div className={styles.actions}>

@@ -5,7 +5,7 @@ import type { EnemyConfig, EnemyType, LootDropRate, LootTable } from "@/types/ga
 import type { Settings } from "@services/settingsStorage";
 
 // Enemies populate a combat area as the player moves through it. Once this many
-// have been killed the area's boss spawns, and killing the boss clears the
+// have been killed the area's miniboss spawns, and killing the miniboss clears the
 // area. Despawned enemies do not count. Leaving and re-entering starts the
 // count again, so none of this is persisted.
 export const AREA_KILLS_TO_BOSS = 20;
@@ -85,27 +85,27 @@ export function resolveAreaTuning(settings: Settings): AreaTuning {
     return tuning;
 }
 
-// Boss multipliers, derived from the two hand-authored entries in
-// `bosses.json` (kept as the reference for these numbers):
+// Miniboss multipliers, derived from the two hand-authored boss entries
+// that used to live in `bosses.json` (removed in #593; numbers kept here):
 //
 //   baby-ghoul  damage 50 → 150 (×3)   health 50 → 500 (×10)  speed 50 → 30 (×0.6)
 //   imp         damage 25 → 95  (×3.8) health 80 → 300 (×3.75) speed 70 → 40 (×0.57)
 //
 // The two entries disagree on the health ratio, so ×8 splits them. Both are
 // authored as `Melee` with a short range even though the base `imp` is a
-// 120-range `Ranged` creature, so a promoted boss is always melee — the boss is
+// 120-range `Ranged` creature, so a promoted miniboss is always melee — the miniboss is
 // meant to close on the player rather than kite.
-export const BOSS_SCALING = {
+export const MINIBOSS_SCALING = {
     damage: 3,
     health_max: 8,
     speed: 0.6,
     range: 60,
     aggro_radius: 80,
     coin_multiplier: 10,
-    // How much more loot a boss drops than the creature it was promoted from.
+    // How much more loot a miniboss drops than the creature it was promoted from.
     // `loot` scales the drop table itself (see `scaleLootTable`) and
     // `coin_multiplier` scales what each coin/gem is worth when collected, so a
-    // boss's coin payout is roughly the product of the two. Tune either here.
+    // miniboss's coin payout is roughly the product of the two. Tune either here.
     loot: 10,
 } as const;
 
@@ -125,28 +125,28 @@ export function scaleLootTable(loot_table: LootTable, multiplier: number): LootT
     }));
 }
 
-// Loot a boss drops exactly one of, unscaled, whatever its creature's own rate.
-const BOSS_PINNED_RATES: Partial<Record<LootDropRate["name"], number>> = {
-    special: SPECIAL_DROP_RATE.boss,
-    scroll: SCROLL_DROP_RATE.boss,
+// Loot a miniboss drops exactly one of, unscaled, whatever its creature's own rate.
+const MINIBOSS_PINNED_RATES: Partial<Record<LootDropRate["name"], number>> = {
+    special: SPECIAL_DROP_RATE.miniboss,
+    scroll: SCROLL_DROP_RATE.miniboss,
 };
 
-// Promotes one of the area's own creatures into that area's boss.
-export function promoteToBoss(id: EnemyType): EnemyConfig {
+// Promotes one of the area's own creatures into that area's miniboss.
+export function promoteToMiniboss(id: EnemyType): EnemyConfig {
     const base = enemyTypes[id] as EnemyConfig;
 
     return {
         ...base,
         type: "Melee",
-        damage: Math.round(base.damage * BOSS_SCALING.damage),
-        health_max: Math.round(base.health_max * BOSS_SCALING.health_max),
-        speed: Math.round(base.speed * BOSS_SCALING.speed),
-        range: BOSS_SCALING.range,
-        aggro_radius: BOSS_SCALING.aggro_radius,
-        coin_multiplier: BOSS_SCALING.coin_multiplier,
-        // Special items and scrolls are not scaled with the rest (BOSS_PINNED_RATES).
-        loot_table: scaleLootTable(base.loot_table, BOSS_SCALING.loot).map((item) => {
-            const rate = BOSS_PINNED_RATES[item.name];
+        damage: Math.round(base.damage * MINIBOSS_SCALING.damage),
+        health_max: Math.round(base.health_max * MINIBOSS_SCALING.health_max),
+        speed: Math.round(base.speed * MINIBOSS_SCALING.speed),
+        range: MINIBOSS_SCALING.range,
+        aggro_radius: MINIBOSS_SCALING.aggro_radius,
+        coin_multiplier: MINIBOSS_SCALING.coin_multiplier,
+        // Special items and scrolls are not scaled with the rest (MINIBOSS_PINNED_RATES).
+        loot_table: scaleLootTable(base.loot_table, MINIBOSS_SCALING.loot).map((item) => {
+            const rate = MINIBOSS_PINNED_RATES[item.name];
             return rate === undefined ? item : { ...item, rate, bonus: 0 };
         }),
     };

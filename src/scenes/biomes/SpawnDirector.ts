@@ -9,8 +9,8 @@ import {
 import type { Rect } from "@helpers/walkability";
 
 // Runs a combat area's population (#456): trickles enemies in off screen ahead
-// of the player, despawns the ones left behind, counts kills towards the boss,
-// and spawns (and if need be respawns) the boss. Pure logic — everything it
+// of the player, despawns the ones left behind, counts kills towards the miniboss,
+// and spawns (and if need be respawns) the miniboss. Pure logic — everything it
 // needs from Phaser comes through a `SpawnHost`, so it is tested on fakes.
 
 // What the director needs from a spawned enemy.
@@ -29,18 +29,18 @@ export interface SpawnHost<E extends SpawnedEnemy, Id extends string = string> {
     // Whether every tile under this world rect is open, reachable land.
     isSpawnable(rect: Rect): boolean;
     // The body size a creature will have once spawned, in world px.
-    footprint(id: Id, boss: boolean): { width: number; height: number };
+    footprint(id: Id, miniboss: boolean): { width: number; height: number };
     // Which creature to spawn next, drawn from the area's pool.
     pickRegular(): Id;
-    pickBoss(): Id;
+    pickMiniboss(): Id;
     spawnRegular(id: Id, at: Point): E;
-    spawnBoss(id: Id, at: Point): E;
-    // Kills left before the boss, and whether the boss has been triggered.
+    spawnMiniboss(id: Id, at: Point): E;
+    // Kills left before the miniboss, and whether the miniboss has been triggered.
     onProgress(killsRemaining: number, bossActive: boolean): void;
     onAreaCleared(): void;
-    // Every time the boss appears: its first spawn, and each respawn after a
-    // despawn. The scene turns this into `boss:spawned` (see #465).
-    onBossSpawned(boss: E): void;
+    // Every time the miniboss appears: its first spawn, and each respawn after a
+    // despawn. The scene turns this into `miniboss:spawned` (see #465).
+    onMinibossSpawned(miniboss: E): void;
     random(): number;
 }
 
@@ -58,7 +58,7 @@ export interface SpawnDebugView<E> {
 }
 
 interface Tracked {
-    boss: boolean;
+    miniboss: boolean;
     width: number;
     height: number;
     // How long, in ms, the enemy has been continuously beyond the radius.
@@ -68,8 +68,8 @@ interface Tracked {
 export default class SpawnDirector<E extends SpawnedEnemy, Id extends string = string> {
     private readonly tracked = new Map<E, Tracked>();
     private kills = 0;
-    private boss_id: Id | null = null;
-    private boss: E | null = null;
+    private miniboss_id: Id | null = null;
+    private miniboss: E | null = null;
     private cleared = false;
     private stopped = false;
     private last_attempts: { point: Point; ok: boolean }[] = [];
@@ -83,14 +83,14 @@ export default class SpawnDirector<E extends SpawnedEnemy, Id extends string = s
         return Math.max(this.tuning.killsToBoss - this.kills, 0);
     }
 
-    get bossTriggered(): boolean {
-        return this.boss_id !== null;
+    get minibossTriggered(): boolean {
+        return this.miniboss_id !== null;
     }
 
     get regularsAlive(): number {
         let count = 0;
         this.tracked.forEach((t) => {
-            if (!t.boss) count++;
+            if (!t.miniboss) count++;
         });
         return count;
     }
@@ -131,15 +131,15 @@ export default class SpawnDirector<E extends SpawnedEnemy, Id extends string = s
     }
 
     /**
-     * One pacing tick. Before the boss: one regular, if below the live cap.
-     * After: the boss, if it is not already on the map (its first spawn found
+     * One pacing tick. Before the miniboss: one regular, if below the live cap.
+     * After: the miniboss, if it is not already on the map (its first spawn found
      * no room, or it despawned). Never more than one spawn per tick.
      */
     tick(): void {
         if (this.stopped || this.cleared) return;
 
-        if (this.boss_id !== null) {
-            if (!this.boss) this.trySpawnBoss();
+        if (this.miniboss_id !== null) {
+            if (!this.miniboss) this.trySpawnMiniboss();
             return;
         }
 
@@ -173,37 +173,37 @@ export default class SpawnDirector<E extends SpawnedEnemy, Id extends string = s
     }
 
     /**
-     * A tracked enemy died. Regulars count towards the boss until it triggers;
-     * the boss's own death is the only thing that clears the area.
+     * A tracked enemy died. Regulars count towards the miniboss until it triggers;
+     * the miniboss's own death is the only thing that clears the area.
      */
     onEnemyDead(enemy: E): void {
         if (this.stopped || !this.tracked.has(enemy)) return;
-        const was_boss = enemy === this.boss;
+        const was_miniboss = enemy === this.miniboss;
         this.forget(enemy);
 
-        if (was_boss) {
+        if (was_miniboss) {
             this.cleared = true;
             this.host.onAreaCleared();
             return;
         }
 
-        if (this.boss_id !== null) return;
+        if (this.miniboss_id !== null) return;
 
         this.kills++;
         if (this.kills >= this.tuning.killsToBoss) {
-            this.boss_id = this.host.pickBoss();
-            this.trySpawnBoss();
+            this.miniboss_id = this.host.pickMiniboss();
+            this.trySpawnMiniboss();
         }
-        this.host.onProgress(this.killsRemaining, this.bossTriggered);
+        this.host.onProgress(this.killsRemaining, this.minibossTriggered);
     }
 
-    private trySpawnBoss(): void {
-        if (this.boss_id === null) return;
-        const at = this.findSpawnPoint(this.boss_id, true);
+    private trySpawnMiniboss(): void {
+        if (this.miniboss_id === null) return;
+        const at = this.findSpawnPoint(this.miniboss_id, true);
         if (!at) return;
-        this.boss = this.host.spawnBoss(this.boss_id, at.point);
-        this.track(this.boss, true, at.size);
-        this.host.onBossSpawned(this.boss);
+        this.miniboss = this.host.spawnMiniboss(this.miniboss_id, at.point);
+        this.track(this.miniboss, true, at.size);
+        this.host.onMinibossSpawned(this.miniboss);
     }
 
     /**
@@ -214,13 +214,13 @@ export default class SpawnDirector<E extends SpawnedEnemy, Id extends string = s
      */
     private findSpawnPoint(
         id: Id,
-        boss: boolean
+        miniboss: boolean
     ): { point: Point; size: { width: number; height: number } } | null {
         const player = this.host.playerPosition();
         const direction = spawnDirection(this.host.playerVelocity(), this.tuning.movingSpeed);
         const half_angle = (this.tuning.coneHalfAngleDeg * Math.PI) / 180;
         const radius = this.radius();
-        const size = this.host.footprint(id, boss);
+        const size = this.host.footprint(id, miniboss);
         this.last_attempts = [];
 
         for (let attempt = 0; attempt < this.tuning.attemptsPerTick; attempt++) {
@@ -256,12 +256,12 @@ export default class SpawnDirector<E extends SpawnedEnemy, Id extends string = s
         return false;
     }
 
-    private track(enemy: E, boss: boolean, size: { width: number; height: number }): void {
-        this.tracked.set(enemy, { boss, ...size, beyond: 0 });
+    private track(enemy: E, miniboss: boolean, size: { width: number; height: number }): void {
+        this.tracked.set(enemy, { miniboss, ...size, beyond: 0 });
     }
 
     private forget(enemy: E): void {
         this.tracked.delete(enemy);
-        if (enemy === this.boss) this.boss = null;
+        if (enemy === this.miniboss) this.miniboss = null;
     }
 }
