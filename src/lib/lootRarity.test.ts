@@ -36,11 +36,15 @@ describe("LOOT_RARITY", () => {
 describe("rarityBoost", () => {
     it.each([
         ["coin", 1, 1],
+        ["coin", 3, 1],
         ["coin", 6, 1],
+        ["gem", 1, 1],
         ["gem", 3, 2],
         ["gem", 6, 3.5],
+        ["scroll", 1, 1],
         ["scroll", 3, 3],
         ["scroll", 6, 6],
+        ["special", 1, 1],
         ["special", 3, 5],
         ["special", 6, 11],
     ] as const)("%s at ×%s is ×%s", (name, multiplier, expected) => {
@@ -51,6 +55,15 @@ describe("rarityBoost", () => {
 describe("boostLootTable", () => {
     it("returns today's table unchanged at multiplier 1", () => {
         expect(boostLootTable(TABLE, 1)).toEqual(TABLE);
+    });
+
+    it("leaves every real enemy and miniboss table exactly as today at multiplier 1", () => {
+        (Object.keys(enemyTypes) as EnemyType[]).forEach((id) => {
+            const table = (enemyTypes[id] as EnemyConfig).loot_table;
+            expect(boostLootTable(table, 1)).toEqual(table);
+            const miniboss = promoteToMiniboss(id).loot_table;
+            expect(boostLootTable(miniboss, 1, MINIBOSS_PINNED_LOOT)).toEqual(miniboss);
+        });
     });
 
     it("leaves common loot alone and raises the rarer the faster", () => {
