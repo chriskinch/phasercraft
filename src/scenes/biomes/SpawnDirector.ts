@@ -65,7 +65,6 @@ export interface MinibossDebugView {
     // The chance the next new cell brings it on; 0 while active.
     chance: number;
     cellsExplored: number;
-    cellsToCertain: number;
 }
 
 interface Tracked {
@@ -105,14 +104,13 @@ export default class SpawnDirector<E extends SpawnedEnemy, Id extends string = s
     }
 
     /**
-     * The chance the next new cell brings on the miniboss: the flat per-cell
-     * chance, or certain on the `minibossCellsToCertain`-th. 0 while a miniboss
-     * is already active.
+     * The chance the next new cell brings on the miniboss: `minibossChancePerCell`
+     * for every cell counted since the last one, that cell included, capped at
+     * certain. 0 while a miniboss is already active.
      */
     get minibossChance(): number {
         if (this.minibossActive) return 0;
-        const { minibossCellChance, minibossCellsToCertain } = this.tuning;
-        return this.cells_explored + 1 >= minibossCellsToCertain ? 1 : minibossCellChance;
+        return Math.min(this.tuning.minibossChancePerCell * (this.cells_explored + 1), 1);
     }
 
     get regularsAlive(): number {
@@ -154,7 +152,6 @@ export default class SpawnDirector<E extends SpawnedEnemy, Id extends string = s
             active: this.minibossActive,
             chance: this.minibossChance,
             cellsExplored: this.cells_explored,
-            cellsToCertain: this.tuning.minibossCellsToCertain,
         };
     }
 
@@ -211,25 +208,23 @@ export default class SpawnDirector<E extends SpawnedEnemy, Id extends string = s
     }
 
     /**
-     * A tracked enemy died. The miniboss's death restarts its exploration
-     * count from 0; nothing clears the area (that waits on the boss epic).
+     * A tracked enemy died. The miniboss's death lets exploring count again;
+     * nothing clears the area (that waits on the boss epic).
      */
     onEnemyDead(enemy: E): void {
         if (this.stopped || !this.tracked.has(enemy)) return;
         const was_miniboss = enemy === this.miniboss;
         this.forget(enemy);
 
-        if (was_miniboss) {
-            this.miniboss_id = null;
-            this.cells_explored = 0;
-        }
+        if (was_miniboss) this.miniboss_id = null;
     }
 
     /**
      * Marks the player's cell visited. The first time a cell is entered (the
      * start cell aside) with no miniboss active, it counts and rolls: a hit
-     * picks the miniboss, which the next tick brings on. Cells crossed while a
-     * miniboss is up are still marked, so they never count later.
+     * picks the miniboss, which the next tick brings on, and resets the count.
+     * Cells crossed while a miniboss is up are still marked, so they never
+     * count later.
      */
     private explore(player: Point): void {
         const size = this.tuning.explorationCellSize;
@@ -246,6 +241,7 @@ export default class SpawnDirector<E extends SpawnedEnemy, Id extends string = s
         // every spawn point drawn from it) untouched.
         if (chance > 0 && this.host.random() < chance) {
             this.miniboss_id = this.host.pickMiniboss();
+            this.cells_explored = 0;
         }
     }
 

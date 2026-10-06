@@ -50,8 +50,7 @@ function makeDirector(tuning: Partial<AreaTuning> = {}, host: Partial<SpawnHost<
     const director = new SpawnDirector(
         {
             ...DEFAULT_AREA_TUNING,
-            minibossCellChance: 0,
-            minibossCellsToCertain: Infinity,
+            minibossChancePerCell: 0,
             ...tuning,
         },
         fake
@@ -273,15 +272,14 @@ function explore(
 }
 
 describe("SpawnDirector miniboss exploration", () => {
-    it("ships at 2% per new cell, certain on the 50th, 512 px cells", () => {
-        expect(DEFAULT_AREA_TUNING.minibossCellChance).toBe(0.02);
-        expect(DEFAULT_AREA_TUNING.minibossCellsToCertain).toBe(50);
+    it("ships at 1% per new cell, 512 px cells", () => {
+        expect(DEFAULT_AREA_TUNING.minibossChancePerCell).toBe(0.01);
         expect(DEFAULT_AREA_TUNING.explorationCellSize).toBe(512);
     });
 
     it("never rolls for a player standing still, however long", () => {
         const random = vi.fn(() => 0);
-        const { director } = makeDirector({ minibossCellChance: 1, liveCap: 0 }, { random });
+        const { director } = makeDirector({ minibossChancePerCell: 1, liveCap: 0 }, { random });
 
         for (let i = 0; i < 1000; i++) director.update(1000);
 
@@ -303,69 +301,85 @@ describe("SpawnDirector miniboss exploration", () => {
         expect(director.cellsExplored).toBe(3);
     });
 
-    it("rolls the per-cell chance against the host's random source on new ground", () => {
-        const random = vi.fn(() => 0.019);
+    it("rolls N% on the Nth new cell, against the host's random source", () => {
+        const random = vi.fn(() => 0.025);
         const { director, player, host } = makeDirector(
-            { minibossCellChance: 0.02, minibossCellsToCertain: 50, liveCap: 0 },
+            { minibossChancePerCell: 0.01, liveCap: 0 },
             { random }
         );
 
-        explore(director, player, 1);
+        // 1% and 2% miss a 0.025 roll; 3% hits it.
+        explore(director, player, 2);
+        expect(host.pickMiniboss).not.toHaveBeenCalled();
+        expect(director.minibossChance).toBeCloseTo(0.03);
 
-        expect(random).toHaveBeenCalledTimes(1);
+        explore(director, player, 1);
+        expect(random).toHaveBeenCalledTimes(3);
         expect(host.pickMiniboss).toHaveBeenCalledTimes(1);
         expect(director.minibossActive).toBe(true);
     });
 
-    it("misses when the roll is at or above the chance", () => {
-        const { director, player, host } = makeDirector(
-            { minibossCellChance: 0.02, liveCap: 0 },
-            { random: () => 0.02 }
+    it("climbs with exploring and caps at certain", () => {
+        const { director, player } = makeDirector(
+            { minibossChancePerCell: 0.01, liveCap: 0 },
+            { random: () => 0.999 }
         );
+        expect(director.minibossChance).toBeCloseTo(0.01);
 
-        explore(director, player, 10);
+        explore(director, player, 9);
+        expect(director.minibossChance).toBeCloseTo(0.1);
 
-        expect(host.pickMiniboss).not.toHaveBeenCalled();
-        expect(director.minibossChance).toBe(0.02);
+        player.y += CELL;
+        explore(director, player, 89);
+        expect(director.cellsExplored).toBe(99);
+        expect(director.minibossChance).toBe(1);
     });
 
-    it("is certain on the Nth new cell since the last miniboss", () => {
+    it("misses when the roll is at or above the chance", () => {
         const { director, player, host } = makeDirector(
-            { minibossCellChance: 0.02, minibossCellsToCertain: 5, liveCap: 0 },
-            { random: () => 0.99 }
+            { minibossChancePerCell: 0.5, liveCap: 0 },
+            { random: () => 0.5 }
         );
 
-        explore(director, player, 4);
+        explore(director, player, 1);
+
         expect(host.pickMiniboss).not.toHaveBeenCalled();
         expect(director.minibossChance).toBe(1);
+    });
 
-        explore(director, player, 1);
-        expect(host.pickMiniboss).toHaveBeenCalledTimes(1);
+    it("resets the count when the miniboss is rolled, and holds it at 0 while it is up", () => {
+        const { director, player, minibosses } = makeDirector(
+            { minibossChancePerCell: 0.25 },
+            { random: () => 0.99 }
+        );
+        explore(director, player, 4);
+        expect(director.cellsExplored).toBe(0);
+        director.tick();
+        expect(minibosses()).toHaveLength(1);
+
+        explore(director, player, 3);
+        expect(director.cellsExplored).toBe(0);
+        expect(director.minibossChance).toBe(0);
     });
 });
 
 describe("SpawnDirector.minibossDebugView", () => {
-    it("reports the odds, the count and the guarantee", () => {
+    it("reports the next cell's chance and the count", () => {
         const { director, player } = makeDirector(
-            {
-                minibossCellChance: 0.02,
-                minibossCellsToCertain: 50,
-                liveCap: 0,
-            },
+            { minibossChancePerCell: 0.01, liveCap: 0 },
             { random: () => 0.99 }
         );
         explore(director, player, 3);
 
         expect(director.minibossDebugView()).toEqual({
             active: false,
-            chance: 0.02,
+            chance: 0.04,
             cellsExplored: 3,
-            cellsToCertain: 50,
         });
     });
 
     it("reports an active miniboss at no chance", () => {
-        const { director, player } = makeDirector({ minibossCellChance: 1, liveCap: 0 });
+        const { director, player } = makeDirector({ minibossChancePerCell: 1, liveCap: 0 });
         explore(director, player, 1);
 
         expect(director.minibossDebugView()).toMatchObject({ active: true, chance: 0 });
@@ -374,7 +388,7 @@ describe("SpawnDirector.minibossDebugView", () => {
 
 describe("SpawnDirector miniboss", () => {
     // Certain on the first new cell; the odds themselves are covered above.
-    const certain = { minibossCellChance: 1 };
+    const certain = { minibossChancePerCell: 1 };
 
     it("comes on the tick after it is rolled, in place of that tick's regular", () => {
         const { director, player, host, spawnRegular, spawnMiniboss } = makeDirector(certain);
@@ -405,12 +419,9 @@ describe("SpawnDirector miniboss", () => {
         expect(director.minibossChance).toBe(0);
     });
 
-    it("freezes the count while one is up; cells crossed then never count", () => {
-        const { director, player, minibosses } = makeDirector({
-            minibossCellChance: 0,
-            minibossCellsToCertain: 3,
-        });
-        explore(director, player, 3);
+    it("counts no cells while one is up; cells crossed then never count", () => {
+        const { director, player, minibosses } = makeDirector(certain);
+        explore(director, player, 1);
         director.tick();
         expect(minibosses()).toHaveLength(1);
 
@@ -424,11 +435,11 @@ describe("SpawnDirector miniboss", () => {
         expect(director.cellsExplored).toBe(0);
     });
 
-    it("restarts the count when killed, and clears nothing", () => {
-        const { director, player, host, spawnRegular, spawnMiniboss, minibosses } = makeDirector({
-            minibossCellChance: 0,
-            minibossCellsToCertain: 2,
-        });
+    it("lets exploring count again once killed, and clears nothing", () => {
+        const { director, player, host, spawnRegular, spawnMiniboss, minibosses } = makeDirector(
+            { minibossChancePerCell: 0.5 },
+            { random: () => 0.99 }
+        );
         explore(director, player, 2);
         director.tick();
         expect(spawnMiniboss).toHaveBeenCalledTimes(1);
@@ -608,7 +619,7 @@ describe("SpawnDirector.stop", () => {
     it("freezes spawning, despawning and exploring", () => {
         const { director, player, spawnRegular, spawnMiniboss, regulars } = makeDirector({
             despawnDelayMs: 10,
-            minibossCellChance: 1,
+            minibossChancePerCell: 1,
         });
         director.tick();
         const enemy = regulars()[0];

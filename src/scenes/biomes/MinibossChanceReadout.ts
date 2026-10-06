@@ -4,7 +4,7 @@ import type { MinibossDebugView } from "./SpawnDirector";
 
 // Debug readout of the miniboss odds (#594): pinned to the top-right of the
 // layout zone, it shows the chance the next new exploration cell brings on the
-// miniboss and the cells counted towards the guaranteed one. Only built when
+// miniboss and the cells counted since the last one. Only built when
 // Debug mode and its toggle are both on, so it costs nothing otherwise.
 
 // Where it reads the director's state from, each frame.
@@ -15,11 +15,11 @@ export interface MinibossReadoutSource {
 // Above the HUD, which sits at the scene's UI depth.
 const DEPTH = 10000;
 
-/** The readout's text: "MINIBOSS UP", or the next cell's chance and the count. */
+/** The readout's text: "MINIBOSS UP", or the next new cell's chance and the count. */
 export function minibossReadoutText(view: MinibossDebugView): string {
     if (view.active) return "MINIBOSS UP";
     const percent = Math.round(view.chance * 1000) / 10;
-    return `Miniboss ${percent}% - ${view.cellsExplored}/${view.cellsToCertain} cells`;
+    return `Miniboss ${percent}% - ${view.cellsExplored} cells`;
 }
 
 export default class MinibossChanceReadout {

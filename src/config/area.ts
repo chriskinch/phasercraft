@@ -12,13 +12,13 @@ import type { Settings } from "@services/settingsStorage";
 // The miniboss is found by exploring, not by waiting. The map is split into
 // square cells this many world px across (about 5 s of walking), and each cell
 // counts once, the first time the player steps into it (the start cell never
-// does). Every counted cell rolls MINIBOSS_CELL_CHANCE; the
-// MINIBOSS_CELLS_TO_CERTAIN-th since the last miniboss always brings one. The
-// count freezes while a miniboss is up and restarts when it dies. With 2% and
-// 50 that is about 32 new cells on average.
+// does). The Nth counted cell since the last miniboss rolls N ×
+// MINIBOSS_CHANCE_PER_CELL, so the odds climb with exploring: at 1% the first
+// new cell is 1%, the tenth 10%, and the 100th certain (about 12 cells on
+// average). The count resets when a miniboss is rolled and stays at 0 while it
+// is up.
 export const EXPLORATION_CELL_SIZE = 512;
-export const MINIBOSS_CELL_CHANCE = 0.02;
-export const MINIBOSS_CELLS_TO_CERTAIN = 50;
+export const MINIBOSS_CHANCE_PER_CELL = 0.01;
 
 // How many regular enemies may be alive at once.
 export const AREA_LIVE_CAP = 15;
@@ -51,8 +51,7 @@ export const SPAWN_MOVING_SPEED = 10;
 // value (the spawn settings override some of these; see #462).
 export interface AreaTuning {
     explorationCellSize: number;
-    minibossCellChance: number;
-    minibossCellsToCertain: number;
+    minibossChancePerCell: number;
     liveCap: number;
     spawnIntervalMs: number;
     despawnDelayMs: number;
@@ -66,8 +65,7 @@ export interface AreaTuning {
 
 export const DEFAULT_AREA_TUNING: Readonly<AreaTuning> = {
     explorationCellSize: EXPLORATION_CELL_SIZE,
-    minibossCellChance: MINIBOSS_CELL_CHANCE,
-    minibossCellsToCertain: MINIBOSS_CELLS_TO_CERTAIN,
+    minibossChancePerCell: MINIBOSS_CHANCE_PER_CELL,
     liveCap: AREA_LIVE_CAP,
     spawnIntervalMs: SPAWN_INTERVAL_MS,
     despawnDelayMs: DESPAWN_DELAY_MS,

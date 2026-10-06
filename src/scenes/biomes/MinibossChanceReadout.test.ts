@@ -29,7 +29,6 @@ function makeReadout(view: Partial<MinibossDebugView> = {}) {
         active: false,
         chance: 0.02,
         cellsExplored: 0,
-        cellsToCertain: 50,
         ...view,
     };
     const readout = new MinibossChanceReadout(scene as unknown as Scene, {
@@ -40,21 +39,20 @@ function makeReadout(view: Partial<MinibossDebugView> = {}) {
 }
 
 describe("minibossReadoutText", () => {
-    it("shows the next cell's chance and the count towards the guarantee", () => {
+    it("shows the next new cell's chance and the count since the last miniboss", () => {
         expect(
             minibossReadoutText({
                 active: false,
                 chance: 0.02,
                 cellsExplored: 12,
-                cellsToCertain: 50,
             })
-        ).toBe("Miniboss 2% - 12/50 cells");
+        ).toBe("Miniboss 2% - 12 cells");
     });
 
-    it("reads 100% on the guaranteed cell", () => {
-        expect(
-            minibossReadoutText({ active: false, chance: 1, cellsExplored: 49, cellsToCertain: 50 })
-        ).toBe("Miniboss 100% - 49/50 cells");
+    it("reads 100% once the next cell is certain", () => {
+        expect(minibossReadoutText({ active: false, chance: 1, cellsExplored: 99 })).toBe(
+            "Miniboss 100% - 99 cells"
+        );
     });
 
     it("keeps one decimal for fractional percentages", () => {
@@ -63,15 +61,14 @@ describe("minibossReadoutText", () => {
                 active: false,
                 chance: 0.025,
                 cellsExplored: 0,
-                cellsToCertain: 50,
             })
-        ).toBe("Miniboss 2.5% - 0/50 cells");
+        ).toBe("Miniboss 2.5% - 0 cells");
     });
 
     it("says the miniboss is up while one is active", () => {
-        expect(
-            minibossReadoutText({ active: true, chance: 0, cellsExplored: 7, cellsToCertain: 50 })
-        ).toBe("MINIBOSS UP");
+        expect(minibossReadoutText({ active: true, chance: 0, cellsExplored: 7 })).toBe(
+            "MINIBOSS UP"
+        );
     });
 });
 
@@ -98,7 +95,7 @@ describe("MinibossChanceReadout", () => {
         readout.draw();
         readout.draw();
         expect(text.setText).toHaveBeenCalledTimes(1);
-        expect(text.text).toBe("Miniboss 2% - 0/50 cells");
+        expect(text.text).toBe("Miniboss 2% - 0 cells");
 
         set({ active: true });
         readout.draw();
