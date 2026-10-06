@@ -11,6 +11,11 @@ export const HEAL_FRACTION = 0.25;
 // (and its cast bar) is near the heal it lands.
 export const HEAL_RANGE = 240;
 
+// Aggro radius while there is healing to do (hang back), and while there is
+// none (chase and attack the player, like other enemies).
+export const HEALER_AGGRO_RADIUS = 40;
+export const HEALER_CHASE_RADIUS = 250;
+
 // Enemies with a heal already being cast on them. Other healers skip them, so
 // several healers can't pick the same target and land their heals together.
 const claimed = new WeakSet<Enemy>();
@@ -22,13 +27,16 @@ class Healer extends Enemy {
     public heal_target: Enemy | null = null;
     // Post-heal cooldown; heals wait for it, auto-attacks don't.
     public heal_cooldown: Phaser.Time.TimerEvent | null = null;
+    // Aggro radius used when there is nothing to heal; raised when last standing.
+    public chase_aggro_radius = HEALER_CHASE_RADIUS;
+    public last_standing = false;
     // Shows the heal cast; above the health bar (-30).
     public castBar!: CastBar;
 
     constructor(config: EnemyOptions) {
         const defaults = {
             circling_radius: 70,
-            aggro_radius: 40,
+            aggro_radius: HEALER_AGGRO_RADIUS,
         };
         super({ ...defaults, ...config });
 
@@ -44,17 +52,23 @@ class Healer extends Enemy {
         // Damage doesn't interrupt a heal cast; a stun does.
         if (this.heal_timer && this.isStunned()) this.interruptHeal();
 
-        // Scan only when able to cast (getHealTarget is pure), once, and hand
-        // the result to healTarget rather than letting it re-scan. Enemy.update
+        // Scan once per frame (getHealTarget is pure) unless already casting:
+        // the result picks both the heal and whether to hang back. Enemy.update
         // returns early on stun, so the stun check has to be repeated here.
-        if (
-            this.state === "spawned" &&
-            !this.isStunned() &&
-            !this.heal_cooldown &&
-            this.states.attack === "primed"
-        ) {
-            const target = this.getHealTarget();
-            if (target) this.healTarget(target);
+        if (this.state === "spawned") {
+            const target = this.heal_timer ? undefined : this.getHealTarget();
+            if (
+                target &&
+                !this.isStunned() &&
+                !this.heal_cooldown &&
+                this.states.attack === "primed"
+            ) {
+                this.healTarget(target);
+            }
+            // Hang back while there is healing to do; with none (or when last
+            // standing), go for the player.
+            const support = (this.heal_timer || target) && !this.last_standing;
+            this.aggro_radius = support ? HEALER_AGGRO_RADIUS : this.chase_aggro_radius;
         }
 
         if (this.isInCirclingDistance()) {
@@ -70,23 +84,25 @@ class Healer extends Enemy {
         }
     }
 
-    // The other enemy within HEAL_RANGE, not already being healed, missing the
-    // most health; ties go to the first in group order. One allocation-free
-    // pass over the group's Set (getChildren() copies it).
+    // The enemy within HEAL_RANGE (the healer included) with the lowest health
+    // fraction, among those hurt and not already being healed; ties go to the
+    // first in group order. One allocation-free pass over the group's Set
+    // (getChildren() copies it).
     getHealTarget(): Enemy | undefined {
         let best: Enemy | undefined;
-        let bestMissing = 0;
+        let bestFraction = 1;
         const rangeSq = HEAL_RANGE * HEAL_RANGE;
         for (const child of this.active_group.children) {
             const enemy = child as Enemy;
-            const missing = this.getMissingHealth(enemy);
-            // bestMissing starts at 0, so this also enforces missing > 0.
-            if (enemy === this || !(missing > bestMissing) || claimed.has(enemy)) continue;
+            const { value, max } = enemy.health.stats;
+            const fraction = value / max;
+            // Strict `<` from 1 also requires the enemy to be hurt and skips NaN.
+            if (!(fraction < bestFraction) || claimed.has(enemy)) continue;
             const dx = enemy.x - this.x;
             const dy = enemy.y - this.y;
             if (dx * dx + dy * dy <= rangeSq) {
                 best = enemy;
-                bestMissing = missing;
+                bestFraction = fraction;
             }
         }
         return best;
@@ -172,6 +188,8 @@ class Healer extends Enemy {
     }
 
     lastStanding(): void {
+        this.last_standing = true;
+        this.chase_aggro_radius = 400;
         this.aggro_radius = 400;
         this.showDebugInfo();
     }

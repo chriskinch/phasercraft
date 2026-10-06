@@ -1,11 +1,15 @@
 import { describe, it, expect, vi, afterEach } from "vitest";
-import { maxBy } from "lodash";
-import Healer, { HEAL_CAST_MS, HEAL_COOLDOWN_MS, HEAL_FRACTION, HEAL_RANGE } from "./Healer";
+import Healer, {
+    HEAL_CAST_MS,
+    HEAL_COOLDOWN_MS,
+    HEAL_FRACTION,
+    HEAL_RANGE,
+    HEALER_AGGRO_RADIUS,
+    HEALER_CHASE_RADIUS,
+} from "./Healer";
 import Enemy from "./Enemy";
 
-// Healer target scan: the single-pass getHealTarget must pick exactly what
-// the old getChildren().filter(missing > 0 && not self) + lodash maxBy did.
-// Constructor-free fakes on the real prototype.
+// Healer target scan and heal cast. Constructor-free fakes on the real prototype.
 
 interface FakeEnemy {
     id: string;
@@ -18,7 +22,7 @@ function fake(id: string, max: number, value: number, x = 0, y = 0): FakeEnemy {
     return { id, x, y, health: { stats: { max, value } } };
 }
 
-function makeHealer(others: FakeEnemy[], self = fake("self", 100, 50), selfAt = 0): Healer {
+function makeHealer(others: FakeEnemy[], self = fake("self", 100, 100), selfAt = 0): Healer {
     const healer = Object.assign(Object.create(Healer.prototype) as Healer, self);
     const members: unknown[] = [...others];
     members.splice(selfAt, 0, healer);
@@ -29,57 +33,41 @@ function makeHealer(others: FakeEnemy[], self = fake("self", 100, 50), selfAt = 
     return healer;
 }
 
-// The pre-#531 implementation, kept as the oracle.
-function legacyHealTarget(healer: Healer): Enemy | undefined {
-    const targets = healer.active_group.getChildren().filter((enemy) => {
-        return healer.getMissingHealth(enemy as Enemy) > 0 && enemy !== healer;
-    });
-    return targets.length > 0
-        ? maxBy(targets as Enemy[], (enemy: Enemy) => healer.getMissingHealth(enemy))
-        : undefined;
-}
-
 describe("Healer.getHealTarget", () => {
-    it("picks the enemy missing the most health", () => {
-        const a = fake("a", 100, 90);
-        const b = fake("b", 100, 20);
+    it("picks the enemy with the lowest health fraction, not the most missing", () => {
+        const half = fake("half", 100, 50);
+        const big = fake("big", 400, 300); // missing more, but at 75%
         const c = fake("c", 100, 60);
+        expect(makeHealer([big, half, c]).getHealTarget()).toBe(half);
+    });
+
+    it("can pick itself when it is the lowest", () => {
+        const a = fake("a", 100, 40);
+        const healer = makeHealer([a], fake("self", 200, 20), 1);
+        expect(healer.getHealTarget()).toBe(healer);
+        expect(makeHealer([a], fake("self", 100, 90)).getHealTarget()).toBe(a);
+    });
+
+    it("breaks ties to the first in group order", () => {
+        const a = fake("a", 100, 90);
+        const b = fake("b", 100, 40);
+        const c = fake("c", 200, 80);
         expect(makeHealer([a, b, c]).getHealTarget()).toBe(b);
     });
 
-    it("breaks ties to the first in group order, like maxBy", () => {
-        const a = fake("a", 100, 90);
-        const b = fake("b", 100, 40);
-        const c = fake("c", 200, 140);
-        const healer = makeHealer([a, b, c]);
-        expect(healer.getHealTarget()).toBe(b);
-        expect(healer.getHealTarget()).toBe(legacyHealTarget(healer));
-    });
-
-    it("never targets itself, even when it is the most hurt", () => {
-        const a = fake("a", 100, 90);
-        const healer = makeHealer([a], fake("self", 100, 1), 1);
-        expect(healer.getHealTarget()).toBe(a);
-    });
-
-    it("returns undefined when nobody else is hurt (or the group is just itself)", () => {
+    it("returns undefined when nobody, itself included, is hurt", () => {
         expect(makeHealer([fake("a", 100, 100), fake("b", 50, 80)]).getHealTarget()).toBe(
             undefined
         );
         expect(makeHealer([]).getHealTarget()).toBe(undefined);
     });
 
-    it("skips NaN / undefined missing health and keeps the first Infinity", () => {
+    it("skips NaN / undefined health", () => {
         const nan = fake("nan", NaN, 10);
         const undef = { id: "undef", x: 0, y: 0, health: { stats: {} } } as unknown as FakeEnemy;
-        const inf1 = fake("inf1", Infinity, 10);
-        const inf2 = fake("inf2", Infinity, 0);
-        const healer = makeHealer([nan, undef, fake("a", 100, 10), inf1, inf2]);
-        expect(healer.getHealTarget()).toBe(inf1);
-        expect(healer.getHealTarget()).toBe(legacyHealTarget(healer));
-        const onlyBad = makeHealer([nan, undef]);
-        expect(onlyBad.getHealTarget()).toBe(undefined);
-        expect(legacyHealTarget(onlyBad)).toBe(undefined);
+        const a = fake("a", 100, 10);
+        expect(makeHealer([nan, undef, a]).getHealTarget()).toBe(a);
+        expect(makeHealer([nan, undef]).getHealTarget()).toBe(undefined);
     });
 
     it("ignores enemies beyond HEAL_RANGE", () => {
@@ -107,23 +95,6 @@ describe("Healer.getHealTarget", () => {
         first.cancelCast();
         expect(second.getHealTarget()).toBe(hurt);
     });
-
-    it("matches the filter + maxBy oracle on random groups with many ties", () => {
-        let seed = 531;
-        const rand = () => {
-            seed = (seed * 1103515245 + 12345) % 2147483648;
-            return seed / 2147483648;
-        };
-        for (let round = 0; round < 500; round++) {
-            const n = Math.floor(rand() * 8);
-            // Small integer health values so ties and full-health enemies are common.
-            const others = Array.from({ length: n }, (_, i) =>
-                fake(`e${i}`, 5, Math.floor(rand() * 6))
-            );
-            const healer = makeHealer(others, fake("self", 5, 0), Math.floor(rand() * (n + 1)));
-            expect(healer.getHealTarget()).toBe(legacyHealTarget(healer));
-        }
-    });
 });
 
 describe("Healer.update heal cast", () => {
@@ -137,6 +108,9 @@ describe("Healer.update heal cast", () => {
         Object.assign(healer, {
             state: "spawned",
             banes: { stunned: false },
+            aggro_radius: HEALER_AGGRO_RADIUS,
+            chase_aggro_radius: HEALER_CHASE_RADIUS,
+            last_standing: false,
             heal_timer: null,
             heal_cooldown: null,
             castBar: { onStart: vi.fn(), onStop: vi.fn(), cleanup: vi.fn() },
@@ -170,6 +144,27 @@ describe("Healer.update heal cast", () => {
         const busy = makeUpdatable("casting", [fake("a", 100, 10)]);
         busy.healer.update(0, 16);
         expect(busy.addEvent).not.toHaveBeenCalled();
+    });
+
+    it("hangs back while there is healing to do, and chases the player when there is none", () => {
+        const hurt = makeUpdatable("primed", [fake("a", 100, 10)]);
+        hurt.healer.update(0, 16);
+        expect(hurt.healer.aggro_radius).toBe(HEALER_AGGRO_RADIUS);
+
+        const idle = makeUpdatable("primed", [fake("a", 100, 100)]);
+        idle.healer.update(0, 16);
+        expect(idle.addEvent).not.toHaveBeenCalled();
+        expect(idle.healer.aggro_radius).toBe(HEALER_CHASE_RADIUS);
+
+        const cooling = makeUpdatable("primed", [fake("a", 100, 10)]);
+        cooling.healer.heal_cooldown = {} as Phaser.Time.TimerEvent;
+        cooling.healer.update(0, 16);
+        expect(cooling.healer.aggro_radius).toBe(HEALER_AGGRO_RADIUS);
+
+        const last = makeUpdatable("primed", [fake("a", 100, 10)]);
+        Object.assign(last.healer, { last_standing: true, chase_aggro_radius: 400 });
+        last.healer.update(0, 16);
+        expect(last.healer.aggro_radius).toBe(400);
     });
 
     it("interrupts a cast in progress when stunned, but not when merely hit", () => {
