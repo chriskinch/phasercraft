@@ -897,6 +897,7 @@ export default class BiomeScene extends Scene {
             pickMiniboss: () => this.pickFromPool(),
             spawnRegular: (id, at) => this.spawnEnemy(id, at),
             spawnMiniboss: (id, at) => this.spawnMiniboss(id, at),
+            onAreaCleared: () => this.areaCleared(),
             onMinibossSpawned: (miniboss) => this.events.emit("miniboss:spawned", miniboss),
             random: Math.random,
         };

@@ -495,7 +495,7 @@ Forward-cone off-screen spawning stays; mobs arrive in clustered configurations,
 distance × biome, and the area boss becomes a time-ramped **miniboss** (real boss mechanics
 come later; until then an area never clears).
 
-- [x] Rename boss → miniboss, no behavior change (#593, PR #602)
+- [ ] Rename boss → miniboss, no behavior change (#593)
 - [x] Time-ramped miniboss replaces the kill-count trigger; HUD enemy text removed (#594)
 - [ ] Clustered spawn configurations: groups, pairs, packs (#595)
 - [ ] Distance × biome difficulty scaling + `Lv N` on health bars (#596)

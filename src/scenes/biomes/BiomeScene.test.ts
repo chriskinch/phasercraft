@@ -411,6 +411,14 @@ describe("BiomeScene.spawnHost", () => {
 
         expect(scene.events.emit).toHaveBeenCalledWith("miniboss:spawned", miniboss);
     });
+
+    it("keeps the dormant area-cleared hook wired to the banner", () => {
+        const { scene } = makeScene();
+
+        scene.spawnHost().onAreaCleared();
+
+        expect(scene.area_cleared).toBe(true);
+    });
 });
 
 describe("BiomeScene.areaCleared", () => {

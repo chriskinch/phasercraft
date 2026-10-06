@@ -36,6 +36,9 @@ export interface SpawnHost<E extends SpawnedEnemy, Id extends string = string> {
     pickMiniboss(): Id;
     spawnRegular(id: Id, at: Point): E;
     spawnMiniboss(id: Id, at: Point): E;
+    // Clears the area. Dormant: nothing calls it since the miniboss stopped
+    // clearing areas (#594); the boss epic's boss death will.
+    onAreaCleared(): void;
     // Every time the miniboss appears: its first spawn, and each respawn after a
     // despawn. The scene turns this into `miniboss:spawned` (see #465).
     onMinibossSpawned(miniboss: E): void;
@@ -72,7 +75,9 @@ export default class SpawnDirector<E extends SpawnedEnemy, Id extends string = s
     // Scene-clock ms counted towards the miniboss ramp: frozen while a miniboss
     // is up (or waiting to respawn), back to 0 when it dies.
     private miniboss_clock = 0;
-    // Scene-clock ms since the last miniboss roll (or entering the area).
+    // Spawn-tick ms since the last miniboss roll (or entering the area). Counted
+    // per tick, not per frame: the scene clock fires the tick before update()
+    // runs, so a frame-delta count would always be a frame short at the tick.
     private since_roll = 0;
     private stopped = false;
     private last_attempts: { point: Point; ok: boolean }[] = [];
@@ -171,10 +176,7 @@ export default class SpawnDirector<E extends SpawnedEnemy, Id extends string = s
      */
     update(delta: number): void {
         if (this.stopped) return;
-        if (!this.minibossActive) {
-            this.miniboss_clock += delta;
-            this.since_roll += delta;
-        }
+        if (!this.minibossActive) this.miniboss_clock += delta;
 
         const player = this.host.playerPosition();
         const radius = this.radius();
@@ -206,10 +208,13 @@ export default class SpawnDirector<E extends SpawnedEnemy, Id extends string = s
         }
     }
 
-    // At most one roll per `minibossRollIntervalMs`. No roll at all at 0%, so a
-    // ramp tuned off leaves the random sequence (and every spawn point drawn
-    // from it) untouched.
+    // At most one roll per `minibossRollIntervalMs` of spawn ticks (frozen, like
+    // the ramp, while a miniboss is active). No roll at all at 0%, so a ramp
+    // tuned off leaves the random sequence (and every spawn point drawn from
+    // it) untouched.
     private rollForMiniboss(): boolean {
+        if (this.minibossActive) return false;
+        this.since_roll += this.tuning.spawnIntervalMs;
         if (this.since_roll < this.tuning.minibossRollIntervalMs) return false;
         const chance = this.minibossChance;
         if (chance <= 0) return false;

@@ -40,6 +40,7 @@ function makeDirector(tuning: Partial<AreaTuning> = {}, host: Partial<SpawnHost<
         pickMiniboss: vi.fn(() => "ghoul"),
         spawnRegular: vi.fn((id: string, at) => new FakeEnemy(at.x, at.y, id)),
         spawnMiniboss: vi.fn((id: string, at) => new FakeEnemy(at.x, at.y, `miniboss:${id}`)),
+        onAreaCleared: vi.fn(),
         onMinibossSpawned: vi.fn(),
         random: seeded(),
         ...host,
@@ -292,29 +293,50 @@ describe("SpawnDirector miniboss ramp", () => {
         expect(DEFAULT_AREA_TUNING.minibossRollIntervalMs).toBe(3000);
     });
 
-    it("rolls at most once per roll interval, however often it ticks", () => {
+    it("rolls once per roll interval's worth of spawn ticks", () => {
         const random = vi.fn(() => 0.99);
         const { director } = makeDirector(
             // No regulars, so every random() call is a roll.
-            { minibossBaseChance: 0.5, minibossRollIntervalMs: 3000, liveCap: 0 },
+            {
+                minibossBaseChance: 0.5,
+                minibossRollIntervalMs: 3000,
+                spawnIntervalMs: 750,
+                liveCap: 0,
+            },
             { random }
         );
         const rolls = () => random.mock.calls.length;
 
-        // Entering the area: no roll until a full interval has passed.
-        director.tick();
-        director.update(2999);
-        director.tick();
+        // 750 ms ticks: the fourth tick is the first 3 s in.
+        for (let i = 0; i < 3; i++) director.tick();
         expect(rolls()).toBe(0);
-
-        director.update(1);
-        director.tick();
         director.tick();
         expect(rolls()).toBe(1);
 
-        director.update(3000);
-        director.tick();
+        for (let i = 0; i < 4; i++) director.tick();
         expect(rolls()).toBe(2);
+    });
+
+    it("rolls on every tick when ticks are as long as the roll interval", () => {
+        const random = vi.fn(() => 0.99);
+        const { director } = makeDirector(
+            {
+                minibossBaseChance: 0.5,
+                minibossRollIntervalMs: 3000,
+                spawnIntervalMs: 3000,
+                liveCap: 0,
+            },
+            { random }
+        );
+
+        // The scene clock fires the tick before update() sees the frame, so the
+        // frames between ticks add up a frame short of the interval.
+        for (let i = 0; i < 5; i++) {
+            director.update(3000 - 16);
+            director.tick();
+        }
+
+        expect(random).toHaveBeenCalledTimes(5);
     });
 
     it("rolls against the host's random source", () => {
@@ -378,7 +400,7 @@ describe("SpawnDirector miniboss", () => {
     });
 
     it("restarts the ramp from its base chance when killed, and clears nothing", () => {
-        const { director, spawnRegular, spawnMiniboss, minibosses } = makeDirector({
+        const { director, host, spawnRegular, spawnMiniboss, minibosses } = makeDirector({
             minibossBaseChance: 0,
             minibossRampMs: 10 * MINUTE,
         });
@@ -390,6 +412,7 @@ describe("SpawnDirector miniboss", () => {
 
         expect(director.minibossActive).toBe(false);
         expect(director.minibossChance).toBe(0);
+        expect(host.onAreaCleared).not.toHaveBeenCalled();
         // The area carries on: the next tick brings a regular, not another miniboss.
         director.tick();
         expect(spawnRegular).toHaveBeenCalledTimes(1);
