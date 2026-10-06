@@ -24,6 +24,7 @@ import {
 } from "@config/area";
 import { boostLootTable } from "@/lib/lootRarity";
 import { difficultyAt, maxSpawnableDistance } from "@helpers/difficulty";
+import { speciesWeights, weightedPick } from "@helpers/speciesWeighting";
 import { readSettings } from "@services/settingsStorage";
 import { resolveBiome, type BiomeDefinition } from "./biomes";
 import SpawnDirector, { type SpawnHost } from "./SpawnDirector";
@@ -41,7 +42,6 @@ import {
 } from "./propOverlayWindows";
 import { buildWalkability, isFootprintSpawnable, type WalkabilityGrid } from "@helpers/walkability";
 import { SHORE_ART_SIZE, SHORE_CELL, SHORE_OFFSET, shoreGrid } from "@helpers/shoreCollision";
-import { sample } from "lodash";
 import { addBanner } from "@scenes/pixelFonts";
 import { pixelFontSize } from "@config/fonts";
 
@@ -929,8 +929,19 @@ export default class BiomeScene extends Scene {
     }
 
     // Every biome has a non-empty pool; the fallback only keeps the type total.
+    /**
+     * A creature from the biome's pool, weighted by species tier for how far
+     * out the player is (#598): the weakest likelier near the start, the
+     * strongest out at the far edge. Measured at the player rather than each
+     * spawn point: a configuration lands just off screen, so the two differ by
+     * a few percent of the map at most.
+     */
     private pickFromPool(): EnemyType {
-        return sample(this.enemy_pool) ?? "baby-ghoul";
+        const pool = this.enemy_pool;
+        if (pool.length === 0) return "baby-ghoul";
+        const { fraction } = this.difficultyContextAt(this.player);
+        const tiers = pool.map((id) => (enemyTypes[id] as EnemyConfig).tier);
+        return weightedPick(pool, speciesWeights(tiers, fraction), Math.random);
     }
 
     /**
@@ -1012,12 +1023,20 @@ export default class BiomeScene extends Scene {
      * at the furthest spawnable tile.
      */
     difficultyAt(point: { x: number; y: number }): number {
+        return this.difficultyContextAt(point).multiplier;
+    }
+
+    // The multiplier and distance fraction at `point` (#596).
+    private difficultyContextAt(point: { x: number; y: number }): {
+        multiplier: number;
+        fraction: number;
+    } {
         return difficultyAt(point, {
             start: this.player_start,
             maxDistance: this.max_spawn_distance,
             biomeFactor: this.biome.difficulty,
             maxMultiplier: DISTANCE_MAX_MULTIPLIER,
-        }).multiplier;
+        });
     }
 
     // Creates a regular enemy at a point the spawn director has already vetted,

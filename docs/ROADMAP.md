@@ -357,7 +357,7 @@ is the source of truth for the screen; the table below covers the data model.
 | Stat payoff    | A recipe's stats sit at the **top of its quality band's pool** (fine 25–50 → 50, rare 40–80 → 80, epic 65–130 → 130). Targeting a known item buys you the best roll of that tier.                           |
 | Unlock model   | **Schematics.** `recipes: string[]` (known ids) in the save, seeded with `INITIAL_RECIPES`. Unlearnt recipes are **not shown at all** — finding them is the discovery (supersedes the earlier silhouettes). |
 | Schematic drop | **Boss: guaranteed. All other mobs: 1%.** Rolled at collect against the known set, weighted by the killed mob's level.                                                                                      |
-| Mob level      | New `level` integer per mob in `enemies.json`/`bosses.json` — enemies carried no level field, and biome tier would weight every mob in a biome identically.                                                 |
+| Mob level      | Per-mob `tier` integer in `enemies.json` (added in #598, named `tier` so it doesn't clash with the displayed `Lv`) — biome difficulty alone would weight every mob in a biome identically.                  |
 | Schematic shop | Blacksmith also **sells** schematics on a **24h** rotating window (same wall-clock hash trick as the Merchant's parts). Price = **5×** the recipe's craft coin cost (`SCHEMATIC_PRICE_MULTIPLIER`).         |
 | Balance        | Recipe input value ≈ **3–4×** the armory coin cost of the tier. All numbers placeholder — tune in review.                                                                                                   |
 
@@ -500,7 +500,7 @@ come later; until then an area never clears).
 - [x] Clustered spawn configurations: groups, pairs, packs (#595)
 - [x] Distance × biome difficulty scaling + `Lv N` on health bars (#596)
 - [x] Loot rarity tiers boosted by difficulty (#597)
-- [ ] Species `tier` + distance-weighted species picks (#598)
+- [x] Species `tier` + distance-weighted species picks (#598)
 - [ ] Distance-weighted pack odds + safe start pocket (#599)
 - [ ] Debug: miniboss ramp override + overlay clusters/difficulty (#600)
 
