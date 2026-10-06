@@ -23,6 +23,8 @@ export interface Settings {
     startLocation: StartLocation;
     // Only read while `debug` is on.
     spawnDebugOverlay: boolean;
+    // On-screen miniboss odds (#594). Only read while `debug` is on.
+    minibossDebugReadout: boolean;
     // Spawn tuning for the enemy spawner (#456), independent of `debug` (but,
     // like every setting except sfxVolume, behind God mode).
     // Each number is 0 for "use the default", so these stay flat fields the
@@ -43,6 +45,7 @@ export const DEFAULT_SETTINGS: Settings = {
     starterItems: false,
     startLocation: "default",
     spawnDebugOverlay: false,
+    minibossDebugReadout: false,
     spawnRadiusOverride: 0,
     liveCapOverride: 0,
     despawnDelaySeconds: 0,
@@ -60,6 +63,7 @@ export function withGodModeGate(settings: Settings): Settings {
         ...settings,
         debug: DEFAULT_SETTINGS.debug,
         spawnDebugOverlay: DEFAULT_SETTINGS.spawnDebugOverlay,
+        minibossDebugReadout: DEFAULT_SETTINGS.minibossDebugReadout,
         starterItems: DEFAULT_SETTINGS.starterItems,
         startLocation: DEFAULT_SETTINGS.startLocation,
         spawnRadiusOverride: DEFAULT_SETTINGS.spawnRadiusOverride,

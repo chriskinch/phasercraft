@@ -58,6 +58,16 @@ export interface SpawnDebugView<E> {
     attempts: { point: Point; ok: boolean }[];
 }
 
+// What the miniboss debug readout shows. Read-only; built on demand.
+export interface MinibossDebugView {
+    // A miniboss has been rolled and is up (or waiting for room to respawn).
+    active: boolean;
+    // The chance the next new cell brings it on; 0 while active.
+    chance: number;
+    cellsExplored: number;
+    cellsToCertain: number;
+}
+
 interface Tracked {
     miniboss: boolean;
     width: number;
@@ -136,6 +146,15 @@ export default class SpawnDirector<E extends SpawnedEnemy, Id extends string = s
             despawnDelayMs: this.tuning.despawnDelayMs,
             enemies,
             attempts: [...this.last_attempts],
+        };
+    }
+
+    minibossDebugView(): MinibossDebugView {
+        return {
+            active: this.minibossActive,
+            chance: this.minibossChance,
+            cellsExplored: this.cells_explored,
+            cellsToCertain: this.tuning.minibossCellsToCertain,
         };
     }
 

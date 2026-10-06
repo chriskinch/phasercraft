@@ -344,6 +344,34 @@ describe("SpawnDirector miniboss exploration", () => {
     });
 });
 
+describe("SpawnDirector.minibossDebugView", () => {
+    it("reports the odds, the count and the guarantee", () => {
+        const { director, player } = makeDirector(
+            {
+                minibossCellChance: 0.02,
+                minibossCellsToCertain: 50,
+                liveCap: 0,
+            },
+            { random: () => 0.99 }
+        );
+        explore(director, player, 3);
+
+        expect(director.minibossDebugView()).toEqual({
+            active: false,
+            chance: 0.02,
+            cellsExplored: 3,
+            cellsToCertain: 50,
+        });
+    });
+
+    it("reports an active miniboss at no chance", () => {
+        const { director, player } = makeDirector({ minibossCellChance: 1, liveCap: 0 });
+        explore(director, player, 1);
+
+        expect(director.minibossDebugView()).toMatchObject({ active: true, chance: 0 });
+    });
+});
+
 describe("SpawnDirector miniboss", () => {
     // Certain on the first new cell; the odds themselves are covered above.
     const certain = { minibossCellChance: 1 };

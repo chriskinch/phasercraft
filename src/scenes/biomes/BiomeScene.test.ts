@@ -231,6 +231,51 @@ describe("BiomeScene.startArea", () => {
         expect(graphics.destroy).toHaveBeenCalledTimes(1);
     });
 
+    it("builds the miniboss chance readout only when Debug and its toggle are both on", () => {
+        const text = {
+            text: "",
+            setTint: vi.fn(() => text),
+            setOrigin: vi.fn(() => text),
+            setScrollFactor: vi.fn(() => text),
+            setDepth: vi.fn(() => text),
+            setPosition: vi.fn(() => text),
+            destroy: vi.fn(),
+        };
+        const withAdd = () => {
+            const { scene } = makeScene();
+            Object.assign(scene, {
+                add: { sprite: vi.fn(), bitmapText: vi.fn(() => text) },
+                zone: { x: 0, y: 0, width: 800, height: 600, originX: 0, originY: 0 },
+            });
+            return scene as SceneUnderTest & { miniboss_readout?: object };
+        };
+
+        writeSettings({ ...DEFAULT_SETTINGS, godMode: true, debug: true });
+        const off = withAdd();
+        off.startArea();
+        expect(off.miniboss_readout).toBeUndefined();
+
+        writeSettings({ ...DEFAULT_SETTINGS, godMode: true, minibossDebugReadout: true });
+        const debugOff = withAdd();
+        debugOff.startArea();
+        expect(debugOff.miniboss_readout).toBeUndefined();
+
+        writeSettings({
+            ...DEFAULT_SETTINGS,
+            godMode: true,
+            debug: true,
+            minibossDebugReadout: true,
+        });
+        const on = withAdd();
+        on.startArea();
+        expect(on.miniboss_readout).toBeDefined();
+        expect(text.setPosition).toHaveBeenCalledWith(800, 0);
+
+        // Re-entry replaces it, releasing the old one.
+        on.startArea();
+        expect(text.destroy).toHaveBeenCalledTimes(1);
+    });
+
     it("ticks a fresh director on a looping, pause-aware scene timer", () => {
         const { scene, spawnTimer } = makeScene();
         const stale = scene.director;

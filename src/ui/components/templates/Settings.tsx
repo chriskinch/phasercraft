@@ -144,8 +144,9 @@ const Settings: React.FC = () => {
         setSettings(next);
     };
 
-    const toggle = (field: "debug" | "spawnDebugOverlay" | "starterItems") => () =>
-        update({ [field]: !settings[field] });
+    const toggle =
+        (field: "debug" | "spawnDebugOverlay" | "minibossDebugReadout" | "starterItems") => () =>
+            update({ [field]: !settings[field] });
 
     // Switching God mode off also switches off everything behind it, so no hidden
     // debug setting keeps taking effect. Anything a game already received (e.g.
@@ -233,6 +234,14 @@ const Settings: React.FC = () => {
                                 "Spawn overlay",
                                 settings.spawnDebugOverlay,
                                 toggle("spawnDebugOverlay"),
+                                undefined,
+                                `${styles.row} ${styles.nested}`
+                            )}
+                        {settings.debug &&
+                            toggleRow(
+                                "Miniboss chance",
+                                settings.minibossDebugReadout,
+                                toggle("minibossDebugReadout"),
                                 undefined,
                                 `${styles.row} ${styles.nested}`
                             )}

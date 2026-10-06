@@ -29,6 +29,7 @@ describe("readSettings", () => {
             starterItems: true,
             startLocation: "combat",
             spawnDebugOverlay: true,
+            minibossDebugReadout: true,
             spawnRadiusOverride: 200,
             liveCapOverride: 2,
             despawnDelaySeconds: 5,
@@ -81,6 +82,7 @@ describe("readSettings", () => {
             JSON.stringify({
                 debug: true,
                 spawnDebugOverlay: true,
+                minibossDebugReadout: true,
                 starterItems: true,
                 startLocation: "combat",
                 liveCapOverride: 2,

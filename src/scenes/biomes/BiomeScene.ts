@@ -21,6 +21,7 @@ import { readSettings } from "@services/settingsStorage";
 import { resolveBiome, type BiomeDefinition } from "./biomes";
 import SpawnDirector, { type SpawnHost } from "./SpawnDirector";
 import SpawnDebugOverlay from "./SpawnDebugOverlay";
+import MinibossChanceReadout from "./MinibossChanceReadout";
 import {
     OverlayWindows,
     WINDOW_DX,
@@ -92,6 +93,8 @@ export default class BiomeScene extends Scene {
     // Debug-only drawing of the director's state; absent unless Debug mode and
     // its spawn overlay toggle are both on. Rebuilt per area, released on shutdown.
     private spawn_overlay?: SpawnDebugOverlay<Enemy>;
+    // Debug-only miniboss odds readout; same lifecycle as the spawn overlay.
+    private miniboss_readout?: MinibossChanceReadout;
     public depth_group: Record<string, number> = {
         BASE: 10,
         UI: 10000,
@@ -190,6 +193,7 @@ export default class BiomeScene extends Scene {
         const safe_zone = addSafeZone(this, scene_padding, () => {
             this.UI.layout();
             if (this.area_cleared_ui) Display.Align.In.Center(this.area_cleared_ui, this.zone);
+            this.miniboss_readout?.layout(this.zone);
         });
         this.zone = safe_zone.zone;
         this.release_safe_zone = safe_zone.release;
@@ -810,6 +814,7 @@ export default class BiomeScene extends Scene {
         // Despawn clocks advance on the scene's own delta, so they stop with it.
         if (!this.game_over) this.director.update(delta);
         this.spawn_overlay?.draw(this.player);
+        this.miniboss_readout?.draw();
 
         // After the characters have moved and re-set their own depths.
         this.sortCharactersByFeet();
@@ -849,6 +854,12 @@ export default class BiomeScene extends Scene {
             settings.debug && settings.spawnDebugOverlay
                 ? new SpawnDebugOverlay(this, this.director)
                 : undefined;
+        this.miniboss_readout?.cleanup();
+        this.miniboss_readout =
+            settings.debug && settings.minibossDebugReadout
+                ? new MinibossChanceReadout(this, this.director)
+                : undefined;
+        this.miniboss_readout?.layout(this.zone);
         this.removeSpawnTimer();
         this.spawn_timer = this.time.addEvent({
             delay: tuning.spawnIntervalMs,
@@ -1064,6 +1075,8 @@ export default class BiomeScene extends Scene {
         this.removeSpawnTimer();
         this.spawn_overlay?.cleanup();
         this.spawn_overlay = undefined;
+        this.miniboss_readout?.cleanup();
+        this.miniboss_readout = undefined;
 
         // Colliders registered against the tilemap layers. The Arcade plugin
         // tears its world down before the scene's own SHUTDOWN handler runs, so

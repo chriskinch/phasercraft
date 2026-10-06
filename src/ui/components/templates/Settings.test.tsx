@@ -55,6 +55,7 @@ describe("Settings template", () => {
                 godMode: true,
                 debug: true,
                 spawnDebugOverlay: true,
+                minibossDebugReadout: true,
                 starterItems: true,
                 startLocation: "combat",
                 liveCapOverride: 2,
@@ -100,6 +101,17 @@ describe("Settings template", () => {
 
             expect(readSettings().spawnDebugOverlay).toBe(true);
             expect(toggleFor("Spawn overlay")).toHaveTextContent("On");
+        });
+
+        it("shows the miniboss chance readout only while Debug mode is on, and persists it", () => {
+            renderWithProviders(<Settings />);
+            expect(screen.queryByText("Miniboss chance")).toBeNull();
+
+            fireEvent.click(toggleFor("Debug mode"));
+            fireEvent.click(toggleFor("Miniboss chance"));
+
+            expect(readSettings().minibossDebugReadout).toBe(true);
+            expect(toggleFor("Miniboss chance")).toHaveTextContent("On");
         });
 
         it("toggles and persists Starter items", () => {
