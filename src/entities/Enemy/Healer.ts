@@ -7,10 +7,19 @@ import type { EnemyOptions } from "@/types/game";
 export const HEAL_CAST_MS = 1000;
 export const HEAL_COOLDOWN_MS = 5000;
 export const HEAL_FRACTION = 0.25;
+// Healers only heal enemies within this many px of themselves, so the healer
+// (and its cast bar) is near the heal it lands.
+export const HEAL_RANGE = 240;
+
+// Enemies with a heal already being cast on them. Other healers skip them, so
+// several healers can't pick the same target and land their heals together.
+const claimed = new WeakSet<Enemy>();
 
 class Healer extends Enemy {
     // The pending heal cast, removed in cleanup() so a dead healer can't land it.
     public heal_timer: Phaser.Time.TimerEvent | null = null;
+    // The enemy the pending cast is on (claimed until the cast ends).
+    public heal_target: Enemy | null = null;
     // Post-heal cooldown; heals wait for it, auto-attacks don't.
     public heal_cooldown: Phaser.Time.TimerEvent | null = null;
     // Shows the heal cast; above the health bar (-30).
@@ -61,19 +70,21 @@ class Healer extends Enemy {
         }
     }
 
-    // The other enemy missing the most health; ties go to the first in group
-    // order. One allocation-free pass over the group's Set (getChildren()
-    // copies it); equivalent to the old filter(missing > 0, not self) + lodash
-    // maxBy: every candidate is a number > 0, so maxBy's NaN/undefined
-    // handling never applies, and its strict `>` keeps the first max.
+    // The other enemy within HEAL_RANGE, not already being healed, missing the
+    // most health; ties go to the first in group order. One allocation-free
+    // pass over the group's Set (getChildren() copies it).
     getHealTarget(): Enemy | undefined {
         let best: Enemy | undefined;
         let bestMissing = 0;
+        const rangeSq = HEAL_RANGE * HEAL_RANGE;
         for (const child of this.active_group.children) {
             const enemy = child as Enemy;
             const missing = this.getMissingHealth(enemy);
             // bestMissing starts at 0, so this also enforces missing > 0.
-            if (enemy !== this && missing > bestMissing) {
+            if (enemy === this || !(missing > bestMissing) || claimed.has(enemy)) continue;
+            const dx = enemy.x - this.x;
+            const dy = enemy.y - this.y;
+            if (dx * dx + dy * dy <= rangeSq) {
                 best = enemy;
                 bestMissing = missing;
             }
@@ -83,11 +94,16 @@ class Healer extends Enemy {
 
     healTarget(target: Enemy | undefined = this.getHealTarget()): void {
         this.states.attack = "casting";
+        if (target) {
+            claimed.add(target);
+            this.heal_target = target;
+        }
         this.castBar.onStart({ duration: HEAL_CAST_MS / 1000 });
         this.heal_timer = this.scene.time.addEvent({
             delay: HEAL_CAST_MS,
             callback: (t: Enemy) => {
                 this.heal_timer = null;
+                this.releaseTarget();
                 this.castBar.onStop();
                 // The death animation runs before destroy(), so the healer can
                 // be dead while the cast is still pending.
@@ -101,35 +117,50 @@ class Healer extends Enemy {
                     if (amount > 0) t.health.adjustValue(amount, "heal", false);
                 }
                 this.states.attack = "primed";
-                this.heal_cooldown = this.scene.time.addEvent({
-                    delay: HEAL_COOLDOWN_MS,
-                    callback: () => {
-                        this.heal_cooldown = null;
-                    },
-                });
+                this.startCooldown();
             },
             args: [target],
         });
     }
 
-    // Cancel the pending cast without healing or starting the cooldown; the
-    // healer can recast once it is able to.
-    interruptHeal(): void {
+    startCooldown(): void {
+        this.heal_cooldown = this.scene.time.addEvent({
+            delay: HEAL_COOLDOWN_MS,
+            callback: () => {
+                this.heal_cooldown = null;
+            },
+        });
+    }
+
+    // Stops the pending cast (if any): its timer, its claim on the target and
+    // the cast bar. Idempotent.
+    cancelCast(): void {
         this.heal_timer?.remove(false);
         this.heal_timer = null;
-        this.castBar.onStop();
+        this.releaseTarget();
+        this.castBar?.onStop();
+    }
+
+    releaseTarget(): void {
+        if (this.heal_target) claimed.delete(this.heal_target);
+        this.heal_target = null;
+    }
+
+    // A stun cancels the cast without healing; the cooldown still starts.
+    interruptHeal(): void {
+        this.cancelCast();
         this.states.attack = "primed";
+        this.startCooldown();
     }
 
     death(): void {
         // Drop the cast bar with the cast as the death animation starts.
-        this.interruptHeal();
+        this.cancelCast();
         super.death();
     }
 
     cleanup(): void {
-        this.heal_timer?.remove(false);
-        this.heal_timer = null;
+        this.cancelCast();
         this.castBar?.cleanup();
         this.heal_cooldown?.remove(false);
         this.heal_cooldown = null;

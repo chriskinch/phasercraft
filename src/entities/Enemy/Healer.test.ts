@@ -1,6 +1,6 @@
 import { describe, it, expect, vi, afterEach } from "vitest";
 import { maxBy } from "lodash";
-import Healer, { HEAL_CAST_MS, HEAL_COOLDOWN_MS, HEAL_FRACTION } from "./Healer";
+import Healer, { HEAL_CAST_MS, HEAL_COOLDOWN_MS, HEAL_FRACTION, HEAL_RANGE } from "./Healer";
 import Enemy from "./Enemy";
 
 // Healer target scan: the single-pass getHealTarget must pick exactly what
@@ -9,11 +9,13 @@ import Enemy from "./Enemy";
 
 interface FakeEnemy {
     id: string;
+    x: number;
+    y: number;
     health: { stats: { max: number; value: number } };
 }
 
-function fake(id: string, max: number, value: number): FakeEnemy {
-    return { id, health: { stats: { max, value } } };
+function fake(id: string, max: number, value: number, x = 0, y = 0): FakeEnemy {
+    return { id, x, y, health: { stats: { max, value } } };
 }
 
 function makeHealer(others: FakeEnemy[], self = fake("self", 100, 50), selfAt = 0): Healer {
@@ -69,7 +71,7 @@ describe("Healer.getHealTarget", () => {
 
     it("skips NaN / undefined missing health and keeps the first Infinity", () => {
         const nan = fake("nan", NaN, 10);
-        const undef = { id: "undef", health: { stats: {} } } as unknown as FakeEnemy;
+        const undef = { id: "undef", x: 0, y: 0, health: { stats: {} } } as unknown as FakeEnemy;
         const inf1 = fake("inf1", Infinity, 10);
         const inf2 = fake("inf2", Infinity, 0);
         const healer = makeHealer([nan, undef, fake("a", 100, 10), inf1, inf2]);
@@ -78,6 +80,32 @@ describe("Healer.getHealTarget", () => {
         const onlyBad = makeHealer([nan, undef]);
         expect(onlyBad.getHealTarget()).toBe(undefined);
         expect(legacyHealTarget(onlyBad)).toBe(undefined);
+    });
+
+    it("ignores enemies beyond HEAL_RANGE", () => {
+        const far = fake("far", 100, 10, HEAL_RANGE + 1, 0);
+        const edge = fake("edge", 100, 60, 0, HEAL_RANGE);
+        expect(makeHealer([far, edge]).getHealTarget()).toBe(edge);
+        expect(makeHealer([far]).getHealTarget()).toBe(undefined);
+    });
+
+    it("skips an enemy another healer is already casting on, until that cast ends", () => {
+        const hurt = fake("hurt", 100, 10);
+        const less = fake("less", 100, 60);
+        const first = makeHealer([hurt, less]);
+        Object.assign(first, {
+            states: { attack: "primed" },
+            castBar: { onStart: vi.fn(), onStop: vi.fn() },
+            scene: { time: { addEvent: vi.fn(() => ({ remove: vi.fn() })) } },
+        });
+        first.healTarget(first.getHealTarget());
+        expect(first.heal_target).toBe(hurt);
+
+        const second = makeHealer([hurt, less]);
+        expect(second.getHealTarget()).toBe(less);
+
+        first.cancelCast();
+        expect(second.getHealTarget()).toBe(hurt);
     });
 
     it("matches the filter + maxBy oracle on random groups with many ties", () => {
@@ -268,14 +296,15 @@ describe("Healer heal timer", () => {
         expect(adjustValue).not.toHaveBeenCalled();
     });
 
-    it("a stun interrupts the cast: no heal, no cooldown, cast bar hidden", () => {
-        const { healer, castBar, timer, target, adjustValue } = makeCaster();
+    it("a stun interrupts the cast: no heal, cast bar hidden, cooldown starts", () => {
+        const { healer, castBar, timer, cooldown, target, adjustValue } = makeCaster();
         healer.healTarget(target as unknown as Enemy);
 
         healer.interruptHeal();
         expect(timer.remove).toHaveBeenCalledWith(false);
         expect(healer.heal_timer).toBeNull();
-        expect(healer.heal_cooldown).toBeNull();
+        expect(healer.heal_target).toBeNull();
+        expect(healer.heal_cooldown).toBe(cooldown);
         expect(healer.states.attack).toBe("primed");
         expect(castBar.onStop).toHaveBeenCalledOnce();
         expect(adjustValue).not.toHaveBeenCalled();
