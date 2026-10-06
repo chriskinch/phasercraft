@@ -3,6 +3,7 @@ import { SPECIAL_DROP_RATE } from "@/types/game";
 import { SCROLL_DROP_RATE } from "@/lib/scrollDrops";
 import type { EnemyConfig, EnemyType, LootDropRate, LootTable } from "@/types/game";
 import type { Settings } from "@services/settingsStorage";
+import type { SpawnConfigKind } from "@helpers/spawnConfig";
 
 // Enemies populate a combat area as the player moves through it, and exploring
 // new ground may bring on the area's miniboss (#594). Nothing clears an area
@@ -20,15 +21,32 @@ import type { Settings } from "@services/settingsStorage";
 export const EXPLORATION_CELL_SIZE = 512;
 export const MINIBOSS_CHANCE_PER_CELL = 0.01;
 
-// How many regular enemies may be alive at once.
-export const AREA_LIVE_CAP = 15;
+// Regular enemies arrive in configurations (#595): mostly small groups of 1-3
+// mixed creatures, sometimes a pair of one creature, now and then a pack of
+// 5-10 (one species, or mixed at PACK_MIXED_CHANCE). The weights are relative.
+export const SPAWN_CONFIG_WEIGHTS = { group: 70, pair: 22, pack: 8 } as const;
+export const GROUP_SIZE: [number, number] = [1, 3];
+export const PACK_SIZE: [number, number] = [5, 10];
+export const PACK_MIXED_CHANCE = 0.7;
 
-// While below the live cap, at most one enemy spawns per interval, so the area
-// fills gradually rather than in waves.
-export const SPAWN_INTERVAL_MS = 750;
+// A configuration's members scatter around its centre within this radius × the
+// square root of the head count (48 px alone, about 150 px for a pack of 10).
+// The whole circle sits beyond the spawn radius, so no member is seen arriving.
+export const CLUSTER_BASE_RADIUS = 48;
 
-// An enemy further than the spawn radius from the player for this long,
+// Spots tried per member around a candidate centre before leaving it out.
+export const CLUSTER_MEMBER_ATTEMPTS = 4;
+
+// A new configuration spawns each interval while fewer than the live cap are
+// alive. The cap is checked before the roll, so a pack may take the count past
+// it (up to cap - 1 + the largest pack).
+export const AREA_LIVE_CAP = 25;
+export const SPAWN_INTERVAL_MS = 3000;
+
+// An enemy further than the despawn radius from the player for this long,
 // continuously, despawns. The clock resets whenever it comes back within range.
+// The despawn radius is the spawn radius plus the largest cluster's, so a pack
+// member placed at the far edge of its circle does not start out despawning.
 export const DESPAWN_DELAY_MS = 20000;
 
 // Candidate points tried per spawn tick before giving up until the next tick.
@@ -52,6 +70,11 @@ export const SPAWN_MOVING_SPEED = 10;
 export interface AreaTuning {
     explorationCellSize: number;
     minibossChancePerCell: number;
+    configWeights: Record<SpawnConfigKind, number>;
+    groupSize: [number, number];
+    packSize: [number, number];
+    packMixedChance: number;
+    clusterBaseRadius: number;
     liveCap: number;
     spawnIntervalMs: number;
     despawnDelayMs: number;
@@ -66,6 +89,11 @@ export interface AreaTuning {
 export const DEFAULT_AREA_TUNING: Readonly<AreaTuning> = {
     explorationCellSize: EXPLORATION_CELL_SIZE,
     minibossChancePerCell: MINIBOSS_CHANCE_PER_CELL,
+    configWeights: { ...SPAWN_CONFIG_WEIGHTS },
+    groupSize: GROUP_SIZE,
+    packSize: PACK_SIZE,
+    packMixedChance: PACK_MIXED_CHANCE,
+    clusterBaseRadius: CLUSTER_BASE_RADIUS,
     liveCap: AREA_LIVE_CAP,
     spawnIntervalMs: SPAWN_INTERVAL_MS,
     despawnDelayMs: DESPAWN_DELAY_MS,
