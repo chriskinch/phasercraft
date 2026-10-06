@@ -61,6 +61,7 @@ function makeOverlay(view: Partial<SpawnDebugView<OverlayEnemy>> = {}) {
     };
     let current: SpawnDebugView<OverlayEnemy> = {
         radius: 300,
+        despawnRadius: 450,
         direction: null,
         halfAngle: Math.PI / 4,
         despawnDelayMs: 20000,
@@ -111,6 +112,7 @@ describe("SpawnDebugOverlay.draw", () => {
 
         expect(graphics.clear).toHaveBeenCalled();
         expect(graphics.strokeCircle).toHaveBeenCalledWith(1000, 1000, 300);
+        expect(graphics.strokeCircle).toHaveBeenCalledWith(1000, 1000, 450);
         expect(graphics.lineStyle).toHaveBeenCalledWith(4, expect.any(Number), expect.any(Number));
         expect(graphics.arc).not.toHaveBeenCalled();
     });

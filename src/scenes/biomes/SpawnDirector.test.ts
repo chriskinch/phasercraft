@@ -27,6 +27,13 @@ function seeded(seed = 42): () => number {
 // 800x600 at zoom 1: half the 1000px diagonal plus the 64px margin.
 const RADIUS = 564;
 
+// One creature per tick, placed exactly at the sampled centre.
+const SINGLES: Partial<AreaTuning> = {
+    configWeights: { group: 1, pair: 0, pack: 0 },
+    groupSize: [1, 1],
+    clusterBaseRadius: 0,
+};
+
 function makeDirector(tuning: Partial<AreaTuning> = {}, host: Partial<SpawnHost<FakeEnemy>> = {}) {
     const player = { x: 5000, y: 5000 };
     const velocity = { x: 0, y: 0 };
@@ -46,11 +53,13 @@ function makeDirector(tuning: Partial<AreaTuning> = {}, host: Partial<SpawnHost<
         ...host,
     };
     // The miniboss is off unless a test turns it on, so the regular-spawn tests
-    // never meet a miniboss roll.
+    // never meet a miniboss roll. Configurations default to one lone creature
+    // placed exactly on the radius; the cluster tests turn them on.
     const director = new SpawnDirector(
         {
             ...DEFAULT_AREA_TUNING,
             minibossChancePerCell: 0,
+            ...SINGLES,
             ...tuning,
         },
         fake
@@ -198,6 +207,145 @@ describe("SpawnDirector placement", () => {
         director.tick();
 
         expect(spawnRegular).toHaveBeenCalledTimes(1);
+    });
+});
+
+describe("SpawnDirector configurations", () => {
+    const BASE = 48;
+
+    it("ships 70/22/8 groups, pairs and packs, groups of 1-3, packs of 5-10, mixed 70%", () => {
+        expect(DEFAULT_AREA_TUNING.configWeights).toEqual({ group: 70, pair: 22, pack: 8 });
+        expect(DEFAULT_AREA_TUNING.groupSize).toEqual([1, 3]);
+        expect(DEFAULT_AREA_TUNING.packSize).toEqual([5, 10]);
+        expect(DEFAULT_AREA_TUNING.packMixedChance).toBe(0.7);
+        expect(DEFAULT_AREA_TUNING.clusterBaseRadius).toBe(48);
+    });
+
+    it("ships a 25 live cap and one configuration every 3 s", () => {
+        expect(DEFAULT_AREA_TUNING.liveCap).toBe(25);
+        expect(DEFAULT_AREA_TUNING.spawnIntervalMs).toBe(3000);
+    });
+
+    it("spawns a whole configuration in one tick", () => {
+        const { director, spawnRegular } = makeDirector({
+            configWeights: { group: 0, pair: 0, pack: 1 },
+            packSize: [6, 6],
+            clusterBaseRadius: BASE,
+            liveCap: 50,
+        });
+
+        director.tick();
+
+        expect(spawnRegular).toHaveBeenCalledTimes(6);
+    });
+
+    it("may take the count past the live cap, but rolls nothing once it is reached", () => {
+        const { director, spawnRegular } = makeDirector({
+            configWeights: { group: 0, pair: 0, pack: 1 },
+            packSize: [8, 8],
+            clusterBaseRadius: BASE,
+            liveCap: 5,
+        });
+
+        director.tick();
+        director.tick();
+
+        expect(spawnRegular).toHaveBeenCalledTimes(8);
+        expect(director.regularsAlive).toBe(8);
+    });
+
+    it("draws a pair as two of one creature", () => {
+        const pickRegular = vi.fn().mockReturnValueOnce("imp").mockReturnValue("ghoul");
+        const { director, spawnRegular } = makeDirector(
+            { configWeights: { group: 0, pair: 1, pack: 0 }, clusterBaseRadius: BASE },
+            { pickRegular }
+        );
+
+        director.tick();
+
+        expect(pickRegular).toHaveBeenCalledTimes(1);
+        expect(spawnRegular.mock.calls.map((c) => c[0])).toEqual(["imp", "imp"]);
+    });
+
+    it("scatters every member in the cluster's disc, wholly beyond the spawn radius", () => {
+        const { director, player, regulars } = makeDirector({
+            configWeights: { group: 0, pair: 0, pack: 1 },
+            packSize: [10, 10],
+            clusterBaseRadius: BASE,
+            liveCap: 100,
+        });
+        const spread = BASE * Math.sqrt(10);
+
+        for (let i = 0; i < 5; i++) director.tick();
+
+        expect(regulars().length).toBeGreaterThan(20);
+        regulars().forEach((enemy) => {
+            const d = distance(enemy, player);
+            expect(d).toBeGreaterThanOrEqual(RADIUS - 1e-9);
+            expect(d).toBeLessThanOrEqual(RADIUS + 2 * spread + 1e-9);
+        });
+    });
+
+    it("keeps members of one configuration from overlapping each other", () => {
+        const { director, regulars } = makeDirector({
+            configWeights: { group: 0, pair: 0, pack: 1 },
+            packSize: [10, 10],
+            clusterBaseRadius: BASE,
+            liveCap: 100,
+        });
+
+        director.tick();
+
+        const members = regulars();
+        members.forEach((a, i) =>
+            members.slice(i + 1).forEach((b) => {
+                const apart = Math.abs(a.x - b.x) >= 32 || Math.abs(a.y - b.y) >= 32;
+                expect(apart).toBe(true);
+            })
+        );
+    });
+
+    it("spawns what fits when some members find no room, from the best centre", () => {
+        // Every other footprint check fails: each member gets a spot within its tries.
+        let n = 0;
+        const isSpawnable = vi.fn(() => n++ % 2 === 1);
+        const { director, spawnRegular } = makeDirector(
+            {
+                configWeights: { group: 0, pair: 0, pack: 1 },
+                packSize: [5, 5],
+                clusterBaseRadius: BASE,
+                liveCap: 50,
+            },
+            { isSpawnable }
+        );
+
+        director.tick();
+
+        expect(spawnRegular.mock.calls.length).toBeGreaterThan(0);
+        expect(spawnRegular.mock.calls.length).toBeLessThanOrEqual(5);
+    });
+
+    it("spawns nothing, and tries every centre, when no member fits anywhere", () => {
+        const { director, spawnRegular } = makeDirector(
+            {
+                configWeights: { group: 0, pair: 1, pack: 0 },
+                clusterBaseRadius: BASE,
+                attemptsPerTick: 5,
+            },
+            { isSpawnable: vi.fn(() => false) }
+        );
+
+        director.tick();
+
+        expect(spawnRegular).not.toHaveBeenCalled();
+        expect(director.debugView().attempts).toHaveLength(5);
+    });
+
+    it("despawns beyond the spawn radius plus the largest cluster's", () => {
+        const { director } = makeDirector({ clusterBaseRadius: BASE, packSize: [5, 9] });
+
+        expect(director.despawnRadius()).toBeCloseTo(RADIUS + BASE * 3);
+        expect(director.debugView().despawnRadius).toBeCloseTo(RADIUS + BASE * 3);
     });
 });
 
