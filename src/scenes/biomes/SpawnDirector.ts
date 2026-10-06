@@ -1,4 +1,5 @@
-import type { AreaTuning } from "@config/area";
+import { CLUSTER_MEMBER_ATTEMPTS, type AreaTuning } from "@config/area";
+import { clusterRadius, rollConfig, sampleInDisc } from "@helpers/spawnConfig";
 import {
     isBeyondRadius,
     sampleSpawnPoint,
@@ -9,7 +10,7 @@ import {
 import type { Rect } from "@helpers/walkability";
 
 // Runs a combat area's population (#456): trickles enemies in off screen ahead
-// of the player, despawns the ones left behind, and rolls for the miniboss each
+// of the player in clustered configurations (#595), despawns the ones left behind, and rolls for the miniboss each
 // time the player explores new ground (#594), respawning it if it despawns.
 // Pure logic — everything it needs from Phaser comes through a `SpawnHost`, so
 // it is tested on fakes.
@@ -48,13 +49,15 @@ export interface SpawnHost<E extends SpawnedEnemy, Id extends string = string> {
 // What the spawn debug overlay (#464) draws. Read-only; built on demand.
 export interface SpawnDebugView<E> {
     radius: number;
+    // Beyond this, an enemy's despawn clock runs (radius + the largest cluster's).
+    despawnRadius: number;
     // Unit vector of the player's travel, or null while standing still.
     direction: Point | null;
     halfAngle: number;
     despawnDelayMs: number;
     // Every enemy the director tracks, and how long it has been beyond the radius.
     enemies: { enemy: E; beyondMs: number }[];
-    // The candidates tried on the most recent spawn attempt, and whether each fit.
+    // The centres tried on the most recent spawn, and whether any member fit there.
     attempts: { point: Point; ok: boolean }[];
 }
 
@@ -135,11 +138,21 @@ export default class SpawnDirector<E extends SpawnedEnemy, Id extends string = s
         });
     }
 
+    /**
+     * The spawn radius plus the radius of the largest possible cluster: a
+     * member can be placed that far out, and must not start out despawning.
+     */
+    despawnRadius(): number {
+        const { clusterBaseRadius, packSize } = this.tuning;
+        return this.radius() + clusterRadius(Math.max(...packSize), clusterBaseRadius);
+    }
+
     debugView(): SpawnDebugView<E> {
         const enemies: { enemy: E; beyondMs: number }[] = [];
         this.tracked.forEach((t, enemy) => enemies.push({ enemy, beyondMs: t.beyond }));
         return {
             radius: this.radius(),
+            despawnRadius: this.despawnRadius(),
             direction: spawnDirection(this.host.playerVelocity(), this.tuning.movingSpeed),
             halfAngle: (this.tuning.coneHalfAngleDeg * Math.PI) / 180,
             despawnDelayMs: this.tuning.despawnDelayMs,
@@ -162,10 +175,9 @@ export default class SpawnDirector<E extends SpawnedEnemy, Id extends string = s
     }
 
     /**
-     * One pacing tick, never more than one spawn. A miniboss that has been
-     * rolled but is not on the map (just rolled, its first spawn found no room,
-     * or it despawned) takes the tick in place of a regular. Otherwise one
-     * regular, if below the live cap.
+     * One pacing tick. A miniboss that has been rolled but is not on the map
+     * (just rolled, its first spawn found no room, or it despawned) takes the
+     * tick. Otherwise, below the live cap, one configuration of regulars.
      */
     tick(): void {
         if (this.stopped) return;
@@ -175,11 +187,7 @@ export default class SpawnDirector<E extends SpawnedEnemy, Id extends string = s
             return;
         }
 
-        if (this.regularsAlive < this.tuning.liveCap) {
-            const id = this.host.pickRegular();
-            const at = this.findSpawnPoint(id, false);
-            if (at) this.track(this.host.spawnRegular(id, at.point), false, at.size);
-        }
+        if (this.regularsAlive < this.tuning.liveCap) this.spawnConfiguration();
     }
 
     /**
@@ -194,7 +202,7 @@ export default class SpawnDirector<E extends SpawnedEnemy, Id extends string = s
         const player = this.host.playerPosition();
         this.explore(player);
 
-        const radius = this.radius();
+        const radius = this.despawnRadius();
         const expired: E[] = [];
 
         this.tracked.forEach((t, enemy) => {
@@ -246,6 +254,65 @@ export default class SpawnDirector<E extends SpawnedEnemy, Id extends string = s
         }
     }
 
+    // Rolls the next configuration and spawns as many of its members as fit.
+    private spawnConfiguration(): void {
+        const random = () => this.host.random();
+        const { ids } = rollConfig(this.tuning, () => this.host.pickRegular(), random);
+        for (const { id, point, size } of this.placeCluster(ids)) {
+            this.track(this.host.spawnRegular(id, point), false, size);
+        }
+    }
+
+    /**
+     * Up to `attemptsPerTick` centres, each far enough out (spawn radius +
+     * cluster radius) that the whole cluster is off screen, in the cone ahead
+     * of the player (or anywhere around a player standing still). Members
+     * scatter in the cluster's disc around a centre; each one needs its whole
+     * footprint on open, reachable land, clear of live enemies and of the
+     * members already placed, within `CLUSTER_MEMBER_ATTEMPTS` tries. The
+     * centre that fits the most members wins (stopping early once all fit);
+     * the rest of the configuration is dropped. Nothing fits: nothing spawns.
+     */
+    private placeCluster(ids: Id[]): { id: Id; point: Point; size: Size }[] {
+        const random = () => this.host.random();
+        const player = this.host.playerPosition();
+        const direction = spawnDirection(this.host.playerVelocity(), this.tuning.movingSpeed);
+        const half_angle = (this.tuning.coneHalfAngleDeg * Math.PI) / 180;
+        const spread = clusterRadius(ids.length, this.tuning.clusterBaseRadius);
+        const ring = this.radius() + spread;
+        // No spread, no point trying a member twice at the same spot.
+        const tries = spread > 0 ? CLUSTER_MEMBER_ATTEMPTS : 1;
+        const sizes = ids.map((id) => this.host.footprint(id, false));
+        let best: { id: Id; point: Point; size: Size }[] = [];
+        this.last_attempts = [];
+
+        for (let attempt = 0; attempt < this.tuning.attemptsPerTick; attempt++) {
+            const centre = sampleSpawnPoint(player, ring, direction, half_angle, random);
+            const placed: { id: Id; point: Point; size: Size; rect: Rect }[] = [];
+
+            ids.forEach((id, i) => {
+                const size = sizes[i];
+                for (let t = 0; t < tries; t++) {
+                    const point = spread > 0 ? sampleInDisc(centre, spread, random) : centre;
+                    const rect = footprintRect(point, size);
+                    const clear =
+                        this.host.isSpawnable(rect) &&
+                        !this.overlapsLiveEnemy(rect) &&
+                        !placed.some((p) => overlaps(rect, p.rect));
+                    if (clear) {
+                        placed.push({ id, point, size, rect });
+                        return;
+                    }
+                }
+            });
+
+            this.last_attempts.push({ point: centre, ok: placed.length > 0 });
+            if (placed.length > best.length) best = placed;
+            if (best.length === ids.length) break;
+        }
+        return best.map(({ id, point, size }) => ({ id, point, size }));
+    }
+
     private trySpawnMiniboss(): void {
         if (this.miniboss_id === null) return;
         const at = this.findSpawnPoint(this.miniboss_id, true);
@@ -276,12 +343,7 @@ export default class SpawnDirector<E extends SpawnedEnemy, Id extends string = s
             const point = sampleSpawnPoint(player, radius, direction, half_angle, () =>
                 this.host.random()
             );
-            const rect = {
-                x: point.x - size.width / 2,
-                y: point.y - size.height / 2,
-                width: size.width,
-                height: size.height,
-            };
+            const rect = footprintRect(point, size);
             const ok = this.host.isSpawnable(rect) && !this.overlapsLiveEnemy(rect);
             this.last_attempts.push({ point, ok });
             if (ok) return { point, size };
@@ -291,16 +353,7 @@ export default class SpawnDirector<E extends SpawnedEnemy, Id extends string = s
 
     private overlapsLiveEnemy(rect: Rect): boolean {
         for (const [enemy, t] of this.tracked) {
-            const left = enemy.x - t.width / 2;
-            const top = enemy.y - t.height / 2;
-            if (
-                rect.x < left + t.width &&
-                left < rect.x + rect.width &&
-                rect.y < top + t.height &&
-                top < rect.y + rect.height
-            ) {
-                return true;
-            }
+            if (overlaps(rect, footprintRect(enemy, t))) return true;
         }
         return false;
     }
@@ -313,4 +366,22 @@ export default class SpawnDirector<E extends SpawnedEnemy, Id extends string = s
         this.tracked.delete(enemy);
         if (enemy === this.miniboss) this.miniboss = null;
     }
+}
+
+type Size = { width: number; height: number };
+
+// A creature's body, centred on `point`.
+function footprintRect(point: Point, size: Size): Rect {
+    return {
+        x: point.x - size.width / 2,
+        y: point.y - size.height / 2,
+        width: size.width,
+        height: size.height,
+    };
+}
+
+function overlaps(a: Rect, b: Rect): boolean {
+    return (
+        a.x < b.x + b.width && b.x < a.x + a.width && a.y < b.y + b.height && b.y < a.y + a.height
+    );
 }
