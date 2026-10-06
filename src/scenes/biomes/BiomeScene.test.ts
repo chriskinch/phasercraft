@@ -3,7 +3,7 @@ import { Events } from "phaser";
 import BiomeScene from "./BiomeScene";
 import type { SpawnHost } from "./SpawnDirector";
 import type { WalkabilityGrid } from "@helpers/walkability";
-import { AREA_KILLS_TO_BOSS, SPAWN_INTERVAL_MS } from "@config/area";
+import { SPAWN_INTERVAL_MS } from "@config/area";
 import { MINIBOSS_SCALE } from "@entities/Enemy/Miniboss";
 import { ROAR_EDGE_MARGIN } from "@entities/UI/MinibossRoar";
 import { DEFAULT_SETTINGS, writeSettings } from "@services/settingsStorage";
@@ -25,7 +25,6 @@ interface FakeTimer {
 }
 
 interface FakeDirector {
-    start: ReturnType<typeof vi.fn>;
     stop: ReturnType<typeof vi.fn>;
     tick: ReturnType<typeof vi.fn>;
     update: ReturnType<typeof vi.fn>;
@@ -120,7 +119,6 @@ function makeScene(overrides: Partial<SceneUnderTest> = {}): {
     scene.area_cleared = false;
     scene.game_over = false;
     scene.director = {
-        start: vi.fn(),
         stop: vi.fn(),
         tick: vi.fn(),
         update: vi.fn(),
@@ -172,31 +170,20 @@ describe("BiomeScene.startArea", () => {
         expect(scene.events.on).toHaveBeenCalledWith("enemy:dead", scene.onEnemyDead, scene);
     });
 
-    it("resets the HUD: the full kill count, and a stale miniboss flag cleared", () => {
-        const { scene } = makeScene();
-
-        scene.startArea();
-
-        expect(store.dispatch).toHaveBeenCalledWith({
-            type: "SET_ENEMIES_REMAINING",
-            payload: { value: AREA_KILLS_TO_BOSS },
-        });
-        expect(store.dispatch).toHaveBeenCalledWith({
-            type: "SET_BOSS_ACTIVE",
-            payload: { value: false },
-        });
-    });
-
     it("applies the spawn overrides on area entry, Debug mode off", () => {
-        writeSettings({ ...DEFAULT_SETTINGS, godMode: true, debug: false, killsToBossOverride: 3 });
+        writeSettings({
+            ...DEFAULT_SETTINGS,
+            godMode: true,
+            debug: false,
+            spawnRadiusOverride: 300,
+        });
         const { scene } = makeScene();
 
         scene.startArea();
 
-        expect(store.dispatch).toHaveBeenCalledWith({
-            type: "SET_ENEMIES_REMAINING",
-            payload: { value: 3 },
-        });
+        // startArea() swapped the fake for a real director built from the tuning.
+        const director = scene.director as unknown as { tuning: { radiusOverride: number } };
+        expect(director.tuning.radiusOverride).toBe(300);
     });
 
     it("builds the spawn debug overlay only when Debug and its toggle are both on", () => {
@@ -242,6 +229,51 @@ describe("BiomeScene.startArea", () => {
         // Re-entry replaces it, releasing the old one.
         on.startArea();
         expect(graphics.destroy).toHaveBeenCalledTimes(1);
+    });
+
+    it("builds the miniboss chance readout only when Debug and its toggle are both on", () => {
+        const text = {
+            text: "",
+            setTint: vi.fn(() => text),
+            setOrigin: vi.fn(() => text),
+            setScrollFactor: vi.fn(() => text),
+            setDepth: vi.fn(() => text),
+            setPosition: vi.fn(() => text),
+            destroy: vi.fn(),
+        };
+        const withAdd = () => {
+            const { scene } = makeScene();
+            Object.assign(scene, {
+                add: { sprite: vi.fn(), bitmapText: vi.fn(() => text) },
+                zone: { x: 0, y: 0, width: 800, height: 600, originX: 0, originY: 0 },
+            });
+            return scene as SceneUnderTest & { miniboss_readout?: object };
+        };
+
+        writeSettings({ ...DEFAULT_SETTINGS, godMode: true, debug: true });
+        const off = withAdd();
+        off.startArea();
+        expect(off.miniboss_readout).toBeUndefined();
+
+        writeSettings({ ...DEFAULT_SETTINGS, godMode: true, minibossDebugReadout: true });
+        const debugOff = withAdd();
+        debugOff.startArea();
+        expect(debugOff.miniboss_readout).toBeUndefined();
+
+        writeSettings({
+            ...DEFAULT_SETTINGS,
+            godMode: true,
+            debug: true,
+            minibossDebugReadout: true,
+        });
+        const on = withAdd();
+        on.startArea();
+        expect(on.miniboss_readout).toBeDefined();
+        expect(text.setPosition).toHaveBeenCalledWith(800, 0);
+
+        // Re-entry replaces it, releasing the old one.
+        on.startArea();
+        expect(text.destroy).toHaveBeenCalledTimes(1);
     });
 
     it("ticks a fresh director on a looping, pause-aware scene timer", () => {
@@ -425,19 +457,12 @@ describe("BiomeScene.spawnHost", () => {
         expect(scene.events.emit).toHaveBeenCalledWith("miniboss:spawned", miniboss);
     });
 
-    it("mirrors progress into the store for the HUD", () => {
+    it("keeps the dormant area-cleared hook wired to the banner", () => {
         const { scene } = makeScene();
 
-        scene.spawnHost().onProgress(7, true);
+        scene.spawnHost().onAreaCleared();
 
-        expect(store.dispatch).toHaveBeenCalledWith({
-            type: "SET_ENEMIES_REMAINING",
-            payload: { value: 7 },
-        });
-        expect(store.dispatch).toHaveBeenCalledWith({
-            type: "SET_BOSS_ACTIVE",
-            payload: { value: true },
-        });
+        expect(scene.area_cleared).toBe(true);
     });
 });
 
@@ -549,6 +574,38 @@ describe("BiomeScene.shutdown", () => {
         scene.shutdown();
 
         expect(overlay.cleanup).toHaveBeenCalledTimes(1);
+    });
+
+    it("releases the miniboss chance readout, once", () => {
+        const text = {
+            text: "",
+            setTint: vi.fn(() => text),
+            setOrigin: vi.fn(() => text),
+            setScrollFactor: vi.fn(() => text),
+            setDepth: vi.fn(() => text),
+            setPosition: vi.fn(() => text),
+            destroy: vi.fn(),
+        };
+        const { scene } = makeScene();
+        Object.assign(scene, {
+            add: { sprite: vi.fn(), bitmapText: vi.fn(() => text) },
+            zone: { x: 0, y: 0, width: 800, height: 600, originX: 0, originY: 0 },
+        });
+        writeSettings({
+            ...DEFAULT_SETTINGS,
+            godMode: true,
+            debug: true,
+            minibossDebugReadout: true,
+        });
+        scene.startArea();
+
+        scene.shutdown();
+        scene.shutdown();
+
+        expect(text.destroy).toHaveBeenCalledTimes(1);
+        expect(
+            (scene as unknown as { miniboss_readout?: object }).miniboss_readout
+        ).toBeUndefined();
     });
 
     it("removes the spawn timer, once", () => {
