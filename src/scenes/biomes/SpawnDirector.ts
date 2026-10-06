@@ -35,8 +35,11 @@ export interface SpawnHost<E extends SpawnedEnemy, Id extends string = string> {
     // Which creature to spawn next, drawn from the area's pool.
     pickRegular(): Id;
     pickMiniboss(): Id;
-    spawnRegular(id: Id, at: Point): E;
-    spawnMiniboss(id: Id, at: Point): E;
+    // The difficulty multiplier (#596) for a spawn at this point.
+    difficultyAt(point: Point): number;
+    // Every member of a configuration shares its centre's difficulty.
+    spawnRegular(id: Id, at: Point, difficulty: number): E;
+    spawnMiniboss(id: Id, at: Point, difficulty: number): E;
     // Clears the area. Dormant: nothing calls it since the miniboss stopped
     // clearing areas (#594); the boss epic's boss death will.
     onAreaCleared(): void;
@@ -259,8 +262,11 @@ export default class SpawnDirector<E extends SpawnedEnemy, Id extends string = s
     private spawnConfiguration(): void {
         const random = () => this.host.random();
         const { ids } = rollConfig(this.tuning, () => this.host.pickRegular(), random);
-        for (const { id, point, size } of this.placeCluster(ids)) {
-            this.track(this.host.spawnRegular(id, point), false, size);
+        const { centre, members } = this.placeCluster(ids);
+        if (!centre || members.length === 0) return;
+        const difficulty = this.host.difficultyAt(centre);
+        for (const { id, point, size } of members) {
+            this.track(this.host.spawnRegular(id, point, difficulty), false, size);
         }
     }
 
@@ -274,7 +280,10 @@ export default class SpawnDirector<E extends SpawnedEnemy, Id extends string = s
      * centre that fits the most members wins (stopping early once all fit);
      * the rest of the configuration is dropped. Nothing fits: nothing spawns.
      */
-    private placeCluster(ids: Id[]): { id: Id; point: Point; size: Size }[] {
+    private placeCluster(ids: Id[]): {
+        centre: Point | null;
+        members: { id: Id; point: Point; size: Size }[];
+    } {
         const random = () => this.host.random();
         const player = this.host.playerPosition();
         const direction = spawnDirection(this.host.playerVelocity(), this.tuning.movingSpeed);
@@ -285,6 +294,7 @@ export default class SpawnDirector<E extends SpawnedEnemy, Id extends string = s
         const tries = spread > 0 ? CLUSTER_MEMBER_ATTEMPTS : 1;
         const sizes = ids.map((id) => this.host.footprint(id, false));
         let best: { id: Id; point: Point; size: Size }[] = [];
+        let best_centre: Point | null = null;
         this.last_attempts = [];
 
         for (let attempt = 0; attempt < this.tuning.attemptsPerTick; attempt++) {
@@ -308,17 +318,24 @@ export default class SpawnDirector<E extends SpawnedEnemy, Id extends string = s
             });
 
             this.last_attempts.push({ point: centre, ok: placed.length > 0 });
-            if (placed.length > best.length) best = placed;
+            if (placed.length > best.length) {
+                best = placed;
+                best_centre = centre;
+            }
             if (best.length === ids.length) break;
         }
-        return best.map(({ id, point, size }) => ({ id, point, size }));
+        return {
+            centre: best_centre,
+            members: best.map(({ id, point, size }) => ({ id, point, size })),
+        };
     }
 
     private trySpawnMiniboss(): void {
         if (this.miniboss_id === null) return;
         const at = this.findSpawnPoint(this.miniboss_id, true);
         if (!at) return;
-        this.miniboss = this.host.spawnMiniboss(this.miniboss_id, at.point);
+        const difficulty = this.host.difficultyAt(at.point);
+        this.miniboss = this.host.spawnMiniboss(this.miniboss_id, at.point, difficulty);
         this.track(this.miniboss, true, at.size);
         this.host.onMinibossSpawned(this.miniboss);
     }

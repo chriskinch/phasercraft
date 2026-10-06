@@ -16,7 +16,8 @@ import UI from "@entities/UI/HUD";
 import MinibossRoar from "@entities/UI/MinibossRoar";
 import enemyTypes from "@config/enemies.json";
 import type { EnemyType } from "@/types/game";
-import { promoteToMiniboss, resolveAreaTuning } from "@config/area";
+import { DISTANCE_MAX_MULTIPLIER, promoteToMiniboss, resolveAreaTuning } from "@config/area";
+import { difficultyAt, maxSpawnableDistance } from "@helpers/difficulty";
 import { readSettings } from "@services/settingsStorage";
 import { resolveBiome, type BiomeDefinition } from "./biomes";
 import SpawnDirector, { type SpawnHost } from "./SpawnDirector";
@@ -135,6 +136,10 @@ export default class BiomeScene extends Scene {
     // Tiles an enemy may spawn on: pure land the player can reach on foot.
     // Rebuilt in create() once the player's start is known.
     public spawn_grid!: WalkabilityGrid;
+    // Where the player entered the area, and how far from it the furthest
+    // spawnable tile is: the ends of the distance difficulty ramp (#596).
+    public player_start!: { x: number; y: number };
+    public max_spawn_distance = 0;
     // The map's `town-exit` POIs (the entrance gateway's opening), in world px,
     // and the one the player is standing in, if any. As in the town, the
     // interaction fires once on entry and re-arms only once the player leaves,
@@ -239,6 +244,8 @@ export default class BiomeScene extends Scene {
             y: spawn.y,
         }) as PlayerType;
         this.spawn_grid = this.buildSpawnGrid(spawn);
+        this.player_start = { x: spawn.x, y: spawn.y };
+        this.max_spawn_distance = maxSpawnableDistance(this.spawn_grid, spawn);
         this.exit_zones = this.readExitZones();
         this.in_exit = false;
 
@@ -906,8 +913,9 @@ export default class BiomeScene extends Scene {
             footprint: (id, miniboss) => this.enemyFootprint(id, miniboss),
             pickRegular: () => this.pickFromPool(),
             pickMiniboss: () => this.pickFromPool(),
-            spawnRegular: (id, at) => this.spawnEnemy(id, at),
-            spawnMiniboss: (id, at) => this.spawnMiniboss(id, at),
+            difficultyAt: (point) => this.difficultyAt(point),
+            spawnRegular: (id, at, difficulty) => this.spawnEnemy(id, at, difficulty),
+            spawnMiniboss: (id, at, difficulty) => this.spawnMiniboss(id, at, difficulty),
             onAreaCleared: () => this.areaCleared(),
             onMinibossSpawned: (miniboss) => this.events.emit("miniboss:spawned", miniboss),
             random: Math.random,
@@ -992,8 +1000,23 @@ export default class BiomeScene extends Scene {
         );
     }
 
-    // Creates a regular enemy at a point the spawn director has already vetted.
-    spawnEnemy(enemyId: EnemyType, { x, y }: { x: number; y: number }): Enemy {
+    /**
+     * The stat multiplier for a spawn at `point` (#596): the biome's own factor
+     * at the player's start, rising linearly to biome × DISTANCE_MAX_MULTIPLIER
+     * at the furthest spawnable tile.
+     */
+    difficultyAt(point: { x: number; y: number }): number {
+        return difficultyAt(point, {
+            start: this.player_start,
+            maxDistance: this.max_spawn_distance,
+            biomeFactor: this.biome.difficulty,
+            maxMultiplier: DISTANCE_MAX_MULTIPLIER,
+        }).multiplier;
+    }
+
+    // Creates a regular enemy at a point the spawn director has already vetted,
+    // at the difficulty of its configuration's centre.
+    spawnEnemy(enemyId: EnemyType, { x, y }: { x: number; y: number }, difficulty = 1): Enemy {
         const enemy = enemyTypes[enemyId] as EnemyConfig;
         const { damage, speed, range, attack_speed, health_max, health_regen_rate } = enemy;
 
@@ -1014,8 +1037,9 @@ export default class BiomeScene extends Scene {
             // to 1 (`wave_multiplier || 1` with nothing passed), and
             // Enemy.setStats scales off it — ×1.2 damage, ×2 health. Kept
             // at 1 so removing the wave mechanic does not change enemy
-            // stats. Per-biome scaling is a later step.
+            // stats; distance × biome difficulty (#596) multiplies on top.
             wave_multiplier: 1,
+            difficulty,
             coin_multiplier: enemy.coin_multiplier,
         }) as unknown as Enemy;
         this.enemies.add(spawned);
@@ -1024,8 +1048,13 @@ export default class BiomeScene extends Scene {
 
     // Promotes one of the area's own creatures into the area miniboss, at a point
     // the spawn director has already vetted. A respawn after a despawn comes
-    // through here too, so it is a fresh promotion at full health.
-    spawnMiniboss(minibossId: EnemyType, { x, y }: { x: number; y: number }): Enemy {
+    // through here too, so it is a fresh promotion at full health, at the
+    // difficulty of where it now stands.
+    spawnMiniboss(
+        minibossId: EnemyType,
+        { x, y }: { x: number; y: number },
+        difficulty = 1
+    ): Enemy {
         const miniboss = promoteToMiniboss(minibossId);
         const { damage, speed, range, attack_speed, health_max, health_regen_rate } = miniboss;
 
@@ -1041,6 +1070,7 @@ export default class BiomeScene extends Scene {
             active_group: this.active_enemies,
             coin_multiplier: miniboss.coin_multiplier,
             aggro_radius: miniboss.aggro_radius,
+            difficulty,
         });
         this.enemies.add(spawned);
         return spawned;

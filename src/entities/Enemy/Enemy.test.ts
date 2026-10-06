@@ -540,3 +540,51 @@ describe("Enemy.movementAnimationHandler", () => {
         expect(monster.walk).not.toHaveBeenCalled();
     });
 });
+
+describe("Enemy.scaleToDifficulty", () => {
+    const base = {
+        damage: 60,
+        health_max: 200,
+        speed: 50,
+        range: 40,
+        attack_speed: 0.98,
+        health_regen_rate: 0,
+    };
+
+    function scaled(difficulty: number) {
+        const enemy = Object.create(Enemy.prototype) as Enemy;
+        enemy.scaleToDifficulty({ ...base }, 2, difficulty);
+        return enemy;
+    }
+
+    it("leaves today's stats, XP and coin value untouched at 1", () => {
+        const enemy = scaled(1);
+        expect(enemy.stats).toMatchObject({ damage: 60, health_max: 200, health_value: 200 });
+        expect(enemy.xp).toBe(20);
+        expect(enemy.coin_multiplier).toBe(2);
+        expect(enemy.level).toBe(5);
+    });
+
+    it("scales health and damage, starting at full health", () => {
+        const enemy = scaled(3);
+        expect(enemy.base_stats).toMatchObject({ damage: 180, health_max: 600 });
+        expect(enemy.stats.health_value).toBe(600);
+        expect(enemy.stats.speed).toBe(50);
+        expect(enemy.difficulty).toBe(3);
+    });
+
+    it("is worth XP from its scaled max health", () => {
+        expect(scaled(3).xp).toBe(60);
+        expect(scaled(6).xp).toBe(120);
+    });
+
+    it("drops coins and gems worth the creature's multiplier × difficulty", () => {
+        expect(scaled(1.5).coin_multiplier).toBe(3);
+        expect(scaled(6).coin_multiplier).toBe(12);
+    });
+
+    it("shows its level as difficulty × 5", () => {
+        expect(scaled(2.34).level).toBe(12);
+        expect(scaled(6).level).toBe(30);
+    });
+});

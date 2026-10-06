@@ -21,6 +21,12 @@ import type { SpawnConfigKind } from "@helpers/spawnConfig";
 export const EXPLORATION_CELL_SIZE = 512;
 export const MINIBOSS_CHANCE_PER_CELL = 0.01;
 
+// Enemies get tougher the further from the player's start they spawn (#596):
+// health and damage × the biome's own factor at the start, rising linearly to
+// biome × this at the furthest spawnable point of the map. The single knob for
+// how much harder the far reaches are.
+export const DISTANCE_MAX_MULTIPLIER = 3;
+
 // Regular enemies arrive in configurations (#595): mostly small groups of 1-3
 // mixed creatures, sometimes a pair of one creature, now and then a pack of
 // 5-10 (one species, or mixed at PACK_MIXED_CHANCE). The weights are relative.

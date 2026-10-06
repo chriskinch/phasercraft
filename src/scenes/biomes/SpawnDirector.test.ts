@@ -45,6 +45,7 @@ function makeDirector(tuning: Partial<AreaTuning> = {}, host: Partial<SpawnHost<
         footprint: vi.fn(() => ({ width: 32, height: 32 })),
         pickRegular: vi.fn(() => "imp"),
         pickMiniboss: vi.fn(() => "ghoul"),
+        difficultyAt: vi.fn(() => 1),
         spawnRegular: vi.fn((id: string, at) => new FakeEnemy(at.x, at.y, id)),
         spawnMiniboss: vi.fn((id: string, at) => new FakeEnemy(at.x, at.y, `miniboss:${id}`)),
         onAreaCleared: vi.fn(),
@@ -365,6 +366,58 @@ describe("SpawnDirector configurations", () => {
             expect(distance(enemy, player)).toBeLessThanOrEqual(director.despawnRadius());
             expect(enemy.despawn).not.toHaveBeenCalled();
         });
+    });
+});
+
+describe("SpawnDirector difficulty", () => {
+    it("gives every member of a configuration its centre's difficulty", () => {
+        const difficultyAt = vi.fn(() => 2.5);
+        const { director, spawnRegular } = makeDirector(
+            {
+                configWeights: { group: 0, pair: 0, pack: 1 },
+                packSize: [5, 5],
+                clusterBaseRadius: 48,
+                liveCap: 50,
+            },
+            { difficultyAt }
+        );
+
+        director.tick();
+
+        expect(difficultyAt).toHaveBeenCalledTimes(1);
+        const centre = (difficultyAt.mock.calls[0] as unknown[])[0] as { x: number; y: number };
+        expect(Math.hypot(centre.x - 5000, centre.y - 5000)).toBeCloseTo(
+            RADIUS + 48 * Math.sqrt(5)
+        );
+        expect(spawnRegular).toHaveBeenCalledTimes(5);
+        spawnRegular.mock.calls.forEach((call) => expect(call[2]).toBe(2.5));
+    });
+
+    it("asks nothing when nothing fits", () => {
+        const difficultyAt = vi.fn(() => 2);
+        const { director } = makeDirector({}, { difficultyAt, isSpawnable: vi.fn(() => false) });
+
+        director.tick();
+
+        expect(difficultyAt).not.toHaveBeenCalled();
+    });
+
+    it("rolls a miniboss's difficulty where it spawns, afresh on a respawn", () => {
+        const difficultyAt = vi.fn().mockReturnValueOnce(3).mockReturnValue(4);
+        const { director, player, spawnMiniboss } = makeDirector(
+            { minibossChancePerCell: 1, despawnDelayMs: 10 },
+            { difficultyAt }
+        );
+        director.update(16);
+        player.x += DEFAULT_AREA_TUNING.explorationCellSize;
+        director.update(16);
+        director.tick();
+
+        player.x += 5000;
+        director.update(10);
+        director.tick();
+
+        expect(spawnMiniboss.mock.calls.map((c) => c[2])).toEqual([3, 4]);
     });
 });
 
