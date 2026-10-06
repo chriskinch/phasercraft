@@ -37,6 +37,58 @@ function makeCastBar(): CastBarUnderTest {
 }
 
 describe("CastBar", () => {
+    function construct(options?: { y?: number; listen?: boolean }) {
+        const object = () => {
+            const o = {
+                width: 28,
+                height: 4,
+                x: 0,
+                y: 0,
+                setOrigin: vi.fn(() => o),
+                setDepth: vi.fn(() => o),
+                setVisible: vi.fn(() => o),
+                fillStyle: vi.fn(),
+                fillRect: vi.fn(),
+            };
+            return o;
+        };
+        const scene = {
+            add: {
+                sprite: vi.fn((x: number, y: number) => Object.assign(object(), { x, y })),
+                graphics: vi.fn(object),
+            },
+            events: { on: vi.fn(), once: vi.fn() },
+        };
+        const container = { add: vi.fn() };
+        new CastBar(
+            scene as unknown as Phaser.Scene,
+            container as unknown as Phaser.GameObjects.Container,
+            options
+        );
+        return scene;
+    }
+
+    it("follows the player's cast events by default, above the player's bars", () => {
+        const scene = construct();
+        expect(scene.add.sprite).toHaveBeenCalledWith(-14, -47, "resource-frame");
+        expect(scene.events.on).toHaveBeenCalledWith(
+            "spell:castbar:start",
+            CastBar.prototype.onStart,
+            expect.any(CastBar)
+        );
+    });
+
+    it("can be placed and driven directly, without the player's events", () => {
+        const scene = construct({ y: -36, listen: false });
+        expect(scene.add.sprite).toHaveBeenCalledWith(-14, -36, "resource-frame");
+        expect(scene.events.on).not.toHaveBeenCalled();
+        expect(scene.events.once).toHaveBeenCalledWith(
+            Scenes.Events.SHUTDOWN,
+            CastBar.prototype.cleanup,
+            expect.any(CastBar)
+        );
+    });
+
     it("shows and sweeps the fill over the cast duration", () => {
         const bar = makeCastBar();
 
