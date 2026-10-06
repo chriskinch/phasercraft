@@ -327,7 +327,7 @@ class Enemy extends GameObjects.Container {
     }
 
     setWandering(): void {
-        // One wander loop at a time. The boss is built already targeting the
+        // One wander loop at a time. The miniboss is built already targeting the
         // player, so its first update calls this again while the constructor's
         // loop is live; overwriting the reference orphaned that loop, which kept
         // calling move() after a despawn had destroyed the body.

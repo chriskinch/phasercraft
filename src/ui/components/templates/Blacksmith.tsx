@@ -165,8 +165,8 @@ const Blacksmith: React.FC = () => {
                 >
                     {owned.length === 0 && (
                         <p className={styles.muted}>
-                            No special items yet. Monsters rarely drop them, and every boss drops
-                            one.
+                            No special items yet. Monsters rarely drop them, and every miniboss
+                            drops one.
                         </p>
                     )}
                     {owned.map((s) => (

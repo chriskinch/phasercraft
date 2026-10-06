@@ -736,8 +736,8 @@ export const specialById = (id: string): SpecialItem | undefined =>
 
 // Drop rates for the `special` loot-table entry, in `Enemy.dropLoot`'s "drops
 // per kill x 100" units: the same odds as schematic drops (docs/ROADMAP.md,
-// Step 4b) — 1% from a regular mob, one guaranteed from a boss.
-export const SPECIAL_DROP_RATE = { mob: 1, boss: 100 } as const;
+// Step 4b) — 1% from a regular mob, one guaranteed from a miniboss.
+export const SPECIAL_DROP_RATE = { mob: 1, miniboss: 100 } as const;
 
 // --- Spell metadata (Abilities, Stage 1) --------------------------------------
 // Every spell the game can build. Defined here as a plain string-literal union
