@@ -17,7 +17,7 @@ import MinibossRoar from "@entities/UI/MinibossRoar";
 import enemyTypes from "@config/enemies.json";
 import type { EnemyType } from "@/types/game";
 import { DISTANCE_MAX_MULTIPLIER, promoteToMiniboss, resolveAreaTuning } from "@config/area";
-import { difficultyMultiplier, distanceFraction, maxSpawnableDistance } from "@helpers/difficulty";
+import { difficultyAt, maxSpawnableDistance } from "@helpers/difficulty";
 import { readSettings } from "@services/settingsStorage";
 import { resolveBiome, type BiomeDefinition } from "./biomes";
 import SpawnDirector, { type SpawnHost } from "./SpawnDirector";
@@ -1006,8 +1006,12 @@ export default class BiomeScene extends Scene {
      * at the furthest spawnable tile.
      */
     difficultyAt(point: { x: number; y: number }): number {
-        const fraction = distanceFraction(point, this.player_start, this.max_spawn_distance);
-        return difficultyMultiplier(this.biome.difficulty, fraction, DISTANCE_MAX_MULTIPLIER);
+        return difficultyAt(point, {
+            start: this.player_start,
+            maxDistance: this.max_spawn_distance,
+            biomeFactor: this.biome.difficulty,
+            maxMultiplier: DISTANCE_MAX_MULTIPLIER,
+        }).multiplier;
     }
 
     // Creates a regular enemy at a point the spawn director has already vetted,

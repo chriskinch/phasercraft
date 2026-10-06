@@ -221,6 +221,15 @@ describe("Healer heal timer", () => {
         expect(healer.heal_cooldown).toBeNull();
     });
 
+    it("heals the same fraction of max health whatever the target's difficulty", () => {
+        // A 200-health creature at difficulty 3: max 600, so a quarter is 150.
+        const { healer, target, adjustValue, fire } = makeCaster();
+        Object.assign(target.health.stats, { max: 600, value: 100 });
+        healer.healTarget(target as unknown as Enemy);
+        fire();
+        expect(adjustValue).toHaveBeenCalledWith(600 * HEAL_FRACTION, "heal", false);
+    });
+
     it("caps the heal (and its combat text) at the target's missing health", () => {
         const { healer, target, adjustValue, fire } = makeCaster();
         target.health.stats.value = 195;

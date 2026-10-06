@@ -45,6 +45,31 @@ export function difficultyMultiplier(
     return biomeFactor * (1 + (maxMultiplier - 1) * fraction);
 }
 
+export interface DifficultyContext {
+    // Where the player entered the area, and how far the furthest spawnable
+    // tile is from there (see maxSpawnableDistance).
+    start: Point;
+    maxDistance: number;
+    biomeFactor: number;
+    maxMultiplier: number;
+}
+
+/**
+ * The difficulty at `point`: the stat `multiplier`, and the distance
+ * `fraction` (0 at the start, 1 at the far edge) that later systems — loot
+ * rarity, species and pack weighting — read as "how far out".
+ */
+export function difficultyAt(
+    point: Point,
+    context: DifficultyContext
+): { multiplier: number; fraction: number } {
+    const fraction = distanceFraction(point, context.start, context.maxDistance);
+    return {
+        multiplier: difficultyMultiplier(context.biomeFactor, fraction, context.maxMultiplier),
+        fraction,
+    };
+}
+
 /** The level shown on an enemy's health bar. */
 export function difficultyLevel(multiplier: number): number {
     return Math.round(multiplier * LEVEL_PER_MULTIPLIER);

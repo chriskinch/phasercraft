@@ -1,6 +1,7 @@
 import { describe, it, expect } from "vitest";
 import {
     applyDifficulty,
+    difficultyAt,
     difficultyLevel,
     difficultyMultiplier,
     distanceFraction,
@@ -94,5 +95,22 @@ describe("applyDifficulty", () => {
 
     it("leaves stats unchanged at 1", () => {
         expect(applyDifficulty(stats, 1)).toEqual(stats);
+    });
+});
+
+describe("difficultyAt", () => {
+    const context = {
+        start: { x: 0, y: 0 },
+        maxDistance: 1000,
+        biomeFactor: 1.5,
+        maxMultiplier: 3,
+    };
+
+    it("gives the multiplier and the distance fraction together", () => {
+        expect(difficultyAt({ x: 0, y: 0 }, context)).toEqual({ multiplier: 1.5, fraction: 0 });
+        const half = difficultyAt({ x: 300, y: 400 }, context);
+        expect(half.fraction).toBeCloseTo(0.5);
+        expect(half.multiplier).toBeCloseTo(3);
+        expect(difficultyAt({ x: 5000, y: 0 }, context)).toEqual({ multiplier: 4.5, fraction: 1 });
     });
 });
