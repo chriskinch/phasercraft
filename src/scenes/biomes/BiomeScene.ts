@@ -16,7 +16,13 @@ import UI from "@entities/UI/HUD";
 import MinibossRoar from "@entities/UI/MinibossRoar";
 import enemyTypes from "@config/enemies.json";
 import type { EnemyType } from "@/types/game";
-import { DISTANCE_MAX_MULTIPLIER, promoteToMiniboss, resolveAreaTuning } from "@config/area";
+import {
+    DISTANCE_MAX_MULTIPLIER,
+    MINIBOSS_PINNED_LOOT,
+    promoteToMiniboss,
+    resolveAreaTuning,
+} from "@config/area";
+import { boostLootTable } from "@/lib/lootRarity";
 import { difficultyAt, maxSpawnableDistance } from "@helpers/difficulty";
 import { readSettings } from "@services/settingsStorage";
 import { resolveBiome, type BiomeDefinition } from "./biomes";
@@ -1032,7 +1038,8 @@ export default class BiomeScene extends Scene {
             y,
             target: null, //this.player,
             active_group: this.active_enemies,
-            loot_table: enemy.loot_table,
+            // Rarer loot drops more freely from tougher enemies (#597).
+            loot_table: boostLootTable(enemy.loot_table, difficulty),
             // Behaviour-preserving: the scripted waves always resolved this
             // to 1 (`wave_multiplier || 1` with nothing passed), and
             // Enemy.setStats scales off it — ×1.2 damage, ×2 health. Kept
@@ -1066,7 +1073,8 @@ export default class BiomeScene extends Scene {
             x,
             y,
             target: this.player,
-            loot_table: miniboss.loot_table,
+            // Its one guaranteed special and scroll stay one (#597).
+            loot_table: boostLootTable(miniboss.loot_table, difficulty, MINIBOSS_PINNED_LOOT),
             active_group: this.active_enemies,
             coin_multiplier: miniboss.coin_multiplier,
             aggro_radius: miniboss.aggro_radius,

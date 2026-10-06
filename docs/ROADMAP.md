@@ -499,7 +499,7 @@ come later; until then an area never clears).
 - [x] Exploration-driven miniboss replaces the kill-count trigger; HUD enemy text removed (#594)
 - [x] Clustered spawn configurations: groups, pairs, packs (#595)
 - [x] Distance × biome difficulty scaling + `Lv N` on health bars (#596)
-- [ ] Loot rarity tiers boosted by difficulty (#597)
+- [x] Loot rarity tiers boosted by difficulty (#597)
 - [ ] Species `tier` + distance-weighted species picks (#598)
 - [ ] Distance-weighted pack odds + safe start pocket (#599)
 - [ ] Debug: miniboss ramp override + overlay clusters/difficulty (#600)

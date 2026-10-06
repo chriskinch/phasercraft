@@ -176,6 +176,11 @@ const MINIBOSS_PINNED_RATES: Partial<Record<LootDropRate["name"], number>> = {
     scroll: SCROLL_DROP_RATE.miniboss,
 };
 
+// The loot a miniboss drops exactly one of, which difficulty must not boost either.
+export const MINIBOSS_PINNED_LOOT: ReadonlySet<LootDropRate["name"]> = new Set(
+    Object.keys(MINIBOSS_PINNED_RATES) as LootDropRate["name"][]
+);
+
 // Promotes one of the area's own creatures into that area's miniboss.
 export function promoteToMiniboss(id: EnemyType): EnemyConfig {
     const base = enemyTypes[id] as EnemyConfig;
