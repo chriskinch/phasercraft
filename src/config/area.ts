@@ -4,17 +4,21 @@ import { SCROLL_DROP_RATE } from "@/lib/scrollDrops";
 import type { EnemyConfig, EnemyType, LootDropRate, LootTable } from "@/types/game";
 import type { Settings } from "@services/settingsStorage";
 
-// Enemies populate a combat area as the player moves through it, and every
-// spawn tick may instead bring on the area's miniboss (#594). Nothing clears an
-// area yet — that waits on the boss epic. Leaving and re-entering starts the
-// area afresh, so none of this is persisted.
+// Enemies populate a combat area as the player moves through it, and exploring
+// new ground may bring on the area's miniboss (#594). Nothing clears an area
+// yet — that waits on the boss epic. Leaving and re-entering starts the area
+// afresh, so none of this is persisted.
 
-// The miniboss's chance per spawn tick on entering an area, and how long (scene
-// clock, so pauses don't count) until it is certain. The chance rises linearly
-// in between, is frozen while a miniboss is up, and drops back to the base
-// chance when it dies.
-export const MINIBOSS_BASE_CHANCE = 0.01;
-export const MINIBOSS_RAMP_MS = 10 * 60 * 1000;
+// The miniboss is found by exploring, not by waiting. The map is split into
+// square cells this many world px across (about 5 s of walking), and each cell
+// counts once, the first time the player steps into it (the start cell never
+// does). Every counted cell rolls MINIBOSS_CELL_CHANCE; the
+// MINIBOSS_CELLS_TO_CERTAIN-th since the last miniboss always brings one. The
+// count freezes while a miniboss is up and restarts when it dies. With 2% and
+// 50 that is about 32 new cells on average.
+export const EXPLORATION_CELL_SIZE = 512;
+export const MINIBOSS_CELL_CHANCE = 0.02;
+export const MINIBOSS_CELLS_TO_CERTAIN = 50;
 
 // How many regular enemies may be alive at once.
 export const AREA_LIVE_CAP = 15;
@@ -46,8 +50,9 @@ export const SPAWN_MOVING_SPEED = 10;
 // Everything the spawn director reads, bundled so a run can be tuned as one
 // value (the spawn settings override some of these; see #462).
 export interface AreaTuning {
-    minibossBaseChance: number;
-    minibossRampMs: number;
+    explorationCellSize: number;
+    minibossCellChance: number;
+    minibossCellsToCertain: number;
     liveCap: number;
     spawnIntervalMs: number;
     despawnDelayMs: number;
@@ -60,8 +65,9 @@ export interface AreaTuning {
 }
 
 export const DEFAULT_AREA_TUNING: Readonly<AreaTuning> = {
-    minibossBaseChance: MINIBOSS_BASE_CHANCE,
-    minibossRampMs: MINIBOSS_RAMP_MS,
+    explorationCellSize: EXPLORATION_CELL_SIZE,
+    minibossCellChance: MINIBOSS_CELL_CHANCE,
+    minibossCellsToCertain: MINIBOSS_CELLS_TO_CERTAIN,
     liveCap: AREA_LIVE_CAP,
     spawnIntervalMs: SPAWN_INTERVAL_MS,
     despawnDelayMs: DESPAWN_DELAY_MS,

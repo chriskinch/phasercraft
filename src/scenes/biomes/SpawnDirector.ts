@@ -9,8 +9,8 @@ import {
 import type { Rect } from "@helpers/walkability";
 
 // Runs a combat area's population (#456): trickles enemies in off screen ahead
-// of the player, despawns the ones left behind, and rolls for the miniboss on a
-// chance that ramps with time on the map (#594), respawning it if it despawns.
+// of the player, despawns the ones left behind, and rolls for the miniboss each
+// time the player explores new ground (#594), respawning it if it despawns.
 // Pure logic — everything it needs from Phaser comes through a `SpawnHost`, so
 // it is tested on fakes.
 
@@ -72,9 +72,12 @@ export default class SpawnDirector<E extends SpawnedEnemy, Id extends string = s
     // brought it on until it dies; a despawned miniboss keeps it, so it respawns.
     private miniboss_id: Id | null = null;
     private miniboss: E | null = null;
-    // Scene-clock ms counted towards the miniboss ramp: frozen while a miniboss
-    // is up (or waiting to respawn), back to 0 when it dies.
-    private miniboss_clock = 0;
+    // Exploration cells ("cx,cy") the player has stepped into this run. Each
+    // counts once; the first one seen (the start) is marked without counting.
+    private readonly visited = new Set<string>();
+    // New cells counted towards the miniboss since the last one died: frozen
+    // while a miniboss is up (or waiting to respawn), back to 0 when it dies.
+    private cells_explored = 0;
     private stopped = false;
     private last_attempts: { point: Point; ok: boolean }[] = [];
 
@@ -87,16 +90,19 @@ export default class SpawnDirector<E extends SpawnedEnemy, Id extends string = s
         return this.miniboss_id !== null;
     }
 
+    get cellsExplored(): number {
+        return this.cells_explored;
+    }
+
     /**
-     * The chance the next tick brings on the miniboss: the base chance, rising
-     * linearly to certain once `minibossRampMs` has been spent on the map
-     * without one. 0 while a miniboss is already active.
+     * The chance the next new cell brings on the miniboss: the flat per-cell
+     * chance, or certain on the `minibossCellsToCertain`-th. 0 while a miniboss
+     * is already active.
      */
     get minibossChance(): number {
         if (this.minibossActive) return 0;
-        const { minibossBaseChance: base, minibossRampMs: ramp } = this.tuning;
-        const progress = ramp > 0 ? Math.min(this.miniboss_clock / ramp, 1) : 1;
-        return base + (1 - base) * progress;
+        const { minibossCellChance, minibossCellsToCertain } = this.tuning;
+        return this.cells_explored + 1 >= minibossCellsToCertain ? 1 : minibossCellChance;
     }
 
     get regularsAlive(): number {
@@ -133,27 +139,21 @@ export default class SpawnDirector<E extends SpawnedEnemy, Id extends string = s
         };
     }
 
-    // Game over: nothing spawns, despawns or ramps from here on.
+    // Game over: nothing spawns, despawns or explores from here on.
     stop(): void {
         this.stopped = true;
     }
 
     /**
-     * One pacing tick, never more than one spawn. A miniboss waiting for room
-     * (its first spawn found none, or it despawned) takes the tick. Otherwise,
-     * with no miniboss active, roll for one: a hit brings it on in place of this
-     * tick's regular. Failing both, one regular if below the live cap.
+     * One pacing tick, never more than one spawn. A miniboss that has been
+     * rolled but is not on the map (just rolled, its first spawn found no room,
+     * or it despawned) takes the tick in place of a regular. Otherwise one
+     * regular, if below the live cap.
      */
     tick(): void {
         if (this.stopped) return;
 
         if (this.minibossActive && !this.miniboss) {
-            this.trySpawnMiniboss();
-            return;
-        }
-
-        if (this.rollForMiniboss()) {
-            this.miniboss_id = this.host.pickMiniboss();
             this.trySpawnMiniboss();
             return;
         }
@@ -166,15 +166,17 @@ export default class SpawnDirector<E extends SpawnedEnemy, Id extends string = s
     }
 
     /**
-     * Advances every enemy's despawn clock, and the miniboss ramp while no
-     * miniboss is active, by `delta` ms. The scene only calls this from its
-     * update loop, so both stop whenever the scene is paused.
+     * Notes the player's exploration cell (rolling for the miniboss on new
+     * ground), and advances every enemy's despawn clock by `delta` ms. The
+     * scene only calls this from its update loop, so the clocks stop whenever
+     * the scene is paused.
      */
     update(delta: number): void {
         if (this.stopped) return;
-        if (!this.minibossActive) this.miniboss_clock += delta;
 
         const player = this.host.playerPosition();
+        this.explore(player);
+
         const radius = this.radius();
         const expired: E[] = [];
 
@@ -200,15 +202,32 @@ export default class SpawnDirector<E extends SpawnedEnemy, Id extends string = s
 
         if (was_miniboss) {
             this.miniboss_id = null;
-            this.miniboss_clock = 0;
+            this.cells_explored = 0;
         }
     }
 
-    // No roll at all at 0%, so a ramp tuned off leaves the random sequence (and
-    // every spawn point drawn from it) untouched.
-    private rollForMiniboss(): boolean {
+    /**
+     * Marks the player's cell visited. The first time a cell is entered (the
+     * start cell aside) with no miniboss active, it counts and rolls: a hit
+     * picks the miniboss, which the next tick brings on. Cells crossed while a
+     * miniboss is up are still marked, so they never count later.
+     */
+    private explore(player: Point): void {
+        const size = this.tuning.explorationCellSize;
+        const cell = `${Math.floor(player.x / size)},${Math.floor(player.y / size)}`;
+        if (this.visited.has(cell)) return;
+        const first = this.visited.size === 0;
+        this.visited.add(cell);
+        if (first || this.minibossActive) return;
+
+        // Read before counting: the chance is for this, the next, cell.
         const chance = this.minibossChance;
-        return chance > 0 && this.host.random() < chance;
+        this.cells_explored++;
+        // No roll at all at 0%, so tuning it off leaves the random sequence (and
+        // every spawn point drawn from it) untouched.
+        if (chance > 0 && this.host.random() < chance) {
+            this.miniboss_id = this.host.pickMiniboss();
+        }
     }
 
     private trySpawnMiniboss(): void {
