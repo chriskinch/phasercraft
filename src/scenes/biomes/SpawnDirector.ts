@@ -84,8 +84,9 @@ export default class SpawnDirector<E extends SpawnedEnemy, Id extends string = s
     // Exploration cells ("cx,cy") the player has stepped into this run. Each
     // counts once; the first one seen (the start) is marked without counting.
     private readonly visited = new Set<string>();
-    // New cells counted towards the miniboss since the last one died: frozen
-    // while a miniboss is up (or waiting to respawn), back to 0 when it dies.
+    // New cells counted towards the miniboss since the last one was rolled:
+    // reset to 0 on the roll, and held there while it is up (or waiting to
+    // respawn).
     private cells_explored = 0;
     private stopped = false;
     private last_attempts: { point: Point; ok: boolean }[] = [];

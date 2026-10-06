@@ -492,7 +492,7 @@ targeted story.
 
 Reward wandering away from each biome's `player-start` and reward character progression.
 Forward-cone off-screen spawning stays; mobs arrive in clustered configurations, scale with
-distance × biome, and the area boss becomes a time-ramped **miniboss** (real boss mechanics
+distance × biome, and the area boss becomes an exploration-found **miniboss** (real boss mechanics
 come later; until then an area never clears).
 
 - [ ] Rename boss → miniboss, no behavior change (#593)
