@@ -1,9 +1,9 @@
 import { describe, it, expect } from "vitest";
 import enemyTypes from "@config/enemies.json";
 import {
-    BOSS_SCALING,
+    MINIBOSS_SCALING,
     DEFAULT_AREA_TUNING,
-    promoteToBoss,
+    promoteToMiniboss,
     resolveAreaTuning,
     scaleLootTable,
 } from "./area";
@@ -12,7 +12,7 @@ import { SPECIAL_DROP_RATE } from "@/types/game";
 import { SCROLL_DROP_RATE } from "@/lib/scrollDrops";
 import type { EnemyConfig, EnemyType, LootTable } from "@/types/game";
 
-// `promoteToBoss` and `scaleLootTable` are pure config factories — no Phaser
+// `promoteToMiniboss` and `scaleLootTable` are pure config factories — no Phaser
 // construction involved — so they're tested directly.
 
 const table: LootTable = [
@@ -50,30 +50,30 @@ describe("scaleLootTable", () => {
     });
 });
 
-describe("promoteToBoss", () => {
+describe("promoteToMiniboss", () => {
     const base = enemyTypes["baby-ghoul"] as EnemyConfig;
-    const boss = promoteToBoss("baby-ghoul");
+    const miniboss = promoteToMiniboss("baby-ghoul");
 
-    // Specials and scrolls are pinned to one per boss rather than scaled.
+    // Specials and scrolls are pinned to one per miniboss rather than scaled.
     const scaled = (t: LootTable) =>
         t.filter((item) => item.name !== "special" && item.name !== "scroll");
 
-    it("scales the base creature's loot table by BOSS_SCALING.loot", () => {
-        expect(scaled(boss.loot_table)).toEqual(
-            scaled(scaleLootTable(base.loot_table, BOSS_SCALING.loot))
+    it("scales the base creature's loot table by MINIBOSS_SCALING.loot", () => {
+        expect(scaled(miniboss.loot_table)).toEqual(
+            scaled(scaleLootTable(base.loot_table, MINIBOSS_SCALING.loot))
         );
     });
 
     it("drops more of every entry than the creature it was promoted from", () => {
-        boss.loot_table.forEach((item, i) => {
+        miniboss.loot_table.forEach((item, i) => {
             expect(item.rate).toBeGreaterThan(base.loot_table[i].rate);
         });
     });
 
     it("drops exactly one special item, unscaled", () => {
-        expect(boss.loot_table.find((item) => item.name === "special")).toEqual({
+        expect(miniboss.loot_table.find((item) => item.name === "special")).toEqual({
             name: "special",
-            rate: SPECIAL_DROP_RATE.boss,
+            rate: SPECIAL_DROP_RATE.miniboss,
             bonus: 0,
         });
     });
@@ -83,9 +83,9 @@ describe("promoteToBoss", () => {
         expect(base.loot_table[0].rate).toBe(60);
     });
 
-    it("carries the boss coin multiplier so drops pay out more on pickup", () => {
-        expect(boss.coin_multiplier).toBe(BOSS_SCALING.coin_multiplier);
-        expect(boss.coin_multiplier).toBeGreaterThan(base.coin_multiplier);
+    it("carries the miniboss coin multiplier so drops pay out more on pickup", () => {
+        expect(miniboss.coin_multiplier).toBe(MINIBOSS_SCALING.coin_multiplier);
+        expect(miniboss.coin_multiplier).toBeGreaterThan(base.coin_multiplier);
     });
 });
 
@@ -182,9 +182,12 @@ describe("scroll drops", () => {
         }
     );
 
-    it.each(Object.keys(enemyTypes) as EnemyType[])("gives a %s boss exactly one scroll", (id) => {
-        expect(promoteToBoss(id).loot_table.filter((item) => item.name === "scroll")).toEqual([
-            { name: "scroll", rate: SCROLL_DROP_RATE.boss, bonus: 0 },
-        ]);
-    });
+    it.each(Object.keys(enemyTypes) as EnemyType[])(
+        "gives a %s miniboss exactly one scroll",
+        (id) => {
+            expect(
+                promoteToMiniboss(id).loot_table.filter((item) => item.name === "scroll")
+            ).toEqual([{ name: "scroll", rate: SCROLL_DROP_RATE.miniboss, bonus: 0 }]);
+        }
+    );
 });

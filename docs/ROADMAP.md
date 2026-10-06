@@ -488,6 +488,38 @@ targeted story.
 | Harness     | Perf hooks compile only into `VITE_PERF=1` builds. Seeded RNG, fixed-step replays, headless Chromium with a 4× CPU throttle. Report only, never gates: runs on the `perf` PR label and nightly on `main`. Headless renders on the CPU, so render wins are proved on device.                                                                     |
 | Stop rule   | Stop at the target. Once the device is vsync-bound (16.7 ms frames, CPU about half used), further CPU work only adds headroom; reopen stories only on a device trace.                                                                                                                                                                           |
 
+## Phase 15 — Enemy spawn overhaul (epic #592)
+
+Reward wandering away from each biome's `player-start` and reward character progression.
+Forward-cone off-screen spawning stays; mobs arrive in clustered configurations, scale with
+distance × biome, and the area boss becomes a time-ramped **miniboss** (real boss mechanics
+come later; until then an area never clears).
+
+- [ ] Rename boss → miniboss, no behavior change (#593)
+- [ ] Time-ramped miniboss replaces the kill-count trigger; HUD enemy text removed (#594)
+- [ ] Clustered spawn configurations: groups, pairs, packs (#595)
+- [ ] Distance × biome difficulty scaling + `Lv N` on health bars (#596)
+- [ ] Loot rarity tiers boosted by difficulty (#597)
+- [ ] Species `tier` + distance-weighted species picks (#598)
+- [ ] Distance-weighted pack odds + safe start pocket (#599)
+- [ ] Debug: miniboss ramp override + overlay clusters/difficulty (#600)
+
+Follow-up: monster-parts signature loot (#601).
+
+### Decisions (2026-10-05) — Enemy spawn overhaul (Phase 15)
+
+| Topic          | Decision                                                                                                                                                                                                              |
+| -------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Configurations | Small group 1–3 (equal odds, mixed) 70% · same-type pair 22% · pack 5–10 (mixed 70% / single 30%) 8%. Cluster radius 48 px × √count, wholly off screen.                                                               |
+| Pacing         | 1 config / 3 s. Live cap 15 → 25, overshoot allowed. Blocked members dropped after retrying centres. Despawn per mob, as today.                                                                                       |
+| Miniboss       | Rolled per tick, 1% → 100% linear over 10 min scene-clock time; frozen while alive, reset on death or area exit. Alone; respawns ahead on despawn. Loot as before.                                                    |
+| Area clear     | Kill count removed. Miniboss death does not clear; the area-cleared hook stays dormant for the future boss.                                                                                                           |
+| Difficulty     | `mult = biome × (1 + (3 − 1) × d / dMax)`; biome forest 1, desert 1.5, tundra 2 (range 1–6). Straight-line from `player-start`, fixed at spawn. Health + damage; healing unchanged; XP via health; coin value × mult. |
+| Readability    | `Lv N` on mob health bars, `N = round(mult × 5)`.                                                                                                                                                                     |
+| Loot rarity    | Rate × `1 + (mult − 1) × k`: common 0, uncommon (gem/ichor) 0.5, rare (scroll) 1, epic (special) 2. Miniboss pinned rates unchanged.                                                                                  |
+| Species        | New `tier` field (not `level`, to avoid clashing with `Lv`); weakest 2× likelier at start, strongest 3× at the far edge. Phase 13 "mob level" reads `tier`.                                                           |
+| Extras         | Pack weight 8% → 20% with distance; no packs/miniboss within ~1500 px of `player-start`.                                                                                                                              |
+
 ## Deferred / backlog
 
 - **Retire GitHub Pages**: remove the `gh-pages` deploy workflow and `VITE_BASE_URL` transition shim once Vercel production is confirmed stable (follow-up to Phase 6).
