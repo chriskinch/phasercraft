@@ -65,9 +65,10 @@ class Healer extends Enemy {
             ) {
                 this.healTarget(target);
             }
-            // Hang back while there is healing to do; with none (or when last
-            // standing), go for the player.
-            const support = (this.heal_timer || target) && !this.last_standing;
+            // Hang back while casting or ready to heal someone; with nothing to
+            // heal, the heal on cooldown, or when last standing, go for the player.
+            const support =
+                (this.heal_timer || (target && !this.heal_cooldown)) && !this.last_standing;
             this.aggro_radius = support ? HEALER_AGGRO_RADIUS : this.chase_aggro_radius;
         }
 

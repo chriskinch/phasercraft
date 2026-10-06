@@ -146,7 +146,7 @@ describe("Healer.update heal cast", () => {
         expect(busy.addEvent).not.toHaveBeenCalled();
     });
 
-    it("hangs back while there is healing to do, and chases the player when there is none", () => {
+    it("hangs back while casting or ready to heal; chases the player otherwise", () => {
         const hurt = makeUpdatable("primed", [fake("a", 100, 10)]);
         hurt.healer.update(0, 16);
         expect(hurt.healer.aggro_radius).toBe(HEALER_AGGRO_RADIUS);
@@ -159,7 +159,12 @@ describe("Healer.update heal cast", () => {
         const cooling = makeUpdatable("primed", [fake("a", 100, 10)]);
         cooling.healer.heal_cooldown = {} as Phaser.Time.TimerEvent;
         cooling.healer.update(0, 16);
-        expect(cooling.healer.aggro_radius).toBe(HEALER_AGGRO_RADIUS);
+        expect(cooling.healer.aggro_radius).toBe(HEALER_CHASE_RADIUS);
+
+        const casting = makeUpdatable("casting", [fake("a", 100, 10)]);
+        casting.healer.heal_timer = { remove: vi.fn() } as unknown as Phaser.Time.TimerEvent;
+        casting.healer.update(0, 16);
+        expect(casting.healer.aggro_radius).toBe(HEALER_AGGRO_RADIUS);
 
         const last = makeUpdatable("primed", [fake("a", 100, 10)]);
         Object.assign(last.healer, { last_standing: true, chase_aggro_radius: 400 });
