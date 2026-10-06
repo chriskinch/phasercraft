@@ -396,6 +396,8 @@ export interface EnemyOptions {
     coin_multiplier: number;
     active_group: Phaser.GameObjects.Group;
     wave_multiplier?: number;
+    // Distance × biome stat multiplier (#596); 1 (the default) leaves stats as is.
+    difficulty?: number;
     vector?: EntityWithVector;
 }
 

@@ -14,6 +14,8 @@ import { playSfx } from "@services/sfx";
 import AssignResource, { AssignResourceType } from "@entities/Resources/AssignResource";
 import Monster from "./Monster";
 import { animationKeys } from "./animationKeys";
+import { applyDifficulty, difficultyLevel } from "@helpers/difficulty";
+import { FONTS, pixelFontSize } from "@config/fonts";
 import Coin from "@entities/Loot/Coin";
 import Special from "@entities/Loot/Special";
 import Scroll from "@entities/Loot/Scroll";
@@ -76,6 +78,11 @@ class Enemy extends GameObjects.Container {
     public active_group: GameObjects.Group;
     public alive: boolean;
     public wave_multiplier: number;
+    // Distance × biome stat multiplier (#596), fixed at spawn, and the level it
+    // shows as beside the health bar.
+    public difficulty: number;
+    public level: number;
+    public level_label: GameObjects.BitmapText;
     public base_stats: EnemyStats;
     public stats: EnemyStats;
     public loot_table: LootTable;
@@ -138,12 +145,18 @@ class Enemy extends GameObjects.Container {
         this.aggro_radius = config.aggro_radius || 250;
         this.circling_radius = config.circling_radius || 30;
         this.loot_chance = 0.75;
-        this.coin_multiplier = config.coin_multiplier;
+        this.difficulty = config.difficulty ?? 1;
+        this.level = difficultyLevel(this.difficulty);
+        // Coins and gems are worth more from tougher enemies, like the XP below.
+        this.coin_multiplier = config.coin_multiplier * this.difficulty;
         this.active_group = config.active_group;
         this.alive = true;
 
         this.wave_multiplier = config.wave_multiplier || 0;
-        this.base_stats = this.setStats(config.attributes, this.wave_multiplier);
+        this.base_stats = applyDifficulty(
+            this.setStats(config.attributes, this.wave_multiplier),
+            this.difficulty
+        );
         this.loot_table = config.loot_table || [];
         this.stats = { ...this.base_stats };
         this.stats.health_value = this.stats.health_max;
@@ -164,6 +177,13 @@ class Enemy extends GameObjects.Container {
             ...this.stats,
         });
         this.add(this.health);
+
+        // "Lv N" just left of the health bar; a container child, so it goes
+        // (and is destroyed) with the enemy.
+        this.level_label = config.scene.add
+            .bitmapText(-16, -31, FONTS.outline, `Lv${this.level}`, pixelFontSize(1))
+            .setOrigin(1, 0);
+        this.add(this.level_label);
 
         this.banes = new Banes(this.scene, this);
 

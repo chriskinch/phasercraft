@@ -498,7 +498,7 @@ come later; until then an area never clears).
 - [x] Rename boss → miniboss, no behavior change (#593, PR #602)
 - [x] Exploration-driven miniboss replaces the kill-count trigger; HUD enemy text removed (#594)
 - [x] Clustered spawn configurations: groups, pairs, packs (#595)
-- [ ] Distance × biome difficulty scaling + `Lv N` on health bars (#596)
+- [x] Distance × biome difficulty scaling + `Lv N` on health bars (#596)
 - [ ] Loot rarity tiers boosted by difficulty (#597)
 - [ ] Species `tier` + distance-weighted species picks (#598)
 - [ ] Distance-weighted pack odds + safe start pocket (#599)
