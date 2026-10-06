@@ -341,11 +341,30 @@ describe("SpawnDirector configurations", () => {
         expect(director.debugView().attempts).toHaveLength(5);
     });
 
-    it("despawns beyond the spawn radius plus the largest cluster's", () => {
+    it("despawns beyond the spawn radius plus the largest cluster's diameter", () => {
         const { director } = makeDirector({ clusterBaseRadius: BASE, packSize: [5, 9] });
 
-        expect(director.despawnRadius()).toBeCloseTo(RADIUS + BASE * 3);
-        expect(director.debugView().despawnRadius).toBeCloseTo(RADIUS + BASE * 3);
+        expect(director.despawnRadius()).toBeCloseTo(RADIUS + 2 * BASE * 3);
+        expect(director.debugView().despawnRadius).toBeCloseTo(RADIUS + 2 * BASE * 3);
+    });
+
+    it("places every member of the largest pack within the despawn radius", () => {
+        const { director, player, regulars } = makeDirector({
+            configWeights: { group: 0, pair: 0, pack: 1 },
+            packSize: [10, 10],
+            clusterBaseRadius: BASE,
+            liveCap: 1000,
+            despawnDelayMs: 1,
+        });
+
+        for (let i = 0; i < 20; i++) director.tick();
+        director.update(1000);
+
+        expect(regulars().length).toBeGreaterThan(100);
+        regulars().forEach((enemy) => {
+            expect(distance(enemy, player)).toBeLessThanOrEqual(director.despawnRadius());
+            expect(enemy.despawn).not.toHaveBeenCalled();
+        });
     });
 });
 

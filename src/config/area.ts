@@ -45,8 +45,9 @@ export const SPAWN_INTERVAL_MS = 3000;
 
 // An enemy further than the despawn radius from the player for this long,
 // continuously, despawns. The clock resets whenever it comes back within range.
-// The despawn radius is the spawn radius plus the largest cluster's, so a pack
-// member placed at the far edge of its circle does not start out despawning.
+// The despawn radius is the spawn radius plus the largest cluster's diameter
+// (~304 px), so a pack member placed at the far edge of its circle does not
+// start out despawning.
 export const DESPAWN_DELAY_MS = 20000;
 
 // Candidate points tried per spawn tick before giving up until the next tick.
