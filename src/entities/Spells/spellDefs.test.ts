@@ -38,6 +38,7 @@ const ALL_SPELLS: SpellType[] = [
     "AimedShot",
     "BattleStomp",
     "BloodFurnace",
+    "Charge",
     "Consecration",
     "EarthShield",
     "Enrage",

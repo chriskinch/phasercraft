@@ -81,6 +81,8 @@ class Player extends GameObjects.Container {
     private slotted: (SlottedSpell | null)[] = [];
     public mouse!: Phaser.Input.Pointer;
     public dragging!: boolean;
+    // Set while a Charge dash owns the player's position; pauses the auto-attack chase.
+    public dashing = false;
     public attack_delay!: Phaser.Time.TimerEvent | null;
     public swing: Phaser.Time.TimerEvent | null = null;
     public body!: Physics.Arcade.Body;
@@ -320,7 +322,8 @@ class Player extends GameObjects.Container {
         // Drive any queued walk-into-range cast; wind-ups/channels root the
         // player and pause the auto-attack chase until they resolve.
         this.casting.update();
-        if ((this.scene as GameSceneLike).selected && !this.casting.isCasting()) this.goToRange();
+        if ((this.scene as GameSceneLike).selected && !this.casting.isCasting() && !this.dashing)
+            this.goToRange();
 
         // Self cast key
         if (keys.space.isDown) {

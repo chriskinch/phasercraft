@@ -909,13 +909,13 @@ describe("abilities", () => {
             }
         );
 
-        it("leaves the trailing slots empty for smaller kits", () => {
+        it("fills Warrior slots and leaves the trailing slots empty for smaller kits", () => {
             expect(gameReducer(init(), selectCharacter("Warrior")).abilityLoadout).toEqual([
                 "Whirlwind",
                 "Enrage",
                 "BattleStomp",
                 "Retaliation",
-                null,
+                "Charge",
             ]);
             expect(gameReducer(init(), selectCharacter("Ranger")).abilityLoadout[4]).toBeNull();
             expect(gameReducer(init(), selectCharacter("Occultist")).abilityLoadout[4]).toBeNull();
