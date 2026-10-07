@@ -406,6 +406,7 @@ class Player extends GameObjects.Container {
         this.retaliate(attacker);
         const damage = Math.ceil(power * (100 / (100 + (this.stats.defence || 0))));
         this.scene.events.emit("player:attacked", this);
+        this.scene.events.emit("player:damaged", damage, attackType, attacker);
         const hasShield = "hasShield" in this.shield && this.shield.hasShield();
         const pool = hasShield ? this.shield : this.health;
         // Forward the attacker's combat type so the caster can decide whether

@@ -765,6 +765,7 @@ export type SpellType =
     | "ManaShield"
     | "Multishot"
     | "PowerInfusion"
+    | "Retaliation"
     | "SiphonSoul"
     | "Smite"
     | "SnareTrap"
@@ -1043,6 +1044,20 @@ export const SPELL_DEFS: Record<SpellType, SpellDef> = {
         targetKind: "ground",
         scaling: { duration: SPELL_LEVEL_POWER, damage: SPELL_LEVEL_POWER },
     },
+    Retaliation: {
+        name: "Retaliation",
+        description: "Punish those who strike you.",
+        effect: "Reflects part of the melee damage you take back at the attacker.",
+        classes: ["Warrior"],
+        icon_name: "icon_0032_retaliation",
+        cooldown: 20,
+        cost: { rage: 10, mana: 80, energy: 30 },
+        targetKind: "self",
+        scaling: {
+            duration: { 1: 1, 2: 1.25, 3: 1.5 },
+            reflect: { 1: 1, 2: 1.3, 3: 1.6 },
+        },
+    },
     Whirlwind: {
         name: "Whirlwind",
         description: "Spin into the fray.",
@@ -1098,6 +1113,7 @@ export const SPELL_ASPECTS: Record<SpellType, readonly string[]> = {
     SiphonSoul: ["power"],
     Smite: ["power"],
     SnareTrap: ["duration", "damage", "lifespan"],
+    Retaliation: ["duration", "reflect"],
     Whirlwind: ["power"],
 };
 
@@ -1169,6 +1185,7 @@ export const SPELL_RECIPES: Record<SpellType, SpellRecipe> = {
     SiphonSoul: { materials: { bone: 8, ichor: 4 }, coins: 30, special: "void-pearl" },
     Smite: { materials: { cloth: 8, scrap: 4 }, coins: 25, special: "ember-core" },
     SnareTrap: { materials: { cloth: 8, bone: 6 }, coins: 25, special: "frost-shard" },
+    Retaliation: { materials: { scrap: 10, bone: 8 }, coins: 30, special: "ember-core" },
     Whirlwind: { materials: { scrap: 10, bone: 5 }, coins: 30, special: "frost-shard" },
 };
 

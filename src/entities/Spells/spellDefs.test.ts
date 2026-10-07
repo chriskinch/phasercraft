@@ -51,6 +51,7 @@ const ALL_SPELLS: SpellType[] = [
     "ManaShield",
     "Multishot",
     "PowerInfusion",
+    "Retaliation",
     "SiphonSoul",
     "Smite",
     "SnareTrap",

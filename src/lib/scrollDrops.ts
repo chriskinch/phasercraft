@@ -34,6 +34,7 @@ export const SCROLL_DROP_WEIGHTS: Record<SpellType, number> = {
     SiphonSoul: 1,
     Smite: 1,
     SnareTrap: 1,
+    Retaliation: 1,
     Whirlwind: 1,
 };
 

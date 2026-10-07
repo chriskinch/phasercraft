@@ -47,6 +47,7 @@ export const SPELL_ICON_NAMES: Record<SpellType, string> = {
     SiphonSoul: "icon_0000_death",
     Smite: "icon_0007_bolt",
     SnareTrap: "icon_0020_shackle",
+    Retaliation: "icon_0032_retaliation",
     Whirlwind: "icon_0005_coil",
 };
 
