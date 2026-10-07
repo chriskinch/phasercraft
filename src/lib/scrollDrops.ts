@@ -18,6 +18,7 @@ export const SCROLL_DROP_WEIGHTS: Record<SpellType, number> = {
     AimedShot: 1,
     BattleStomp: 1,
     BloodFurnace: 1,
+    Charge: 1,
     Consecration: 1,
     EarthShield: 1,
     Enrage: 1,
