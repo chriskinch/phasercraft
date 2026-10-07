@@ -18,6 +18,8 @@ class Charge extends Spell {
     public duration: number;
     public value: Record<string, EffectValue> = {};
     public stun = true;
+    // Read by the CastingController: targets closer than this prime instead.
+    public minCastRange = CHARGE_MIN_RANGE;
     public dashTween?: Phaser.Tweens.Tween;
 
     constructor(config: SpellOptions) {
@@ -33,6 +35,7 @@ class Charge extends Spell {
         this.hasAnimation = false;
         this.type = "physical";
         this.duration = 1;
+        this.minCastRange = CHARGE_MIN_RANGE;
     }
 
     // Min-range gate: too close casts nothing and costs nothing.

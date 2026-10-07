@@ -861,7 +861,7 @@ export const SPELL_DEFS: Record<SpellType, SpellDef> = {
         icon_name: "icon_0031_charge",
         cooldown: 8,
         cost: { rage: 15, mana: 40, energy: 20 },
-        castRange: 300,
+        castRange: 200,
         targetKind: "enemy",
         scaling: { power: SPELL_LEVEL_POWER },
     },
