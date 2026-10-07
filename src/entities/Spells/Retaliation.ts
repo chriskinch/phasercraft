@@ -1,11 +1,11 @@
 import Boon from "./Boon";
 import { spellDefDefaults } from "@/types/game";
 import { levelFactor } from "@/lib/levelScaling";
-import type { CombatType, SpellOptions } from "@/types/game";
+import type { SpellOptions } from "@/types/game";
 import type { EffectValue } from "@entities/UI/StatusEffects";
-import type Enemy from "@entities/Enemy/Enemy";
+import type { IncomingDamage } from "@entities/Player/Player";
 
-// Fraction of melee damage taken that is reflected at the attacker (L1).
+// Fraction of melee damage taken that is reflected at the attacker, and removed from the hit (L1).
 const BASE_REFLECT = 0.5;
 
 class Retaliation extends Boon {
@@ -60,11 +60,15 @@ class Retaliation extends Boon {
         });
     }
 
-    // Melee hits only: reflect a share of the damage actually taken.
-    counter(damage: number, attackType?: CombatType, attacker?: Enemy): void {
-        if (attackType !== "melee" || !attacker?.alive) return;
-        const power = Math.ceil(damage * this.reflect);
-        if (power > 0) attacker.hit({ power, type: "physical" });
+    // Any enemy attack (melee or ranged): reflect a share of the damage and
+    // take that much less.
+    counter(incoming: IncomingDamage): void {
+        const { attacker } = incoming;
+        if (!attacker?.alive) return;
+        const power = Math.min(incoming.damage, Math.ceil(incoming.damage * this.reflect));
+        if (power <= 0) return;
+        incoming.damage -= power;
+        attacker.hit({ power, type: "physical" });
     }
 
     private stopListening(): void {

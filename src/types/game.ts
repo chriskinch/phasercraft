@@ -1047,7 +1047,7 @@ export const SPELL_DEFS: Record<SpellType, SpellDef> = {
     Retaliation: {
         name: "Retaliation",
         description: "Punish those who strike you.",
-        effect: "Reflects part of the melee damage you take back at the attacker.",
+        effect: "Reflects part of each hit back at the attacker and takes that much less.",
         classes: ["Warrior"],
         icon_name: "icon_0032_retaliation",
         cooldown: 20,

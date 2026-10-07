@@ -16,7 +16,7 @@ interface RetaliationUnderTest {
     effect(): void;
     clearEffect(): void;
     cleanup(): void;
-    counter(damage: number, attackType?: string, attacker?: unknown): void;
+    counter(incoming: { damage: number; attackType?: string; attacker?: unknown }): void;
 }
 
 function make(): RetaliationUnderTest {
@@ -53,20 +53,38 @@ describe("Retaliation", () => {
         expect(spell.scene.events.on).toHaveBeenCalledTimes(1);
     });
 
-    it("reflects a share of melee damage at the attacker", () => {
+    it.each(["melee", "ranged"])(
+        "reflects a share of %s damage and reduces the hit",
+        (attackType) => {
+            const spell = make();
+            const e = enemy();
+            const incoming = { damage: 41, attackType, attacker: e };
+            spell.counter(incoming);
+            expect(e.hit).toHaveBeenCalledWith({ power: 21, type: "physical" });
+            expect(incoming.damage).toBe(20);
+        }
+    );
+
+    it("never reflects more than the hit", () => {
         const spell = make();
+        spell.reflect = 1.5;
         const e = enemy();
-        spell.counter(41, "melee", e);
-        expect(e.hit).toHaveBeenCalledWith({ power: 21, type: "physical" });
+        const incoming = { damage: 10, attackType: "melee", attacker: e };
+        spell.counter(incoming);
+        expect(e.hit).toHaveBeenCalledWith({ power: 10, type: "physical" });
+        expect(incoming.damage).toBe(0);
     });
 
-    it("ignores ranged hits and dead attackers", () => {
+    it("ignores dead or missing attackers", () => {
         const spell = make();
         const e = enemy();
-        spell.counter(40, "ranged", e);
-        spell.counter(40, "melee", { ...e, alive: false });
-        spell.counter(40, "melee", undefined);
+        const dead = { damage: 40, attackType: "melee", attacker: { ...e, alive: false } };
+        const none = { damage: 40, attackType: "melee" };
+        spell.counter(dead);
+        spell.counter(none);
         expect(e.hit).not.toHaveBeenCalled();
+        expect(dead.damage).toBe(40);
+        expect(none.damage).toBe(40);
     });
 
     it("expiry releases the listener and clears the tint", () => {
