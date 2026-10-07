@@ -25,6 +25,7 @@ class SpellButton {
     private slot: number;
     private hotkey: string;
     private onPress: () => void;
+    private primed = false;
 
     constructor({ scene, icon_name, slot, hotkey, cooldown, onPress }: SpellButtonOptions) {
         this.scene = scene;
@@ -68,11 +69,17 @@ class SpellButton {
     }
 
     out(): void {
-        this.sprite.setTint();
+        if (!this.primed) this.sprite.setTint();
     }
 
     primedTint(): void {
-        this.sprite.setTint(0xff9955);
+        this.primed = true;
+        this.sprite.setTint(0x55ff55);
+    }
+
+    clearPrimed(): void {
+        this.primed = false;
+        this.out();
     }
 
     setEnabled(enabled: boolean): void {

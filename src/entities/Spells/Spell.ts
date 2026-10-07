@@ -250,7 +250,7 @@ class Spell extends GameObjects.Sprite {
     }
 
     onPrimeCleared(): void {
-        this.button.out();
+        this.button.clearPrimed();
     }
 
     effect(target: TargetType | undefined): void {

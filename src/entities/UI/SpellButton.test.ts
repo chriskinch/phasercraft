@@ -26,6 +26,10 @@ interface ButtonUnderTest {
     handlePress(): void;
     setEvents(state: "on" | "off"): void;
     setEnabled(enabled: boolean): void;
+    over(): void;
+    out(): void;
+    primedTint(): void;
+    clearPrimed(): void;
     showCooldown(): void;
     setCooldownText(seconds: number): void;
     hideCooldown(): void;
@@ -183,6 +187,30 @@ describe("SpellButton presentation", () => {
 
         button.setEnabled(false);
         expect(button.sprite.setAlpha).toHaveBeenCalledWith(0.4);
+    });
+
+    it("keeps the primed tint green through hover exit until the prime is cleared", () => {
+        const button = makeButton();
+
+        button.primedTint();
+        button.out();
+
+        expect(button.sprite.setTint).toHaveBeenNthCalledWith(1, 0x55ff55);
+        expect(button.sprite.setTint).toHaveBeenCalledTimes(1);
+
+        button.clearPrimed();
+
+        expect(button.sprite.setTint).toHaveBeenNthCalledWith(2);
+    });
+
+    it("clears a normal hover tint on pointer exit when not primed", () => {
+        const button = makeButton();
+
+        button.over();
+        button.out();
+
+        expect(button.sprite.setTint).toHaveBeenNthCalledWith(1, 0x55ff55);
+        expect(button.sprite.setTint).toHaveBeenNthCalledWith(2);
     });
 
     it("shows, updates and hides the cooldown text", () => {
