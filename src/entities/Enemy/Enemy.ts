@@ -175,7 +175,7 @@ class Enemy extends GameObjects.Container {
         // "LvN" just left of the health bar; a container child, so it goes
         // (and is destroyed) with the enemy.
         this.level_label = config.scene.add
-            .bitmapText(-16, -31, FONTS.outline, `Lv${this.level}`, pixelFontSize(1.25))
+            .bitmapText(-16, -31, FONTS.outline, `Lv${this.level}`, pixelFontSize(2))
             .setOrigin(1, 0);
         this.add(this.level_label);
 
