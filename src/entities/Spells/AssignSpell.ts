@@ -1,6 +1,7 @@
 import AimedShot from "./AimedShot";
 import BattleStomp from "./BattleStomp";
 import BloodFurnace from "./BloodFurnace";
+import Charge from "./Charge";
 import Consecration from "./Consecration";
 import EarthShield from "./EarthShield";
 import Enrage from "./Enrage";
@@ -30,6 +31,7 @@ const classes = {
     AimedShot,
     BattleStomp,
     BloodFurnace,
+    Charge,
     Consecration,
     EarthShield,
     Enrage,

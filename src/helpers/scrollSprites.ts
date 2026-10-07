@@ -31,6 +31,7 @@ export const SPELL_ICON_NAMES: Record<SpellType, string> = {
     AimedShot: "icon_0029_aimed-shot",
     BattleStomp: "icon_0027_battle-stomp",
     BloodFurnace: "icon_0036_blood-furnace",
+    Charge: "icon_0031_charge",
     Consecration: "icon_0003_decay",
     EarthShield: "icon_0008_ki",
     Enfeeble: "icon_0028_enfeeble",

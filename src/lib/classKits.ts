@@ -10,7 +10,7 @@ export const CLASS_KITS: Record<PlayerName, readonly SpellType[]> = {
     Mage: ["Fireball", "Frostbolt", "EarthShield", "ManaShield", "Invocation"],
     Occultist: ["Fireball", "SiphonSoul", "Enfeeble", "BloodFurnace"],
     Ranger: ["SnareTrap", "Multishot", "AimedShot", "Focus"],
-    Warrior: ["Whirlwind", "Enrage", "BattleStomp", "Retaliation"],
+    Warrior: ["Whirlwind", "Enrage", "BattleStomp", "Retaliation", "Charge"],
 };
 
 // Every spell id the game knows. A Record keyed by SpellType so the compiler
@@ -19,6 +19,7 @@ const KNOWN_SPELLS: Record<SpellType, true> = {
     AimedShot: true,
     BattleStomp: true,
     BloodFurnace: true,
+    Charge: true,
     Consecration: true,
     EarthShield: true,
     Enrage: true,

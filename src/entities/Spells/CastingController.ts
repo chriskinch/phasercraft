@@ -11,6 +11,8 @@ export interface CastableSpell {
     name: string;
     targetKind: TargetKind;
     castRange?: number;
+    // Targets nearer than this can't be cast at (gap-closers like Charge).
+    minCastRange?: number;
     castTime?: number;
     channelDuration?: number;
     aoeRadius?: number;
@@ -146,10 +148,15 @@ class CastingController {
                 break;
             case "enemy": {
                 const selected = this.scene.selected;
+                // A spell with a min range only auto-casts at a target inside
+                // its [min, max] band; anything else primes for a tap.
+                const banded = spell.minCastRange !== undefined;
                 const target =
                     selected && selected.alive
-                        ? selected
-                        : this.selectClosestEnemy(spell.castRange);
+                        ? !banded || this.inBand(spell, selected)
+                            ? selected
+                            : null
+                        : this.selectClosestEnemy(spell.castRange, spell.minCastRange);
                 if (target) {
                     this.commit(spell, target);
                 } else {
@@ -200,6 +207,12 @@ class CastingController {
         if (this.primed) {
             const spell = this.primed;
             if (spell.targetKind === "enemy") {
+                // Too close: drop the prime; the tap's own selection makes the
+                // player auto-attack the enemy instead.
+                if (this.distanceTo(enemy) < (spell.minCastRange ?? 0)) {
+                    this.clearPrime();
+                    return;
+                }
                 this.primed = null;
                 this.commit(spell, enemy);
             } else if (spell.targetKind === "ground") {
@@ -287,7 +300,16 @@ class CastingController {
     // previous pick, then select() sets scene.selected), so the player
     // auto-attacks it as if it had been clicked. Returns null when no live
     // enemy is in range (or none exist, e.g. town, which has no enemies group).
-    private selectClosestEnemy(range: number = Infinity): Enemy | null {
+    private distanceTo(target: { x: number; y: number }): number {
+        return PhaserMath.Distance.Between(this.player.x, this.player.y, target.x, target.y);
+    }
+
+    private inBand(spell: CastableSpell, target: { x: number; y: number }): boolean {
+        const distance = this.distanceTo(target);
+        return distance >= (spell.minCastRange ?? 0) && distance <= (spell.castRange ?? Infinity);
+    }
+
+    private selectClosestEnemy(range: number = Infinity, minRange: number = 0): Enemy | null {
         const enemies = (this.scene.enemies?.getChildren() ?? []) as Enemy[];
         let closest: Enemy | null = null;
         let best = Infinity;
@@ -299,7 +321,7 @@ class CastingController {
                 enemy.x,
                 enemy.y
             );
-            if (distance <= range && distance < best) {
+            if (distance >= minRange && distance <= range && distance < best) {
                 best = distance;
                 closest = enemy;
             }

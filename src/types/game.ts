@@ -752,6 +752,7 @@ export type SpellType =
     | "AimedShot"
     | "BattleStomp"
     | "BloodFurnace"
+    | "Charge"
     | "Consecration"
     | "EarthShield"
     | "Enrage"
@@ -851,6 +852,18 @@ export const SPELL_DEFS: Record<SpellType, SpellDef> = {
         cost: { rage: 0, mana: 0, energy: 0 },
         targetKind: "self",
         scaling: { manaPerTick: SPELL_LEVEL_POWER },
+    },
+    Charge: {
+        name: "Charge",
+        description: "Close the distance.",
+        effect: "Rush a distant enemy, striking and briefly stunning it.",
+        classes: ["Warrior"],
+        icon_name: "icon_0031_charge",
+        cooldown: 8,
+        cost: { rage: 15, mana: 40, energy: 20 },
+        castRange: 200,
+        targetKind: "enemy",
+        scaling: { power: SPELL_LEVEL_POWER },
     },
     Consecration: {
         name: "Consecration",
@@ -1083,6 +1096,7 @@ export const SPELL_ASPECTS: Record<SpellType, readonly string[]> = {
     AimedShot: ["power"],
     BattleStomp: ["power"],
     BloodFurnace: ["duration", "hpPerTick", "manaPerTick"],
+    Charge: ["power"],
     Consecration: ["power"],
     EarthShield: ["power"],
     Enrage: [
@@ -1169,6 +1183,7 @@ export const SPELL_RECIPES: Record<SpellType, SpellRecipe> = {
     AimedShot: { materials: { cloth: 8, bone: 6 }, coins: 25, special: "void-pearl" },
     BattleStomp: { materials: { scrap: 10, bone: 5 }, coins: 25, special: "troll-heart" },
     BloodFurnace: { materials: { bone: 8, ichor: 3 }, coins: 30, special: "ember-core" },
+    Charge: { materials: { scrap: 10, bone: 5 }, coins: 25, special: "troll-heart" },
     Consecration: { materials: { cloth: 8, scrap: 4 }, coins: 30, special: "ember-core" },
     EarthShield: { materials: { cloth: 6, ichor: 3 }, coins: 30, special: "troll-heart" },
     Enrage: { materials: { scrap: 10, bone: 5 }, coins: 25, special: "ember-core" },
