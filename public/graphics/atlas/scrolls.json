@@ -960,9 +960,69 @@
                 "h": 45
             }
         },
-        "SiphonSoul_l1": {
+        "Retaliation_l1": {
             "frame": {
                 "x": 752,
+                "y": 0,
+                "w": 45,
+                "h": 45
+            },
+            "rotated": false,
+            "trimmed": false,
+            "spriteSourceSize": {
+                "x": 0,
+                "y": 0,
+                "w": 45,
+                "h": 45
+            },
+            "sourceSize": {
+                "w": 45,
+                "h": 45
+            }
+        },
+        "Retaliation_l2": {
+            "frame": {
+                "x": 752,
+                "y": 47,
+                "w": 45,
+                "h": 45
+            },
+            "rotated": false,
+            "trimmed": false,
+            "spriteSourceSize": {
+                "x": 0,
+                "y": 0,
+                "w": 45,
+                "h": 45
+            },
+            "sourceSize": {
+                "w": 45,
+                "h": 45
+            }
+        },
+        "Retaliation_l3": {
+            "frame": {
+                "x": 752,
+                "y": 94,
+                "w": 45,
+                "h": 45
+            },
+            "rotated": false,
+            "trimmed": false,
+            "spriteSourceSize": {
+                "x": 0,
+                "y": 0,
+                "w": 45,
+                "h": 45
+            },
+            "sourceSize": {
+                "w": 45,
+                "h": 45
+            }
+        },
+        "SiphonSoul_l1": {
+            "frame": {
+                "x": 799,
                 "y": 0,
                 "w": 45,
                 "h": 45
@@ -982,7 +1042,7 @@
         },
         "SiphonSoul_l2": {
             "frame": {
-                "x": 752,
+                "x": 799,
                 "y": 47,
                 "w": 45,
                 "h": 45
@@ -1002,7 +1062,7 @@
         },
         "SiphonSoul_l3": {
             "frame": {
-                "x": 752,
+                "x": 799,
                 "y": 94,
                 "w": 45,
                 "h": 45
@@ -1022,7 +1082,7 @@
         },
         "Smite_l1": {
             "frame": {
-                "x": 799,
+                "x": 846,
                 "y": 0,
                 "w": 45,
                 "h": 45
@@ -1042,7 +1102,7 @@
         },
         "Smite_l2": {
             "frame": {
-                "x": 799,
+                "x": 846,
                 "y": 47,
                 "w": 45,
                 "h": 45
@@ -1062,7 +1122,7 @@
         },
         "Smite_l3": {
             "frame": {
-                "x": 799,
+                "x": 846,
                 "y": 94,
                 "w": 45,
                 "h": 45
@@ -1082,7 +1142,7 @@
         },
         "SnareTrap_l1": {
             "frame": {
-                "x": 846,
+                "x": 893,
                 "y": 0,
                 "w": 45,
                 "h": 45
@@ -1102,7 +1162,7 @@
         },
         "SnareTrap_l2": {
             "frame": {
-                "x": 846,
+                "x": 893,
                 "y": 47,
                 "w": 45,
                 "h": 45
@@ -1122,7 +1182,7 @@
         },
         "SnareTrap_l3": {
             "frame": {
-                "x": 846,
+                "x": 893,
                 "y": 94,
                 "w": 45,
                 "h": 45
@@ -1142,7 +1202,7 @@
         },
         "Whirlwind_l1": {
             "frame": {
-                "x": 893,
+                "x": 940,
                 "y": 0,
                 "w": 45,
                 "h": 45
@@ -1162,7 +1222,7 @@
         },
         "Whirlwind_l2": {
             "frame": {
-                "x": 893,
+                "x": 940,
                 "y": 47,
                 "w": 45,
                 "h": 45
@@ -1182,7 +1242,7 @@
         },
         "Whirlwind_l3": {
             "frame": {
-                "x": 893,
+                "x": 940,
                 "y": 94,
                 "w": 45,
                 "h": 45
@@ -1206,7 +1266,7 @@
         "image": "scrolls.png",
         "format": "RGBA8888",
         "size": {
-            "w": 938,
+            "w": 985,
             "h": 139
         },
         "scale": "1"
