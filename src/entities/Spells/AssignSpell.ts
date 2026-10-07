@@ -17,6 +17,7 @@ import PowerInfusion from "./PowerInfusion";
 import SiphonSoul from "./SiphonSoul";
 import Smite from "./Smite";
 import SnareTrap from "./SnareTrap";
+import Retaliation from "./Retaliation";
 import Whirlwind from "./Whirlwind";
 import type Spell from "./Spell";
 import type { SpellOptions, SpellType } from "@/types/game";
@@ -45,6 +46,7 @@ const classes = {
     SiphonSoul,
     Smite,
     SnareTrap,
+    Retaliation,
     Whirlwind,
 } satisfies Record<SpellType, new (opts: SpellOptions) => Spell>;
 

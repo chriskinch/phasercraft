@@ -914,7 +914,7 @@ describe("abilities", () => {
                 "Whirlwind",
                 "Enrage",
                 "BattleStomp",
-                null,
+                "Retaliation",
                 null,
             ]);
             expect(gameReducer(init(), selectCharacter("Ranger")).abilityLoadout[4]).toBeNull();
