@@ -375,18 +375,31 @@ describe("SpawnDirector configurations", () => {
 const fromStart = (start: { x: number; y: number }) =>
     vi.fn((p: { x: number; y: number }) => ({ distance: distance(p, start), fraction: 0 }));
 
+// Ticks `ticks` times; each configuration that spawned, by centre and head count.
+function spawnedConfigs(d: ReturnType<typeof makeDirector>, ticks: number) {
+    const configs: { centre: { x: number; y: number }; count: number }[] = [];
+    for (let i = 0; i < ticks; i++) {
+        const before = d.spawnRegular.mock.calls.length;
+        d.director.tick();
+        const count = d.spawnRegular.mock.calls.length - before;
+        if (count > 0)
+            configs.push({ centre: vi.mocked(d.host.difficultyAt).mock.lastCall![0], count });
+    }
+    return configs;
+}
+
 describe("SpawnDirector pack odds and safe pocket", () => {
     it("ships packs at 20 at the far edge and a 1500 px safe pocket", () => {
         expect(DEFAULT_AREA_TUNING.packWeightAtEdge).toBe(20);
         expect(DEFAULT_AREA_TUNING.safeStartRadius).toBe(1500);
     });
 
-    it("reads the pack odds a spawn radius ahead of a moving player", () => {
+    it("reads the pack odds at a trial centre on the ring, ahead of a moving player", () => {
         const distanceFromStart = vi.fn((_p: { x: number; y: number }) => ({
             distance: Infinity,
             fraction: 1,
         }));
-        const { director, velocity, spawnRegular } = makeDirector(
+        const { director, player, velocity, spawnRegular } = makeDirector(
             {
                 configWeights: { group: 1, pair: 0, pack: 0 },
                 packWeightAtEdge: 1,
@@ -400,12 +413,34 @@ describe("SpawnDirector pack odds and safe pocket", () => {
 
         director.tick();
 
-        expect(distanceFromStart.mock.calls[0][0]).toEqual({ x: 5000 + RADIUS, y: 5000 });
+        const trial = distanceFromStart.mock.calls[0][0];
+        expect(distance(trial, player)).toBeCloseTo(RADIUS);
+        expect(Math.abs(offAngle(player, trial, velocity))).toBeLessThanOrEqual(Math.PI / 4);
         // At the far edge the whole group share has gone to packs.
         expect(spawnRegular).toHaveBeenCalledTimes(4);
     });
 
-    it("rolls no packs while the point ahead is inside the pocket", () => {
+    it("still spawns packs outside the pocket for a player standing inside it", () => {
+        // The player stands 200 px inside the pocket's edge; the ring reaches out of it.
+        const start = { x: 5000 - 1300, y: 5000 };
+        const d = makeDirector(
+            {
+                configWeights: { group: 0, pair: 0, pack: 1 },
+                packSize: [5, 5],
+                clusterBaseRadius: 48,
+                liveCap: 1000,
+            },
+            { distanceFromStart: fromStart(start) }
+        );
+
+        // Groups here are lone creatures: anything bigger is a pack.
+        const packs = spawnedConfigs(d, 40).filter((c) => c.count > 1);
+
+        expect(packs.length).toBeGreaterThan(0);
+        packs.forEach(({ centre }) => expect(distance(centre, start)).toBeGreaterThanOrEqual(1500));
+    });
+
+    it("rolls no packs while the trial centre is inside the pocket", () => {
         const { director, spawnRegular } = makeDirector(
             {
                 configWeights: { group: 1, pair: 0, pack: 1000 },
@@ -423,23 +458,22 @@ describe("SpawnDirector pack odds and safe pocket", () => {
     it("never centres a pack inside the pocket, though groups may be", () => {
         // The player stands just outside the pocket; the ring around them dips into it.
         const start = { x: 5000 - 1600, y: 5000 };
-        const run = (configWeights: AreaTuning["configWeights"]) => {
-            const { director, host } = makeDirector(
-                { configWeights, packSize: [3, 3], clusterBaseRadius: 48, liveCap: 1000 },
-                { distanceFromStart: fromStart(start) }
+        const run = (configWeights: AreaTuning["configWeights"]) =>
+            spawnedConfigs(
+                makeDirector(
+                    { configWeights, packSize: [3, 3], clusterBaseRadius: 48, liveCap: 1000 },
+                    { distanceFromStart: fromStart(start) }
+                ),
+                40
             );
-            for (let i = 0; i < 40; i++) director.tick();
-            return vi
-                .mocked(host.difficultyAt)
-                .mock.calls.map(([centre]) => distance(centre, start));
-        };
 
-        const packs = run({ group: 0, pair: 0, pack: 1 });
+        // Groups here are lone creatures: anything bigger is a pack.
+        const packs = run({ group: 0, pair: 0, pack: 1 }).filter((c) => c.count > 1);
         expect(packs.length).toBeGreaterThan(0);
-        packs.forEach((d) => expect(d).toBeGreaterThanOrEqual(1500));
+        packs.forEach(({ centre }) => expect(distance(centre, start)).toBeGreaterThanOrEqual(1500));
 
         const groups = run({ group: 1, pair: 0, pack: 0 });
-        expect(groups.some((d) => d < 1500)).toBe(true);
+        expect(groups.some(({ centre }) => distance(centre, start) < 1500)).toBe(true);
     });
 
     it("never counts or rolls a cell centred inside the pocket", () => {

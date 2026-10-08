@@ -269,20 +269,21 @@ export default class SpawnDirector<E extends SpawnedEnemy, Id extends string = s
     /**
      * Rolls the next configuration and spawns as many of its members as fit.
      * The kind is rolled before a centre exists (the centre's distance depends
-     * on the head count), so the pack odds (#599) are read a spawn radius
-     * ahead of the player along their travel (at the player when standing
-     * still): within a cluster radius of where the centre lands.
+     * on the head count), so the pack odds and the safe pocket (#599) are read
+     * at a trial centre sampled on the spawn ring the same way the real ones
+     * are. A pack whose real centre lands in the pocket is still turned away
+     * by `placeCluster`.
      */
     private spawnConfiguration(): void {
         const random = () => this.host.random();
-        const player = this.host.playerPosition();
-        const direction = spawnDirection(this.host.playerVelocity(), this.tuning.movingSpeed);
-        const radius = direction ? this.radius() : 0;
-        const ahead = {
-            x: player.x + (direction?.x ?? 0) * radius,
-            y: player.y + (direction?.y ?? 0) * radius,
-        };
-        const { distance, fraction } = this.host.distanceFromStart(ahead);
+        const trial = sampleSpawnPoint(
+            this.host.playerPosition(),
+            this.radius(),
+            spawnDirection(this.host.playerVelocity(), this.tuning.movingSpeed),
+            (this.tuning.coneHalfAngleDeg * Math.PI) / 180,
+            random
+        );
+        const { distance, fraction } = this.host.distanceFromStart(trial);
         const configWeights = configWeightsAt(
             this.tuning.configWeights,
             this.tuning.packWeightAtEdge,
