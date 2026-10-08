@@ -501,7 +501,7 @@ come later; until then an area never clears).
 - [x] Distance × biome difficulty scaling + `Lv N` on health bars (#596)
 - [x] Loot rarity tiers boosted by difficulty (#597)
 - [x] Species `tier` + distance-weighted species picks (#598)
-- [ ] Distance-weighted pack odds + safe start pocket (#599)
+- [x] Distance-weighted pack odds + safe start pocket (#599)
 - [ ] Debug: miniboss ramp override + overlay clusters/difficulty (#600)
 
 Follow-up: monster-parts signature loot (#601).

@@ -46,6 +46,8 @@ function makeDirector(tuning: Partial<AreaTuning> = {}, host: Partial<SpawnHost<
         pickRegular: vi.fn(() => "imp"),
         pickMiniboss: vi.fn(() => "ghoul"),
         difficultyAt: vi.fn(() => 1),
+        // Far from the start unless a test says otherwise: no safe pocket.
+        distanceFromStart: vi.fn(() => ({ distance: Infinity, fraction: 0 })),
         spawnRegular: vi.fn((id: string, at) => new FakeEnemy(at.x, at.y, id)),
         spawnMiniboss: vi.fn((id: string, at) => new FakeEnemy(at.x, at.y, `miniboss:${id}`)),
         onAreaCleared: vi.fn(),
@@ -366,6 +368,97 @@ describe("SpawnDirector configurations", () => {
             expect(distance(enemy, player)).toBeLessThanOrEqual(director.despawnRadius());
             expect(enemy.despawn).not.toHaveBeenCalled();
         });
+    });
+});
+
+// Distances from a start point; the fraction is left at the start's 0.
+const fromStart = (start: { x: number; y: number }) =>
+    vi.fn((p: { x: number; y: number }) => ({ distance: distance(p, start), fraction: 0 }));
+
+describe("SpawnDirector pack odds and safe pocket", () => {
+    it("ships packs at 20 at the far edge and a 1500 px safe pocket", () => {
+        expect(DEFAULT_AREA_TUNING.packWeightAtEdge).toBe(20);
+        expect(DEFAULT_AREA_TUNING.safeStartRadius).toBe(1500);
+    });
+
+    it("reads the pack odds a spawn radius ahead of a moving player", () => {
+        const distanceFromStart = vi.fn((_p: { x: number; y: number }) => ({
+            distance: Infinity,
+            fraction: 1,
+        }));
+        const { director, velocity, spawnRegular } = makeDirector(
+            {
+                configWeights: { group: 1, pair: 0, pack: 0 },
+                packWeightAtEdge: 1,
+                packSize: [4, 4],
+                clusterBaseRadius: 48,
+                liveCap: 50,
+            },
+            { distanceFromStart }
+        );
+        velocity.x = 100;
+
+        director.tick();
+
+        expect(distanceFromStart.mock.calls[0][0]).toEqual({ x: 5000 + RADIUS, y: 5000 });
+        // At the far edge the whole group share has gone to packs.
+        expect(spawnRegular).toHaveBeenCalledTimes(4);
+    });
+
+    it("rolls no packs while the point ahead is inside the pocket", () => {
+        const { director, spawnRegular } = makeDirector(
+            {
+                configWeights: { group: 1, pair: 0, pack: 1000 },
+                packSize: [6, 6],
+                liveCap: 100,
+            },
+            { distanceFromStart: fromStart({ x: 5000, y: 5000 }) }
+        );
+
+        for (let i = 0; i < 10; i++) director.tick();
+
+        expect(spawnRegular).toHaveBeenCalledTimes(10);
+    });
+
+    it("never centres a pack inside the pocket, though groups may be", () => {
+        // The player stands just outside the pocket; the ring around them dips into it.
+        const start = { x: 5000 - 1600, y: 5000 };
+        const run = (configWeights: AreaTuning["configWeights"]) => {
+            const { director, host } = makeDirector(
+                { configWeights, packSize: [3, 3], clusterBaseRadius: 48, liveCap: 1000 },
+                { distanceFromStart: fromStart(start) }
+            );
+            for (let i = 0; i < 40; i++) director.tick();
+            return vi
+                .mocked(host.difficultyAt)
+                .mock.calls.map(([centre]) => distance(centre, start));
+        };
+
+        const packs = run({ group: 0, pair: 0, pack: 1 });
+        expect(packs.length).toBeGreaterThan(0);
+        packs.forEach((d) => expect(d).toBeGreaterThanOrEqual(1500));
+
+        const groups = run({ group: 1, pair: 0, pack: 0 });
+        expect(groups.some((d) => d < 1500)).toBe(true);
+    });
+
+    it("never counts or rolls a cell centred inside the pocket", () => {
+        const random = vi.fn(() => 0.5);
+        const { director, player } = makeDirector(
+            { minibossChancePerCell: 1, liveCap: 0 },
+            { random, distanceFromStart: fromStart({ x: 5000, y: 5000 }) }
+        );
+
+        // Cells 10-12 east of the start cell are centred 376-1406 px out.
+        explore(director, player, 3);
+        expect(director.cellsExplored).toBe(0);
+        expect(random).not.toHaveBeenCalled();
+        expect(director.minibossActive).toBe(false);
+
+        // Cell 13 is centred ~1912 px out: it counts, and a certain roll hits.
+        explore(director, player, 1);
+        expect(random).toHaveBeenCalledTimes(1);
+        expect(director.minibossActive).toBe(true);
     });
 });
 

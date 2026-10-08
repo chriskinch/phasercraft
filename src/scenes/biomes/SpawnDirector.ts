@@ -1,5 +1,5 @@
 import { CLUSTER_MEMBER_ATTEMPTS, type AreaTuning } from "@config/area";
-import { clusterRadius, rollConfig, sampleInDisc } from "@helpers/spawnConfig";
+import { clusterRadius, configWeightsAt, rollConfig, sampleInDisc } from "@helpers/spawnConfig";
 import {
     isBeyondRadius,
     sampleSpawnPoint,
@@ -37,6 +37,10 @@ export interface SpawnHost<E extends SpawnedEnemy, Id extends string = string> {
     pickMiniboss(): Id;
     // The difficulty multiplier (#596) for a spawn at this point.
     difficultyAt(point: Point): number;
+    // How far this point is from the player's start: in world px, and as the
+    // 0-1 fraction of the furthest spawnable distance (#596) that pack odds
+    // and the safe start pocket read (#599).
+    distanceFromStart(point: Point): { distance: number; fraction: number };
     // Every member of a configuration shares its centre's difficulty.
     spawnRegular(id: Id, at: Point, difficulty: number): E;
     spawnMiniboss(id: Id, at: Point, difficulty: number): E;
@@ -234,18 +238,22 @@ export default class SpawnDirector<E extends SpawnedEnemy, Id extends string = s
 
     /**
      * Marks the player's cell visited. The first time a cell is entered (the
-     * start cell aside) with no miniboss active, it counts and rolls: a hit
+     * start cell, and any cell centred inside the safe start pocket, aside)
+     * with no miniboss active, it counts and rolls: a hit
      * picks the miniboss, which the next tick brings on, and resets the count.
      * Cells crossed while a miniboss is up are still marked, so they never
      * count later.
      */
     private explore(player: Point): void {
         const size = this.tuning.explorationCellSize;
-        const cell = `${Math.floor(player.x / size)},${Math.floor(player.y / size)}`;
+        const cx = Math.floor(player.x / size);
+        const cy = Math.floor(player.y / size);
+        const cell = `${cx},${cy}`;
         if (this.visited.has(cell)) return;
         const first = this.visited.size === 0;
         this.visited.add(cell);
         if (first || this.minibossActive) return;
+        if (this.inSafePocket({ x: (cx + 0.5) * size, y: (cy + 0.5) * size })) return;
 
         // Read before counting: the chance is for this, the next, cell.
         const chance = this.minibossChance;
@@ -258,11 +266,35 @@ export default class SpawnDirector<E extends SpawnedEnemy, Id extends string = s
         }
     }
 
-    // Rolls the next configuration and spawns as many of its members as fit.
+    /**
+     * Rolls the next configuration and spawns as many of its members as fit.
+     * The kind is rolled before a centre exists (the centre's distance depends
+     * on the head count), so the pack odds (#599) are read a spawn radius
+     * ahead of the player along their travel (at the player when standing
+     * still): within a cluster radius of where the centre lands.
+     */
     private spawnConfiguration(): void {
         const random = () => this.host.random();
-        const { ids } = rollConfig(this.tuning, () => this.host.pickRegular(), random);
-        const { centre, members } = this.placeCluster(ids);
+        const player = this.host.playerPosition();
+        const direction = spawnDirection(this.host.playerVelocity(), this.tuning.movingSpeed);
+        const radius = direction ? this.radius() : 0;
+        const ahead = {
+            x: player.x + (direction?.x ?? 0) * radius,
+            y: player.y + (direction?.y ?? 0) * radius,
+        };
+        const { distance, fraction } = this.host.distanceFromStart(ahead);
+        const configWeights = configWeightsAt(
+            this.tuning.configWeights,
+            this.tuning.packWeightAtEdge,
+            fraction,
+            distance < this.tuning.safeStartRadius
+        );
+        const { kind, ids } = rollConfig(
+            { ...this.tuning, configWeights },
+            () => this.host.pickRegular(),
+            random
+        );
+        const { centre, members } = this.placeCluster(ids, kind === "pack");
         if (!centre || members.length === 0) return;
         const difficulty = this.host.difficultyAt(centre);
         for (const { id, point, size } of members) {
@@ -279,8 +311,12 @@ export default class SpawnDirector<E extends SpawnedEnemy, Id extends string = s
      * members already placed, within `CLUSTER_MEMBER_ATTEMPTS` tries. The
      * centre that fits the most members wins (stopping early once all fit);
      * the rest of the configuration is dropped. Nothing fits: nothing spawns.
+     * A pack's centre may not lie inside the safe start pocket (#599).
      */
-    private placeCluster(ids: Id[]): {
+    private placeCluster(
+        ids: Id[],
+        outsidePocket: boolean
+    ): {
         centre: Point | null;
         members: { id: Id; point: Point; size: Size }[];
     } {
@@ -299,6 +335,10 @@ export default class SpawnDirector<E extends SpawnedEnemy, Id extends string = s
 
         for (let attempt = 0; attempt < this.tuning.attemptsPerTick; attempt++) {
             const centre = sampleSpawnPoint(player, ring, direction, half_angle, random);
+            if (outsidePocket && this.inSafePocket(centre)) {
+                this.last_attempts.push({ point: centre, ok: false });
+                continue;
+            }
             const placed: { id: Id; point: Point; size: Size; rect: Rect }[] = [];
 
             ids.forEach((id, i) => {
@@ -367,6 +407,10 @@ export default class SpawnDirector<E extends SpawnedEnemy, Id extends string = s
             if (ok) return { point, size };
         }
         return null;
+    }
+
+    private inSafePocket(point: Point): boolean {
+        return this.host.distanceFromStart(point).distance < this.tuning.safeStartRadius;
     }
 
     private overlapsLiveEnemy(rect: Rect): boolean {
