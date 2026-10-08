@@ -100,6 +100,13 @@ export default defineConfig({
                 find: /^phaser$/,
                 replacement: path.resolve(__dirname, "./node_modules/phaser/dist/phaser.esm.js"),
             },
+            // vite-plugin-pwa's virtual module, which only exists when the
+            // plugin runs. Point it at a stub so UpdateBanner is importable
+            // under test (the test vi.mocks this same id to drive the flow).
+            {
+                find: "virtual:pwa-register/react",
+                replacement: path.resolve(__dirname, "./test/stubs/pwaRegister.ts"),
+            },
             { find: "@store", replacement: path.resolve(__dirname, "./src/store") },
             { find: "@ui", replacement: path.resolve(__dirname, "./src/ui") },
             { find: "@helpers", replacement: path.resolve(__dirname, "./src/helpers") },

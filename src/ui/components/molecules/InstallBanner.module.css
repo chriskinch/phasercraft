@@ -1,13 +1,9 @@
+/* Positioning lives on `.bannerStack` in UI.module.css, which stacks this and
+   the update banner so they can never overlap. */
 .banner {
-    position: absolute;
-    /* Sit above the iOS home-indicator; falls back to a small margin. */
-    bottom: calc(env(safe-area-inset-bottom, 0px) + 0.5rem);
-    left: 0.5rem;
-    right: 0.5rem;
     /* Overlay chrome — the parent uiContainer disables pointer events, so
        re-enable them on the banner itself so the buttons can be tapped. */
     pointer-events: all;
-    z-index: 1000;
     display: flex;
     align-items: center;
     gap: 0.75rem;

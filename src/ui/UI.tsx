@@ -23,6 +23,7 @@ import MerchantModeToggle from "@components/MerchantModeToggle";
 import Save from "@components/Save";
 import Settings from "@components/Settings";
 import System from "@components/System";
+import UpdateBanner from "@components/UpdateBanner";
 import CustomDragLayer from "@components/CustomDragLayer";
 import type { RootState } from "@store";
 
@@ -195,7 +196,10 @@ const UI: React.FC = () => {
     return (
         <div className={styles.uiContainer}>
             {showHUD && <HUD />}
-            <InstallBanner />
+            <div className={styles.bannerStack}>
+                <UpdateBanner />
+                <InstallBanner />
+            </div>
             {showUi && (
                 <div className={styles.uiMain}>
                     {!isTitle && (

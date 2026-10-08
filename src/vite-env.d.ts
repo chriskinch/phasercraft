@@ -1,4 +1,5 @@
 /// <reference types="vite/client" />
+/// <reference types="vite-plugin-pwa/react" />
 
 interface ImportMetaEnv {
     /** Armory REST API base URL (e.g. "/api/armory"); unset → merchant unavailable. */
