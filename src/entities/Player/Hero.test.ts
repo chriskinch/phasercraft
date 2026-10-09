@@ -1,33 +1,50 @@
-import { describe, it, expect, vi } from "vitest";
+import { describe, it, expect } from "vitest";
 import Hero, { HERO_SCALE } from "./Hero";
 
 // Hero draws at HERO_SCALE, but its own Arcade body — the one enemies collide
 // with (Enemy.enemySpawned) — must stay the 24×32 it was before the sprite was
-// scaled up. Arcade multiplies a body's source size by the sprite's scale, so
-// the fake body below does the same.
+// scaled up, with its bottom on the scaled sprite's feet. The fake body applies
+// Arcade's own maths: size × scale, position = origin + scale × (offset − displayOrigin).
 describe("Hero.sizeBody", () => {
-    it("keeps the enemy collider at the unscaled 24x32 frame", () => {
+    function sized() {
         const hero = Object.create(Hero.prototype) as Hero;
         Object.defineProperty(hero, "width", { value: 24 });
         Object.defineProperty(hero, "height", { value: 32 });
         const body = {
-            width: 0,
-            height: 0,
-            setSize: vi.fn(function (
-                this: { width: number; height: number },
-                w: number,
-                h: number
-            ) {
-                this.width = w * HERO_SCALE;
-                this.height = h * HERO_SCALE;
-            }),
+            sourceWidth: 0,
+            sourceHeight: 0,
+            offset: { x: 0, y: 0 },
+            setSize(w: number, h: number) {
+                this.sourceWidth = w;
+                this.sourceHeight = h;
+            },
+            setOffset(x: number, y: number) {
+                this.offset = { x, y };
+            },
         };
         Object.defineProperty(hero, "body", { value: body });
-
         hero.sizeBody();
 
-        expect({ width: body.width, height: body.height }).toEqual({ width: 24, height: 32 });
-        // Centred on the sprite, as Arcade's default body was.
-        expect(body.setSize).toHaveBeenCalledWith(expect.any(Number), expect.any(Number), true);
+        // Sprite origin at (0, 0), display origin at the frame centre.
+        const left = HERO_SCALE * (body.offset.x - 24 / 2);
+        const top = HERO_SCALE * (body.offset.y - 32 / 2);
+        return {
+            left,
+            top,
+            width: body.sourceWidth * HERO_SCALE,
+            height: body.sourceHeight * HERO_SCALE,
+        };
+    }
+
+    it("keeps the enemy collider at the unscaled 24x32 frame", () => {
+        const { width, height } = sized();
+        expect({ width, height }).toEqual({ width: 24, height: 32 });
+    });
+
+    it("centres it horizontally and puts its bottom on the scaled feet", () => {
+        const { left, top, width, height } = sized();
+        expect(left + width / 2).toBe(0);
+        // Feet are half the display height below the origin.
+        expect(top + height).toBe((32 * HERO_SCALE) / 2);
     });
 });
