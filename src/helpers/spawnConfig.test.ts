@@ -1,6 +1,7 @@
 import { describe, it, expect, vi } from "vitest";
 import {
     clusterRadius,
+    configWeightsAt,
     pickKind,
     randomInt,
     rollConfig,
@@ -117,5 +118,29 @@ describe("sampleInDisc", () => {
         const p = sampleInDisc({ x: 0, y: 0 }, 60, sequence(0, 1));
         expect(p.x).toBeCloseTo(60);
         expect(p.y).toBeCloseTo(0);
+    });
+});
+
+describe("configWeightsAt", () => {
+    const BASE = TUNING.configWeights;
+
+    it("eases packs 8 → 20 from the start to the far edge, out of the groups", () => {
+        expect(configWeightsAt(BASE, 20, 0, false)).toEqual({ group: 70, pair: 22, pack: 8 });
+        expect(configWeightsAt(BASE, 20, 0.5, false)).toEqual({ group: 64, pair: 22, pack: 14 });
+        expect(configWeightsAt(BASE, 20, 1, false)).toEqual({ group: 58, pair: 22, pack: 20 });
+    });
+
+    it("clamps the fraction and never takes groups below none", () => {
+        expect(configWeightsAt(BASE, 20, 2, false)).toEqual({ group: 58, pair: 22, pack: 20 });
+        expect(configWeightsAt(BASE, 20, -1, false)).toEqual(BASE);
+        expect(configWeightsAt({ group: 1, pair: 0, pack: 0 }, 5, 1, false)).toEqual({
+            group: 0,
+            pair: 0,
+            pack: 5,
+        });
+    });
+
+    it("has no packs inside the safe pocket, groups and pairs unchanged", () => {
+        expect(configWeightsAt(BASE, 20, 1, true)).toEqual({ group: 70, pair: 22, pack: 0 });
     });
 });

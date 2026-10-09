@@ -41,6 +41,17 @@ export const GROUP_SIZE: [number, number] = [1, 3];
 export const PACK_SIZE: [number, number] = [5, 10];
 export const PACK_MIXED_CHANCE = 0.7;
 
+// Packs get commoner further out (#599): the pack weight above is the one at
+// the player's start, easing linearly to this at the furthest spawnable point,
+// the difference taken from the small groups (70/22/8 at the start, 58/22/20
+// at the far edge).
+export const PACK_WEIGHT_AT_EDGE = 20;
+
+// A safe pocket around the player's start (#599), in world px: no pack spawns
+// with its centre inside it, and exploration cells whose centre lies inside it
+// never count towards the miniboss. Groups and pairs spawn as usual.
+export const SAFE_START_RADIUS = 1500;
+
 // A configuration's members scatter around its centre within this radius × the
 // square root of the head count (48 px alone, about 150 px for a pack of 10).
 // The whole circle sits beyond the spawn radius, so no member is seen arriving.
@@ -87,6 +98,8 @@ export interface AreaTuning {
     groupSize: [number, number];
     packSize: [number, number];
     packMixedChance: number;
+    packWeightAtEdge: number;
+    safeStartRadius: number;
     clusterBaseRadius: number;
     liveCap: number;
     spawnIntervalMs: number;
@@ -106,6 +119,8 @@ export const DEFAULT_AREA_TUNING: Readonly<AreaTuning> = {
     groupSize: GROUP_SIZE,
     packSize: PACK_SIZE,
     packMixedChance: PACK_MIXED_CHANCE,
+    packWeightAtEdge: PACK_WEIGHT_AT_EDGE,
+    safeStartRadius: SAFE_START_RADIUS,
     clusterBaseRadius: CLUSTER_BASE_RADIUS,
     liveCap: AREA_LIVE_CAP,
     spawnIntervalMs: SPAWN_INTERVAL_MS,

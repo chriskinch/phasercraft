@@ -920,6 +920,10 @@ export default class BiomeScene extends Scene {
             pickRegular: () => this.pickFromPool(),
             pickMiniboss: () => this.pickFromPool(),
             difficultyAt: (point) => this.difficultyAt(point),
+            distanceFromStart: (point) => ({
+                distance: Math.hypot(point.x - this.player_start.x, point.y - this.player_start.y),
+                fraction: this.difficultyContextAt(point).fraction,
+            }),
             spawnRegular: (id, at, difficulty) => this.spawnEnemy(id, at, difficulty),
             spawnMiniboss: (id, at, difficulty) => this.spawnMiniboss(id, at, difficulty),
             onAreaCleared: () => this.areaCleared(),

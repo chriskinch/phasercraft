@@ -43,6 +43,25 @@ export function pickKind(
 }
 
 /**
+ * The configuration weights at distance `fraction` from the player's start
+ * (#599): the pack weight eases linearly from `weights.pack` at 0 to
+ * `packAtEdge` at 1, the difference taken from the small groups (never below
+ * none); pairs keep theirs. Inside the safe start pocket there are no packs.
+ */
+export function configWeightsAt(
+    weights: Record<SpawnConfigKind, number>,
+    packAtEdge: number,
+    fraction: number,
+    inSafePocket: boolean
+): Record<SpawnConfigKind, number> {
+    if (inSafePocket) return { ...weights, pack: 0 };
+    const f = Math.min(Math.max(fraction, 0), 1);
+    const pack = weights.pack + (packAtEdge - weights.pack) * f;
+    const group = Math.max(weights.group - (pack - weights.pack), 0);
+    return { group, pair: weights.pair, pack };
+}
+
+/**
  * The next configuration. A small group draws every member from the pool; a
  * pair is two of one creature; a pack is one creature throughout, or (at
  * `packMixedChance`) each member drawn separately.
