@@ -33,6 +33,8 @@ export interface Settings {
     spawnRadiusOverride: number;
     liveCapOverride: number;
     despawnDelaySeconds: number;
+    // Miniboss chance per new exploration cell, in whole % (#600).
+    minibossChancePerCellOverride: number;
     // Sound effect volume, 0–100; 0 mutes them. Read on every play, so a change
     // applies straight away (see services/sfx.ts).
     sfxVolume: number;
@@ -49,6 +51,7 @@ export const DEFAULT_SETTINGS: Settings = {
     spawnRadiusOverride: 0,
     liveCapOverride: 0,
     despawnDelaySeconds: 0,
+    minibossChancePerCellOverride: 0,
     sfxVolume: 70,
 };
 
@@ -69,6 +72,7 @@ export function withGodModeGate(settings: Settings): Settings {
         spawnRadiusOverride: DEFAULT_SETTINGS.spawnRadiusOverride,
         liveCapOverride: DEFAULT_SETTINGS.liveCapOverride,
         despawnDelaySeconds: DEFAULT_SETTINGS.despawnDelaySeconds,
+        minibossChancePerCellOverride: DEFAULT_SETTINGS.minibossChancePerCellOverride,
     };
 }
 

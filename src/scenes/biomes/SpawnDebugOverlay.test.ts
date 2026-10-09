@@ -3,6 +3,7 @@ import type { Scene } from "phaser";
 import SpawnDebugOverlay, {
     coneEdges,
     countdownLabel,
+    multiplierLabel,
     type OverlayEnemy,
 } from "./SpawnDebugOverlay";
 import type { SpawnDebugView } from "./SpawnDirector";
@@ -20,6 +21,9 @@ function fakeGraphics() {
         beginPath: vi.fn(() => g),
         arc: vi.fn(() => g),
         strokePath: vi.fn(() => g),
+        fillStyle: vi.fn(() => g),
+        fillRect: vi.fn(() => g),
+        strokeRect: vi.fn(() => g),
         destroy: vi.fn(),
     };
     return g;
@@ -67,6 +71,9 @@ function makeOverlay(view: Partial<SpawnDebugView<OverlayEnemy>> = {}) {
         despawnDelayMs: 20000,
         enemies: [],
         attempts: [],
+        clusters: [],
+        exploration: { cellSize: 512, cells: [] },
+        safePocket: { centre: { x: 0, y: 0 }, radius: 1500 },
         ...view,
     };
     const source = { debugView: vi.fn(() => current) };
@@ -143,33 +150,117 @@ describe("SpawnDebugOverlay.draw", () => {
 
     it("labels an enemy whose despawn clock is running, above its head", () => {
         const enemy = { x: 1400, y: 1000, height: 30 };
-        const { overlay, texts } = makeOverlay({ enemies: [{ enemy, beyondMs: 5000 }] });
+        const { overlay, texts } = makeOverlay({
+            enemies: [{ enemy, beyondMs: 5000, difficulty: 1 }],
+        });
 
         overlay.draw(player);
 
-        expect(texts).toHaveLength(1);
+        // The countdown, and the multiplier under its feet.
+        expect(texts).toHaveLength(2);
         expect(texts[0].text).toBe("15.0s");
         expect(texts[0].setPosition).toHaveBeenCalledWith(1400, 970);
     });
 
     it("hides the label while the enemy is back in range, and reuses it", () => {
         const enemy = { x: 1400, y: 1000, height: 30 };
-        const { overlay, texts, setView } = makeOverlay({ enemies: [{ enemy, beyondMs: 5000 }] });
+        const { overlay, texts, setView } = makeOverlay({
+            enemies: [{ enemy, beyondMs: 5000, difficulty: 1 }],
+        });
         overlay.draw(player);
 
-        setView({ enemies: [{ enemy, beyondMs: 0 }] });
+        setView({ enemies: [{ enemy, beyondMs: 0, difficulty: 1 }] });
         overlay.draw(player);
         expect(texts[0].visible).toBe(false);
 
-        setView({ enemies: [{ enemy, beyondMs: 1000 }] });
+        setView({ enemies: [{ enemy, beyondMs: 1000, difficulty: 1 }] });
         overlay.draw(player);
-        expect(texts).toHaveLength(1);
+        expect(texts).toHaveLength(2);
         expect(texts[0].visible).toBe(true);
     });
 
     it("destroys the label of an enemy that is no longer tracked", () => {
         const enemy = { x: 1400, y: 1000, height: 30 };
-        const { overlay, texts, setView } = makeOverlay({ enemies: [{ enemy, beyondMs: 5000 }] });
+        const { overlay, texts, setView } = makeOverlay({
+            enemies: [{ enemy, beyondMs: 5000, difficulty: 1 }],
+        });
+        overlay.draw(player);
+
+        setView({ enemies: [] });
+        overlay.draw(player);
+
+        expect(texts[0].destroy).toHaveBeenCalledTimes(1);
+    });
+});
+
+describe("multiplierLabel", () => {
+    it("shows the multiplier to two decimals", () => {
+        expect(multiplierLabel(1)).toBe("x1.00");
+        expect(multiplierLabel(2.456)).toBe("x2.46");
+    });
+});
+
+describe("SpawnDebugOverlay.draw (#600)", () => {
+    it("draws each recent configuration's cluster circle", () => {
+        const { overlay, graphics } = makeOverlay({
+            clusters: [
+                { centre: { x: 1500, y: 1000 }, radius: 48 },
+                { centre: { x: 500, y: 900 }, radius: 120 },
+            ],
+        });
+
+        overlay.draw(player);
+
+        expect(graphics.strokeCircle).toHaveBeenCalledWith(1500, 1000, 48);
+        expect(graphics.strokeCircle).toHaveBeenCalledWith(500, 900, 120);
+    });
+
+    it("draws the safe pocket around the start", () => {
+        const { overlay, graphics } = makeOverlay({
+            safePocket: { centre: { x: 200, y: 300 }, radius: 1500 },
+        });
+
+        overlay.draw(player);
+
+        expect(graphics.strokeCircle).toHaveBeenCalledWith(200, 300, 1500);
+    });
+
+    it("shades every visited exploration cell", () => {
+        const { overlay, graphics } = makeOverlay({
+            exploration: {
+                cellSize: 512,
+                cells: [
+                    { x: 0, y: 0 },
+                    { x: 512, y: 0 },
+                ],
+            },
+        });
+
+        overlay.draw(player);
+
+        expect(graphics.fillRect).toHaveBeenCalledTimes(2);
+        expect(graphics.fillRect).toHaveBeenCalledWith(512, 0, 512, 512);
+    });
+
+    it("labels every tracked enemy with its multiplier, at its feet", () => {
+        const enemy = { x: 1400, y: 1000, height: 30 };
+        const { overlay, texts } = makeOverlay({
+            enemies: [{ enemy, beyondMs: 0, difficulty: 1.5 }],
+        });
+
+        overlay.draw(player);
+
+        // No countdown while in range: the only label is the multiplier.
+        expect(texts).toHaveLength(1);
+        expect(texts[0].text).toBe("x1.50");
+        expect(texts[0].setPosition).toHaveBeenCalledWith(1400, 1000);
+    });
+
+    it("destroys an untracked enemy's multiplier label", () => {
+        const enemy = { x: 1400, y: 1000, height: 30 };
+        const { overlay, texts, setView } = makeOverlay({
+            enemies: [{ enemy, beyondMs: 0, difficulty: 1.5 }],
+        });
         overlay.draw(player);
 
         setView({ enemies: [] });
@@ -182,13 +273,16 @@ describe("SpawnDebugOverlay.draw", () => {
 describe("SpawnDebugOverlay.cleanup", () => {
     it("destroys the graphics and every label", () => {
         const enemy = { x: 1400, y: 1000, height: 30 };
-        const { overlay, graphics, texts } = makeOverlay({ enemies: [{ enemy, beyondMs: 5000 }] });
+        const { overlay, graphics, texts } = makeOverlay({
+            enemies: [{ enemy, beyondMs: 5000, difficulty: 1 }],
+        });
         overlay.draw(player);
 
         overlay.cleanup();
 
         expect(graphics.destroy).toHaveBeenCalledTimes(1);
         expect(texts[0].destroy).toHaveBeenCalledTimes(1);
+        expect(texts[1].destroy).toHaveBeenCalledTimes(1);
     });
 
     it("is idempotent, and drawing after cleanup does nothing", () => {

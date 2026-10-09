@@ -28,7 +28,11 @@ const toNonNegativeInt = (value: string): number => {
     return Number.isFinite(parsed) && parsed > 0 ? parsed : 0;
 };
 
-type SpawnNumberField = "spawnRadiusOverride" | "liveCapOverride" | "despawnDelaySeconds";
+type SpawnNumberField =
+    | "spawnRadiusOverride"
+    | "liveCapOverride"
+    | "despawnDelaySeconds"
+    | "minibossChancePerCellOverride";
 
 // The radius has no fixed default: it is derived from the viewport so enemies
 // spawn just off screen. Show what that works out to for this window (the game
@@ -70,6 +74,12 @@ const SPAWN_FIELDS: {
         label: "Despawn delay (s)",
         defaultValue: () => DEFAULT_AREA_TUNING.despawnDelayMs / 1000,
         hint: `Default: ${DEFAULT_AREA_TUNING.despawnDelayMs / 1000}`,
+    },
+    {
+        field: "minibossChancePerCellOverride",
+        label: "Miniboss % per cell",
+        defaultValue: () => DEFAULT_AREA_TUNING.minibossChancePerCell * 100,
+        hint: `Default: ${DEFAULT_AREA_TUNING.minibossChancePerCell * 100}`,
     },
 ];
 
