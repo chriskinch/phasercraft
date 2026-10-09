@@ -8,8 +8,8 @@ interface HeroConfig {
 /**
  * Render scale for the player sprite. The class sheets are 24×32 cells of 16×24
  * art, which reads small against the tilesets; `pixelArt: true` means nearest
- * filtering, so an integer scale stays crisp. Player sizes its collision box
- * from the unscaled frame, so this is display only.
+ * filtering, so an integer scale stays crisp. Player keeps its collision box at
+ * the unscaled frame size, but positions it at the scaled sprite's feet.
  */
 export const HERO_SCALE = 2;
 

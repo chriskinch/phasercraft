@@ -397,9 +397,9 @@ describe("Player.retaliate", () => {
     });
 });
 
-// HERO_SCALE is display only: Hero draws at 2x, but the collision box has to
-// stay the size it was before the sprite was scaled up, or the player's hitbox
-// quadruples. setCollisionBox() reads the frame (hero.width/height) rather than
+// Hero draws at HERO_SCALE, but the collision box has to stay the size it was
+// before the sprite was scaled up, or the player's hitbox quadruples; only its
+// position follows the scaled feet. setCollisionBox() reads the frame (hero.width/height) rather than
 // getBounds(), which carries the scale — this pins that distinction.
 describe("setCollisionBox", () => {
     interface Sized {
