@@ -1,5 +1,6 @@
 import React from "react";
-import { SPELL_DEFS, SPELL_LEVEL_POWER } from "@/types/game";
+import { SPELL_DEFS } from "@/types/game";
+import { levelSummary } from "@/lib/levelScaling";
 import type { SpellCost, SpellLevel, SpellType } from "@/types/game";
 import styles from "./AbilityCard.module.css";
 
@@ -49,6 +50,8 @@ const AbilityCard: React.FC<AbilityCardProps> = ({
 
     const def = SPELL_DEFS[spell];
     const next = level < MAX_LEVEL ? ((level + 1) as SpellLevel) : null;
+    // Hidden at max level and for spells with no level scaling.
+    const nextSummary = next ? levelSummary(spell, next) : "";
 
     return (
         <section
@@ -80,9 +83,9 @@ const AbilityCard: React.FC<AbilityCardProps> = ({
                     <dd>{formatRange(spell)}</dd>
                 </div>
             </dl>
-            {next && (
+            {next && nextSummary && (
                 <p className={styles.next}>
-                    Next: L{next} · {Math.round(SPELL_LEVEL_POWER[next] * 100)}% power
+                    Next: L{next} · {nextSummary}
                 </p>
             )}
         </section>

@@ -150,6 +150,23 @@ tab tooltip. White, 5 px border in the level colour (grey / green / blue).
   instantiating a Phaser object; the spell classes read from `SPELL_DEFS` instead
   (single source of truth). `classes` is a list because Fireball is shared by Mage and
   Occultist.
+- **Level scaling (#387)** — `SpellDef.scaling` (required): aspect → `{1,2,3}` multiplier
+  curve; `SPELL_ASPECTS[spell]` lists the aspects a spell can scale (`power` for
+  `setValue()` damage/healing, `duration`, buff/bane stat keys, per-tick amounts, trap
+  damage). Unlisted aspects keep their L1 value; cost and cooldown never scale. **Every
+  new ability must define its scaling** as part of its spec (maintainer picks aspects +
+  curve). The ability card's "Next" line lists the scaled aspects.
+- **Spell recipes (#580)** — `SPELL_RECIPES: Record<SpellType, SpellRecipe>` (required;
+  `{ materials, coins, special }`). At the Arcanum (town only, any class):
+    - **Trade** 1 scroll (any level, consumed) → learn that spell's recipe
+      (`spellRecipes`).
+    - **Craft** a learnt recipe → 1 **L1** scroll; costs its components, coins and its
+      one **mandatory** special item. Scrolls are never craft inputs.
+    - **Dispel** a scroll of a learnt spell → its components + special ×3 per
+      level above L1 (L1 ×1, L2 ×3, L3 ×9) for a flat `SCROLL_DISPEL_COST`; the
+      recipe's coins are not refunded.
+    - Guards and hints: `src/lib/spellCraft.ts`. **Every new ability must define its
+      recipe.** Later: a **Fuse** tab (2 spells + 1 legendary, #583).
 - `PASSIVE_DEFS: Record<PassiveType, PassiveDef>` — empty registry; `PassiveType` a
   string-literal union to be filled later.
 - Store (`GameState`, persisted):
@@ -158,9 +175,12 @@ tab tooltip. White, 5 px border in the level colour (grey / green / blue).
       unread scroll items; a 0 count is removed (like `specials`).
     - `abilityLoadout: (SpellType | null)[]` — length 5.
     - `passiveLoadout: (PassiveType | null)[]` — length 5, all `null`.
+    - `spellRecipes: SpellType[]` — Arcanum recipes learnt by Trade (#580); new
+      characters and older saves know none.
 - Actions: `readScroll(spell, level)` (learn/upgrade + auto-equip), `equipAbility(slot,
 spell | null)` (swap semantics; refused outside town), `sellScroll(spell, level,
-count)`. Combining is #386's `combineScrolls`.
+count)`. Combining is #386's `combineScrolls`; crafting is `tradeScroll`,
+  `craftSpell`, `dispelScroll` (#580).
 - Runtime: `Player` builds spells from `abilityLoadout` + `learnedSpells` instead of
   the class `abilities` array (which becomes the seed source only). Mid-run
   auto-equip/upgrade: the scene listens for the change and spawns/updates the one

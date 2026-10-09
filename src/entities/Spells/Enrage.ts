@@ -1,5 +1,6 @@
 import Boon from "./Boon";
 import { spellDefDefaults } from "@/types/game";
+import { levelFactor, scaleEffect } from "@/lib/levelScaling";
 import type { SpellOptions } from "@/types/game";
 import type { EffectValue } from "@entities/UI/StatusEffects";
 
@@ -18,6 +19,9 @@ class Enrage extends Boon {
     public duration: number;
     public value: EnrageValue;
     public timer!: Phaser.Time.TimerEvent;
+    // L1 values; applyLevel() derives duration/value from them.
+    private baseDuration!: number;
+    private baseValue!: EnrageValue;
 
     constructor(config: SpellOptions) {
         const defaults = {
@@ -44,6 +48,14 @@ class Enrage extends Boon {
             health_regen_value: (bs: number) => bs,
             health_regen_rate: -0.25,
         };
+        this.baseDuration = this.duration;
+        this.baseValue = this.value;
+        this.applyLevel();
+    }
+
+    applyLevel(): void {
+        this.duration = this.baseDuration * levelFactor(this.spellType, "duration", this.level);
+        this.value = scaleEffect(this.spellType, this.baseValue, this.level);
     }
 
     effect(): void {

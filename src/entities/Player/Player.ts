@@ -50,6 +50,12 @@ interface DrawBarOptions {
     depth: number;
 }
 
+export interface IncomingDamage {
+    damage: number;
+    attackType?: CombatType;
+    attacker?: Enemy;
+}
+
 class Player extends GameObjects.Container {
     public classification: string;
     public name: string;
@@ -75,6 +81,8 @@ class Player extends GameObjects.Container {
     private slotted: (SlottedSpell | null)[] = [];
     public mouse!: Phaser.Input.Pointer;
     public dragging!: boolean;
+    // Set while a Charge dash owns the player's position; pauses the auto-attack chase.
+    public dashing = false;
     public attack_delay!: Phaser.Time.TimerEvent | null;
     public swing: Phaser.Time.TimerEvent | null = null;
     public body!: Physics.Arcade.Body;
@@ -319,7 +327,8 @@ class Player extends GameObjects.Container {
         // Drive any queued walk-into-range cast; wind-ups/channels root the
         // player and pause the auto-attack chase until they resolve.
         this.casting.update();
-        if ((this.scene as GameSceneLike).selected && !this.casting.isCasting()) this.goToRange();
+        if ((this.scene as GameSceneLike).selected && !this.casting.isCasting() && !this.dashing)
+            this.goToRange();
 
         // Self cast key
         if (keys.space.isDown) {
@@ -407,15 +416,44 @@ class Player extends GameObjects.Container {
         this.alive = false;
     }
 
-    hit(power: number, attackType?: CombatType): void {
-        const damage = Math.ceil(power * (100 / (100 + (this.stats.defence || 0))));
+    hit(power: number, attackType?: CombatType, attacker?: Enemy): void {
+        this.retaliate(attacker);
+        // Listeners (e.g. Retaliation) may lower `damage` before it is applied.
+        const incoming: IncomingDamage = {
+            damage: Math.ceil(power * (100 / (100 + (this.stats.defence || 0)))),
+            attackType,
+            attacker,
+        };
         this.scene.events.emit("player:attacked", this);
+        this.scene.events.emit("player:damaged", incoming);
+        const { damage } = incoming;
         const hasShield = "hasShield" in this.shield && this.shield.hasShield();
         const pool = hasShield ? this.shield : this.health;
         // Forward the attacker's combat type so the caster can decide whether
         // the hit interrupts (channelled spells ignore ranged attacks).
         if (!hasShield) this.scene.events.emit("player:hit", this, attackType);
         pool.adjustValue(-damage);
+    }
+
+    // Auto-target the first enemy to hit the player from within the player's
+    // own auto-attack range (so a Ranger retaliates further out). Only with no
+    // live target: an existing target, picked or auto, is never switched.
+    // Only while idle: a drag- or click-move in progress is never interrupted
+    // (goToRange would otherwise override it).
+    retaliate(attacker?: Enemy): void {
+        if (!attacker || !this.alive || !attacker.alive) return;
+        if (this.dragging || this.body.speed > 0) return;
+        const selected = (this.scene as GameSceneLike).selected;
+        if (selected?.alive) return;
+        if (!this.inAttackRange(attacker)) return;
+        selected?.deselect();
+        attacker.select();
+    }
+
+    // The auto-attack reach check goToRange uses (15px allowance for bodies).
+    inAttackRange(target: { x: number; y: number }): boolean {
+        const distance = PhaserMath.Distance.Between(target.x, target.y, this.x, this.y);
+        return distance - 15 <= (this.stats.range || 0);
     }
 
     idle(): void {
@@ -439,10 +477,7 @@ class Player extends GameObjects.Container {
         // scrolling, because at scroll 0 the conversion is the identity. Note
         // the distance check below has always read target.x/y raw.
         this.moveToWorldPoint(target);
-        let distance = PhaserMath.Distance.Between(target.x, target.y, this.x, this.y);
-        let hit_distance = distance - 15;
-
-        if (hit_distance <= (this.stats.range || 0)) {
+        if (this.inAttackRange(target)) {
             this.idle();
             this.attack_delay = null;
             if (this.attack_ready) this.attack(target);

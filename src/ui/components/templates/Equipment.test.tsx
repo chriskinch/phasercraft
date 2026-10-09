@@ -260,6 +260,13 @@ describe("Equipment template", () => {
             expect(screen.queryByTestId("sell-value")).not.toBeInTheDocument();
         });
 
+        // Merging is Arcanum-only (#580): the inventory never offers it.
+        it("has no Merge control, even with 3 of a stack", () => {
+            openScrolls({ scrolls: { Fireball: { 1: 3 } } });
+            fireEvent.click(screen.getByRole("button", { name: "Fireball Scroll L1 ×3" }));
+            expect(screen.queryByRole("button", { name: /merge/i })).not.toBeInTheDocument();
+        });
+
         it("Learn learns the spell, auto-equips it, decrements the stack and toasts", () => {
             openScrolls({ scrolls: { Fireball: { 1: 2 } } });
             fireEvent.click(screen.getByRole("button", { name: "Fireball Scroll L1 ×2" }));

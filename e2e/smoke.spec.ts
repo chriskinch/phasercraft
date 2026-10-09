@@ -70,22 +70,7 @@ test.describe("Phasercraft smoke", () => {
         await expect(page.locator("#phaser-game canvas")).toBeAttached();
     });
 
-    // ── Flow 3: area progress ────────────────────────────────────────────────
-    //
-    // The enemy readout ("Enemies: N" / "BOSS") is drawn by a Phaser
-    // GameObjects.Text on the canvas (src/entities/UI/HUD.ts), and the React HUD
-    // overlay shows only level info. There is no DOM node carrying the count, and
-    // the store is not exposed on `window`, so a DOM-level assertion that the
-    // area started/counted down is not reachable headlessly without a production
-    // hook (a synced DOM mirror or a window-exposed store) — out of scope here.
-    // Deferred deliberately, not skipped for flake.
-    test.fixme("area starts: HUD enemy readout appears/counts down", async () => {
-        // Needs either a data-testid mirror of state.game.enemiesRemaining in the
-        // React HUD, or `window.store` exposed in dev/test builds. Tracked for a
-        // follow-up that adds a minimal, flagged production hook.
-    });
-
-    // ── Flow 4: save/load roundtrip ──────────────────────────────────────────
+    // ── Flow 3: save/load roundtrip ──────────────────────────────────────────
     test("save/load roundtrip: a seeded save is restored from localStorage", async ({ page }) => {
         const slot = "slot_a";
         const LEVEL = 7;
@@ -121,7 +106,7 @@ test.describe("Phasercraft smoke", () => {
         expect(JSON.parse(persisted as string).game.level.currentLevel).toBe(LEVEL);
     });
 
-    // ── Flow 5: component stacks survive the save roundtrip ──────────────────
+    // ── Flow 4: component stacks survive the save roundtrip ──────────────────
     //
     // The inventory overhaul (#397) added a `components` slice to the save shape.
     // This asserts the end-to-end persistence contract: a save carrying component
@@ -153,7 +138,7 @@ test.describe("Phasercraft smoke", () => {
         expect(game.components[0]).toMatchObject({ type: "scrap", quantity: 42 });
     });
 
-    // ── Flow 6: components tab paginate + sell (canvas-gated) ────────────────
+    // ── Flow 5: components tab paginate + sell (canvas-gated) ────────────────
     //
     // The Gear|Components tabs live in the Equipment overlay, which is opened
     // in-run by a Phaser HUD pointerdown dispatching toggleUi("equipment")

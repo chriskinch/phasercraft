@@ -806,3 +806,63 @@ describe("CastingController.cleanup", () => {
         expect(controller.getState()).toBe("idle");
     });
 });
+
+describe("CastingController min cast range (Charge)", () => {
+    const charge = () => makeSpell("enemy", { castRange: 200, minCastRange: 80 });
+
+    it.each([
+        ["inside min range", 50],
+        ["outside max range", 300],
+    ])("primes when the selected target is %s", (_label, x) => {
+        const controller = makeController();
+        const spell = charge();
+        controller.scene.selected = makeEnemy(x, 0);
+        controller.request(spell);
+        expect(spell.castSpell).not.toHaveBeenCalled();
+        expect(controller.getState()).toBe("primed");
+    });
+
+    it("casts at a selected target inside the band", () => {
+        const controller = makeController();
+        const spell = charge();
+        const enemy = makeEnemy(150, 0);
+        controller.scene.selected = enemy;
+        controller.request(spell);
+        expect(spell.castSpell).toHaveBeenCalledWith(enemy);
+    });
+
+    it("auto-selects only enemies inside the band", () => {
+        const controller = makeController();
+        const spell = charge();
+        const near = makeEnemy(40, 0);
+        const banded = makeEnemy(120, 0);
+        controller.scene.enemies = { getChildren: () => [near, banded] };
+        controller.request(spell);
+        expect(near.select).not.toHaveBeenCalled();
+        expect(spell.castSpell).toHaveBeenCalledWith(banded);
+    });
+
+    it("primed tap beyond max range walks into range then casts", () => {
+        const controller = makeController();
+        const spell = charge();
+        controller.request(spell);
+        const far = makeEnemy(300, 0);
+        controller.onEnemyTap(far);
+        expect(controller.getState()).toBe("approaching");
+        controller.update();
+        expect(controller.player.moveToWorldPoint).toHaveBeenCalledWith(far);
+        controller.player.x = 150;
+        controller.update();
+        expect(spell.castSpell).toHaveBeenCalledWith(far);
+    });
+
+    it("primed tap inside min range unprimes without casting", () => {
+        const controller = makeController();
+        const spell = charge();
+        controller.request(spell);
+        controller.onEnemyTap(makeEnemy(50, 0));
+        expect(spell.castSpell).not.toHaveBeenCalled();
+        expect(controller.getState()).toBe("idle");
+        expect(spell.onPrimeCleared).toHaveBeenCalled();
+    });
+});

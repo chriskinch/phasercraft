@@ -116,11 +116,9 @@ export default class TownScene extends Scene {
         this.zone = safe_zone.zone;
         this.release_safe_zone = safe_zone.release;
 
-        // Town is a non-combat hub, so hide the spell slots and the whole combat
-        // readout — both the enemy counter and the coin purse.
+        // Town is a non-combat hub, so hide the spell slots and the coin purse.
         this.UI = new UI(this, {
             showSpellFrames: false,
-            showEnemyCount: false,
             showCoinCount: false,
         });
 

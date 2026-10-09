@@ -4,7 +4,8 @@ import { defineConfig } from "@playwright/test";
 // playwright.config.ts so neither the smoke nor the nightly full E2E run picks
 // these up. Two projects:
 //   frame-time  (#526) report only: records numbers, never asserts on them.
-//   equivalence (#527) asserts: seeded replays must match the goldens.
+//   equivalence (#527) asserts: seeded replays must match goldens recorded
+//               from the base commit.
 
 const PORT = Number(process.env.PERF_PORT ?? 3100);
 const baseURL = `http://localhost:${PORT}`;

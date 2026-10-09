@@ -31,8 +31,8 @@ const toNonNegativeInt = (value: string): number => {
 type SpawnNumberField =
     | "spawnRadiusOverride"
     | "liveCapOverride"
-    | "killsToBossOverride"
-    | "despawnDelaySeconds";
+    | "despawnDelaySeconds"
+    | "minibossChancePerCellOverride";
 
 // The radius has no fixed default: it is derived from the viewport so enemies
 // spawn just off screen. Show what that works out to for this window (the game
@@ -70,16 +70,16 @@ const SPAWN_FIELDS: {
         hint: `Default: ${DEFAULT_AREA_TUNING.liveCap}`,
     },
     {
-        field: "killsToBossOverride",
-        label: "Kills to boss",
-        defaultValue: () => DEFAULT_AREA_TUNING.killsToBoss,
-        hint: `Default: ${DEFAULT_AREA_TUNING.killsToBoss}`,
-    },
-    {
         field: "despawnDelaySeconds",
         label: "Despawn delay (s)",
         defaultValue: () => DEFAULT_AREA_TUNING.despawnDelayMs / 1000,
         hint: `Default: ${DEFAULT_AREA_TUNING.despawnDelayMs / 1000}`,
+    },
+    {
+        field: "minibossChancePerCellOverride",
+        label: "Miniboss % per cell",
+        defaultValue: () => DEFAULT_AREA_TUNING.minibossChancePerCell * 100,
+        hint: `Default: ${DEFAULT_AREA_TUNING.minibossChancePerCell * 100}`,
     },
 ];
 
@@ -154,8 +154,9 @@ const Settings: React.FC = () => {
         setSettings(next);
     };
 
-    const toggle = (field: "debug" | "spawnDebugOverlay" | "starterItems") => () =>
-        update({ [field]: !settings[field] });
+    const toggle =
+        (field: "debug" | "spawnDebugOverlay" | "minibossDebugReadout" | "starterItems") => () =>
+            update({ [field]: !settings[field] });
 
     // Switching God mode off also switches off everything behind it, so no hidden
     // debug setting keeps taking effect. Anything a game already received (e.g.
@@ -243,6 +244,14 @@ const Settings: React.FC = () => {
                                 "Spawn overlay",
                                 settings.spawnDebugOverlay,
                                 toggle("spawnDebugOverlay"),
+                                undefined,
+                                `${styles.row} ${styles.nested}`
+                            )}
+                        {settings.debug &&
+                            toggleRow(
+                                "Miniboss chance",
+                                settings.minibossDebugReadout,
+                                toggle("minibossDebugReadout"),
                                 undefined,
                                 `${styles.row} ${styles.nested}`
                             )}

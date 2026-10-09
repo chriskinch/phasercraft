@@ -1,8 +1,8 @@
 import { describe, it, expect, vi } from "vitest";
 import type { Scene } from "phaser";
-import BossRoar, { roarPosition, ROAR_ABOVE_BOSS, ROAR_EDGE_MARGIN } from "./BossRoar";
+import MinibossRoar, { roarPosition, ROAR_ABOVE_MINIBOSS, ROAR_EDGE_MARGIN } from "./MinibossRoar";
 
-// roarPosition is pure screen geometry; BossRoar itself is tested against a
+// roarPosition is pure screen geometry; MinibossRoar itself is tested against a
 // fake scene at the entity seam (text, tween chain and the scene emitter).
 
 const view = { width: 800, height: 600 };
@@ -11,15 +11,15 @@ const player = { x: 400, y: 300 };
 const pad = { x: 70, y: 40 };
 
 describe("roarPosition", () => {
-    // Each boss sits far off screen in one of the eight directions; the word
+    // Each miniboss sits far off screen in one of the eight directions; the word
     // lands where that direction meets the padded edge.
     it.each([
         ["right", { x: 2000, y: 300 }, { x: 800 - pad.x, y: 300 }],
         ["left", { x: -2000, y: 300 }, { x: pad.x, y: 300 }],
         ["below", { x: 400, y: 2000 }, { x: 400, y: 600 - pad.y }],
         ["above", { x: 400, y: -2000 }, { x: 400, y: pad.y }],
-    ])("sits on the padded edge when the boss is %s", (_, boss, expected) => {
-        const at = roarPosition(view, player, boss, pad);
+    ])("sits on the padded edge when the miniboss is %s", (_, miniboss, expected) => {
+        const at = roarPosition(view, player, miniboss, pad);
         expect(at.x).toBeCloseTo(expected.x);
         expect(at.y).toBeCloseTo(expected.y);
     });
@@ -29,8 +29,8 @@ describe("roarPosition", () => {
         ["up-left", { x: -1200, y: -1300 }],
         ["down-right", { x: 2000, y: 1900 }],
         ["down-left", { x: -1200, y: 1900 }],
-    ])("stays on the player→boss line and inside the padded edge (%s)", (_, boss) => {
-        const at = roarPosition(view, player, boss, pad);
+    ])("stays on the player→miniboss line and inside the padded edge (%s)", (_, miniboss) => {
+        const at = roarPosition(view, player, miniboss, pad);
 
         // Inside the inset rect, touching at least one of its edges.
         expect(at.x).toBeGreaterThanOrEqual(pad.x - 1e-9);
@@ -42,23 +42,23 @@ describe("roarPosition", () => {
         );
         expect(on_edge).toBe(true);
 
-        // Same bearing as the boss, seen from the player.
+        // Same bearing as the miniboss, seen from the player.
         const bearing = (p: { x: number; y: number }) => Math.atan2(p.y - player.y, p.x - player.x);
-        expect(bearing(at)).toBeCloseTo(bearing(boss));
+        expect(bearing(at)).toBeCloseTo(bearing(miniboss));
     });
 
     describe("with the player inside the inset band (camera held at the map edge)", () => {
         // The real inset for a 120x50 word: half-size + margin, plus the rise.
         const band = { x: 76, y: 61 };
 
-        it("still points at a boss nearly straight up, from near the right edge", () => {
+        it("still points at a miniboss nearly straight up, from near the right edge", () => {
             const at = roarPosition(view, { x: 780, y: 300 }, { x: 790, y: -500 }, band);
 
             expect(at.y).toBe(band.y); // top edge, not the bottom-right
             expect(at.x).toBe(800 - band.x);
         });
 
-        it("still points at a boss up and to the right, from near the top edge", () => {
+        it("still points at a miniboss up and to the right, from near the top edge", () => {
             const at = roarPosition(view, { x: 400, y: 20 }, { x: 900, y: -10 }, band);
 
             expect(at.x).toBe(800 - band.x); // right side, not the top-left
@@ -78,16 +78,16 @@ describe("roarPosition", () => {
         });
     });
 
-    it("keeps the word on screen when an on-screen boss is near the top edge", () => {
+    it("keeps the word on screen when an on-screen miniboss is near the top edge", () => {
         const at = roarPosition(view, player, { x: 650, y: 10 }, pad);
 
         expect(at).toEqual({ x: 650, y: pad.y });
     });
 
-    it("goes just above the boss when the boss is already on screen", () => {
+    it("goes just above the miniboss when the miniboss is already on screen", () => {
         expect(roarPosition(view, player, { x: 650, y: 200 }, pad)).toEqual({
             x: 650,
-            y: 200 - ROAR_ABOVE_BOSS,
+            y: 200 - ROAR_ABOVE_MINIBOSS,
         });
     });
 });
@@ -114,11 +114,11 @@ function makeScene() {
     return { scene, text, chain };
 }
 
-describe("BossRoar", () => {
+describe("MinibossRoar", () => {
     it("writes ROAR! in the white, black-outlined bitmap font, pinned to the camera", () => {
         const { scene, text } = makeScene();
 
-        new BossRoar(scene as unknown as Scene, view, player, { x: 2000, y: 300 });
+        new MinibossRoar(scene as unknown as Scene, view, player, { x: 2000, y: 300 });
 
         expect(scene.add.bitmapText).toHaveBeenCalledWith(0, 0, "bitbybit-outline", "ROAR!", 40);
         expect(text.setScrollFactor).toHaveBeenCalledWith(0);
@@ -128,7 +128,7 @@ describe("BossRoar", () => {
     it("fades in rising ~10px, holds 2s, then rises again while fading out", () => {
         const { scene, text } = makeScene();
 
-        new BossRoar(scene as unknown as Scene, view, player, { x: 2000, y: 300 });
+        new MinibossRoar(scene as unknown as Scene, view, player, { x: 2000, y: 300 });
 
         const config = (scene.tweens.chain.mock.calls[0] as unknown[])[0] as {
             targets: unknown;
@@ -143,7 +143,7 @@ describe("BossRoar", () => {
     it("insets by its own measured half-size so the edge never clips it", () => {
         const { scene, text } = makeScene();
 
-        new BossRoar(scene as unknown as Scene, view, player, { x: 2000, y: 300 });
+        new MinibossRoar(scene as unknown as Scene, view, player, { x: 2000, y: 300 });
 
         // 120px wide text centred on the right edge: half its width plus the margin.
         expect(text.setPosition).toHaveBeenCalledWith(800 - 60 - ROAR_EDGE_MARGIN, 300);
@@ -151,7 +151,7 @@ describe("BossRoar", () => {
 
     it("removes itself once the animation completes", () => {
         const { scene, text, chain } = makeScene();
-        new BossRoar(scene as unknown as Scene, view, player, { x: 2000, y: 300 });
+        new MinibossRoar(scene as unknown as Scene, view, player, { x: 2000, y: 300 });
         const { onComplete } = (scene.tweens.chain.mock.calls[0] as unknown[])[0] as {
             onComplete: () => void;
         };
@@ -165,7 +165,7 @@ describe("BossRoar", () => {
 
     it("releases the tween and the text on scene shutdown", () => {
         const { scene, text, chain } = makeScene();
-        const roar = new BossRoar(scene as unknown as Scene, view, player, { x: 2000, y: 300 });
+        const roar = new MinibossRoar(scene as unknown as Scene, view, player, { x: 2000, y: 300 });
 
         expect(scene.events.once).toHaveBeenCalledWith("shutdown", roar.cleanup, roar);
         roar.cleanup();
@@ -180,7 +180,7 @@ describe("BossRoar", () => {
         // destroy() again from the handler would run the teardown twice. This
         // is the scene-shutdown path: the display list destroys the text first.
         const { scene, text, chain } = makeScene();
-        const roar = new BossRoar(scene as unknown as Scene, view, player, { x: 2000, y: 300 });
+        const roar = new MinibossRoar(scene as unknown as Scene, view, player, { x: 2000, y: 300 });
         const [event, onDestroy, context] = text.once.mock.calls[0] as unknown as [
             string,
             () => void,
@@ -202,7 +202,7 @@ describe("BossRoar", () => {
 
     it("is idempotent — cleanup after completion releases nothing twice", () => {
         const { scene, text, chain } = makeScene();
-        const roar = new BossRoar(scene as unknown as Scene, view, player, { x: 2000, y: 300 });
+        const roar = new MinibossRoar(scene as unknown as Scene, view, player, { x: 2000, y: 300 });
 
         roar.cleanup();
         roar.cleanup();
