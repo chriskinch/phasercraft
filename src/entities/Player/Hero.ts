@@ -8,17 +8,12 @@ interface HeroConfig {
 /**
  * Render scale for the player sprite. The class sheets are 24×32 cells of 16×24
  * art, which reads small against the tilesets; `pixelArt: true` means nearest
- * filtering, so an integer scale stays crisp. Player keeps its collision box at
- * the unscaled frame size, but positions it at the scaled sprite's feet.
+ * filtering, so an integer scale stays crisp. Both physics bodies keep their
+ * unscaled size: Hero's own body (what enemies collide with) is shrunk back in
+ * sizeBody(), and Player's terrain box is sized from the frame and anchored at
+ * the scaled sprite's feet.
  */
 export const HERO_SCALE = 2;
-
-/**
- * Topmost row of the class art inside its 24×32 cell (weapon tips included),
- * as baked by scripts/build-player-sheets.ts. The pack's art is shorter than
- * the cell, so its top sits well below the frame's top edge.
- */
-export const HERO_ART_TOP = 9;
 
 class Hero extends GameObjects.Sprite {
     public body!: Physics.Arcade.Body;
@@ -27,14 +22,18 @@ class Hero extends GameObjects.Sprite {
         super(config.scene, 0, 0, config.key);
         this.setScale(HERO_SCALE);
         config.scene.physics.world.enable(this);
+        this.sizeBody();
         config.scene.add.existing(this);
         this.body.collideWorldBounds = true;
         this.body.immovable = true;
     }
 
-    /** Y of the art's top edge, relative to the sprite's origin, at the current scale. */
-    artTop(): number {
-        return -this.displayHeight / 2 + HERO_ART_TOP * this.scaleY;
+    /**
+     * Arcade multiplies a body's source size by the sprite's scale, so halve
+     * it back: the enemy collider stays the unscaled frame (24×32), centred.
+     */
+    sizeBody(): void {
+        this.body.setSize(this.width / HERO_SCALE, this.height / HERO_SCALE, true);
     }
 
     walk(anim: string): void {

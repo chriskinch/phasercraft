@@ -1,5 +1,5 @@
 import { describe, it, expect, vi } from "vitest";
-import Player from "./Player";
+import Player, { PLAYER_OVERHEAD_Y } from "./Player";
 import { HERO_SCALE } from "./Hero";
 import Projectile from "@entities/Weapons/Projectile";
 import { playSfx } from "@services/sfx";
@@ -430,5 +430,19 @@ describe("setCollisionBox", () => {
         // Offset is from the container's top (y = -16). The scaled art's feet
         // are at +32, so the box's bottom edge (offset + 8) must land at 48.
         expect(player.body.setOffset).toHaveBeenCalledWith(0, 40);
+    });
+});
+
+// The bars and LEVEL+ text are placed relative to the container origin, which
+// HERO_SCALE does not move, so they must sit exactly where they did before the
+// sprite was scaled up.
+describe("PLAYER_OVERHEAD_Y", () => {
+    it("keeps the bars and LEVEL+ text at their pre-scale positions", () => {
+        expect(PLAYER_OVERHEAD_Y).toEqual({
+            shield: -40,
+            health: -35,
+            resource: -30,
+            levelText: -30,
+        });
     });
 });

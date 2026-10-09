@@ -50,6 +50,18 @@ interface DrawBarOptions {
     depth: number;
 }
 
+/**
+ * Container-relative y of the bars and LEVEL+ text above the player. Fixed
+ * values, independent of HERO_SCALE: the bars sit where they did before the
+ * sprite was scaled up.
+ */
+export const PLAYER_OVERHEAD_Y = {
+    shield: -40,
+    health: -35,
+    resource: -30,
+    levelText: -30,
+} as const;
+
 export interface IncomingDamage {
     damage: number;
     attackType?: CombatType;
@@ -143,17 +155,11 @@ class Player extends GameObjects.Container {
         this.createAnimations(classification);
         this.setExperience();
 
-        // The bars stack above the sprite's head, so they hang off the top of
-        // the art rather than off the container origin or the frame's top edge
-        // (the art is shorter than the cell). The gaps are the ones the old art
-        // had above its head.
-        const artTop = this.hero.artTop();
-
         this.health = AssignResource("Health", {
             container: this,
             scene: scene,
             x: -14,
-            y: artTop - 21,
+            y: PLAYER_OVERHEAD_Y.health,
             ...stats,
         });
         this.add(this.health);
@@ -162,7 +168,7 @@ class Player extends GameObjects.Container {
             container: this,
             scene: scene,
             x: -14,
-            y: artTop - 16,
+            y: PLAYER_OVERHEAD_Y.resource,
             ...stats,
         });
         this.add(this.resource);
@@ -171,7 +177,7 @@ class Player extends GameObjects.Container {
             container: this,
             scene: scene,
             x: -14,
-            y: artTop - 26,
+            y: PLAYER_OVERHEAD_Y.shield,
             ...stats,
         });
         this.add(this.shield);
@@ -604,7 +610,7 @@ class Player extends GameObjects.Container {
             this.add(
                 new CombatText(this.scene, {
                     x: 0,
-                    y: this.hero.artTop() - 16,
+                    y: PLAYER_OVERHEAD_Y.levelText,
                     type: "level",
                     value: "LEVEL+",
                     crit: false,

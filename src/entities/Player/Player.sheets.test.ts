@@ -1,8 +1,6 @@
 import { describe, it, expect } from "vitest";
 import { readFileSync } from "node:fs";
 import path from "node:path";
-import sharp from "sharp";
-import { HERO_ART_TOP } from "./Hero";
 
 // The frame ranges in Player.createAnimations() are indices into whatever
 // scripts/build-player-sheets.ts last baked, so nothing in the running game
@@ -24,11 +22,8 @@ const PORTRAIT_H = 90;
 /** Every sheet LoadScene registers, including the `player` base texture. */
 const SHEETS = ["warrior", "cleric", "mage", "occultist", "ranger", "noob"];
 
-/** Playable classes — the sheets the bars and LEVEL+ text hang above. */
-const CLASSES = SHEETS.filter((name) => name !== "noob");
-
 /** Classes with a portrait in public/UI/player — `noob` has none. */
-const PORTRAITS = CLASSES;
+const PORTRAITS = SHEETS.filter((name) => name !== "noob");
 
 /** Logical screen size from a GIF header: bytes 6–9, little-endian. */
 function gifSize(file: string): { width: number; height: number } {
@@ -51,30 +46,5 @@ describe("committed player spritesheets", () => {
             width: PORTRAIT_W,
             height: PORTRAIT_H,
         });
-    });
-
-    // Player hangs the health/resource/shield bars off Hero.artTop(), which
-    // assumes the tallest art (weapon tips included) starts at HERO_ART_TOP.
-    it("HERO_ART_TOP is the topmost art row across the class sheets", async () => {
-        let top = CELL_H;
-        for (const name of CLASSES) {
-            const file = path.join(
-                process.cwd(),
-                "public/graphics/spritesheets/player",
-                `${name}.gif`
-            );
-            const { data, info } = await sharp(file)
-                .ensureAlpha()
-                .raw()
-                .toBuffer({ resolveWithObject: true });
-            for (let y = 0; y < info.height; y++) {
-                for (let x = 0; x < info.width; x++) {
-                    if (data[(y * info.width + x) * info.channels + 3] > 0) {
-                        top = Math.min(top, y % CELL_H);
-                    }
-                }
-            }
-        }
-        expect(top).toBe(HERO_ART_TOP);
     });
 });
