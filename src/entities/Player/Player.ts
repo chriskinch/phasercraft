@@ -52,15 +52,16 @@ interface DrawBarOptions {
 
 /**
  * y of the bars and LEVEL+ text above the player, relative to the top of the
- * enemy collider (Hero.colliderTop()). These are the gaps they had above that
- * box before the sprite was scaled up, so the bars follow the box down to the
- * scaled sprite's feet.
+ * enemy collider (Hero.colliderTop()), so they follow the box down to the
+ * scaled sprite's feet. main's gaps above that box, raised 8px so the resource
+ * bar (6px tall) clears the tallest art in any frame (weapon tips, the cleric's
+ * hat) by 2px.
  */
 export const PLAYER_OVERHEAD_Y = {
-    shield: -24,
-    health: -19,
-    resource: -14,
-    levelText: -14,
+    shield: -32,
+    health: -27,
+    resource: -22,
+    levelText: -22,
 } as const;
 
 export interface IncomingDamage {

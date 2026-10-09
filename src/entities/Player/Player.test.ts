@@ -434,15 +434,15 @@ describe("setCollisionBox", () => {
 });
 
 // The bars and LEVEL+ text hang off the top of the enemy collider. On main that
-// box's top was at y = -16 with the bars at -40/-35/-30 (LEVEL+ -30), so these
-// offsets keep the gaps they had above it.
+// box's top was at y = -16 with the bars at -40/-35/-30 (LEVEL+ -30); these are
+// those gaps raised 8px so the resource bar clears the new art's weapon tips.
 describe("PLAYER_OVERHEAD_Y", () => {
-    it("keeps the bars and LEVEL+ text at their pre-scale gaps above the collider", () => {
+    it("keeps the bars and LEVEL+ text 8px above their pre-scale gaps over the collider", () => {
         expect(PLAYER_OVERHEAD_Y).toEqual({
-            shield: -24,
-            health: -19,
-            resource: -14,
-            levelText: -14,
+            shield: -32,
+            health: -27,
+            resource: -22,
+            levelText: -22,
         });
     });
 });
