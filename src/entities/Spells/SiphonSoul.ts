@@ -33,7 +33,7 @@ class SiphonSoul extends Spell {
         // This is what the spell scales from. Player stats always include
         // magic_power; the `?? 0` only satisfies the optional type.
         this.power = (this.player.stats.magic_power ?? 0) / 10;
-        this.deathZone = new Geom.Circle(this.player.x, this.player.y, 20);
+        this.deathZone = new Geom.Circle(this.player.centre().x, this.player.centre().y, 20);
         this.particleDuration = this.duration + this.cooldown;
     }
 
@@ -76,8 +76,10 @@ class SiphonSoul extends Spell {
             ],
         });
 
-        const relativePlayerX = this.player.x - target.x;
-        const relativePlayerY = this.player.y - target.y;
+        // Particles drain into the player's body centre, not the sprite origin.
+        const playerCentre = this.player.centre();
+        const relativePlayerX = playerCentre.x - target.x;
+        const relativePlayerY = playerCentre.y - target.y;
         this.gravityWell = this.emitter.createGravityWell({
             x: relativePlayerX,
             y: relativePlayerY,
@@ -102,15 +104,17 @@ class SiphonSoul extends Spell {
     updateGravityWellPosition(): void {
         if (this.gravityWell && this.player && this.target) {
             // Update gravity well position relative to emitter
-            const newRelativeX = this.player.x - (this.target as Enemy).x;
-            const newRelativeY = this.player.y - (this.target as Enemy).y;
+            const playerCentre = this.player.centre();
+            const newRelativeX = playerCentre.x - (this.target as Enemy).x;
+            const newRelativeY = playerCentre.y - (this.target as Enemy).y;
             this.gravityWell.x = newRelativeX;
             this.gravityWell.y = newRelativeY;
         }
 
         if (this.deathZone) {
-            this.deathZone.x = this.player.x;
-            this.deathZone.y = this.player.y;
+            const playerCentre = this.player.centre();
+            this.deathZone.x = playerCentre.x;
+            this.deathZone.y = playerCentre.y;
         }
     }
 

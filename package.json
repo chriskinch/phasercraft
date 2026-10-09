@@ -43,7 +43,8 @@
         "armory:smoke": "tsx scripts/armory-smoke.ts",
         "maps:biomes": "node scripts/generate-biome-maps.mjs",
         "scrolls:build": "node --disable-warning=MODULE_TYPELESS_PACKAGE_JSON --disable-warning=ExperimentalWarning scripts/build-scroll-icons.ts",
-        "fonts:build": "node --disable-warning=MODULE_TYPELESS_PACKAGE_JSON --disable-warning=ExperimentalWarning scripts/build-pixel-font.ts"
+        "fonts:build": "node --disable-warning=MODULE_TYPELESS_PACKAGE_JSON --disable-warning=ExperimentalWarning scripts/build-pixel-font.ts",
+        "players:build": "node --disable-warning=MODULE_TYPELESS_PACKAGE_JSON --disable-warning=ExperimentalWarning scripts/build-player-sheets.ts"
     },
     "dependencies": {
         "@reduxjs/toolkit": "^2.8.2",

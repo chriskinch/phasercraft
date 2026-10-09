@@ -21,6 +21,15 @@ interface SpellValue {
     amount: number;
 }
 
+/** A target that reports its own anchor point, e.g. Player.centre(). */
+interface HasCentre {
+    centre(): { x: number; y: number };
+}
+
+function hasCentre(target: object): target is HasCentre {
+    return "centre" in target && typeof (target as HasCentre).centre === "function";
+}
+
 class Spell extends GameObjects.Sprite {
     // The owning combatant. Every ability in the game is created by the Player
     // (see Player's `createSpell`), and the spell reads Player-only members
@@ -255,6 +264,19 @@ class Spell extends GameObjects.Sprite {
 
     effect(target: TargetType | undefined): void {
         // This method should be implemented by subclasses
+    }
+
+    /**
+     * Where an effect following `target` should sit: the player's body centre
+     * (Player.centre()) for the player, the target's position otherwise. Null
+     * when there is no positioned target.
+     */
+    targetCentre(): { x: number; y: number } | null {
+        const target = this.target;
+        if (!target || typeof target !== "object") return null;
+        if (hasCentre(target)) return target.centre();
+        if ("x" in target && "y" in target) return { x: target.x as number, y: target.y as number };
+        return null;
     }
 
     setAnimation(): void {

@@ -1,5 +1,6 @@
 import { describe, it, expect, vi } from "vitest";
-import Player from "./Player";
+import Player, { PLAYER_OVERHEAD_Y } from "./Player";
+import { HERO_SCALE } from "./Hero";
 import Projectile from "@entities/Weapons/Projectile";
 import { playSfx } from "@services/sfx";
 
@@ -393,5 +394,95 @@ describe("Player.retaliate", () => {
         makeRetaliator().retaliate(deadAttacker);
         expect(attacker.select).not.toHaveBeenCalled();
         expect(deadAttacker.select).not.toHaveBeenCalled();
+    });
+});
+
+// Hero draws at HERO_SCALE, but the collision box has to stay the size it was
+// before the sprite was scaled up, or the player's hitbox quadruples; only its
+// position follows the scaled feet. setCollisionBox() reads the frame (hero.width/height) rather than
+// getBounds(), which carries the scale — this pins that distinction.
+describe("setCollisionBox", () => {
+    interface Sized {
+        hero: unknown;
+        body: {
+            debugBodyColor: number;
+            setSize: ReturnType<typeof vi.fn>;
+            setOffset: ReturnType<typeof vi.fn>;
+        };
+        setCollisionBox(height?: number): void;
+    }
+
+    it("sizes the body from the unscaled frame, not the scaled sprite", () => {
+        const player = Object.create(Player.prototype) as Sized;
+        // Mirrors a Phaser sprite at HERO_SCALE: width/height are the frame,
+        // displayHeight and getBounds() carry the scale.
+        player.hero = {
+            width: 24,
+            height: 32,
+            displayHeight: 32 * HERO_SCALE,
+            getBounds: () => ({ width: 24 * HERO_SCALE, height: 32 * HERO_SCALE }),
+        };
+        player.body = { debugBodyColor: 0, setSize: vi.fn(), setOffset: vi.fn() };
+
+        player.setCollisionBox();
+
+        expect(player.body.setSize).toHaveBeenCalledWith(24, 8);
+        // Offset is from the container's top (y = -16). The scaled art's feet
+        // are at +32, so the box's bottom edge (offset + 8) must land at 48.
+        expect(player.body.setOffset).toHaveBeenCalledWith(0, 40);
+    });
+});
+
+// The bars and LEVEL+ text hang off the top of the enemy collider. On main that
+// box's top was at y = -16 with the bars at -40/-35/-30 (LEVEL+ -30); these are
+// those gaps raised 8px so the resource bar clears the new art's weapon tips.
+describe("PLAYER_OVERHEAD_Y", () => {
+    it("keeps the bars and LEVEL+ text 8px above their pre-scale gaps over the collider", () => {
+        expect(PLAYER_OVERHEAD_Y).toEqual({
+            shield: -32,
+            health: -27,
+            resource: -22,
+            levelText: -22,
+        });
+    });
+});
+
+// The pack's rows are 4 frames where the old art's were 6; the frame rate is
+// lowered to match so every loop still lasts the 500ms it did before.
+describe("createAnimations", () => {
+    it("keeps every player animation loop at 500ms", () => {
+        const created: { key: string; frames: number[]; frameRate: number }[] = [];
+        const player = Object.create(Player.prototype) as Player;
+        Object.defineProperty(player, "scene", {
+            value: {
+                anims: {
+                    generateFrameNumbers: (
+                        _key: string,
+                        { start, end }: { start: number; end: number }
+                    ) => Array.from({ length: end - start + 1 }, (_, i) => start + i),
+                    create: (config: { key: string; frames: number[]; frameRate: number }) =>
+                        created.push(config),
+                },
+            },
+        });
+
+        player.createAnimations("warrior");
+
+        expect(created).toHaveLength(4);
+        for (const { key, frames, frameRate } of created) {
+            expect({ key, ms: (frames.length / frameRate) * 1000 }).toEqual({ key, ms: 500 });
+        }
+    });
+});
+
+// Effects anchor on centre(): the body centre, below the container origin by
+// Hero.centreY().
+describe("Player.centre", () => {
+    it("offsets the container position by the hero's body centre", () => {
+        const player = Object.create(Player.prototype) as Player;
+        Object.defineProperty(player, "x", { value: 100 });
+        Object.defineProperty(player, "y", { value: 200 });
+        Object.defineProperty(player, "hero", { value: { centreY: () => 16 } });
+        expect(player.centre()).toEqual({ x: 100, y: 216 });
     });
 });

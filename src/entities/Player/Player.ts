@@ -50,6 +50,20 @@ interface DrawBarOptions {
     depth: number;
 }
 
+/**
+ * y of the bars and LEVEL+ text above the player, relative to the top of the
+ * enemy collider (Hero.colliderTop()), so they follow the box down to the
+ * scaled sprite's feet. main's gaps above that box, raised 8px so the resource
+ * bar (6px tall) clears the tallest art in any frame (weapon tips, the cleric's
+ * hat) by 2px.
+ */
+export const PLAYER_OVERHEAD_Y = {
+    shield: -32,
+    health: -27,
+    resource: -22,
+    levelText: -22,
+} as const;
+
 export interface IncomingDamage {
     damage: number;
     attackType?: CombatType;
@@ -120,7 +134,7 @@ class Player extends GameObjects.Container {
         });
         this.add(this.hero);
 
-        this.setSize(this.hero.getBounds().width, this.hero.getBounds().height);
+        this.setSize(this.hero.width, this.hero.height);
         scene.physics.world.enable(this);
         scene.add.existing(this);
 
@@ -143,11 +157,13 @@ class Player extends GameObjects.Container {
         this.createAnimations(classification);
         this.setExperience();
 
+        const overheadTop = this.hero.colliderTop();
+
         this.health = AssignResource("Health", {
             container: this,
             scene: scene,
             x: -14,
-            y: -35,
+            y: overheadTop + PLAYER_OVERHEAD_Y.health,
             ...stats,
         });
         this.add(this.health);
@@ -156,7 +172,7 @@ class Player extends GameObjects.Container {
             container: this,
             scene: scene,
             x: -14,
-            y: -30,
+            y: overheadTop + PLAYER_OVERHEAD_Y.resource,
             ...stats,
         });
         this.add(this.resource);
@@ -165,13 +181,14 @@ class Player extends GameObjects.Container {
             container: this,
             scene: scene,
             x: -14,
-            y: -40,
+            y: overheadTop + PLAYER_OVERHEAD_Y.shield,
             ...stats,
         });
         this.add(this.shield);
 
         this.weapon = new Weapon({ scene: scene, key: "weapon-swooch" });
         this.add(this.weapon);
+        this.showDebugInfo();
 
         this.subscriptions.push(
             mapStateToData("stats", (stats: unknown) => {
@@ -593,12 +610,36 @@ class Player extends GameObjects.Container {
         }
     }
 
+    /**
+     * World point at the centre of the player's body (the enemy collider), for
+     * effects that anchor on the player. The container origin is the sprite's
+     * centre, which at HERO_SCALE sits near the top of the body.
+     */
+    centre(): { x: number; y: number } {
+        return { x: this.x, y: this.y + this.hero.centreY() };
+    }
+
+    // With Arcade debug on, mark centre() so effect anchoring can be checked.
+    showDebugInfo(): void {
+        const arcade = this.scene.sys.game.config.physics.arcade;
+        if (!arcade || !arcade.debug) return;
+        const y = this.hero.centreY();
+        this.add(
+            this.scene.add
+                .graphics()
+                .lineStyle(1, 0xffff00)
+                .lineBetween(-4, y, 4, y)
+                .lineBetween(0, y - 4, 0, y + 4)
+                .setDepth(10001)
+        );
+    }
+
     LevelUp(level: number): void {
         level > 1 &&
             this.add(
                 new CombatText(this.scene, {
                     x: 0,
-                    y: -30,
+                    y: this.hero.colliderTop() + PLAYER_OVERHEAD_Y.levelText,
                     type: "level",
                     value: "LEVEL+",
                     crit: false,
@@ -619,28 +660,38 @@ class Player extends GameObjects.Container {
 
         this.body.debugBodyColor = 0x00ff00;
 
-        const heroHeight = this.hero.getBounds().height;
-        const heroWidth = this.hero.getBounds().width;
+        // Frame size, not getBounds(): bounds include HERO_SCALE, and the
+        // collision box is deliberately left at the size it had before the
+        // sprite was scaled up for display.
+        const heroHeight = this.hero.height;
+        const heroWidth = this.hero.width;
         const collisionHeight = heroHeight / 4;
 
         this.body.setSize(heroWidth, collisionHeight);
 
-        this.body.setOffset(0, this.hero.getBounds().height - collisionHeight);
+        // The offset is from the container's top edge (half the frame above its
+        // origin), but Hero scales about its centre, so its feet sit half the
+        // *display* height below the origin. Anchor the box's bottom there.
+        const feet = heroHeight / 2 + this.hero.displayHeight / 2;
+        this.body.setOffset(0, feet - collisionHeight);
     }
 
     createAnimations(type: string): void {
+        // Four frames per row, matching the sheets baked by
+        // scripts/build-player-sheets.ts (walk-right, walk-left, idle, death).
+        // 8fps keeps each loop at the 500ms the old 6-frame rows ran at 12fps.
         const player_animations = [
-            { key: "player-idle", frames: { start: 12, end: 17 }, repeat: -1 },
-            { key: "player-right-up", frames: { start: 0, end: 5 }, repeat: -1 },
-            { key: "player-left-down", frames: { start: 6, end: 11 }, repeat: -1 },
-            { key: "player-death", frames: { start: 18, end: 23 }, repeat: 0 },
+            { key: "player-idle", frames: { start: 8, end: 11 }, repeat: -1 },
+            { key: "player-right-up", frames: { start: 0, end: 3 }, repeat: -1 },
+            { key: "player-left-down", frames: { start: 4, end: 7 }, repeat: -1 },
+            { key: "player-death", frames: { start: 12, end: 15 }, repeat: 0 },
         ];
 
         player_animations.forEach((animation) => {
             this.scene.anims.create({
                 key: animation.key,
                 frames: this.scene.anims.generateFrameNumbers(type, animation.frames),
-                frameRate: 12,
+                frameRate: 8,
                 repeat: animation.repeat,
             });
         });
