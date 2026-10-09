@@ -1,5 +1,6 @@
 import { describe, it, expect, vi } from "vitest";
 import Player from "./Player";
+import { HERO_SCALE } from "./Hero";
 import Projectile from "@entities/Weapons/Projectile";
 import { playSfx } from "@services/sfx";
 
@@ -393,5 +394,39 @@ describe("Player.retaliate", () => {
         makeRetaliator().retaliate(deadAttacker);
         expect(attacker.select).not.toHaveBeenCalled();
         expect(deadAttacker.select).not.toHaveBeenCalled();
+    });
+});
+
+// HERO_SCALE is display only: Hero draws at 2x, but the collision box has to
+// stay the size it was before the sprite was scaled up, or the player's hitbox
+// quadruples. setCollisionBox() reads the frame (hero.width/height) rather than
+// getBounds(), which carries the scale — this pins that distinction.
+describe("setCollisionBox", () => {
+    interface Sized {
+        hero: unknown;
+        body: {
+            debugBodyColor: number;
+            setSize: ReturnType<typeof vi.fn>;
+            setOffset: ReturnType<typeof vi.fn>;
+        };
+        setCollisionBox(height?: number): void;
+    }
+
+    it("sizes the body from the unscaled frame, not the scaled sprite", () => {
+        const player = Object.create(Player.prototype) as Sized;
+        // Mirrors a Phaser sprite at HERO_SCALE: width/height are the frame,
+        // displayHeight and getBounds() carry the scale.
+        player.hero = {
+            width: 24,
+            height: 32,
+            displayHeight: 32 * HERO_SCALE,
+            getBounds: () => ({ width: 24 * HERO_SCALE, height: 32 * HERO_SCALE }),
+        };
+        player.body = { debugBodyColor: 0, setSize: vi.fn(), setOffset: vi.fn() };
+
+        player.setCollisionBox();
+
+        expect(player.body.setSize).toHaveBeenCalledWith(24, 8);
+        expect(player.body.setOffset).toHaveBeenCalledWith(0, 24);
     });
 });
