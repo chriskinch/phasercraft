@@ -594,11 +594,13 @@ class Player extends GameObjects.Container {
     }
 
     createAnimations(type: string): void {
+        // Four frames per row, matching the sheets baked by
+        // scripts/build-player-sheets.ts (walk-right, walk-left, idle, death).
         const player_animations = [
-            { key: "player-idle", frames: { start: 12, end: 17 }, repeat: -1 },
-            { key: "player-right-up", frames: { start: 0, end: 5 }, repeat: -1 },
-            { key: "player-left-down", frames: { start: 6, end: 11 }, repeat: -1 },
-            { key: "player-death", frames: { start: 18, end: 23 }, repeat: 0 },
+            { key: "player-idle", frames: { start: 8, end: 11 }, repeat: -1 },
+            { key: "player-right-up", frames: { start: 0, end: 3 }, repeat: -1 },
+            { key: "player-left-down", frames: { start: 4, end: 7 }, repeat: -1 },
+            { key: "player-death", frames: { start: 12, end: 15 }, repeat: 0 },
         ];
 
         player_animations.forEach((animation) => {
