@@ -19,7 +19,7 @@
 import { writeFileSync } from "node:fs";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
-import sharp from "sharp";
+import sharp, { type OverlayOptions } from "sharp";
 
 const ROOT = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "..");
 const PACK = path.join(ROOT, "assets/source/50_Characters_KingBell");
@@ -29,7 +29,6 @@ const PORTRAIT_DIR = path.join(ROOT, "public/UI/player");
 /** Source frame size in the pack's grid. */
 const SRC_W = 16;
 const SRC_H = 24;
-const SRC_COLS = 11;
 
 /** Output cell size — unchanged from the art this replaces. */
 const CELL_W = 24;
@@ -92,7 +91,7 @@ async function buildSheet(sprite: ClassSprite): Promise<Buffer> {
         { row: DEATH_ROW, flop: false }, // player-death
     ];
 
-    const layers = [];
+    const layers: OverlayOptions[] = [];
     for (const [r, { row, flop }] of rows.entries()) {
         for (let c = 0; c < FRAMES; c++) {
             let cell = sharp(await frame(sprite.sheet, row, c));
