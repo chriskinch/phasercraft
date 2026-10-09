@@ -38,6 +38,9 @@ const FRAMES = 4; // every row this script uses has 4 frames
 /** `die normal`, shared by every class. */
 const DEATH_ROW = 3;
 
+/** The pack's second set, on the same 11 × 112 grid as the first. */
+const SET_2 = "__SET 2 50 Enemies and Rivals";
+
 /** Portraits are the idle frame at 4×, cropped to the dimensions the UI expects. */
 const PORTRAIT_W = 60;
 const PORTRAIT_H = 90;
@@ -58,11 +61,12 @@ interface ClassSprite {
 // 93/99 staff + rune, 94/100 wand + rune, 95/101 tall bow. The Occultist uses
 // the plain idle/run rows (0/1) — an empty-handed hooded caster.
 const SPRITES: ClassSprite[] = [
-    { name: "warrior", sheet: "3_Warrior_A.png", idleRow: 91, walkRow: 97 },
-    { name: "cleric", sheet: "11_Sages_A.png", idleRow: 93, walkRow: 99 },
+    // "Chamption" is the pack's own spelling, not a typo here.
+    { name: "warrior", sheet: "2_Chamption_B.png", idleRow: 91, walkRow: 97 },
+    { name: "cleric", sheet: "8_Magician_B.png", idleRow: 93, walkRow: 99 },
     { name: "mage", sheet: "12_Sages_B.png", idleRow: 94, walkRow: 100 },
-    { name: "occultist", sheet: "7_Magician_A.png", idleRow: 0, walkRow: 1 },
-    { name: "ranger", sheet: "27_Archer_A.png", idleRow: 95, walkRow: 101 },
+    { name: "occultist", sheet: `${SET_2}/12_Sage_D.png`, idleRow: 0, walkRow: 1 },
+    { name: "ranger", sheet: "15_Pirates_A.png", idleRow: 95, walkRow: 101 },
     // Not a playable class: the base texture Hero is constructed with, so it
     // has to match or the player shows the old art for a frame on spawn.
     { name: "noob", sheet: "18_Scouts_B.png", idleRow: 0, walkRow: 1 },
