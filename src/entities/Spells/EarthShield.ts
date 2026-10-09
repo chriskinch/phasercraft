@@ -107,15 +107,8 @@ class EarthShield extends Spell {
     }
 
     animationStart(): void {
-        if (
-            this.target &&
-            typeof this.target === "object" &&
-            "x" in this.target &&
-            "y" in this.target
-        ) {
-            this.x = (this.target.x as number) + this.radius;
-            this.y = this.target.y as number;
-        }
+        const centre = this.targetCentre();
+        if (centre) this.setPosition(centre.x + this.radius, centre.y);
     }
 
     animationUpdate(): void {
@@ -136,16 +129,11 @@ class EarthShield extends Spell {
             duration: 3000,
             delay: 250,
             onUpdate: () => {
-                if (
-                    !this.target ||
-                    typeof this.target !== "object" ||
-                    !("x" in this.target) ||
-                    !("y" in this.target)
-                )
-                    return;
+                const centre = this.targetCentre();
+                if (!centre) return;
 
-                const targetX = this.target.x as number;
-                const targetY = this.target.y as number;
+                const targetX = centre.x;
+                const targetY = centre.y;
 
                 const time = Math.floor(this.motion?.getValue() ?? 0);
                 const angle = (Math.PI / 180) * time;

@@ -257,6 +257,19 @@ class Spell extends GameObjects.Sprite {
         // This method should be implemented by subclasses
     }
 
+    /**
+     * Where an effect following `target` should sit: the player's body centre
+     * (Player.centre()) for the player, the target's position otherwise. Null
+     * when there is no positioned target.
+     */
+    targetCentre(): { x: number; y: number } | null {
+        const target = this.target;
+        if (!target || typeof target !== "object") return null;
+        if ("centre" in target && typeof target.centre === "function") return target.centre();
+        if ("x" in target && "y" in target) return { x: target.x as number, y: target.y as number };
+        return null;
+    }
+
     setAnimation(): void {
         this.scene.anims.create({
             key: this.name + "-animation",

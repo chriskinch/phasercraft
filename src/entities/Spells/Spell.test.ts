@@ -345,3 +345,28 @@ describe("Spell.setValue level scaling", () => {
         expect(spell.cooldown).toBe(4);
     });
 });
+
+// Effects that follow their target (Earth/Mana Shield) anchor on targetCentre():
+// the player's body centre, which sits below the sprite origin at HERO_SCALE,
+// or a plain target's own position.
+describe("Spell.targetCentre", () => {
+    function withTarget(target: unknown): Spell {
+        const spell = Object.create(Spell.prototype) as Spell;
+        Object.defineProperty(spell, "target", { value: target, writable: true });
+        return spell;
+    }
+
+    it("uses the player's body centre rather than its origin", () => {
+        const player = { x: 10, y: 20, centre: () => ({ x: 10, y: 36 }) };
+        expect(withTarget(player).targetCentre()).toEqual({ x: 10, y: 36 });
+    });
+
+    it("falls back to a plain target's position", () => {
+        expect(withTarget({ x: 5, y: 7 }).targetCentre()).toEqual({ x: 5, y: 7 });
+    });
+
+    it("is null without a positioned target", () => {
+        expect(withTarget(undefined).targetCentre()).toBeNull();
+        expect(withTarget(null).targetCentre()).toBeNull();
+    });
+});

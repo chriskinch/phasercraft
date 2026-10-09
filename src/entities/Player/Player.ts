@@ -188,6 +188,7 @@ class Player extends GameObjects.Container {
 
         this.weapon = new Weapon({ scene: scene, key: "weapon-swooch" });
         this.add(this.weapon);
+        this.showDebugInfo();
 
         this.subscriptions.push(
             mapStateToData("stats", (stats: unknown) => {
@@ -607,6 +608,30 @@ class Player extends GameObjects.Container {
         } else {
             this.setExperience(remainder, count + 1);
         }
+    }
+
+    /**
+     * World point at the centre of the player's body (the enemy collider), for
+     * effects that anchor on the player. The container origin is the sprite's
+     * centre, which at HERO_SCALE sits near the top of the body.
+     */
+    centre(): { x: number; y: number } {
+        return { x: this.x, y: this.y + this.hero.centreY() };
+    }
+
+    // With Arcade debug on, mark centre() so effect anchoring can be checked.
+    showDebugInfo(): void {
+        const arcade = this.scene.sys.game.config.physics.arcade;
+        if (!arcade || !arcade.debug) return;
+        const y = this.hero.centreY();
+        this.add(
+            this.scene.add
+                .graphics()
+                .lineStyle(1, 0xffff00)
+                .lineBetween(-4, y, 4, y)
+                .lineBetween(0, y - 4, 0, y + 4)
+                .setDepth(10001)
+        );
     }
 
     LevelUp(level: number): void {

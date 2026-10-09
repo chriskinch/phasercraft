@@ -33,15 +33,8 @@ class ManaShield extends Spell {
     }
 
     animationUpdate(): void {
-        if (
-            this.target &&
-            typeof this.target === "object" &&
-            "x" in this.target &&
-            "y" in this.target
-        ) {
-            this.x = this.target.x as number;
-            this.y = this.target.y as number;
-        }
+        const centre = this.targetCentre();
+        if (centre) this.setPosition(centre.x, centre.y);
     }
 }
 

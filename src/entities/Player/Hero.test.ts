@@ -35,6 +35,7 @@ describe("Hero.sizeBody", () => {
             width: body.sourceWidth * HERO_SCALE,
             height: body.sourceHeight * HERO_SCALE,
             colliderTop: hero.colliderTop(),
+            centreY: hero.centreY(),
         };
     }
 
@@ -54,5 +55,11 @@ describe("Hero.sizeBody", () => {
     it("reports the collider's top edge", () => {
         const { top, colliderTop } = sized();
         expect(colliderTop).toBe(top);
+    });
+
+    // Player.centre() (and the effects anchored on it) uses centreY().
+    it("reports the collider's centre", () => {
+        const { top, height, centreY } = sized();
+        expect(centreY).toBe(top + height / 2);
     });
 });

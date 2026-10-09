@@ -29,7 +29,7 @@ vi.mock("./Spell", () => ({
 const baseConfig = (): SpellOptions =>
     ({
         scene: { events: { on: vi.fn(), once: vi.fn(), off: vi.fn() } },
-        player: { x: 0, y: 0, stats: { magic_power: 0 } },
+        player: { x: 0, y: 0, centre: () => ({ x: 0, y: 0 }), stats: { magic_power: 0 } },
     }) as unknown as SpellOptions;
 
 // Every spell AssignSpell can build — kept literal so a spell missing from the

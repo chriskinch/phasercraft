@@ -474,3 +474,15 @@ describe("createAnimations", () => {
         }
     });
 });
+
+// Effects anchor on centre(): the body centre, below the container origin by
+// Hero.centreY().
+describe("Player.centre", () => {
+    it("offsets the container position by the hero's body centre", () => {
+        const player = Object.create(Player.prototype) as Player;
+        Object.defineProperty(player, "x", { value: 100 });
+        Object.defineProperty(player, "y", { value: 200 });
+        Object.defineProperty(player, "hero", { value: { centreY: () => 16 } });
+        expect(player.centre()).toEqual({ x: 100, y: 216 });
+    });
+});

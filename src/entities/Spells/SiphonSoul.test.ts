@@ -23,12 +23,18 @@ describe("SiphonSoul constructor", () => {
     it("builds without relying on a global Phaser namespace", () => {
         expect((globalThis as { Phaser?: unknown }).Phaser).toBeUndefined();
 
-        const player = { x: 12, y: 34, stats: { magic_power: 60 } };
+        // centre() is the player's body centre, below the sprite origin at 2x.
+        const player = {
+            x: 12,
+            y: 34,
+            centre: () => ({ x: 12, y: 50 }),
+            stats: { magic_power: 60 },
+        };
         const spell = new SiphonSoul({ player } as unknown as SpellOptions);
 
         expect(spell.deathZone).toBeInstanceOf(Geom.Circle);
         expect(spell.deathZone.x).toBe(12);
-        expect(spell.deathZone.y).toBe(34);
+        expect(spell.deathZone.y).toBe(50);
         expect(spell.deathZone.radius).toBe(20);
         expect(spell.power).toBe(6);
     });

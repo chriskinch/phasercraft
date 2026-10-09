@@ -45,6 +45,11 @@ class Hero extends GameObjects.Sprite {
         return this.displayHeight / 2 - this.height;
     }
 
+    /** Centre of the enemy collider, relative to the sprite's origin: the body's visual centre. */
+    centreY(): number {
+        return this.colliderTop() + this.height / 2;
+    }
+
     walk(anim: string): void {
         this.anims.play(anim, true);
     }
