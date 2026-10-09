@@ -177,6 +177,9 @@ describe("Settings template", () => {
             expect(screen.getByLabelText("Despawn delay (s)")).toHaveValue(
                 DEFAULT_AREA_TUNING.despawnDelayMs / 1000
             );
+            expect(screen.getByLabelText("Miniboss % per cell")).toHaveValue(
+                DEFAULT_AREA_TUNING.minibossChancePerCell * 100
+            );
         });
 
         it("styles every number input the same (one grid column width)", () => {
@@ -185,7 +188,7 @@ describe("Settings template", () => {
             renderWithProviders(<Settings />);
 
             const classes = screen.getAllByRole("spinbutton").map((input) => input.className);
-            expect(classes).toHaveLength(3);
+            expect(classes).toHaveLength(4);
             expect(new Set(classes).size).toBe(1);
         });
 
@@ -208,11 +211,15 @@ describe("Settings template", () => {
             fireEvent.change(screen.getByLabelText("Despawn delay (s)"), {
                 target: { value: "5" },
             });
+            fireEvent.change(screen.getByLabelText("Miniboss % per cell"), {
+                target: { value: "10" },
+            });
 
             expect(readSettings()).toMatchObject({
                 spawnRadiusOverride: 200,
                 liveCapOverride: 2,
                 despawnDelaySeconds: 5,
+                minibossChancePerCellOverride: 10,
             });
             expect(screen.getByLabelText("Live cap")).toHaveValue(2);
         });

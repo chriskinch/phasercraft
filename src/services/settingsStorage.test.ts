@@ -33,6 +33,7 @@ describe("readSettings", () => {
             spawnRadiusOverride: 200,
             liveCapOverride: 2,
             despawnDelaySeconds: 5,
+            minibossChancePerCellOverride: 5,
             sfxVolume: 40,
         };
         expect(writeSettings(settings)).toBe(true);
@@ -73,6 +74,7 @@ describe("readSettings", () => {
         expect(settings.spawnRadiusOverride).toBe(0);
         expect(settings.liveCapOverride).toBe(0);
         expect(settings.despawnDelaySeconds).toBe(0);
+        expect(settings.minibossChancePerCellOverride).toBe(0);
         expect(settings.sfxVolume).toBe(70);
     });
 
@@ -86,6 +88,7 @@ describe("readSettings", () => {
                 starterItems: true,
                 startLocation: "combat",
                 liveCapOverride: 2,
+                minibossChancePerCellOverride: 5,
                 sfxVolume: 40,
             })
         );

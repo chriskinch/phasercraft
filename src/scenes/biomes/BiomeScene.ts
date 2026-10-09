@@ -909,6 +909,7 @@ export default class BiomeScene extends Scene {
     private spawnHost(): SpawnHost<Enemy, EnemyType> {
         return {
             playerPosition: () => ({ x: this.player.x, y: this.player.y }),
+            playerStart: () => this.player_start,
             playerVelocity: () => this.player.body?.velocity ?? { x: 0, y: 0 },
             view: () => ({
                 width: this.scale.width,

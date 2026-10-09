@@ -25,6 +25,8 @@ export interface SpawnedEnemy {
 
 export interface SpawnHost<E extends SpawnedEnemy, Id extends string = string> {
     playerPosition(): Point;
+    // Where the player entered the area: the centre of the safe start pocket.
+    playerStart(): Point;
     playerVelocity(): Point;
     // Viewport size in screen px, and the camera zoom.
     view(): { width: number; height: number; zoom: number };
@@ -62,11 +64,21 @@ export interface SpawnDebugView<E> {
     direction: Point | null;
     halfAngle: number;
     despawnDelayMs: number;
-    // Every enemy the director tracks, and how long it has been beyond the radius.
-    enemies: { enemy: E; beyondMs: number }[];
+    // Every enemy the director tracks, how long it has been beyond the radius,
+    // and the difficulty multiplier it spawned at (#596).
+    enemies: { enemy: E; beyondMs: number; difficulty: number }[];
     // The centres tried on the most recent spawn, and whether any member fit there.
     attempts: { point: Point; ok: boolean }[];
+    // The most recent configurations spawned (#595): centre and cluster radius.
+    clusters: { centre: Point; radius: number }[];
+    // Exploration cells (#594) visited this run, by top-left corner.
+    exploration: { cellSize: number; cells: Point[] };
+    // The safe start pocket (#599).
+    safePocket: { centre: Point; radius: number };
 }
+
+// How many recent configurations the debug view keeps.
+export const DEBUG_CLUSTER_HISTORY = 8;
 
 // What the miniboss debug readout shows. Read-only; built on demand.
 export interface MinibossDebugView {
@@ -79,6 +91,7 @@ export interface MinibossDebugView {
 
 interface Tracked {
     miniboss: boolean;
+    difficulty: number;
     width: number;
     height: number;
     // How long, in ms, the enemy has been continuously beyond the radius.
@@ -100,6 +113,7 @@ export default class SpawnDirector<E extends SpawnedEnemy, Id extends string = s
     private cells_explored = 0;
     private stopped = false;
     private last_attempts: { point: Point; ok: boolean }[] = [];
+    private recent_clusters: { centre: Point; radius: number }[] = [];
 
     constructor(
         private readonly tuning: AreaTuning,
@@ -156,8 +170,15 @@ export default class SpawnDirector<E extends SpawnedEnemy, Id extends string = s
     }
 
     debugView(): SpawnDebugView<E> {
-        const enemies: { enemy: E; beyondMs: number }[] = [];
-        this.tracked.forEach((t, enemy) => enemies.push({ enemy, beyondMs: t.beyond }));
+        const enemies: SpawnDebugView<E>["enemies"] = [];
+        this.tracked.forEach((t, enemy) =>
+            enemies.push({ enemy, beyondMs: t.beyond, difficulty: t.difficulty })
+        );
+        const size = this.tuning.explorationCellSize;
+        const cells = [...this.visited].map((key) => {
+            const [cx, cy] = key.split(",").map(Number);
+            return { x: cx * size, y: cy * size };
+        });
         return {
             radius: this.radius(),
             despawnRadius: this.despawnRadius(),
@@ -166,6 +187,9 @@ export default class SpawnDirector<E extends SpawnedEnemy, Id extends string = s
             despawnDelayMs: this.tuning.despawnDelayMs,
             enemies,
             attempts: [...this.last_attempts],
+            clusters: [...this.recent_clusters],
+            exploration: { cellSize: size, cells },
+            safePocket: { centre: this.host.playerStart(), radius: this.tuning.safeStartRadius },
         };
     }
 
@@ -299,8 +323,12 @@ export default class SpawnDirector<E extends SpawnedEnemy, Id extends string = s
         if (!centre || members.length === 0) return;
         const difficulty = this.host.difficultyAt(centre);
         for (const { id, point, size } of members) {
-            this.track(this.host.spawnRegular(id, point, difficulty), false, size);
+            this.track(this.host.spawnRegular(id, point, difficulty), false, size, difficulty);
         }
+        const radius = clusterRadius(ids.length, this.tuning.clusterBaseRadius);
+        this.recent_clusters = [...this.recent_clusters, { centre, radius }].slice(
+            -DEBUG_CLUSTER_HISTORY
+        );
     }
 
     /**
@@ -377,7 +405,7 @@ export default class SpawnDirector<E extends SpawnedEnemy, Id extends string = s
         if (!at) return;
         const difficulty = this.host.difficultyAt(at.point);
         this.miniboss = this.host.spawnMiniboss(this.miniboss_id, at.point, difficulty);
-        this.track(this.miniboss, true, at.size);
+        this.track(this.miniboss, true, at.size, difficulty);
         this.host.onMinibossSpawned(this.miniboss);
     }
 
@@ -421,8 +449,13 @@ export default class SpawnDirector<E extends SpawnedEnemy, Id extends string = s
         return false;
     }
 
-    private track(enemy: E, miniboss: boolean, size: { width: number; height: number }): void {
-        this.tracked.set(enemy, { miniboss, ...size, beyond: 0 });
+    private track(
+        enemy: E,
+        miniboss: boolean,
+        size: { width: number; height: number },
+        difficulty: number
+    ): void {
+        this.tracked.set(enemy, { miniboss, difficulty, ...size, beyond: 0 });
     }
 
     private forget(enemy: E): void {

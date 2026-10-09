@@ -103,6 +103,7 @@ describe("resolveAreaTuning", () => {
             spawnRadiusOverride: 200,
             liveCapOverride: 2,
             despawnDelaySeconds: 5,
+            minibossChancePerCellOverride: 5,
         });
 
         expect(tuning).toEqual({
@@ -110,6 +111,7 @@ describe("resolveAreaTuning", () => {
             radiusOverride: 200,
             liveCap: 2,
             despawnDelayMs: 5000,
+            minibossChancePerCell: 0.05,
         });
     });
 
@@ -131,6 +133,7 @@ describe("resolveAreaTuning", () => {
             liveCapOverride: -3,
             // A hand-edited payload could hold anything.
             despawnDelaySeconds: "10" as unknown as number,
+            minibossChancePerCellOverride: -1,
         });
 
         expect(tuning).toEqual(DEFAULT_AREA_TUNING);
