@@ -3,16 +3,16 @@ import { Events } from "phaser";
 import BiomeScene from "./BiomeScene";
 import type { SpawnHost } from "./SpawnDirector";
 import type { WalkabilityGrid } from "@helpers/walkability";
-import { AREA_KILLS_TO_BOSS, SPAWN_INTERVAL_MS } from "@config/area";
-import { BOSS_SCALE } from "@entities/Enemy/Boss";
-import { ROAR_EDGE_MARGIN } from "@entities/UI/BossRoar";
+import { SPAWN_INTERVAL_MS } from "@config/area";
+import { MINIBOSS_SCALE } from "@entities/Enemy/Miniboss";
+import { ROAR_EDGE_MARGIN } from "@entities/UI/MinibossRoar";
 import { DEFAULT_SETTINGS, writeSettings } from "@services/settingsStorage";
 import { BIOMES, BIOME_IDS, DEFAULT_BIOME, resolveBiome } from "./biomes";
 import { OverlayWindows, type Bounds, type ViewRect } from "./propOverlayWindows";
 import store from "@store";
 
 // The area loop: a SpawnDirector (tested on its own in SpawnDirector.test.ts)
-// populates the area, counts kills and brings on the boss. These tests cover
+// populates the area, counts kills and brings on the miniboss. These tests cover
 // the scene's side of it: wiring the director to the clock, the death events,
 // game over and shutdown, and the host adapter it reads the world through.
 //
@@ -25,7 +25,6 @@ interface FakeTimer {
 }
 
 interface FakeDirector {
-    start: ReturnType<typeof vi.fn>;
     stop: ReturnType<typeof vi.fn>;
     tick: ReturnType<typeof vi.fn>;
     update: ReturnType<typeof vi.fn>;
@@ -46,15 +45,18 @@ interface SceneUnderTest {
     init(config: { type?: string; biome?: string }): void;
     startArea(): void;
     onEnemyDead(enemy: object): void;
-    announceBoss(boss: { x: number; y: number }): void;
+    announceMiniboss(miniboss: { x: number; y: number }): void;
     areaCleared(): void;
     removeAreaClearedTimer(): void;
     gameOver(): void;
     shutdown(): void;
     travel_subscription?: ReturnType<typeof vi.fn>;
     spawnEnemy: ReturnType<typeof vi.fn>;
-    spawnBoss: ReturnType<typeof vi.fn>;
+    spawnMiniboss: ReturnType<typeof vi.fn>;
     spawnHost(): SpawnHost<never, string>;
+    difficultyAt(point: { x: number; y: number }): number;
+    player_start: { x: number; y: number };
+    max_spawn_distance: number;
     textures: { getFrame: ReturnType<typeof vi.fn> };
     spawn_grid: WalkabilityGrid;
     physics: {
@@ -120,7 +122,6 @@ function makeScene(overrides: Partial<SceneUnderTest> = {}): {
     scene.area_cleared = false;
     scene.game_over = false;
     scene.director = {
-        start: vi.fn(),
         stop: vi.fn(),
         tick: vi.fn(),
         update: vi.fn(),
@@ -143,11 +144,13 @@ function makeScene(overrides: Partial<SceneUnderTest> = {}): {
     scene.enemies = { runChildUpdate: true, getChildren: vi.fn(() => []) };
     scene.UI = { cleanup: vi.fn() };
     scene.player = { cleanup: vi.fn(), alive: false, x: 0, y: 0 };
+    scene.player_start = { x: 0, y: 0 };
+    scene.max_spawn_distance = 1000;
     scene.input = { off: vi.fn(), activePointer: {} };
     scene.cursors = { esc: { isDown: false } };
     scene.events = { on: vi.fn(), off: vi.fn(), once: vi.fn(), emit: vi.fn() };
     scene.spawnEnemy = vi.fn();
-    scene.spawnBoss = vi.fn();
+    scene.spawnMiniboss = vi.fn();
     Object.assign(scene, overrides);
     return { scene, pending, spawnTimer };
 }
@@ -172,31 +175,20 @@ describe("BiomeScene.startArea", () => {
         expect(scene.events.on).toHaveBeenCalledWith("enemy:dead", scene.onEnemyDead, scene);
     });
 
-    it("resets the HUD: the full kill count, and a stale boss flag cleared", () => {
-        const { scene } = makeScene();
-
-        scene.startArea();
-
-        expect(store.dispatch).toHaveBeenCalledWith({
-            type: "SET_ENEMIES_REMAINING",
-            payload: { value: AREA_KILLS_TO_BOSS },
-        });
-        expect(store.dispatch).toHaveBeenCalledWith({
-            type: "SET_BOSS_ACTIVE",
-            payload: { value: false },
-        });
-    });
-
     it("applies the spawn overrides on area entry, Debug mode off", () => {
-        writeSettings({ ...DEFAULT_SETTINGS, godMode: true, debug: false, killsToBossOverride: 3 });
+        writeSettings({
+            ...DEFAULT_SETTINGS,
+            godMode: true,
+            debug: false,
+            spawnRadiusOverride: 300,
+        });
         const { scene } = makeScene();
 
         scene.startArea();
 
-        expect(store.dispatch).toHaveBeenCalledWith({
-            type: "SET_ENEMIES_REMAINING",
-            payload: { value: 3 },
-        });
+        // startArea() swapped the fake for a real director built from the tuning.
+        const director = scene.director as unknown as { tuning: { radiusOverride: number } };
+        expect(director.tuning.radiusOverride).toBe(300);
     });
 
     it("builds the spawn debug overlay only when Debug and its toggle are both on", () => {
@@ -244,6 +236,51 @@ describe("BiomeScene.startArea", () => {
         expect(graphics.destroy).toHaveBeenCalledTimes(1);
     });
 
+    it("builds the miniboss chance readout only when Debug and its toggle are both on", () => {
+        const text = {
+            text: "",
+            setTint: vi.fn(() => text),
+            setOrigin: vi.fn(() => text),
+            setScrollFactor: vi.fn(() => text),
+            setDepth: vi.fn(() => text),
+            setPosition: vi.fn(() => text),
+            destroy: vi.fn(),
+        };
+        const withAdd = () => {
+            const { scene } = makeScene();
+            Object.assign(scene, {
+                add: { sprite: vi.fn(), bitmapText: vi.fn(() => text) },
+                zone: { x: 0, y: 0, width: 800, height: 600, originX: 0, originY: 0 },
+            });
+            return scene as SceneUnderTest & { miniboss_readout?: object };
+        };
+
+        writeSettings({ ...DEFAULT_SETTINGS, godMode: true, debug: true });
+        const off = withAdd();
+        off.startArea();
+        expect(off.miniboss_readout).toBeUndefined();
+
+        writeSettings({ ...DEFAULT_SETTINGS, godMode: true, minibossDebugReadout: true });
+        const debugOff = withAdd();
+        debugOff.startArea();
+        expect(debugOff.miniboss_readout).toBeUndefined();
+
+        writeSettings({
+            ...DEFAULT_SETTINGS,
+            godMode: true,
+            debug: true,
+            minibossDebugReadout: true,
+        });
+        const on = withAdd();
+        on.startArea();
+        expect(on.miniboss_readout).toBeDefined();
+        expect(text.setPosition).toHaveBeenCalledWith(800, 0);
+
+        // Re-entry replaces it, releasing the old one.
+        on.startArea();
+        expect(text.destroy).toHaveBeenCalledTimes(1);
+    });
+
     it("ticks a fresh director on a looping, pause-aware scene timer", () => {
         const { scene, spawnTimer } = makeScene();
         const stale = scene.director;
@@ -268,17 +305,25 @@ describe("BiomeScene.startArea", () => {
     });
 });
 
-describe("BiomeScene.announceBoss", () => {
-    it("listens for boss:spawned once per area entry", () => {
+describe("BiomeScene.announceMiniboss", () => {
+    it("listens for miniboss:spawned once per area entry", () => {
         const { scene } = makeScene();
 
         scene.startArea();
 
-        expect(scene.events.off).toHaveBeenCalledWith("boss:spawned", scene.announceBoss, scene);
-        expect(scene.events.on).toHaveBeenCalledWith("boss:spawned", scene.announceBoss, scene);
+        expect(scene.events.off).toHaveBeenCalledWith(
+            "miniboss:spawned",
+            scene.announceMiniboss,
+            scene
+        );
+        expect(scene.events.on).toHaveBeenCalledWith(
+            "miniboss:spawned",
+            scene.announceMiniboss,
+            scene
+        );
     });
 
-    it("puts ROAR! at the screen edge towards an off-screen boss", () => {
+    it("puts ROAR! at the screen edge towards an off-screen miniboss", () => {
         const { scene } = makeScene();
         const text = {
             width: 120,
@@ -302,9 +347,9 @@ describe("BiomeScene.announceBoss", () => {
         scene.player = { ...scene.player, x: 5000, y: 5000 };
 
         // Due right of the player, well off the 800px-wide screen.
-        scene.announceBoss({ x: 6000, y: 5000 });
+        scene.announceMiniboss({ x: 6000, y: 5000 });
 
-        // Screen: player centred at (400, 300), boss due right; the word is
+        // Screen: player centred at (400, 300), miniboss due right; the word is
         // inset from the right edge by half its 120px width plus the margin.
         expect(text.setPosition).toHaveBeenCalledWith(800 - 60 - ROAR_EDGE_MARGIN, 300);
     });
@@ -314,7 +359,11 @@ describe("BiomeScene.announceBoss", () => {
 
         scene.shutdown();
 
-        expect(scene.events.off).toHaveBeenCalledWith("boss:spawned", scene.announceBoss, scene);
+        expect(scene.events.off).toHaveBeenCalledWith(
+            "miniboss:spawned",
+            scene.announceMiniboss,
+            scene
+        );
     });
 });
 
@@ -361,20 +410,46 @@ describe("BiomeScene.spawnHost", () => {
 
             for (let i = 0; i < 20; i++) {
                 expect(BIOMES[id].enemies).toContain(host.pickRegular());
-                expect(BIOMES[id].enemies).toContain(host.pickBoss());
+                expect(BIOMES[id].enemies).toContain(host.pickMiniboss());
             }
         });
     });
 
-    it("sizes a creature by its sprite's default frame, and a boss at boss scale", () => {
+    it("weights species by tier for how far out the player is", () => {
+        // An even spread of rolls over [0, 1), so counts are exact proportions.
+        const N = 6000;
+        const draw = (x: number) => {
+            const { scene } = makeScene({ enemy_pool: [...BIOMES.tundra.enemies] });
+            scene.player = { ...scene.player, x, y: 0 };
+            let i = 0;
+            const spy = vi.spyOn(Math, "random").mockImplementation(() => (i++ + 0.5) / N);
+            const counts: Record<string, number> = {};
+            for (let n = 0; n < N; n++) {
+                const id = scene.spawnHost().pickRegular();
+                counts[id] = (counts[id] ?? 0) + 1;
+            }
+            spy.mockRestore();
+            return counts;
+        };
+
+        // Tundra: egbert tier 3 (weakest), slime tier 5 (strongest).
+        const start = draw(0);
+        expect(start.egbert / start.slime).toBeCloseTo(2, 1);
+        const edge = draw(1000);
+        expect(edge.slime / edge.egbert).toBeCloseTo(3, 1);
+        const middle = draw(500);
+        expect(middle.slime / middle.egbert).toBeCloseTo(1, 1);
+    });
+
+    it("sizes a creature by its sprite's default frame, and a miniboss at miniboss scale", () => {
         const { scene } = makeScene();
         scene.textures = { getFrame: vi.fn(() => ({ width: 20, height: 24 })) };
         const host = scene.spawnHost();
 
         expect(host.footprint("imp", false)).toEqual({ width: 20, height: 24 });
         expect(host.footprint("imp", true)).toEqual({
-            width: 20 * BOSS_SCALE,
-            height: 24 * BOSS_SCALE,
+            width: 20 * MINIBOSS_SCALE,
+            height: 24 * MINIBOSS_SCALE,
         });
         expect(scene.textures.getFrame).toHaveBeenCalledWith("imp");
     });
@@ -404,28 +479,65 @@ describe("BiomeScene.spawnHost", () => {
         expect(scene.spawnHost().playerVelocity()).toEqual({ x: 0, y: 0 });
     });
 
-    it("announces each boss spawn as boss:spawned, with the boss", () => {
+    it("announces each miniboss spawn as miniboss:spawned, with the miniboss", () => {
         const { scene } = makeScene();
-        const boss = {} as never;
+        const miniboss = {} as never;
 
-        scene.spawnHost().onBossSpawned(boss);
+        scene.spawnHost().onMinibossSpawned(miniboss);
 
-        expect(scene.events.emit).toHaveBeenCalledWith("boss:spawned", boss);
+        expect(scene.events.emit).toHaveBeenCalledWith("miniboss:spawned", miniboss);
     });
 
-    it("mirrors progress into the store for the HUD", () => {
+    it("keeps the dormant area-cleared hook wired to the banner", () => {
         const { scene } = makeScene();
 
-        scene.spawnHost().onProgress(7, true);
+        scene.spawnHost().onAreaCleared();
 
-        expect(store.dispatch).toHaveBeenCalledWith({
-            type: "SET_ENEMIES_REMAINING",
-            payload: { value: 7 },
-        });
-        expect(store.dispatch).toHaveBeenCalledWith({
-            type: "SET_BOSS_ACTIVE",
-            payload: { value: true },
-        });
+        expect(scene.area_cleared).toBe(true);
+    });
+});
+
+describe("BiomeScene.difficultyAt", () => {
+    // Start at the origin; the furthest spawnable tile 1000 px away.
+    const at = (biome: keyof typeof BIOMES, point: { x: number; y: number }) => {
+        const { scene } = makeScene();
+        scene.biome = BIOMES[biome];
+        scene.player_start = { x: 0, y: 0 };
+        scene.max_spawn_distance = 1000;
+        return scene.difficultyAt(point);
+    };
+
+    it.each([
+        ["forest", 1, 3],
+        ["desert", 1.5, 4.5],
+        ["tundra", 2, 6],
+    ] as const)("%s runs from %s at the start to %s at the far edge", (biome, start, edge) => {
+        expect(at(biome, { x: 0, y: 0 })).toBeCloseTo(start);
+        expect(at(biome, { x: 600, y: 800 })).toBeCloseTo(edge);
+        expect(at(biome, { x: 3000, y: 0 })).toBeCloseTo(edge);
+    });
+
+    it("rises linearly with straight-line distance", () => {
+        expect(at("forest", { x: 0, y: 500 })).toBeCloseTo(2);
+    });
+
+    it("is what the spawn host hands the director", () => {
+        const { scene } = makeScene();
+        scene.player_start = { x: 0, y: 0 };
+        scene.max_spawn_distance = 1000;
+
+        expect(scene.spawnHost().difficultyAt({ x: 1000, y: 0 })).toBeCloseTo(3);
+    });
+
+    it("passes the director's difficulty on to the enemy and miniboss it spawns", () => {
+        const { scene } = makeScene();
+        const host = scene.spawnHost();
+
+        host.spawnRegular("imp", { x: 1, y: 2 }, 2.5);
+        host.spawnMiniboss("ghoul", { x: 3, y: 4 }, 4);
+
+        expect(scene.spawnEnemy).toHaveBeenCalledWith("imp", { x: 1, y: 2 }, 2.5);
+        expect(scene.spawnMiniboss).toHaveBeenCalledWith("ghoul", { x: 3, y: 4 }, 4);
     });
 });
 
@@ -537,6 +649,38 @@ describe("BiomeScene.shutdown", () => {
         scene.shutdown();
 
         expect(overlay.cleanup).toHaveBeenCalledTimes(1);
+    });
+
+    it("releases the miniboss chance readout, once", () => {
+        const text = {
+            text: "",
+            setTint: vi.fn(() => text),
+            setOrigin: vi.fn(() => text),
+            setScrollFactor: vi.fn(() => text),
+            setDepth: vi.fn(() => text),
+            setPosition: vi.fn(() => text),
+            destroy: vi.fn(),
+        };
+        const { scene } = makeScene();
+        Object.assign(scene, {
+            add: { sprite: vi.fn(), bitmapText: vi.fn(() => text) },
+            zone: { x: 0, y: 0, width: 800, height: 600, originX: 0, originY: 0 },
+        });
+        writeSettings({
+            ...DEFAULT_SETTINGS,
+            godMode: true,
+            debug: true,
+            minibossDebugReadout: true,
+        });
+        scene.startArea();
+
+        scene.shutdown();
+        scene.shutdown();
+
+        expect(text.destroy).toHaveBeenCalledTimes(1);
+        expect(
+            (scene as unknown as { miniboss_readout?: object }).miniboss_readout
+        ).toBeUndefined();
     });
 
     it("removes the spawn timer, once", () => {
@@ -1085,9 +1229,9 @@ describe("biome definitions", () => {
         });
     });
 
-    it("keeps the boss drawable from the biome's own pool", () => {
-        // The boss is promoted from this.enemy_pool, so an empty pool would
-        // leave the area with no boss to clear rather than just the wrong one.
+    it("keeps the miniboss drawable from the biome's own pool", () => {
+        // The miniboss is promoted from this.enemy_pool, so an empty pool would
+        // leave the area with no miniboss to clear rather than just the wrong one.
         BIOME_IDS.forEach((id) => expect(BIOMES[id].enemies).not.toHaveLength(0));
     });
 

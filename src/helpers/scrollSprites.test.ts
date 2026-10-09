@@ -211,7 +211,7 @@ describe("composition", () => {
         expect(Buffer.from(a.image.data).equals(Buffer.from(b.image.data))).toBe(true);
         expect(a.json).toEqual(b.json);
         expect(createHash("sha256").update(a.image.data).digest("hex")).toMatchInlineSnapshot(
-            `"525358674889b8cafd412545dd8da74503aecd54805092af8ece715bc46d311c"`
+            `"62c46135e6f20e7d6478213ff6d635a39655045f5f4e290620c8eaabc298b919"`
         );
     });
 });

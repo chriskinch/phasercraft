@@ -1,4 +1,5 @@
-import type { AreaTuning } from "@config/area";
+import { CLUSTER_MEMBER_ATTEMPTS, type AreaTuning } from "@config/area";
+import { clusterRadius, configWeightsAt, rollConfig, sampleInDisc } from "@helpers/spawnConfig";
 import {
     isBeyondRadius,
     sampleSpawnPoint,
@@ -9,9 +10,10 @@ import {
 import type { Rect } from "@helpers/walkability";
 
 // Runs a combat area's population (#456): trickles enemies in off screen ahead
-// of the player, despawns the ones left behind, counts kills towards the boss,
-// and spawns (and if need be respawns) the boss. Pure logic — everything it
-// needs from Phaser comes through a `SpawnHost`, so it is tested on fakes.
+// of the player in clustered configurations (#595), despawns the ones left behind, and rolls for the miniboss each
+// time the player explores new ground (#594), respawning it if it despawns.
+// Pure logic — everything it needs from Phaser comes through a `SpawnHost`, so
+// it is tested on fakes.
 
 // What the director needs from a spawned enemy.
 export interface SpawnedEnemy {
@@ -29,36 +31,54 @@ export interface SpawnHost<E extends SpawnedEnemy, Id extends string = string> {
     // Whether every tile under this world rect is open, reachable land.
     isSpawnable(rect: Rect): boolean;
     // The body size a creature will have once spawned, in world px.
-    footprint(id: Id, boss: boolean): { width: number; height: number };
+    footprint(id: Id, miniboss: boolean): { width: number; height: number };
     // Which creature to spawn next, drawn from the area's pool.
     pickRegular(): Id;
-    pickBoss(): Id;
-    spawnRegular(id: Id, at: Point): E;
-    spawnBoss(id: Id, at: Point): E;
-    // Kills left before the boss, and whether the boss has been triggered.
-    onProgress(killsRemaining: number, bossActive: boolean): void;
+    pickMiniboss(): Id;
+    // The difficulty multiplier (#596) for a spawn at this point.
+    difficultyAt(point: Point): number;
+    // How far this point is from the player's start: in world px, and as the
+    // 0-1 fraction of the furthest spawnable distance (#596) that pack odds
+    // and the safe start pocket read (#599).
+    distanceFromStart(point: Point): { distance: number; fraction: number };
+    // Every member of a configuration shares its centre's difficulty.
+    spawnRegular(id: Id, at: Point, difficulty: number): E;
+    spawnMiniboss(id: Id, at: Point, difficulty: number): E;
+    // Clears the area. Dormant: nothing calls it since the miniboss stopped
+    // clearing areas (#594); the boss epic's boss death will.
     onAreaCleared(): void;
-    // Every time the boss appears: its first spawn, and each respawn after a
-    // despawn. The scene turns this into `boss:spawned` (see #465).
-    onBossSpawned(boss: E): void;
+    // Every time the miniboss appears: its first spawn, and each respawn after a
+    // despawn. The scene turns this into `miniboss:spawned` (see #465).
+    onMinibossSpawned(miniboss: E): void;
     random(): number;
 }
 
 // What the spawn debug overlay (#464) draws. Read-only; built on demand.
 export interface SpawnDebugView<E> {
     radius: number;
+    // Beyond this, an enemy's despawn clock runs (radius + the largest cluster's diameter).
+    despawnRadius: number;
     // Unit vector of the player's travel, or null while standing still.
     direction: Point | null;
     halfAngle: number;
     despawnDelayMs: number;
     // Every enemy the director tracks, and how long it has been beyond the radius.
     enemies: { enemy: E; beyondMs: number }[];
-    // The candidates tried on the most recent spawn attempt, and whether each fit.
+    // The centres tried on the most recent spawn, and whether any member fit there.
     attempts: { point: Point; ok: boolean }[];
 }
 
+// What the miniboss debug readout shows. Read-only; built on demand.
+export interface MinibossDebugView {
+    // A miniboss has been rolled and is up (or waiting for room to respawn).
+    active: boolean;
+    // The chance the next new cell brings it on; 0 while active.
+    chance: number;
+    cellsExplored: number;
+}
+
 interface Tracked {
-    boss: boolean;
+    miniboss: boolean;
     width: number;
     height: number;
     // How long, in ms, the enemy has been continuously beyond the radius.
@@ -67,10 +87,17 @@ interface Tracked {
 
 export default class SpawnDirector<E extends SpawnedEnemy, Id extends string = string> {
     private readonly tracked = new Map<E, Tracked>();
-    private kills = 0;
-    private boss_id: Id | null = null;
-    private boss: E | null = null;
-    private cleared = false;
+    // The creature the current miniboss was promoted from, from the roll that
+    // brought it on until it dies; a despawned miniboss keeps it, so it respawns.
+    private miniboss_id: Id | null = null;
+    private miniboss: E | null = null;
+    // Exploration cells ("cx,cy") the player has stepped into this run. Each
+    // counts once; the first one seen (the start) is marked without counting.
+    private readonly visited = new Set<string>();
+    // New cells counted towards the miniboss since the last one was rolled:
+    // reset to 0 on the roll, and held there while it is up (or waiting to
+    // respawn).
+    private cells_explored = 0;
     private stopped = false;
     private last_attempts: { point: Point; ok: boolean }[] = [];
 
@@ -79,18 +106,28 @@ export default class SpawnDirector<E extends SpawnedEnemy, Id extends string = s
         private readonly host: SpawnHost<E, Id>
     ) {}
 
-    get killsRemaining(): number {
-        return Math.max(this.tuning.killsToBoss - this.kills, 0);
+    get minibossActive(): boolean {
+        return this.miniboss_id !== null;
     }
 
-    get bossTriggered(): boolean {
-        return this.boss_id !== null;
+    get cellsExplored(): number {
+        return this.cells_explored;
+    }
+
+    /**
+     * The chance the next new cell brings on the miniboss: `minibossChancePerCell`
+     * for every cell counted since the last one, that cell included, capped at
+     * certain. 0 while a miniboss is already active.
+     */
+    get minibossChance(): number {
+        if (this.minibossActive) return 0;
+        return Math.min(this.tuning.minibossChancePerCell * (this.cells_explored + 1), 1);
     }
 
     get regularsAlive(): number {
         let count = 0;
         this.tracked.forEach((t) => {
-            if (!t.boss) count++;
+            if (!t.miniboss) count++;
         });
         return count;
     }
@@ -108,11 +145,22 @@ export default class SpawnDirector<E extends SpawnedEnemy, Id extends string = s
         });
     }
 
+    /**
+     * The spawn radius plus the diameter of the largest possible cluster: its
+     * centre sits a cluster radius beyond the spawn radius and members scatter
+     * up to another radius out, so no member starts out despawning.
+     */
+    despawnRadius(): number {
+        const { clusterBaseRadius, packSize } = this.tuning;
+        return this.radius() + 2 * clusterRadius(Math.max(...packSize), clusterBaseRadius);
+    }
+
     debugView(): SpawnDebugView<E> {
         const enemies: { enemy: E; beyondMs: number }[] = [];
         this.tracked.forEach((t, enemy) => enemies.push({ enemy, beyondMs: t.beyond }));
         return {
             radius: this.radius(),
+            despawnRadius: this.despawnRadius(),
             direction: spawnDirection(this.host.playerVelocity(), this.tuning.movingSpeed),
             halfAngle: (this.tuning.coneHalfAngleDeg * Math.PI) / 180,
             despawnDelayMs: this.tuning.despawnDelayMs,
@@ -121,44 +169,48 @@ export default class SpawnDirector<E extends SpawnedEnemy, Id extends string = s
         };
     }
 
-    start(): void {
-        this.host.onProgress(this.killsRemaining, false);
+    minibossDebugView(): MinibossDebugView {
+        return {
+            active: this.minibossActive,
+            chance: this.minibossChance,
+            cellsExplored: this.cells_explored,
+        };
     }
 
-    // Game over: nothing spawns, despawns or counts from here on.
+    // Game over: nothing spawns, despawns or explores from here on.
     stop(): void {
         this.stopped = true;
     }
 
     /**
-     * One pacing tick. Before the boss: one regular, if below the live cap.
-     * After: the boss, if it is not already on the map (its first spawn found
-     * no room, or it despawned). Never more than one spawn per tick.
+     * One pacing tick. A miniboss that has been rolled but is not on the map
+     * (just rolled, its first spawn found no room, or it despawned) takes the
+     * tick. Otherwise, below the live cap, one configuration of regulars.
      */
     tick(): void {
-        if (this.stopped || this.cleared) return;
+        if (this.stopped) return;
 
-        if (this.boss_id !== null) {
-            if (!this.boss) this.trySpawnBoss();
+        if (this.minibossActive && !this.miniboss) {
+            this.trySpawnMiniboss();
             return;
         }
 
-        if (this.regularsAlive < this.tuning.liveCap) {
-            const id = this.host.pickRegular();
-            const at = this.findSpawnPoint(id, false);
-            if (at) this.track(this.host.spawnRegular(id, at.point), false, at.size);
-        }
+        if (this.regularsAlive < this.tuning.liveCap) this.spawnConfiguration();
     }
 
     /**
-     * Advances every enemy's despawn clock by `delta` ms. The scene only calls
-     * this from its update loop, so the clock stops whenever the scene is paused.
+     * Notes the player's exploration cell (rolling for the miniboss on new
+     * ground), and advances every enemy's despawn clock by `delta` ms. The
+     * scene only calls this from its update loop, so the clocks stop whenever
+     * the scene is paused.
      */
     update(delta: number): void {
         if (this.stopped) return;
 
         const player = this.host.playerPosition();
-        const radius = this.radius();
+        this.explore(player);
+
+        const radius = this.despawnRadius();
         const expired: E[] = [];
 
         this.tracked.forEach((t, enemy) => {
@@ -173,37 +225,160 @@ export default class SpawnDirector<E extends SpawnedEnemy, Id extends string = s
     }
 
     /**
-     * A tracked enemy died. Regulars count towards the boss until it triggers;
-     * the boss's own death is the only thing that clears the area.
+     * A tracked enemy died. The miniboss's death lets exploring count again;
+     * nothing clears the area (that waits on the boss epic).
      */
     onEnemyDead(enemy: E): void {
         if (this.stopped || !this.tracked.has(enemy)) return;
-        const was_boss = enemy === this.boss;
+        const was_miniboss = enemy === this.miniboss;
         this.forget(enemy);
 
-        if (was_boss) {
-            this.cleared = true;
-            this.host.onAreaCleared();
-            return;
-        }
-
-        if (this.boss_id !== null) return;
-
-        this.kills++;
-        if (this.kills >= this.tuning.killsToBoss) {
-            this.boss_id = this.host.pickBoss();
-            this.trySpawnBoss();
-        }
-        this.host.onProgress(this.killsRemaining, this.bossTriggered);
+        if (was_miniboss) this.miniboss_id = null;
     }
 
-    private trySpawnBoss(): void {
-        if (this.boss_id === null) return;
-        const at = this.findSpawnPoint(this.boss_id, true);
+    /**
+     * Marks the player's cell visited. The first time a cell is entered (the
+     * start cell, and any cell centred inside the safe start pocket, aside)
+     * with no miniboss active, it counts and rolls: a hit
+     * picks the miniboss, which the next tick brings on, and resets the count.
+     * Cells crossed while a miniboss is up are still marked, so they never
+     * count later.
+     */
+    private explore(player: Point): void {
+        const size = this.tuning.explorationCellSize;
+        const cx = Math.floor(player.x / size);
+        const cy = Math.floor(player.y / size);
+        const cell = `${cx},${cy}`;
+        if (this.visited.has(cell)) return;
+        const first = this.visited.size === 0;
+        this.visited.add(cell);
+        if (first || this.minibossActive) return;
+        if (this.inSafePocket({ x: (cx + 0.5) * size, y: (cy + 0.5) * size })) return;
+
+        // Read before counting: the chance is for this, the next, cell.
+        const chance = this.minibossChance;
+        this.cells_explored++;
+        // No roll at all at 0%, so tuning it off leaves the random sequence (and
+        // every spawn point drawn from it) untouched.
+        if (chance > 0 && this.host.random() < chance) {
+            this.miniboss_id = this.host.pickMiniboss();
+            this.cells_explored = 0;
+        }
+    }
+
+    /**
+     * Rolls the next configuration and spawns as many of its members as fit.
+     * The kind is rolled before a centre exists (the centre's distance depends
+     * on the head count), so the pack odds and the safe pocket (#599) are read
+     * at a trial centre sampled on the spawn ring the same way the real ones
+     * are. A pack whose real centre lands in the pocket is still turned away
+     * by `placeCluster`.
+     */
+    private spawnConfiguration(): void {
+        const random = () => this.host.random();
+        const trial = sampleSpawnPoint(
+            this.host.playerPosition(),
+            this.radius(),
+            spawnDirection(this.host.playerVelocity(), this.tuning.movingSpeed),
+            (this.tuning.coneHalfAngleDeg * Math.PI) / 180,
+            random
+        );
+        const { distance, fraction } = this.host.distanceFromStart(trial);
+        const configWeights = configWeightsAt(
+            this.tuning.configWeights,
+            this.tuning.packWeightAtEdge,
+            fraction,
+            distance < this.tuning.safeStartRadius
+        );
+        const { kind, ids } = rollConfig(
+            { ...this.tuning, configWeights },
+            () => this.host.pickRegular(),
+            random
+        );
+        const { centre, members } = this.placeCluster(ids, kind === "pack");
+        if (!centre || members.length === 0) return;
+        const difficulty = this.host.difficultyAt(centre);
+        for (const { id, point, size } of members) {
+            this.track(this.host.spawnRegular(id, point, difficulty), false, size);
+        }
+    }
+
+    /**
+     * Up to `attemptsPerTick` centres, each far enough out (spawn radius +
+     * cluster radius) that the whole cluster is off screen, in the cone ahead
+     * of the player (or anywhere around a player standing still). Members
+     * scatter in the cluster's disc around a centre; each one needs its whole
+     * footprint on open, reachable land, clear of live enemies and of the
+     * members already placed, within `CLUSTER_MEMBER_ATTEMPTS` tries. The
+     * centre that fits the most members wins (stopping early once all fit);
+     * the rest of the configuration is dropped. Nothing fits: nothing spawns.
+     * A pack's centre may not lie inside the safe start pocket (#599).
+     */
+    private placeCluster(
+        ids: Id[],
+        outsidePocket: boolean
+    ): {
+        centre: Point | null;
+        members: { id: Id; point: Point; size: Size }[];
+    } {
+        const random = () => this.host.random();
+        const player = this.host.playerPosition();
+        const direction = spawnDirection(this.host.playerVelocity(), this.tuning.movingSpeed);
+        const half_angle = (this.tuning.coneHalfAngleDeg * Math.PI) / 180;
+        const spread = clusterRadius(ids.length, this.tuning.clusterBaseRadius);
+        const ring = this.radius() + spread;
+        // No spread, no point trying a member twice at the same spot.
+        const tries = spread > 0 ? CLUSTER_MEMBER_ATTEMPTS : 1;
+        const sizes = ids.map((id) => this.host.footprint(id, false));
+        let best: { id: Id; point: Point; size: Size }[] = [];
+        let best_centre: Point | null = null;
+        this.last_attempts = [];
+
+        for (let attempt = 0; attempt < this.tuning.attemptsPerTick; attempt++) {
+            const centre = sampleSpawnPoint(player, ring, direction, half_angle, random);
+            if (outsidePocket && this.inSafePocket(centre)) {
+                this.last_attempts.push({ point: centre, ok: false });
+                continue;
+            }
+            const placed: { id: Id; point: Point; size: Size; rect: Rect }[] = [];
+
+            ids.forEach((id, i) => {
+                const size = sizes[i];
+                for (let t = 0; t < tries; t++) {
+                    const point = spread > 0 ? sampleInDisc(centre, spread, random) : centre;
+                    const rect = footprintRect(point, size);
+                    const clear =
+                        this.host.isSpawnable(rect) &&
+                        !this.overlapsLiveEnemy(rect) &&
+                        !placed.some((p) => overlaps(rect, p.rect));
+                    if (clear) {
+                        placed.push({ id, point, size, rect });
+                        return;
+                    }
+                }
+            });
+
+            this.last_attempts.push({ point: centre, ok: placed.length > 0 });
+            if (placed.length > best.length) {
+                best = placed;
+                best_centre = centre;
+            }
+            if (best.length === ids.length) break;
+        }
+        return {
+            centre: best_centre,
+            members: best.map(({ id, point, size }) => ({ id, point, size })),
+        };
+    }
+
+    private trySpawnMiniboss(): void {
+        if (this.miniboss_id === null) return;
+        const at = this.findSpawnPoint(this.miniboss_id, true);
         if (!at) return;
-        this.boss = this.host.spawnBoss(this.boss_id, at.point);
-        this.track(this.boss, true, at.size);
-        this.host.onBossSpawned(this.boss);
+        const difficulty = this.host.difficultyAt(at.point);
+        this.miniboss = this.host.spawnMiniboss(this.miniboss_id, at.point, difficulty);
+        this.track(this.miniboss, true, at.size);
+        this.host.onMinibossSpawned(this.miniboss);
     }
 
     /**
@@ -214,25 +389,20 @@ export default class SpawnDirector<E extends SpawnedEnemy, Id extends string = s
      */
     private findSpawnPoint(
         id: Id,
-        boss: boolean
+        miniboss: boolean
     ): { point: Point; size: { width: number; height: number } } | null {
         const player = this.host.playerPosition();
         const direction = spawnDirection(this.host.playerVelocity(), this.tuning.movingSpeed);
         const half_angle = (this.tuning.coneHalfAngleDeg * Math.PI) / 180;
         const radius = this.radius();
-        const size = this.host.footprint(id, boss);
+        const size = this.host.footprint(id, miniboss);
         this.last_attempts = [];
 
         for (let attempt = 0; attempt < this.tuning.attemptsPerTick; attempt++) {
             const point = sampleSpawnPoint(player, radius, direction, half_angle, () =>
                 this.host.random()
             );
-            const rect = {
-                x: point.x - size.width / 2,
-                y: point.y - size.height / 2,
-                width: size.width,
-                height: size.height,
-            };
+            const rect = footprintRect(point, size);
             const ok = this.host.isSpawnable(rect) && !this.overlapsLiveEnemy(rect);
             this.last_attempts.push({ point, ok });
             if (ok) return { point, size };
@@ -240,28 +410,41 @@ export default class SpawnDirector<E extends SpawnedEnemy, Id extends string = s
         return null;
     }
 
+    private inSafePocket(point: Point): boolean {
+        return this.host.distanceFromStart(point).distance < this.tuning.safeStartRadius;
+    }
+
     private overlapsLiveEnemy(rect: Rect): boolean {
         for (const [enemy, t] of this.tracked) {
-            const left = enemy.x - t.width / 2;
-            const top = enemy.y - t.height / 2;
-            if (
-                rect.x < left + t.width &&
-                left < rect.x + rect.width &&
-                rect.y < top + t.height &&
-                top < rect.y + rect.height
-            ) {
-                return true;
-            }
+            if (overlaps(rect, footprintRect(enemy, t))) return true;
         }
         return false;
     }
 
-    private track(enemy: E, boss: boolean, size: { width: number; height: number }): void {
-        this.tracked.set(enemy, { boss, ...size, beyond: 0 });
+    private track(enemy: E, miniboss: boolean, size: { width: number; height: number }): void {
+        this.tracked.set(enemy, { miniboss, ...size, beyond: 0 });
     }
 
     private forget(enemy: E): void {
         this.tracked.delete(enemy);
-        if (enemy === this.boss) this.boss = null;
+        if (enemy === this.miniboss) this.miniboss = null;
     }
+}
+
+type Size = { width: number; height: number };
+
+// A creature's body, centred on `point`.
+function footprintRect(point: Point, size: Size): Rect {
+    return {
+        x: point.x - size.width / 2,
+        y: point.y - size.height / 2,
+        width: size.width,
+        height: size.height,
+    };
+}
+
+function overlaps(a: Rect, b: Rect): boolean {
+    return (
+        a.x < b.x + b.width && b.x < a.x + a.width && a.y < b.y + b.height && b.y < a.y + a.height
+    );
 }

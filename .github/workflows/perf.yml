@@ -1,13 +1,14 @@
 # Perf harness on a VITE_PERF=1 build.
 #
 # Frame time (#526) is report only: it never fails on numbers.
-# Gameplay equivalence (#527) does fail: seeded replays must match the
-# committed goldens, and on a PR its screenshots must match the base's pixel
-# for pixel. A PR also labelled `perf-tolerance` (stories allowed to shift AI
+# Gameplay equivalence (#527) does fail: on a PR, seeded replays must match
+# goldens recorded from its base in the same run (not committed: gameplay
+# changes constantly), and its screenshots must match the base's pixel for
+# pixel. A PR also labelled `perf-tolerance` (stories allowed to shift AI
 # timing, #537) is held to the base's goldens within ±10% instead. One labelled
 # `perf-visual` (an intended look change, e.g. the bitmap font, #534) skips the
 # screenshot diff but stays exact on the goldens.
-#   - nightly on main: records a baseline artifact.
+#   - nightly on main: records a baseline artifact (goldens included).
 #   - PR labelled `perf` (and each push while labelled), or manual dispatch:
 #     runs the PR head and its base on the same runner, then posts the
 #     comparison to the job summary. One runner for both sides keeps
@@ -38,6 +39,7 @@ concurrency:
 env:
     PERF_SAMPLE_FRAMES: ${{ inputs.sample_frames || '1200' }}
     PERF_SNAPSHOT_DIR: ${{ github.workspace }}/perf-snapshots
+    PERF_GOLDENS: ${{ github.workspace }}/perf-goldens/equivalence.json
 
 jobs:
     perf:
@@ -77,7 +79,7 @@ jobs:
                   PERF_OUT_DIR="$GITHUB_WORKSPACE/perf-base" npm run perf:run ||
                       echo "::warning::base frame-time run failed"
                   if [ -f perf/equivalence.spec.ts ]; then
-                      PERF_SNAPSHOTS=record npm run perf:equivalence
+                      PERF_SNAPSHOTS=record PERF_EQUIVALENCE=update npm run perf:equivalence
                   fi
 
             - name: Perf (head)
@@ -94,11 +96,21 @@ jobs:
                   VISUAL: ${{ contains(github.event.pull_request.labels.*.name, 'perf-visual') }}
               run: |
                   [ -f dist-perf/index.html ] || npm run build:perf
-                  if [ "$TOLERANCE" = "true" ] && [ -f ../base/perf/goldens/equivalence.json ]; then
+                  if [ ! -f "$PERF_GOLDENS" ]; then
+                      if [ -f ../base/perf/equivalence.spec.ts ]; then
+                          echo "::error::base has the equivalence spec but recorded no goldens"
+                          exit 1
+                      fi
+                      # Nightly/dispatch, or a base without the harness: nothing
+                      # to compare against, so record the goldens as an artifact.
+                      echo "No base goldens: recording only."
+                      PERF_EQUIVALENCE=update npm run perf:equivalence
+                      exit 0
+                  fi
+                  if [ "$TOLERANCE" = "true" ]; then
                       # Shifted AI timing moves enemies, so pixels cannot match:
                       # outcomes are checked instead, screenshots skipped.
                       export PERF_EQUIVALENCE=tolerance
-                      export PERF_GOLDENS=../base/perf/goldens/equivalence.json
                       echo "Tolerance mode: screenshot diff skipped."
                   elif [ "$VISUAL" = "true" ]; then
                       echo "Visual change: screenshot diff skipped."
@@ -128,5 +140,6 @@ jobs:
                       perf-results/
                       perf-base/
                       perf-snapshots/
+                      perf-goldens/
                       test-results/
                   retention-days: 30

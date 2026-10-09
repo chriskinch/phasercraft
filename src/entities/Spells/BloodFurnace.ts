@@ -1,5 +1,6 @@
 import Spell from "./Spell";
 import { spellDefDefaults } from "@/types/game";
+import { levelFactor } from "@/lib/levelScaling";
 import type { SpellOptions } from "@/types/game";
 
 // Proposed balance (tuned in PR review): 10 ticks over 5s, 300 HP → 250 Mana.
@@ -17,6 +18,8 @@ class BloodFurnace extends Spell {
     public manaPerTick!: number;
     public tickTimer: Phaser.Time.TimerEvent | undefined;
     public durationTimer: Phaser.Time.TimerEvent | undefined;
+    // L1 values; applyLevel() derives the scaled fields from them.
+    private base!: { duration: number; hpPerTick: number; manaPerTick: number };
 
     constructor(config: SpellOptions) {
         const defaults = {
@@ -31,6 +34,16 @@ class BloodFurnace extends Spell {
 
         super({ ...defaults, ...config });
         this.hasAnimation = false;
+        const { duration, hpPerTick, manaPerTick } = this;
+        this.base = { duration, hpPerTick, manaPerTick };
+        this.applyLevel();
+    }
+
+    applyLevel(): void {
+        this.duration = this.base.duration * levelFactor(this.spellType, "duration", this.level);
+        this.hpPerTick = this.base.hpPerTick * levelFactor(this.spellType, "hpPerTick", this.level);
+        this.manaPerTick =
+            this.base.manaPerTick * levelFactor(this.spellType, "manaPerTick", this.level);
     }
 
     effect(): void {

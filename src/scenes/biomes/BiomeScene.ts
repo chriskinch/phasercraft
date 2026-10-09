@@ -10,17 +10,26 @@ import {
 } from "phaser";
 import AssignClass from "@entities/Player/AssignClass";
 import AssignType from "@entities/Enemy/AssignType";
-import Boss, { BOSS_SCALE } from "@entities/Enemy/Boss";
+import Miniboss, { MINIBOSS_SCALE } from "@entities/Enemy/Miniboss";
 import type Enemy from "@entities/Enemy/Enemy";
 import UI from "@entities/UI/HUD";
-import BossRoar from "@entities/UI/BossRoar";
+import MinibossRoar from "@entities/UI/MinibossRoar";
 import enemyTypes from "@config/enemies.json";
 import type { EnemyType } from "@/types/game";
-import { promoteToBoss, resolveAreaTuning } from "@config/area";
+import {
+    DISTANCE_MAX_MULTIPLIER,
+    MINIBOSS_PINNED_LOOT,
+    promoteToMiniboss,
+    resolveAreaTuning,
+} from "@config/area";
+import { boostLootTable } from "@/lib/lootRarity";
+import { difficultyAt, maxSpawnableDistance } from "@helpers/difficulty";
+import { speciesWeights, weightedPick } from "@helpers/speciesWeighting";
 import { readSettings } from "@services/settingsStorage";
 import { resolveBiome, type BiomeDefinition } from "./biomes";
 import SpawnDirector, { type SpawnHost } from "./SpawnDirector";
 import SpawnDebugOverlay from "./SpawnDebugOverlay";
+import MinibossChanceReadout from "./MinibossChanceReadout";
 import {
     OverlayWindows,
     WINDOW_DX,
@@ -33,18 +42,10 @@ import {
 } from "./propOverlayWindows";
 import { buildWalkability, isFootprintSpawnable, type WalkabilityGrid } from "@helpers/walkability";
 import { SHORE_ART_SIZE, SHORE_CELL, SHORE_OFFSET, shoreGrid } from "@helpers/shoreCollision";
-import { sample } from "lodash";
 import { addBanner } from "@scenes/pixelFonts";
 import { pixelFontSize } from "@config/fonts";
 
-import {
-    toggleHUD,
-    setCurrentArea,
-    setEnemiesRemaining,
-    setBossActive,
-    clearTravelRequest,
-    toggleUi,
-} from "@store/gameReducer";
+import { toggleHUD, setCurrentArea, clearTravelRequest, toggleUi } from "@store/gameReducer";
 import mapStateToData from "@helpers/mapStateToData";
 import store from "@store";
 
@@ -91,7 +92,7 @@ export default class BiomeScene extends Scene {
     private enemy_pool!: EnemyType[];
     private biome!: BiomeDefinition;
     private area_cleared: boolean = false;
-    // Populates the area and counts kills towards the boss; rebuilt each run by
+    // Populates the area and rolls for the miniboss; rebuilt each run by
     // startArea(). Ticked by `spawn_timer`, a pause-aware scene timer released
     // on game over and shutdown.
     private director!: SpawnDirector<Enemy, EnemyType>;
@@ -99,6 +100,8 @@ export default class BiomeScene extends Scene {
     // Debug-only drawing of the director's state; absent unless Debug mode and
     // its spawn overlay toggle are both on. Rebuilt per area, released on shutdown.
     private spawn_overlay?: SpawnDebugOverlay<Enemy>;
+    // Debug-only miniboss odds readout; same lifecycle as the spawn overlay.
+    private miniboss_readout?: MinibossChanceReadout;
     public depth_group: Record<string, number> = {
         BASE: 10,
         UI: 10000,
@@ -139,6 +142,10 @@ export default class BiomeScene extends Scene {
     // Tiles an enemy may spawn on: pure land the player can reach on foot.
     // Rebuilt in create() once the player's start is known.
     public spawn_grid!: WalkabilityGrid;
+    // Where the player entered the area, and how far from it the furthest
+    // spawnable tile is: the ends of the distance difficulty ramp (#596).
+    public player_start!: { x: number; y: number };
+    public max_spawn_distance = 0;
     // The map's `town-exit` POIs (the entrance gateway's opening), in world px,
     // and the one the player is standing in, if any. As in the town, the
     // interaction fires once on entry and re-arms only once the player leaves,
@@ -180,7 +187,7 @@ export default class BiomeScene extends Scene {
         // Scene instances are reused across scene.start(), so field
         // initializers do not re-run — reset per-run state here. startArea()
         // builds a fresh spawn director too, which is what makes re-entering an
-        // area restart its kill count and drop an un-killed boss.
+        // area restart its exploration count and drop an un-killed miniboss.
         this.enemy_pool = this.biome.enemies;
         this.area_cleared = false;
         this.game_over = false;
@@ -197,6 +204,7 @@ export default class BiomeScene extends Scene {
         const safe_zone = addSafeZone(this, scene_padding, () => {
             this.UI.layout();
             if (this.area_cleared_ui) Display.Align.In.Center(this.area_cleared_ui, this.zone);
+            this.miniboss_readout?.layout(this.zone);
         });
         this.zone = safe_zone.zone;
         this.release_safe_zone = safe_zone.release;
@@ -242,6 +250,8 @@ export default class BiomeScene extends Scene {
             y: spawn.y,
         }) as PlayerType;
         this.spawn_grid = this.buildSpawnGrid(spawn);
+        this.player_start = { x: spawn.x, y: spawn.y };
+        this.max_spawn_distance = maxSpawnableDistance(this.spawn_grid, spawn);
         this.exit_zones = this.readExitZones();
         this.in_exit = false;
 
@@ -817,6 +827,7 @@ export default class BiomeScene extends Scene {
         // Despawn clocks advance on the scene's own delta, so they stop with it.
         if (!this.game_over) this.director.update(delta);
         this.spawn_overlay?.draw(this.player);
+        this.miniboss_readout?.draw();
 
         // After the characters have moved and re-set their own depths.
         this.sortCharactersByFeet();
@@ -842,8 +853,8 @@ export default class BiomeScene extends Scene {
         // run before re-registering (same handler + context, so `off` matches).
         this.events.off("enemy:dead", this.onEnemyDead, this);
         this.events.on("enemy:dead", this.onEnemyDead, this);
-        this.events.off("boss:spawned", this.announceBoss, this);
-        this.events.on("boss:spawned", this.announceBoss, this);
+        this.events.off("miniboss:spawned", this.announceMiniboss, this);
+        this.events.on("miniboss:spawned", this.announceMiniboss, this);
 
         // Read once per area entry, so a Debug settings change applies the next
         // time an area is entered rather than mid-run.
@@ -856,10 +867,12 @@ export default class BiomeScene extends Scene {
             settings.debug && settings.spawnDebugOverlay
                 ? new SpawnDebugOverlay(this, this.director)
                 : undefined;
-        // Resets the HUD: leaving mid-boss leaves `bossActive` set in the store,
-        // which would make the fresh area read "BOSS".
-        this.director.start();
-
+        this.miniboss_readout?.cleanup();
+        this.miniboss_readout =
+            settings.debug && settings.minibossDebugReadout
+                ? new MinibossChanceReadout(this, this.director)
+                : undefined;
+        this.miniboss_readout?.layout(this.zone);
         this.removeSpawnTimer();
         this.spawn_timer = this.time.addEvent({
             delay: tuning.spawnIntervalMs,
@@ -874,21 +887,21 @@ export default class BiomeScene extends Scene {
     }
 
     /**
-     * "ROAR!" at the screen edge in the boss's direction, on every boss spawn
+     * "ROAR!" at the screen edge in the miniboss's direction, on every miniboss spawn
      * (its first, and each respawn after a despawn). Positions are converted to
      * screen px, since the word is pinned to the camera.
      */
-    announceBoss(boss: { x: number; y: number }): void {
+    announceMiniboss(miniboss: { x: number; y: number }): void {
         const camera = this.cameras.main;
         const toScreen = (p: { x: number; y: number }) => ({
             x: (p.x - camera.worldView.x) * camera.zoom,
             y: (p.y - camera.worldView.y) * camera.zoom,
         });
-        new BossRoar(
+        new MinibossRoar(
             this,
             { width: this.scale.width, height: this.scale.height },
             toScreen(this.player),
-            toScreen(boss)
+            toScreen(miniboss)
         );
     }
 
@@ -903,34 +916,46 @@ export default class BiomeScene extends Scene {
                 zoom: this.cameras.main.zoom,
             }),
             isSpawnable: (rect) => isFootprintSpawnable(this.spawn_grid, rect),
-            footprint: (id, boss) => this.enemyFootprint(id, boss),
+            footprint: (id, miniboss) => this.enemyFootprint(id, miniboss),
             pickRegular: () => this.pickFromPool(),
-            pickBoss: () => this.pickFromPool(),
-            spawnRegular: (id, at) => this.spawnEnemy(id, at),
-            spawnBoss: (id, at) => this.spawnBoss(id, at),
-            onProgress: (killsRemaining, bossActive) => {
-                store.dispatch(setEnemiesRemaining(killsRemaining));
-                store.dispatch(setBossActive(bossActive));
-            },
+            pickMiniboss: () => this.pickFromPool(),
+            difficultyAt: (point) => this.difficultyAt(point),
+            distanceFromStart: (point) => ({
+                distance: Math.hypot(point.x - this.player_start.x, point.y - this.player_start.y),
+                fraction: this.difficultyContextAt(point).fraction,
+            }),
+            spawnRegular: (id, at, difficulty) => this.spawnEnemy(id, at, difficulty),
+            spawnMiniboss: (id, at, difficulty) => this.spawnMiniboss(id, at, difficulty),
             onAreaCleared: () => this.areaCleared(),
-            onBossSpawned: (boss) => this.events.emit("boss:spawned", boss),
+            onMinibossSpawned: (miniboss) => this.events.emit("miniboss:spawned", miniboss),
             random: Math.random,
         };
     }
 
     // Every biome has a non-empty pool; the fallback only keeps the type total.
+    /**
+     * A creature from the biome's pool, weighted by species tier for how far
+     * out the player is (#598): the weakest likelier near the start, the
+     * strongest out at the far edge. Measured at the player rather than each
+     * spawn point: a configuration lands just off screen, so the two differ by
+     * a few percent of the map at most.
+     */
     private pickFromPool(): EnemyType {
-        return sample(this.enemy_pool) ?? "baby-ghoul";
+        const pool = this.enemy_pool;
+        if (pool.length === 0) return "baby-ghoul";
+        const { fraction } = this.difficultyContextAt(this.player);
+        const tiers = pool.map((id) => (enemyTypes[id] as EnemyConfig).tier);
+        return weightedPick(pool, speciesWeights(tiers, fraction), Math.random);
     }
 
     /**
      * The world-px body a creature will have. An enemy sizes itself to its
      * monster sprite's default frame, so this reads the same frame rather than
-     * building the enemy to measure it. A boss is drawn `BOSS_SCALE` times over.
+     * building the enemy to measure it. A miniboss is drawn `MINIBOSS_SCALE` times over.
      */
-    private enemyFootprint(id: EnemyType, boss: boolean): { width: number; height: number } {
+    private enemyFootprint(id: EnemyType, miniboss: boolean): { width: number; height: number } {
         const frame = this.textures.getFrame(id);
-        const scale = boss ? BOSS_SCALE : 1;
+        const scale = miniboss ? MINIBOSS_SCALE : 1;
         return { width: frame.width * scale, height: frame.height * scale };
     }
 
@@ -974,14 +999,13 @@ export default class BiomeScene extends Scene {
         this.area_cleared_ui.add(addBanner(this, 0, 0, "AREA CLEARED", pixelFontSize(5)));
     }
 
-    // The boss is down: show the banner. The director spawns nothing more — the
-    // player leaves (town button or ESC) and re-entry rebuilds the area.
+    // The area is cleared: show the banner. Nothing calls this since the
+    // miniboss stopped clearing areas (#594); it is kept for the boss epic, whose
+    // boss's death will. The player leaves (town button or ESC) and re-entry
+    // rebuilds the area.
     areaCleared(): void {
         if (this.area_cleared) return;
         this.area_cleared = true;
-
-        store.dispatch(setBossActive(false));
-        store.dispatch(setEnemiesRemaining(0));
 
         // Delayed 1.5s after the boss dies so its loot has time to drop.
         // Scene clock timer (not setTimeout): pause-aware, and cancelled on
@@ -997,8 +1021,31 @@ export default class BiomeScene extends Scene {
         );
     }
 
-    // Creates a regular enemy at a point the spawn director has already vetted.
-    spawnEnemy(enemyId: EnemyType, { x, y }: { x: number; y: number }): Enemy {
+    /**
+     * The stat multiplier for a spawn at `point` (#596): the biome's own factor
+     * at the player's start, rising linearly to biome × DISTANCE_MAX_MULTIPLIER
+     * at the furthest spawnable tile.
+     */
+    difficultyAt(point: { x: number; y: number }): number {
+        return this.difficultyContextAt(point).multiplier;
+    }
+
+    // The multiplier and distance fraction at `point` (#596).
+    private difficultyContextAt(point: { x: number; y: number }): {
+        multiplier: number;
+        fraction: number;
+    } {
+        return difficultyAt(point, {
+            start: this.player_start,
+            maxDistance: this.max_spawn_distance,
+            biomeFactor: this.biome.difficulty,
+            maxMultiplier: DISTANCE_MAX_MULTIPLIER,
+        });
+    }
+
+    // Creates a regular enemy at a point the spawn director has already vetted,
+    // at the difficulty of its configuration's centre.
+    spawnEnemy(enemyId: EnemyType, { x, y }: { x: number; y: number }, difficulty = 1): Enemy {
         const enemy = enemyTypes[enemyId] as EnemyConfig;
         const { damage, speed, range, attack_speed, health_max, health_regen_rate } = enemy;
 
@@ -1014,38 +1061,47 @@ export default class BiomeScene extends Scene {
             y,
             target: null, //this.player,
             active_group: this.active_enemies,
-            loot_table: enemy.loot_table,
+            // Rarer loot drops more freely from tougher enemies (#597).
+            loot_table: boostLootTable(enemy.loot_table, difficulty),
             // Behaviour-preserving: the scripted waves always resolved this
             // to 1 (`wave_multiplier || 1` with nothing passed), and
             // Enemy.setStats scales off it — ×1.2 damage, ×2 health. Kept
             // at 1 so removing the wave mechanic does not change enemy
-            // stats. Per-biome scaling is a later step.
+            // stats; distance × biome difficulty (#596) multiplies on top.
             wave_multiplier: 1,
+            difficulty,
             coin_multiplier: enemy.coin_multiplier,
         }) as unknown as Enemy;
         this.enemies.add(spawned);
         return spawned;
     }
 
-    // Promotes one of the area's own creatures into the area boss, at a point
+    // Promotes one of the area's own creatures into the area miniboss, at a point
     // the spawn director has already vetted. A respawn after a despawn comes
-    // through here too, so it is a fresh promotion at full health.
-    spawnBoss(bossId: EnemyType, { x, y }: { x: number; y: number }): Enemy {
-        const boss = promoteToBoss(bossId);
-        const { damage, speed, range, attack_speed, health_max, health_regen_rate } = boss;
+    // through here too, so it is a fresh promotion at full health, at the
+    // difficulty of where it now stands.
+    spawnMiniboss(
+        minibossId: EnemyType,
+        { x, y }: { x: number; y: number },
+        difficulty = 1
+    ): Enemy {
+        const miniboss = promoteToMiniboss(minibossId);
+        const { damage, speed, range, attack_speed, health_max, health_regen_rate } = miniboss;
 
-        const spawned = new Boss({
+        const spawned = new Miniboss({
             scene: this,
-            key: bossId,
+            key: minibossId,
             attributes: { damage, speed, range, attack_speed, health_max, health_regen_rate },
-            type: boss.type,
+            type: miniboss.type,
             x,
             y,
             target: this.player,
-            loot_table: boss.loot_table,
+            // Its one guaranteed special and scroll stay one (#597).
+            loot_table: boostLootTable(miniboss.loot_table, difficulty, MINIBOSS_PINNED_LOOT),
             active_group: this.active_enemies,
-            coin_multiplier: boss.coin_multiplier,
-            aggro_radius: boss.aggro_radius,
+            coin_multiplier: miniboss.coin_multiplier,
+            aggro_radius: miniboss.aggro_radius,
+            difficulty,
         });
         this.enemies.add(spawned);
         return spawned;
@@ -1074,12 +1130,14 @@ export default class BiomeScene extends Scene {
 
         this.events.off("player:dead");
         this.events.off("enemy:dead", this.onEnemyDead, this);
-        this.events.off("boss:spawned", this.announceBoss, this);
+        this.events.off("miniboss:spawned", this.announceMiniboss, this);
 
         this.removeAreaClearedTimer();
         this.removeSpawnTimer();
         this.spawn_overlay?.cleanup();
         this.spawn_overlay = undefined;
+        this.miniboss_readout?.cleanup();
+        this.miniboss_readout = undefined;
 
         // Colliders registered against the tilemap layers. The Arcade plugin
         // tears its world down before the scene's own SHUTDOWN handler runs, so

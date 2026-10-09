@@ -20,6 +20,7 @@ function setup() {
     const trap = Object.create(SnareTrap.prototype) as SnareTrap;
     trap.type = "bleed";
     trap.duration = 6;
+    trap.trapDamage = 20;
     (trap as unknown as { scene: object }).scene = {
         time: {
             delayedCall: vi.fn((_delay: number, cb: () => void) => {

@@ -3,8 +3,8 @@ import { FONTS, pixelFontSize } from "@config/fonts";
 import type { Point } from "@helpers/spawnGeometry";
 import type { SpawnDebugView } from "./SpawnDirector";
 
-// Draws what the spawn director is doing (#464): the spawn/despawn radius, the
-// cone enemies spawn in, the last spawn attempt's candidates, and a despawn
+// Draws what the spawn director is doing (#464): the spawn radius, the (faint)
+// despawn radius beyond it, the cone enemies spawn in, the last spawn's centres, and a despawn
 // countdown over every enemy whose clock is running. Only built when Debug mode
 // and its spawn overlay toggle are both on, so it costs nothing otherwise.
 
@@ -71,6 +71,8 @@ export default class SpawnDebugOverlay<E extends OverlayEnemy> {
         // The radius: thicker while standing still, when the whole ring is live.
         graphics.lineStyle(view.direction ? 2 : 4, RADIUS_COLOUR, 0.8);
         graphics.strokeCircle(player.x, player.y, view.radius);
+        graphics.lineStyle(1, RADIUS_COLOUR, 0.4);
+        graphics.strokeCircle(player.x, player.y, view.despawnRadius);
 
         if (view.direction) {
             const [a, b] = coneEdges(player, view.direction, view.halfAngle, view.radius);

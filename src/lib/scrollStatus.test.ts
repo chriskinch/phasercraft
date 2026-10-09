@@ -1,5 +1,5 @@
 import { describe, it, expect } from "vitest";
-import { learnToast, scrollStacks, scrollStatus } from "./scrollStatus";
+import { learnToast, mergeStatus, scrollStacks, scrollStatus } from "./scrollStatus";
 
 const loadout = (...spells: (string | null)[]) =>
     spells as Parameters<typeof scrollStatus>[0]["abilityLoadout"];
@@ -95,5 +95,27 @@ describe("scrollStacks", () => {
             ["Fireball_l3", 1],
             ["Whirlwind_l1", 2],
         ]);
+    });
+});
+
+describe("mergeStatus", () => {
+    it("enables Merge with 3 or more below max level", () => {
+        expect(mergeStatus("Fireball", 1, 3)).toEqual({
+            state: "merge",
+            readable: true,
+            hint: "Merges 3 into 1 Fireball L2.",
+        });
+    });
+
+    it("blocks with fewer than 3 and says how many are held", () => {
+        expect(mergeStatus("Fireball", 2, 2)).toEqual({
+            state: "merge",
+            readable: false,
+            hint: "Need 3 to merge into L3 (have 2).",
+        });
+    });
+
+    it("blocks at max level whatever the count", () => {
+        expect(mergeStatus("Fireball", 3, 9)).toMatchObject({ state: "max", readable: false });
     });
 });

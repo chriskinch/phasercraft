@@ -27,6 +27,13 @@ function seeded(seed = 42): () => number {
 // 800x600 at zoom 1: half the 1000px diagonal plus the 64px margin.
 const RADIUS = 564;
 
+// One creature per tick, placed exactly at the sampled centre.
+const SINGLES: Partial<AreaTuning> = {
+    configWeights: { group: 1, pair: 0, pack: 0 },
+    groupSize: [1, 1],
+    clusterBaseRadius: 0,
+};
+
 function makeDirector(tuning: Partial<AreaTuning> = {}, host: Partial<SpawnHost<FakeEnemy>> = {}) {
     const player = { x: 5000, y: 5000 };
     const velocity = { x: 0, y: 0 };
@@ -37,21 +44,43 @@ function makeDirector(tuning: Partial<AreaTuning> = {}, host: Partial<SpawnHost<
         isSpawnable: vi.fn(() => true),
         footprint: vi.fn(() => ({ width: 32, height: 32 })),
         pickRegular: vi.fn(() => "imp"),
-        pickBoss: vi.fn(() => "ghoul"),
+        pickMiniboss: vi.fn(() => "ghoul"),
+        difficultyAt: vi.fn(() => 1),
+        // Far from the start unless a test says otherwise: no safe pocket.
+        distanceFromStart: vi.fn(() => ({ distance: Infinity, fraction: 0 })),
         spawnRegular: vi.fn((id: string, at) => new FakeEnemy(at.x, at.y, id)),
-        spawnBoss: vi.fn((id: string, at) => new FakeEnemy(at.x, at.y, `boss:${id}`)),
-        onProgress: vi.fn(),
+        spawnMiniboss: vi.fn((id: string, at) => new FakeEnemy(at.x, at.y, `miniboss:${id}`)),
         onAreaCleared: vi.fn(),
-        onBossSpawned: vi.fn(),
+        onMinibossSpawned: vi.fn(),
         random: seeded(),
         ...host,
     };
-    const director = new SpawnDirector({ ...DEFAULT_AREA_TUNING, ...tuning }, fake);
+    // The miniboss is off unless a test turns it on, so the regular-spawn tests
+    // never meet a miniboss roll. Configurations default to one lone creature
+    // placed exactly on the radius; the cluster tests turn them on.
+    const director = new SpawnDirector(
+        {
+            ...DEFAULT_AREA_TUNING,
+            minibossChancePerCell: 0,
+            ...SINGLES,
+            ...tuning,
+        },
+        fake
+    );
     const spawnRegular = vi.mocked(fake.spawnRegular);
-    const spawnBoss = vi.mocked(fake.spawnBoss);
+    const spawnMiniboss = vi.mocked(fake.spawnMiniboss);
     const regulars = () => spawnRegular.mock.results.map((r) => r.value as FakeEnemy);
-    const bosses = () => spawnBoss.mock.results.map((r) => r.value as FakeEnemy);
-    return { director, host: fake, player, velocity, spawnRegular, spawnBoss, regulars, bosses };
+    const minibosses = () => spawnMiniboss.mock.results.map((r) => r.value as FakeEnemy);
+    return {
+        director,
+        host: fake,
+        player,
+        velocity,
+        spawnRegular,
+        spawnMiniboss,
+        regulars,
+        minibosses,
+    };
 }
 
 const distance = (a: { x: number; y: number }, b: { x: number; y: number }) =>
@@ -68,14 +97,6 @@ const offAngle = (
 };
 
 describe("SpawnDirector pacing", () => {
-    it("starts the HUD at the full kill count, with no boss", () => {
-        const { director, host } = makeDirector();
-
-        director.start();
-
-        expect(host.onProgress).toHaveBeenCalledWith(20, false);
-    });
-
     it("spawns at most one enemy per tick, up to the live cap", () => {
         const { director, spawnRegular } = makeDirector({ liveCap: 3 });
 
@@ -192,6 +213,341 @@ describe("SpawnDirector placement", () => {
     });
 });
 
+describe("SpawnDirector configurations", () => {
+    const BASE = 48;
+
+    it("ships 70/22/8 groups, pairs and packs, groups of 1-3, packs of 5-10, mixed 70%", () => {
+        expect(DEFAULT_AREA_TUNING.configWeights).toEqual({ group: 70, pair: 22, pack: 8 });
+        expect(DEFAULT_AREA_TUNING.groupSize).toEqual([1, 3]);
+        expect(DEFAULT_AREA_TUNING.packSize).toEqual([5, 10]);
+        expect(DEFAULT_AREA_TUNING.packMixedChance).toBe(0.7);
+        expect(DEFAULT_AREA_TUNING.clusterBaseRadius).toBe(48);
+    });
+
+    it("ships a 25 live cap and one configuration every 3 s", () => {
+        expect(DEFAULT_AREA_TUNING.liveCap).toBe(25);
+        expect(DEFAULT_AREA_TUNING.spawnIntervalMs).toBe(3000);
+    });
+
+    it("spawns a whole configuration in one tick", () => {
+        const { director, spawnRegular } = makeDirector({
+            configWeights: { group: 0, pair: 0, pack: 1 },
+            packSize: [6, 6],
+            clusterBaseRadius: BASE,
+            liveCap: 50,
+        });
+
+        director.tick();
+
+        expect(spawnRegular).toHaveBeenCalledTimes(6);
+    });
+
+    it("may take the count past the live cap, but rolls nothing once it is reached", () => {
+        const { director, spawnRegular } = makeDirector({
+            configWeights: { group: 0, pair: 0, pack: 1 },
+            packSize: [8, 8],
+            clusterBaseRadius: BASE,
+            liveCap: 5,
+        });
+
+        director.tick();
+        director.tick();
+
+        expect(spawnRegular).toHaveBeenCalledTimes(8);
+        expect(director.regularsAlive).toBe(8);
+    });
+
+    it("draws a pair as two of one creature", () => {
+        const pickRegular = vi.fn().mockReturnValueOnce("imp").mockReturnValue("ghoul");
+        const { director, spawnRegular } = makeDirector(
+            { configWeights: { group: 0, pair: 1, pack: 0 }, clusterBaseRadius: BASE },
+            { pickRegular }
+        );
+
+        director.tick();
+
+        expect(pickRegular).toHaveBeenCalledTimes(1);
+        expect(spawnRegular.mock.calls.map((c) => c[0])).toEqual(["imp", "imp"]);
+    });
+
+    it("scatters every member in the cluster's disc, wholly beyond the spawn radius", () => {
+        const { director, player, regulars } = makeDirector({
+            configWeights: { group: 0, pair: 0, pack: 1 },
+            packSize: [10, 10],
+            clusterBaseRadius: BASE,
+            liveCap: 100,
+        });
+        const spread = BASE * Math.sqrt(10);
+
+        for (let i = 0; i < 5; i++) director.tick();
+
+        expect(regulars().length).toBeGreaterThan(20);
+        regulars().forEach((enemy) => {
+            const d = distance(enemy, player);
+            expect(d).toBeGreaterThanOrEqual(RADIUS - 1e-9);
+            expect(d).toBeLessThanOrEqual(RADIUS + 2 * spread + 1e-9);
+        });
+    });
+
+    it("keeps members of one configuration from overlapping each other", () => {
+        const { director, regulars } = makeDirector({
+            configWeights: { group: 0, pair: 0, pack: 1 },
+            packSize: [10, 10],
+            clusterBaseRadius: BASE,
+            liveCap: 100,
+        });
+
+        director.tick();
+
+        const members = regulars();
+        members.forEach((a, i) =>
+            members.slice(i + 1).forEach((b) => {
+                const apart = Math.abs(a.x - b.x) >= 32 || Math.abs(a.y - b.y) >= 32;
+                expect(apart).toBe(true);
+            })
+        );
+    });
+
+    it("spawns what fits when some members find no room, from the best centre", () => {
+        // Every other footprint check fails: each member gets a spot within its tries.
+        let n = 0;
+        const isSpawnable = vi.fn(() => n++ % 2 === 1);
+        const { director, spawnRegular } = makeDirector(
+            {
+                configWeights: { group: 0, pair: 0, pack: 1 },
+                packSize: [5, 5],
+                clusterBaseRadius: BASE,
+                liveCap: 50,
+            },
+            { isSpawnable }
+        );
+
+        director.tick();
+
+        expect(spawnRegular.mock.calls.length).toBeGreaterThan(0);
+        expect(spawnRegular.mock.calls.length).toBeLessThanOrEqual(5);
+    });
+
+    it("spawns nothing, and tries every centre, when no member fits anywhere", () => {
+        const { director, spawnRegular } = makeDirector(
+            {
+                configWeights: { group: 0, pair: 1, pack: 0 },
+                clusterBaseRadius: BASE,
+                attemptsPerTick: 5,
+            },
+            { isSpawnable: vi.fn(() => false) }
+        );
+
+        director.tick();
+
+        expect(spawnRegular).not.toHaveBeenCalled();
+        expect(director.debugView().attempts).toHaveLength(5);
+    });
+
+    it("despawns beyond the spawn radius plus the largest cluster's diameter", () => {
+        const { director } = makeDirector({ clusterBaseRadius: BASE, packSize: [5, 9] });
+
+        expect(director.despawnRadius()).toBeCloseTo(RADIUS + 2 * BASE * 3);
+        expect(director.debugView().despawnRadius).toBeCloseTo(RADIUS + 2 * BASE * 3);
+    });
+
+    it("places every member of the largest pack within the despawn radius", () => {
+        const { director, player, regulars } = makeDirector({
+            configWeights: { group: 0, pair: 0, pack: 1 },
+            packSize: [10, 10],
+            clusterBaseRadius: BASE,
+            liveCap: 1000,
+            despawnDelayMs: 1,
+        });
+
+        for (let i = 0; i < 20; i++) director.tick();
+        director.update(1000);
+
+        expect(regulars().length).toBeGreaterThan(100);
+        regulars().forEach((enemy) => {
+            expect(distance(enemy, player)).toBeLessThanOrEqual(director.despawnRadius());
+            expect(enemy.despawn).not.toHaveBeenCalled();
+        });
+    });
+});
+
+// Distances from a start point; the fraction is left at the start's 0.
+const fromStart = (start: { x: number; y: number }) =>
+    vi.fn((p: { x: number; y: number }) => ({ distance: distance(p, start), fraction: 0 }));
+
+// Ticks `ticks` times; each configuration that spawned, by centre and head count.
+function spawnedConfigs(d: ReturnType<typeof makeDirector>, ticks: number) {
+    const configs: { centre: { x: number; y: number }; count: number }[] = [];
+    for (let i = 0; i < ticks; i++) {
+        const before = d.spawnRegular.mock.calls.length;
+        d.director.tick();
+        const count = d.spawnRegular.mock.calls.length - before;
+        if (count > 0)
+            configs.push({ centre: vi.mocked(d.host.difficultyAt).mock.lastCall![0], count });
+    }
+    return configs;
+}
+
+describe("SpawnDirector pack odds and safe pocket", () => {
+    it("ships packs at 20 at the far edge and a 1500 px safe pocket", () => {
+        expect(DEFAULT_AREA_TUNING.packWeightAtEdge).toBe(20);
+        expect(DEFAULT_AREA_TUNING.safeStartRadius).toBe(1500);
+    });
+
+    it("reads the pack odds at a trial centre on the ring, ahead of a moving player", () => {
+        const distanceFromStart = vi.fn((_p: { x: number; y: number }) => ({
+            distance: Infinity,
+            fraction: 1,
+        }));
+        const { director, player, velocity, spawnRegular } = makeDirector(
+            {
+                configWeights: { group: 1, pair: 0, pack: 0 },
+                packWeightAtEdge: 1,
+                packSize: [4, 4],
+                clusterBaseRadius: 48,
+                liveCap: 50,
+            },
+            { distanceFromStart }
+        );
+        velocity.x = 100;
+
+        director.tick();
+
+        const trial = distanceFromStart.mock.calls[0][0];
+        expect(distance(trial, player)).toBeCloseTo(RADIUS);
+        expect(Math.abs(offAngle(player, trial, velocity))).toBeLessThanOrEqual(Math.PI / 4);
+        // At the far edge the whole group share has gone to packs.
+        expect(spawnRegular).toHaveBeenCalledTimes(4);
+    });
+
+    it("still spawns packs outside the pocket for a player standing inside it", () => {
+        // The player stands 200 px inside the pocket's edge; the ring reaches out of it.
+        const start = { x: 5000 - 1300, y: 5000 };
+        const d = makeDirector(
+            {
+                configWeights: { group: 0, pair: 0, pack: 1 },
+                packSize: [5, 5],
+                clusterBaseRadius: 48,
+                liveCap: 1000,
+            },
+            { distanceFromStart: fromStart(start) }
+        );
+
+        // Groups here are lone creatures: anything bigger is a pack.
+        const packs = spawnedConfigs(d, 40).filter((c) => c.count > 1);
+
+        expect(packs.length).toBeGreaterThan(0);
+        packs.forEach(({ centre }) => expect(distance(centre, start)).toBeGreaterThanOrEqual(1500));
+    });
+
+    it("rolls no packs while the trial centre is inside the pocket", () => {
+        const { director, spawnRegular } = makeDirector(
+            {
+                configWeights: { group: 1, pair: 0, pack: 1000 },
+                packSize: [6, 6],
+                liveCap: 100,
+            },
+            { distanceFromStart: fromStart({ x: 5000, y: 5000 }) }
+        );
+
+        for (let i = 0; i < 10; i++) director.tick();
+
+        expect(spawnRegular).toHaveBeenCalledTimes(10);
+    });
+
+    it("never centres a pack inside the pocket, though groups may be", () => {
+        // The player stands just outside the pocket; the ring around them dips into it.
+        const start = { x: 5000 - 1600, y: 5000 };
+        const run = (configWeights: AreaTuning["configWeights"]) =>
+            spawnedConfigs(
+                makeDirector(
+                    { configWeights, packSize: [3, 3], clusterBaseRadius: 48, liveCap: 1000 },
+                    { distanceFromStart: fromStart(start) }
+                ),
+                40
+            );
+
+        // Groups here are lone creatures: anything bigger is a pack.
+        const packs = run({ group: 0, pair: 0, pack: 1 }).filter((c) => c.count > 1);
+        expect(packs.length).toBeGreaterThan(0);
+        packs.forEach(({ centre }) => expect(distance(centre, start)).toBeGreaterThanOrEqual(1500));
+
+        const groups = run({ group: 1, pair: 0, pack: 0 });
+        expect(groups.some(({ centre }) => distance(centre, start) < 1500)).toBe(true);
+    });
+
+    it("never counts or rolls a cell centred inside the pocket", () => {
+        const random = vi.fn(() => 0.5);
+        const { director, player } = makeDirector(
+            { minibossChancePerCell: 1, liveCap: 0 },
+            { random, distanceFromStart: fromStart({ x: 5000, y: 5000 }) }
+        );
+
+        // Cells 10-12 east of the start cell are centred 376-1406 px out.
+        explore(director, player, 3);
+        expect(director.cellsExplored).toBe(0);
+        expect(random).not.toHaveBeenCalled();
+        expect(director.minibossActive).toBe(false);
+
+        // Cell 13 is centred ~1912 px out: it counts, and a certain roll hits.
+        explore(director, player, 1);
+        expect(random).toHaveBeenCalledTimes(1);
+        expect(director.minibossActive).toBe(true);
+    });
+});
+
+describe("SpawnDirector difficulty", () => {
+    it("gives every member of a configuration its centre's difficulty", () => {
+        const difficultyAt = vi.fn(() => 2.5);
+        const { director, spawnRegular } = makeDirector(
+            {
+                configWeights: { group: 0, pair: 0, pack: 1 },
+                packSize: [5, 5],
+                clusterBaseRadius: 48,
+                liveCap: 50,
+            },
+            { difficultyAt }
+        );
+
+        director.tick();
+
+        expect(difficultyAt).toHaveBeenCalledTimes(1);
+        const centre = (difficultyAt.mock.calls[0] as unknown[])[0] as { x: number; y: number };
+        expect(Math.hypot(centre.x - 5000, centre.y - 5000)).toBeCloseTo(
+            RADIUS + 48 * Math.sqrt(5)
+        );
+        expect(spawnRegular).toHaveBeenCalledTimes(5);
+        spawnRegular.mock.calls.forEach((call) => expect(call[2]).toBe(2.5));
+    });
+
+    it("asks nothing when nothing fits", () => {
+        const difficultyAt = vi.fn(() => 2);
+        const { director } = makeDirector({}, { difficultyAt, isSpawnable: vi.fn(() => false) });
+
+        director.tick();
+
+        expect(difficultyAt).not.toHaveBeenCalled();
+    });
+
+    it("rolls a miniboss's difficulty where it spawns, afresh on a respawn", () => {
+        const difficultyAt = vi.fn().mockReturnValueOnce(3).mockReturnValue(4);
+        const { director, player, spawnMiniboss } = makeDirector(
+            { minibossChancePerCell: 1, despawnDelayMs: 10 },
+            { difficultyAt }
+        );
+        director.update(16);
+        player.x += DEFAULT_AREA_TUNING.explorationCellSize;
+        director.update(16);
+        director.tick();
+
+        player.x += 5000;
+        director.update(10);
+        director.tick();
+
+        expect(spawnMiniboss.mock.calls.map((c) => c[2])).toEqual([3, 4]);
+    });
+});
+
 describe("SpawnDirector despawning", () => {
     it("despawns an enemy left beyond the radius for the full delay", () => {
         const { director, player, regulars } = makeDirector({ despawnDelayMs: 1000 });
@@ -231,181 +587,327 @@ describe("SpawnDirector despawning", () => {
         expect(regulars()[0].despawn).not.toHaveBeenCalled();
     });
 
-    it("does not count a despawn as a kill, and frees a slot for a new spawn", () => {
-        const { director, host, player, spawnRegular } = makeDirector({
+    it("frees a slot for a new spawn when an enemy despawns", () => {
+        const { director, player, spawnRegular } = makeDirector({
             liveCap: 1,
             despawnDelayMs: 10,
         });
         director.tick();
-        vi.mocked(host.onProgress).mockClear();
 
         player.x += 2000;
         director.update(10);
         director.tick();
 
-        expect(host.onProgress).not.toHaveBeenCalled();
-        expect(director.killsRemaining).toBe(20);
         expect(spawnRegular).toHaveBeenCalledTimes(2);
     });
 });
 
-describe("SpawnDirector kills and the boss", () => {
-    function killAll(director: SpawnDirector<FakeEnemy>, enemies: FakeEnemy[]) {
-        enemies.forEach((enemy) => director.onEnemyDead(enemy));
-    }
+const CELL = DEFAULT_AREA_TUNING.explorationCellSize;
 
-    it("counts kills down on the HUD", () => {
-        const { director, host, regulars } = makeDirector();
+// Walks the player `cells` fresh cells east, one frame per cell. The first call
+// also marks the start cell, which never counts.
+function explore(
+    director: SpawnDirector<FakeEnemy>,
+    player: { x: number; y: number },
+    cells: number
+) {
+    director.update(16);
+    for (let i = 0; i < cells; i++) {
+        player.x += CELL;
+        director.update(16);
+    }
+}
+
+describe("SpawnDirector miniboss exploration", () => {
+    it("ships at 1% per new cell, 512 px cells", () => {
+        expect(DEFAULT_AREA_TUNING.minibossChancePerCell).toBe(0.01);
+        expect(DEFAULT_AREA_TUNING.explorationCellSize).toBe(512);
+    });
+
+    it("never rolls for a player standing still, however long", () => {
+        const random = vi.fn(() => 0);
+        const { director } = makeDirector({ minibossChancePerCell: 1, liveCap: 0 }, { random });
+
+        for (let i = 0; i < 1000; i++) director.update(1000);
+
+        expect(random).not.toHaveBeenCalled();
+        expect(director.cellsExplored).toBe(0);
+    });
+
+    it("counts the start cell for nothing, and each new cell once", () => {
+        const { director, player } = makeDirector({ liveCap: 0 });
+        explore(director, player, 3);
+        expect(director.cellsExplored).toBe(3);
+
+        // Back over old ground, and pacing within a cell: nothing new.
+        player.x -= 3 * CELL;
+        director.update(16);
+        player.x += CELL / 4;
+        director.update(16);
+
+        expect(director.cellsExplored).toBe(3);
+    });
+
+    it("rolls N% on the Nth new cell, against the host's random source", () => {
+        const random = vi.fn(() => 0.025);
+        const { director, player, host } = makeDirector(
+            { minibossChancePerCell: 0.01, liveCap: 0 },
+            { random }
+        );
+
+        // 1% and 2% miss a 0.025 roll; 3% hits it.
+        explore(director, player, 2);
+        expect(host.pickMiniboss).not.toHaveBeenCalled();
+        expect(director.minibossChance).toBeCloseTo(0.03);
+
+        explore(director, player, 1);
+        expect(random).toHaveBeenCalledTimes(3);
+        expect(host.pickMiniboss).toHaveBeenCalledTimes(1);
+        expect(director.minibossActive).toBe(true);
+    });
+
+    it("climbs with exploring and caps at certain", () => {
+        const { director, player } = makeDirector(
+            { minibossChancePerCell: 0.01, liveCap: 0 },
+            { random: () => 0.999 }
+        );
+        expect(director.minibossChance).toBeCloseTo(0.01);
+
+        explore(director, player, 9);
+        expect(director.minibossChance).toBeCloseTo(0.1);
+
+        player.y += CELL;
+        explore(director, player, 89);
+        expect(director.cellsExplored).toBe(99);
+        expect(director.minibossChance).toBe(1);
+    });
+
+    it("misses when the roll is at or above the chance", () => {
+        const { director, player, host } = makeDirector(
+            { minibossChancePerCell: 0.5, liveCap: 0 },
+            { random: () => 0.5 }
+        );
+
+        explore(director, player, 1);
+
+        expect(host.pickMiniboss).not.toHaveBeenCalled();
+        expect(director.minibossChance).toBe(1);
+    });
+
+    it("resets the count when the miniboss is rolled, and holds it at 0 while it is up", () => {
+        const { director, player, minibosses } = makeDirector(
+            { minibossChancePerCell: 0.25 },
+            { random: () => 0.99 }
+        );
+        explore(director, player, 4);
+        expect(director.cellsExplored).toBe(0);
+        director.tick();
+        expect(minibosses()).toHaveLength(1);
+
+        explore(director, player, 3);
+        expect(director.cellsExplored).toBe(0);
+        expect(director.minibossChance).toBe(0);
+    });
+});
+
+describe("SpawnDirector.minibossDebugView", () => {
+    it("reports the next cell's chance and the count", () => {
+        const { director, player } = makeDirector(
+            { minibossChancePerCell: 0.01, liveCap: 0 },
+            { random: () => 0.99 }
+        );
+        explore(director, player, 3);
+
+        expect(director.minibossDebugView()).toEqual({
+            active: false,
+            chance: 0.04,
+            cellsExplored: 3,
+        });
+    });
+
+    it("reports an active miniboss at no chance", () => {
+        const { director, player } = makeDirector({ minibossChancePerCell: 1, liveCap: 0 });
+        explore(director, player, 1);
+
+        expect(director.minibossDebugView()).toMatchObject({ active: true, chance: 0 });
+    });
+});
+
+describe("SpawnDirector miniboss", () => {
+    // Certain on the first new cell; the odds themselves are covered above.
+    const certain = { minibossChancePerCell: 1 };
+
+    it("comes on the tick after it is rolled, in place of that tick's regular", () => {
+        const { director, player, host, spawnRegular, spawnMiniboss } = makeDirector(certain);
+        explore(director, player, 1);
+
         director.tick();
 
-        director.onEnemyDead(regulars()[0]);
+        expect(spawnMiniboss).toHaveBeenCalledTimes(1);
+        expect(spawnMiniboss.mock.calls[0][0]).toBe("ghoul");
+        expect(host.footprint).toHaveBeenLastCalledWith("ghoul", true);
+        expect(spawnRegular).not.toHaveBeenCalled();
+    });
 
-        expect(host.onProgress).toHaveBeenLastCalledWith(19, false);
-        expect(director.killsRemaining).toBe(19);
+    it("is one at a time: no roll while one is up, and regulars keep coming", () => {
+        const { director, player, host, spawnRegular, spawnMiniboss } = makeDirector({
+            ...certain,
+            liveCap: 5,
+        });
+        explore(director, player, 1);
+        director.tick();
+
+        explore(director, player, 5);
+        for (let i = 0; i < 10; i++) director.tick();
+
+        expect(host.pickMiniboss).toHaveBeenCalledTimes(1);
+        expect(spawnMiniboss).toHaveBeenCalledTimes(1);
+        expect(spawnRegular).toHaveBeenCalledTimes(5);
+        expect(director.minibossChance).toBe(0);
+    });
+
+    it("counts no cells while one is up; cells crossed then never count", () => {
+        const { director, player, minibosses } = makeDirector(certain);
+        explore(director, player, 1);
+        director.tick();
+        expect(minibosses()).toHaveLength(1);
+
+        explore(director, player, 4);
+        director.onEnemyDead(minibosses()[0]);
+        expect(director.cellsExplored).toBe(0);
+
+        // Back over the cells crossed during the fight: already visited.
+        player.x -= 4 * CELL;
+        director.update(16);
+        expect(director.cellsExplored).toBe(0);
+    });
+
+    it("lets exploring count again once killed, and clears nothing", () => {
+        const { director, player, host, spawnRegular, spawnMiniboss, minibosses } = makeDirector(
+            { minibossChancePerCell: 0.5 },
+            { random: () => 0.99 }
+        );
+        explore(director, player, 2);
+        director.tick();
+        expect(spawnMiniboss).toHaveBeenCalledTimes(1);
+
+        director.onEnemyDead(minibosses()[0]);
+
+        expect(director.minibossActive).toBe(false);
+        expect(director.cellsExplored).toBe(0);
+        expect(host.onAreaCleared).not.toHaveBeenCalled();
+        // The area carries on: the next tick brings a regular, not another miniboss.
+        director.tick();
+        expect(spawnRegular).toHaveBeenCalledTimes(1);
+
+        explore(director, player, 2);
+        director.tick();
+        expect(spawnMiniboss).toHaveBeenCalledTimes(2);
     });
 
     it("ignores the death of an enemy it did not spawn", () => {
-        const { director, host } = makeDirector();
+        const { director, player } = makeDirector(certain);
+        explore(director, player, 1);
+        director.tick();
 
         director.onEnemyDead(new FakeEnemy(0, 0, "stray"));
 
-        expect(host.onProgress).not.toHaveBeenCalled();
-        expect(director.killsRemaining).toBe(20);
+        expect(director.minibossActive).toBe(true);
     });
 
-    it("spawns the boss the moment the last kill lands, with regulars still alive", () => {
-        const { director, host, spawnBoss, regulars } = makeDirector({
-            killsToBoss: 2,
-            liveCap: 5,
+    it("keeps counting when a regular dies", () => {
+        const { director, player, regulars } = makeDirector({ liveCap: 1 });
+        director.tick();
+        explore(director, player, 2);
+
+        director.onEnemyDead(regulars()[0]);
+
+        expect(director.cellsExplored).toBe(2);
+    });
+
+    it("retries on later ticks when there is no room at first, still in place of regulars", () => {
+        const isSpawnable = vi.fn(() => false);
+        const { director, player, host, spawnRegular, spawnMiniboss } = makeDirector(certain, {
+            isSpawnable,
         });
-        for (let i = 0; i < 5; i++) director.tick();
+        explore(director, player, 1);
+        director.tick();
+        director.tick();
+        expect(spawnMiniboss).not.toHaveBeenCalled();
+        expect(spawnRegular).not.toHaveBeenCalled();
 
-        killAll(director, regulars().slice(0, 2));
-
-        expect(host.pickBoss).toHaveBeenCalledTimes(1);
-        expect(spawnBoss).toHaveBeenCalledTimes(1);
-        expect(spawnBoss.mock.calls[0][0]).toBe("ghoul");
-        expect(host.footprint).toHaveBeenLastCalledWith("ghoul", true);
-        expect(host.onProgress).toHaveBeenLastCalledWith(0, true);
-        expect(director.regularsAlive).toBe(3);
-    });
-
-    it("announces the boss every time it appears: first spawn, retry and respawn", () => {
-        const isSpawnable = vi.fn(() => true);
-        const { director, host, player, regulars, bosses } = makeDirector(
-            { killsToBoss: 1, despawnDelayMs: 10 },
-            { isSpawnable }
-        );
+        isSpawnable.mockReturnValue(true);
         director.tick();
 
+        expect(spawnMiniboss).toHaveBeenCalledTimes(1);
+        // Picked once, on the roll; the retries reuse it.
+        expect(host.pickMiniboss).toHaveBeenCalledTimes(1);
+    });
+
+    it("announces it every time it appears: first spawn, retry and respawn", () => {
+        const isSpawnable = vi.fn(() => false);
+        const { director, host, player, minibosses } = makeDirector(
+            { ...certain, despawnDelayMs: 10 },
+            { isSpawnable }
+        );
+        explore(director, player, 1);
+
         // First attempt finds no room: nothing to announce yet.
-        isSpawnable.mockReturnValue(false);
-        killAll(director, regulars());
-        expect(host.onBossSpawned).not.toHaveBeenCalled();
+        director.tick();
+        expect(host.onMinibossSpawned).not.toHaveBeenCalled();
 
         // The retry on the next tick lands it.
         isSpawnable.mockReturnValue(true);
         director.tick();
-        expect(host.onBossSpawned).toHaveBeenCalledTimes(1);
-        expect(host.onBossSpawned).toHaveBeenLastCalledWith(bosses()[0]);
+        expect(host.onMinibossSpawned).toHaveBeenCalledTimes(1);
+        expect(host.onMinibossSpawned).toHaveBeenLastCalledWith(minibosses()[0]);
 
         // Left behind, despawned, and respawned ahead: announced again.
         player.x += 5000;
         director.update(10);
         director.tick();
-        expect(host.onBossSpawned).toHaveBeenCalledTimes(2);
-        expect(host.onBossSpawned).toHaveBeenLastCalledWith(bosses()[1]);
+        expect(host.onMinibossSpawned).toHaveBeenCalledTimes(2);
+        expect(host.onMinibossSpawned).toHaveBeenLastCalledWith(minibosses()[1]);
     });
 
-    it("stops spawning regulars once the boss is triggered", () => {
-        const { director, spawnRegular, regulars } = makeDirector({ killsToBoss: 1 });
-        director.tick();
-        killAll(director, regulars());
-
-        for (let i = 0; i < 10; i++) director.tick();
-
-        expect(spawnRegular).toHaveBeenCalledTimes(1);
-    });
-
-    it("does not clear the area when a regular dies after the boss spawns", () => {
-        const { director, host, regulars } = makeDirector({ killsToBoss: 1 });
-        director.tick();
-        director.tick();
-        const [first, second] = regulars();
-        director.onEnemyDead(first);
-        vi.mocked(host.onProgress).mockClear();
-
-        director.onEnemyDead(second);
-
-        expect(host.onAreaCleared).not.toHaveBeenCalled();
-        expect(host.onProgress).not.toHaveBeenCalled();
-    });
-
-    it("clears the area only when the boss itself dies, and spawns nothing after", () => {
-        const { director, host, spawnRegular, spawnBoss, regulars, bosses } = makeDirector({
-            killsToBoss: 1,
-        });
-        director.tick();
-        killAll(director, regulars());
-
-        director.onEnemyDead(bosses()[0]);
-        for (let i = 0; i < 10; i++) director.tick();
-
-        expect(host.onAreaCleared).toHaveBeenCalledTimes(1);
-        expect(spawnRegular).toHaveBeenCalledTimes(1);
-        expect(spawnBoss).toHaveBeenCalledTimes(1);
-    });
-
-    it("retries the boss on later ticks when there is no room at first", () => {
-        const isSpawnable = vi.fn(() => true);
-        const { director, spawnBoss, regulars } = makeDirector({ killsToBoss: 1 }, { isSpawnable });
-        director.tick();
-        isSpawnable.mockReturnValue(false);
-        killAll(director, regulars());
-        expect(spawnBoss).not.toHaveBeenCalled();
-
-        isSpawnable.mockReturnValue(true);
-        director.tick();
-
-        expect(spawnBoss).toHaveBeenCalledTimes(1);
-    });
-
-    it("respawns a despawned boss ahead as the same creature, only once", () => {
-        const { director, player, spawnBoss, regulars, bosses } = makeDirector({
-            killsToBoss: 1,
+    it("respawns a despawned miniboss ahead as the same creature, only once", () => {
+        const { director, host, player, spawnMiniboss, minibosses } = makeDirector({
+            ...certain,
             despawnDelayMs: 10,
         });
+        explore(director, player, 1);
         director.tick();
-        killAll(director, regulars());
 
         player.x += 5000;
         director.update(10);
-        expect(bosses()[0].despawn).toHaveBeenCalledTimes(1);
+        expect(minibosses()[0].despawn).toHaveBeenCalledTimes(1);
+        expect(director.minibossActive).toBe(true);
 
         director.tick();
         director.tick();
 
-        expect(spawnBoss).toHaveBeenCalledTimes(2);
-        expect(spawnBoss.mock.calls[1][0]).toBe("ghoul");
+        expect(spawnMiniboss).toHaveBeenCalledTimes(2);
+        expect(spawnMiniboss.mock.calls[1][0]).toBe("ghoul");
+        expect(host.pickMiniboss).toHaveBeenCalledTimes(1);
     });
 
-    it("does not clear the area when a despawned boss's replacement is still alive", () => {
-        const { director, host, player, bosses, regulars } = makeDirector({
-            killsToBoss: 1,
+    it("ignores a stale death for a despawned miniboss's predecessor", () => {
+        const { director, player, minibosses } = makeDirector({
+            ...certain,
             despawnDelayMs: 10,
         });
+        explore(director, player, 1);
         director.tick();
-        killAll(director, regulars());
         player.x += 5000;
         director.update(10);
         director.tick();
 
-        // The first boss is gone; a stale death event for it must not count.
-        director.onEnemyDead(bosses()[0]);
-        expect(host.onAreaCleared).not.toHaveBeenCalled();
+        // The first miniboss is gone; a stale death event for it must not count.
+        director.onEnemyDead(minibosses()[0]);
+        expect(director.minibossActive).toBe(true);
 
-        director.onEnemyDead(bosses()[1]);
-        expect(host.onAreaCleared).toHaveBeenCalledTimes(1);
+        director.onEnemyDead(minibosses()[1]);
+        expect(director.minibossActive).toBe(false);
     });
 });
 
@@ -461,22 +963,21 @@ describe("SpawnDirector.debugView", () => {
 });
 
 describe("SpawnDirector.stop", () => {
-    it("freezes spawning, despawning and kill counting", () => {
-        const { director, host, player, spawnRegular, regulars } = makeDirector({
+    it("freezes spawning, despawning and exploring", () => {
+        const { director, player, spawnRegular, spawnMiniboss, regulars } = makeDirector({
             despawnDelayMs: 10,
+            minibossChancePerCell: 1,
         });
         director.tick();
         const enemy = regulars()[0];
-        vi.mocked(host.onProgress).mockClear();
 
         director.stop();
+        explore(director, player, 3);
         director.tick();
-        player.x += 2000;
-        director.update(1000);
-        director.onEnemyDead(enemy);
 
         expect(spawnRegular).toHaveBeenCalledTimes(1);
+        expect(spawnMiniboss).not.toHaveBeenCalled();
         expect(enemy.despawn).not.toHaveBeenCalled();
-        expect(host.onProgress).not.toHaveBeenCalled();
+        expect(director.cellsExplored).toBe(0);
     });
 });

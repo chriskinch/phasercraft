@@ -28,8 +28,9 @@ before starting work; link PRs to the relevant phase issue.
 - `npm run build` — static export (CI runs all five)
 - `npm run perf` — perf harness: `VITE_PERF=1` build + Playwright frame-time matrix → `perf-results/`;
   `npm run perf:compare -- base.json head.json` (#526). Report only; CI runs it on the `perf` PR label + nightly
-- `npm run perf:equivalence` — seeded fixed-step replays vs `perf/goldens/equivalence.json` (#527). Perf
-  stories must pass unchanged; `PERF_EQUIVALENCE=update` only for intended gameplay changes
+- `npm run perf:equivalence` — seeded fixed-step replays vs goldens recorded from the base (#527). Not
+  committed: CI records them on the PR base; locally run `PERF_EQUIVALENCE=update` on the base ref first.
+  Perf stories must pass unchanged; keep gameplay changes out of perf PRs
 
 ## Reply style
 
@@ -127,6 +128,14 @@ before starting work; link PRs to the relevant phase issue.
     - Mock entities at this seam in tests: build a constructor-free fake with
       `Object.create(Entity.prototype)`, stub the emitters/timers, and assert `cleanup()`
       releases them (see the HUD/Resource/Spell lifecycle tests).
+- **New ability = define its level scaling.** Part of the spec for adding any ability:
+  list its scalable aspects in `SPELL_ASPECTS` (wire non-`power` ones in the spell's
+  `applyLevel()`) and give it a `scaling` entry in `SPELL_DEFS` (`src/types/game.ts`) —
+  which aspects scale with level (L1–L3) and by what curve. `scaling` is required and a
+  test fails if it is empty. The curve per aspect is a balance call: ask the maintainer.
+- **New ability = define its Arcanum recipe.** Also give it a `SPELL_RECIPES` entry
+  (`src/types/game.ts`): components, coins and its one mandatory special item. A test
+  fails if any spell lacks one. Values are a balance call: ask the maintainer.
 - All `localStorage` access goes through the typed save/storage service (Phase 2);
   never call `JSON.parse(localStorage.getItem(...))` directly.
 - Redux is the single source of truth for game state shared with the React UI; the
