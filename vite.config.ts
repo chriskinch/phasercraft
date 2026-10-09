@@ -40,9 +40,13 @@ export default defineConfig(({ mode }) => ({
         // offline play. The plugin reads Vite `base`, so the SW scope and manifest
         // href resolve correctly under both "/" (Vercel) and "/phasercraft/" (Pages).
         VitePWA({
-            // New build silently takes over on the next refresh — no update prompt.
-            registerType: "autoUpdate",
-            injectRegister: "auto",
+            // A new build waits instead of taking over: UpdateBanner surfaces it
+            // and the player chooses when to reload, so an update can't swap
+            // assets out from under a run in progress.
+            registerType: "prompt",
+            // UpdateBanner registers the SW itself via `virtual:pwa-register/react`;
+            // letting the plugin also inject a registration would register twice.
+            injectRegister: null,
             includeAssets: ["favicon.png", "apple-touch-icon.png"],
             manifest: {
                 name: "Phasercraft",
@@ -91,8 +95,14 @@ export default defineConfig(({ mode }) => ({
                 navigateFallback: "index.html",
                 navigateFallbackDenylist: [/^\/api\//],
                 cleanupOutdatedCaches: true,
+                // Claim open clients once the new SW activates, so the reload
+                // UpdateBanner triggers is served by it.
                 clientsClaim: true,
-                skipWaiting: true,
+                // Must stay false for `registerType: "prompt"`. The plugin only
+                // forces skipWaiting for "autoUpdate"; with it on, a new SW
+                // activates on install, never reaches `waiting`, and the
+                // banner's `needRefresh` would never fire.
+                skipWaiting: false,
                 runtimeCaching: [
                     {
                         // The armory/merchant API is online-only and already degrades
