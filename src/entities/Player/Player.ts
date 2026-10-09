@@ -112,7 +112,7 @@ class Player extends GameObjects.Container {
         });
         this.add(this.hero);
 
-        this.setSize(this.hero.getBounds().width, this.hero.getBounds().height);
+        this.setSize(this.hero.width, this.hero.height);
         scene.physics.world.enable(this);
         scene.add.existing(this);
 
@@ -135,11 +135,16 @@ class Player extends GameObjects.Container {
         this.createAnimations(classification);
         this.setExperience();
 
+        // The bars stack above the sprite's head, so they hang off its top edge
+        // rather than off the container origin — otherwise HERO_SCALE sits them
+        // on top of the artwork. The gaps are the ones the unscaled sprite had.
+        const spriteTop = -this.hero.displayHeight / 2;
+
         this.health = AssignResource("Health", {
             container: this,
             scene: scene,
             x: -14,
-            y: -35,
+            y: spriteTop - 19,
             ...stats,
         });
         this.add(this.health);
@@ -148,7 +153,7 @@ class Player extends GameObjects.Container {
             container: this,
             scene: scene,
             x: -14,
-            y: -30,
+            y: spriteTop - 14,
             ...stats,
         });
         this.add(this.resource);
@@ -157,7 +162,7 @@ class Player extends GameObjects.Container {
             container: this,
             scene: scene,
             x: -14,
-            y: -40,
+            y: spriteTop - 24,
             ...stats,
         });
         this.add(this.shield);
@@ -563,7 +568,7 @@ class Player extends GameObjects.Container {
             this.add(
                 new CombatText(this.scene, {
                     x: 0,
-                    y: -30,
+                    y: -this.hero.displayHeight / 2 - 14,
                     type: "level",
                     value: "LEVEL+",
                     crit: false,
@@ -584,13 +589,16 @@ class Player extends GameObjects.Container {
 
         this.body.debugBodyColor = 0x00ff00;
 
-        const heroHeight = this.hero.getBounds().height;
-        const heroWidth = this.hero.getBounds().width;
+        // Frame size, not getBounds(): bounds include HERO_SCALE, and the
+        // collision box is deliberately left at the size it had before the
+        // sprite was scaled up for display.
+        const heroHeight = this.hero.height;
+        const heroWidth = this.hero.width;
         const collisionHeight = heroHeight / 4;
 
         this.body.setSize(heroWidth, collisionHeight);
 
-        this.body.setOffset(0, this.hero.getBounds().height - collisionHeight);
+        this.body.setOffset(0, heroHeight - collisionHeight);
     }
 
     createAnimations(type: string): void {
