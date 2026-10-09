@@ -1,0 +1,19 @@
+/* Same overlay-banner chrome as the install banner — composed rather than
+   copied so the two stay visually identical. Positioning belongs to
+   `.bannerStack` in UI.module.css, which lays both banners out. */
+
+.banner {
+    composes: banner from "./InstallBanner.module.css";
+}
+
+.message {
+    composes: message from "./InstallBanner.module.css";
+}
+
+.actions {
+    composes: actions from "./InstallBanner.module.css";
+}
+
+.close {
+    composes: close from "./InstallBanner.module.css";
+}
