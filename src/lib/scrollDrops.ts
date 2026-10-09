@@ -4,8 +4,8 @@ import type { SpellLevel, SpellType } from "@/types/game";
 // rolled from SCROLL_DROP_WEIGHTS, into the unread `scrolls` save slice.
 
 // Drop rates for the `scroll` loot-table entry, in `Enemy.dropLoot`'s "drops per
-// kill x 100" units: 5% from a regular mob, exactly one from a boss.
-export const SCROLL_DROP_RATE = { mob: 5, boss: 100 } as const;
+// kill x 100" units: 5% from a regular mob, exactly one from a miniboss.
+export const SCROLL_DROP_RATE = { mob: 5, miniboss: 100 } as const;
 
 // Dropped scrolls are always L1; higher levels come from merging at the Arcanum (#386).
 export const SCROLL_DROP_LEVEL: SpellLevel = 1;
@@ -18,6 +18,7 @@ export const SCROLL_DROP_WEIGHTS: Record<SpellType, number> = {
     AimedShot: 1,
     BattleStomp: 1,
     BloodFurnace: 1,
+    Charge: 1,
     Consecration: 1,
     EarthShield: 1,
     Enrage: 1,
@@ -34,6 +35,7 @@ export const SCROLL_DROP_WEIGHTS: Record<SpellType, number> = {
     SiphonSoul: 1,
     Smite: 1,
     SnareTrap: 1,
+    Retaliation: 1,
     Whirlwind: 1,
 };
 

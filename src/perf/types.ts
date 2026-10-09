@@ -38,7 +38,8 @@ export interface ReplayCheckpoint {
     aggregates: PerfAggregates;
 }
 
-// perf/goldens/equivalence.json: checkpoints per replay scenario.
+// Checkpoints per replay scenario, recorded from the base at run time
+// (perf-goldens/equivalence.json; see perf/equivalence.spec.ts).
 export type EquivalenceGoldens = Record<string, ReplayCheckpoint[]>;
 
 // Frame-time distribution in ms. `over*` count frames above each budget.

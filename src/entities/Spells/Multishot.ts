@@ -2,7 +2,7 @@ import Spell from "./Spell";
 import Projectile from "@entities/Weapons/Projectile";
 import targetVector from "@helpers/targetVector";
 import { spellDefDefaults } from "@/types/game";
-import type { SpellOptions } from "@/types/game";
+import type { SpellOptions, TargetType } from "@/types/game";
 import type Enemy from "@entities/Enemy/Enemy";
 import type { GameSceneLike } from "@/types/scene";
 
@@ -16,13 +16,13 @@ class Multishot extends Spell {
             name: "multishot",
             ...spellDefDefaults("Multishot"),
             type: "physical",
-            range: 360,
+            range: 250,
             cap: 3,
         };
 
         super({ ...defaults, ...config });
         this.type = "physical";
-        this.range = 360;
+        this.range = 250;
         this.cap = 3;
     }
 
@@ -33,21 +33,30 @@ class Multishot extends Spell {
         }
     }
 
-    startAnimation(): void {
+    // Like Aimed Shot's castRange: with no enemy inside `range` the cast
+    // does not trigger — no arrows, no resource spent, no cooldown.
+    castSpell(target?: TargetType): void {
+        if (this.enemiesInRange().length === 0) return;
+        super.castSpell(target);
+    }
+
+    // Up to `cap` live enemies within `range`, nearest first.
+    enemiesInRange(): Enemy[] {
         // getChildren(): `children.entries` stopped being an array in Phaser 4
         // (children is a plain array there), which made this scan throw.
-        const enemiesInRange: Enemy[] = (
-            (this.scene as GameSceneLike).enemies.getChildren() as Enemy[]
-        )
+        return ((this.scene as GameSceneLike).enemies.getChildren() as Enemy[])
             .filter((enemy: Enemy) => {
                 enemy.vector = targetVector(this.player, enemy);
-                if ((enemy.vector?.range ?? 0) < this.range) return enemy;
-                return null;
+                return (enemy.vector?.range ?? 0) < this.range;
             })
             .sort(function (a: Enemy, b: Enemy) {
                 return (a.vector?.range ?? 0) - (b.vector?.range ?? 0);
             })
             .slice(0, this.cap);
+    }
+
+    startAnimation(): void {
+        const enemiesInRange = this.enemiesInRange();
 
         // One homing arrow per target; the damage lands on impact.
         enemiesInRange.forEach((enemy: Enemy) => {

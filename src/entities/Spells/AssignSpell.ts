@@ -1,6 +1,7 @@
 import AimedShot from "./AimedShot";
 import BattleStomp from "./BattleStomp";
 import BloodFurnace from "./BloodFurnace";
+import Charge from "./Charge";
 import Consecration from "./Consecration";
 import EarthShield from "./EarthShield";
 import Enrage from "./Enrage";
@@ -17,6 +18,7 @@ import PowerInfusion from "./PowerInfusion";
 import SiphonSoul from "./SiphonSoul";
 import Smite from "./Smite";
 import SnareTrap from "./SnareTrap";
+import Retaliation from "./Retaliation";
 import Whirlwind from "./Whirlwind";
 import type Spell from "./Spell";
 import type { SpellOptions, SpellType } from "@/types/game";
@@ -29,6 +31,7 @@ const classes = {
     AimedShot,
     BattleStomp,
     BloodFurnace,
+    Charge,
     Consecration,
     EarthShield,
     Enrage,
@@ -45,6 +48,7 @@ const classes = {
     SiphonSoul,
     Smite,
     SnareTrap,
+    Retaliation,
     Whirlwind,
 } satisfies Record<SpellType, new (opts: SpellOptions) => Spell>;
 

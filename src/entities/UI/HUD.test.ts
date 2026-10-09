@@ -1,7 +1,7 @@
 import { describe, it, expect, vi, beforeEach, afterEach } from "vitest";
 import UI, { HUD_LAYOUT } from "./HUD";
 import store from "@store";
-import { loadGame, setEnemiesRemaining, setBossActive, setCoins } from "@store/gameReducer";
+import { loadGame, setCoins } from "@store/gameReducer";
 
 // Regression tests for the Phase 2 HUD fixes (issue #307): the keyup-L
 // handler crashed on corrupt save data (unguarded JSON.parse), and cleanup()
@@ -18,12 +18,10 @@ interface HudUnderTest {
         setInteractive: ReturnType<typeof vi.fn>;
     }>;
     scene?: { input: { keyboard: { off: ReturnType<typeof vi.fn> } } };
-    enemies?: { text: { setText: ReturnType<typeof vi.fn> } };
     coins?: { text: { setText: ReturnType<typeof vi.fn> } };
     saveGame(): void;
     deleteSaves(): void;
     loadSavedGame(): void;
-    renderEnemyCount(): void;
     renderCoinCount(): void;
     setButtonsEnabled(enabled: boolean): void;
     cleanup(): void;
@@ -39,60 +37,11 @@ function makeHud(): HudUnderTest {
         { disableInteractive: vi.fn(), setInteractive: vi.fn() },
     ];
     hud.scene = { input: { keyboard: { off: vi.fn() } } };
-    hud.enemies = { text: { setText: vi.fn() } };
     hud.coins = { text: { setText: vi.fn() } };
     return hud;
 }
 
-// The area readout replaced the old wave counter. It reads both store fields
-// rather than taking an argument, because either one changing has to re-render
-// the same line of text.
-describe("UI.renderEnemyCount", () => {
-    afterEach(() => {
-        store.dispatch(setBossActive(false));
-        store.dispatch(setEnemiesRemaining(0));
-    });
-
-    it("counts the area's remaining enemies down", () => {
-        const hud = makeHud();
-        store.dispatch(setEnemiesRemaining(12));
-
-        hud.renderEnemyCount();
-
-        expect(hud.enemies!.text.setText).toHaveBeenCalledWith("Enemies: 12");
-    });
-
-    it("reads BOSS once the boss is up, whatever the count says", () => {
-        const hud = makeHud();
-        store.dispatch(setEnemiesRemaining(1));
-        store.dispatch(setBossActive(true));
-
-        hud.renderEnemyCount();
-
-        expect(hud.enemies!.text.setText).toHaveBeenCalledWith("BOSS");
-    });
-
-    it("returns to the count when the boss is cleared", () => {
-        const hud = makeHud();
-        store.dispatch(setBossActive(true));
-        hud.renderEnemyCount();
-
-        store.dispatch(setBossActive(false));
-        store.dispatch(setEnemiesRemaining(0));
-        hud.renderEnemyCount();
-
-        expect(hud.enemies!.text.setText).toHaveBeenLastCalledWith("Enemies: 0");
-    });
-
-    it("does nothing when the enemy counter is not mounted", () => {
-        const hud = makeHud();
-        delete hud.enemies;
-
-        expect(() => hud.renderEnemyCount()).not.toThrow();
-    });
-});
-
-// The coin purse mirrors the enemy readout: town opts out of it entirely, so a
+// Town opts out of the coin purse entirely, so a
 // store-driven coin update must be safe when the container was never mounted.
 describe("UI.renderCoinCount", () => {
     afterEach(() => {

@@ -14,6 +14,8 @@ import { playSfx } from "@services/sfx";
 import AssignResource, { AssignResourceType } from "@entities/Resources/AssignResource";
 import Monster from "./Monster";
 import { animationKeys } from "./animationKeys";
+import { applyDifficulty, difficultyLevel } from "@helpers/difficulty";
+import { FONTS, pixelFontSize } from "@config/fonts";
 import Coin from "@entities/Loot/Coin";
 import Special from "@entities/Loot/Special";
 import Scroll from "@entities/Loot/Scroll";
@@ -72,14 +74,20 @@ class Enemy extends GameObjects.Container {
     public aggro_radius: number;
     public circling_radius: number;
     public loot_chance: number;
-    public coin_multiplier: number;
+    // Set by scaleToDifficulty(), from the constructor.
+    public coin_multiplier!: number;
     public active_group: GameObjects.Group;
     public alive: boolean;
     public wave_multiplier: number;
-    public base_stats: EnemyStats;
-    public stats: EnemyStats;
+    // Distance × biome stat multiplier (#596), fixed at spawn, and the level it
+    // shows as beside the health bar.
+    public difficulty!: number;
+    public level!: number;
+    public level_label: GameObjects.BitmapText;
+    public base_stats!: EnemyStats;
+    public stats!: EnemyStats;
     public loot_table: LootTable;
-    public xp: number;
+    public xp!: number;
     public state: string;
     public states: EnemyStates;
     public health: AssignResourceType;
@@ -138,17 +146,16 @@ class Enemy extends GameObjects.Container {
         this.aggro_radius = config.aggro_radius || 250;
         this.circling_radius = config.circling_radius || 30;
         this.loot_chance = 0.75;
-        this.coin_multiplier = config.coin_multiplier;
         this.active_group = config.active_group;
         this.alive = true;
 
         this.wave_multiplier = config.wave_multiplier || 0;
-        this.base_stats = this.setStats(config.attributes, this.wave_multiplier);
         this.loot_table = config.loot_table || [];
-        this.stats = { ...this.base_stats };
-        this.stats.health_value = this.stats.health_max;
-
-        this.xp = this.stats.health_max / 10;
+        this.scaleToDifficulty(
+            this.setStats(config.attributes, this.wave_multiplier),
+            config.coin_multiplier,
+            config.difficulty ?? 1
+        );
 
         this.state = "spawning";
         this.states = {
@@ -164,6 +171,13 @@ class Enemy extends GameObjects.Container {
             ...this.stats,
         });
         this.add(this.health);
+
+        // "Lv N" just left of the health bar; a container child, so it goes
+        // (and is destroyed) with the enemy.
+        this.level_label = config.scene.add
+            .bitmapText(-16, -31, FONTS.outline, `Lv ${this.level}`, pixelFontSize(1))
+            .setOrigin(1, 0);
+        this.add(this.level_label);
 
         this.banes = new Banes(this.scene, this);
 
@@ -327,7 +341,7 @@ class Enemy extends GameObjects.Container {
     }
 
     setWandering(): void {
-        // One wander loop at a time. The boss is built already targeting the
+        // One wander loop at a time. The miniboss is built already targeting the
         // player, so its first update calls this again while the constructor's
         // loop is live; overwriting the reference orphaned that loop, which kept
         // calling move() after a despawn had destroyed the body.
@@ -358,6 +372,22 @@ class Enemy extends GameObjects.Container {
         }
         const keys = animationKeys(this.key);
         this.monster.walk(this.body.velocity.x < 0 ? keys.walkLeft : keys.walkRight);
+    }
+
+    /**
+     * Sets this enemy's stats from its creature's `stats` at `difficulty`
+     * (#596): health and damage scale, and with them the XP it is worth (a
+     * tenth of max health); coins and gems it drops are worth `difficulty` ×
+     * more. Healing is a fraction of max health, so it scales on its own.
+     */
+    scaleToDifficulty(stats: EnemyStats, coin_multiplier: number, difficulty: number): void {
+        this.difficulty = difficulty;
+        this.level = difficultyLevel(difficulty);
+        this.coin_multiplier = coin_multiplier * difficulty;
+        this.base_stats = applyDifficulty(stats, difficulty);
+        this.stats = { ...this.base_stats };
+        this.stats.health_value = this.stats.health_max;
+        this.xp = this.stats.health_max / 10;
     }
 
     setStats(attributes: EnemyAttributes, wave_multiplier: number): EnemyStats {
@@ -523,7 +553,7 @@ class Enemy extends GameObjects.Container {
                     target: player,
                     onImpact: () => {
                         playSfx("explosion");
-                        events.emit("enemy:attack", damage, combat_type);
+                        events.emit("enemy:attack", damage, combat_type, this);
                         this.impactBurst(player);
                     },
                 });
@@ -531,7 +561,7 @@ class Enemy extends GameObjects.Container {
                 // Melee (and healer) auto-attacks land at once: the hit sound
                 // plays with them. Ranged bolts explode on impact above.
                 this.swipe(player);
-                this.scene.events.emit("enemy:attack", damage, combat_type);
+                this.scene.events.emit("enemy:attack", damage, combat_type, this);
                 playSfx("hurt");
             }
             this.attack_ready = false;

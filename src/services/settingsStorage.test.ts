@@ -29,10 +29,11 @@ describe("readSettings", () => {
             starterItems: true,
             startLocation: "combat",
             spawnDebugOverlay: true,
+            minibossDebugReadout: true,
             spawnRadiusOverride: 200,
             liveCapOverride: 2,
-            killsToBossOverride: 3,
             despawnDelaySeconds: 5,
+            minibossChancePerCellOverride: 5,
             sfxVolume: 40,
         };
         expect(writeSettings(settings)).toBe(true);
@@ -72,8 +73,8 @@ describe("readSettings", () => {
         expect(settings.spawnDebugOverlay).toBe(false);
         expect(settings.spawnRadiusOverride).toBe(0);
         expect(settings.liveCapOverride).toBe(0);
-        expect(settings.killsToBossOverride).toBe(0);
         expect(settings.despawnDelaySeconds).toBe(0);
+        expect(settings.minibossChancePerCellOverride).toBe(0);
         expect(settings.sfxVolume).toBe(70);
     });
 
@@ -83,9 +84,11 @@ describe("readSettings", () => {
             JSON.stringify({
                 debug: true,
                 spawnDebugOverlay: true,
+                minibossDebugReadout: true,
                 starterItems: true,
                 startLocation: "combat",
                 liveCapOverride: 2,
+                minibossChancePerCellOverride: 5,
                 sfxVolume: 40,
             })
         );

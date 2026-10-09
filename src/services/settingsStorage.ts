@@ -23,6 +23,8 @@ export interface Settings {
     startLocation: StartLocation;
     // Only read while `debug` is on.
     spawnDebugOverlay: boolean;
+    // On-screen miniboss odds (#594). Only read while `debug` is on.
+    minibossDebugReadout: boolean;
     // Spawn tuning for the enemy spawner (#456), independent of `debug` (but,
     // like every setting except sfxVolume, behind God mode).
     // Each number is 0 for "use the default", so these stay flat fields the
@@ -30,8 +32,9 @@ export interface Settings {
     // A fixed spawn/despawn radius in world px; 0 derives it from the viewport.
     spawnRadiusOverride: number;
     liveCapOverride: number;
-    killsToBossOverride: number;
     despawnDelaySeconds: number;
+    // Miniboss chance per new exploration cell, in whole % (#600).
+    minibossChancePerCellOverride: number;
     // Sound effect volume, 0–100; 0 mutes them. Read on every play, so a change
     // applies straight away (see services/sfx.ts).
     sfxVolume: number;
@@ -44,10 +47,11 @@ export const DEFAULT_SETTINGS: Settings = {
     starterItems: false,
     startLocation: "default",
     spawnDebugOverlay: false,
+    minibossDebugReadout: false,
     spawnRadiusOverride: 0,
     liveCapOverride: 0,
-    killsToBossOverride: 0,
     despawnDelaySeconds: 0,
+    minibossChancePerCellOverride: 0,
     sfxVolume: 70,
 };
 
@@ -62,12 +66,13 @@ export function withGodModeGate(settings: Settings): Settings {
         ...settings,
         debug: DEFAULT_SETTINGS.debug,
         spawnDebugOverlay: DEFAULT_SETTINGS.spawnDebugOverlay,
+        minibossDebugReadout: DEFAULT_SETTINGS.minibossDebugReadout,
         starterItems: DEFAULT_SETTINGS.starterItems,
         startLocation: DEFAULT_SETTINGS.startLocation,
         spawnRadiusOverride: DEFAULT_SETTINGS.spawnRadiusOverride,
         liveCapOverride: DEFAULT_SETTINGS.liveCapOverride,
-        killsToBossOverride: DEFAULT_SETTINGS.killsToBossOverride,
         despawnDelaySeconds: DEFAULT_SETTINGS.despawnDelaySeconds,
+        minibossChancePerCellOverride: DEFAULT_SETTINGS.minibossChancePerCellOverride,
     };
 }
 

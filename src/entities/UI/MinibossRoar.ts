@@ -1,7 +1,7 @@
 import { GameObjects, Scenes, type Scene, type Tweens } from "phaser";
 import { FONTS, pixelFontSize } from "@config/fonts";
 
-// "ROAR!" in the direction of a boss that has just spawned (#465). The boss
+// "ROAR!" in the direction of a miniboss that has just spawned (#465). The miniboss
 // arrives off screen, so the word sits at the screen edge on the line from
 // the player to it, pointing the way. Fades in rising, holds, then keeps rising
 // as it fades out, and destroys itself.
@@ -13,8 +13,8 @@ export interface ScreenPoint {
 
 // Gap between the word and the viewport edge.
 export const ROAR_EDGE_MARGIN = 16;
-// Gap above an on-screen boss's head.
-export const ROAR_ABOVE_BOSS = 40;
+// Gap above an on-screen miniboss's head.
+export const ROAR_ABOVE_MINIBOSS = 40;
 const RISE = 10;
 const FADE_IN_MS = 300;
 const HOLD_MS = 2000;
@@ -23,15 +23,15 @@ const FADE_OUT_MS = 500;
 const DEPTH = 50000;
 
 /**
- * Where to centre the word, in screen px. If the boss is already visible (only
+ * Where to centre the word, in screen px. If the miniboss is already visible (only
  * with a small debug spawn radius), just above it. Otherwise where the ray
- * from the player towards the boss meets a rect inset from the viewport edge
+ * from the player towards the miniboss meets a rect inset from the viewport edge
  * by `padding` — per axis, since the word is wider than it is tall.
  */
 export function roarPosition(
     view: { width: number; height: number },
     player: ScreenPoint,
-    boss: ScreenPoint,
+    miniboss: ScreenPoint,
     padding: { x: number; y: number }
 ): ScreenPoint {
     const left = padding.x;
@@ -43,12 +43,13 @@ export function roarPosition(
         y: Math.min(Math.max(p.y, top), bottom),
     });
 
-    const on_screen = boss.x >= 0 && boss.x <= view.width && boss.y >= 0 && boss.y <= view.height;
-    // Still clamped: a boss near the top edge would otherwise push it off screen.
-    if (on_screen) return clamp({ x: boss.x, y: boss.y - ROAR_ABOVE_BOSS });
+    const on_screen =
+        miniboss.x >= 0 && miniboss.x <= view.width && miniboss.y >= 0 && miniboss.y <= view.height;
+    // Still clamped: a miniboss near the top edge would otherwise push it off screen.
+    if (on_screen) return clamp({ x: miniboss.x, y: miniboss.y - ROAR_ABOVE_MINIBOSS });
 
-    const dx = boss.x - player.x;
-    const dy = boss.y - player.y;
+    const dx = miniboss.x - player.x;
+    const dy = miniboss.y - player.y;
 
     // How far along the ray the inset edge it is heading for lies; the nearest
     // one is hit first. The camera stops at the map edge, so the player can sit
@@ -67,13 +68,13 @@ export function roarPosition(
     return clamp({ x: player.x + dx * t, y: player.y + dy * t });
 }
 
-export default class BossRoar {
+export default class MinibossRoar {
     private text: GameObjects.BitmapText | null;
     private chain: Tweens.TweenChain | null;
     private readonly scene_events: Phaser.Events.EventEmitter;
 
     /**
-     * `player` and `boss` are screen positions; `view` is the viewport size.
+     * `player` and `miniboss` are screen positions; `view` is the viewport size.
      * The word is measured first so it can be inset by its own half-size and
      * never clipped by the screen edge, rise included.
      */
@@ -81,7 +82,7 @@ export default class BossRoar {
         scene: Scene,
         view: { width: number; height: number },
         player: ScreenPoint,
-        boss: ScreenPoint
+        miniboss: ScreenPoint
     ) {
         this.scene_events = scene.events;
 
@@ -92,7 +93,7 @@ export default class BossRoar {
             .setDepth(DEPTH)
             .setAlpha(0);
 
-        const at = roarPosition(view, player, boss, {
+        const at = roarPosition(view, player, miniboss, {
             x: this.text.width / 2 + ROAR_EDGE_MARGIN,
             // The word rises 2 × RISE over its life, so leave room above it.
             y: this.text.height / 2 + ROAR_EDGE_MARGIN + RISE * 2,

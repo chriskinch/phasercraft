@@ -337,7 +337,7 @@ The five shops (POI names already present in the town map):
       player's inventory; Buy shows the shop's own stock as selectable icons with a
       quantity stepper. Parts tooltips carry a price + short flavour line from
       `COMPONENT_DEFS.description`. Merchant stock is **ephemeral run state** (reset in
-      `loadGame`, like `enemiesRemaining`): Parts re-roll on a wall-clock **10-minute**
+      `loadGame`, like `travelRequest`): Parts re-roll on a wall-clock **10-minute**
       window (`merchantPartsBase`, random 0–`MERCHANT_MAX_STOCK`) with a live countdown —
       selling raises stock (can exceed the max) and buying lowers it, both forgotten on
       roll-over; Gear stock is exactly what the player sold this session (session-lived,
@@ -357,7 +357,7 @@ is the source of truth for the screen; the table below covers the data model.
 | Stat payoff    | A recipe's stats sit at the **top of its quality band's pool** (fine 25–50 → 50, rare 40–80 → 80, epic 65–130 → 130). Targeting a known item buys you the best roll of that tier.                           |
 | Unlock model   | **Schematics.** `recipes: string[]` (known ids) in the save, seeded with `INITIAL_RECIPES`. Unlearnt recipes are **not shown at all** — finding them is the discovery (supersedes the earlier silhouettes). |
 | Schematic drop | **Boss: guaranteed. All other mobs: 1%.** Rolled at collect against the known set, weighted by the killed mob's level.                                                                                      |
-| Mob level      | New `level` integer per mob in `enemies.json`/`bosses.json` — enemies carried no level field, and biome tier would weight every mob in a biome identically.                                                 |
+| Mob level      | Per-mob `tier` integer in `enemies.json` (added in #598, named `tier` so it doesn't clash with the displayed `Lv`) — biome difficulty alone would weight every mob in a biome identically.                  |
 | Schematic shop | Blacksmith also **sells** schematics on a **24h** rotating window (same wall-clock hash trick as the Merchant's parts). Price = **5×** the recipe's craft coin cost (`SCHEMATIC_PRICE_MULTIPLIER`).         |
 | Balance        | Recipe input value ≈ **3–4×** the armory coin cost of the tier. All numbers placeholder — tune in review.                                                                                                   |
 
@@ -481,12 +481,44 @@ targeted story.
 
 | Topic       | Decision                                                                                                                                                                                                                                                                                                                                        |
 | ----------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| Fidelity    | Every perf story passes the exact seeded replay hash and pixel-for-pixel equivalence screenshots. Intended gameplay changes regenerate goldens with `PERF_EQUIVALENCE=update`.                                                                                                                                                                  |
+| Fidelity    | Every perf story passes the exact seeded replay hash and pixel-for-pixel equivalence screenshots. Goldens are recorded from the PR base at run time, not committed (2026-10-05: gameplay changes constantly), so gameplay PRs carry no golden upkeep; keep gameplay changes out of perf PRs.                                                    |
 | Exceptions  | Combat text only needs to look the same at play speed (≤ 1 px kerning). In-game text moved to the bitByBit bitmap font (#569, goldens regenerated: Phaser `Text` drew `Math.random` per instance). #533 shifted 3–142 px of rotated VFX edges in headless screenshots; accepted. PRs with accepted visual change carry the `perf-visual` label. |
 | AI throttle | The ~10 Hz staggered AI with tolerance-mode equivalence (#537) is not built: decisions cost < 0.2 ms at 50 enemies.                                                                                                                                                                                                                             |
 | Distances   | No squared-distance swaps: `s < r*r` differs from `sqrt(s) < r` at the boundary for in-game radii, which breaks the exact hash.                                                                                                                                                                                                                 |
 | Harness     | Perf hooks compile only into `VITE_PERF=1` builds. Seeded RNG, fixed-step replays, headless Chromium with a 4× CPU throttle. Report only, never gates: runs on the `perf` PR label and nightly on `main`. Headless renders on the CPU, so render wins are proved on device.                                                                     |
 | Stop rule   | Stop at the target. Once the device is vsync-bound (16.7 ms frames, CPU about half used), further CPU work only adds headroom; reopen stories only on a device trace.                                                                                                                                                                           |
+
+## Phase 15 — Enemy spawn overhaul (epic #592)
+
+Reward wandering away from each biome's `player-start` and reward character progression.
+Forward-cone off-screen spawning stays; mobs arrive in clustered configurations, scale with
+distance × biome, and the area boss becomes an exploration-found **miniboss** (real boss mechanics
+come later; until then an area never clears).
+
+- [x] Rename boss → miniboss, no behavior change (#593, PR #602)
+- [x] Exploration-driven miniboss replaces the kill-count trigger; HUD enemy text removed (#594)
+- [x] Clustered spawn configurations: groups, pairs, packs (#595)
+- [x] Distance × biome difficulty scaling + `Lv N` on health bars (#596)
+- [x] Loot rarity tiers boosted by difficulty (#597)
+- [x] Species `tier` + distance-weighted species picks (#598)
+- [x] Distance-weighted pack odds + safe start pocket (#599)
+- [x] Debug: miniboss % per cell override + overlay clusters/difficulty/exploration (#600)
+
+Follow-up: monster-parts signature loot (#601).
+
+### Decisions (2026-10-05) — Enemy spawn overhaul (Phase 15)
+
+| Topic          | Decision                                                                                                                                                                                                                                                                                  |
+| -------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Configurations | Small group 1–3 (equal odds, mixed) 70% · same-type pair 22% · pack 5–10 (mixed 70% / single 30%) 8%. Cluster radius 48 px × √count, wholly off screen.                                                                                                                                   |
+| Pacing         | 1 config / 3 s. Live cap 15 → 25, overshoot allowed. Blocked members dropped after retrying centres. Despawn per mob, as today.                                                                                                                                                           |
+| Miniboss       | Found by exploring, not waiting: the Nth new 512 px cell since the last miniboss (counted once; start cell never) rolls N × 1%, so certain by the 100th (~12 cells median). Count resets when one is rolled and stays 0 while it is up. Alone; respawns ahead on despawn. Loot as before. |
+| Area clear     | Kill count removed. Miniboss death does not clear; the area-cleared hook stays dormant for the future boss.                                                                                                                                                                               |
+| Difficulty     | `mult = biome × (1 + (3 − 1) × d / dMax)`; biome forest 1, desert 1.5, tundra 2 (range 1–6). Straight-line from `player-start`, fixed at spawn. Health + damage; healing unchanged; XP via health; coin value × mult.                                                                     |
+| Readability    | `Lv N` on mob health bars, `N = round(mult × 5)`.                                                                                                                                                                                                                                         |
+| Loot rarity    | Rate × `1 + (mult − 1) × k`: common 0, uncommon (gem/ichor) 0.5, rare (scroll) 1, epic (special) 2. Miniboss pinned rates unchanged.                                                                                                                                                      |
+| Species        | New `tier` field (not `level`, to avoid clashing with `Lv`); weakest 2× likelier at start, strongest 3× at the far edge. Phase 13 "mob level" reads `tier`.                                                                                                                               |
+| Extras         | Pack weight 8% → 20% with distance; no packs/miniboss within ~1500 px of `player-start`.                                                                                                                                                                                                  |
 
 ## Deferred / backlog
 

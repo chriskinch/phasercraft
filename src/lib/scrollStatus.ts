@@ -1,4 +1,4 @@
-import { SPELL_DEFS, SPELL_LEVELS } from "@/types/game";
+import { SCROLL_MERGE_COUNT, SPELL_DEFS, SPELL_LEVELS } from "@/types/game";
 import type { SpellLevel } from "@/types/game";
 import type { PlayerName } from "@entities/Player/AssignClass";
 import type { SpellType } from "@entities/Spells/AssignSpell";
@@ -58,6 +58,28 @@ export const scrollStatus = (
         state: "merge",
         readable: false,
         hint: `Merge 3 at the Arcanum to make L${level + 1}.`,
+    };
+};
+
+// Arcanum Merge hint for a held stack (#386). Mirrors the `combineScrolls`
+// reducer's guards; `readable` here means "Merge is enabled". Off-class scrolls
+// merge like any other.
+export const mergeStatus = (spell: SpellType, level: SpellLevel, count: number): ScrollStatus => {
+    const name = SPELL_DEFS[spell].name;
+    if (level >= MAX_SPELL_LEVEL) {
+        return { state: "max", readable: false, hint: "Max level — can't merge further." };
+    }
+    if (count < SCROLL_MERGE_COUNT) {
+        return {
+            state: "merge",
+            readable: false,
+            hint: `Need ${SCROLL_MERGE_COUNT} to merge into L${level + 1} (have ${count}).`,
+        };
+    }
+    return {
+        state: "merge",
+        readable: true,
+        hint: `Merges ${SCROLL_MERGE_COUNT} into 1 ${name} L${level + 1}.`,
     };
 };
 

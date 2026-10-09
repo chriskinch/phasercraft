@@ -55,6 +55,7 @@ describe("Settings template", () => {
                 godMode: true,
                 debug: true,
                 spawnDebugOverlay: true,
+                minibossDebugReadout: true,
                 starterItems: true,
                 startLocation: "combat",
                 liveCapOverride: 2,
@@ -100,6 +101,17 @@ describe("Settings template", () => {
 
             expect(readSettings().spawnDebugOverlay).toBe(true);
             expect(toggleFor("Spawn overlay")).toHaveTextContent("On");
+        });
+
+        it("shows the miniboss chance readout only while Debug mode is on, and persists it", () => {
+            renderWithProviders(<Settings />);
+            expect(screen.queryByText("Miniboss chance")).toBeNull();
+
+            fireEvent.click(toggleFor("Debug mode"));
+            fireEvent.click(toggleFor("Miniboss chance"));
+
+            expect(readSettings().minibossDebugReadout).toBe(true);
+            expect(toggleFor("Miniboss chance")).toHaveTextContent("On");
         });
 
         it("toggles and persists Starter items", () => {
@@ -162,11 +174,11 @@ describe("Settings template", () => {
 
             expect(screen.getByLabelText("Spawn radius (px)")).toHaveValue(AUTO_RADIUS);
             expect(screen.getByLabelText("Live cap")).toHaveValue(DEFAULT_AREA_TUNING.liveCap);
-            expect(screen.getByLabelText("Kills to boss")).toHaveValue(
-                DEFAULT_AREA_TUNING.killsToBoss
-            );
             expect(screen.getByLabelText("Despawn delay (s)")).toHaveValue(
                 DEFAULT_AREA_TUNING.despawnDelayMs / 1000
+            );
+            expect(screen.getByLabelText("Miniboss % per cell")).toHaveValue(
+                DEFAULT_AREA_TUNING.minibossChancePerCell * 100
             );
         });
 
@@ -196,16 +208,18 @@ describe("Settings template", () => {
                 target: { value: "200" },
             });
             fireEvent.change(screen.getByLabelText("Live cap"), { target: { value: "2" } });
-            fireEvent.change(screen.getByLabelText("Kills to boss"), { target: { value: "3" } });
             fireEvent.change(screen.getByLabelText("Despawn delay (s)"), {
                 target: { value: "5" },
+            });
+            fireEvent.change(screen.getByLabelText("Miniboss % per cell"), {
+                target: { value: "10" },
             });
 
             expect(readSettings()).toMatchObject({
                 spawnRadiusOverride: 200,
                 liveCapOverride: 2,
-                killsToBossOverride: 3,
                 despawnDelaySeconds: 5,
+                minibossChancePerCellOverride: 10,
             });
             expect(screen.getByLabelText("Live cap")).toHaveValue(2);
         });
@@ -239,9 +253,11 @@ describe("Settings template", () => {
             writeSettings({ ...DEFAULT_SETTINGS, godMode: true });
             renderWithProviders(<Settings />);
 
-            fireEvent.change(screen.getByLabelText("Kills to boss"), { target: { value: "-5" } });
+            fireEvent.change(screen.getByLabelText("Despawn delay (s)"), {
+                target: { value: "-5" },
+            });
 
-            expect(readSettings().killsToBossOverride).toBe(0);
+            expect(readSettings().despawnDelaySeconds).toBe(0);
         });
 
         describe("Reset", () => {
@@ -255,27 +271,22 @@ describe("Settings template", () => {
                 writeSettings({ ...DEFAULT_SETTINGS, godMode: true });
                 renderWithProviders(<Settings />);
 
-                for (const label of [
-                    "Spawn radius (px)",
-                    "Live cap",
-                    "Kills to boss",
-                    "Despawn delay (s)",
-                ]) {
+                for (const label of ["Spawn radius (px)", "Live cap", "Despawn delay (s)"]) {
                     expect(resetFor(label)).toBeDisabled();
                 }
             });
 
             it("returns an overridden field to its codified default", () => {
-                writeSettings({ ...DEFAULT_SETTINGS, godMode: true, killsToBossOverride: 3 });
+                writeSettings({ ...DEFAULT_SETTINGS, godMode: true, despawnDelaySeconds: 5 });
                 renderWithProviders(<Settings />);
 
-                fireEvent.click(resetFor("Kills to boss"));
+                fireEvent.click(resetFor("Despawn delay (s)"));
 
-                expect(readSettings().killsToBossOverride).toBe(0);
-                expect(screen.getByLabelText("Kills to boss")).toHaveValue(
-                    DEFAULT_AREA_TUNING.killsToBoss
+                expect(readSettings().despawnDelaySeconds).toBe(0);
+                expect(screen.getByLabelText("Despawn delay (s)")).toHaveValue(
+                    DEFAULT_AREA_TUNING.despawnDelayMs / 1000
                 );
-                expect(resetFor("Kills to boss")).toBeDisabled();
+                expect(resetFor("Despawn delay (s)")).toBeDisabled();
             });
 
             it("returns the radius to automatic, showing the value auto works out to", () => {
@@ -293,14 +304,14 @@ describe("Settings template", () => {
                     ...DEFAULT_SETTINGS,
                     godMode: true,
                     liveCapOverride: 2,
-                    killsToBossOverride: 3,
+                    despawnDelaySeconds: 5,
                 });
                 renderWithProviders(<Settings />);
 
                 fireEvent.click(resetFor("Live cap"));
 
                 expect(readSettings().liveCapOverride).toBe(0);
-                expect(readSettings().killsToBossOverride).toBe(3);
+                expect(readSettings().despawnDelaySeconds).toBe(5);
             });
         });
     });

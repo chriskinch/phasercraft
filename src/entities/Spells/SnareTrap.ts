@@ -1,14 +1,21 @@
 import Spell from "./Spell";
 import Trap from "../Weapons/Trap";
 import { spellDefDefaults } from "@/types/game";
+import { levelFactor } from "@/lib/levelScaling";
 import type { SpellOptions, TargetType } from "@/types/game";
 import type Enemy from "@entities/Enemy/Enemy";
+
+export const SNARE_TRAP_DAMAGE = 20;
 
 class SnareTrap extends Spell {
     public type: string;
     public duration: number;
     public lifespan: number;
     public item!: Trap;
+    // Trap hit damage (flat, can't crit). TODO: Bleed over time.
+    public trapDamage = SNARE_TRAP_DAMAGE;
+    // L1 values; applyLevel() derives the scaled fields from them.
+    private base!: { duration: number; lifespan: number };
 
     constructor(config: SpellOptions) {
         const defaults = {
@@ -24,6 +31,14 @@ class SnareTrap extends Spell {
         this.type = "bleed";
         this.duration = 6;
         this.lifespan = 20;
+        this.base = { duration: this.duration, lifespan: this.lifespan };
+        this.applyLevel();
+    }
+
+    applyLevel(): void {
+        this.duration = this.base.duration * levelFactor(this.spellType, "duration", this.level);
+        this.lifespan = this.base.lifespan * levelFactor(this.spellType, "lifespan", this.level);
+        this.trapDamage = SNARE_TRAP_DAMAGE * levelFactor(this.spellType, "damage", this.level);
     }
 
     // Override and remove the default spell animation functions.
@@ -34,8 +49,8 @@ class SnareTrap extends Spell {
         target.body.setMaxVelocity(0);
         target.monster.anims.pause();
         target.body.checkCollision.none = true;
-        // Using a flat value and false so trap cannot crit. TODO: Bleed over time.
-        target.health.adjustValue(-20, this.type, false);
+        // Using a flat value and false so trap cannot crit.
+        target.health.adjustValue(-this.trapDamage, this.type, false);
 
         this.scene.time.delayedCall(
             this.duration * 1000,
