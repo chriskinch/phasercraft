@@ -446,3 +446,31 @@ describe("PLAYER_OVERHEAD_Y", () => {
         });
     });
 });
+
+// The pack's rows are 4 frames where the old art's were 6; the frame rate is
+// lowered to match so every loop still lasts the 500ms it did before.
+describe("createAnimations", () => {
+    it("keeps every player animation loop at 500ms", () => {
+        const created: { key: string; frames: number[]; frameRate: number }[] = [];
+        const player = Object.create(Player.prototype) as Player;
+        Object.defineProperty(player, "scene", {
+            value: {
+                anims: {
+                    generateFrameNumbers: (
+                        _key: string,
+                        { start, end }: { start: number; end: number }
+                    ) => Array.from({ length: end - start + 1 }, (_, i) => start + i),
+                    create: (config: { key: string; frames: number[]; frameRate: number }) =>
+                        created.push(config),
+                },
+            },
+        });
+
+        player.createAnimations("warrior");
+
+        expect(created).toHaveLength(4);
+        for (const { key, frames, frameRate } of created) {
+            expect({ key, ms: (frames.length / frameRate) * 1000 }).toEqual({ key, ms: 500 });
+        }
+    });
+});

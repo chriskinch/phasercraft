@@ -650,6 +650,7 @@ class Player extends GameObjects.Container {
     createAnimations(type: string): void {
         // Four frames per row, matching the sheets baked by
         // scripts/build-player-sheets.ts (walk-right, walk-left, idle, death).
+        // 8fps keeps each loop at the 500ms the old 6-frame rows ran at 12fps.
         const player_animations = [
             { key: "player-idle", frames: { start: 8, end: 11 }, repeat: -1 },
             { key: "player-right-up", frames: { start: 0, end: 3 }, repeat: -1 },
@@ -661,7 +662,7 @@ class Player extends GameObjects.Container {
             this.scene.anims.create({
                 key: animation.key,
                 frames: this.scene.anims.generateFrameNumbers(type, animation.frames),
-                frameRate: 12,
+                frameRate: 8,
                 repeat: animation.repeat,
             });
         });
