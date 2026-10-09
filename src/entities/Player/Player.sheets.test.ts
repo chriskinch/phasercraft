@@ -32,7 +32,7 @@ function gifSize(file: string): { width: number; height: number } {
 }
 
 describe("committed player spritesheets", () => {
-    it.each(SHEETS)("%s.gif is a %ix%i grid of 24x32 frames", (name) => {
+    it.each(SHEETS)("%s.gif is a 4x4 grid of 24x32 frames", (name) => {
         const { width, height } = gifSize(
             path.join(process.cwd(), "public/graphics/spritesheets/player", `${name}.gif`)
         );
@@ -41,7 +41,7 @@ describe("committed player spritesheets", () => {
         expect((width / CELL_W) * (height / CELL_H)).toBeGreaterThan(MAX_FRAME_INDEX);
     });
 
-    it.each(PORTRAITS)("%s portrait is %ix%i", (name) => {
+    it.each(PORTRAITS)("%s portrait is 60x90", (name) => {
         expect(gifSize(path.join(process.cwd(), "public/UI/player", `${name}.gif`))).toEqual({
             width: PORTRAIT_W,
             height: PORTRAIT_H,
