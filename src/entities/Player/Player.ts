@@ -143,16 +143,17 @@ class Player extends GameObjects.Container {
         this.createAnimations(classification);
         this.setExperience();
 
-        // The bars stack above the sprite's head, so they hang off its top edge
-        // rather than off the container origin — otherwise HERO_SCALE sits them
-        // on top of the artwork. The gaps are the ones the unscaled sprite had.
-        const spriteTop = -this.hero.displayHeight / 2;
+        // The bars stack above the sprite's head, so they hang off the top of
+        // the art rather than off the container origin or the frame's top edge
+        // (the art is shorter than the cell). The gaps are the ones the old art
+        // had above its head.
+        const artTop = this.hero.artTop();
 
         this.health = AssignResource("Health", {
             container: this,
             scene: scene,
             x: -14,
-            y: spriteTop - 19,
+            y: artTop - 21,
             ...stats,
         });
         this.add(this.health);
@@ -161,7 +162,7 @@ class Player extends GameObjects.Container {
             container: this,
             scene: scene,
             x: -14,
-            y: spriteTop - 14,
+            y: artTop - 16,
             ...stats,
         });
         this.add(this.resource);
@@ -170,7 +171,7 @@ class Player extends GameObjects.Container {
             container: this,
             scene: scene,
             x: -14,
-            y: spriteTop - 24,
+            y: artTop - 26,
             ...stats,
         });
         this.add(this.shield);
@@ -603,7 +604,7 @@ class Player extends GameObjects.Container {
             this.add(
                 new CombatText(this.scene, {
                     x: 0,
-                    y: -this.hero.displayHeight / 2 - 14,
+                    y: this.hero.artTop() - 16,
                     type: "level",
                     value: "LEVEL+",
                     crit: false,

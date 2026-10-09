@@ -13,6 +13,13 @@ interface HeroConfig {
  */
 export const HERO_SCALE = 2;
 
+/**
+ * Topmost row of the class art inside its 24×32 cell (weapon tips included),
+ * as baked by scripts/build-player-sheets.ts. The pack's art is shorter than
+ * the cell, so its top sits well below the frame's top edge.
+ */
+export const HERO_ART_TOP = 9;
+
 class Hero extends GameObjects.Sprite {
     public body!: Physics.Arcade.Body;
 
@@ -23,6 +30,11 @@ class Hero extends GameObjects.Sprite {
         config.scene.add.existing(this);
         this.body.collideWorldBounds = true;
         this.body.immovable = true;
+    }
+
+    /** Y of the art's top edge, relative to the sprite's origin, at the current scale. */
+    artTop(): number {
+        return -this.displayHeight / 2 + HERO_ART_TOP * this.scaleY;
     }
 
     walk(anim: string): void {

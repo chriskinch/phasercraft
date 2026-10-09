@@ -9,8 +9,7 @@
 // identical in every sheet of the pack. Row meanings come from the pack's
 // __Anims_Order_List_Names_and_License.txt (1-indexed there, 0-indexed here).
 //
-// Output keeps the 24×32 cell the old art used, so Hero's bounds — and therefore
-// Player.setCollisionBox() — are unchanged. Rows are ordered to match the frame
+// Output keeps the 24×32 cell the old art used; Hero draws it at HERO_SCALE. Rows are ordered to match the frame
 // ranges in src/entities/Player/Player.ts: walk-right, walk-left, idle, death.
 //
 // The pack has no side or back views, so walk-left is walk-right mirrored; the
@@ -58,15 +57,16 @@ interface ClassSprite {
 }
 
 // Weapon rows give each class a silhouette of its own: 91/97 sword + shield,
-// 93/99 staff + rune, 94/100 wand + rune, 95/101 tall bow. The Occultist uses
-// the plain idle/run rows (0/1) — an empty-handed hooded caster.
+// 93/99 staff + rune, 94/100 wand + rune, 96/102 short bow. The weapon also
+// carries the facing cue, so every playable class holds one. The tall-bow rows
+// (95/101) are not used: the pack clips the bow's arc at the 16px frame edge.
 const SPRITES: ClassSprite[] = [
     // "Chamption" is the pack's own spelling, not a typo here.
     { name: "warrior", sheet: "2_Chamption_B.png", idleRow: 91, walkRow: 97 },
     { name: "cleric", sheet: "8_Magician_B.png", idleRow: 93, walkRow: 99 },
     { name: "mage", sheet: "12_Sages_B.png", idleRow: 94, walkRow: 100 },
-    { name: "occultist", sheet: `${SET_2}/12_Sage_D.png`, idleRow: 0, walkRow: 1 },
-    { name: "ranger", sheet: "15_Pirates_A.png", idleRow: 95, walkRow: 101 },
+    { name: "occultist", sheet: `${SET_2}/12_Sage_D.png`, idleRow: 93, walkRow: 99 },
+    { name: "ranger", sheet: "15_Pirates_A.png", idleRow: 96, walkRow: 102 },
     // Not a playable class: the base texture Hero is constructed with, so it
     // has to match or the player shows the old art for a frame on spawn.
     { name: "noob", sheet: "18_Scouts_B.png", idleRow: 0, walkRow: 1 },
