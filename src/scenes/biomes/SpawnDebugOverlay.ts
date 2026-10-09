@@ -5,8 +5,10 @@ import type { SpawnDebugView } from "./SpawnDirector";
 
 // Draws what the spawn director is doing (#464): the spawn radius, the (faint)
 // despawn radius beyond it, the cone enemies spawn in, the last spawn's centres, and a despawn
-// countdown over every enemy whose clock is running. Only built when Debug mode
-// and its spawn overlay toggle are both on, so it costs nothing otherwise.
+// countdown over every enemy whose clock is running. Also (#600) the recent
+// configurations' cluster circles, each enemy's difficulty multiplier under its
+// feet, the exploration cells visited and the safe start pocket. Only built when
+// Debug mode and its spawn overlay toggle are both on, so it costs nothing otherwise.
 
 // What the overlay needs from an enemy: where to put its countdown.
 export interface OverlayEnemy {
@@ -24,6 +26,9 @@ const RADIUS_COLOUR = 0x00e5ff;
 const CONE_COLOUR = 0xffe600;
 const ACCEPTED_COLOUR = 0x00ff66;
 const REJECTED_COLOUR = 0xff3355;
+const CLUSTER_COLOUR = 0xff66ff;
+const CELL_COLOUR = 0xffffff;
+const POCKET_COLOUR = 0x66ff99;
 const MARK_SIZE = 6;
 // Above every character (their depth is their y, at most the map height).
 const DEPTH = 10000;
@@ -43,6 +48,11 @@ export function coneEdges(
     return [edge(centre - halfAngle), edge(centre + halfAngle)];
 }
 
+/** An enemy's difficulty multiplier, e.g. "x1.85". */
+export function multiplierLabel(difficulty: number): string {
+    return `x${difficulty.toFixed(2)}`;
+}
+
 /** Seconds left before despawning, one decimal; null while the clock is idle. */
 export function countdownLabel(beyondMs: number, delayMs: number): string | null {
     if (beyondMs <= 0) return null;
@@ -52,6 +62,7 @@ export function countdownLabel(beyondMs: number, delayMs: number): string | null
 export default class SpawnDebugOverlay<E extends OverlayEnemy> {
     private graphics: GameObjects.Graphics | null;
     private readonly labels = new Map<E, GameObjects.BitmapText>();
+    private readonly multipliers = new Map<E, GameObjects.BitmapText>();
 
     constructor(
         private readonly scene: Scene,
@@ -67,6 +78,27 @@ export default class SpawnDebugOverlay<E extends OverlayEnemy> {
         const view = this.source.debugView();
 
         graphics.clear();
+
+        // Visited exploration cells, faintly, under everything else.
+        const { cellSize, cells } = view.exploration;
+        graphics.fillStyle(CELL_COLOUR, 0.06);
+        graphics.lineStyle(1, CELL_COLOUR, 0.15);
+        for (const cell of cells) {
+            graphics.fillRect(cell.x, cell.y, cellSize, cellSize);
+            graphics.strokeRect(cell.x, cell.y, cellSize, cellSize);
+        }
+
+        graphics.lineStyle(2, POCKET_COLOUR, 0.6);
+        graphics.strokeCircle(
+            view.safePocket.centre.x,
+            view.safePocket.centre.y,
+            view.safePocket.radius
+        );
+
+        graphics.lineStyle(2, CLUSTER_COLOUR, 0.8);
+        for (const { centre, radius } of view.clusters) {
+            graphics.strokeCircle(centre.x, centre.y, radius);
+        }
 
         // The radius: thicker while standing still, when the whole ring is live.
         graphics.lineStyle(view.direction ? 2 : 4, RADIUS_COLOUR, 0.8);
@@ -108,6 +140,33 @@ export default class SpawnDebugOverlay<E extends OverlayEnemy> {
         }
 
         this.drawCountdowns(view);
+        this.drawMultipliers(view);
+    }
+
+    // One multiplier label under each tracked enemy's feet; untracked enemies'
+    // labels are destroyed.
+    private drawMultipliers(view: SpawnDebugView<E>): void {
+        const live = new Set<E>();
+
+        for (const { enemy, difficulty } of view.enemies) {
+            live.add(enemy);
+            let label = this.multipliers.get(enemy);
+            if (!label) {
+                label = this.scene.add
+                    .bitmapText(0, 0, FONTS.outline, "", pixelFontSize(1))
+                    .setTint(CLUSTER_COLOUR)
+                    .setOrigin(0.5, 0)
+                    .setDepth(DEPTH);
+                this.multipliers.set(enemy, label);
+            }
+            label.setText(multiplierLabel(difficulty)).setPosition(enemy.x, enemy.y);
+        }
+
+        this.multipliers.forEach((label, enemy) => {
+            if (live.has(enemy)) return;
+            label.destroy();
+            this.multipliers.delete(enemy);
+        });
     }
 
     // One label per enemy with a running clock; enemies no longer tracked
@@ -151,5 +210,7 @@ export default class SpawnDebugOverlay<E extends OverlayEnemy> {
         this.graphics = null;
         this.labels.forEach((label) => label.destroy());
         this.labels.clear();
+        this.multipliers.forEach((label) => label.destroy());
+        this.multipliers.clear();
     }
 }

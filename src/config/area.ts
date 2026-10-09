@@ -148,6 +148,8 @@ export function resolveAreaTuning(settings: Settings): AreaTuning {
     if (positive(settings.liveCapOverride)) tuning.liveCap = Math.floor(settings.liveCapOverride);
     if (positive(settings.despawnDelaySeconds))
         tuning.despawnDelayMs = settings.despawnDelaySeconds * 1000;
+    if (positive(settings.minibossChancePerCellOverride))
+        tuning.minibossChancePerCell = settings.minibossChancePerCellOverride / 100;
     return tuning;
 }
 

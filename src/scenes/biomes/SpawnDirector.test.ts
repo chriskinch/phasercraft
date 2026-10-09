@@ -1,6 +1,6 @@
 import { describe, it, expect, vi } from "vitest";
 import { DEFAULT_AREA_TUNING, type AreaTuning } from "@config/area";
-import SpawnDirector, { type SpawnHost } from "./SpawnDirector";
+import SpawnDirector, { DEBUG_CLUSTER_HISTORY, type SpawnHost } from "./SpawnDirector";
 
 // The director is pure logic over a host, so it runs here against a fake host
 // with a seeded random source: no Phaser, and every spawn point reproducible.
@@ -39,6 +39,7 @@ function makeDirector(tuning: Partial<AreaTuning> = {}, host: Partial<SpawnHost<
     const velocity = { x: 0, y: 0 };
     const fake: SpawnHost<FakeEnemy> = {
         playerPosition: () => player,
+        playerStart: () => ({ x: 0, y: 0 }),
         playerVelocity: () => velocity,
         view: () => ({ width: 800, height: 600, zoom: 1 }),
         isSpawnable: vi.fn(() => true),
@@ -936,7 +937,9 @@ describe("SpawnDirector.debugView", () => {
         player.x += 2000;
         director.update(250);
 
-        expect(director.debugView().enemies).toEqual([{ enemy: regulars()[0], beyondMs: 250 }]);
+        expect(director.debugView().enemies).toEqual([
+            { enemy: regulars()[0], beyondMs: 250, difficulty: 1 },
+        ]);
     });
 
     it("records the last spawn attempt's candidates and which one fit", () => {
@@ -959,6 +962,68 @@ describe("SpawnDirector.debugView", () => {
         director.tick();
 
         expect(director.debugView().attempts).toHaveLength(3);
+    });
+
+    it("reports each enemy's spawn difficulty, the miniboss's included", () => {
+        const { director, player, regulars, minibosses } = makeDirector(
+            { minibossChancePerCell: 1 },
+            { difficultyAt: vi.fn(() => 1.75) }
+        );
+        explore(director, player, 1);
+        director.tick();
+        director.tick();
+
+        const view = director.debugView().enemies;
+        expect(view.find((e) => e.enemy === minibosses()[0])?.difficulty).toBe(1.75);
+        expect(view.find((e) => e.enemy === regulars()[0])?.difficulty).toBe(1.75);
+    });
+
+    it("keeps the most recent configurations' cluster circles", () => {
+        const { director, host } = makeDirector({
+            configWeights: { group: 0, pair: 1, pack: 0 },
+            clusterBaseRadius: 48,
+            liveCap: 1000,
+        });
+
+        director.tick();
+        const first = director.debugView().clusters;
+        expect(first).toEqual([
+            {
+                centre: vi.mocked(host.difficultyAt).mock.lastCall![0],
+                radius: 48 * Math.SQRT2,
+            },
+        ]);
+
+        for (let i = 0; i < DEBUG_CLUSTER_HISTORY + 5; i++) director.tick();
+        const clusters = director.debugView().clusters;
+        expect(clusters).toHaveLength(DEBUG_CLUSTER_HISTORY);
+        expect(clusters.at(-1)!.centre).toEqual(vi.mocked(host.difficultyAt).mock.lastCall![0]);
+    });
+
+    it("lists the visited exploration cells by top-left corner", () => {
+        const { director, player } = makeDirector({ liveCap: 0 });
+        explore(director, player, 2);
+
+        const { cellSize, cells } = director.debugView().exploration;
+        // 5000 px is in cell 9; two steps east reach 11.
+        expect(cellSize).toBe(CELL);
+        expect(cells).toEqual([
+            { x: 9 * CELL, y: 9 * CELL },
+            { x: 10 * CELL, y: 9 * CELL },
+            { x: 11 * CELL, y: 9 * CELL },
+        ]);
+    });
+
+    it("reports the safe pocket around the player's start", () => {
+        const { director } = makeDirector(
+            { safeStartRadius: 1200 },
+            { playerStart: () => ({ x: 300, y: 400 }) }
+        );
+
+        expect(director.debugView().safePocket).toEqual({
+            centre: { x: 300, y: 400 },
+            radius: 1200,
+        });
     });
 });
 

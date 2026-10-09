@@ -502,7 +502,7 @@ come later; until then an area never clears).
 - [x] Loot rarity tiers boosted by difficulty (#597)
 - [x] Species `tier` + distance-weighted species picks (#598)
 - [x] Distance-weighted pack odds + safe start pocket (#599)
-- [ ] Debug: miniboss ramp override + overlay clusters/difficulty (#600)
+- [x] Debug: miniboss % per cell override + overlay clusters/difficulty/exploration (#600)
 
 Follow-up: monster-parts signature loot (#601).
 
