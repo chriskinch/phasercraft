@@ -634,7 +634,11 @@ class Player extends GameObjects.Container {
 
         this.body.setSize(heroWidth, collisionHeight);
 
-        this.body.setOffset(0, heroHeight - collisionHeight);
+        // The offset is from the container's top edge (half the frame above its
+        // origin), but Hero scales about its centre, so its feet sit half the
+        // *display* height below the origin. Anchor the box's bottom there.
+        const feet = heroHeight / 2 + this.hero.displayHeight / 2;
+        this.body.setOffset(0, feet - collisionHeight);
     }
 
     createAnimations(type: string): void {

@@ -427,6 +427,8 @@ describe("setCollisionBox", () => {
         player.setCollisionBox();
 
         expect(player.body.setSize).toHaveBeenCalledWith(24, 8);
-        expect(player.body.setOffset).toHaveBeenCalledWith(0, 24);
+        // Offset is from the container's top (y = -16). The scaled art's feet
+        // are at +32, so the box's bottom edge (offset + 8) must land at 48.
+        expect(player.body.setOffset).toHaveBeenCalledWith(0, 40);
     });
 });
