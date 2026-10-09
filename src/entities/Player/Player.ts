@@ -51,15 +51,16 @@ interface DrawBarOptions {
 }
 
 /**
- * Container-relative y of the bars and LEVEL+ text above the player. Fixed
- * values, independent of HERO_SCALE: the bars sit where they did before the
- * sprite was scaled up.
+ * y of the bars and LEVEL+ text above the player, relative to the top of the
+ * enemy collider (Hero.colliderTop()). These are the gaps they had above that
+ * box before the sprite was scaled up, so the bars follow the box down to the
+ * scaled sprite's feet.
  */
 export const PLAYER_OVERHEAD_Y = {
-    shield: -40,
-    health: -35,
-    resource: -30,
-    levelText: -30,
+    shield: -24,
+    health: -19,
+    resource: -14,
+    levelText: -14,
 } as const;
 
 export interface IncomingDamage {
@@ -155,11 +156,13 @@ class Player extends GameObjects.Container {
         this.createAnimations(classification);
         this.setExperience();
 
+        const overheadTop = this.hero.colliderTop();
+
         this.health = AssignResource("Health", {
             container: this,
             scene: scene,
             x: -14,
-            y: PLAYER_OVERHEAD_Y.health,
+            y: overheadTop + PLAYER_OVERHEAD_Y.health,
             ...stats,
         });
         this.add(this.health);
@@ -168,7 +171,7 @@ class Player extends GameObjects.Container {
             container: this,
             scene: scene,
             x: -14,
-            y: PLAYER_OVERHEAD_Y.resource,
+            y: overheadTop + PLAYER_OVERHEAD_Y.resource,
             ...stats,
         });
         this.add(this.resource);
@@ -177,7 +180,7 @@ class Player extends GameObjects.Container {
             container: this,
             scene: scene,
             x: -14,
-            y: PLAYER_OVERHEAD_Y.shield,
+            y: overheadTop + PLAYER_OVERHEAD_Y.shield,
             ...stats,
         });
         this.add(this.shield);
@@ -610,7 +613,7 @@ class Player extends GameObjects.Container {
             this.add(
                 new CombatText(this.scene, {
                     x: 0,
-                    y: PLAYER_OVERHEAD_Y.levelText,
+                    y: this.hero.colliderTop() + PLAYER_OVERHEAD_Y.levelText,
                     type: "level",
                     value: "LEVEL+",
                     crit: false,

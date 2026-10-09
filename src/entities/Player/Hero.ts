@@ -40,6 +40,11 @@ class Hero extends GameObjects.Sprite {
         this.body.setOffset((this.width - width) / 2, this.height - height);
     }
 
+    /** Top of the enemy collider, relative to the sprite's origin: one unscaled frame above the feet. */
+    colliderTop(): number {
+        return this.displayHeight / 2 - this.height;
+    }
+
     walk(anim: string): void {
         this.anims.play(anim, true);
     }

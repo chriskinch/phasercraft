@@ -433,16 +433,16 @@ describe("setCollisionBox", () => {
     });
 });
 
-// The bars and LEVEL+ text are placed relative to the container origin, which
-// HERO_SCALE does not move, so they must sit exactly where they did before the
-// sprite was scaled up.
+// The bars and LEVEL+ text hang off the top of the enemy collider. On main that
+// box's top was at y = -16 with the bars at -40/-35/-30 (LEVEL+ -30), so these
+// offsets keep the gaps they had above it.
 describe("PLAYER_OVERHEAD_Y", () => {
-    it("keeps the bars and LEVEL+ text at their pre-scale positions", () => {
+    it("keeps the bars and LEVEL+ text at their pre-scale gaps above the collider", () => {
         expect(PLAYER_OVERHEAD_Y).toEqual({
-            shield: -40,
-            health: -35,
-            resource: -30,
-            levelText: -30,
+            shield: -24,
+            health: -19,
+            resource: -14,
+            levelText: -14,
         });
     });
 });

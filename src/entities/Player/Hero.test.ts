@@ -23,6 +23,7 @@ describe("Hero.sizeBody", () => {
             },
         };
         Object.defineProperty(hero, "body", { value: body });
+        Object.defineProperty(hero, "displayHeight", { value: 32 * HERO_SCALE });
         hero.sizeBody();
 
         // Sprite origin at (0, 0), display origin at the frame centre.
@@ -33,6 +34,7 @@ describe("Hero.sizeBody", () => {
             top,
             width: body.sourceWidth * HERO_SCALE,
             height: body.sourceHeight * HERO_SCALE,
+            colliderTop: hero.colliderTop(),
         };
     }
 
@@ -46,5 +48,11 @@ describe("Hero.sizeBody", () => {
         expect(left + width / 2).toBe(0);
         // Feet are half the display height below the origin.
         expect(top + height).toBe((32 * HERO_SCALE) / 2);
+    });
+
+    // Player hangs the bars off colliderTop(), so it must match the body.
+    it("reports the collider's top edge", () => {
+        const { top, colliderTop } = sized();
+        expect(colliderTop).toBe(top);
     });
 });
